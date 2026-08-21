@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0005-bulk-loader-byname</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Bulk loads the same four rows into a table whose columns carry the stream field names, without an explicit mapping.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/08/21 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/08/21 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Rows to load</from>
+      <to>Text to Hop JSON</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Text to Hop JSON</from>
+      <to>Bulk load by name</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Rows to load</name>
+    <type>DataGrid</type>
+    <description>Four rows: an ordinary one, one holding the separator the old CSV based step joined values with, an all null one, and one holding a line break.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<data>
+      <line>
+        <item>1</item>
+        <item>a plain value</item>
+        <item>10.5</item>
+        <item>Y</item>
+        <item>2024-05-16</item>
+        <item>2024-05-16 10:11:12</item>
+        <item>{"name":"Goku","power":9500}</item>
+        <item>{"name":"Goku","power":9500}</item>
+        <item>123e4567-e89b-12d3-a456-426655440000</item>
+        <item>&lt;doc&gt;&lt;n&gt;Goku&lt;/n&gt;&lt;/doc&gt;</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>before,§;after</item>
+        <item>-3.25</item>
+        <item>N</item>
+        <item>2023-01-02</item>
+        <item>2023-01-02 08:09:10</item>
+        <item>{"name":"Vegeta","power":8000}</item>
+        <item>{"name":"Vegeta","power":8000}</item>
+        <item>223e4567-e89b-12d3-a456-426655440001</item>
+        <item>&lt;doc&gt;&lt;n&gt;Vegeta&lt;/n&gt;&lt;/doc&gt;</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item/>
+        <item/>
+        <item/>
+        <item/>
+        <item/>
+        <item/>
+        <item/>
+  <item/>
+        <item/>
+      </line>
+      <line>
+        <item>4</item>
+        <item>two
+lines</item>
+        <item>0.0001</item>
+        <item>Y</item>
+        <item>2020-02-29</item>
+        <item>2020-02-29 23:59:59</item>
+        <item>{"name":"Piccolo","power":3500}</item>
+        <item>{"name":"Piccolo","power":3500}</item>
+        <item>323e4567-e89b-12d3-a456-426655440002</item>
+        <item>&lt;doc&gt;&lt;n&gt;Piccolo&lt;/n&gt;&lt;/doc&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id</name>
+        <type>Integer</type>
+        <format>####0;-####0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>note</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>amount</name>
+        <type>BigNumber</type>
+        <format/>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>active</name>
+        <type>Boolean</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>day_value</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>moment_value</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd HH:mm:ss</format>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>doc_text</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>doc_json_src</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>guid</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>doc_xml</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Text to Hop JSON</name>
+    <type>SelectValues</type>
+    <description>Only doc_json_src is converted, so the same document is loaded once as a Hop string and once as a Hop JSON value.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <meta>
+        <date_format_lenient>N</date_format_lenient>
+        <length>-2</length>
+        <lenient_string_to_number>N</lenient_string_to_number>
+        <name>doc_json_src</name>
+        <precision>-2</precision>
+        <rename>doc_json</rename>
+        <roundingType>half_even</roundingType>
+        <storage_type/>
+        <type>JSON</type>
+      </meta>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Bulk load by name</name>
+    <type>MsSqlServerBulkLoader</type>
+    <description>No explicit mapping, so every incoming field goes into the column of the same name. Keep NULL values is on here, the mapped run leaves it off.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <allow_encrypted_value_modifications>N</allow_encrypted_value_modifications>
+    <batch_size>10000</batch_size>
+    <bulk_copy_timeout>60</bulk_copy_timeout>
+    <check_constraints>N</check_constraints>
+    <connection>${MSSQL_CONNECTION}</connection>
+    <fields>
+</fields>
+    <fire_triggers>N</fire_triggers>
+    <keep_identity>N</keep_identity>
+    <keep_nulls>Y</keep_nulls>
+    <only_when_have_rows>N</only_when_have_rows>
+    <schema>dbo</schema>
+    <specify_fields>N</specify_fields>
+    <table>bulkloader_byname</table>
+    <table_lock>N</table_lock>
+    <truncate>Y</truncate>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

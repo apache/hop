@@ -211,6 +211,7 @@ under the License.
 *** xref:pipeline/transforms/mongodbdelete.adoc[MongoDB delete]
 *** xref:pipeline/transforms/mongodbinput.adoc[MongoDB Input]
 *** xref:pipeline/transforms/mongodboutput.adoc[MongoDB Output]
+*** xref:pipeline/transforms/mssqlbulkloader.adoc[MS SQL Server Bulk Loader]
 *** xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping]
 *** xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
 *** xref:pipeline/transforms/mysqlbulkloader.adoc[MySQL bulk loader]

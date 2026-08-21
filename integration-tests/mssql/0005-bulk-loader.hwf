@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>0005-bulk-loader</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>The MS SQL Server bulk loader transform. Loads the same rows twice - the second round has to leave the tables at four rows, which is what proves the truncate happened - and then loads nothing at all, which still has to truncate.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/08/21 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/08/21 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Create tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>${MSSQL_CONNECTION}</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>DROP TABLE IF EXISTS master.dbo.bulkloader_mapped;
+DROP TABLE IF EXISTS master.dbo.bulkloader_byname;
+
+-- The column order of both tables is deliberately NOT the order the fields arrive in.
+-- Matching by position instead of by name would put the id into a datetime2 and the text
+-- into a decimal, so this ordering is what makes the test prove the mapping is by name.
+CREATE TABLE master.dbo.bulkloader_mapped (
+	happened_at datetime2(3) NULL,
+	total decimal(18,4) NULL,
+	row_id int NOT NULL,
+	happened_on date NULL,
+	label nvarchar(200) NULL,
+	is_active bit NULL
+);
+
+CREATE TABLE master.dbo.bulkloader_byname (
+	moment_value datetime2(3) NULL,
+	amount decimal(18,4) NULL,
+	id int NOT NULL,
+	day_value date NULL,
+	note nvarchar(200) NULL,
+	active bit NULL,
+	doc_text ${JSON_COLUMN_TYPE} NULL,
+	doc_json ${JSON_COLUMN_TYPE} NULL,
+	guid uniqueidentifier NULL,
+	doc_xml xml NULL
+);</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>Y</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Load mapped</name>
+      <description>Explicit stream field to table column mapping.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-mapped.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Load by name</name>
+      <description>Fields matched to columns by name.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-byname.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Validate</name>
+      <description>What landed in both tables.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-validate.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>704</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Load mapped again</name>
+      <description>Same load a second time, to exercise the truncate.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-mapped.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Load by name again</name>
+      <description>Same load a second time, to exercise the truncate.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-byname.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Validate after reload</name>
+      <description>Still four rows per table, so the truncate ran instead of the rows piling up.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-validate.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>704</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Load nothing</name>
+      <description>An empty stream, which still has to truncate.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-empty.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>336</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Validate empty stream truncated</name>
+      <description>The empty load emptied its own table and left the other one alone.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-bulk-loader-empty-validate.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>704</xloc>
+      <yloc>336</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Drop tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>${MSSQL_CONNECTION}</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>DROP TABLE master.dbo.bulkloader_mapped;
+DROP TABLE master.dbo.bulkloader_byname;</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>864</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Create tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Create tables</from>
+      <to>Load mapped</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Load mapped</from>
+      <to>Load by name</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Load by name</from>
+      <to>Validate</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Validate</from>
+      <to>Load mapped again</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Load mapped again</from>
+      <to>Load by name again</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Load by name again</from>
+      <to>Validate after reload</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Validate after reload</from>
+      <to>Load nothing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Load nothing</from>
+      <to>Validate empty stream truncated</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Validate empty stream truncated</from>
+      <to>Drop tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
