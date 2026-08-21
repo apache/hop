@@ -75,24 +75,24 @@ BINARY       len=      18 prec=   0 -        -> BLOB
 BINARY       len=      20 prec=   0 -        -> BLOB
 BINARY       len=      10 prec=   2 -        -> BLOB
 BINARY       len= 9999999 prec=   0 -        -> BLOB
-INET         len=      -1 prec=  -1 -        -> UNKNOWN
-INET         len=       0 prec=   0 -        -> UNKNOWN
-INET         len=       4 prec=   0 -        -> UNKNOWN
-INET         len=       9 prec=   0 -        -> UNKNOWN
-INET         len=      15 prec=   0 -        -> UNKNOWN
-INET         len=      18 prec=   0 -        -> UNKNOWN
-INET         len=      20 prec=   0 -        -> UNKNOWN
-INET         len=      10 prec=   2 -        -> UNKNOWN
-INET         len= 9999999 prec=   0 -        -> UNKNOWN
-JSON         len=      -1 prec=  -1 -        -> JSON
-JSON         len=       0 prec=   0 -        -> JSON
-JSON         len=       4 prec=   0 -        -> JSON
-JSON         len=       9 prec=   0 -        -> JSON
-JSON         len=      15 prec=   0 -        -> JSON
-JSON         len=      18 prec=   0 -        -> JSON
-JSON         len=      20 prec=   0 -        -> JSON
-JSON         len=      10 prec=   2 -        -> JSON
-JSON         len= 9999999 prec=   0 -        -> JSON
+INET         len=      -1 prec=  -1 -        -> TEXT
+INET         len=       0 prec=   0 -        -> TEXT
+INET         len=       4 prec=   0 -        -> TEXT
+INET         len=       9 prec=   0 -        -> TEXT
+INET         len=      15 prec=   0 -        -> TEXT
+INET         len=      18 prec=   0 -        -> TEXT
+INET         len=      20 prec=   0 -        -> TEXT
+INET         len=      10 prec=   2 -        -> TEXT
+INET         len= 9999999 prec=   0 -        -> TEXT
+JSON         len=      -1 prec=  -1 -        -> BLOB
+JSON         len=       0 prec=   0 -        -> BLOB
+JSON         len=       4 prec=   0 -        -> TEXT
+JSON         len=       9 prec=   0 -        -> TEXT
+JSON         len=      15 prec=   0 -        -> TEXT
+JSON         len=      18 prec=   0 -        -> TEXT
+JSON         len=      20 prec=   0 -        -> TEXT
+JSON         len=      10 prec=   2 -        -> TEXT
+JSON         len= 9999999 prec=   0 -        -> BLOB
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -226,15 +226,15 @@ BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL BLOB
 BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL BLOB
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL BLOB
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL BLOB
-INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL JSON
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL JSON
-JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL JSON
+INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL BLOB
+JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL BLOB
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
+JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TEXT

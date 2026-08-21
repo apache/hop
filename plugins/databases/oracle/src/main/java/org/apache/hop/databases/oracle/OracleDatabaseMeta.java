@@ -99,14 +99,33 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
         .build();
   }
 
+  /**
+   * Oracle grew a JSON type in 21c. Against an older server the driver's type list says so and the
+   * column becomes a CLOB, which is where JSON lived before the type existed.
+   */
+  private static final List<IDatabaseTypeRule> JSON_RULES =
+      DatabaseTypes.rules().write(IValueMeta.TYPE_JSON).as("JSON").build();
+
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
     // A 38 digit number is an integer unless this connection asked for the strict reading. That
     // option used to sit on the interface every dialect implements; it is Oracle's own.
-    List<IDatabaseTypeRule> rules = new ArrayList<>(RAW_RULES.size() + 1);
+    List<IDatabaseTypeRule> rules = new ArrayList<>(RAW_RULES.size() + JSON_RULES.size() + 1);
     rules.addAll(isStrictBigNumberInterpretation() ? NUMBER_38_AS_BIGNUMBER : NUMBER_38_AS_INTEGER);
     rules.addAll(RAW_RULES);
+    rules.addAll(JSON_RULES);
     return rules;
+  }
+
+  /** Oracle 21c is the first with a JSON type; before it, JSON lived in a CLOB. */
+  private static final int FIRST_VERSION_WITH_JSON = 21;
+
+  @Override
+  public boolean isColumnTypeAvailable(String columnType) {
+    if ("JSON".equals(columnType)) {
+      return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+    }
+    return true;
   }
 
   private static final String STRICT_BIGNUMBER_INTERPRETATION = "STRICT_NUMBER_38_INTERPRETATION";

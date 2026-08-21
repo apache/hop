@@ -157,15 +157,60 @@ Reading a column, first match wins:
 Writing a column definition:
 
 . the dialect's rules
-. the value type's own opinion
+. the value type's own opinion, if it has one
 . the dialect's `getFieldDefinition()`
-. the standard mapping
+. the fallback, below
 
 Two things follow from that order.
 A dialect overrides the standard behaviour simply by declaring a rule, and a plugin from outside can override a dialect, which is deliberate.
 
-The write order also means a value type gives the *neutral* spelling and knows about no database at all.
-`ValueMetaJson` says `JSON`; PostgreSQL says `JSONB` in its own rules.
+== A type the database does not have
+
+Every database can spell a string, a number and a date.
+Past those, a Hop type only reaches a column if some dialect said how, and most never do.
+
+So the last step is not a name: it is `ColumnTypeFallback`, which writes the value as something the database can actually hold.
+A JSON document becomes the widest text the dialect has, a UUID a 36 character string, an address a 45 character one, and a type Hop has never heard of — a geometry, a vector — text of its own length.
+Nothing has to be declared for that to happen, and a dialect that can do better says so with a write rule.
+
+This is why a value type should *not* name a column type it has not checked.
+`ValueMetaJson` used to answer `JSON` for every database, which is a type most of them do not have, and the DDL only failed once someone created a table.
+
+== A type only some versions have
+
+The other half of the question is version rather than vendor.
+SQL Server grew a JSON type in 2025 and Oracle in 21c: the same dialect, connected to an older server, must write text instead.
+
+A declared type is therefore put back to the dialect before it is used, through `isColumnTypeAvailable`:
+
+[source,java]
+----
+private static final int FIRST_VERSION_WITH_JSON = 17;   // SQL Server 2025
+
+@Override
+public boolean isColumnTypeAvailable(String columnType) {
+  if ("JSON".equals(columnType)) {
+    return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+  }
+  return true;
+}
+----
+
+A no falls back the same way as a type nobody declared.
+The dialect answers from `ServerInfo`, which carries what the driver said about the server — its version and the type list from `DatabaseMetaData.getTypeInfo()` — read once per connection, when a definition is first generated.
+
+Prefer the version.
+That type list looks like the answer and is not: several drivers, MySQL's among them, compile it in rather than asking the server, so JSON is missing from it on a MySQL that has had the type for years.
+
+Silence is not a no.
+With no connection — the golden tests, an `ALTER TABLE` assembled offline — and with a driver that will not say which version it reached, nothing contradicts the declared type and it stands.
+So declare the type your database has in its current version and let the check take care of the older ones.
+
+[NOTE]
+====
+The `SUPPORTS_BOOLEAN_DATA_TYPE` and `SUPPORTS_TIMESTAMP_DATA_TYPE` connection attributes are the hand-cranked version of this: a checkbox per type, defaulting to off, that the operator has to know to tick.
+`ColumnTypeFallback` already knows what those two fall back to — a date for a timestamp, `CHAR(1)` for a boolean — so a dialect that declares `BOOLEAN` and `TIMESTAMP` as rules can let the driver answer the question instead, and the two attributes can go.
+====
 
 == Rules are inherited
 

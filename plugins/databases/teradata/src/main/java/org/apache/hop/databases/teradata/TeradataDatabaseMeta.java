@@ -55,6 +55,9 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
           // Hop marks "a date, not a timestamp" with a precision of one.
           .read(Types.DATE, Types.TIME)
           .as(IValueMeta.TYPE_DATE, -1, 1)
+          // Teradata has had a JSON type since 15.0.
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
           .build();
 
   @Override

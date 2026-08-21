@@ -17,10 +17,12 @@
 package org.apache.hop.core.database.types;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 
 /**
@@ -95,6 +97,61 @@ public final class DatabaseTypeMapper {
       }
     }
     return null;
+  }
+
+  /**
+   * The full column definition for a value: what a CREATE TABLE or an ALTER TABLE writes.
+   *
+   * <p>The order is the dialect first, because a database knows how it spells its own types and a
+   * value type only knows what it is; then the value type's own spelling, for a value type that
+   * ships a definition; then the dialect's hand written mapping. What is new at the end is that
+   * none of those three is taken on faith: a type this database has no branch for, or one the
+   * server has been asked about and does not have, is written as something it can hold. See {@link
+   * ColumnTypeFallback}.
+   *
+   * @return the definition, never null
+   */
+  public static String getColumnDefinition(
+      IVariables variables, IDatabase database, IValueMeta valueMeta, ColumnContext context) {
+
+    String columnType = getColumnType(variables, database, valueMeta, context);
+    if (!Utils.isEmpty(columnType) && ColumnTypeFallback.serverOffers(database, columnType)) {
+      return column(valueMeta, context) + columnType + carriageReturn(context);
+    }
+
+    if (Utils.isEmpty(columnType)) {
+      String definition =
+          valueMeta.getDatabaseColumnTypeDefinition(
+              database,
+              context.getTechnicalKeyField(),
+              context.getPrimaryKeyField(),
+              context.isUseAutoIncrement(),
+              context.isAddFieldName(),
+              context.isAddCarriageReturn());
+      if (!Utils.isEmpty(definition) && ColumnTypeFallback.serverOffers(database, definition)) {
+        return definition;
+      }
+    }
+
+    IValueMeta describedAs =
+        ColumnTypeFallback.needsSubstitute(valueMeta)
+            ? ColumnTypeFallback.substituteFor(valueMeta)
+            : valueMeta;
+    return database.getFieldDefinition(
+        describedAs,
+        context.getTechnicalKeyField(),
+        context.getPrimaryKeyField(),
+        context.isUseAutoIncrement(),
+        context.isAddFieldName(),
+        context.isAddCarriageReturn());
+  }
+
+  private static String column(IValueMeta valueMeta, ColumnContext context) {
+    return context.isAddFieldName() ? valueMeta.getName() + " " : "";
+  }
+
+  private static String carriageReturn(ColumnContext context) {
+    return context.isAddCarriageReturn() ? Const.CR : "";
   }
 
   /**

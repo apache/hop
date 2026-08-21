@@ -29,10 +29,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Types;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -202,6 +205,36 @@ class ValueMetaUuidTest {
     Object out = dst.getValueFromResultSet(Mockito.mock(IDatabase.class), rs, 0);
     assertTrue(out instanceof UUID);
     assertEquals(UUID.fromString("123e4567-e89b-12d3-a456-426655440000"), out);
+  }
+
+  /**
+   * Never as the UUID object: MySQL's driver takes any Serializable and writes the serialized Java
+   * object into the column rather than refusing it, which no fallback can catch.
+   */
+  @Test
+  void testSetPreparedStatementValueWritesTheUuidAsAString() throws Exception {
+    PreparedStatement ps = Mockito.mock(PreparedStatement.class);
+    UUID u = UUID.randomUUID();
+
+    vm("id").setPreparedStatementValue(Mockito.mock(DatabaseMeta.class), ps, 1, u);
+
+    Mockito.verify(ps).setString(1, u.toString());
+    Mockito.verify(ps, Mockito.never()).setObject(Mockito.anyInt(), Mockito.any());
+  }
+
+  /**
+   * A null used to go over as Types.OTHER, which Oracle rejects with "invalid column type". The
+   * neutral handling writes a UUID as a string, so its null is a null string; a database with a
+   * native UUID type says what it wants with a binding of its own.
+   */
+  @Test
+  void testSetPreparedStatementValueWritesANullAsANullString() throws Exception {
+    PreparedStatement ps = Mockito.mock(PreparedStatement.class);
+
+    vm("id").setPreparedStatementValue(Mockito.mock(DatabaseMeta.class), ps, 1, null);
+
+    Mockito.verify(ps).setNull(1, Types.VARCHAR);
+    Mockito.verify(ps, Mockito.never()).setNull(1, Types.OTHER);
   }
 
   @Test

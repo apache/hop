@@ -17,11 +17,14 @@
 
 package org.apache.hop.databases.googlebigquery;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
@@ -35,6 +38,18 @@ import org.apache.hop.i18n.BaseMessages;
     classLoaderGroup = "googlebigquery-db")
 @GuiPlugin(id = "GUI-GoogleBigQueryDatabaseMeta")
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // BigQuery has a JSON type.
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   private static final Class<?> PKG = GoogleBigQueryDatabaseMeta.class;
 

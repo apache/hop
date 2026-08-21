@@ -87,7 +87,7 @@ class IrisDatabaseMetaTest {
         "ALTER TABLE FOO ADD COLUMN ( BAR DECIMAL(5, 7) ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN ( BAR  UNKNOWN ) ",
+        "ALTER TABLE FOO ADD COLUMN ( BAR VARCHAR(45) ) ",
         cdm.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
     String lineSep = System.getProperty("line.separator");

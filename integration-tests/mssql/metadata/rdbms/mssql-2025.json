@@ -8,10 +8,10 @@
       "usingDoubleDigit": false,
       "usingIntegratedSecurity": false,
       "accessType": 0,
-      "hostname": "${MSSQL_HOST}",
+      "hostname": "${MSSQL_2025_HOST}",
       "password": "${MSSQL_PASSWORD}",
       "pluginName": "MS SQL Server (Native)",
-      "port": "${MSSQL_PORT}",
+      "port": "${MSSQL_2025_PORT}",
       "attributes": {
         "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
         "QUOTE_ALL_FIELDS": "N",
@@ -27,5 +27,5 @@
       "username": "${MSSQL_USER}"
     }
   },
-  "name": "mssql-test-db"
+  "name": "mssql-2025"
 }

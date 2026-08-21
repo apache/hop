@@ -75,24 +75,24 @@ BINARY       len=      18 prec=   0 -        -> BYTEA
 BINARY       len=      20 prec=   0 -        -> BYTEA
 BINARY       len=      10 prec=   2 -        -> BYTEA
 BINARY       len= 9999999 prec=   0 -        -> BYTEA
-INET         len=      -1 prec=  -1 -        -> INET
-INET         len=       0 prec=   0 -        -> INET
-INET         len=       4 prec=   0 -        -> INET
-INET         len=       9 prec=   0 -        -> INET
-INET         len=      15 prec=   0 -        -> INET
-INET         len=      18 prec=   0 -        -> INET
-INET         len=      20 prec=   0 -        -> INET
-INET         len=      10 prec=   2 -        -> INET
-INET         len= 9999999 prec=   0 -        -> INET
-JSON         len=      -1 prec=  -1 -        -> JSONB
-JSON         len=       0 prec=   0 -        -> JSONB
-JSON         len=       4 prec=   0 -        -> JSONB
-JSON         len=       9 prec=   0 -        -> JSONB
-JSON         len=      15 prec=   0 -        -> JSONB
-JSON         len=      18 prec=   0 -        -> JSONB
-JSON         len=      20 prec=   0 -        -> JSONB
-JSON         len=      10 prec=   2 -        -> JSONB
-JSON         len= 9999999 prec=   0 -        -> JSONB
+INET         len=      -1 prec=  -1 -        -> IP
+INET         len=       0 prec=   0 -        -> IP
+INET         len=       4 prec=   0 -        -> IP
+INET         len=       9 prec=   0 -        -> IP
+INET         len=      15 prec=   0 -        -> IP
+INET         len=      18 prec=   0 -        -> IP
+INET         len=      20 prec=   0 -        -> IP
+INET         len=      10 prec=   2 -        -> IP
+INET         len= 9999999 prec=   0 -        -> IP
+JSON         len=      -1 prec=  -1 -        -> OBJECT
+JSON         len=       0 prec=   0 -        -> OBJECT
+JSON         len=       4 prec=   0 -        -> OBJECT
+JSON         len=       9 prec=   0 -        -> OBJECT
+JSON         len=      15 prec=   0 -        -> OBJECT
+JSON         len=      18 prec=   0 -        -> OBJECT
+JSON         len=      20 prec=   0 -        -> OBJECT
+JSON         len=      10 prec=   2 -        -> OBJECT
+JSON         len= 9999999 prec=   0 -        -> OBJECT
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> BIGSERIAL
@@ -226,15 +226,15 @@ BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL B
 BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL BYTEA; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL BYTEA
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL BYTEA; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
-INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL INET
-INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL INET; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL INET
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL INET; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
-INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL INET
-INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL INET; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
-JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL JSONB
-JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL JSONB; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL JSONB
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL JSONB; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
-JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL JSONB
-JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL JSONB; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL IP
+INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL IP; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL IP
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL IP; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL IP
+INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL IP; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL OBJECT
+JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL OBJECT; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL OBJECT
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL OBJECT; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL OBJECT
+JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL OBJECT; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;

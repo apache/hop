@@ -940,6 +940,36 @@ public interface IDatabase extends Cloneable {
   List<SqlScriptStatement> getSqlScriptStatements(String sqlScript);
 
   /**
+   * What the driver said about the server this connection reached, or null when nobody has asked it
+   * yet. See {@link org.apache.hop.core.database.types.ServerInfo}.
+   */
+  default org.apache.hop.core.database.types.ServerInfo getServerInfo() {
+    return null;
+  }
+
+  /** Hands the dialect what the driver said about the server. */
+  default void setServerInfo(org.apache.hop.core.database.types.ServerInfo serverInfo) {
+    // A dialect that does not keep it simply never overrules a declared type.
+  }
+
+  /**
+   * Whether this server has the column type this dialect just named.
+   *
+   * <p>Only a dialect can answer this, because only it knows which version of its database grew
+   * which type, and how to tell: {@code DatabaseMetaData.getTypeInfo()} looks like the answer but
+   * several drivers compile that list in rather than asking the server. So the default is yes, and
+   * a dialect with a version dependent type says otherwise by overriding this.
+   *
+   * <p>A no means the column is written as text instead; see {@link
+   * org.apache.hop.core.database.types.ColumnTypeFallback}.
+   *
+   * @param columnType the type name, without any size after it, upper case
+   */
+  default boolean isColumnTypeAvailable(String columnType) {
+    return true;
+  }
+
+  /**
    * The column type rules this dialect contributes, most specific first.
    *
    * <p>Rules are inherited through the class hierarchy in the ordinary Java way, so a dialect that

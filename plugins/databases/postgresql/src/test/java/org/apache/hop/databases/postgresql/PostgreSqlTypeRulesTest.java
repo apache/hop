@@ -75,4 +75,17 @@ class PostgreSqlTypeRulesTest {
     assertEquals(8, valueMeta.getLength());
     assertEquals(2, valueMeta.getPrecision());
   }
+
+  /**
+   * An address is Types.OTHER, which the standard mapping takes as a string. The dialect has to
+   * name it, or the value type Hop has for addresses never sees the column.
+   */
+  @Test
+  void anAddressColumnIsReadAsAnInternetAddress() throws Exception {
+    IValueMeta valueMeta = map(Types.OTHER, "inet", 0, 0);
+
+    assertEquals(IValueMeta.TYPE_INET, valueMeta.getType());
+    assertEquals(-1, valueMeta.getLength());
+    assertEquals(-1, valueMeta.getPrecision());
+  }
 }

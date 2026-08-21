@@ -29,7 +29,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -174,19 +173,18 @@ public class ValueMetaUuid extends ValueMetaBase {
     try {
       UUID u = toUuid(this, data);
       if (u == null) {
-        preparedStatement.setNull(index, Types.OTHER);
+        // A null of the type written below, which is a string. Types.OTHER is what a database
+        // with a native UUID type wants, and it says so with a binding of its own; Oracle
+        // rejects it outright with "invalid column type".
+        preparedStatement.setNull(index, Types.VARCHAR);
         return;
       }
 
-      // Optimistic try: supposes the user uses uuid ONLY if the database supports it
-      try {
-        preparedStatement.setObject(index, u);
-        return;
-      } catch (Exception ignore) {
-        // fall through to string fallback
-      }
-
-      // generic fallback to String
+      // The canonical text form, which every database that has a UUID type also accepts for it.
+      // Handing the driver the UUID object instead is not the safe try it looks like: MySQL's
+      // driver takes any Serializable and writes the serialized Java object into the column,
+      // silently, so there is nothing to fall back from. A driver that needs the object, or a
+      // type spelled out, gets it from a binding its dialect declares.
       preparedStatement.setString(index, u.toString());
     } catch (Exception e) {
       throw new HopDatabaseException(
@@ -211,20 +209,6 @@ public class ValueMetaUuid extends ValueMetaBase {
     } catch (Exception e) {
       throw new HopDatabaseException("Unable to read UUID value", e);
     }
-  }
-
-  @Override
-  public String getDatabaseColumnTypeDefinition(
-      IDatabase iDatabase,
-      String tk,
-      String pk,
-      boolean useAutoIncrement,
-      boolean addFieldName,
-      boolean addCr) {
-    // The neutral spelling. A dialect that spells it differently, such as SQL Server with
-    // UNIQUEIDENTIFIER, says so in its own type rules; see IDatabase#getTypeRules.
-    final String col = addFieldName ? getName() + " " : "";
-    return col + "UUID" + (addCr ? Const.CR : "");
   }
 
   @Override

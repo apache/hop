@@ -75,24 +75,24 @@ BINARY       len=      18 prec=   0 -        -> UNKNOWN
 BINARY       len=      20 prec=   0 -        -> UNKNOWN
 BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len= 9999999 prec=   0 -        -> UNKNOWN
-INET         len=      -1 prec=  -1 -        -> UNKNOWN
-INET         len=       0 prec=   0 -        -> UNKNOWN
-INET         len=       4 prec=   0 -        -> UNKNOWN
-INET         len=       9 prec=   0 -        -> UNKNOWN
-INET         len=      15 prec=   0 -        -> UNKNOWN
-INET         len=      18 prec=   0 -        -> UNKNOWN
-INET         len=      20 prec=   0 -        -> UNKNOWN
-INET         len=      10 prec=   2 -        -> UNKNOWN
-INET         len= 9999999 prec=   0 -        -> UNKNOWN
-JSON         len=      -1 prec=  -1 -        -> JSON
-JSON         len=       0 prec=   0 -        -> JSON
-JSON         len=       4 prec=   0 -        -> JSON
-JSON         len=       9 prec=   0 -        -> JSON
-JSON         len=      15 prec=   0 -        -> JSON
-JSON         len=      18 prec=   0 -        -> JSON
-JSON         len=      20 prec=   0 -        -> JSON
-JSON         len=      10 prec=   2 -        -> JSON
-JSON         len= 9999999 prec=   0 -        -> JSON
+INET         len=      -1 prec=  -1 -        -> varchar(45)
+INET         len=       0 prec=   0 -        -> varchar(45)
+INET         len=       4 prec=   0 -        -> varchar(45)
+INET         len=       9 prec=   0 -        -> varchar(45)
+INET         len=      15 prec=   0 -        -> varchar(45)
+INET         len=      18 prec=   0 -        -> varchar(45)
+INET         len=      20 prec=   0 -        -> varchar(45)
+INET         len=      10 prec=   2 -        -> varchar(45)
+INET         len= 9999999 prec=   0 -        -> varchar(45)
+JSON         len=      -1 prec=  -1 -        -> varchar(32767)
+JSON         len=       0 prec=   0 -        -> varchar(32767)
+JSON         len=       4 prec=   0 -        -> varchar(4)
+JSON         len=       9 prec=   0 -        -> varchar(9)
+JSON         len=      15 prec=   0 -        -> varchar(15)
+JSON         len=      18 prec=   0 -        -> varchar(18)
+JSON         len=      20 prec=   0 -        -> varchar(20)
+JSON         len=      10 prec=   2 -        -> varchar(10)
+JSON         len= 9999999 prec=   0 -        -> varchar(32767)
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> 

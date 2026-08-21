@@ -47,7 +47,7 @@ public interface IValueBinding {
 The index is the JDBC one, counting from 1.
 
 A binding that only ever writes can throw `UnsupportedOperationException` from `read`, and the other way round.
-Hop only calls the direction the rule was declared for.
+A binding is asked for in both directions, so that is how it says it does not serve this one: Hop then falls back to the value type's own handling, which is what happened before the binding existed.
 
 == Declaring one
 

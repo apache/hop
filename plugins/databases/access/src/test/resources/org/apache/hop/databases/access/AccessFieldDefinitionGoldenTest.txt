@@ -75,24 +75,24 @@ BINARY       len=      18 prec=   0 -        -> UNKNOWN
 BINARY       len=      20 prec=   0 -        -> UNKNOWN
 BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len= 9999999 prec=   0 -        -> UNKNOWN
-INET         len=      -1 prec=  -1 -        -> UNKNOWN
-INET         len=       0 prec=   0 -        -> UNKNOWN
-INET         len=       4 prec=   0 -        -> UNKNOWN
-INET         len=       9 prec=   0 -        -> UNKNOWN
-INET         len=      15 prec=   0 -        -> UNKNOWN
-INET         len=      18 prec=   0 -        -> UNKNOWN
-INET         len=      20 prec=   0 -        -> UNKNOWN
-INET         len=      10 prec=   2 -        -> UNKNOWN
-INET         len= 9999999 prec=   0 -        -> UNKNOWN
-JSON         len=      -1 prec=  -1 -        -> JSON
-JSON         len=       0 prec=   0 -        -> JSON
-JSON         len=       4 prec=   0 -        -> JSON
-JSON         len=       9 prec=   0 -        -> JSON
-JSON         len=      15 prec=   0 -        -> JSON
-JSON         len=      18 prec=   0 -        -> JSON
-JSON         len=      20 prec=   0 -        -> JSON
-JSON         len=      10 prec=   2 -        -> JSON
-JSON         len= 9999999 prec=   0 -        -> JSON
+INET         len=      -1 prec=  -1 -        -> TEXT
+INET         len=       0 prec=   0 -        -> TEXT
+INET         len=       4 prec=   0 -        -> TEXT
+INET         len=       9 prec=   0 -        -> TEXT
+INET         len=      15 prec=   0 -        -> TEXT
+INET         len=      18 prec=   0 -        -> TEXT
+INET         len=      20 prec=   0 -        -> TEXT
+INET         len=      10 prec=   2 -        -> TEXT
+INET         len= 9999999 prec=   0 -        -> TEXT
+JSON         len=      -1 prec=  -1 -        -> MEMO
+JSON         len=       0 prec=   0 -        -> MEMO
+JSON         len=       4 prec=   0 -        -> TEXT
+JSON         len=       9 prec=   0 -        -> TEXT
+JSON         len=      15 prec=   0 -        -> TEXT
+JSON         len=      18 prec=   0 -        -> TEXT
+JSON         len=      20 prec=   0 -        -> TEXT
+JSON         len=      10 prec=   2 -        -> TEXT
+JSON         len= 9999999 prec=   0 -        -> MEMO
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> AUTOINCREMENT
@@ -226,15 +226,15 @@ BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
 BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET UNKNOWN
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL UNKNOWN
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET UNKNOWN
-INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET UNKNOWN
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET UNKNOWN
-INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET UNKNOWN
-JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET JSON
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET JSON
-JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET JSON
+INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT
+INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT
+JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL MEMO
+JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET MEMO
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT
+JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
+JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT

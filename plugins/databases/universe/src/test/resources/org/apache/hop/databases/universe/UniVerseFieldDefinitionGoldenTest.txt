@@ -75,24 +75,24 @@ BINARY       len=      18 prec=   0 -        -> UNKNOWN
 BINARY       len=      20 prec=   0 -        -> UNKNOWN
 BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len= 9999999 prec=   0 -        -> UNKNOWN
-INET         len=      -1 prec=  -1 -        -> UNKNOWN
-INET         len=       0 prec=   0 -        -> UNKNOWN
-INET         len=       4 prec=   0 -        -> UNKNOWN
-INET         len=       9 prec=   0 -        -> UNKNOWN
-INET         len=      15 prec=   0 -        -> UNKNOWN
-INET         len=      18 prec=   0 -        -> UNKNOWN
-INET         len=      20 prec=   0 -        -> UNKNOWN
-INET         len=      10 prec=   2 -        -> UNKNOWN
-INET         len= 9999999 prec=   0 -        -> UNKNOWN
-JSON         len=      -1 prec=  -1 -        -> JSON
-JSON         len=       0 prec=   0 -        -> JSON
-JSON         len=       4 prec=   0 -        -> JSON
-JSON         len=       9 prec=   0 -        -> JSON
-JSON         len=      15 prec=   0 -        -> JSON
-JSON         len=      18 prec=   0 -        -> JSON
-JSON         len=      20 prec=   0 -        -> JSON
-JSON         len=      10 prec=   2 -        -> JSON
-JSON         len= 9999999 prec=   0 -        -> JSON
+INET         len=      -1 prec=  -1 -        -> VARCHAR(45)
+INET         len=       0 prec=   0 -        -> VARCHAR(45)
+INET         len=       4 prec=   0 -        -> VARCHAR(45)
+INET         len=       9 prec=   0 -        -> VARCHAR(45)
+INET         len=      15 prec=   0 -        -> VARCHAR(45)
+INET         len=      18 prec=   0 -        -> VARCHAR(45)
+INET         len=      20 prec=   0 -        -> VARCHAR(45)
+INET         len=      10 prec=   2 -        -> VARCHAR(45)
+INET         len= 9999999 prec=   0 -        -> VARCHAR(45)
+JSON         len=      -1 prec=  -1 -        -> VARCHAR(65535)
+JSON         len=       0 prec=   0 -        -> VARCHAR(65535)
+JSON         len=       4 prec=   0 -        -> VARCHAR(4)
+JSON         len=       9 prec=   0 -        -> VARCHAR(9)
+JSON         len=      15 prec=   0 -        -> VARCHAR(15)
+JSON         len=      18 prec=   0 -        -> VARCHAR(18)
+JSON         len=      20 prec=   0 -        -> VARCHAR(20)
+JSON         len=      10 prec=   2 -        -> VARCHAR(10)
+JSON         len= 9999999 prec=   0 -        -> VARCHAR(65535)
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> INTEGER
@@ -226,15 +226,15 @@ BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
 BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL UNKNOWN
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL JSON
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL JSON
-JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL JSON
+INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
+INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
+JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL VARCHAR(65535)
+JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(65535)
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL VARCHAR(15)
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(15)
+JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL VARCHAR(10)
+JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(10)
