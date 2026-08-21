@@ -99,6 +99,13 @@ public class Project extends ConfigFile implements IConfigFile {
   private String autoExportMetadataFilename;
 
   private String parentProjectName;
+
+  /**
+   * Folders to copy from the parent project home into this project. Empty means no file
+   * synchronization; metadata/variable inheritance is independent of this list.
+   */
+  private List<ParentProjectFolder> parentProjectFolders;
+
   @JsonIgnore private MultiMetadataProvider metadataProvider;
   @JsonIgnore private List<Path> pipelinePaths;
   @JsonIgnore private List<Path> workflowPaths;
@@ -113,6 +120,7 @@ public class Project extends ConfigFile implements IConfigFile {
     enforcingExecutionInHome = true;
     autoExportMetadata = false;
     autoExportMetadataFilename = "";
+    parentProjectFolders = new ArrayList<>();
   }
 
   public Project(String configFilename) {
@@ -172,6 +180,10 @@ public class Project extends ConfigFile implements IConfigFile {
       this.autoExportMetadataFilename = project.autoExportMetadataFilename;
       this.configMap = project.configMap;
       this.parentProjectName = project.parentProjectName;
+      this.parentProjectFolders =
+          project.parentProjectFolders != null
+              ? new ArrayList<>(project.parentProjectFolders)
+              : new ArrayList<>();
     } catch (Exception e) {
       throw new HopException(
           "Error saving project configuration to file '" + configFilename + "'", e);
@@ -643,6 +655,13 @@ public class Project extends ConfigFile implements IConfigFile {
       }
     }
     return resultStrings;
+  }
+
+  public List<ParentProjectFolder> getParentProjectFolders() {
+    if (parentProjectFolders == null) {
+      parentProjectFolders = new ArrayList<>();
+    }
+    return parentProjectFolders;
   }
 
   /**
