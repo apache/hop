@@ -33,6 +33,7 @@ import java.sql.SQLException;
 public final class DatabaseColumn {
 
   private final String name;
+  private final String tableName;
   private final int sqlType;
   private final String nativeTypeName;
   private final int precision;
@@ -52,6 +53,7 @@ public final class DatabaseColumn {
 
   private DatabaseColumn(
       String name,
+      String tableName,
       int sqlType,
       String nativeTypeName,
       int precision,
@@ -62,6 +64,7 @@ public final class DatabaseColumn {
       ResultSetMetaData resultSetMetaData,
       int columnIndex) {
     this.name = name;
+    this.tableName = tableName;
     this.sqlType = sqlType;
     this.nativeTypeName = nativeTypeName;
     this.precision = precision;
@@ -86,6 +89,7 @@ public final class DatabaseColumn {
       throws SQLException {
     return new DatabaseColumn(
         name,
+        readTableName(rm, index),
         rm.getColumnType(index),
         rm.getColumnTypeName(index),
         rm.getPrecision(index),
@@ -111,6 +115,7 @@ public final class DatabaseColumn {
     Object decimalDigits = columnsRow.getObject("DECIMAL_DIGITS");
     return new DatabaseColumn(
         columnsRow.getString("COLUMN_NAME"),
+        columnsRow.getString("TABLE_NAME"),
         columnsRow.getInt("DATA_TYPE"),
         columnsRow.getString("TYPE_NAME"),
         columnSize,
@@ -120,6 +125,16 @@ public final class DatabaseColumn {
         columnsRow.getString("REMARKS"),
         null,
         -1);
+  }
+
+  /** Not every JDBC driver implements getTableName(); those that don't report no table. */
+  private static String readTableName(ResultSetMetaData rm, int index) {
+    try {
+      return rm.getTableName(index);
+    } catch (Exception ignored) {
+      // This JDBC driver doesn't support the getTableName method. Nothing more we can do here.
+      return null;
+    }
   }
 
   /** Not every JDBC driver implements isSigned(); those that don't are treated as unsigned. */
@@ -134,6 +149,15 @@ public final class DatabaseColumn {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * The table this column belongs to, empty or null when the column is an expression rather than a
+   * column of a table. A dialect whose driver types a column by looking at its data needs this to
+   * tell "the driver could not type this expression" from "this is a real column of that type".
+   */
+  public String getTableName() {
+    return tableName;
   }
 
   /**
