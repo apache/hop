@@ -565,7 +565,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     CloseableHttpClient httpClient = clientBuilder.build();
 
     if (StringUtils.isNotBlank(login)) {
-      HttpHost target = HttpHost.create(URI.create(serviceUrl));
+      HttpHost target = HttpClientManager.createHttpHost(URI.create(serviceUrl));
       AuthCache authCache = new BasicAuthCache();
       BasicScheme basicAuth = new BasicScheme();
       char[] passwordChars = password != null ? password.toCharArray() : new char[0];

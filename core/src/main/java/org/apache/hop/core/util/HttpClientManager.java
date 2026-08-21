@@ -19,6 +19,7 @@ package org.apache.hop.core.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -192,6 +193,49 @@ public class HttpClientManager {
 
       return httpClientBuilder.build();
     }
+  }
+
+  /**
+   * Creates an {@link HttpHost} for the origin of the given URI.
+   *
+   * <p>{@link HttpHost#create(URI)} reads {@link URI#getHost()}, which is {@code null} whenever the
+   * authority is registry-based rather than server-based -- in practice because the host name
+   * contains an underscore. Such names are not strictly legal in DNS, but they are common on
+   * internal networks and resolve perfectly well, and for those URIs {@code getPort()} and {@code
+   * getUserInfo()} are unavailable too. So parse the authority instead of letting {@code
+   * HttpHost.create} fail with a NullPointerException.
+   */
+  public static HttpHost createHttpHost(URI uri) {
+    if (uri.getHost() != null) {
+      return new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
+    }
+
+    String authority = uri.getAuthority();
+    if (authority == null) {
+      throw new IllegalArgumentException("The URI does not specify a host: " + uri);
+    }
+
+    // Userinfo is not part of the origin, so drop it.
+    int at = authority.lastIndexOf('@');
+    String hostAndPort = at < 0 ? authority : authority.substring(at + 1);
+
+    String host = hostAndPort;
+    int port = -1;
+    int colon = hostAndPort.lastIndexOf(':');
+    // A colon inside an IPv6 literal is not a port separator.
+    if (colon > -1 && hostAndPort.indexOf(']') < colon) {
+      host = hostAndPort.substring(0, colon);
+      String portText = hostAndPort.substring(colon + 1);
+      if (!portText.isEmpty()) {
+        try {
+          port = Integer.parseInt(portText);
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("The URI does not specify a valid port: " + uri, e);
+        }
+      }
+    }
+
+    return new HttpHost(uri.getScheme(), host, port);
   }
 
   public static SSLContext getSslContextWithTrustStoreFile(
