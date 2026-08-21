@@ -1621,6 +1621,23 @@ public class PipelineMeta extends AbstractMeta
     clearChanged();
   }
 
+  /**
+   * Replace this pipeline's persisted content from a snapshot XML node. Used by GUI undo/redo.
+   *
+   * <p>Does not fire {@code PipelineMetaLoaded} (undo is not a file open) and does not call {@link
+   * #clearChanged()} — the caller decides the dirty flag.
+   */
+  public void restoreContentFromXml(
+      Node pipelineNode, String filename, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    this.metadataProvider = metadataProvider;
+    clear();
+    setFilename(filename);
+    XmlMetadataUtil.deSerializeFromXml(
+        null, null, pipelineNode, PipelineMeta.class, this, metadataProvider);
+    lookupReferencesAfterLoading();
+  }
+
   private void deSerializeXml(
       Node pipelineNode,
       String filename,

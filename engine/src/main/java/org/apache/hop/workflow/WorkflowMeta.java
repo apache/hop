@@ -449,6 +449,23 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
+   * Replace this workflow's persisted content from a snapshot XML node. Used by GUI undo/redo.
+   *
+   * <p>Does not fire {@code WorkflowMetaLoaded} (undo is not a file open) and does not call {@link
+   * #clearChanged()} — the caller decides the dirty flag.
+   */
+  public void restoreContentFromXml(
+      Node workflowNode, String filename, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    this.metadataProvider = metadataProvider;
+    clear();
+    setFilename(filename);
+    XmlMetadataUtil.deSerializeFromXml(
+        null, null, workflowNode, WorkflowMeta.class, this, metadataProvider);
+    lookupReferencesAfterLoading();
+  }
+
+  /**
    * After loading there can still be some references to other transforms or indeed this pipeline
    * that need to be set. This is happening here.
    */
