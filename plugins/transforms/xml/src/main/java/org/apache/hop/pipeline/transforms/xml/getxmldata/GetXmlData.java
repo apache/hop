@@ -37,6 +37,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
@@ -698,7 +699,8 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     return true;
   }
 
-  private boolean openNextFile() {
+  private boolean openNextFile() throws HopTransformException {
+    int fileNrOnEntry = data.filenr;
     try {
       if (data.filenr >= data.files.nrOfFiles()) {
         // finished processing!
@@ -790,13 +792,29 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         }
       }
     } catch (Exception e) {
-      logError(
+      String message =
           BaseMessages.getString(
               PKG,
               "GetXMLData.Log.UnableToOpenFile",
               "" + data.filenr,
-              data.file.toString(),
-              e.toString()));
+              data.file == null ? "" : data.file.toString(),
+              e.toString());
+
+      if (getTransformMeta().isDoingErrorHandling()) {
+        // Reading the same document from a field already diverts a parse failure to the error hop.
+        // Do the same for a file: send this one to error handling and carry on with the next file
+        // rather than killing the pipeline.
+        logBasic(message);
+        putError(data.outputRowMeta, buildEmptyRow(), 1, message, null, "GetXMLData002");
+        if (data.filenr <= fileNrOnEntry) {
+          // The failure happened before the file pointer moved on, so step over this file
+          // explicitly -- otherwise we would retry it forever.
+          data.filenr = fileNrOnEntry + 1;
+        }
+        return openNextFile();
+      }
+
+      logError(message);
       stopAll();
       setErrors(1);
       return false;
