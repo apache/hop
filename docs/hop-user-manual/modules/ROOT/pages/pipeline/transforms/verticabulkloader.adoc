@@ -57,7 +57,7 @@ This is typically significantly faster than loading data through e.g. a Table Ou
 |Target table|Name of the target table.
 |Truncate table|Truncate this table before loading data
 |Truncate on first row|Only truncate this table if there is data (when the first row is received)
-|Specify database fields|Enable this option to specify the fields in the Database fields tab. Otherwise all fields are taken into account by default.
+|Specify database fields|Enable this option to specify the fields in the Database fields tab. Otherwise all fields are taken into account by default and every incoming field is loaded into the table column of the same name (case insensitive). A field without a matching column makes the transform fail; columns that are not on the stream keep their default value.
 |===
 
 === Main options tab
@@ -74,3 +74,5 @@ This is typically significantly faster than loading data through e.g. a Table Ou
 === Database fields tab
 
 Map table columns to stream fields using 'Get Fields' and/or 'Enter Field Mapping'.
+
+This tab is only used when *Specify database fields* is enabled. Without it the incoming fields are matched to the table columns by name, so the order in which they arrive does not matter.
