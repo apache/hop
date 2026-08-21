@@ -37,6 +37,12 @@ import org.apache.hop.core.util.Utils;
 @GuiPlugin(id = "GUI-MonetDBDatabaseMeta")
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** MonetDB limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   public static final String CONST_BIGINT = "BIGINT";
   public static final String CONST_DOUBLE = "DOUBLE";
   public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<>();

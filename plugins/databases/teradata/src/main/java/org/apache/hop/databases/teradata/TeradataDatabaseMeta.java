@@ -44,6 +44,12 @@ import org.apache.hop.core.util.Utils;
 @GuiPlugin(id = "GUI-TeradataDatabaseMeta")
 public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** Teradata limits rows with TOP, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
+
   private static final List<IDatabaseTypeRule> TYPE_RULES =
       DatabaseTypes.rules()
           // Hop marks "a date, not a timestamp" with a precision of one.

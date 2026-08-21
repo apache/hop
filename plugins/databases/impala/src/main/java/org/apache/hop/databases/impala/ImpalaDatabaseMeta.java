@@ -39,6 +39,13 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     classLoaderGroup = "impala-db")
 @GuiPlugin(id = "GUI-ClouderaImpalaDatabaseMeta")
 public class ImpalaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** Impala limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
   private static final int VARCHAR_LIMIT = 65_535;
 

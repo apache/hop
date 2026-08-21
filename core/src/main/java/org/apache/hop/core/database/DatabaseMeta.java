@@ -1177,6 +1177,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.getLimitClause(nrRows);
   }
 
+  public String getLimitClausePrefix(int nrRows) {
+    return iDatabase.getLimitClausePrefix(nrRows);
+  }
+
   /**
    * @param tableName The table or schema-table combination. We expect this to be quoted properly
    *     already!

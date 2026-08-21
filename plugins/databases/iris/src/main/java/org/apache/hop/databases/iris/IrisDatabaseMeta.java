@@ -37,6 +37,12 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-IrisDatabaseMeta")
 public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** IRIS limits rows with TOP, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
   @Override

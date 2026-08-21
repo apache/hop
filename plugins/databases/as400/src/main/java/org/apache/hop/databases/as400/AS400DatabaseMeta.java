@@ -36,6 +36,13 @@ import org.apache.hop.core.row.IValueMeta;
     classLoaderGroup = "as400-db")
 @GuiPlugin(id = "GUI-AS400DatabaseMeta")
 public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** DB2 for i limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " FETCH FIRST " + nrRows + " ROWS ONLY";
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};

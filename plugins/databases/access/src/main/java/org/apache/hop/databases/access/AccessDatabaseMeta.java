@@ -37,6 +37,13 @@ import org.apache.hop.core.row.IValueMeta;
     classLoaderGroup = "access-db")
 @GuiPlugin(id = "GUI-MSAccessDatabaseMeta")
 public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** Access limits rows with TOP, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};

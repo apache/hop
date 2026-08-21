@@ -36,6 +36,13 @@ import org.apache.hop.core.util.Utils;
     classLoaderGroup = "hypersonic-db")
 @GuiPlugin(id = "GUI-HypersonicDatabaseMeta")
 public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** HSQLDB limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};

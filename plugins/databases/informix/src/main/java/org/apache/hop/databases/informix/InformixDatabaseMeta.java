@@ -38,6 +38,12 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-InformixDatabaseMeta")
 public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** Informix limits rows with FIRST, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " FIRST " + nrRows;
+  }
+
   @GuiWidgetElement(
       id = "servername",
       order = "10",
