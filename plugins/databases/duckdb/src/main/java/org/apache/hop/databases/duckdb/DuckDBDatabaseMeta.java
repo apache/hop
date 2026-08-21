@@ -49,6 +49,8 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static final List<IDatabaseTypeRule> TYPE_RULES =
       DatabaseTypes.rules()
+          // A column that carries only a time cannot be read as a timestamp on DuckDB.
+          .bind(IValueMeta.TYPE_DATE, DuckDbTimeValues::isTimeColumn, DuckDbTimeValues.BINDING)
           // As of DuckDB JDBC 0.10.0 the Calendar overloads of setDate and setTimestamp are not
           // implemented, so a configured time zone cannot be passed to the driver.
           .bind(IValueMeta.TYPE_DATE, JdbcDateValues.WITHOUT_CALENDAR_OVERLOADS)
@@ -235,8 +237,14 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  public String getSqlListOfSchemas() {
+    return "SELECT CONCAT(catalog_name, '.', schema_name) AS name FROM information_schema.schemata"
+        + " ORDER BY catalog_name, schema_name";
+  }
+
+  @Override
   public String[] getTableTypes() {
-    return new String[] {"BASE TABLE", "LOCAL TEMPORARY"};
+    return new String[] {"TABLE", "BASE TABLE", "LOCAL TEMPORARY"};
   }
 
   @Override
