@@ -387,20 +387,37 @@ public final class ParentProjectFolderSynchronizer {
   }
 
   private static void logError(ILogChannel log, String message) {
-    if (log != null) {
+    if (log == null) {
+      return;
+    }
+    try {
       log.logError(message);
+    } catch (Exception ignored) {
+      // Logging must not abort parent-folder sync (HopLogStore may not be initialized).
     }
   }
 
   private static void logError(ILogChannel log, String message, Exception e) {
-    if (log != null) {
+    if (log == null) {
+      return;
+    }
+    try {
       log.logError(message, e);
+    } catch (Exception ignored) {
+      // Logging must not abort parent-folder sync (HopLogStore may not be initialized).
     }
   }
 
   private static void logDetailed(ILogChannel log, String message) {
-    if (log != null && log.isDetailed()) {
-      log.logDetailed(message);
+    if (log == null) {
+      return;
+    }
+    try {
+      if (log.isDetailed()) {
+        log.logDetailed(message);
+      }
+    } catch (Exception ignored) {
+      // ignore
     }
   }
 

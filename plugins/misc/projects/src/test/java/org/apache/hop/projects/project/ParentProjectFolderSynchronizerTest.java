@@ -23,17 +23,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class ParentProjectFolderSynchronizerTest {
 
   @TempDir Path tempDir;
+
+  @BeforeAll
+  static void initLogging() {
+    HopLogStore.init();
+  }
 
   @Test
   void copyOnceIntoEmptyDestinationThenSkip() throws Exception {
