@@ -72,19 +72,6 @@ public class RepeatFieldsMeta extends BaseTransformMeta<RepeatFields, RepeatFiel
     this.repeats = new ArrayList<>();
   }
 
-  public RepeatFieldsMeta(RepeatFieldsMeta m) {
-    this();
-    this.groupFields.addAll(m.groupFields);
-    for (Repeat repeat : m.repeats) {
-      this.repeats.add(new Repeat(repeat));
-    }
-  }
-
-  @Override
-  public Object clone() {
-    return new RepeatFieldsMeta(this);
-  }
-
   /**
    * We only add an optional target field containing a corrected copy of the source field.
    *

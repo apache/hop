@@ -77,22 +77,6 @@ public class SalesforceUpsertMeta
   }
 
   @Override
-  public Object clone() {
-    SalesforceUpsertMeta retval = (SalesforceUpsertMeta) super.clone();
-
-    // Initialize the fields list
-    retval.fields = new ArrayList<>();
-
-    for (int i = 0; i < fields.size(); i++) {
-      if (fields.get(i) != null) {
-        //        retval.inputFields.get(i) = (SalesforceInputField) inputFields.get(i).clone();
-        retval.fields.add((SalesforceInsertField) fields.get(i).clone());
-      }
-    }
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     super.setDefault();
     setFields(new ArrayList<>());

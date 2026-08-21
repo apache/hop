@@ -67,7 +67,7 @@ public class CalculatorDialog extends BaseTransformDialog {
 
     // The order here is important... currentMeta is looked at for changes
     currentMeta = transformMeta;
-    originalMeta = transformMeta.clone();
+    originalMeta = (CalculatorMeta) transformMeta.clone();
   }
 
   @Override

@@ -102,12 +102,6 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    ActionSql je = (ActionSql) super.clone();
-    return je;
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
 

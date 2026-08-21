@@ -164,40 +164,6 @@ public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, Property
     inputFields = new ArrayList<>();
   }
 
-  public PropertyInputMeta(PropertyInputMeta m) {
-    this();
-    this.encoding = m.encoding;
-    this.fileType = m.fileType;
-    this.includingFilename = m.includingFilename;
-    this.resettingRowNumber = m.resettingRowNumber;
-    this.resolvingValueVariable = m.resolvingValueVariable;
-    this.filenameField = m.filenameField;
-    this.includeRowNumber = m.includeRowNumber;
-    this.rowNumberField = m.rowNumberField;
-    this.rowLimit = m.rowLimit;
-    this.fileField = m.fileField;
-    this.addResult = m.addResult;
-    this.dynamicFilenameField = m.dynamicFilenameField;
-    this.includeIniSection = m.includeIniSection;
-    this.iniSectionField = m.iniSectionField;
-    this.section = m.section;
-    this.shortFileFieldName = m.shortFileFieldName;
-    this.pathFieldName = m.pathFieldName;
-    this.hiddenFieldName = m.hiddenFieldName;
-    this.lastModificationTimeFieldName = m.lastModificationTimeFieldName;
-    this.uriNameFieldName = m.uriNameFieldName;
-    this.rootUriNameFieldName = m.rootUriNameFieldName;
-    this.extensionFieldName = m.extensionFieldName;
-    this.sizeFieldName = m.sizeFieldName;
-    m.files.forEach(f -> this.files.add(new PIFile(f)));
-    m.inputFields.forEach(f -> this.inputFields.add(new PIField(f)));
-  }
-
-  @Override
-  public PropertyInputMeta clone() {
-    return new PropertyInputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     shortFileFieldName = null;

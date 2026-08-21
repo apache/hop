@@ -67,11 +67,6 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
     fields = new ArrayList<>();
   }
 
-  @Override
-  public Object clone() {
-    return new SystemDataMeta(this);
-  }
-
   public SystemDataMeta(SystemDataMeta m) {
     this();
     m.fields.forEach(f -> fields.add(new SystemInfoField(f)));

@@ -315,52 +315,6 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.sheets = new ArrayList<>();
   }
 
-  public ExcelInputMeta(ExcelInputMeta m) {
-    this();
-    m.fields.forEach(f -> this.fields.add(new ExcelInputField(f)));
-    m.sheets.forEach(s -> this.sheets.add(new EISheet(s)));
-    m.files.forEach(f -> this.files.add(new EIFile(f)));
-    this.fileField = m.fileField;
-    this.sheetField = m.sheetField;
-    this.startsWithHeader = m.startsWithHeader;
-    this.schemaDefinition = m.schemaDefinition;
-    this.ignoreFields = m.ignoreFields;
-    this.stopOnEmpty = m.stopOnEmpty;
-    this.ignoreEmptyRows = m.ignoreEmptyRows;
-    this.rowNumberField = m.rowNumberField;
-    this.sheetRowNumberField = m.sheetRowNumberField;
-    this.rowLimit = m.rowLimit;
-    this.strictTypes = m.strictTypes;
-    this.errorIgnored = m.errorIgnored;
-    this.errorLineSkipped = m.errorLineSkipped;
-    this.warningFilesDestinationDirectory = m.warningFilesDestinationDirectory;
-    this.warningFilesExtension = m.warningFilesExtension;
-    this.errorFilesDestinationDirectory = m.errorFilesDestinationDirectory;
-    this.errorFilesExtension = m.errorFilesExtension;
-    this.lineNumberFilesDestinationDirectory = m.lineNumberFilesDestinationDirectory;
-    this.lineNumberFilesExtension = m.lineNumberFilesExtension;
-    this.acceptingFilenames = m.acceptingFilenames;
-    this.acceptingField = m.acceptingField;
-    this.acceptingTransformName = m.acceptingTransformName;
-    this.encoding = m.encoding;
-    this.addFilenamesToResult = m.addFilenamesToResult;
-    this.shortFileFieldName = m.shortFileFieldName;
-    this.pathFieldName = m.pathFieldName;
-    this.hiddenFieldName = m.hiddenFieldName;
-    this.lastModificationTimeFieldName = m.lastModificationTimeFieldName;
-    this.uriNameFieldName = m.uriNameFieldName;
-    this.rootUriNameFieldName = m.rootUriNameFieldName;
-    this.extensionFieldName = m.extensionFieldName;
-    this.sizeFieldName = m.sizeFieldName;
-    this.spreadSheetType = m.spreadSheetType;
-    this.password = m.password;
-  }
-
-  @Override
-  public ExcelInputMeta clone() {
-    return new ExcelInputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     startsWithHeader = true;

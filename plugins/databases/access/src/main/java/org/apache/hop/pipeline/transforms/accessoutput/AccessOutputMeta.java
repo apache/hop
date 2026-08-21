@@ -115,12 +115,6 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
     super();
   }
 
-  @Override
-  public Object clone() {
-    AccessOutputMeta retval = (AccessOutputMeta) super.clone();
-    return retval;
-  }
-
   /**
    * @return Returns the tablename.
    */

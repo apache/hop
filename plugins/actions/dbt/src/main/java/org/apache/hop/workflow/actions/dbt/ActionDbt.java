@@ -127,16 +127,6 @@ public class ActionDbt extends ActionBase implements IAction {
     this.envVars = new ArrayList<>();
   }
 
-  @Override
-  public Object clone() {
-    ActionDbt copy = (ActionDbt) super.clone();
-    // super.clone() is shallow: without this, a copied action shares its var lists with the
-    // original and editing one edits both.
-    copy.vars = copyPairs(vars);
-    copy.envVars = copyPairs(envVars);
-    return copy;
-  }
-
   private static List<DbtNameValue> copyPairs(List<DbtNameValue> source) {
     List<DbtNameValue> copy = new ArrayList<>();
     if (source != null) {

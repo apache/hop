@@ -268,7 +268,7 @@ class DatabaseLookupMetaTest {
     lookup.setFailingOnMultipleResults(true);
     lookup.setSchemaName("SCHEMA");
     lookup.setTableName("TABLE");
-    DatabaseLookupMeta meta2 = meta.clone();
+    DatabaseLookupMeta meta2 = (DatabaseLookupMeta) meta.clone();
     assertNotSame(meta2, meta);
     Lookup lookup2 = meta2.getLookup();
 

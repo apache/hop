@@ -73,7 +73,7 @@ public class DataGridDialog extends BaseTransformDialog {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
 
-    dataGridMeta = input.clone();
+    dataGridMeta = (DataGridMeta) input.clone();
   }
 
   @Override

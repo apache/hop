@@ -219,11 +219,6 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  @Override
-  public Object clone() {
-    return new ActionSftpPut(this);
-  }
-
   /** Whether this action gets its server settings from a named SFTP connection. */
   public boolean isUsingConnection() {
     return StringUtils.isNotEmpty(connection);

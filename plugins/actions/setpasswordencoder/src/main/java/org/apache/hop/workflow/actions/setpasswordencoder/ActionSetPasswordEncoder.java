@@ -79,18 +79,6 @@ public class ActionSetPasswordEncoder extends ActionBase implements Cloneable, I
     this("");
   }
 
-  public ActionSetPasswordEncoder(ActionSetPasswordEncoder other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.encoderPluginId = other.encoderPluginId;
-    this.keyVariable = other.keyVariable;
-    this.keyFile = other.keyFile;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionSetPasswordEncoder(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) throws HopException {
     result.setResult(false);

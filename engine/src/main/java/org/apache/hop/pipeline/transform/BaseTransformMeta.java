@@ -52,6 +52,7 @@ import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.util.HopMetadataCopyUtil;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -225,6 +226,13 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       } finally {
         lock.readLock().unlock();
       }
+
+      // Object.clone() is shallow, so every list, map and nested value object is still shared with
+      // the original. Deep-copy the state that gets persisted so the copy can be used as an
+      // independent snapshot, for change detection and for undo. Fixes issue #8022.
+      //
+      HopMetadataCopyUtil.copyMetadataProperties(this, retval);
+
       return retval;
     } catch (CloneNotSupportedException e) {
       return null;

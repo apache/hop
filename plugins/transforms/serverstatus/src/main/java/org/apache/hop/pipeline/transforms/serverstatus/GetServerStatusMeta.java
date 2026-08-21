@@ -112,31 +112,6 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     responseNsField = "responseNs";
   }
 
-  public GetServerStatusMeta(GetServerStatusMeta meta) {
-    this.serverField = meta.serverField;
-    this.errorMessageField = meta.errorMessageField;
-    this.statusDescriptionField = meta.statusDescriptionField;
-    this.serverLoadField = meta.serverLoadField;
-    this.memoryFreeField = meta.memoryFreeField;
-    this.memoryTotalField = meta.memoryTotalField;
-    this.cpuCoresField = meta.cpuCoresField;
-    this.cpuProcessTimeField = meta.cpuProcessTimeField;
-    this.osNameField = meta.osNameField;
-    this.osVersionField = meta.osVersionField;
-    this.osArchitectureField = meta.osArchitectureField;
-    this.activePipelinesField = meta.activePipelinesField;
-    this.finishedPipelinesField = meta.finishedPipelinesField;
-    this.activeWorkflowsField = meta.activeWorkflowsField;
-    this.finishedWorkflowsField = meta.finishedWorkflowsField;
-    this.availableField = meta.availableField;
-    this.responseNsField = meta.responseNsField;
-  }
-
-  @Override
-  public GetServerStatusMeta clone() {
-    return new GetServerStatusMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

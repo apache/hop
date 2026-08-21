@@ -190,63 +190,6 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     embeddedImages = new ArrayList<>();
   }
 
-  public MailMeta(MailMeta m) {
-    this();
-    this.addMessageToOutput = m.addMessageToOutput;
-    this.attachContentField = m.attachContentField;
-    this.attachContentFileNameField = m.attachContentFileNameField;
-    this.attachContentFromField = m.attachContentFromField;
-    this.authenticationPassword = m.authenticationPassword;
-    this.authenticationUser = m.authenticationUser;
-    this.checkServerIdentity = m.checkServerIdentity;
-    this.comment = m.comment;
-    this.connectionName = m.connectionName;
-    this.contactPerson = m.contactPerson;
-    this.contactPhone = m.contactPhone;
-    this.destination = m.destination;
-    this.destinationBCc = m.destinationBCc;
-    this.destinationCc = m.destinationCc;
-    this.dynamicFieldName = m.dynamicFieldName;
-    this.dynamicWildcard = m.dynamicWildcard;
-    this.dynamicZipFilename = m.dynamicZipFilename;
-    this.encoding = m.encoding;
-    this.filenameDynamic = m.filenameDynamic;
-    this.importance = m.importance;
-    this.includeDate = m.includeDate;
-    this.includeSubFolders = m.includeSubFolders;
-    this.includingFiles = m.includingFiles;
-    this.messageOutputField = m.messageOutputField;
-    this.onlySendComment = m.onlySendComment;
-    this.port = m.port;
-    this.priority = m.priority;
-    this.replyAddress = m.replyAddress;
-    this.replyName = m.replyName;
-    this.replyToAddresses = m.replyToAddresses;
-    this.secureConnectionType = m.secureConnectionType;
-    this.sensitivity = m.sensitivity;
-    this.server = m.server;
-    this.sourceFileFolderName = m.sourceFileFolderName;
-    this.sourceWildCard = m.sourceWildCard;
-    this.subject = m.subject;
-    this.trustedHosts = m.trustedHosts;
-    this.useHTML = m.useHTML;
-    this.usePriority = m.usePriority;
-    this.useXOAuth2 = m.useXOAuth2;
-    this.usingAuthentication = m.usingAuthentication;
-    this.usingSecureAuthentication = m.usingSecureAuthentication;
-    this.zipFilename = m.zipFilename;
-    this.zipFilenameDynamic = m.zipFilenameDynamic;
-    this.zipFiles = m.zipFiles;
-    this.zipLimitSize = m.zipLimitSize;
-    m.embeddedImages.forEach(
-        imageField -> this.embeddedImages.add(new MailEmbeddedImageField(imageField)));
-  }
-
-  @Override
-  public Object clone() {
-    return new MailMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

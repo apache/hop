@@ -119,27 +119,6 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
                     ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT));
   }
 
-  public XsdValidatorMeta(XsdValidatorMeta m) {
-    this();
-    this.addValidationMessage = m.addValidationMessage;
-    this.allowExternalEntities = m.allowExternalEntities;
-    this.ifXmlInvalid = m.ifXmlInvalid;
-    this.ifXmlValid = m.ifXmlValid;
-    this.outputStringField = m.outputStringField;
-    this.resultFieldName = m.resultFieldName;
-    this.validationMessageField = m.validationMessageField;
-    this.xmlSourceFile = m.xmlSourceFile;
-    this.xmlStream = m.xmlStream;
-    this.xsdDefinedField = m.xsdDefinedField;
-    this.xsdFilename = m.xsdFilename;
-    this.xsdSource = m.xsdSource;
-  }
-
-  @Override
-  public Object clone() {
-    return new XsdValidatorMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

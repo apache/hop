@@ -86,24 +86,6 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     parameters = new ArrayList<>();
   }
 
-  public XsltMeta(XsltMeta m) {
-    this();
-    this.fieldName = m.fieldName;
-    this.resultFieldName = m.resultFieldName;
-    this.xslFactory = m.xslFactory;
-    this.xslFieldIsAFile = m.xslFieldIsAFile;
-    this.xslFileField = m.xslFileField;
-    this.xslFileFieldUse = m.xslFileFieldUse;
-    this.xslFilename = m.xslFilename;
-    m.outputProperties.forEach(p -> this.outputProperties.add(new OutputProperty(p)));
-    m.parameters.forEach(p -> this.parameters.add(new Parameter(p)));
-  }
-
-  @Override
-  public Object clone() {
-    return new XsltMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

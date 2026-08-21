@@ -113,11 +113,6 @@ public class SurefireReportOutputMeta
   }
 
   @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  @Override
   public void setDefault() {
     filename = "${IT_SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml";
     suiteName = "${PROJECT_NAME}";

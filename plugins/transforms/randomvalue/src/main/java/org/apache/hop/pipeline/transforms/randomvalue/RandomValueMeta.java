@@ -71,11 +71,6 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
   }
 
   @Override
-  public RandomValueMeta clone() {
-    return new RandomValueMeta(this);
-  }
-
-  @Override
   public void getFields(
       IRowMeta row,
       String name,

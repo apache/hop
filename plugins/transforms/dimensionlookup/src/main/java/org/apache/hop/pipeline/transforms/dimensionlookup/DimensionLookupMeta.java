@@ -210,33 +210,6 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   @Override
-  public DimensionLookupMeta clone() {
-    return new DimensionLookupMeta(this);
-  }
-
-  public DimensionLookupMeta(DimensionLookupMeta m) {
-    this();
-    this.schemaName = m.schemaName;
-    this.tableName = m.tableName;
-    this.connection = m.connection;
-    this.update = m.update;
-    this.fields = new DLFields(m.fields);
-    this.sequenceName = m.sequenceName;
-    this.tkSourceField = m.tkSourceField;
-    this.commitSize = m.commitSize;
-    this.useBatchUpdate = m.useBatchUpdate;
-    this.minYear = m.minYear;
-    this.maxYear = m.maxYear;
-    this.cacheSize = m.cacheSize;
-    this.usingStartDateAlternative = m.usingStartDateAlternative;
-    this.startDateAlternative = m.startDateAlternative;
-    this.startDateFieldName = m.startDateFieldName;
-    this.preloadingCache = m.preloadingCache;
-    this.ignoreZeroLengthValidity = m.ignoreZeroLengthValidity;
-    this.unknownRowCheckDisabled = m.unknownRowCheckDisabled;
-  }
-
-  @Override
   public void setDefault() {
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "DimensionLookupMeta.DefaultTableName");

@@ -198,16 +198,6 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    ActionMail je = (ActionMail) super.clone();
-
-    fileTypes = je.fileTypes;
-    embeddedimages = je.embeddedimages;
-
-    return je;
-  }
-
-  @Override
   public Result execute(Result result, int nr) {
     File masterZipfile = null;
 

@@ -281,14 +281,4 @@ public class TeraFastMeta extends BaseTransformMeta<ITransform, ITransformData> 
     }
     return null;
   }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see BaseTransformMeta#clone()
-   */
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
 }

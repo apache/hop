@@ -59,17 +59,6 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
     this.targetFields = new ArrayList<>();
   }
 
-  public FlattenerMeta(FlattenerMeta m) {
-    this();
-    this.fieldName = m.fieldName;
-    m.targetFields.forEach(f -> this.targetFields.add(new FField(f)));
-  }
-
-  @Override
-  public FlattenerMeta clone() {
-    return new FlattenerMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

@@ -569,22 +569,6 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     this.outputFields = outputFields;
   }
 
-  /**
-   * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
-   * step meta object. Be sure to create proper deep copies if the step configuration is stored in
-   * modifiable objects.
-   *
-   * <p>See org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta.clone() for an example on
-   * creating a deep copy.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
   @Override
   public void getFields(
       IRowMeta rowMeta,

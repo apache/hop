@@ -94,21 +94,6 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     this("", "");
   }
 
-  public ActionAs400Command(ActionAs400Command other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.server = other.server;
-    this.user = other.user;
-    this.password = other.password;
-    this.proxyHost = other.proxyHost;
-    this.proxyPort = other.proxyPort;
-    this.command = other.command;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionAs400Command(this);
-  }
-
   /**
    * @return Returns the userName.
    */

@@ -74,22 +74,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
     this.aggregates = new ArrayList<>();
   }
 
-  public MemoryGroupByMeta(MemoryGroupByMeta meta) {
-    this();
-    for (GGroup group : meta.groups) {
-      groups.add(new GGroup(group));
-    }
-    for (GAggregate aggregate : meta.aggregates) {
-      aggregates.add(new GAggregate(aggregate));
-    }
-    this.alwaysGivingBackOneRow = meta.alwaysGivingBackOneRow;
-  }
-
-  @Override
-  public MemoryGroupByMeta clone() {
-    return new MemoryGroupByMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta r,

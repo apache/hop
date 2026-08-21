@@ -118,21 +118,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     super(); // allocate BaseTransformMeta
   }
 
-  public DatabaseJoinMeta(final DatabaseJoinMeta clone) {
-    super();
-
-    this.connection = clone.connection;
-    this.sql = clone.sql;
-    this.rowLimit = clone.rowLimit;
-    this.outerJoin = clone.outerJoin;
-    this.replaceVariables = clone.replaceVariables;
-    for (ParameterField field : clone.parameters) {
-      parameters.add(new ParameterField(field));
-    }
-    this.cached = clone.cached;
-    this.cacheSize = clone.cacheSize;
-  }
-
   public String getConnection() {
     return connection;
   }
@@ -227,11 +212,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
    */
   public void setSql(String sql) {
     this.sql = sql;
-  }
-
-  @Override
-  public Object clone() {
-    return new DatabaseJoinMeta(this);
   }
 
   @Override

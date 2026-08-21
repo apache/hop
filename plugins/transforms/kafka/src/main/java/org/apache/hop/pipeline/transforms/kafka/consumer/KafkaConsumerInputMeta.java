@@ -244,31 +244,6 @@ public class KafkaConsumerInputMeta
     headersField = new HeadersConsumerField("");
   }
 
-  public KafkaConsumerInputMeta(KafkaConsumerInputMeta m) {
-    super(m);
-    this.keyField = new KeyConsumerField(m.keyField);
-    this.messageField = new MessageConsumerField(m.messageField);
-    this.topicField = new TopicConsumerField(m.topicField);
-    this.offsetField = new OffsetConsumerField(m.offsetField);
-    this.partitionField = new PartitionConsumerField(m.partitionField);
-    this.timestampField = new TimestampConsumerField(m.timestampField);
-    this.filename = m.filename;
-    this.executionInformationLocation = m.executionInformationLocation;
-    this.executionDataProfile = m.executionDataProfile;
-    this.batchSize = m.batchSize;
-    this.batchDuration = m.batchDuration;
-    this.subTransform = m.subTransform;
-    this.directBootstrapServers = m.directBootstrapServers;
-    this.topics = new ArrayList<>(m.topics);
-    this.consumerGroup = m.consumerGroup;
-    this.autoCommit = m.autoCommit;
-    this.stopWhenIdle = m.stopWhenIdle;
-    this.maxIdleTimeMs = m.maxIdleTimeMs;
-    this.mappingMetaRetriever = m.mappingMetaRetriever;
-    this.options = new ArrayList<>();
-    m.options.forEach(o -> this.options.add(new KafkaOption(o)));
-  }
-
   public RowMeta getRowMeta(String origin, IVariables variables) throws HopTransformException {
     RowMeta rowMeta = new RowMeta();
     putFieldOnRowMeta(getKeyField(), rowMeta, origin, variables);
@@ -310,11 +285,6 @@ public class KafkaConsumerInputMeta
             getOffsetField(),
             getTimestampField(),
             getHeadersField()));
-  }
-
-  @Override
-  public KafkaConsumerInputMeta clone() {
-    return new KafkaConsumerInputMeta(this);
   }
 
   @Override

@@ -996,7 +996,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   }
 
   private PipelineMeta loadKafkaPipelineMeta() throws HopException {
-    KafkaConsumerInputMeta copyMeta = meta.clone();
+    KafkaConsumerInputMeta copyMeta = (KafkaConsumerInputMeta) meta.clone();
     updateMeta(copyMeta);
     return TransformWithMappingMeta.loadMappingMeta(copyMeta, getMetadataProvider(), variables);
   }

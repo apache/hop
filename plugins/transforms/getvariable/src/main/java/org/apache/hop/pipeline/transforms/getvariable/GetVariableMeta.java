@@ -59,16 +59,6 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
     this.fieldDefinitions = new ArrayList<>();
   }
 
-  public GetVariableMeta(GetVariableMeta m) {
-    this();
-    m.fieldDefinitions.forEach(f -> this.fieldDefinitions.add(new FieldDefinition(f)));
-  }
-
-  @Override
-  public GetVariableMeta clone() {
-    return new GetVariableMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta rowMeta,

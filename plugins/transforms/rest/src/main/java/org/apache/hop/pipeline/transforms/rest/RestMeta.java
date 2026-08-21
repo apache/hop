@@ -300,13 +300,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   }
 
   @Override
-  public Object clone() {
-    RestMeta retval = (RestMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     headerFields = new ArrayList<>();
     parameterFields = new ArrayList<>();

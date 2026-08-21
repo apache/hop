@@ -146,11 +146,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public Repeat clone() {
-    return (Repeat) super.clone();
-  }
-
-  @Override
   public Result execute(Result prevResult, int nr) throws HopException {
 
     // So now we execute the transformation or workflow and continue until the variable has a

@@ -56,11 +56,6 @@ public class ActionJoin extends ActionBase {
     super(other.getName(), other.getDescription(), other.getPluginId());
   }
 
-  @Override
-  public Object clone() {
-    return new ActionJoin(this);
-  }
-
   /**
    * Execute this action and return the result. In this case it means, just set the result boolean
    * in the Result class.

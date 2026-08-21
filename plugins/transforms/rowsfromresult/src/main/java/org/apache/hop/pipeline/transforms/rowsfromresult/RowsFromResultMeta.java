@@ -104,16 +104,6 @@ public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFr
     this.resultFields = new ArrayList<>();
   }
 
-  public RowsFromResultMeta(RowsFromResultMeta m) {
-    this();
-    m.resultFields.forEach(field -> this.resultFields.add(new ResultRowField(field)));
-  }
-
-  @Override
-  public Object clone() {
-    return new RowsFromResultMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta r,

@@ -206,11 +206,6 @@ public class CrateDBBulkLoaderMeta
     fields = new ArrayList<>();
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   public String getHttpLogin() {
     return httpLogin;
   }

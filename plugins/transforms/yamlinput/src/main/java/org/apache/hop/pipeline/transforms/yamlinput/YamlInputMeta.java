@@ -163,30 +163,6 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     yamlField = "";
   }
 
-  public YamlInputMeta(YamlInputMeta m) {
-    this();
-    this.includeFilename = m.includeFilename;
-    this.filenameField = m.filenameField;
-    this.includeRowNumber = m.includeRowNumber;
-    this.rowNumberField = m.rowNumberField;
-    this.rowLimit = m.rowLimit;
-    this.encoding = m.encoding;
-    this.yamlField = m.yamlField;
-    this.inFields = m.inFields;
-    this.sourceFile = m.sourceFile;
-    this.addingResultFile = m.addingResultFile;
-    this.validating = m.validating;
-    this.ignoringEmptyFile = m.ignoringEmptyFile;
-    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    m.yamlFiles.forEach(y -> this.yamlFiles.add(new YamlFile(y)));
-    m.inputFields.forEach(f -> this.inputFields.add(new YamlInputField(f)));
-  }
-
-  @Override
-  public YamlInputMeta clone() {
-    return new YamlInputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta r,

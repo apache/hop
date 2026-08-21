@@ -63,11 +63,6 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public EndRepeat clone() {
-    return (EndRepeat) super.clone();
-  }
-
-  @Override
   public boolean isEvaluation() {
     return true;
   }

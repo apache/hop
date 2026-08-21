@@ -165,13 +165,6 @@ public class ChangeFileEncodingMeta
   }
 
   @Override
-  public Object clone() {
-    ChangeFileEncodingMeta retval = (ChangeFileEncodingMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     addSourceResultFilenames = false;
     addTargetResultFilenames = false;

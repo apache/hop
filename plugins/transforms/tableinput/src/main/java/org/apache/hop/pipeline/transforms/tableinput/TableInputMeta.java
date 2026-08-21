@@ -103,22 +103,6 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     super();
   }
 
-  public TableInputMeta(TableInputMeta m) {
-    this();
-    this.connection = m.connection;
-    this.executeEachInputRow = m.executeEachInputRow;
-    this.lookup = m.lookup;
-    this.rowLimit = m.rowLimit;
-    this.sql = m.sql;
-    this.sqlFromFile = m.sqlFromFile;
-    this.variableReplacementActive = m.variableReplacementActive;
-  }
-
-  @Override
-  public Object clone() {
-    return new TableInputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     sql = "SELECT <values> FROM <table name> WHERE <conditions>";
