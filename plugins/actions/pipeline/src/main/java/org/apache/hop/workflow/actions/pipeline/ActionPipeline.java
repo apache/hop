@@ -43,6 +43,7 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -195,6 +196,13 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "wait_until_finished")
   private boolean waitingToFinish = true;
+
+  /**
+   * Maximum time to wait for the pipeline to complete, in milliseconds. Empty or 0 means wait
+   * indefinitely. Only used when {@link #waitingToFinish} is true.
+   */
+  @HopMetadataProperty(key = "wait_timeout")
+  private String waitTimeout;
 
   @HopMetadataProperty(key = "parameters")
   private ParameterDefinition parameterDefinition;
@@ -556,13 +564,22 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           // Wait until we're done with this pipeline
           //
           if (isWaitingToFinish()) {
-            pipeline.waitUntilFinished();
+            long timeoutMs = ExecutionWait.parseTimeoutMs(this, waitTimeout);
+            boolean finishedInTime = ExecutionWait.waitForPipeline(pipeline, timeoutMs);
+            if (!finishedInTime) {
+              logError(
+                  BaseMessages.getString(
+                      PKG, "ActionPipeline.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
+            }
 
             if (parentWorkflow.isStopped() || pipeline.getErrors() != 0) {
               pipeline.stopAll();
               result.setNrErrors(1);
             }
             updateResult(result);
+            if (!finishedInTime) {
+              result.setNrErrors(result.getNrErrors() + 1);
+            }
           }
           if (setLogfile) {
             ResultFile resultFile =
@@ -796,6 +813,14 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
    */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
+  }
+
+  public String getWaitTimeout() {
+    return waitTimeout;
+  }
+
+  public void setWaitTimeout(String waitTimeout) {
+    this.waitTimeout = waitTimeout;
   }
 
   public String getRunConfiguration() {

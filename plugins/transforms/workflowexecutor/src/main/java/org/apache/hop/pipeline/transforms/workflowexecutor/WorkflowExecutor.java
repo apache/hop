@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.workflowexecutor;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -34,6 +35,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -254,7 +256,38 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     getPipeline().addActiveSubWorkflow(getTransformName(), data.executorWorkflow);
 
-    Result result = data.executorWorkflow.startExecution();
+    AtomicReference<Result> resultRef = new AtomicReference<>();
+    Thread runner =
+        new Thread(
+            () -> resultRef.set(data.executorWorkflow.startExecution()),
+            "WorkflowExecutor-" + getTransformName());
+    runner.start();
+
+    long timeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
+    boolean finishedInTime =
+        ExecutionWait.waitForThread(
+            runner, () -> isStopped() || getPipeline().isStopped(), timeoutMs);
+
+    if (!finishedInTime || isStopped() || getPipeline().isStopped()) {
+      if (!finishedInTime) {
+        logError(
+            BaseMessages.getString(
+                PKG, "WorkflowExecutor.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
+      }
+      data.executorWorkflow.stopExecution();
+      ExecutionWait.joinQuietly(runner);
+    }
+
+    Result result = resultRef.get();
+    if (result == null) {
+      result = new Result();
+      result.setResult(false);
+      result.setNrErrors(1);
+    }
+    if (!finishedInTime) {
+      result.setResult(false);
+      result.setNrErrors(Math.max(1, result.getNrErrors()));
+    }
 
     // First the natural output...
     // Execution-result rows keep the first input row fields (e.g. filename) and append metrics.
