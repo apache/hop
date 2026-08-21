@@ -201,6 +201,37 @@ public class ProjectTest {
   }
 
   @Test
+  public void testParentProjectFoldersSerialization() throws Exception {
+    File tempFile = Files.createTempFile("project-config-parent-folders", ".json").toFile();
+    tempFile.deleteOnExit();
+
+    try {
+      Project project = new Project(tempFile.getAbsolutePath());
+      ParentProjectFolder folder = new ParentProjectFolder();
+      folder.setFolder("templates");
+      folder.setCopyOnce(true);
+      folder.setCopyOnEnable(true);
+      folder.setOverwrite(false);
+      folder.setExclusionWildcard(".*\\.tmp");
+      project.getParentProjectFolders().add(folder);
+      project.saveToFile();
+
+      Project readProject = new Project(tempFile.getAbsolutePath());
+      readProject.readFromFile();
+
+      assertEquals(1, readProject.getParentProjectFolders().size());
+      ParentProjectFolder read = readProject.getParentProjectFolders().get(0);
+      assertEquals("templates", read.getFolder());
+      assertTrue(read.isCopyOnce());
+      assertTrue(read.isCopyOnEnable());
+      assertFalse(read.isOverwrite());
+      assertEquals(".*\\.tmp", read.getExclusionWildcard());
+    } finally {
+      tempFile.delete();
+    }
+  }
+
+  @Test
   public void testIsArchiveUri() {
     assertTrue(ProjectConfig.isArchiveUri("zip:file:///tmp/project.zip!/my-project"));
     assertTrue(ProjectConfig.isArchiveUri("zip:http://example.com/p.zip!/folder"));
