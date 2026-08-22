@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2161,8 +2162,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    */
   private static String toDisplayPath(String path, String projectHome) {
     if (!Utils.isEmpty(projectHome) && path.startsWith(projectHome)) {
-      String rel = path.substring(projectHome.length());
-      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
+      String rel = path.substring(projectHome.length()).replace(File.separatorChar, '/');
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : '/' + rel);
     }
     return path;
   }
