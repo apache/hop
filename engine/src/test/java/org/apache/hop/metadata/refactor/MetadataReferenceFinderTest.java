@@ -18,6 +18,8 @@
 package org.apache.hop.metadata.refactor;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -212,6 +214,32 @@ class MetadataReferenceFinderTest {
                 "Same",
                 "Same",
                 List.of(new MetadataObjectReference("pipeline-run-configuration", "Local"))));
+  }
+
+  // ---------------------------------------------------------------------------
+  // normalizeFilePath
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void normalizeFilePath_nullReturnsNull() throws Exception {
+    assertNull(MetadataReferenceFinder.normalizeFilePath(null));
+  }
+
+  @Test
+  void normalizeFilePath_blankStringIsTrimmedToEmpty() throws Exception {
+    assertEquals("", MetadataReferenceFinder.normalizeFilePath("   "));
+  }
+
+  @Test
+  void normalizeFilePath_trimsLeadingAndTrailingWhitespace() throws Exception {
+    assertEquals("/some/path.hpl", MetadataReferenceFinder.normalizeFilePath("  /some/path.hpl  "));
+  }
+
+  @Test
+  void normalizeFilePath_trimsThenReplacesSeparators() throws Exception {
+    assertEquals(
+        "some/nested/path.hpl",
+        MetadataReferenceFinder.normalizeFilePath("some\\nested\\path.hpl  "));
   }
 
   // ---------------------------------------------------------------------------
