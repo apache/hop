@@ -17,23 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
-import java.sql.PreparedStatement;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transforms.databasejoin.cache.DatabaseCache;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@SuppressWarnings("java:S1104")
-public class DatabaseJoinData extends BaseTransformData implements ITransformData {
-  public Database db;
-  public PreparedStatement pstmt;
-  public DatabaseCache cache;
+import org.junit.jupiter.api.Test;
 
-  IRowMeta outputRowMeta;
-  IRowMeta lookupRowMeta;
+/** Unit test for {@link DatabaseJoinData} */
+class DatabaseJoinDataTest {
 
-  public int[] keynrs; // parameter value index in an input row...
-  public Object[] notfound; // Values in case nothing is found...
-  public boolean isCanceled;
+  @Test
+  void defaultsAreUnset() {
+    DatabaseJoinData data = new DatabaseJoinData();
+    assertNull(data.db);
+    assertNull(data.pstmt);
+    assertNull(data.cache);
+    assertNull(data.notfound);
+    assertNull(data.keynrs);
+    assertFalse(data.isCanceled);
+  }
 }
