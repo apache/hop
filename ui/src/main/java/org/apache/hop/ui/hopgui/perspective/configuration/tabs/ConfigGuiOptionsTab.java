@@ -83,19 +83,13 @@ public class ConfigGuiOptionsTab {
   private Composite lookComp;
   private ScrolledComposite lookScrolledComposite;
 
-  private FontData defaultFontData;
-  private Font defaultFont;
   private FontData fixedFontData;
   private Font fixedFont;
   private FontData graphFontData;
   private Font graphFont;
-  private FontData noteFontData;
-  private Font noteFont;
 
-  private Canvas wDefaultCanvas;
   private Canvas wFixedCanvas;
   private Canvas wGraphCanvas;
-  private Canvas wNoteCanvas;
 
   private Text wIconSize;
   private Text wLineWidth;
@@ -167,18 +161,12 @@ public class ConfigGuiOptionsTab {
       PropsUi props = PropsUi.getInstance();
 
       // Reload all values from PropsUi
-      defaultFontData = props.getDefaultFont();
       fixedFontData = props.getFixedFont();
       graphFontData = props.getGraphFont();
-      noteFontData = props.getNoteFont();
 
       // Recreate fonts
       Shell shell = wIconSize.getShell();
       Display display = shell.getDisplay();
-      if (defaultFont != null && !defaultFont.isDisposed()) {
-        defaultFont.dispose();
-      }
-      defaultFont = new Font(display, defaultFontData);
       if (fixedFont != null && !fixedFont.isDisposed()) {
         fixedFont.dispose();
       }
@@ -187,16 +175,10 @@ public class ConfigGuiOptionsTab {
         graphFont.dispose();
       }
       graphFont = new Font(display, graphFontData);
-      if (noteFont != null && !noteFont.isDisposed()) {
-        noteFont.dispose();
-      }
-      noteFont = new Font(display, noteFontData);
 
       // Redraw canvases
-      wDefaultCanvas.redraw();
       wFixedCanvas.redraw();
       wGraphCanvas.redraw();
-      wNoteCanvas.redraw();
 
       // Reload text fields and checkboxes
       wIconSize.setText(Integer.toString(props.getIconSize()));
@@ -312,8 +294,6 @@ public class ConfigGuiOptionsTab {
     Shell shell = wTabFolder.getShell();
     PropsUi props = PropsUi.getInstance();
     int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
-    int h = (int) (40 * props.getZoomFactor());
 
     CTabItem wLookTab = new CTabItem(wTabFolder, SWT.NONE);
     wLookTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -332,14 +312,10 @@ public class ConfigGuiOptionsTab {
     wLookComp.setLayout(lookLayout);
 
     // Initialize fonts
-    defaultFontData = props.getDefaultFont();
-    defaultFont = new Font(shell.getDisplay(), defaultFontData);
     fixedFontData = props.getFixedFont();
     fixedFont = new Font(shell.getDisplay(), fixedFontData);
     graphFontData = props.getGraphFont();
     graphFont = new Font(shell.getDisplay(), graphFontData);
-    noteFontData = props.getNoteFont();
-    noteFont = new Font(shell.getDisplay(), noteFontData);
 
     // Track the last control for vertical positioning
     Control lastControl = null;
@@ -580,19 +556,6 @@ public class ConfigGuiOptionsTab {
     // Fonts inside the expandable content
     Control lastFontControl = null;
 
-    // Default font
-    Control[] defaultFontControls =
-        createFontPicker(
-            fontsContent, "EnterOptionsDialog.DefaultFont.Label", shell, lastFontControl, margin);
-    wDefaultCanvas = (Canvas) defaultFontControls[0];
-    wDefaultCanvas.addPaintListener(this::paintDefaultFont);
-    wDefaultCanvas.addListener(SWT.MouseDown, e -> editDefaultFont(shell));
-    Button wbDefaultFont = (Button) defaultFontControls[1];
-    wbDefaultFont.addListener(SWT.Selection, e -> editDefaultFont(shell));
-    Button wdDefaultFont = (Button) defaultFontControls[2];
-    wdDefaultFont.addListener(SWT.Selection, e -> resetDefaultFont(shell));
-    lastFontControl = wDefaultCanvas;
-
     // Fixed width font
     Control[] fixedFontControls =
         createFontPicker(
@@ -621,19 +584,6 @@ public class ConfigGuiOptionsTab {
     wbGraphFont.addListener(SWT.Selection, e -> editGraphFont(shell));
     Button wdGraphFont = (Button) graphFontControls[2];
     wdGraphFont.addListener(SWT.Selection, e -> resetGraphFont(shell, props));
-    lastFontControl = wGraphCanvas;
-
-    // Note font
-    Control[] noteFontControls =
-        createFontPicker(
-            fontsContent, "EnterOptionsDialog.NoteFont.Label", shell, lastFontControl, margin);
-    wNoteCanvas = (Canvas) noteFontControls[0];
-    wNoteCanvas.addPaintListener(this::paintNoteFont);
-    wNoteCanvas.addListener(SWT.MouseDown, e -> editNoteFont(shell));
-    Button wbNoteFont = (Button) noteFontControls[1];
-    wbNoteFont.addListener(SWT.Selection, e -> editNoteFont(shell));
-    Button wdNoteFont = (Button) noteFontControls[2];
-    wdNoteFont.addListener(SWT.Selection, e -> resetNoteFont(e, props, shell.getDisplay()));
 
     // Create the fonts expand item
     ExpandItem fontsItem = new ExpandItem(fontsExpandBar, SWT.NONE);
@@ -1222,36 +1172,6 @@ public class ConfigGuiOptionsTab {
     isInitializing = false;
   }
 
-  private void paintNoteFont(PaintEvent pe) {
-    pe.gc.setFont(noteFont);
-    Rectangle max = wNoteCanvas.getBounds();
-    String name = noteFontData.getName() + " - " + noteFontData.getHeight();
-    Point size = pe.gc.textExtent(name);
-
-    pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
-  }
-
-  private void resetNoteFont(Event e, PropsUi props, Display display) {
-    noteFontData = props.getDefaultFontData();
-    noteFont.dispose();
-    noteFont = new Font(display, noteFontData);
-    wNoteCanvas.redraw();
-    saveValues();
-  }
-
-  private void editNoteFont(Shell shell) {
-    FontDialog fd = new FontDialog(shell);
-    fd.setFontList(new FontData[] {noteFontData});
-    FontData newfd = fd.open();
-    if (newfd != null) {
-      noteFontData = newfd;
-      noteFont.dispose();
-      noteFont = new Font(shell.getDisplay(), noteFontData);
-      wNoteCanvas.redraw();
-      saveValues();
-    }
-  }
-
   private void drawGraphFont(PaintEvent pe) {
     pe.gc.setFont(graphFont);
     Rectangle max = wGraphCanvas.getBounds();
@@ -1317,40 +1237,6 @@ public class ConfigGuiOptionsTab {
     pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
   }
 
-  private void resetDefaultFont(Shell shell) {
-    defaultFontData =
-        new FontData(
-            PropsUi.getInstance().getFixedFont().getName(),
-            PropsUi.getInstance().getFixedFont().getHeight(),
-            PropsUi.getInstance().getFixedFont().getStyle());
-    defaultFont.dispose();
-    defaultFont = new Font(shell.getDisplay(), defaultFontData);
-    wDefaultCanvas.redraw();
-    saveValues();
-  }
-
-  private void paintDefaultFont(PaintEvent pe) {
-    pe.gc.setFont(defaultFont);
-    Rectangle max = wDefaultCanvas.getBounds();
-    String name = defaultFontData.getName() + " - " + defaultFontData.getHeight();
-    Point size = pe.gc.textExtent(name);
-
-    pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
-  }
-
-  private void editDefaultFont(Shell shell) {
-    FontDialog fd = new FontDialog(shell);
-    fd.setFontList(new FontData[] {defaultFontData});
-    FontData newfd = fd.open();
-    if (newfd != null) {
-      defaultFontData = newfd;
-      defaultFont.dispose();
-      defaultFont = new Font(shell.getDisplay(), defaultFontData);
-      wDefaultCanvas.redraw();
-      saveValues();
-    }
-  }
-
   /**
    * Setting the layout of a <i>Reset</i> option button. Either a button image is set - if existing
    * - or a text.
@@ -1403,10 +1289,8 @@ public class ConfigGuiOptionsTab {
 
     PropsUi props = PropsUi.getInstance();
 
-    props.setDefaultFont(defaultFontData);
     props.setFixedFont(fixedFontData);
     props.setGraphFont(graphFontData);
-    props.setNoteFont(noteFontData);
     props.setIconSize(Const.toInt(wIconSize.getText(), props.getIconSize()));
     props.setLineWidth(Const.toInt(wLineWidth.getText(), props.getLineWidth()));
     props.setMiddlePct(Const.toInt(wMiddlePct.getText(), props.getMiddlePct()));
