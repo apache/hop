@@ -102,10 +102,8 @@ The `Look & Feel` configuration options allow you to configure various aspects o
 [%header, width=90%, cols="2,5,1"]
 |===
 |Option|Description|Default
-|Default font|the default font to use in Hop GUI|Noto Sans - 10
-|Fixed width font|the default fixed width font to use in Hop GUI|Monospace - 10
-|Font on workspace|the font to use in the workspace|Noto Sans - 10
-|Font for notes|the font to use for workflow and pipeline notes|Noto Sans - 10
+|Fixed width font|the fixed-width font for SQL, scripts, logs, and similar editors|platform default (Consolas / Monaco / Monospace)
+|Font on workspace|the font for transform and action names on the canvas. Notes that do not set their own font also use this.|system font
 |Icon size in workspace|the default size for action and transform icons in workflows and pipelines|32
 |Line width on workspace|line width to use for hops in workflows and actions|1
 |Dialog middle percentage|percentage to use to determine a dialog's position|35

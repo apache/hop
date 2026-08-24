@@ -221,12 +221,7 @@ public class PropsUi extends Props {
     }
 
     if (display != null) {
-      FontData fontData = getDefaultFont();
-      setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
-      setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
-      setProperty(STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle());
-
-      fontData = getFixedFont();
+      FontData fontData = getFixedFont();
       setProperty(STRING_FONT_FIXED_NAME, fontData.getName());
       setProperty(STRING_FONT_FIXED_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_FIXED_STYLE, "" + fontData.getStyle());
@@ -235,11 +230,6 @@ public class PropsUi extends Props {
       setProperty(STRING_FONT_GRAPH_NAME, fontData.getName());
       setProperty(STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle());
-
-      fontData = getNoteFont();
-      setProperty(STRING_FONT_NOTE_NAME, fontData.getName());
-      setProperty(STRING_FONT_NOTE_SIZE, "" + fontData.getHeight());
-      setProperty(STRING_FONT_NOTE_STYLE, "" + fontData.getStyle());
 
       setProperty(STRING_ICON_SIZE, "" + getIconSize());
       setProperty(STRING_LINE_WIDTH, "" + getLineWidth());
@@ -276,20 +266,11 @@ public class PropsUi extends Props {
     return new FontData(name, size, style);
   }
 
+  /**
+   * Default UI font. Always the OS system font; leftover FontDefault* hop-config keys are ignored.
+   */
   public FontData getDefaultFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty(STRING_FONT_DEFAULT_NAME, def.getName());
-    int size = Const.toInt(getProperty(STRING_FONT_DEFAULT_SIZE), def.getHeight());
-    int style = Const.toInt(getProperty(STRING_FONT_DEFAULT_STYLE), def.getStyle());
-
-    return new FontData(name, size, style);
-  }
-
-  public void setDefaultFont(FontData fd) {
-    setProperty(STRING_FONT_DEFAULT_NAME, fd.getName());
-    setProperty(STRING_FONT_DEFAULT_SIZE, "" + fd.getHeight());
-    setProperty(STRING_FONT_DEFAULT_STYLE, "" + fd.getStyle());
+    return getDefaultFontData();
   }
 
   public void setGraphFont(FontData fd) {
@@ -308,20 +289,12 @@ public class PropsUi extends Props {
     return new FontData(name, size, style);
   }
 
-  public void setNoteFont(FontData fd) {
-    setProperty(STRING_FONT_NOTE_NAME, fd.getName());
-    setProperty(STRING_FONT_NOTE_SIZE, "" + fd.getHeight());
-    setProperty(STRING_FONT_NOTE_STYLE, "" + fd.getStyle());
-  }
-
+  /**
+   * Fallback font for notes that do not set their own. Same as {@link #getGraphFont()}; leftover
+   * FontNote* hop-config keys are ignored.
+   */
   public FontData getNoteFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty(STRING_FONT_NOTE_NAME, def.getName());
-    int size = Const.toInt(getProperty(STRING_FONT_NOTE_SIZE), def.getHeight());
-    int style = Const.toInt(getProperty(STRING_FONT_NOTE_STYLE), def.getStyle());
-
-    return new FontData(name, size, style);
+    return getGraphFont();
   }
 
   public void setIconSize(int size) {
