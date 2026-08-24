@@ -29,6 +29,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Miscellaneous Marketplace</name>
 
+    <properties>
+        <testcontainers.version>1.21.4</testcontainers.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -47,10 +51,33 @@
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!--
+              *IT tests run in the integration-test phase. They need Docker and are additionally
+              gated on -Dmarketplace.it=true, so an ordinary `mvn install` neither pulls the
+              Artifactory image nor waits for it to boot. See JfrogArtifactoryBrowseIT.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!--
               Generate full-client-env.yaml from optional-plugins.yaml (the single source of
               truth) and ship it at the install root (see src/assembly/assembly.xml).

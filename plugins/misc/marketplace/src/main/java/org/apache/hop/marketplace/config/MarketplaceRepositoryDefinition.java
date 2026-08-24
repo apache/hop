@@ -253,6 +253,10 @@ public final class MarketplaceRepositoryDefinition {
     if (StringUtils.isNotBlank(browserType)) {
       repo.setBrowserType(browserType);
     }
+    String authType = stringVal(map.get("authType"));
+    if (StringUtils.isNotBlank(authType)) {
+      repo.setAuthType(authType);
+    }
     repo.setSearchQuery(stringVal(map.get("searchQuery")));
     repo.setIncludeSnapshots(boolVal(map.get("includeSnapshots"), true));
     repo.setGroupIdFilter(stringVal(map.get("groupIdFilter")));
@@ -360,6 +364,10 @@ public final class MarketplaceRepositoryDefinition {
     if (StringUtils.isNotBlank(repo.getBrowserType())
         && !MarketplaceRepository.BROWSER_AUTO.equalsIgnoreCase(repo.getBrowserType())) {
       root.put("browserType", repo.getBrowserType());
+    }
+    if (StringUtils.isNotBlank(repo.getAuthType())
+        && !MarketplaceRepository.AUTH_AUTO.equalsIgnoreCase(repo.getAuthType())) {
+      root.put("authType", repo.getAuthType());
     }
     if (StringUtils.isNotBlank(repo.getSearchQuery())) {
       root.put("searchQuery", repo.getSearchQuery());
@@ -509,6 +517,7 @@ public final class MarketplaceRepositoryDefinition {
       existing.setBrowse(imported.isBrowse());
       existing.setCatalogUrl(imported.getCatalogUrl());
       existing.setBrowserType(imported.getBrowserType());
+      existing.setAuthType(imported.getAuthType());
       existing.setUrlTemplate(imported.getUrlTemplate());
       existing.setSearchQuery(imported.getSearchQuery());
       existing.setIncludeSnapshots(imported.isIncludeSnapshots());

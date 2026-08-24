@@ -681,6 +681,14 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     private String password;
 
     @Option(
+        names = {"--auth-type"},
+        description =
+            "How to authenticate: auto (default), none, basic or token. 'none' also suppresses the"
+                + " global HOP_MARKETPLACE_* credentials; 'token' sends --password as a bearer"
+                + " token")
+    private String authType;
+
+    @Option(
         names = {"--browse"},
         description = "Include this repository in marketplace query/GUI discovery")
     private boolean browse;
@@ -689,6 +697,13 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         names = {"--catalog-url"},
         description = "Optional hop-marketplace-catalog.yaml URL for discovery")
     private String catalogUrl;
+
+    @Option(
+        names = {"--browser-type"},
+        description =
+            "Which API lists plugins when --browse is set: auto (default), nexus, forgejo or"
+                + " jfrog. Only needed when the URL does not identify the product")
+    private String browserType;
 
     @Option(
         names = {"--search-query"},
@@ -713,8 +728,14 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             new MarketplaceRepository(id, StringUtils.isNotBlank(name) ? name : id, url, primary);
         repo.setUsername(username);
         repo.setPassword(password);
+        if (StringUtils.isNotBlank(authType)) {
+          repo.setAuthType(authType);
+        }
         repo.setBrowse(browse);
         repo.setCatalogUrl(catalogUrl);
+        if (StringUtils.isNotBlank(browserType)) {
+          repo.setBrowserType(browserType);
+        }
         repo.setSearchQuery(searchQuery);
         repo.setGroupIdFilter(groupIdFilter);
         repo.setIncludeSnapshots(!noSnapshots);

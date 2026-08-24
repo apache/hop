@@ -74,7 +74,9 @@ TIP: Apache Hop’s own optional plugins use `groupId` `org.apache.hop` and are 
   ** Prefer *anonymous read* for day-to-day installs; use a deploy user only for publish
 * Deploy credentials (`settings.xml` or `NEXUS_USER` / `NEXUS_PASSWORD`)
 
-For a local sandbox similar to Hop’s development stack, see `docker/marketplace-nexus/` in the Hop repository. Production teams usually run their own Nexus with corporate SSO and retention policies.
+For a local sandbox similar to Hop’s development stack, see `docker/marketplace-nexus/` in the Hop repository, or `docker/marketplace-artifactory/` for JFrog Artifactory. Production teams usually run their own Nexus or Artifactory with corporate SSO and retention policies.
+
+Publishing is the same for either: both serve plain Maven layout, which is all installing needs. Listing plugins in the Hop GUI or in `hop marketplace query` does use a product-specific API, so set `browse: true` and let `browserType` default to `auto` — see the *Private / corporate marketplace* section of the user manual.
 
 == Project layout
 

@@ -391,22 +391,13 @@ public class MavenRepositoryClient {
     MarketplaceHttp.applyAuth(builder, repository);
   }
 
+  /**
+   * Both call sites are guarded on 401/403, so {@link MarketplaceHttp#authHint} always has
+   * something to say. It knows which authentication type was used and whether the credentials came
+   * from the environment, which this method used to restate for Basic only.
+   */
   private static String authFailureMessage(
       int status, String url, MarketplaceRepository repository) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("HTTP ").append(status).append(" from ").append(url).append(". ");
-    if (repository != null && repository.hasCredentials()) {
-      sb.append("Basic auth was sent as user '")
-          .append(repository.effectiveUsername())
-          .append("'. Wrong credentials make Nexus reject the request even when anonymous read")
-          .append(" would work. Clear username/password in hop-config marketplace.repositories")
-          .append(" and unset HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD, or fix the")
-          .append(" password.");
-    } else {
-      sb.append("No credentials were sent (anonymous). Enable anonymous read on the repository")
-          .append(" (docker/marketplace-nexus/start.sh does this), or set")
-          .append(" HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD for a private repo.");
-    }
-    return sb.toString();
+    return "HTTP " + status + " from " + url + MarketplaceHttp.authHint(status, repository);
   }
 }
