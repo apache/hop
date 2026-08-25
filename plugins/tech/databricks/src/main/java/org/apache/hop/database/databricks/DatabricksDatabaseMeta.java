@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
@@ -211,6 +212,20 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDriverClass() {
     return "com.databricks.client.jdbc.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.databricks:databricks-jdbc")
+        .defaultVersion("3.4.2")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://github.com/databricks/databricks-jdbc/blob/main/LICENSE")
+        .vendor("Databricks")
+        .vendorUrl("https://github.com/databricks/databricks-jdbc")
+        .notes("Open source Databricks JDBC driver (uber jar, ~39 MB)")
+        .build();
   }
 
   @Override
