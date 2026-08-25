@@ -2249,14 +2249,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     IHopFileTypeHandler fileTypeHandler = (IHopFileTypeHandler) tabItem.getData();
-    boolean isRemoved = false;
+    // A tab without a handler is broken: nothing can veto its close.
+    boolean isRemoved = true;
     if (fileTypeHandler != null) {
+      // This is where the user gets asked to save the file. Answering Cancel means: keep the file
+      // open, so never dispose the tab afterwards (issue #8079).
       isRemoved = remove(fileTypeHandler);
     }
-    // If remove failed (e.g. null/broken handler) or tab is still there, close it directly
-    if (!tabItem.isDisposed()) {
+    // The close wasn't vetoed but the tab is still there: the handler wasn't registered in this
+    // perspective (a broken tab). Dispose it directly so the user can still close it.
+    if (isRemoved && !tabItem.isDisposed()) {
       removeHandlerAndDisposeTab(tabItem);
-      isRemoved = true;
     }
     // Skip during bulk close (project/environment switch): writeLastOpenFiles was already called
     // before closeAllFiles; writing here would persist an empty open-files list (issue #7692).
