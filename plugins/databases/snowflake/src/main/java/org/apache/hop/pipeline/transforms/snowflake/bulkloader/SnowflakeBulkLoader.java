@@ -158,6 +158,25 @@ public class SnowflakeBulkLoader
               CONST_FIELD + meta.getJsonField() + "] couldn't be found in the input stream!");
         }
         data.fieldnrs.put("json", streamFieldLocation);
+      } else {
+        // No fields were specified: every field on the stream is written, in stream order.  The
+        // COPY statement maps those to the table columns by position, so describe the table to
+        // find out in which column every value lands.
+        //
+        try {
+          getDbFields();
+        } catch (HopException e) {
+          // Without the table layout we can still write the file, dates simply fall back to the
+          // timestamp format.
+          //
+          logBasic("Unable to get the fields of the target table, using default date formats", e);
+          data.dbFields = null;
+        }
+      }
+
+      if (meta.getDataTypeId() == SnowflakeBulkLoaderMeta.DATA_TYPE_CSV
+          && !meta.isSpecifyFields()) {
+        data.writeValueMetas = getWriteValueMetas(data.outputRowMeta);
       }
     }
 
@@ -347,13 +366,66 @@ public class SnowflakeBulkLoader
   }
 
   /**
+   * Determines the value metadata to use when writing the fields of the stream to a temp file. Date
+   * and timestamp values are written with the conversion mask matching the file format of the COPY
+   * statement instead of the mask defined on the stream, since Snowflake only parses the format it
+   * was told to expect.
+   *
+   * @param rowMeta The metadata of the rows on the stream
+   * @return The value metadata to write every field of the row with
+   */
+  IValueMeta[] getWriteValueMetas(IRowMeta rowMeta) {
+    IValueMeta[] writeValueMetas = new IValueMeta[rowMeta.size()];
+    for (int i = 0; i < rowMeta.size(); i++) {
+      writeValueMetas[i] = getWriteValueMeta(rowMeta.getValueMeta(i), i);
+    }
+    return writeValueMetas;
+  }
+
+  /**
+   * Determines the value metadata to use for a single field of the stream.
+   *
+   * @param valueMeta The metadata of the field on the stream
+   * @param index The position of the field, which is the position of the column it is loaded into
+   * @return The original value metadata, or a copy of it carrying the Snowflake conversion mask
+   */
+  private IValueMeta getWriteValueMeta(IValueMeta valueMeta, int index) {
+    if (!valueMeta.isDate()) {
+      return valueMeta;
+    }
+
+    // Without the table layout we don't know the type of the target column, the timestamp format
+    // is the safest default as it also carries the date.
+    //
+    String mask = SnowflakeBulkLoaderMeta.TIMESTAMP_MASK;
+    if (data.dbFields != null && index < data.dbFields.size()) {
+      String type = data.dbFields.get(index)[1].toUpperCase();
+      if (type.startsWith("TIMESTAMP")) {
+        mask = SnowflakeBulkLoaderMeta.TIMESTAMP_MASK;
+      } else if (type.startsWith("DATE")) {
+        mask = SnowflakeBulkLoaderMeta.DATE_MASK;
+      } else if (type.startsWith("TIME")) {
+        mask = SnowflakeBulkLoaderMeta.TIME_MASK;
+      } else {
+        // The value doesn't end up in a date column, leave the format of the stream alone.
+        //
+        return valueMeta;
+      }
+    }
+
+    IValueMeta writeValueMeta = valueMeta.clone();
+    writeValueMeta.setConversionMask(mask);
+    return writeValueMeta;
+  }
+
+  /**
    * Writes an individual row of data to a temp file
    *
    * @param rowMeta The metadata about the row
    * @param row The input row
    * @throws HopTransformException
    */
-  private void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+  void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
     try {
       if (meta.getDataTypeId() == SnowflakeBulkLoaderMeta.DATA_TYPE_CSV
           && !meta.isSpecifyFields()) {
@@ -364,7 +436,7 @@ public class SnowflakeBulkLoader
           if (i > 0 && data.binarySeparator.length > 0) {
             data.writer.write(data.binarySeparator);
           }
-          IValueMeta v = rowMeta.getValueMeta(i);
+          IValueMeta v = data.writeValueMetas[i];
           Object valueData = row[i];
 
           // no special null value default was specified since no fields are specified at all
@@ -388,13 +460,13 @@ public class SnowflakeBulkLoader
 
             if (field[1].toUpperCase().startsWith("TIMESTAMP")) {
               v = new ValueMetaDate();
-              v.setConversionMask("yyyy-MM-dd HH:mm:ss.SSS");
+              v.setConversionMask(SnowflakeBulkLoaderMeta.TIMESTAMP_MASK);
             } else if (field[1].toUpperCase().startsWith("DATE")) {
               v = new ValueMetaDate();
-              v.setConversionMask("yyyy-MM-dd");
+              v.setConversionMask(SnowflakeBulkLoaderMeta.DATE_MASK);
             } else if (field[1].toUpperCase().startsWith("TIME")) {
               v = new ValueMetaDate();
-              v.setConversionMask("HH:mm:ss.SSS");
+              v.setConversionMask(SnowflakeBulkLoaderMeta.TIME_MASK);
             } else if (field[1].toUpperCase().startsWith("NUMBER")
                 || field[1].toUpperCase().startsWith("FLOAT")) {
               v = new ValueMetaBigNumber();
