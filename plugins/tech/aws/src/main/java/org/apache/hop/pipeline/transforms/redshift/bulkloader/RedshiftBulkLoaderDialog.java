@@ -112,9 +112,10 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
   private ColumnInfo[] ciFields;
 
+  private static final String AWS_INHERIT = "Inherit from connection";
   private static final String AWS_CREDENTIALS = "Credentials";
   private static final String AWS_IAM_ROLE = "IAM Role";
-  private String[] awsAuthOptions = new String[] {AWS_CREDENTIALS, AWS_IAM_ROLE};
+  private String[] awsAuthOptions = new String[] {AWS_INHERIT, AWS_CREDENTIALS, AWS_IAM_ROLE};
 
   private Label wlAwsAuthType;
   private ComboVar wAwsAuthType;
@@ -257,7 +258,9 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
     input.setChanged(backupChanged);
 
     toggleSpecifyFieldsFlags();
+    toggleAuthSelection();
     toggleKeysSelection();
+    toggleStreamToS3Flags();
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
@@ -399,6 +402,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
     lastControl = wlStreamToS3Csv;
 
+    wStreamToS3Csv.addSelectionListener(lsSelMod);
     wStreamToS3Csv.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -406,7 +410,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
             if (wStreamToS3Csv.getSelection()) {
               wLoadFromExistingFileFormat.setText("");
             }
-            wLoadFromExistingFileFormat.setEnabled(!wStreamToS3Csv.getSelection());
+            toggleStreamToS3Flags();
           }
         });
 
@@ -429,8 +433,11 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
     fdLoadFromExistingFile.left = new FormAttachment(middle, 0);
     fdLoadFromExistingFile.right = new FormAttachment(100, 0);
     wLoadFromExistingFileFormat.setLayoutData(fdLoadFromExistingFile);
-    String[] fileFormats = {"CSV", "Parquet"};
+    String[] fileFormats = {
+      RedshiftBulkLoaderMeta.FILE_FORMAT_CSV, RedshiftBulkLoaderMeta.FILE_FORMAT_PARQUET
+    };
     wLoadFromExistingFileFormat.setItems(fileFormats);
+    wLoadFromExistingFileFormat.addModifyListener(lsMod);
     lastControl = wLoadFromExistingFileFormat;
 
     Label wlCopyFromFile = new Label(wGeneralComp, SWT.RIGHT);
@@ -492,7 +499,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
     wlAwsAuthType.setLayoutData(fdlAwsAuthType);
     wAwsAuthType = new ComboVar(variables, wAwsAuthComp, SWT.BORDER | SWT.READ_ONLY);
     wAwsAuthType.setItems(awsAuthOptions);
-    wAwsAuthType.setText(awsAuthOptions[0]);
+    wAwsAuthType.setText(AWS_INHERIT);
     PropsUi.setLook(wAwsAuthType);
     FormData fdAwsAuthType = new FormData();
     fdAwsAuthType.top = new FormAttachment(0, margin);
@@ -527,6 +534,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
             toggleKeysSelection();
           }
         });
@@ -595,6 +603,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
             toggleAuthSelection();
           }
         });
@@ -945,40 +954,25 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (!StringUtils.isEmpty(input.getConnection())) {
-      wConnection.setText(input.getConnection());
+    wConnection.setText(Const.NVL(input.getConnection(), ""));
+    wSchema.setText(Const.NVL(input.getSchemaName(), ""));
+    wTable.setText(Const.NVL(input.getTableName(), ""));
+    if (input.isUseAwsIamRole()) {
+      wAwsAuthType.setText(AWS_IAM_ROLE);
+    } else if (input.isUseCredentials()) {
+      wAwsAuthType.setText(AWS_CREDENTIALS);
+    } else {
+      // Covers both an explicit inherit and a transform that never had the option.
+      wAwsAuthType.setText(AWS_INHERIT);
     }
-    if (!StringUtils.isEmpty(input.getSchemaName())) {
-      wSchema.setText(input.getSchemaName());
-    }
-    if (!StringUtils.isEmpty(input.getTableName())) {
-      wTable.setText(input.getTableName());
-    }
-    if (input.isUseCredentials()) {
-      wAwsAuthType.setText(awsAuthOptions[0]);
-      wUseSystemVars.setSelection(input.isUseSystemEnvVars());
-      if (!input.isUseSystemEnvVars()) {
-        if (!StringUtil.isEmpty(input.getAwsAccessKeyId())) {
-          wAccessKeyId.setText(input.getAwsAccessKeyId());
-        }
-        if (!StringUtils.isEmpty(input.getAwsSecretAccessKey())) {
-          wAccessKeyId.setText(input.getAwsSecretAccessKey());
-        }
-      }
-    } else if (input.isUseAwsIamRole()) {
-      wAwsAuthType.setText(awsAuthOptions[1]);
-      if (!StringUtils.isEmpty(input.getAwsIamRole())) {
-        wAwsIamRole.setText(input.getAwsIamRole());
-      }
-    }
+    wUseSystemVars.setSelection(input.isUseSystemEnvVars());
+    wAccessKeyId.setText(Const.NVL(input.getAwsAccessKeyId(), ""));
+    wSecretAccessKey.setText(Const.NVL(input.getAwsSecretAccessKey(), ""));
+    wAwsIamRole.setText(Const.NVL(input.getAwsIamRole(), ""));
 
     wStreamToS3Csv.setSelection(input.isStreamToS3Csv());
-    if (!StringUtils.isEmpty(input.getLoadFromExistingFileFormat())) {
-      wLoadFromExistingFileFormat.setText(input.getLoadFromExistingFileFormat());
-    }
-    if (!StringUtils.isEmpty(input.getCopyFromFilename())) {
-      wCopyFromFilename.setText(input.getCopyFromFilename());
-    }
+    wLoadFromExistingFileFormat.setText(Const.NVL(input.getLoadFromExistingFileFormat(), ""));
+    wCopyFromFilename.setText(Const.NVL(input.getCopyFromFilename(), ""));
 
     wTruncate.setSelection(input.isTruncateTable());
     wOnlyWhenHaveRows.setSelection(input.isOnlyWhenHaveRows());
@@ -1004,45 +998,25 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
   }
 
   private void getInfo(RedshiftBulkLoaderMeta info) {
-    if (!StringUtils.isEmpty(wConnection.getText())) {
-      info.setConnection(wConnection.getText());
-    }
-    if (!StringUtils.isEmpty(wSchema.getText())) {
-      info.setSchemaName(wSchema.getText());
-    }
-    if (!StringUtils.isEmpty(wTable.getText())) {
-      info.setTablename(wTable.getText());
-    }
-    if (wAwsAuthType.getText().equals(AWS_CREDENTIALS)) {
-      info.setUseCredentials(true);
-      info.setUseAwsIamRole(false);
-      if (wUseSystemVars.getSelection()) {
-        info.setUseSystemEnvVars(true);
-      } else {
-        info.setUseSystemEnvVars(false);
-        if (!StringUtils.isEmpty(wAccessKeyId.getText())) {
-          info.setAwsAccessKeyId(wAccessKeyId.getText());
-        }
-        if (!StringUtil.isEmpty(wSecretAccessKey.getText())) {
-          info.setAwsSecretAccessKey(wSecretAccessKey.getText());
-        }
-      }
-    } else if (wAwsAuthType.getText().equals(AWS_IAM_ROLE)) {
-      info.setUseCredentials(false);
-      info.setUseAwsIamRole(true);
-      if (!StringUtils.isEmpty(wAwsIamRole.getText())) {
-        info.setAwsIamRole(wAwsIamRole.getText());
-      }
-    }
+    info.setConnection(wConnection.getText());
+    info.setSchemaName(wSchema.getText());
+    info.setTablename(wTable.getText());
+
+    boolean useIamRole = AWS_IAM_ROLE.equals(wAwsAuthType.getText());
+    boolean inherit = AWS_INHERIT.equals(wAwsAuthType.getText());
+    info.setUseAwsIamRole(useIamRole);
+    info.setUseConnectionCredentials(inherit);
+    info.setUseCredentials(!useIamRole && !inherit);
+    info.setUseSystemEnvVars(!useIamRole && !inherit && wUseSystemVars.getSelection());
+    info.setAwsAccessKeyId(wAccessKeyId.getText());
+    info.setAwsSecretAccessKey(wSecretAccessKey.getText());
+    info.setAwsIamRole(wAwsIamRole.getText());
+
     info.setTruncateTable(wTruncate.getSelection());
     info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
     info.setStreamToS3Csv(wStreamToS3Csv.getSelection());
-    if (!StringUtils.isEmpty(wLoadFromExistingFileFormat.getText())) {
-      info.setLoadFromExistingFileFormat(wLoadFromExistingFileFormat.getText());
-    }
-    if (!StringUtils.isEmpty(wCopyFromFilename.getText())) {
-      info.setCopyFromFilename(wCopyFromFilename.getText());
-    }
+    info.setLoadFromExistingFileFormat(wLoadFromExistingFileFormat.getText());
+    info.setCopyFromFilename(wCopyFromFilename.getText());
 
     info.setSpecifyFields(wSpecifyFields.getSelection());
 
@@ -1241,34 +1215,29 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
   }
 
   public void toggleAuthSelection() {
-    if (wAwsAuthType.getText().equals(AWS_CREDENTIALS)) {
-      wlUseSystemVars.setEnabled(true);
-      wUseSystemVars.setEnabled(true);
-      wlAccessKeyId.setEnabled(true);
-      wAccessKeyId.setEnabled(true);
-      wlSecretAccessKey.setEnabled(true);
-      wSecretAccessKey.setEnabled(true);
+    boolean useIamRole = AWS_IAM_ROLE.equals(wAwsAuthType.getText());
+    boolean useCredentials = AWS_CREDENTIALS.equals(wAwsAuthType.getText());
 
-      wlAwsIamRole.setEnabled(false);
-      wAwsIamRole.setEnabled(false);
-    }
-    if (wAwsAuthType.getText().equals(AWS_IAM_ROLE)) {
-      wlUseSystemVars.setEnabled(false);
-      wUseSystemVars.setEnabled(false);
-      wlAccessKeyId.setEnabled(false);
-      wAccessKeyId.setEnabled(false);
-      wlSecretAccessKey.setEnabled(false);
-      wSecretAccessKey.setEnabled(false);
+    // Inheriting takes everything from the connection, so nothing here applies.
+    wlUseSystemVars.setEnabled(useCredentials);
+    wUseSystemVars.setEnabled(useCredentials);
+    wlAwsIamRole.setEnabled(useIamRole);
+    wAwsIamRole.setEnabled(useIamRole);
 
-      wlAwsIamRole.setEnabled(true);
-      wAwsIamRole.setEnabled(true);
-    }
+    toggleKeysSelection();
   }
 
   public void toggleKeysSelection() {
-    wlAccessKeyId.setEnabled(!wUseSystemVars.getSelection());
-    wAccessKeyId.setEnabled(!wUseSystemVars.getSelection());
-    wlSecretAccessKey.setEnabled(!wUseSystemVars.getSelection());
-    wSecretAccessKey.setEnabled(!wUseSystemVars.getSelection());
+    boolean useKeys =
+        AWS_CREDENTIALS.equals(wAwsAuthType.getText()) && !wUseSystemVars.getSelection();
+    // (inherit and IAM role both leave the key fields off)
+    wlAccessKeyId.setEnabled(useKeys);
+    wAccessKeyId.setEnabled(useKeys);
+    wlSecretAccessKey.setEnabled(useKeys);
+    wSecretAccessKey.setEnabled(useKeys);
+  }
+
+  private void toggleStreamToS3Flags() {
+    wLoadFromExistingFileFormat.setEnabled(!wStreamToS3Csv.getSelection());
   }
 }

@@ -259,6 +259,32 @@
                 <artifactId>secretsmanager</artifactId>
                 <version>${aws-java-sdk.version}</version>
             </dependency>
+            <!--
+                The Redshift JDBC driver declares these as optional dependencies, so Maven never
+                brings them in by itself. They are only needed for IAM authentication, where the
+                driver calls AWS for temporary database credentials rather than signing in with a
+                Redshift password.
+            -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>redshift</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>redshiftserverless</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>sts</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>auth</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>sns</artifactId>

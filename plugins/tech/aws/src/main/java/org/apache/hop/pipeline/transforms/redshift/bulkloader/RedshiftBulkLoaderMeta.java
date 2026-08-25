@@ -55,7 +55,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "/pipeline/transforms/redshift-bulkloader.html",
     isIncludeJdbcDrivers = true,
-    classLoaderGroup = "redshift",
+    // Same group as the Redshift dialect: the loader reads its connection settings directly,
+    // and classes only match across plugins when they load in the same classloader.
+    classLoaderGroup = "redshift-db",
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 @RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class RedshiftBulkLoaderMeta
@@ -66,6 +68,11 @@ public class RedshiftBulkLoaderMeta
   public static final String CSV_RECORD_DELIMITER = "\n";
   public static final String CSV_ESCAPE_CHAR = "\"";
   public static final String ENCLOSURE = "\"";
+
+  /** Formats an existing file on S3 can have. */
+  public static final String FILE_FORMAT_CSV = "CSV";
+
+  public static final String FILE_FORMAT_PARQUET = "Parquet";
 
   @HopMetadataProperty(
       key = "connection",
@@ -88,6 +95,16 @@ public class RedshiftBulkLoaderMeta
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tablename;
 
+  /**
+   * Take the AWS credentials from the Redshift connection rather than repeating them here. Kept as
+   * a separate flag so a transform saved before this existed keeps whatever it was set to.
+   */
+  @HopMetadataProperty(
+      key = "use_connection_credentials",
+      injectionKey = "USE_CONNECTION_CREDENTIALS",
+      injectionKeyDescription = "")
+  private boolean useConnectionCredentials;
+
   @HopMetadataProperty(
       key = "use_credentials",
       injectionKey = "USE_CREDENTIALS",
@@ -109,7 +126,8 @@ public class RedshiftBulkLoaderMeta
   @HopMetadataProperty(
       key = "aws_secret_access_key",
       injectionKey = "AWS_SECRET_ACCESS_KEY",
-      injectionKeyDescription = "")
+      injectionKeyDescription = "",
+      password = true)
   private String awsSecretAccessKey;
 
   @HopMetadataProperty(
@@ -188,12 +206,6 @@ public class RedshiftBulkLoaderMeta
       injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDSTREAM",
       hopMetadataPropertyType = HopMetadataPropertyType.FIELD_LIST)
   private List<RedshiftBulkLoaderField> fields;
-
-  @HopMetadataProperty(
-      injectionKey = "FIELDDATABASE",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDDATABASE")
-  /** Fields in the table to insert */
-  private String[] fieldDatabase;
 
   public RedshiftBulkLoaderMeta() {
     super(); // allocate BaseTransformMeta
@@ -399,6 +411,14 @@ public class RedshiftBulkLoaderMeta
     return specifyFields;
   }
 
+  public boolean isUseConnectionCredentials() {
+    return useConnectionCredentials;
+  }
+
+  public void setUseConnectionCredentials(boolean useConnectionCredentials) {
+    this.useConnectionCredentials = useConnectionCredentials;
+  }
+
   public boolean isUseCredentials() {
     return useCredentials;
   }
@@ -568,10 +588,10 @@ public class RedshiftBulkLoaderMeta
                     }
                   } else {
                     // Specifying the column names explicitly
-                    for (int i = 0; i < getFieldDatabase().length; i++) {
-                      int idx = r.indexOfValue(getFieldDatabase()[i]);
+                    for (RedshiftBulkLoaderField vbf : fields) {
+                      int idx = r.indexOfValue(vbf.getDatabaseField());
                       if (idx < 0) {
-                        error_message += "\t\t" + getFieldDatabase()[i] + Const.CR;
+                        error_message += "\t\t" + vbf.getDatabaseField() + Const.CR;
                         error_found = true;
                       }
                     }
@@ -600,7 +620,7 @@ public class RedshiftBulkLoaderMeta
                   error_message = "";
                   if (!specifyFields()) {
                     // Starting from table fields in r...
-                    for (int i = 0; i < getFieldDatabase().length; i++) {
+                    for (int i = 0; i < r.size(); i++) {
                       IValueMeta rv = r.getValueMeta(i);
                       int idx = prev.indexOfValue(rv.getName());
                       if (idx < 0) {
@@ -872,20 +892,6 @@ public class RedshiftBulkLoaderMeta
       throw new HopException(
           BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Exception.ConnectionNotDefined"));
     }
-  }
-
-  /**
-   * @return Fields containing the fieldnames in the database insert.
-   */
-  public String[] getFieldDatabase() {
-    return fieldDatabase;
-  }
-
-  /**
-   * @param fieldDatabase The fields containing the names of the fields to insert.
-   */
-  public void setFieldDatabase(String[] fieldDatabase) {
-    this.fieldDatabase = fieldDatabase;
   }
 
   /**
