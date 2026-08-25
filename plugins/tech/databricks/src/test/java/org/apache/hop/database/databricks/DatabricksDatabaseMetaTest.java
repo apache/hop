@@ -17,9 +17,12 @@
 package org.apache.hop.database.databricks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -138,6 +141,20 @@ class DatabricksDatabaseMetaTest {
     assertEquals(
         "BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL PRIMARY KEY",
         databaseMeta.getFieldDefinition(key, "ID", null, true, false, false));
+  }
+
+  /**
+   * Databricks bundles no driver, so the connection dialog's "Download driver" button is the only
+   * way to get one - and that button only appears when the dialect declares a download.
+   */
+  @Test
+  void aDownloadableDriverIsDeclared() {
+    DriverDownload download = nativeMeta.getDriverDownload();
+    assertNotNull(download);
+    assertEquals("com.databricks:databricks-jdbc", download.getMavenCoordinate());
+    // The 2.x line is the proprietary Simba driver; only 3.x is Apache-2.0 and freely downloadable.
+    assertEquals("3", download.getDefaultVersion().split("\\.")[0]);
+    assertFalse(download.isRestricted());
   }
 
   @Test
