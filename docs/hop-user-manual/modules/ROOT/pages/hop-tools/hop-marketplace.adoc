@@ -478,6 +478,41 @@ Use the repository-scoped variables when more than one private repository is con
 
 Username and password are resolved separately, so the two can come from different sources: a repository entry that sets only `username` is combined with `HOP_MARKETPLACE_PASSWORD` from the environment. Such a mixed pair counts as deliberately configured — the anonymous retry described below applies only when the repository entry supplies neither field.
 
+=== Authentication type
+
+`authType` on a repository chooses how those credentials are sent:
+
+[options="header"]
+|===
+|Value|What is sent|Use for
+|`auto` (default)|Basic when a username and a password both resolve, nothing otherwise|Nexus, Forgejo, anonymous public repositories
+|`none`|Nothing, ever|A public repository that must ignore globally configured credentials
+|`basic`|`Authorization: Basic`|Any repository manager that accepts a username and password
+|`token`|`Authorization: Bearer`|Repositories issuing standalone access tokens, such as JFrog Artifactory
+|===
+
+`auto` reproduces the behaviour of releases before `authType` existed, and it never selects `token`: `HOP_MARKETPLACE_PASSWORD` is offered to every repository including public ones, so a lone password is not read as a bearer token. Token authentication is opt-in.
+
+`none` is not the same as leaving the credentials empty. The global variables reach every repository, and a public one such as Maven Central answers `401` for credentials it does not know rather than ignoring them; `authType: none` opts a repository out of them entirely.
+
+With `token`, the `password` field holds the token and `username` is unused. The token reads from `HOP_MARKETPLACE_<ID>_TOKEN` as well as `HOP_MARKETPLACE_<ID>_PASSWORD` — the same secret under a name that reads better. There is no global `HOP_MARKETPLACE_TOKEN`: a token belongs to one repository.
+
+[source,json]
+----
+{ "id": "artifactory", "url": "https://acme.jfrog.io/artifactory/hop-plugins/", "authType": "token", "password": "${ARTIFACTORY_TOKEN}" }
+----
+
+From the command line:
+
+[source,bash]
+----
+./hop marketplace repo add --id artifactory \
+  --url https://acme.jfrog.io/artifactory/hop-plugins/ \
+  --auth-type token --password '${ARTIFACTORY_TOKEN}'
+----
+
+When a request comes back `401` or `403`, the error names the type that was used and, if nothing was sent, why not — an `authType` whose credentials do not resolve reports that instead of silently falling back to anonymous.
+
 === How stored passwords are protected
 
 A `password` on a repository entry is written to `hop-config.json` — and to exported repository definitions and environment files — obfuscated with Hop's two-way password encoder, the same `Encrypted 2be98afc…` form used for Hop server and database passwords. Configurations written by older versions are read as-is and re-encoded the next time they are saved.
@@ -511,9 +546,39 @@ Installing works against any Maven repository, because downloads use plain Maven
 |`auto` (default)|detected from the URL|any of the below
 |`nexus`|`/service/rest/v1/search`|Sonatype Nexus 3
 |`forgejo`|`/api/v1/packages/{owner}`|Forgejo, Gitea
+|`jfrog`|`/api/search/aql` or `/api/storage`|JFrog Artifactory
 |===
 
-`auto` selects `forgejo` for URLs containing `/api/packages/` (for example `https://forge.example.org/api/packages/acme/maven`) and `nexus` otherwise. On Forgejo, packages are named `groupId:artifactId` and each candidate version is checked for a plugin zip, so plain library jars are not listed as installable.
+`auto` reads the URL: `/api/packages/` selects `forgejo` (for example `https://forge.example.org/api/packages/acme/maven`), `/artifactory/` selects `jfrog` (for example `https://acme.jfrog.io/artifactory/hop-plugins/`), and anything else falls back to `nexus`. Set `browserType` explicitly when the URL does not identify the product — an Artifactory behind a custom context path, for instance.
+
+On Forgejo, packages are named `groupId:artifactId` and each candidate version is checked for a plugin zip, so plain library jars are not listed as installable.
+
+==== Browsing JFrog Artifactory
+
+Artifactory has two usable listing APIs and Hop picks between them:
+
+* When credentials resolve, it uses *AQL* (`POST /api/search/aql`), which finds every plugin zip in the repository in one request. AQL requires an authenticated user, so it is not attempted anonymously.
+* Otherwise — and whenever AQL is refused, for a token without that permission or an instance where it is disabled — it *walks the repository* with `GET /api/storage/{repo}/{path}`, one request per folder, stopping at each folder that holds a zip. This works for any user with read access, anonymous included.
+
+The File List API (`?list&deep=1`) would be a better fit than either, but it is an Artifactory Pro feature and is not used.
+
+Both work against a virtual repository as well as a local one. AQL searches only the first five remote repositories aggregated by a virtual repository, so if plugins are published to a local repository — the usual arrangement — point `url` at that one rather than at a virtual repository in front of it.
+
+Both paths are bounded, and both say so in the log rather than quietly returning a short list: the AQL search stops at 1000 artifacts, and the walk at a fixed number of requests so that a large shared repository does not turn one refresh into thousands of them. Set `groupIdFilter` to the groupId your plugins are published under: on the walk it becomes the starting folder rather than a filter applied afterwards, which is what keeps browsing cheap.
+
+[source,json]
+----
+{
+  "id": "artifactory",
+  "url": "https://acme.jfrog.io/artifactory/hop-plugins/",
+  "browse": true,
+  "groupIdFilter": "com.acme.hop",
+  "authType": "token",
+  "password": "${ARTIFACTORY_TOKEN}"
+}
+----
+
+Installing needs none of this: Artifactory serves plain Maven layout, so downloads and SNAPSHOT resolution work against it without any browse API at all.
 
 For a repository manager with no supported search API, publish a catalog YAML and set `catalogUrl` on the repository instead — discovery then reads that file and never calls a registry API. The catalog is fetched with the repository's Basic credentials when they are configured, so it can live in a private repository.
 
