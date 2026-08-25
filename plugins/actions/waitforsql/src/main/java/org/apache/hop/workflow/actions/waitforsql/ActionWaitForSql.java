@@ -460,7 +460,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       } // end if countStatement!=null
 
       if (addRowsResult && customSqlEnabled && ar != null) {
-        rowMeta = db.getQueryFields(countStatement, false);
+        rowMeta = db.getReturnRowMeta();
       }
     } catch (HopDatabaseException dbe) {
       logError(
