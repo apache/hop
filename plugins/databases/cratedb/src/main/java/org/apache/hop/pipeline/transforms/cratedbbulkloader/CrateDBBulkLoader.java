@@ -18,19 +18,19 @@
 package org.apache.hop.pipeline.transforms.cratedbbulkloader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -60,8 +60,17 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
   public static final String DATE_CONVERSION_MASK = "yyyy-MM-dd";
   public static final String NUMBER_CONVERSION_MASK = "#############0.##############";
 
-  private final BulkImportClient bulkImportClient =
-      new BulkImportClient(meta.getHttpEndpoint(), meta.getHttpLogin(), meta.getHttpPassword());
+  /** Size of the buffer we put in front of the (remote) output stream. */
+  private static final int OUTPUT_BUFFER_SIZE = 128 * 1024;
+
+  /** Placeholder written instead of the AWS credentials when the COPY statement is logged. */
+  private static final String CREDENTIALS_MASK = "<credentials hidden>";
+
+  /**
+   * Only built when the HTTP endpoint is actually used, and from resolved values: at construction
+   * time the transform's variables are not available yet.
+   */
+  private BulkImportClient bulkImportClient;
 
   public CrateDBBulkLoader(
       TransformMeta transformMeta,
@@ -78,26 +87,37 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
 
     if (super.init()) {
       try {
-        // Validating that the connection has been defined.
+        // Validating that the connection and the load settings have been defined.
         verifyDatabaseConnection();
+        verifyLoadSettings();
         data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
-        if (meta.isStreamToS3Csv() && !meta.isUseHttpEndpoint()) {
+        if (meta.isUseHttpEndpoint()) {
+          bulkImportClient =
+              new BulkImportClient(
+                  resolve(meta.getHttpEndpoint()),
+                  resolve(meta.getHttpLogin()),
+                  resolve(meta.getHttpPassword()));
+          data.maxBatchSize = resolveBatchSize();
+        } else if (meta.isStreamToS3Csv()) {
           String readFromFilename = resolve(meta.getReadFromFilename());
           String localPath = resolve(meta.getVolumeMapping());
-          if (!StringUtils.isEmpty(localPath) && isURIOfScheme(readFromFilename, Scheme.FILE)) {
-            data.writer =
-                HopVfs.getOutputStream(
-                    FilenameUtils.concat(localPath, extractFilename(readFromFilename)), false);
-          } else {
-            data.writer = HopVfs.getOutputStream(readFromFilename, false);
-          }
-          // get the file output stream to write to S3
+          String target =
+              !StringUtils.isEmpty(localPath) && isURIOfScheme(readFromFilename, Scheme.FILE)
+                  ? FilenameUtils.concat(localPath, extractFilename(readFromFilename))
+                  : readFromFilename;
+          ensureParentFolderExists(target);
+          // Every field is written as a separate chunk of bytes, so a buffer in front of the
+          // (remote) stream matters a lot here.
+          data.writer =
+              new BufferedOutputStream(
+                  HopVfs.getOutputStream(target, false, variables), OUTPUT_BUFFER_SIZE);
         }
 
         data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
         getDbFields();
+        verifyTableFields();
 
         if (isBasic()) {
           logBasic(
@@ -145,137 +165,152 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
 
     if (r == null) { // no more input to be expected...
-      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
-        truncateTable();
-      }
-
-      if (!first) {
-        try {
-          data.close();
-          closeFile();
-          if (meta.isUseHttpEndpoint()) {
-            String[] columns =
-                meta.getFields().stream()
-                    .map(CrateDBBulkLoaderField::getDatabaseField)
-                    .toArray(String[]::new);
-            if (isBasic()) {
-              data.outputRowMeta.getValueMetaList().forEach(v -> logBasic(v.toString()));
-            }
-            String schema = meta.getSchemaName();
-            String table = meta.getTableName();
-            writeBatchToCrateDB(schema, table, columns);
-          } else {
-            String copyStmt = buildCopyStatementSqlString();
-            Connection conn = data.db.getConnection();
-            int errorCount = 0;
-            try (Statement stmt = conn.createStatement();
-                ResultSet resultSet = stmt.executeQuery(copyStmt)) {
-              while (resultSet.next()) {
-                String node = resultSet.getString("node");
-                String uri = resultSet.getString("uri");
-                int successCount = resultSet.getInt("success_count");
-                errorCount = resultSet.getInt("error_count");
-                String errors = resultSet.getString("errors");
-                logError(
-                    "Node: "
-                        + node
-                        + " URI: "
-                        + uri
-                        + " Success Count: "
-                        + successCount
-                        + " Error Count: "
-                        + errorCount
-                        + " Errors: "
-                        + errors);
-                incrementLinesOutput(successCount);
-                incrementLinesRejected(errorCount);
-              }
-              conn.commit();
-            }
-            conn.close();
-            if (errorCount > 0) {
-              throw new HopException(
-                  "Failed to COPY FROM CSV file to CrateDB: " + errorCount + " rows failed");
-            }
-          }
-
-        } catch (SQLException sqle) {
-          setErrors(1);
-          stopAll();
-          setOutputDone(); // signal end to receiver(s)
-          throw new HopDatabaseException("Error executing COPY statements", sqle);
-        } catch (IOException ioe) {
-          setErrors(1);
-          stopAll();
-          setOutputDone(); // signal end to receiver(s)
-          throw new HopTransformException("Error releasing resources", ioe);
-        } catch (CrateDBHopException e) {
-          throw new HopException(e);
-        }
-      }
-
+      endOfStream();
       return false;
     }
 
     if (first) {
       first = false;
+      data.rowsReceived = true;
 
-      if (meta.isStreamToS3Csv()) {
-
-        data.fieldnrs = new HashMap<>();
-
-        meta.getFields(data.insertRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-        if (!meta.specifyFields()) {
-          // write all fields in the stream to CrateDB
-          // Just take the whole input row
-          data.insertRowMeta = getInputRowMeta().clone();
-          data.selectedRowFieldIndices = new int[data.insertRowMeta.size()];
-          // TODO Serasoft
-          // Is the statement below really needed??
-          try {
-            getDbFields();
-          } catch (HopException e) {
-            logError("Error getting database fields", e);
-            setErrors(1);
-            stopAll();
-            setOutputDone(); // signal end to receiver(s)
-            return false;
-          }
-
-          defineAllFieldsMetadataList();
-        } else {
-          defineSelectedFieldsMetadataList();
-        }
-      } else {
-        if (meta.isUseHttpEndpoint()) {
-          data.fieldnrs = new HashMap<>();
-          if (meta.specifyFields()) {
-            defineSelectedFieldsMetadataList();
-          } else {
-            defineAllFieldsMetadataList();
-          }
-        }
+      if (meta.isTruncateTable()) {
+        truncateTable();
       }
+
+      prepareRowMapping();
     }
 
-    data.outputRowMeta = getInputRowMeta().clone();
-
-    if (!meta.isUseHttpEndpoint()) {
-      if (meta.isStreamToS3Csv()) {
-        writeRowToFile(data.outputRowMeta, r);
-      }
-    } else {
-      appendRowAsJsonLine(data.outputRowMeta, r);
+    if (meta.isUseHttpEndpoint()) {
+      appendRowAsJsonLine(r);
       try {
         writeIfBatchSizeRecordsAreReached();
       } catch (IOException | CrateDBHopException e) {
         throw new HopException(e);
       }
+    } else if (meta.isStreamToS3Csv()) {
+      writeRowToFile(r);
     }
-    putRow(getInputRowMeta().clone(), r);
+    putRow(data.outputRowMeta, r);
 
     return true;
+  }
+
+  /**
+   * Flush whatever is left: close the CSV file and fire the COPY statement, or send the last HTTP
+   * batch.
+   *
+   * @throws HopException in case the load failed or resources could not be released
+   */
+  private void endOfStream() throws HopException {
+    if (!data.rowsReceived) {
+      if (meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
+        truncateTable();
+      }
+      return;
+    }
+
+    if (meta.isUseHttpEndpoint()) {
+      try {
+        writeBatchToCrateDB();
+      } catch (IOException | CrateDBHopException e) {
+        setErrors(1);
+        stopAll();
+        setOutputDone(); // signal end to receiver(s)
+        throw new HopException(e);
+      }
+      return;
+    }
+
+    // The file has to be complete before CrateDB reads it.
+    if (!closeFile()) {
+      setErrors(1);
+      stopAll();
+      setOutputDone(); // signal end to receiver(s)
+      throw new HopTransformException("Error releasing resources");
+    }
+
+    try {
+      String copyStmt = buildCopyStatementSqlString(false);
+      if (isDetailed()) {
+        logDetailed("Copy stmt: " + buildCopyStatementSqlString(true));
+      }
+      int errorCount = 0;
+      try (Statement stmt = data.db.getConnection().createStatement();
+          ResultSet resultSet = stmt.executeQuery(copyStmt)) {
+        while (resultSet.next()) {
+          String node = resultSet.getString("node");
+          String uri = resultSet.getString("uri");
+          int successCount = resultSet.getInt("success_count");
+          errorCount = resultSet.getInt("error_count");
+          String errors = resultSet.getString("errors");
+          logError(
+              "Node: "
+                  + node
+                  + " URI: "
+                  + uri
+                  + " Success Count: "
+                  + successCount
+                  + " Error Count: "
+                  + errorCount
+                  + " Errors: "
+                  + errors);
+          incrementLinesOutput(successCount);
+          incrementLinesRejected(errorCount);
+        }
+      }
+      data.db.commit();
+      if (errorCount > 0) {
+        throw new HopException(
+            "Failed to COPY FROM CSV file to CrateDB: " + errorCount + " rows failed");
+      }
+    } catch (SQLException sqle) {
+      setErrors(1);
+      stopAll();
+      setOutputDone(); // signal end to receiver(s)
+      throw new HopDatabaseException("Error executing COPY statements", sqle);
+    }
+  }
+
+  /**
+   * Resolve, once, which field of the input row ends up in which column, together with the value
+   * meta used to render it. Doing this per row is what used to make this transform slow: it cloned
+   * the whole input row meta twice for every row.
+   *
+   * @throws HopException in case a configured field is not present on the input stream
+   */
+  void prepareRowMapping() throws HopException {
+    IRowMeta inputRowMeta = getInputRowMeta();
+    data.outputRowMeta = inputRowMeta.clone();
+    data.insertRowMeta = new RowMeta();
+
+    if (meta.isSpecifyFields()) {
+      List<CrateDBBulkLoaderField> fields = meta.getFields();
+      data.selectedRowFieldIndices = new int[fields.size()];
+      for (int i = 0; i < fields.size(); i++) {
+        CrateDBBulkLoaderField field = fields.get(i);
+        int index = inputRowMeta.indexOfValue(field.getStreamField());
+        if (index < 0) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG, "CrateDBBulkLoader.Exception.FieldRequired", field.getStreamField()));
+        }
+        data.selectedRowFieldIndices[i] = index;
+
+        IValueMeta insertValueMeta = inputRowMeta.getValueMeta(index).clone();
+        insertValueMeta.setName(field.getDatabaseField());
+        data.insertRowMeta.addValueMeta(insertValueMeta);
+      }
+    } else {
+      // Take the whole input row, the columns are named after the fields on the stream.
+      data.selectedRowFieldIndices = new int[inputRowMeta.size()];
+      for (int i = 0; i < inputRowMeta.size(); i++) {
+        data.selectedRowFieldIndices[i] = i;
+        data.insertRowMeta.addValueMeta(inputRowMeta.getValueMeta(i).clone());
+      }
+    }
+
+    // Both the COPY statement and the HTTP bulk insert name these columns.
+    data.columnNames = data.insertRowMeta.getFieldNames();
   }
 
   private void incrementLinesRejected(int count) {
@@ -290,100 +325,45 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     }
   }
 
-  private void defineAllFieldsMetadataList() throws HopException {
-    data.insertRowMeta = new RowMeta();
-    for (int i = 0; i < meta.getFields().size(); i++) {
-      int streamFieldLocation =
-          data.insertRowMeta.indexOfValue(meta.getFields().get(i).getStreamField());
-      if (streamFieldLocation < 0) {
-        throw new HopTransformException(
-            "Field ["
-                + meta.getFields().get(i).getStreamField()
-                + "] couldn't be found in the input stream!");
-      }
-
-      data.selectedRowFieldIndices[i] = streamFieldLocation;
-
-      int dbFieldLocation = -1;
-      for (int e = 0; e < data.dbFields.size(); e++) {
-        String[] field = data.dbFields.get(e);
-        if (field[0].equalsIgnoreCase(meta.getFields().get(i).getDatabaseField())) {
-          dbFieldLocation = e;
-          break;
-        }
-      }
-      if (dbFieldLocation < 0) {
-        throw new HopException(
-            "Field ["
-                + meta.getFields().get(i).getDatabaseField()
-                + "] couldn't be found in the table!");
-      }
-      IValueMeta inputValueMeta = getInputRowMeta().getValueMeta(streamFieldLocation);
-
-      IValueMeta insertValueMeta = inputValueMeta.clone();
-      insertValueMeta.setName(data.dbFields.get(dbFieldLocation)[0]);
-
-      data.insertRowMeta.addValueMeta(insertValueMeta);
-
-      data.fieldnrs.put(
-          meta.getFields().get(i).getDatabaseField().toUpperCase(), streamFieldLocation);
-    }
-  }
-
-  private void defineSelectedFieldsMetadataList() throws HopTransformException {
-    // use the columns/fields mapping.
-    int numberOfInsertFields = meta.getFields().size();
-    data.insertRowMeta = new RowMeta();
-
-    // Cache the position of the selected fields in the row array
-    data.selectedRowFieldIndices = new int[numberOfInsertFields];
-    for (int i = 0; i < meta.getFields().size(); i++) {
-      CrateDBBulkLoaderField vbf = meta.getFields().get(i);
-      String inputFieldName = vbf.getStreamField();
-      int inputFieldIdx = getInputRowMeta().indexOfValue(inputFieldName);
-      if (inputFieldIdx < 0) {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG, "CrateDBBulkLoader.Exception.FieldRequired", inputFieldName)); // $NON-NLS-1$
-      }
-      data.selectedRowFieldIndices[i] = inputFieldIdx;
-      String insertFieldName = vbf.getDatabaseField();
-      IValueMeta inputValueMeta = getInputRowMeta().getValueMeta(inputFieldIdx);
-      if (inputValueMeta == null) {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG,
-                "CrateDBBulkLoader.Exception.FailedToFindField",
-                vbf.getStreamField())); // $NON-NLS-1$
-      }
-      IValueMeta insertValueMeta = inputValueMeta.clone();
-      insertValueMeta.setName(insertFieldName);
-      data.insertRowMeta.addValueMeta(insertValueMeta);
-      data.fieldnrs.put(meta.getFields().get(i).getDatabaseField().toUpperCase(), inputFieldIdx);
-    }
-  }
-
   private void writeIfBatchSizeRecordsAreReached()
       throws HopException, CrateDBHopException, IOException {
-    String batchSize = meta.getBatchSize();
-    String expandedBatchSize = Const.expandIntegerString(batchSize);
-    int maxBatchSize = Integer.parseInt(expandedBatchSize != null ? expandedBatchSize : batchSize);
-    if (data.httpBulkArgs.size() >= maxBatchSize) {
-      String[] columns =
-          meta.getFields().stream()
-              .map(CrateDBBulkLoaderField::getDatabaseField)
-              .toArray(String[]::new);
-      String schema = meta.getSchemaName();
-      String table = meta.getTableName();
-      writeBatchToCrateDB(schema, table, columns);
+    if (data.httpBulkArgs.size() >= data.maxBatchSize) {
+      writeBatchToCrateDB();
     }
   }
 
-  private void writeBatchToCrateDB(String schema, String table, String[] columns)
-      throws HopException, CrateDBHopException, IOException {
+  /**
+   * Resolve the batch size once, at init time, instead of parsing it again for every row.
+   *
+   * @return the number of rows to send in one HTTP bulk request
+   * @throws HopException when the configured batch size is not a positive number
+   */
+  int resolveBatchSize() throws HopException {
+    String batchSize = resolve(meta.getBatchSize());
+    String expandedBatchSize = Const.expandIntegerString(batchSize);
+    try {
+      int size = Integer.parseInt(expandedBatchSize != null ? expandedBatchSize : batchSize);
+      if (size <= 0) {
+        throw new NumberFormatException(batchSize);
+      }
+      return size;
+    } catch (NumberFormatException | NullPointerException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "CrateDBBulkLoaderMeta.Error.InvalidBatchSize", batchSize));
+    }
+  }
+
+  private void writeBatchToCrateDB() throws HopException, CrateDBHopException, IOException {
+    if (data.httpBulkArgs.isEmpty()) {
+      return;
+    }
     try {
       final HttpBulkImportResponse httpResponse =
-          bulkImportClient.batchInsert(schema, table, columns, data.httpBulkArgs);
+          bulkImportClient.batchInsert(
+              resolve(meta.getSchemaName()),
+              resolve(meta.getTableName()),
+              data.columnNames,
+              data.httpBulkArgs);
 
       for (int i = 0; i < httpResponse.outputRows(); i++) {
         incrementLinesOutput();
@@ -410,8 +390,8 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     }
   }
 
-  private void appendRowAsJsonLine(IRowMeta rowMeta, Object[] row) throws HopTransformException {
-    Object[] args = new Object[rowMeta.size()];
+  private void appendRowAsJsonLine(Object[] row) throws HopTransformException {
+    Object[] args = new Object[data.insertRowMeta.size()];
     try {
       for (int i = 0; i < data.insertRowMeta.size(); i++) {
         IValueMeta v = data.insertRowMeta.getValueMeta(i);
@@ -435,30 +415,32 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       data.convertedRowMeta = data.insertRowMeta.clone();
     }
 
+    // Whatever comes out of here is text, so the row meta the value is written with has to say so
+    // as well. Leaving the original meta in place made writing a number fail outright: by then the
+    // value was a String and the meta still claimed an Integer.
+    vc = new ValueMetaString(v.getName());
+
     if (rowItem != null) {
       switch (v.getType()) {
         case IValueMeta.TYPE_STRING:
-          convertedValue = (String) rowItem;
+          // The value can be stored as a binary string, so never cast it straight to String.
+          convertedValue = v.getString(rowItem);
           break;
         case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
           convertedValue = String.valueOf(rowItem);
           break;
         case IValueMeta.TYPE_TIMESTAMP:
-          vc = new ValueMetaString();
-          vc.setName(v.getName());
           v.setConversionMask(TIMESTAMP_CONVERSION_MASK);
           vc.setConversionMask(TIMESTAMP_CONVERSION_MASK);
           convertedValue = (String) vc.convertData(v, rowItem);
           break;
         case IValueMeta.TYPE_DATE:
-          vc = new ValueMetaString();
-          vc.setName(v.getName());
           v.setConversionMask(DATE_CONVERSION_MASK);
           vc.setConversionMask(DATE_CONVERSION_MASK);
           convertedValue = (String) vc.convertData(v, rowItem);
           break;
         default:
-          convertedValue = String.valueOf(rowItem);
+          convertedValue = v.getString(rowItem);
           break;
       }
     }
@@ -466,7 +448,9 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       logDetailed("Field: " + v.getName() + " - Converted Value: " + convertedValue);
     }
 
-    if (vc != null && !data.convertedRowMetaReady) data.convertedRowMeta.setValueMeta(pos, vc);
+    if (!data.convertedRowMetaReady) {
+      data.convertedRowMeta.setValueMeta(pos, vc);
+    }
 
     return convertedValue;
   }
@@ -498,7 +482,14 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     return returnValue;
   }
 
-  private String buildCopyStatementSqlString() {
+  /**
+   * Build the CrateDB COPY statement for the CSV file.
+   *
+   * @param maskCredentials when true the AWS credentials are replaced by a placeholder, so the
+   *     statement can safely be written to the log
+   * @return the COPY statement
+   */
+  String buildCopyStatementSqlString(boolean maskCredentials) {
     final DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
 
     StringBuilder sb = new StringBuilder(150);
@@ -510,20 +501,68 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
             data.db.resolve(meta.getSchemaName()),
             data.db.resolve(meta.getTableName())));
 
-    sb.append(" (");
-    List<CrateDBBulkLoaderField> fieldList = meta.getFields();
-    for (int i = 0; i < fieldList.size(); i++) {
-      CrateDBBulkLoaderField field = fieldList.get(i);
-      if (i > 0) {
-        sb.append(", ").append(field.getDatabaseField());
-      } else {
-        sb.append(field.getDatabaseField());
+    // The CSV file has no header, so CrateDB needs to be told which columns it holds.
+    String[] columns = copyColumnNames();
+    if (columns.length > 0) {
+      sb.append(" (");
+      for (int i = 0; i < columns.length; i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append(columns[i]);
       }
+      sb.append(")");
     }
-    sb.append(")");
 
-    String awsAccessKeyId = "";
-    String awsSecretAccessKey = "";
+    sb.append(" FROM '").append(buildCopyFromUri(maskCredentials)).append("'");
+    sb.append(" WITH (format='csv', wait_for_completion=true");
+    sb.append(", header=false");
+    sb.append(", delimiter='" + CrateDBBulkLoaderMeta.DEFAULT_CSV_DELIMITER + "'");
+    sb.append(")");
+    sb.append(" RETURN SUMMARY");
+
+    return sb.toString();
+  }
+
+  /**
+   * CrateDB reads S3 credentials from the URI itself, so they have to be spliced into the file
+   * name.
+   *
+   * @param maskCredentials when true the credentials are replaced by a placeholder
+   * @return the URI the COPY statement reads from
+   */
+  String[] copyColumnNames() {
+    if (meta.isSpecifyFields()) {
+      return meta.getFields().stream()
+          .map(CrateDBBulkLoaderField::getDatabaseField)
+          .toArray(String[]::new);
+    }
+    if (meta.isStreamToS3Csv() && data.columnNames != null) {
+      return data.columnNames;
+    }
+    return new String[0];
+  }
+
+  private String buildCopyFromUri(boolean maskCredentials) {
+    String filename = Const.NVL(resolve(meta.getReadFromFilename()), "");
+
+    int schemeEnd = filename.indexOf("://");
+    if (schemeEnd < 0) {
+      // Not a URI at all: nothing to splice credentials into.
+      return filename;
+    }
+    String scheme = filename.substring(0, schemeEnd);
+    String rest = filename.substring(schemeEnd + 3);
+
+    if (!"s3".equals(scheme)) {
+      return filename;
+    }
+    if (maskCredentials) {
+      return scheme + "://" + CREDENTIALS_MASK + "@" + rest;
+    }
+
+    String awsAccessKeyId;
+    String awsSecretAccessKey;
     if (meta.isUseSystemEnvVars()) {
       awsAccessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
       awsSecretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
@@ -531,35 +570,12 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       awsAccessKeyId = resolve(meta.getAwsAccessKeyId());
       awsSecretAccessKey = resolve(meta.getAwsSecretAccessKey());
     }
+    String credentials = Const.NVL(awsAccessKeyId, "") + ":" + Const.NVL(awsSecretAccessKey, "");
 
-    String filename = resolve(meta.getReadFromFilename());
-
-    String[] parts = filename.split("://", 2);
-    String uriLeft = parts[0];
-    String uriRight = parts[1];
-    String awsSec = awsAccessKeyId + ":" + awsSecretAccessKey;
-
-    if ("s3".equals(uriLeft)) {
-      filename =
-          ":".equals(awsSec)
-              ? uriLeft + "://" + uriRight
-              : uriLeft + "://" + awsSec + "@" + uriRight;
-    } else {
-      filename = uriLeft + "://" + uriRight;
-    }
-
-    sb.append(" FROM '" + filename + "'");
-    sb.append(" WITH (format='csv', wait_for_completion=true");
-    sb.append(", header=false");
-    sb.append(", delimiter='" + CrateDBBulkLoaderMeta.DEFAULT_CSV_DELIMITER + "'");
-    sb.append(")");
-    sb.append(" RETURN SUMMARY");
-
-    if (isDetailed()) {
-      logDetailed("Copy stmt: " + sb);
-    }
-
-    return sb.toString();
+    // No credentials configured: let CrateDB fall back to its own configuration.
+    return ":".equals(credentials)
+        ? scheme + "://" + rest
+        : scheme + "://" + credentials + "@" + rest;
   }
 
   /**
@@ -573,15 +589,15 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
   private void getDbFields() throws HopException {
     data.dbFields = new ArrayList<>();
 
-    IRowMeta rowMeta = null;
+    String schemaName = resolve(meta.getSchemaName());
+    String tableName = resolve(meta.getTableName());
 
-    if (!StringUtils.isEmpty(resolve(meta.getSchemaName()))) {
-      rowMeta = data.db.getTableFields(meta.getSchemaName() + "." + meta.getTableName());
-    } else {
-      rowMeta = data.db.getTableFields(meta.getTableName());
-    }
+    IRowMeta rowMeta =
+        StringUtils.isEmpty(schemaName)
+            ? data.db.getTableFields(tableName)
+            : data.db.getTableFields(schemaName + "." + tableName);
     try {
-      if (rowMeta.isEmpty()) {
+      if (rowMeta == null || rowMeta.isEmpty()) {
         throw new HopException("No fields found in table");
       }
 
@@ -605,11 +621,81 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
   }
 
   /**
+   * Make sure the folder the staging file goes in exists. This file is the transform's own
+   * business, so there is nothing to ask the user about: on S3 a prefix only exists while an object
+   * sits under it, and a brand new path would otherwise be refused with "Parent directory ... does
+   * not exist".
+   *
+   * @param filename the file about to be written
+   * @throws HopException when the folder is missing and cannot be created
+   */
+  void ensureParentFolderExists(String filename) throws HopException {
+    try {
+      FileObject parent = HopVfs.getFileObject(filename, variables).getParent();
+      if (parent == null || parent.exists()) {
+        return;
+      }
+      parent.createFolder();
+      if (isDetailed()) {
+        logDetailed("Created the parent folder " + HopVfs.getFriendlyURI(parent));
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "CrateDBBulkLoaderMeta.Error.CannotCreateParentFolder", filename),
+          e);
+    }
+  }
+
+  /**
+   * The HTTP endpoint needs a URL and the COPY statement needs a file, so fail before any row is
+   * read when either is missing.
+   *
+   * @throws HopException when the load settings are incomplete
+   */
+  protected void verifyLoadSettings() throws HopException {
+    if (meta.isUseHttpEndpoint()) {
+      if (StringUtils.isEmpty(resolve(meta.getHttpEndpoint()))) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "CrateDBBulkLoaderMeta.Error.NoHttpEndpoint"));
+      }
+    } else if (StringUtils.isEmpty(resolve(meta.getReadFromFilename()))) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "CrateDBBulkLoaderMeta.Error.NoReadFromFilename"));
+    }
+  }
+
+  /**
+   * Fail before any row is read when a column was mapped to a table column that does not exist. The
+   * COPY statement would reject it anyway, but only after the whole file was written.
+   *
+   * @throws HopException when a selected column is not a column of the target table
+   */
+  protected void verifyTableFields() throws HopException {
+    if (!meta.isSpecifyFields()) {
+      return;
+    }
+    for (CrateDBBulkLoaderField field : meta.getFields()) {
+      boolean found = false;
+      for (String[] dbField : data.dbFields) {
+        if (dbField[0].equalsIgnoreCase(field.getDatabaseField())) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new HopException(
+            "Field [" + field.getDatabaseField() + "] couldn't be found in the table!");
+      }
+    }
+  }
+
+  /**
    * Initialize the binary values of delimiters, enclosures, and escape characters
    *
    * @throws HopException
    */
-  private void initBinaryDataFields() throws HopException {
+  void initBinaryDataFields() throws HopException {
     try {
       data.binarySeparator = new byte[] {};
       data.binaryEnclosure = new byte[] {};
@@ -638,21 +724,19 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
    * @param row The input row
    * @throws HopTransformException
    */
-  private void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+  void writeRowToFile(Object[] row) throws HopTransformException {
 
     try {
+      byte[] nullString = meta.isSpecifyFields() ? data.binaryNullValue : null;
       for (int i = 0; i < data.insertRowMeta.size(); i++) {
-        if (i > 0 && data.binarySeparator.length > 0) {
+        if (i > 0) {
           data.writer.write(data.binarySeparator);
         }
 
-        Object convertedValue = null;
         IValueMeta v = data.insertRowMeta.getValueMeta(i);
-        convertedValue = convertDatatypeIfNeeded(v, row[data.selectedRowFieldIndices[i]], i);
+        Object convertedValue = convertDatatypeIfNeeded(v, row[data.selectedRowFieldIndices[i]], i);
         writeField(
-            data.convertedRowMeta.getValueMeta(i),
-            convertedValue,
-            (!meta.isSpecifyFields() ? null : data.binaryNullValue));
+            data.convertedRowMeta.getValueMeta(i), convertedValue, nullString, enclosedByType(v));
       }
       data.convertedRowMetaReady = true;
       data.writer.write(data.binaryNewline);
@@ -669,7 +753,16 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
    * @param nullString The bytes to put in the temp file if the value is null
    * @throws HopTransformException
    */
-  private void writeField(IValueMeta v, Object valueData, byte[] nullString)
+  /**
+   * @param v the value meta of the field on the stream, before it was rendered as text
+   * @return true if a value of this type is enclosed whatever it holds
+   */
+  private boolean enclosedByType(IValueMeta v) {
+    // A number or a boolean can never hold a separator, a quote or a line break.
+    return !v.isNumeric() && v.getType() != IValueMeta.TYPE_BOOLEAN;
+  }
+
+  private void writeField(IValueMeta v, Object valueData, byte[] nullString, boolean enclosedByType)
       throws HopTransformException {
     try {
       byte[] str;
@@ -684,42 +777,15 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       }
 
       if (str != null && str.length > 0) {
-        List<Integer> enclosures = null;
-        boolean writeEnclosures = false;
-
-        if (v.isString()) {
-          writeEnclosures = true;
-
-          if (containsSeparatorOrEnclosure(
-              str, data.binarySeparator, data.binaryEnclosure, data.escapeCharacters)) {
-            writeEnclosures = true;
-          }
-        }
-
-        if (writeEnclosures) {
+        // Strings are always enclosed, the COPY statement reads the same quote character.
+        // Anything else is enclosed only when its own content would otherwise break the row --
+        // JSON above all, which Hop does not treat as a string yet is full of commas and quotes.
+        if (enclosedByType || needsEnclosure(str)) {
           data.writer.write(data.binaryEnclosure);
-          enclosures = getEnclosurePositions(str);
-        }
-
-        if (enclosures == null) {
-          data.writer.write(str);
+          writeEscaped(str);
+          data.writer.write(data.binaryEnclosure);
         } else {
-          // Skip the enclosures, escape them instead...
-          int from = 0;
-          for (Integer enclosure : enclosures) {
-            // Minus one to write the escape before the enclosure
-            int position = enclosure;
-            data.writer.write(str, from, position - from);
-            data.writer.write(data.escapeCharacters); // write enclosure a second time
-            from = position;
-          }
-          if (from < str.length) {
-            data.writer.write(str, from, str.length - from);
-          }
-        }
-
-        if (writeEnclosures) {
-          data.writer.write(data.binaryEnclosure);
+          data.writer.write(str);
         }
       }
     } catch (Exception e) {
@@ -807,137 +873,58 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
   }
 
   /**
-   * Check if a string contains separators or enclosures. Can be used to determine if the string
-   * needs enclosures around it or not.
+   * Whether a value has to be enclosed to survive the trip through the CSV file: it is only safe to
+   * write bare when it holds no separator, no quote and no line break.
    *
-   * @param source The string to check
-   * @param separator The separator character(s)
-   * @param enclosure The enclosure character(s)
-   * @param escape The escape character(s)
-   * @return True if the string contains separators or enclosures
+   * @param str The bytes of the value
+   * @return true if the value must be enclosed
    */
-  @SuppressWarnings("Duplicates")
-  private boolean containsSeparatorOrEnclosure(
-      byte[] source, byte[] separator, byte[] enclosure, byte[] escape) {
-    boolean result = false;
+  private boolean needsEnclosure(byte[] str) {
+    byte separator = data.binarySeparator.length > 0 ? data.binarySeparator[0] : 0;
+    byte enclosure = data.binaryEnclosure.length > 0 ? data.binaryEnclosure[0] : 0;
 
-    boolean enclosureExists = enclosure != null && enclosure.length > 0;
-    boolean separatorExists = separator != null && separator.length > 0;
-    boolean escapeExists = escape != null && escape.length > 0;
-
-    // Skip entire test if neither separator nor enclosure exist
-    if (separatorExists || enclosureExists || escapeExists) {
-
-      // Search for the first occurrence of the separator or enclosure
-      for (int index = 0; !result && index < source.length; index++) {
-        if (enclosureExists && source[index] == enclosure[0]) {
-
-          // Potential match found, make sure there are enough bytes to support a full match
-          if (index + enclosure.length <= source.length) {
-            // First byte of enclosure found
-            result = true; // Assume match
-            for (int i = 1; i < enclosure.length; i++) {
-              if (source[index + i] != enclosure[i]) {
-                // Enclosure match is proven false
-                result = false;
-                break;
-              }
-            }
-          }
-
-        } else if (separatorExists && source[index] == separator[0]) {
-
-          // Potential match found, make sure there are enough bytes to support a full match
-          if (index + separator.length <= source.length) {
-            // First byte of separator found
-            result = true; // Assume match
-            for (int i = 1; i < separator.length; i++) {
-              if (source[index + i] != separator[i]) {
-                // Separator match is proven false
-                result = false;
-                break;
-              }
-            }
-          }
-
-        } else if (escapeExists
-            && source[index] == escape[0]
-            && index + escape.length <= source.length) {
-          // Potential match found, make sure there are enough bytes to support a full match
-          // First byte of separator found
-          result = true; // Assume match
-          for (int i = 1; i < escape.length; i++) {
-            if (source[index + i] != escape[i]) {
-              // Separator match is proven false
-              result = false;
-              break;
-            }
-          }
-        }
+    for (byte b : str) {
+      if (b == separator || b == enclosure || b == '\n' || b == '\r') {
+        return true;
       }
     }
-    return result;
+    return false;
   }
 
   /**
-   * Gets the positions of any double quotes or backslashes in the string
+   * Write the value, doubling every occurrence of the enclosure character so the CSV file stays
+   * readable for the COPY statement. Only bytes that actually need escaping are copied separately,
+   * a value without enclosures is written in one go.
    *
-   * @param str The string to check
-   * @return The positions within the string of double quotes and backslashes.
+   * @param str The bytes of the value
+   * @throws IOException in case the value could not be written
    */
-  private List<Integer> getEnclosurePositions(byte[] str) {
-    List<Integer> positions = null;
-    // +1 because otherwise we will not find it at the end
-    for (int i = 0, len = str.length; i < len; i++) {
-      // verify if on position i there is an enclosure
-      //
-      boolean found = true;
-      for (int x = 0; found && x < data.binaryEnclosure.length; x++) {
-        if (str[i + x] != data.binaryEnclosure[x]) {
-          found = false;
-        }
-      }
+  private void writeEscaped(byte[] str) throws IOException {
+    if (data.binaryEnclosure.length == 0) {
+      data.writer.write(str);
+      return;
+    }
+    byte enclosure = data.binaryEnclosure[0];
 
-      if (!found) {
-        found = true;
-        for (int x = 0; found && x < data.escapeCharacters.length; x++) {
-          if (str[i + x] != data.escapeCharacters[x]) {
-            found = false;
-          }
-        }
-      }
-
-      if (found) {
-        if (positions == null) {
-          positions = new ArrayList<>();
-        }
-        positions.add(i);
+    int from = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str[i] == enclosure) {
+        data.writer.write(str, from, i - from);
+        data.writer.write(data.escapeCharacters); // write the enclosure a second time
+        from = i;
       }
     }
-    return positions;
+    data.writer.write(str, from, str.length - from);
   }
 
   @Override
   public void stopRunning() throws HopException {
     setStopped(true);
-    if (data.workerThread != null) {
-      synchronized (data.workerThread) {
-        if (data.workerThread.isAlive() && !data.workerThread.isInterrupted()) {
-          try {
-            data.workerThread.interrupt();
-            data.workerThread.join();
-          } catch (InterruptedException e) { // Checkstyle:OFF:
-          }
-          // Checkstyle:ONN:
-        }
-      }
-    }
-
     super.stopRunning();
   }
 
   void truncateTable() throws HopDatabaseException {
-    if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+    if ((getCopy() == 0) || !Utils.isEmpty(getPartitionId())) {
       data.db.truncateTable(resolve(meta.getSchemaName()), resolve(meta.getTableName()));
     }
   }
@@ -947,23 +934,17 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
 
     setOutputDone();
 
-    try {
-      if (getErrors() > 0) {
-        data.db.rollback();
-      }
-    } catch (HopDatabaseException e) {
-      logError("Unexpected error rolling back the database connection.", e);
-    }
-
-    if (data.workerThread != null) {
-      try {
-        data.workerThread.join();
-      } catch (InterruptedException e) { // Checkstyle:OFF:
-      }
-      // Checkstyle:ONN:
-    }
+    // The file is normally closed before the COPY statement runs, this catches the error paths.
+    closeFile();
 
     if (data.db != null) {
+      try {
+        if (getErrors() > 0) {
+          data.db.rollback();
+        }
+      } catch (HopDatabaseException e) {
+        logError("Unexpected error rolling back the database connection.", e);
+      }
       data.db.disconnect();
     }
     super.dispose();

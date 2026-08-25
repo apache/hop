@@ -39,7 +39,7 @@
         <monetdb.version>12.2</monetdb.version>
         <mssqlnative.version>13.4.0.jre11</mssqlnative.version>
         <postgresql.version>42.7.12</postgresql.version>
-        <redshift.version>2.2.7</redshift.version>
+        <redshift.version>2.2.8</redshift.version>
         <snowflake.jdbc.version>4.3.0</snowflake.jdbc.version>
         <sqlite.version>3.53.2.0</sqlite.version>
         <vertica.jdbc.version>25.3.0-0</vertica.jdbc.version>

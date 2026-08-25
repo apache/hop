@@ -30,3 +30,95 @@ under the License.
 |Documentation | https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html[Documentation Link]
 |JDBC Url | jdbc:redshift://endpoint:port/database
 |===
+
+== Deployment
+
+Redshift comes in two shapes, and the *Deployment* option says which one you are connecting to.
+
+`PROVISIONED`:: A Redshift cluster. Enter its endpoint as the *Server hostname*, the way you always have. This is the default, so existing connections are unaffected.
++
+One extra field appears here when an IAM option is chosen:
++
+[options="header"]
+|===
+|Option|Description
+|Cluster identifier|The name of the cluster. Only needed when the driver cannot read it from the hostname — a custom domain name, or a load balancer in front of the cluster. Leave it empty for a normal cluster endpoint, where the driver works it out for itself.
+|===
+
+`SERVERLESS`:: A serverless workgroup. Its endpoint is entirely predictable, so rather than asking for a hostname that is easy to get subtly wrong, Hop builds it for you from three fields:
++
+[options="header"]
+|===
+|Option|Description
+|Workgroup name|The name of the workgroup. Note this is the *workgroup*, not the namespace — the two are easy to mix up, and a namespace name produces a hostname that does not resolve.
+|AWS account number|The 12 digit account number the workgroup belongs to.
+|AWS region|The region the workgroup runs in, e.g. `eu-west-1`.
+|===
++
+On a `PROVISIONED` cluster the region only appears for the IAM options, where it tells the driver
+which region's Redshift API to ask for temporary credentials. A cluster signing in with a database
+user and password has no use for it, and none is sent.
++
+Which yields `<workgroup>.<account-number>.<region>.redshift-serverless.amazonaws.com`. The console shows the same string on the workgroup's details page, under **General information**, if you would rather copy it.
++
+The default database of a serverless namespace is `dev`, *not* the namespace name.
++
+*Server hostname* stays available in this mode. Leave it empty and Hop builds the endpoint from
+the three fields above. Fill it in — with a custom domain name, or the address of a load balancer
+in front of the workgroup — and it is used as entered instead.
++
+Keep the workgroup, account number and region filled in either way. Behind a custom name the driver
+can no longer work out which workgroup it is talking to, so those three are passed to it as the
+`serverlessWorkGroup`, `serverlessAcctId` and `Region` options, which is precisely what AWS provides
+them for. Without them, IAM authentication against a custom endpoint fails.
++
+A provisioned cluster has the same problem and the same answer: fill in its *Cluster identifier*,
+which reaches the driver as `ClusterID`.
+
+[TIP]
+====
+A serverless workgroup lives inside a VPC. A `SocketTimeoutException: Connect timed out` when testing the connection means the endpoint could not be reached at all, which is a networking matter rather than anything about the connection settings.
+
+Reaching one from outside its VPC takes three things, and all three are easy to miss:
+
+. The workgroup must be publicly accessible (`aws redshift-serverless update-workgroup --publicly-accessible`).
+. Its security group must allow your address on the workgroup's port, 5439 by default.
+. Its subnets must route `0.0.0.0/0` to an *internet gateway*. A subnet whose default route is a NAT gateway is outbound-only: the endpoint still gets a public IP, but replies leave through the NAT and never reach you, so the connection times out exactly as if it were firewalled.
+
+Resolving the endpoint's hostname tells you which case you are in: a `10.x`, `172.16-31.x` or `192.168.x` answer means the workgroup is private.
+
+Without enhanced VPC routing a workgroup needs at least two subnets across two Availability Zones, so making one publicly reachable means having two internet-gateway-routed subnets, not one.
+
+Running Hop inside the VPC avoids all of this, and is usually the better answer for scheduled or automated runs.
+====
+
+== Authentication
+
+The *Authentication* option chooses how the driver proves who you are.
+
+[options="header"]
+|===
+|Option|Description
+|`DATABASE`|A Redshift database user and password, entered as the connection's username and password. This is the default and the historical behaviour.
+|`IAM_CREDENTIALS`|An AWS access key ID and secret access key, optionally with a session token for temporary credentials.
+|`IAM_PROFILE`|A named profile from your shared AWS credentials file, usually `~/.aws/credentials`. Nothing secret is stored in the Hop connection.
+|`IAM_DEFAULT_CHAIN`|Whatever the AWS default credentials chain finds: environment variables, the shared credentials file, an SSO session, an EC2 instance profile, an ECS task role. This is the one to use when Hop runs inside AWS.
+|===
+
+The three `IAM_` options do not sign in with a Redshift password at all. The driver calls AWS for temporary database credentials and connects with those, which is why the URL Hop builds for them starts with `jdbc:redshift:iam://` instead of `jdbc:redshift://`.
+
+They share three further options:
+
+[options="header"]
+|===
+|Option|Description
+|Database user|The Redshift user the temporary credentials are issued for. Leave empty to use the connection's username.
+|Database groups|Comma separated list of existing database groups the user joins for the session. Optional.
+|Create the user if missing|Create the database user when it does not exist yet, rather than failing to authenticate.
+|===
+
+NOTE: An AWS access key is not a Redshift user, so it does not go in the connection's username and password fields. Those are always the database credentials.
+
+== Custom domain names
+
+If a custom domain name or a load balancer sits in front of your cluster or workgroup, the driver cannot work out from the hostname which cluster it is talking to. Enter the JDBC URL yourself in the *Manual URL* field; anything set on the *Options* tab is still passed to the driver, so the authentication options above keep working.

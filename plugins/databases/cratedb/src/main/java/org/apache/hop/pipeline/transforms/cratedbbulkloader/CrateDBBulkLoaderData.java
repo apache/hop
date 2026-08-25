@@ -17,12 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.cratedbbulkloader;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -47,8 +44,14 @@ public class CrateDBBulkLoaderData extends BaseTransformData implements ITransfo
   // data type
   public ArrayList<String[]> dbFields;
 
-  // Maps table fields to the location of the corresponding field on the input stream.
-  public Map<String, Integer> fieldnrs;
+  /** The names of the columns we load, in the order the CSV file and the bulk insert use them. */
+  protected String[] columnNames;
+
+  /** Rows per HTTP bulk request, resolved once at init time. */
+  protected int maxBatchSize;
+
+  /** Set as soon as a first row is read, so we know whether the stream was empty. */
+  protected boolean rowsReceived;
 
   protected OutputStream writer;
 
@@ -59,10 +62,6 @@ public class CrateDBBulkLoaderData extends BaseTransformData implements ITransfo
   public byte[] escapeCharacters;
   public byte[] binaryNewline;
   public byte[] binaryNullValue;
-
-  protected PipedInputStream pipedInputStream;
-
-  protected volatile Thread workerThread;
 
   public CrateDBBulkLoaderData() {
     super();
@@ -76,9 +75,5 @@ public class CrateDBBulkLoaderData extends BaseTransformData implements ITransfo
 
   public void setDatabaseMeta(DatabaseMeta databaseMeta) {
     this.databaseMeta = databaseMeta;
-  }
-
-  public void close() throws IOException {
-    // Do nothing
   }
 }
