@@ -26,10 +26,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import org.apache.hop.pipeline.transforms.surefirereport.SurefireTestCase.Status;
 
 /** Writes Maven Surefire 3.0-compatible XML reports. */
 public final class SurefireReportWriter {
+
+  /** CSI escape sequences: what a colourising CLI writes around its output. */
+  private static final Pattern ANSI_ESCAPE = Pattern.compile("\u001b\\[[0-?]*[ -/]*[@-~]");
 
   private static final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
   private static final String XSD =
@@ -163,7 +167,7 @@ public final class SurefireReportWriter {
 
   static void writeCdata(BufferedWriter out, String text) throws IOException {
     // Split CDATA if the text contains the terminator sequence.
-    String remaining = text == null ? "" : text;
+    String remaining = sanitize(text);
     int idx;
     out.write("<![CDATA[");
     while ((idx = remaining.indexOf("]]>")) >= 0) {
@@ -176,13 +180,53 @@ public final class SurefireReportWriter {
     out.newLine();
   }
 
+  /**
+   * Removes everything XML 1.0 cannot carry, in a CDATA section as much as in an attribute. Tests
+   * that shell out to a colourising CLI (dbt does) leave ANSI escape sequences in the captured log;
+   * their ESC (0x1b) makes the whole report unparsable, so Jenkins reports nothing at all for the
+   * project. Escape sequences go whole rather than only their ESC, so their printable tail ("[0m")
+   * does not litter the report.
+   */
+  static String sanitize(String text) {
+    if (text == null || text.isEmpty()) {
+      return "";
+    }
+    String stripped = ANSI_ESCAPE.matcher(text).replaceAll("");
+    StringBuilder sb = new StringBuilder(stripped.length());
+    for (int i = 0; i < stripped.length(); i++) {
+      char ch = stripped.charAt(i);
+      if (Character.isHighSurrogate(ch)
+          && i + 1 < stripped.length()
+          && Character.isLowSurrogate(stripped.charAt(i + 1))) {
+        // A valid pair: an emoji in a log is fine, only lone halves are not.
+        sb.append(ch).append(stripped.charAt(i + 1));
+        i++;
+      } else if (isLegalXmlCharacter(ch)) {
+        sb.append(ch);
+      }
+    }
+    return sb.toString();
+  }
+
+  private static boolean isLegalXmlCharacter(char ch) {
+    if (ch == '\t' || ch == '\n' || ch == '\r') {
+      return true;
+    }
+    if (ch < 0x20 || (ch >= 0x7f && ch <= 0x9f)) {
+      return false;
+    }
+    // Unpaired surrogates and the non-characters are not valid XML content either.
+    return !Character.isSurrogate(ch) && ch != '\ufffe' && ch != '\uffff';
+  }
+
   static String escapeAttribute(String value) {
     if (value == null) {
       return "";
     }
-    StringBuilder sb = new StringBuilder(value.length() + 16);
-    for (int i = 0; i < value.length(); i++) {
-      char ch = value.charAt(i);
+    String sanitized = sanitize(value);
+    StringBuilder sb = new StringBuilder(sanitized.length() + 16);
+    for (int i = 0; i < sanitized.length(); i++) {
+      char ch = sanitized.charAt(i);
       switch (ch) {
         case '&' -> sb.append("&amp;");
         case '<' -> sb.append("&lt;");
@@ -190,9 +234,7 @@ public final class SurefireReportWriter {
         case '"' -> sb.append("&quot;");
         case '\'' -> sb.append("&apos;");
         default -> {
-          if (ch < 0x20 && ch != '\t' && ch != '\n' && ch != '\r') {
-            // skip illegal XML 1.0 control characters
-          } else {
+          if (isLegalXmlCharacter(ch)) {
             sb.append(ch);
           }
         }
