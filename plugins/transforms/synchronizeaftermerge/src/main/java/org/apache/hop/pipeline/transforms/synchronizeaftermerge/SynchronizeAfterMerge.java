@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -552,36 +553,88 @@ public class SynchronizeAfterMerge
     }
   }
 
-  private void processBatchException(
+  /**
+   * Route every row of a failed batch to the regular output or to the error stream.
+   *
+   * <p>Drivers do not agree on what {@link java.sql.BatchUpdateException#getUpdateCounts()} holds
+   * after a failure. Some report one count per row, marking the failures in place. Some stop at the
+   * first failure, so the array is <em>shorter</em> than the batch: the row at {@code
+   * updateCounts.length} is the one that failed and the rows behind it were never sent at all
+   * (Oracle and Derby; a failure on the first row gives a zero-length array, not a null one). Some
+   * report nothing usable.
+   *
+   * <p>Whatever comes back, every buffered row has to leave here on one of the two streams. Walking
+   * only the counts array and then clearing the buffer is what used to make rows disappear without
+   * an error row or a log line - see <a href="https://github.com/apache/hop/issues/5758">issue
+   * 5758</a>, which reported it against Table Output.
+   *
+   * <p>Unlike Table Output, this transform does not re-drive the rows the database never attempted.
+   * It buffers rows for its insert, update and delete statements in one interleaved list, so a
+   * buffer position does not identify which statement the row belongs to and the values to re-bind
+   * cannot be worked out. Those rows are reported as rejects instead, which keeps them out of the
+   * silent-loss category but does mean this transform writes fewer rows than Table Output would for
+   * the same input on a driver that abandons the rest of the batch.
+   *
+   * <p>Package-private so the accounting can be exercised directly against each driver shape,
+   * without a database.
+   */
+  void processBatchException(
       String errorMessage, int[] updateCounts, List<Exception> exceptionsList) throws HopException {
-    // There was an error with the commit
-    // We should put all the failing rows out there...
+
+    List<Exception> exceptions = exceptionsList == null ? List.of() : exceptionsList;
+    int bufferSize = data.batchBuffer.size();
+
+    // More counts than rows means the counts belong to a different batch than the one buffered, so
+    // no row can be matched to a count. Reporting the wrong rows on the wrong stream would be worse
+    // than failing here, where the mismatch is still visible.
     //
-    if (updateCounts != null) {
-      int errNr = 0;
-      for (int i = 0; i < updateCounts.length; i++) {
-        Object[] row = data.batchBuffer.get(i);
-        if (updateCounts[i] > 0) {
-          // send the error forward
-          putRow(data.outputRowMeta, row);
-          incrementLinesOutput();
-        } else {
-          String exMessage = errorMessage;
-          if (errNr < exceptionsList.size()) {
-            SQLException se = (SQLException) exceptionsList.get(errNr);
-            errNr++;
-            exMessage = se.toString();
-          }
-          putError(data.outputRowMeta, row, 1L, exMessage, null, "SUYNC002");
+    if (updateCounts != null && updateCounts.length > bufferSize) {
+      throw new HopException(
+          "Unable to attribute batch errors to rows: the database returned "
+              + updateCounts.length
+              + " update counts for a batch of "
+              + bufferSize
+              + " buffered rows.");
+    }
+
+    int counted = updateCounts == null ? 0 : updateCounts.length;
+    int errNr = 0;
+
+    for (int i = 0; i < counted; i++) {
+      Object[] row = data.batchBuffer.get(i);
+      if (updateCounts[i] != Statement.EXECUTE_FAILED) {
+        // Anything that isn't EXECUTE_FAILED is a success. That includes SUCCESS_NO_INFO, and it
+        // includes a count of zero: this transform issues updates and deletes, and a statement that
+        // matched no rows still ran.
+        //
+        putRow(data.outputRowMeta, row);
+        incrementLinesOutput();
+      } else {
+        String exMessage = errorMessage;
+        if (errNr < exceptions.size()) {
+          exMessage = exceptions.get(errNr).toString();
+          errNr++;
         }
+        putError(data.outputRowMeta, row, 1L, exMessage, null, "SUYNC002");
       }
-    } else {
-      // If we don't have update counts, it probably means the DB doesn't support it.
-      // In this case we don't have a choice but to consider all inserted rows to be error rows.
-      //
-      for (int i = 0; i < data.batchBuffer.size(); i++) {
-        Object[] row = data.batchBuffer.get(i);
-        putError(data.outputRowMeta, row, 1L, errorMessage, null, "SUYNC003");
+    }
+
+    // Whatever the driver did not account for. With a short array the first of these is the row it
+    // actually refused, so it keeps the database's own message; the rest were never attempted.
+    //
+    for (int i = counted; i < bufferSize; i++) {
+      Object[] row = data.batchBuffer.get(i);
+      if (i == counted && updateCounts != null) {
+        putError(data.outputRowMeta, row, 1L, errorMessage, null, "SUYNC002");
+      } else {
+        putError(
+            data.outputRowMeta,
+            row,
+            1L,
+            BaseMessages.getString(
+                PKG, "SynchronizeAfterMerge.Error.RowNotAttempted", Const.NVL(errorMessage, "")),
+            null,
+            "SUYNC003");
       }
     }
 
