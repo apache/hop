@@ -1177,6 +1177,100 @@ class JsonInputTest {
   }
 
   @Test
+  void testZeroSizeFileIgnoredEmitsNoRow() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    try (FileObject empty = HopVfs.getFileObject(BASE_RAM_DIR + "empty.json")) {
+      empty.createFile();
+
+      JsonInputField price = new JsonInputField();
+      price.setName("price");
+      price.setType(IValueMeta.TYPE_NUMBER);
+      price.setPath("$..book[*].price");
+
+      JsonInputMeta meta = createFileListMeta(List.of(empty));
+      meta.getInputFields().add(price);
+      meta.setIgnoringEmptyFile(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 3);
+      disposeJsonInput(jsonInput);
+
+      assertEquals(0, jsonInput.getErrors(), err.toString());
+      assertEquals(0, jsonInput.getLinesWritten(), "rows written");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testZeroSizeFileNotIgnoredIsAnError() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    try (FileObject empty = HopVfs.getFileObject(BASE_RAM_DIR + "empty.json");
+        LocaleChange enUs = new LocaleChange(Locale.US)) {
+      empty.createFile();
+
+      JsonInputField price = new JsonInputField();
+      price.setName("price");
+      price.setType(IValueMeta.TYPE_NUMBER);
+      price.setPath("$..book[*].price");
+
+      JsonInputMeta meta = createFileListMeta(List.of(empty));
+      meta.getInputFields().add(price);
+      meta.setIgnoringEmptyFile(false);
+      meta.setIgnoringMissingPath(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 3);
+      disposeJsonInput(jsonInput);
+
+      String logMsgs = err.toString();
+      assertTrue(logMsgs.contains("is empty!"), logMsgs);
+      assertEquals(1, jsonInput.getErrors(), "errors");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testZeroSizeLastFileIgnoredEmitsNoExtraRow() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    try (FileObject good = HopVfs.getFileObject(BASE_RAM_DIR + "good.json");
+        FileObject empty = HopVfs.getFileObject(BASE_RAM_DIR + "empty.json")) {
+      try (OutputStream os = good.getContent().getOutputStream()) {
+        IOUtils.write(getBasicTestJson(), os, StandardCharsets.UTF_8);
+      }
+      empty.createFile();
+
+      JsonInputField price = new JsonInputField();
+      price.setName("price");
+      price.setType(IValueMeta.TYPE_NUMBER);
+      price.setPath("$..book[*].price");
+
+      JsonInputMeta meta = createFileListMeta(List.of(good, empty));
+      meta.getInputFields().add(price);
+      meta.setIgnoringEmptyFile(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      jsonInput.addRowListener(
+          new RowComparatorListener(
+              new Object[] {8.95d},
+              new Object[] {12.99d},
+              new Object[] {8.99d},
+              new Object[] {22.99d}));
+      processRows(jsonInput, 8);
+      disposeJsonInput(jsonInput);
+
+      assertEquals(0, jsonInput.getErrors(), err.toString());
+      assertEquals(4, jsonInput.getLinesWritten(), "rows written");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
   void testBracketEscape() throws Exception {
     String input = "{\"a\":1,\"b(1)\":2}";
     testSimpleJsonPath(

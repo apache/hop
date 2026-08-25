@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -196,7 +197,12 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     data.inputRowMeta = getInputRowMeta();
     if (!meta.isInFields() && data.inputRowMeta == null) {
       data.outputRowMeta = new RowMeta();
-      if (!meta.isDoNotFailIfNoFile() && (data.files == null || data.files.nrOfFiles() == 0)) {
+      if (data.files == null) {
+        // Resolve the file list here: the reader below only does it while iterating, which is too
+        // late to tell whether there are any files at all.
+        data.files = meta.getFileInputList(this);
+      }
+      if (!meta.isDoNotFailIfNoFile() && data.files.nrOfFiles() == 0) {
         String errMsg = BaseMessages.getString(PKG, "JsonInput.Log.NoFiles");
         logError(errMsg);
         inputError(errMsg);
@@ -319,7 +325,9 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       if (meta.isIgnoringEmptyFile()) {
         int first = pb.read();
         if (first < 0) {
-          data.readerRowSet = data.jsonReader.emptyFieldRowSet();
+          // Empty input while ignoring empty files: a file is skipped without any output row, a
+          // field value keeps the incoming row with null values.
+          data.readerRowSet = isReadingFiles() ? emptyRowSet() : data.jsonReader.emptyFieldRowSet();
           return;
         }
         pb.unread(first);
@@ -333,6 +341,18 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       logInputError(e);
       throw new JsonInputException(e);
     }
+  }
+
+  /** Are we reading the JSON from files (file list or file names in a field)? */
+  private boolean isReadingFiles() {
+    return !meta.isInFields() || meta.getIsAFile();
+  }
+
+  /** A finished row set without any rows: nothing gets written for this input. */
+  private IRowSet emptyRowSet() {
+    IRowSet rowSet = new QueueRowSet();
+    rowSet.setDone();
+    return rowSet;
   }
 
   private void parseNextJsonToRowSet(JsonNode node) throws HopException {
@@ -478,6 +498,10 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
               }
               BaseTransform.closeQuietly(countingIn);
             }
+          } else if (data.skipEmptyFile) {
+            // The last file(s) in the list were empty and are ignored: emit nothing for them.
+            data.skipEmptyFile = false;
+            data.readerRowSet = emptyRowSet();
           } else {
             // Null stream (e.g. null field, iterator error path): do not parse "{}" when ignoring
             // empty input — that would still run JSONPath and fail if paths are missing.
