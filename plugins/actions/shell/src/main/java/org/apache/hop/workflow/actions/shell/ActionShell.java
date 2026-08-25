@@ -75,6 +75,39 @@ import org.w3c.dom.Node;
 @Getter
 @Setter
 public class ActionShell extends ActionBase {
+  public static class ShellArgument {
+    @HopMetadataProperty(key = "value")
+    private String value;
+
+    @HopMetadataProperty(key = "hidden")
+    private boolean hidden;
+
+    public ShellArgument() {
+      this("", false);
+    }
+
+    public ShellArgument(String value, boolean hidden) {
+      this.value = value;
+      this.hidden = hidden;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
+
+    public boolean isHidden() {
+      return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+      this.hidden = hidden;
+    }
+  }
+
   private static final Class<?> PKG = ActionShell.class;
   public static final String CONST_JAVA_IO_TMPDIR = "java.io.tmpdir";
   public static final String CONST_WINDOWS_95 = "Windows 95";
@@ -87,7 +120,7 @@ public class ActionShell extends ActionBase {
   private String workDirectory;
 
   @HopMetadataProperty(groupKey = "arguments", key = "argument")
-  public List<String> arguments;
+  public List<ShellArgument> arguments;
 
   @HopMetadataProperty(key = "arg_from_previous")
   public boolean argFromPrevious;
@@ -155,7 +188,10 @@ public class ActionShell extends ActionBase {
       // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
       // THE XML "DUBIOUS". DON'T REUSE IT.
       for (int a = 0; a < argnr; a++) {
-        arguments.add(XmlHandler.getTagValue(entrynode, "argument" + a));
+        if (arguments == null) {
+          arguments = new ArrayList<>();
+        }
+        arguments.add(new ShellArgument(XmlHandler.getTagValue(entrynode, "argument" + a), false));
       }
     } catch (HopException e) {
       throw new HopXmlException("Unable to load action of type 'shell' from XML node", e);
@@ -243,15 +279,20 @@ public class ActionShell extends ActionBase {
 
     // "Translate" the arguments for later
     String[] substArgs = null;
+    boolean[] hiddenArgs = null;
     if (arguments != null) {
       substArgs = new String[arguments.size()];
+      hiddenArgs = new boolean[arguments.size()];
       for (int idx = 0; idx < arguments.size(); idx++) {
-        substArgs[idx] = resolve(arguments.get(idx));
+        ShellArgument arg = arguments.get(idx);
+        substArgs[idx] = resolve(arg.getValue());
+        hiddenArgs[idx] = arg.isHidden();
       }
     }
 
     int iteration = 0;
     String[] args = substArgs;
+    boolean[] hArgs = hiddenArgs;
     RowMetaAndData resultRow = null;
     boolean first = true;
     List<RowMetaAndData> rows = result.getRows();
@@ -281,6 +322,7 @@ public class ActionShell extends ActionBase {
 
           if (resultRow != null) {
             args = new String[resultRow.size()];
+            hArgs = new boolean[resultRow.size()];
             for (int i = 0; i < resultRow.size(); i++) {
               args[i] = resultRow.getString(i, null);
             }
@@ -295,8 +337,10 @@ public class ActionShell extends ActionBase {
         if (argFromPrevious) {
           // Only put the first Row on the arguments
           args = null;
+          hArgs = null;
           if (resultRow != null) {
             args = new String[resultRow.size()];
+            hArgs = new boolean[resultRow.size()];
             for (int i = 0; i < resultRow.size(); i++) {
               args[i] = resultRow.getString(i, null);
             }
@@ -309,7 +353,7 @@ public class ActionShell extends ActionBase {
         }
       }
 
-      executeShell(result, cmdRows, args);
+      executeShell(result, cmdRows, args, hArgs);
 
       iteration++;
     }
@@ -330,7 +374,8 @@ public class ActionShell extends ActionBase {
     return result;
   }
 
-  private void executeShell(Result result, List<RowMetaAndData> cmdRows, String[] args) {
+  private void executeShell(
+      Result result, List<RowMetaAndData> cmdRows, String[] args, boolean[] hiddenArgs) {
     FileObject fileObject = null;
     String realScript = null;
     FileObject tempFile = null;
@@ -339,6 +384,7 @@ public class ActionShell extends ActionBase {
       // What's the exact command?
       String[] base = null;
       List<String> cmds = new ArrayList<>();
+      List<String> logCmds = new ArrayList<>();
 
       if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ActionShell.RunningOn", Const.getSystemOs()));
@@ -379,6 +425,7 @@ public class ActionShell extends ActionBase {
         // Add the base command...
         for (String s : base) {
           cmds.add(s);
+          logCmds.add(s);
         }
 
         if (Const.getSystemOs().equals(CONST_WINDOWS_95)
@@ -388,9 +435,12 @@ public class ActionShell extends ActionBase {
           // included in 1 argument to cmd/command.
 
           StringBuilder cmdline = new StringBuilder(300);
+          StringBuilder logCmdline = new StringBuilder(300);
 
           cmdline.append('"');
           cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
+          logCmdline.append('"');
+          logCmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
           // Add the arguments from previous results...
           for (RowMetaAndData r : cmdRows) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
@@ -398,10 +448,14 @@ public class ActionShell extends ActionBase {
             for (int j = 0; j < r.size(); j++) {
               cmdline.append(' ');
               cmdline.append(Const.optionallyQuoteStringByOS(r.getString(j, null)));
+              logCmdline.append(' ');
+              logCmdline.append(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
           }
           cmdline.append('"');
           cmds.add(cmdline.toString());
+          logCmdline.append('"');
+          logCmds.add(logCmdline.toString());
         } else {
           // Add the arguments from previous results...
           for (RowMetaAndData r : cmdRows) {
@@ -409,6 +463,7 @@ public class ActionShell extends ActionBase {
 
             for (int j = 0; j < r.size(); j++) {
               cmds.add(Const.optionallyQuoteStringByOS(r.getString(j, null)));
+              logCmds.add(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
           }
         }
@@ -416,6 +471,7 @@ public class ActionShell extends ActionBase {
         // Add the base command...
         for (String s : base) {
           cmds.add(s);
+          logCmds.add(s);
         }
 
         if (Const.getSystemOs().equals(CONST_WINDOWS_95)
@@ -425,26 +481,38 @@ public class ActionShell extends ActionBase {
           // included in 1 argument to cmd/command.
 
           StringBuilder cmdline = new StringBuilder(300);
+          StringBuilder logCmdline = new StringBuilder(300);
 
           cmdline.append('"');
           cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
+          logCmdline.append('"');
+          logCmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
 
-          for (String arg : args) {
+          for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            boolean hidden = hiddenArgs != null && i < hiddenArgs.length && hiddenArgs[i];
             cmdline.append(' ');
             cmdline.append(Const.optionallyQuoteStringByOS(arg));
+            logCmdline.append(' ');
+            logCmdline.append(hidden ? "***" : Const.optionallyQuoteStringByOS(arg));
           }
           cmdline.append('"');
           cmds.add(cmdline.toString());
+          logCmdline.append('"');
+          logCmds.add(logCmdline.toString());
         } else {
-          for (String arg : args) {
+          for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            boolean hidden = hiddenArgs != null && i < hiddenArgs.length && hiddenArgs[i];
             cmds.add(arg);
+            logCmds.add(hidden ? "***" : arg);
           }
         }
       }
 
       StringBuilder command = new StringBuilder();
 
-      Iterator<String> it = cmds.iterator();
+      Iterator<String> it = logCmds.iterator();
       boolean first = true;
       while (it.hasNext()) {
         if (!first) {

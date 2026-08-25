@@ -44,4 +44,19 @@ class WorkflowActionShellLoadSaveTest {
     assertEquals(clone.getWorkDirectory(), meta.getWorkDirectory());
     assertEquals(clone.getArguments().size(), meta.getArguments().size());
   }
+
+  @Test
+  void testHiddenArguments() {
+    ActionShell meta = new ActionShell();
+    meta.setArguments(
+        java.util.List.of(
+            new ActionShell.ShellArgument("regularArg", false),
+            new ActionShell.ShellArgument("secretPassword", true)));
+
+    assertEquals(2, meta.getArguments().size());
+    assertEquals("regularArg", meta.getArguments().get(0).getValue());
+    org.junit.jupiter.api.Assertions.assertFalse(meta.getArguments().get(0).isHidden());
+    assertEquals("secretPassword", meta.getArguments().get(1).getValue());
+    org.junit.jupiter.api.Assertions.assertTrue(meta.getArguments().get(1).isHidden());
+  }
 }

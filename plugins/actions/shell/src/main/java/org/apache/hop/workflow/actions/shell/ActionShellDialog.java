@@ -487,7 +487,7 @@ public class ActionShellDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wlEveryRow, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int nrFieldsCols = 1;
+    final int nrFieldsCols = 2;
     int nrRows =
         action.arguments == null ? 1 : (action.arguments.isEmpty() ? 1 : action.arguments.size());
 
@@ -498,6 +498,13 @@ public class ActionShellDialog extends ActionDialog {
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     fieldColumns[0].setUsingVariables(true);
+
+    fieldColumns[1] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "ActionShell.Fields.Hidden.Label"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {"Y", "N"},
+            false);
 
     wFields =
         new TableView(
@@ -655,8 +662,12 @@ public class ActionShellDialog extends ActionDialog {
     if (action.arguments != null) {
       for (int i = 0; i < action.arguments.size(); i++) {
         TableItem ti = wFields.table.getItem(i);
-        if (action.arguments.get(i) != null) {
-          ti.setText(1, action.arguments.get(i));
+        ActionShell.ShellArgument arg = action.arguments.get(i);
+        if (arg != null) {
+          if (arg.getValue() != null) {
+            ti.setText(1, arg.getValue());
+          }
+          ti.setText(2, arg.isHidden() ? "Y" : "N");
         }
       }
       wFields.setRowNums();
@@ -708,8 +719,9 @@ public class ActionShellDialog extends ActionDialog {
 
     for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
+      boolean hidden = "Y".equalsIgnoreCase(wFields.getNonEmpty(i).getText(2));
       if (!Utils.isEmpty(arg)) {
-        action.arguments.add(arg);
+        action.arguments.add(new ActionShell.ShellArgument(arg, hidden));
       }
     }
 
