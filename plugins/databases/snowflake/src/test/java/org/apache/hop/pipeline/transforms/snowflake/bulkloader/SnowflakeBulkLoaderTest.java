@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -28,9 +30,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -187,5 +201,96 @@ class SnowflakeBulkLoaderTest {
     }
 
     verify(bulkLoaderSpy, never()).truncateTable();
+  }
+
+  @Test
+  void testDateIsWrittenInTheSnowflakeTimestampFormatWhenTheTableIsUnknown() {
+    data.dbFields = null;
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaDate("created"));
+
+    IValueMeta[] writeValueMetas = bulkLoaderSpy.getWriteValueMetas(rowMeta);
+
+    assertEquals(SnowflakeBulkLoaderMeta.TIMESTAMP_MASK, writeValueMetas[0].getConversionMask());
+  }
+
+  @Test
+  void testDateIsWrittenInTheFormatOfTheTargetColumn() {
+    data.dbFields = new ArrayList<>();
+    data.dbFields.add(new String[] {"BIRTHDAY", "DATE"});
+    data.dbFields.add(new String[] {"CREATED", "TIMESTAMP_NTZ(9)"});
+    data.dbFields.add(new String[] {"STARTED", "TIME(9)"});
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaDate("birthday"));
+    rowMeta.addValueMeta(new ValueMetaTimestamp("created"));
+    rowMeta.addValueMeta(new ValueMetaDate("started"));
+
+    IValueMeta[] writeValueMetas = bulkLoaderSpy.getWriteValueMetas(rowMeta);
+
+    assertEquals(SnowflakeBulkLoaderMeta.DATE_MASK, writeValueMetas[0].getConversionMask());
+    assertEquals(SnowflakeBulkLoaderMeta.TIMESTAMP_MASK, writeValueMetas[1].getConversionMask());
+    assertEquals(SnowflakeBulkLoaderMeta.TIME_MASK, writeValueMetas[2].getConversionMask());
+  }
+
+  @Test
+  void testFormatOfTheStreamIsKeptForNonDateColumns() {
+    data.dbFields = new ArrayList<>();
+    data.dbFields.add(new String[] {"CREATED", "VARCHAR(16777216)"});
+    data.dbFields.add(new String[] {"NAME", "VARCHAR(16777216)"});
+
+    IRowMeta rowMeta = new RowMeta();
+    IValueMeta date = new ValueMetaDate("created");
+    date.setConversionMask("dd/MM/yyyy");
+    rowMeta.addValueMeta(date);
+    IValueMeta name = new ValueMetaString("name");
+    rowMeta.addValueMeta(name);
+
+    IValueMeta[] writeValueMetas = bulkLoaderSpy.getWriteValueMetas(rowMeta);
+
+    assertSame(date, writeValueMetas[0]);
+    assertSame(name, writeValueMetas[1]);
+  }
+
+  @Test
+  void testTheFormatOfTheStreamIsNotModified() {
+    data.dbFields = null;
+    IRowMeta rowMeta = new RowMeta();
+    IValueMeta date = new ValueMetaDate("created");
+    date.setConversionMask("dd/MM/yyyy");
+    rowMeta.addValueMeta(date);
+
+    bulkLoaderSpy.getWriteValueMetas(rowMeta);
+
+    assertEquals("dd/MM/yyyy", date.getConversionMask());
+  }
+
+  @Test
+  void testDatesAreWrittenToTheTempFileInTheSnowflakeFormat() throws Exception {
+    data.dbFields = new ArrayList<>();
+    data.dbFields.add(new String[] {"BIRTHDAY", "DATE"});
+    data.dbFields.add(new String[] {"CREATED", "TIMESTAMP_NTZ(9)"});
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaDate("birthday"));
+    rowMeta.addValueMeta(new ValueMetaDate("created"));
+
+    data.outputRowMeta = rowMeta;
+    data.writeValueMetas = bulkLoaderSpy.getWriteValueMetas(rowMeta);
+    data.binarySeparator = SnowflakeBulkLoaderMeta.CSV_DELIMITER.getBytes(StandardCharsets.UTF_8);
+    data.binaryEnclosure = SnowflakeBulkLoaderMeta.ENCLOSURE.getBytes(StandardCharsets.UTF_8);
+    data.escapeCharacters =
+        SnowflakeBulkLoaderMeta.CSV_ESCAPE_CHAR.getBytes(StandardCharsets.UTF_8);
+    data.binaryNewline =
+        SnowflakeBulkLoaderMeta.CSV_RECORD_DELIMITER.getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    data.writer = output;
+
+    Date date = new GregorianCalendar(2023, Calendar.FEBRUARY, 9, 10, 11, 12).getTime();
+    bulkLoaderSpy.writeRowToFile(rowMeta, new Object[] {date, date});
+
+    assertEquals(
+        "2023-02-09,2023-02-09 10:11:12.000" + SnowflakeBulkLoaderMeta.CSV_RECORD_DELIMITER,
+        output.toString(StandardCharsets.UTF_8));
   }
 }
