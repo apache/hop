@@ -27,4 +27,9 @@ public class HopGuiImpl implements ISingletonProvider {
     }
     return instance;
   }
+
+  @Override
+  public Object peekInstanceInternal() {
+    return instance;
+  }
 }

@@ -1377,7 +1377,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   public static HopVfsFileDialog getInstance() {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui != null && hopGui.getOpenVfsFileDialog() != null) {
       return hopGui.getOpenVfsFileDialog();
     }
@@ -1386,7 +1386,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private void dispose() {
     instance = null;
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui != null && hopGui.getOpenVfsFileDialog() == this) {
       hopGui.setOpenVfsFileDialog(null);
     }

@@ -206,10 +206,19 @@ public class ConfigPluginOptionsTab {
     return pluginDataMap().keySet();
   }
 
+  private static PluginOptionsData fallbackData;
+
   private static Map<String, Object> pluginDataMap() {
-    return HopGui.getInstance()
-        .getSessionSingleton(PluginOptionsData.class, PluginOptionsData::new)
-        .map;
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(PluginOptionsData.class, PluginOptionsData::new).map;
+    }
+    synchronized (ConfigPluginOptionsTab.class) {
+      if (fallbackData == null) {
+        fallbackData = new PluginOptionsData();
+      }
+      return fallbackData.map;
+    }
   }
 
   /** Per-session store of config-plugin GUI objects. */

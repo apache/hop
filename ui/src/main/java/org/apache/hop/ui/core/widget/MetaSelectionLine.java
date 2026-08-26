@@ -263,8 +263,14 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   public static String getEditIcon(Object guiPluginObject) {
-    MetaSelectionLine<?> line = (MetaSelectionLine<?>) guiPluginObject;
-    return line.getManagedClass().getAnnotation(HopMetadata.class).image();
+    if (!(guiPluginObject instanceof MetaSelectionLine<?> line) || line.getManagedClass() == null) {
+      return "ui/images/metadata.svg";
+    }
+    HopMetadata annotation = line.getManagedClass().getAnnotation(HopMetadata.class);
+    if (annotation == null || Utils.isEmpty(annotation.image())) {
+      return "ui/images/metadata.svg";
+    }
+    return annotation.image();
   }
 
   @GuiToolbarElement(

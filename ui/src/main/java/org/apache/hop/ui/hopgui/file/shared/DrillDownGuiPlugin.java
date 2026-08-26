@@ -134,7 +134,7 @@ public class DrillDownGuiPlugin {
    * Clears drill-down and sample-row state for this HopGui session. Call when starting a new run.
    */
   public static void cleanupOnRunStart() {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui != null) {
       cleanupOnRunStart(hopGui.getId());
     }

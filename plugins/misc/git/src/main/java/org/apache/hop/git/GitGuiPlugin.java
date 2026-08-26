@@ -129,8 +129,19 @@ public class GitGuiPlugin
 
   @Getter private Map<String, String> ignoredFiles;
 
+  private static GitGuiPlugin fallback;
+
   public static GitGuiPlugin getInstance() {
-    return HopGui.getInstance().getSessionSingleton(GitGuiPlugin.class, GitGuiPlugin::new);
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(GitGuiPlugin.class, GitGuiPlugin::new);
+    }
+    synchronized (GitGuiPlugin.class) {
+      if (fallback == null) {
+        fallback = new GitGuiPlugin();
+      }
+      return fallback;
+    }
   }
 
   public GitGuiPlugin() {

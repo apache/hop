@@ -117,8 +117,19 @@ public class GitResource {
     tagImage = getImage("tag.svg");
   }
 
+  private static GitResource fallback;
+
   public static GitResource getInstance() {
-    return HopGui.getInstance().getSessionSingleton(GitResource.class, GitResource::new);
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(GitResource.class, GitResource::new);
+    }
+    synchronized (GitResource.class) {
+      if (fallback == null) {
+        fallback = new GitResource();
+      }
+      return fallback;
+    }
   }
 
   public Image getImage(String location) {

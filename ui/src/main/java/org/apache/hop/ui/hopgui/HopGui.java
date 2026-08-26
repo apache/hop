@@ -424,6 +424,18 @@ public class HopGui
   }
 
   /**
+   * The HopGui of this process/session if it already exists. Does not construct a GUI. Use this
+   * from {@code getInstance()} helpers that must stay inert in unit tests.
+   */
+  public static HopGui peekInstance() {
+    try {
+      return (HopGui) PROVIDER.peekInstanceInternal();
+    } catch (Throwable e) {
+      return null;
+    }
+  }
+
+  /**
    * Returns a singleton owned by this HopGui / RAP UISession. Desktop has one HopGui, so this is
    * equivalent to a process-wide singleton there. Plugins cannot use RAP {@code SingletonUtil}
    * through {@link ImplementationLoader} because they load from a different classloader.
@@ -439,13 +451,12 @@ public class HopGui
    */
   public static <T extends IHopPerspective> T findSessionPerspective(Class<T> type) {
     try {
-      HopGui hopGui = getInstance();
+      HopGui hopGui = peekInstance();
       if (hopGui == null || hopGui.getPerspectiveManager() == null) {
         return null;
       }
       return hopGui.getPerspectiveManager().findPerspective(type);
     } catch (Throwable e) {
-      // No rcp/rap HopGuiImpl on the classpath (unit tests).
       return null;
     }
   }
