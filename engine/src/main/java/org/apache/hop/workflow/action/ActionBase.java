@@ -782,6 +782,7 @@ public abstract class ActionBase
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
+    this.variables.setParentVariables(parentWorkflow);
     this.logLevel = parentWorkflow.getLogLevel();
     this.log = new LogChannel(this, parentWorkflow);
     this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());

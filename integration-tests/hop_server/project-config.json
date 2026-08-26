@@ -1,5 +1,5 @@
 {
-  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata,${PROJECT_HOME}/metadata-client-only",
   "unitTestsBasePath" : "${PROJECT_HOME}",
   "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
   "enforcingExecutionInHome" : true,
