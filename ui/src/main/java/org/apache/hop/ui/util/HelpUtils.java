@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.ShowHelpDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -57,15 +58,7 @@ public class HelpUtils {
 
   public static Button createHelpButton(final Composite parent, final String url) {
     Button button = newButton(parent);
-    button.addListener(
-        SWT.Selection,
-        e -> {
-          try {
-            EnvironmentUtils.getInstance().openUrl(url);
-          } catch (Exception ex) {
-            new ErrorDialog(parent.getShell(), "Error", "Error opening URL", ex);
-          }
-        });
+    button.addListener(SWT.Selection, e -> openHelp(parent.getShell(), url));
     return button;
   }
 
@@ -96,17 +89,7 @@ public class HelpUtils {
       return;
     }
     if (isPluginDocumented(plugin)) {
-      try {
-        String originalUrl = getDocUrl(plugin.getDocumentationUrl());
-        String trackedUrl = appendUtmParameters(originalUrl);
-        if (ExplorerPerspectiveConfigSingleton.getConfig().isOpeningHelpFiles()) {
-          openHelpInTab(trackedUrl);
-        } else {
-          EnvironmentUtils.getInstance().openUrl(trackedUrl);
-        }
-      } catch (Exception ex) {
-        new ErrorDialog(shell, "Error", "Error opening URL", ex);
-      }
+      openHelp(shell, getDocUrl(plugin.getDocumentationUrl()));
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       String msg = "";
@@ -128,11 +111,53 @@ public class HelpUtils {
   }
 
   /**
+   * Open a documentation URL using the configured {@link HelpOpenMode}.
+   *
+   * @param shell context shell (transform/action dialog or main window)
+   * @param url documentation URL
+   */
+  public static void openHelp(Shell shell, String url) {
+    if (Utils.isEmpty(url)) {
+      return;
+    }
+    try {
+      openTrackedUrl(shell, appendUtmParameters(url));
+    } catch (Exception ex) {
+      Shell errorShell = shell != null ? shell : HopGui.getInstance().getShell();
+      new ErrorDialog(errorShell, "Error", "Error opening URL", ex);
+    }
+  }
+
+  static void openTrackedUrl(Shell shell, String trackedUrl) throws HopException {
+    HelpOpenMode mode = currentOpenMode();
+    switch (mode) {
+      case TAB:
+        openHelpInTab(trackedUrl);
+        break;
+      case DIALOG:
+        openHelpInDialog(shell, trackedUrl);
+        break;
+      case BROWSER:
+      default:
+        EnvironmentUtils.getInstance().openUrl(trackedUrl);
+        break;
+    }
+  }
+
+  static HelpOpenMode currentOpenMode() {
+    try {
+      return ExplorerPerspectiveConfigSingleton.getConfig().getHelpOpenMode();
+    } catch (Exception e) {
+      return HelpOpenMode.BROWSER;
+    }
+  }
+
+  /**
    * Add analytics tracking parameters for help-button <code>
    * mtm_campaign=hopgui&mtm_source=help_btn&mtm_kwd=write to log
    * </code>
    */
-  private static String appendUtmParameters(String url) {
+  static String appendUtmParameters(String url) {
     if (url == null || url.isEmpty()) {
       return url;
     }
@@ -167,5 +192,42 @@ public class HelpUtils {
     }
     // Fallback
     EnvironmentUtils.getInstance().openUrl(url);
+  }
+
+  private static void openHelpInDialog(Shell shell, String url) throws HopException {
+    Shell parent = resolveParentShell(shell);
+    if (parent == null) {
+      EnvironmentUtils.getInstance().openUrl(url);
+      return;
+    }
+
+    Object existing = parent.getData(ShowHelpDialog.SHELL_DATA_KEY);
+    if (existing instanceof ShowHelpDialog dialog && !dialog.isDisposed()) {
+      dialog.setUrl(url);
+      dialog.forceActive();
+      return;
+    }
+
+    try {
+      ShowHelpDialog dialog = new ShowHelpDialog(parent, url);
+      dialog.open();
+      parent.setData(ShowHelpDialog.SHELL_DATA_KEY, dialog);
+      parent.addDisposeListener(e -> parent.setData(ShowHelpDialog.SHELL_DATA_KEY, null));
+    } catch (Exception ex) {
+      parent.setData(ShowHelpDialog.SHELL_DATA_KEY, null);
+      new ErrorDialog(parent, "Error", "Error opening help dialog", ex);
+      EnvironmentUtils.getInstance().openUrl(url);
+    }
+  }
+
+  private static Shell resolveParentShell(Shell shell) {
+    if (shell != null && !shell.isDisposed()) {
+      return shell;
+    }
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui != null && hopGui.getShell() != null && !hopGui.getShell().isDisposed()) {
+      return hopGui.getShell();
+    }
+    return null;
   }
 }

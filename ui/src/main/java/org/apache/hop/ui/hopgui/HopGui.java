@@ -135,6 +135,7 @@ import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
@@ -2576,11 +2577,7 @@ public class HopGui
     HopPerspectivePlugin plugin =
         activePerspective.getClass().getAnnotation(HopPerspectivePlugin.class);
     if (plugin != null) {
-      try {
-        EnvironmentUtils.getInstance().openUrl(getDocUrl(plugin.documentationUrl()));
-      } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error opening URL", e);
-      }
+      HelpUtils.openHelp(shell, getDocUrl(plugin.documentationUrl()));
     }
   }
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,14 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.ui.util.HelpOpenMode;
+
+@Getter
+@Setter
 public class ExplorerPerspectiveConfig {
 
   public static final String HOP_CONFIG_EXPLORER_PERSPECTIVE_CONFIG_KEY = "explorer-perspective";
@@ -24,14 +32,14 @@ public class ExplorerPerspectiveConfig {
   private String lazyLoadingDepth;
   private String fileLoadingMaxSize;
   private Boolean fileExplorerVisibleByDefault;
-  private Boolean openingHelpFiles;
+  private HelpOpenMode helpOpenMode;
   private Boolean activeFileSelection;
 
   public ExplorerPerspectiveConfig() {
     this.lazyLoadingDepth = "0";
     this.fileLoadingMaxSize = "16";
     this.fileExplorerVisibleByDefault = true;
-    this.openingHelpFiles = false;
+    this.helpOpenMode = HelpOpenMode.BROWSER;
     this.activeFileSelection = true;
   }
 
@@ -40,47 +48,33 @@ public class ExplorerPerspectiveConfig {
     this.lazyLoadingDepth = config.lazyLoadingDepth;
     this.fileLoadingMaxSize = config.fileLoadingMaxSize;
     this.fileExplorerVisibleByDefault = config.fileExplorerVisibleByDefault;
-    this.openingHelpFiles = config.openingHelpFiles;
+    this.helpOpenMode = config.getHelpOpenMode();
     this.activeFileSelection = config.activeFileSelection;
   }
 
-  public String getLazyLoadingDepth() {
-    return lazyLoadingDepth;
+  public HelpOpenMode getHelpOpenMode() {
+    return helpOpenMode != null ? helpOpenMode : HelpOpenMode.BROWSER;
   }
 
-  public void setLazyLoadingDepth(String lazyLoadingDepth) {
-    this.lazyLoadingDepth = lazyLoadingDepth;
+  /**
+   * Legacy hop-config key {@code openingHelpFiles}. True used to mean "open help in Explorer tabs".
+   *
+   * @param openingHelpFiles previous boolean flag
+   */
+  @JsonSetter("openingHelpFiles")
+  public void migrateOpeningHelpFiles(Boolean openingHelpFiles) {
+    if (Boolean.TRUE.equals(openingHelpFiles) && this.helpOpenMode == HelpOpenMode.BROWSER) {
+      this.helpOpenMode = HelpOpenMode.TAB;
+    }
   }
 
-  public String getFileLoadingMaxSize() {
-    return fileLoadingMaxSize;
-  }
-
-  public void setFileLoadingMaxSize(String fileLoadingMaxSize) {
-    this.fileLoadingMaxSize = fileLoadingMaxSize;
-  }
-
-  public Boolean getFileExplorerVisibleByDefault() {
-    return fileExplorerVisibleByDefault;
-  }
-
-  public void setFileExplorerVisibleByDefault(Boolean fileExplorerVisibleByDefault) {
-    this.fileExplorerVisibleByDefault = fileExplorerVisibleByDefault;
-  }
-
+  /**
+   * @return true when help should open as an Explorer tab (legacy checkbox semantics)
+   * @deprecated use {@link #getHelpOpenMode()}
+   */
+  @Deprecated(since = "2.20")
+  @JsonIgnore
   public Boolean isOpeningHelpFiles() {
-    return openingHelpFiles != null ? openingHelpFiles : false;
-  }
-
-  public void setOpeningHelpFiles(Boolean openingHelpFiles) {
-    this.openingHelpFiles = openingHelpFiles;
-  }
-
-  public Boolean getActiveFileSelection() {
-    return activeFileSelection != null ? activeFileSelection : true;
-  }
-
-  public void setActiveFileSelection(Boolean activeFileSelection) {
-    this.activeFileSelection = activeFileSelection;
+    return getHelpOpenMode() == HelpOpenMode.TAB;
   }
 }
