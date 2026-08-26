@@ -18,6 +18,7 @@
 package org.apache.hop.setup;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,5 +41,20 @@ class HopEnvironmentSnapshotTest {
   void existingFoldersUseRelativeInstallFallback() {
     assertEquals("./config", HopEnvironmentSnapshot.existingFolder(null, null, "./config"));
     assertEquals("./audit", HopEnvironmentSnapshot.existingFolder("", "", "./audit"));
+  }
+
+  @Test
+  void userOptionsKeepsPlainValues() {
+    assertEquals("-Xmx4096m", HopEnvironmentSnapshot.userOptions("-Xmx4096m"));
+    assertNull(HopEnvironmentSnapshot.userOptions(null));
+  }
+
+  @Test
+  void userOptionsDiscardsLauncherExpandedValue() {
+    assertNull(
+        HopEnvironmentSnapshot.userOptions(
+            "-Xmx2048m -DHOP_SHARED_JDBC_FOLDERS=\"C:\\java\\hop\\jdbc-shared\""
+                + " -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI"
+                + " --add-opens java.base/java.lang=ALL-UNNAMED"));
   }
 }

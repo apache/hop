@@ -46,6 +46,17 @@ class EnvScriptWriterTest {
   }
 
   @Test
+  void windowsScriptWritesOptionsContainingDoubleQuotes() throws Exception {
+    Map<String, String> vars =
+        Map.of("HOP_OPTIONS", "-Xmx2048m -DHOP_SHARED_JDBC_FOLDERS=\"C:\\java\\hop\\jdbc-shared\"");
+    String script = EnvScriptWriter.windowsScript(vars);
+    assertTrue(
+        script.contains(
+            "if not defined HOP_OPTIONS set HOP_OPTIONS=-Xmx2048m"
+                + " -DHOP_SHARED_JDBC_FOLDERS=\"C:\\java\\hop\\jdbc-shared\""));
+  }
+
+  @Test
   void emptyValuesAreOmitted() throws Exception {
     Map<String, String> vars = new LinkedHashMap<>();
     vars.put("HOP_CONFIG_FOLDER", "/cfg");
