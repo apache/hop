@@ -162,6 +162,18 @@ public class HadoopClusterViewTreeExtension implements ExtensionPointInterface {
 }
 ----
 
+== Hop Web session isolation
+
+Hop Web creates one RAP `UISession` (and one SWT `Display`) per browser session. `HopGui`, `GuiResource` and `GuiContextUtil` are already session-scoped via `ISingletonProvider` and RAP `SingletonUtil`. Anything else that holds SWT widgets or session GUI identity must follow one of these patterns:
+
+* **ui-module classes:** `ISingletonProvider` plus `*Impl` in `rcp` (process singleton) and `rap` (`SingletonUtil.getSessionInstance`).
+* **plugin classes:** `HopGui.getInstance().getSessionSingleton(TheClass.class, TheClass::new)`. Plugin classloaders cannot load RAP `*Impl` classes through `ImplementationLoader`.
+* **Perspectives:** `getInstance()` must prefer `HopGui.findSessionPerspective(...)`. A static `instance` field is only a fallback for tests and disabled perspectives.
+* **Caches of SWT `Image`s:** key by `Device`/`Display` and dispose on *that* device. Never one process-wide dispose hook.
+* **Engine-thread maps (drill-down):** stamp `hopGui.getId()` on the engine in the GUI thread; do not call `HopGui.getInstance()` from pipeline worker threads (no RAP `UISession`).
+
+Do not store `Control`, `Shell`, `SashForm`, `Image`, `Color`, `Font` or `GC` in `static` fields. When session A ends RAP disposes those objects; session B then hits `Invalid thread access` or `Widget is disposed`.
+
 == Avoid use of unimplemented SWT APIs
 
 === Example: drawing on an Image

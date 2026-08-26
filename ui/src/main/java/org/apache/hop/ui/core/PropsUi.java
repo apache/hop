@@ -35,6 +35,8 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -64,7 +66,7 @@ import org.eclipse.swt.widgets.Widget;
 public class PropsUi extends Props {
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
-  private static double nativeZoomFactor;
+  private double nativeZoomFactor;
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
@@ -117,7 +119,32 @@ public class PropsUi extends Props {
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
-  private static PropsUi instance;
+
+  /**
+   * Hop Web session override for dark mode so one user on /ui-dark does not rewrite hop-config for
+   * every other session.
+   */
+  private Boolean darkModeOverride;
+
+  private static PropsUi fallback;
+
+  private static final ISingletonProvider PROVIDER = loadProvider();
+
+  private static ISingletonProvider loadProvider() {
+    try {
+      return (ISingletonProvider) ImplementationLoader.newInstance(PropsUi.class);
+    } catch (Throwable e) {
+      // hop-ui unit tests have no rcp/rap *Impl on the classpath.
+      return () -> {
+        synchronized (PropsUi.class) {
+          if (fallback == null) {
+            fallback = new PropsUi();
+          }
+          return fallback;
+        }
+      };
+    }
+  }
 
   /**
    * Session-only window position storage for dialogs. This map is kept in memory only and is
@@ -127,13 +154,10 @@ public class PropsUi extends Props {
   private final Map<String, WindowProperty> sessionWindowProperties = new HashMap<>();
 
   public static PropsUi getInstance() {
-    if (instance == null) {
-      instance = new PropsUi();
-    }
-    return instance;
+    return (PropsUi) PROVIDER.getInstanceInternal();
   }
 
-  private PropsUi() {
+  public PropsUi() {
     super();
 
     // If the zoom factor is set with variable HOP_GUI_ZOOM_FACTOR we set this first.
@@ -1150,10 +1174,17 @@ public class PropsUi extends Props {
   }
 
   public boolean isDarkMode() {
+    if (darkModeOverride != null) {
+      return darkModeOverride;
+    }
     return YES.equalsIgnoreCase(getProperty(DARK_MODE, NO));
   }
 
   public void setDarkMode(boolean darkMode) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      darkModeOverride = darkMode;
+      return;
+    }
     setProperty(DARK_MODE, darkMode ? YES : NO);
   }
 
@@ -1366,14 +1397,14 @@ public class PropsUi extends Props {
    * @return value of nativeZoomFactor
    */
   public static double getNativeZoomFactor() {
-    return nativeZoomFactor;
+    return getInstance().nativeZoomFactor;
   }
 
   /**
    * @param nativeZoomFactor The nativeZoomFactor to set
    */
   public static void setNativeZoomFactor(double nativeZoomFactor) {
-    PropsUi.nativeZoomFactor = nativeZoomFactor;
+    getInstance().nativeZoomFactor = nativeZoomFactor;
   }
 
   private void populateContrastingColors() {

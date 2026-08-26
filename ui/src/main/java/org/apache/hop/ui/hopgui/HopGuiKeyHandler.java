@@ -58,7 +58,25 @@ public class HopGuiKeyHandler extends KeyAdapter {
   /** Widget classes that pass their key listeners on to a widget inside them. */
   private static final Map<Class<?>, Boolean> DELEGATING_KEY_LISTENERS = new ConcurrentHashMap<>();
 
-  private static HopGuiKeyHandler singleton;
+  private static HopGuiKeyHandler fallback;
+
+  private static final ISingletonProvider PROVIDER = loadProvider();
+
+  private static ISingletonProvider loadProvider() {
+    try {
+      return (ISingletonProvider) ImplementationLoader.newInstance(HopGuiKeyHandler.class);
+    } catch (Throwable e) {
+      // hop-ui unit tests have no rcp/rap *Impl on the classpath.
+      return () -> {
+        synchronized (HopGuiKeyHandler.class) {
+          if (fallback == null) {
+            fallback = new HopGuiKeyHandler();
+          }
+          return fallback;
+        }
+      };
+    }
+  }
 
   public Set<Object> parentObjects;
 
@@ -69,20 +87,21 @@ public class HopGuiKeyHandler extends KeyAdapter {
   private final Set<Shell> handledShells = new HashSet<>();
 
   /**
-   * Displays with a focus filter. This handler is a singleton for the whole process while Hop Web
-   * has a display per session, so the filter is installed once per display.
+   * Displays with a focus filter. Hop Web has one handler (and one display) per RAP UISession; the
+   * desktop handler covers the single process display.
    */
   private final Set<Display> filteredDisplays = new HashSet<>();
 
-  private HopGuiKeyHandler() {
+  /**
+   * Public no-arg constructor so RAP {@code SingletonUtil.getSessionInstance} can create a handler
+   * per UISession. Call {@link #getInstance()} rather than constructing this yourself.
+   */
+  public HopGuiKeyHandler() {
     this.parentObjects = new HashSet<>();
   }
 
   public static HopGuiKeyHandler getInstance() {
-    if (singleton == null) {
-      singleton = new HopGuiKeyHandler();
-    }
-    return singleton;
+    return (HopGuiKeyHandler) PROVIDER.getInstanceInternal();
   }
 
   public void addParentObjectToHandle(Object parentObject) {
@@ -214,7 +233,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
       return;
     }
 
-    List<Object> orderedParents = getParentObjectsInContextOrder(event.widget);
+    List<Object> orderedParents = getParentObjectsInContextOrder(event);
     for (Object parentObject : orderedParents) {
       List<KeyboardShortcut> shortcuts =
           GuiRegistry.getInstance().getKeyboardShortcuts(parentObject.getClass().getName());
@@ -230,11 +249,15 @@ public class HopGuiKeyHandler extends KeyAdapter {
   }
 
   /** Order: parents whose window has focus (closest first), then active perspectives, then rest. */
-  private List<Object> getParentObjectsInContextOrder(Object focusedWidget) {
+  private List<Object> getParentObjectsInContextOrder(KeyEvent event) {
+    Object focusedWidget = event.widget;
     List<Object> inFocus = new ArrayList<>();
     List<Object> fallback = new ArrayList<>();
     for (Object parent : parentObjects) {
       Control control = parent instanceof Control c ? c : parentToControl.get(parent);
+      if (control != null && !belongsToEventDisplay(control, event)) {
+        continue;
+      }
       if (control != null && isWidgetInControlHierarchy(focusedWidget, control)) {
         inFocus.add(parent);
       } else {
@@ -296,6 +319,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
       Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
     if (parentObject instanceof Control control) {
       try {
+        if (!belongsToEventDisplay(control, event)) {
+          return false;
+        }
         if (!control.isVisible()) {
           return shortcut.isGlobal();
         }
@@ -379,8 +405,24 @@ public class HopGuiKeyHandler extends KeyAdapter {
     return false;
   }
 
+  /**
+   * RAP forbids touching a widget whose Display belongs to another UISession. Skip those parents
+   * instead of walking their widget tree.
+   */
+  private boolean belongsToEventDisplay(Control control, KeyEvent event) {
+    if (control == null || control.isDisposed() || event == null) {
+      return false;
+    }
+    try {
+      Display controlDisplay = control.getDisplay();
+      return event.display != null && event.display.equals(controlDisplay);
+    } catch (SWTException e) {
+      return false;
+    }
+  }
+
   private boolean isWidgetInControlHierarchy(Object widget, Control control) {
-    if (!(widget instanceof Control)) {
+    if (!(widget instanceof Control) || control == null || control.isDisposed()) {
       return false;
     }
 

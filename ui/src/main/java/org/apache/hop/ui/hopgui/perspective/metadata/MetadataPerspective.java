@@ -28,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -230,7 +229,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   private static final int FILTER_DEBOUNCE_MS = 250;
 
-  @Getter private static MetadataPerspective instance;
+  private static MetadataPerspective instance;
 
   private HopGui hopGui;
   private SashForm sash;
@@ -275,6 +274,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     instance = this;
 
     this.metadataFileType = new MetadataFileType();
+  }
+
+  public static MetadataPerspective getInstance() {
+    try {
+      MetadataPerspective fromGui = HopGui.findSessionPerspective(MetadataPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   /**

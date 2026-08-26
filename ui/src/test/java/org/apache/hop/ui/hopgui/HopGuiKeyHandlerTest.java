@@ -227,6 +227,20 @@ class HopGuiKeyHandlerTest {
   }
 
   @Test
+  void separateHandlersDoNotShareParentObjects() {
+    HopGuiKeyHandler first = new HopGuiKeyHandler();
+    HopGuiKeyHandler second = new HopGuiKeyHandler();
+    Object parent = new Object();
+
+    first.addParentObjectToHandle(parent);
+
+    assertTrue(first.parentObjects.contains(parent));
+    assertFalse(
+        second.parentObjects.contains(parent),
+        "Each RAP UISession must have its own key handler parent set");
+  }
+
+  @Test
   void pipelineGraphBindsArrowKeys() {
     assertGraphBindsArrowKeys(HopGuiPipelineGraph.class);
   }

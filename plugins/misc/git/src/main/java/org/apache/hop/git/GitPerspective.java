@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
@@ -195,7 +194,7 @@ public class GitPerspective implements IHopPerspective {
 
   public static final String OPTION_SHOW_ALL_REF = "Git.ShowAllRef";
 
-  @Getter private static GitPerspective instance;
+  private static GitPerspective instance;
 
   private HopGui hopGui;
   private SashForm wSashForm;
@@ -227,6 +226,18 @@ public class GitPerspective implements IHopPerspective {
 
   public GitPerspective() {
     instance = this;
+  }
+
+  public static GitPerspective getInstance() {
+    try {
+      GitPerspective fromGui = HopGui.findSessionPerspective(GitPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   @Override

@@ -29,9 +29,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -350,6 +353,21 @@ public class HopGui
    */
   @Setter private HopSecurityContext securityContext;
 
+  /**
+   * Per-HopGui (per RAP UISession) plugin/UI singletons that cannot use RAP {@code SingletonUtil}
+   * because they live in plugin classloaders.
+   */
+  private final Map<Class<?>, Object> sessionSingletons = new ConcurrentHashMap<>();
+
+  /**
+   * The file dialog currently open in this session, so toolbar plugins can navigate it without a
+   * process-wide static.
+   */
+  @Getter @Setter private org.apache.hop.ui.core.vfs.HopVfsFileDialog openVfsFileDialog;
+
+  /** Active namespace for this GUI session (project id, or {@link #DEFAULT_HOP_GUI_NAMESPACE}). */
+  @Getter @Setter private String activeNamespace = DEFAULT_HOP_GUI_NAMESPACE;
+
   protected HopGui() {
     this(Display.getCurrent());
   }
@@ -382,6 +400,7 @@ public class HopGui
 
     updateMetadataManagers();
 
+    this.activeNamespace = DEFAULT_HOP_GUI_NAMESPACE;
     HopNamespace.setNamespace(DEFAULT_HOP_GUI_NAMESPACE);
     shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
   }
@@ -403,6 +422,44 @@ public class HopGui
 
   public static HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
+  }
+
+  /**
+   * The HopGui of this process/session if it already exists. Does not construct a GUI. Use this
+   * from {@code getInstance()} helpers that must stay inert in unit tests.
+   */
+  public static HopGui peekInstance() {
+    try {
+      return (HopGui) PROVIDER.peekInstanceInternal();
+    } catch (Throwable e) {
+      return null;
+    }
+  }
+
+  /**
+   * Returns a singleton owned by this HopGui / RAP UISession. Desktop has one HopGui, so this is
+   * equivalent to a process-wide singleton there. Plugins cannot use RAP {@code SingletonUtil}
+   * through {@link ImplementationLoader} because they load from a different classloader.
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T getSessionSingleton(Class<T> type, Supplier<T> factory) {
+    return (T) sessionSingletons.computeIfAbsent(type, key -> factory.get());
+  }
+
+  /**
+   * Looks up a perspective on the current session's HopGui. Returns null when the GUI or its
+   * perspective manager is not ready (tests, disabled perspectives).
+   */
+  public static <T extends IHopPerspective> T findSessionPerspective(Class<T> type) {
+    try {
+      HopGui hopGui = peekInstance();
+      if (hopGui == null || hopGui.getPerspectiveManager() == null) {
+        return null;
+      }
+      return hopGui.getPerspectiveManager().findPerspective(type);
+    } catch (Throwable e) {
+      return null;
+    }
   }
 
   public void setWebThemeRedirectCallback(Consumer<Boolean> callback) {

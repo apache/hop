@@ -123,19 +123,25 @@ public class GitGuiPlugin
   public static final String CONST_GIT = "git: ";
   public static final String CONST_S_S_S = "%s (%s -> %s)";
 
-  private static GitGuiPlugin instance;
-
-  private static UIGit git;
+  private UIGit git;
 
   @Getter private Map<String, UIFile> changedFiles;
 
   @Getter private Map<String, String> ignoredFiles;
 
+  private static GitGuiPlugin fallback;
+
   public static GitGuiPlugin getInstance() {
-    if (instance == null) {
-      instance = new GitGuiPlugin();
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(GitGuiPlugin.class, GitGuiPlugin::new);
     }
-    return instance;
+    synchronized (GitGuiPlugin.class) {
+      if (fallback == null) {
+        fallback = new GitGuiPlugin();
+      }
+      return fallback;
+    }
   }
 
   public GitGuiPlugin() {

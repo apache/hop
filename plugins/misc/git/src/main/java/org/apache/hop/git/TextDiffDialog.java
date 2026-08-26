@@ -387,7 +387,7 @@ public class TextDiffDialog extends Dialog {
       path.dispose();
     }
 
-    gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BORDER));
+    gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BORDER));
     gc.drawLine(0, 0, 0, area.height);
     gc.drawLine(area.width - 1, 0, area.width - 1, area.height);
   }

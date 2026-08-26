@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -116,7 +115,7 @@ public class GitCommitPerspective implements IHopPerspective {
   private static final String STAGED_LABEL = "GitCommitPerspective.Status.Staged.Label";
   private static final String UNSTAGED_LABEL = "GitCommitPerspective.Status.Unstaged.Label";
   private static final String UNTRACKED_LABEL = "GitCommitPerspective.Status.Untracked.Label";
-  @Getter private static GitCommitPerspective instance;
+  private static GitCommitPerspective instance;
 
   private HopGui hopGui;
   private SashForm wSashForm;
@@ -135,6 +134,18 @@ public class GitCommitPerspective implements IHopPerspective {
 
   public GitCommitPerspective() {
     instance = this;
+  }
+
+  public static GitCommitPerspective getInstance() {
+    try {
+      GitCommitPerspective fromGui = HopGui.findSessionPerspective(GitCommitPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   @Override

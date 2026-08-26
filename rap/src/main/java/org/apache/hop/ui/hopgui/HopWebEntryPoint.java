@@ -36,6 +36,7 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
+import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -269,6 +270,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
                     return;
                   }
                   hopGui.auditDelegate.writeLastOpenFiles();
+                  DrillDownGuiPlugin.cleanupSession(hopGui.getId());
                 } catch (SWTException e) {
                   if (e.code != SWT.ERROR_WIDGET_DISPOSED) {
                     LogChannel.UI.logError("Error persisting open files on session end", e);

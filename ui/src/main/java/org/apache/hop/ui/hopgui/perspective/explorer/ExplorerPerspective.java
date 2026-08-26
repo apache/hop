@@ -352,11 +352,23 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   public static ExplorerPerspective getInstance() {
-    // There can be only one
+    ExplorerPerspective fromGui = sessionPerspectiveOrNull();
+    if (fromGui != null) {
+      return fromGui;
+    }
+    // Fallback for tests and the disabled-perspective case (constructed, never initialized).
     if (instance == null) {
       new ExplorerPerspective();
     }
     return instance;
+  }
+
+  private static ExplorerPerspective sessionPerspectiveOrNull() {
+    try {
+      return HopGui.findSessionPerspective(ExplorerPerspective.class);
+    } catch (Throwable e) {
+      return null;
+    }
   }
 
   @Override

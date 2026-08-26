@@ -17,24 +17,14 @@
 
 package org.apache.hop.ui.hopgui;
 
-import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.SingletonUtil;
+public class HopGuiKeyHandlerImpl implements ISingletonProvider {
+  private static HopGuiKeyHandler instance;
 
-public class HopGuiImpl implements ISingletonProvider {
   @Override
   public Object getInstanceInternal() {
-    return SingletonUtil.getSessionInstance(HopGui.class);
-  }
-
-  @Override
-  public Object peekInstanceInternal() {
-    try {
-      if (RWT.getUISession() == null) {
-        return null;
-      }
-      return SingletonUtil.getSessionInstance(HopGui.class);
-    } catch (Exception e) {
-      return null;
+    if (instance == null) {
+      instance = new HopGuiKeyHandler();
     }
+    return instance;
   }
 }

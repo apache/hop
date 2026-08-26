@@ -15,26 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ui.hopgui;
+package org.apache.hop.ui.core;
 
-import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.SingletonUtil;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
 
-public class HopGuiImpl implements ISingletonProvider {
+public class PropsUiImpl implements ISingletonProvider {
+  private static PropsUi instance;
+
   @Override
   public Object getInstanceInternal() {
-    return SingletonUtil.getSessionInstance(HopGui.class);
-  }
-
-  @Override
-  public Object peekInstanceInternal() {
-    try {
-      if (RWT.getUISession() == null) {
-        return null;
-      }
-      return SingletonUtil.getSessionInstance(HopGui.class);
-    } catch (Exception e) {
-      return null;
+    if (instance == null) {
+      instance = new PropsUi();
     }
+    return instance;
   }
 }
