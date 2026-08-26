@@ -19,9 +19,9 @@ package org.apache.hop.ui.hopgui.palette;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -428,14 +428,12 @@ public class GraphPaletteTree extends Composite {
   }
 
   private Image iconFor(Item item) {
-    int size = ConstUi.SMALL_ICON_SIZE;
     GuiResource images = GuiResource.getInstance();
-    if (host.getPaletteKind() == Kind.TRANSFORM) {
-      return images
-          .getSwtImageTransform(item.pluginId())
-          .getAsBitmapForSize(getDisplay(), size, size);
-    }
-    return images.getSwtImageAction(item.pluginId()).getAsBitmapForSize(getDisplay(), size, size);
+    SwtUniversalImage swtImage =
+        host.getPaletteKind() == Kind.TRANSFORM
+            ? images.getSwtImageTransform(item.pluginId())
+            : images.getSwtImageAction(item.pluginId());
+    return images.getSmallIcon(swtImage);
   }
 
   private void expandAll(boolean expanded) {

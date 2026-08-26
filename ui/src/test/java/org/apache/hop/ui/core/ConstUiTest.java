@@ -36,6 +36,15 @@ class ConstUiTest {
   }
 
   @Test
+  void zoomedIconSizeMatchesExplorerAndGuiResourceTruncation() {
+    assertEquals(16, ConstUi.zoomedIconSize(ConstUi.SMALL_ICON_SIZE, 1.0));
+    assertEquals(24, ConstUi.zoomedIconSize(ConstUi.SMALL_ICON_SIZE, 1.5));
+    assertEquals(32, ConstUi.zoomedIconSize(ConstUi.SMALL_ICON_SIZE, 2.0));
+    assertEquals(20, ConstUi.zoomedIconSize(ConstUi.SMALL_ICON_SIZE, 1.25));
+    assertEquals(21, ConstUi.zoomedIconSize(ConstUi.SMALL_ICON_SIZE, 1.333));
+  }
+
+  @Test
   void encodingListContainsTheAvailableCharsets() {
     List<String> encodings = Arrays.asList(ConstUi.getEncodings());
 
