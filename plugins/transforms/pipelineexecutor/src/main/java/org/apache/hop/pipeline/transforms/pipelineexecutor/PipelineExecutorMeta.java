@@ -264,6 +264,9 @@ public class PipelineExecutorMeta
     parameters = new ArrayList<>();
     resultRows = new ArrayList<>();
     filenameInField = false;
+    // On by default, like the Workflow Executor and the Pipeline and Workflow actions, and like
+    // the documentation has always said.
+    inheritingAllVariables = true;
 
     groupSize = "1";
     groupField = "";

@@ -80,3 +80,5 @@ If the option ```Keep variable values after execution``` is set we evaluate the 
 To send Parameters to a Repeat Action, set the parameters/variables name and Value columns. Value can be hard-coded or reference a parameter/variable name. Parameters do not automatically flow through a Repeat Action.
 
 |===
+
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

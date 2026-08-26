@@ -74,4 +74,4 @@ In the samples project you can find two examples of the Simple Mapping transform
 
 In the sample files discussed above, the parent pipeline sends first and last name fields to the child, a calculation is performed and then a field is populated with the calculation and sent back.
 
-
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

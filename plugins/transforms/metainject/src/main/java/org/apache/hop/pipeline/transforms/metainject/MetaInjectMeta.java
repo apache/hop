@@ -34,6 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -47,6 +48,7 @@ import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
 
 @Transform(
     id = "MetaInject",
@@ -132,11 +134,39 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       injectionKeyDescription = "MetaInject.Injection.CREATE_PARENT_FOLDER")
   private boolean createParentFolder;
 
+  @HopMetadataProperty(
+      key = "parameter",
+      groupKey = "parameters",
+      injectionGroupKey = "PARAMETERS",
+      injectionGroupDescription = "MetaInject.Injection.PARAMETERS")
+  private List<MetaInjectParameter> parameters;
+
+  /** Pass the parent pipeline's value of a same-named parameter or variable to the template. */
+  @HopMetadataProperty(
+      key = "inherit_all_vars",
+      injectionKey = "INHERIT_ALL_VARIABLES",
+      injectionKeyDescription = "MetaInject.Injection.INHERIT_ALL_VARIABLES")
+  private boolean inheritingAllVariables;
+
   public MetaInjectMeta() {
     super();
     mappings = new ArrayList<>();
     sourceOutputFields = new ArrayList<>();
+    parameters = new ArrayList<>();
     createParentFolder = true;
+    inheritingAllVariables = true;
+  }
+
+  /**
+   * Metadata Injection had no parameter handling at all and always passed every same-named parent
+   * value to the template. A file written before that option existed carries no {@code
+   * <parameters>} block, and has to keep behaving the way it did.
+   */
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node != null && XmlHandler.getSubNode(node, "parameters") == null) {
+      inheritingAllVariables = true;
+    }
   }
 
   @Override

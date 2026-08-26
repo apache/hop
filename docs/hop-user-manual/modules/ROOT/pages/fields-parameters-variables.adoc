@@ -100,7 +100,9 @@ Rules that matter in practice:
 * Declare the parameter on the *receiving* pipeline or workflow. If a Pipeline Executor (or Pipeline action) sets `CUSTOMER_ID`, the child must list `CUSTOMER_ID` in its own properties. Leave the child's default empty when you want the caller to supply the value.
 * Parameters travel *downstream* when the child is started. They are not sent back to the parent. To return information, send *fields* (result rows, above) or set a xref:pipeline/transforms/setvariable.adoc[variable] with a wider scope.
 * A value you pass on the caller's *Parameters* tab wins over the child's default. A column titled *Parameters/Variables* means: set this name in the child, overriding whatever was there before. That is how you override a child default for one execution.
-* *Pass parameter values to sub pipeline* (Pipeline / Workflow action) and *Inherit all variables from pipeline* (executors) control implicit inheritance. If the child declares a parameter, also list that name on the caller's *Parameters* tab when you want a specific value, even if a same-named variable already exists in the parent. Otherwise the child's empty default can replace the inherited value.
+* *Pass parent values to matching parameters* decides what happens to a parameter the child declares but the caller's *Parameters* tab does not list. With the option on, the caller's value of that name is passed down. With it off, the child keeps its own default, so a parameter it declares shields it from an unrelated value of the same name in the caller's scope.
+* The option does not control variables. A child pipeline or workflow always inherits the variables of whatever started it. The option only decides whether a *declared parameter* is seeded from the caller or keeps its default.
+* Every action and transform that runs a child resolves parameters this way: the Pipeline and Workflow actions, the Pipeline and Workflow Executor transforms, the Mapping transforms, and Metadata Injection.
 * *Get Parameters* fills the tab from the child you selected. It does not walk further up the call stack.
 
 See xref:pipeline/create-pipeline.adoc[Create a Pipeline] for the properties dialog.
@@ -147,7 +149,7 @@ The places you can define variables, and which level inherits from which, are li
 == Common pitfalls
 
 * *Same name, different thing.* A field `customer_id`, a parameter `CUSTOMER_ID`, and a variable `CUSTOMER_ID` can all exist at once. The field is not the variable. Map it explicitly when you need the value in the other form.
-* *Declaring a parameter can hide an inherited variable.* If the child lists `HOSTNAME` with an empty default and the caller does not pass `HOSTNAME`, Hop may set the variable to empty instead of keeping a project or environment value. Pass the parameter from the caller, or give the child a non-empty default so an already-set variable of the same name is kept.
+* *Declaring a parameter shields the child from a same-named variable.* A parameter is an input the child declares, so the child's default applies whenever nothing was passed to it - a project or environment variable of the same name does not fill it in by itself. If the child should pick up `HOSTNAME` from the environment, either tick *Pass parent values to matching parameters* on the caller, or list `HOSTNAME` on the caller's *Parameters* tab. Where a value is genuinely environment-wide, not declaring it as a parameter at all and just reading `{openvar}HOSTNAME{closevar}` is simpler.
 * *Do not set and read a variable in the same pipeline.* Transforms run in parallel. There is no guaranteed order, so the reader can see a previous run's value or nothing. This is the most common variable surprise.
 * *A pipeline that is already running will not see new variables.* Start a new pipeline (or a new executor iteration) after Set Variables. Parameters are the alternative when you need a value at start-up of each child.
 * *Get Parameters only sees one level.* If the name is declared two levels up, type it or copy it yourself.
@@ -155,6 +157,7 @@ The places you can define variables, and which level inherits from which, are li
 
 == See also
 
+* xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow] — the exact precedence rules
 * xref:variables.adoc[Variables] — syntax, hierarchy, resolvers, and built-in names
 * xref:pipeline/transforms/setvariable.adoc[Set Variables] and xref:pipeline/transforms/getvariable.adoc[Get variables]
 * xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] and xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor]

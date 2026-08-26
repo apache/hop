@@ -139,3 +139,4 @@ If this option is not selected, metadata injection occurs, but the template pipe
 
 * Enter a pipeline filename in "Optional target file (hpl after injection)" so that a file will be generated after injection. This pipeline will contain all the properties after injection and can be viewed and executed for testing.
 
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

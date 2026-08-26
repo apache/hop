@@ -92,7 +92,9 @@ If multiple rows are passed to the workflow, the first row is taken to set the p
 There is a button in the lower right corner of the tab that will insert all the defined parameters of the specified workflow.
 For information the description of the parameter is inserted into the static input value field.
 
-TIP: If you leave the "Inherit all variables from pipeline" option checked (it is by default), all the variables defined in the current pipeline are passed to child workflow.
+TIP: The child workflow always inherits the variables defined in this pipeline. "Pass parent values to matching parameters" (checked by default) additionally seeds a parameter the child declares from this pipeline's value of the same name; unchecking it makes the child keep its own defaults.
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
+
 
 The `Get Parameters` button in the lower right corner of the tab that will insert all the defined parameters with their description for the specified workflow
 

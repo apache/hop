@@ -150,11 +150,15 @@ class MetaInjectMetaTest {
   void testSampleMetaMapping() throws Exception {
     Map<String, Set<String>> map = HopMetadataInjector.findInjectionGroupKeys(MetaInjectMeta.class);
     assertNotNull(map);
-    assertEquals(2, map.size());
+    assertEquals(3, map.size());
     Set<String> fieldKeys = map.get("SOURCE_OUTPUT_FIELDS");
     assertEquals(4, fieldKeys.size());
     Set<String> mappingKeys = map.get("MAPPING_FIELDS");
     assertEquals(5, mappingKeys.size());
+    Set<String> parameterKeys = map.get("PARAMETERS");
+    assertEquals(2, parameterKeys.size());
+    assertTrue(parameterKeys.contains("PARAMETER_NAME"));
+    assertTrue(parameterKeys.contains("PARAMETER_VALUE"));
 
     assertTrue(fieldKeys.contains("SOURCE_OUTPUT_NAME"));
     assertTrue(fieldKeys.contains("SOURCE_OUTPUT_TYPE"));

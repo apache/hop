@@ -212,7 +212,7 @@ var ok = true;
 
 var expectedVariables = [ 
    [ "TEST4_VARIABLE1",    "Workflow Variables - TEST4_VARIABLE1 = >test4_value1&lt;",              "test4_value1"             ],
-   [ "TEST4_PARAMETER3",   "Workflow Variables - TEST4_PARAMETER3 = >&lt;",                         "an empty string"   ],
+   [ "TEST4_PARAMETER3",   "Workflow Variables - TEST4_PARAMETER3 = >test4_parameter3_value&lt;",   "test4_parameter3_value"   ],
    [ "TEST4_PARAMETER4",   "Workflow Variables - TEST4_PARAMETER4 = >default_test4_parameter4&lt;", "default_test4_parameter4" ]
    
  ];

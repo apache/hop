@@ -20,8 +20,10 @@ package org.apache.hop.workflow.actions.workflow;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -39,6 +41,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -466,35 +469,44 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow.copyParametersFromDefinitions(workflowMeta);
         workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
 
-        // Set the parameters calculated above on this instance.
+        // Set the parameters calculated above on this instance. A sub-workflow resolves its
+        // parameters exactly like a sub-pipeline does, see SubExecutionParameters.
         //
         workflow.clearParameterValues();
-        String[] parameterNames = workflow.listParameters();
-        for (String parameterName : parameterNames) {
-          // Grab the parameter value set in the action
-          //
-          String thisValue = namedParam.getParameterValue(parameterName);
-          if (!Utils.isEmpty(thisValue)) {
-            // Set the value as specified by the user in the action
-            //
-            workflow.setParameterValue(parameterName, thisValue);
-          } else {
-            // See if the parameter had a value set in the parent workflow...
-            // This value should pass down to the sub-workflow if that's what we
-            // opted to do.
-            //
-            if (parameterDefinition.isPassingAllParameters()) {
-              // Only formal parent parameter values are passed here. Env/project protection for
-              // parameters with non-empty defaults is handled in NamedParameters.activateParameters
-              // (prefer existing variable over a non-empty default such as HOSTNAME=localhost).
-              String parentValue = parentWorkflow.getParameterValue(parameterName);
-              if (!Utils.isEmpty(parentValue)) {
-                workflow.setParameterValue(parameterName, parentValue);
-              }
-            }
+
+        // A name the Parameters tab lists is passed on even when its value is empty, so the
+        // child falls back to its own default instead of to whatever the parent happens to hold.
+        // A value that only came from "copy results to parameters" is passed on when it carries
+        // something.
+        //
+        Set<String> namesFromTab = new HashSet<>();
+        for (Parameter parameter : parameterDefinition.getParameters()) {
+          if (!Utils.isEmpty(parameter.getName())
+              && !(Utils.isEmpty(Const.trim(parameter.getField()))
+                  && Utils.isEmpty(Const.trim(parameter.getValue())))) {
+            namesFromTab.add(parameter.getName());
           }
         }
-        workflow.activateParameters(workflow);
+        List<String> passedNames = new ArrayList<>();
+        List<String> passedValues = new ArrayList<>();
+        for (String parameterName : namedParam.listParameters()) {
+          String value = namedParam.getParameterValue(parameterName);
+          if (Utils.isEmpty(value) && !namesFromTab.contains(parameterName)) {
+            continue;
+          }
+          passedNames.add(parameterName);
+          passedValues.add(Const.NVL(value, ""));
+        }
+
+        SubExecutionParameters.activate(
+            workflow,
+            workflow,
+            parentWorkflow,
+            workflow.listParameters(),
+            passedNames.toArray(new String[0]),
+            passedValues.toArray(new String[0]),
+            parameterDefinition.isPassingAllParameters(),
+            false);
 
         // Set the source rows we calculated above...
         //

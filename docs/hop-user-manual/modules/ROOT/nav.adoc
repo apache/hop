@@ -411,6 +411,7 @@ under the License.
 //::=END AUTO GENERATED LINKS ACTIONS
 * xref:fields-parameters-variables.adoc[Fields, parameters, and variables]
 * xref:variables.adoc[Variables]
+** xref:variables/parameter-passing.adoc[Passing parameters to a child]
 * xref:vfs.adoc[Virtual File System]
 ** xref:vfs/aws-s3-vfs.adoc[Amazon Web Services S3]
 ** xref:vfs/azure-blob-storage-vfs.adoc[Microsoft Azure Storage]
