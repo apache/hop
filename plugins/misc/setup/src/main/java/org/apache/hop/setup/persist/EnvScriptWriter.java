@@ -62,14 +62,11 @@ public final class EnvScriptWriter {
       if (StringUtils.isEmpty(entry.getValue())) {
         continue;
       }
-      EnvValueEscaper.cmdQuoted(entry.getKey(), entry.getValue());
       out.append("if not defined ")
           .append(entry.getKey())
-          .append(" set \"")
-          .append(entry.getKey())
-          .append('=')
-          .append(entry.getValue())
-          .append("\"\r\n");
+          .append(' ')
+          .append(EnvValueEscaper.cmdAssignment(entry.getKey(), entry.getValue()))
+          .append("\r\n");
     }
     return out.toString();
   }
