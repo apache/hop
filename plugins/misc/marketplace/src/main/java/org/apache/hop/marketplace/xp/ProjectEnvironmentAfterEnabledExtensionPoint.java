@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.AttributesContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -32,11 +33,13 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.EnvironmentDrift;
-import org.apache.hop.marketplace.env.HopEnvironmentLoader;
-import org.apache.hop.marketplace.env.HopEnvironmentSpec;
+import org.apache.hop.marketplace.env.HopInstallSpec;
+import org.apache.hop.marketplace.env.HopInstallSpecFiles;
+import org.apache.hop.marketplace.env.HopInstallSpecLoader;
 import org.apache.hop.marketplace.env.MarketplaceAttributes;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.PluginInstaller;
@@ -151,7 +154,7 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
     }
 
     MarketplaceConfig config = MarketplaceConfig.load();
-    HopEnvironmentSpec env = HopEnvironmentLoader.load(envFile);
+    HopInstallSpec env = HopInstallSpecLoader.load(envFile);
     EnvironmentApplier applier = new EnvironmentApplier(log, hopHome, config);
     EnvironmentDrift drift = applier.validate(env);
 
@@ -261,22 +264,21 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
       AttributesContext context, IVariables variables, Path hopHome) {
     String explicit = MarketplaceAttributes.envFile(context);
     if (StringUtils.isNotBlank(explicit)) {
-      String resolved = variables != null ? variables.resolve(explicit.trim()) : explicit.trim();
-      Path path = Path.of(resolved).toAbsolutePath().normalize();
-      if (Files.isRegularFile(path)) {
-        return path;
+      Path found = existingSpecPath(explicit.trim(), variables);
+      if (found != null) {
+        return found;
       }
     }
 
     // Project home hop-env.yaml
     if (StringUtils.isNotBlank(context.getProjectHome())) {
-      Path candidate = Path.of(context.getProjectHome()).resolve("hop-env.yaml");
-      if (Files.isRegularFile(candidate)) {
-        return candidate.toAbsolutePath().normalize();
+      Path yaml = existingSpecPath(context.getProjectHome() + "/hop-env.yaml", variables);
+      if (yaml != null) {
+        return yaml;
       }
-      candidate = Path.of(context.getProjectHome()).resolve("hop-env.yml");
-      if (Files.isRegularFile(candidate)) {
-        return candidate.toAbsolutePath().normalize();
+      Path yml = existingSpecPath(context.getProjectHome() + "/hop-env.yml", variables);
+      if (yml != null) {
+        return yml;
       }
     }
 
@@ -284,11 +286,37 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
     return EnvironmentApplier.resolveEnvironmentFile(hopHome, varFile);
   }
 
-  private static void populateExtraPlugins(
-      Path hopHome, HopEnvironmentSpec env, EnvironmentDrift drift) throws Exception {
+  private static Path existingSpecPath(String filename, IVariables variables) {
+    if (!HopInstallSpecFiles.exists(filename, variables)) {
+      return null;
+    }
+    try {
+      String resolved = HopInstallSpecFiles.resolve(filename, variables);
+      FileObject fileObject = HopVfs.getFileObject(resolved, variables);
+      String local = HopVfs.getFilename(fileObject);
+      if (StringUtils.isNotBlank(local)) {
+        Path path = Path.of(local);
+        if (Files.isRegularFile(path)) {
+          return path.toAbsolutePath().normalize();
+        }
+      }
+    } catch (Exception e) {
+      // Fall through to java.nio for local paths that Path.of can still see.
+    }
+    try {
+      String resolved = HopInstallSpecFiles.resolve(filename, variables);
+      Path path = Path.of(resolved).toAbsolutePath().normalize();
+      return Files.isRegularFile(path) ? path : null;
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  private static void populateExtraPlugins(Path hopHome, HopInstallSpec env, EnvironmentDrift drift)
+      throws Exception {
     Set<String> desired = new HashSet<>();
     if (env.getPlugins() != null) {
-      for (HopEnvironmentSpec.PluginRef ref : env.getPlugins()) {
+      for (HopInstallSpec.PluginRef ref : env.getPlugins()) {
         if (ref.getArtifactId() != null) {
           desired.add(ref.getArtifactId());
         }

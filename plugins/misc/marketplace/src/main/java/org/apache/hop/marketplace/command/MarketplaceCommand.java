@@ -45,8 +45,8 @@ import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.config.MarketplaceRepositoryDefinition;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.EnvironmentDrift;
-import org.apache.hop.marketplace.env.HopEnvironmentLoader;
-import org.apache.hop.marketplace.env.HopEnvironmentSpec;
+import org.apache.hop.marketplace.env.HopInstallSpec;
+import org.apache.hop.marketplace.env.HopInstallSpecLoader;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
@@ -453,19 +453,19 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       mixinStandardHelpOptions = true,
       name = "apply",
       description =
-          "Install plugins and dependencies declared in hop-env.yaml (or .json). Optional --prune"
-              + " removes marketplace plugins not listed in the file.")
+          "Install plugins and dependencies declared in a Hop install spec (hop-env.yaml / .json)."
+              + " Optional --prune removes marketplace plugins not listed in the file.")
   static class ApplyCommand extends MarketplaceSubCommand {
     @Option(
         names = {"-f", "--file"},
         required = true,
-        description = "Path to hop-env.yaml or hop-env.json")
+        description = "Path to the install spec file (hop-env.yaml or hop-env.json)")
     private String file;
 
     @Option(
         names = {"--prune"},
         description =
-            "Uninstall marketplace-installed plugins that are not listed in the environment file")
+            "Uninstall marketplace-installed plugins that are not listed in the install spec file")
     private boolean prune;
 
     @Override
@@ -477,7 +477,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         }
         Path hopHome = HopHome.resolve();
         Path envPath = Path.of(file).toAbsolutePath().normalize();
-        HopEnvironmentSpec env = HopEnvironmentLoader.load(envPath);
+        HopInstallSpec env = HopInstallSpecLoader.load(envPath);
         ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
         try {
           new EnvironmentApplier(log, hopHome, config).apply(env, prune, progress);
@@ -486,7 +486,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           progress.complete();
         }
         System.out.println(
-            "Environment applied from "
+            "Install spec applied from "
                 + envPath
                 + ". Restart Hop (or re-run) so new plugins are loaded.");
       } catch (Exception e) {
@@ -504,18 +504,19 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       mixinStandardHelpOptions = true,
       name = "validate",
       description =
-          "Check the local install against hop-env.yaml without installing. Exit code 1 on drift.")
+          "Check the local install against a Hop install spec (hop-env.yaml) without installing."
+              + " Exit code 1 on drift.")
   static class ValidateCommand extends MarketplaceSubCommand {
     @Option(
         names = {"-f", "--file"},
         description =
-            "Path to hop-env.yaml or hop-env.json (default: discover hop-env.* under project/Hop"
-                + " home)")
+            "Path to the install spec file (hop-env.yaml or hop-env.json; default: discover hop-env.*"
+                + " under project/Hop home)")
     private String file;
 
     @Option(
         names = {"--strict"},
-        description = "Also fail if extra marketplace plugins are installed beyond the env file")
+        description = "Also fail if extra marketplace plugins are installed beyond the spec file")
     private boolean strict;
 
     @Override
@@ -525,9 +526,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         Path envPath = EnvironmentApplier.resolveEnvironmentFile(hopHome, file);
         if (envPath == null) {
           throw new HopException(
-              "No environment file found. Pass -f hop-env.yaml or set HOP_ENV_FILE.");
+              "No install spec file found. Pass -f hop-env.yaml or set HOP_ENV_FILE.");
         }
-        HopEnvironmentSpec env = HopEnvironmentLoader.load(envPath);
+        HopInstallSpec env = HopInstallSpecLoader.load(envPath);
         EnvironmentDrift drift =
             new EnvironmentApplier(log, hopHome, MarketplaceConfig.load()).validate(env);
         boolean hard =
@@ -541,13 +542,13 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           hard = hard || !drift.getExtraMarketplacePlugins().isEmpty();
         }
         if (!hard) {
-          System.out.println("OK: environment matches " + envPath);
+          System.out.println("OK: install spec matches " + envPath);
           return;
         }
-        System.err.println("Environment drift against " + envPath + ":");
+        System.err.println("Install spec drift against " + envPath + ":");
         System.err.print(drift.formatReport());
         System.err.println("Run: hop marketplace apply -f " + envPath);
-        throw new CommandLine.ExecutionException(new CommandLine(this), "environment drift");
+        throw new CommandLine.ExecutionException(new CommandLine(this), "install spec drift");
       } catch (CommandLine.ExecutionException e) {
         throw e;
       } catch (Exception e) {
@@ -557,11 +558,11 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       }
     }
 
-    private static void addExtraPlugins(
-        Path hopHome, HopEnvironmentSpec env, EnvironmentDrift drift) throws Exception {
+    private static void addExtraPlugins(Path hopHome, HopInstallSpec env, EnvironmentDrift drift)
+        throws Exception {
       Set<String> desired = new HashSet<>();
       if (env.getPlugins() != null) {
-        for (HopEnvironmentSpec.PluginRef ref : env.getPlugins()) {
+        for (HopInstallSpec.PluginRef ref : env.getPlugins()) {
           if (ref.getArtifactId() != null) {
             desired.add(ref.getArtifactId());
           }

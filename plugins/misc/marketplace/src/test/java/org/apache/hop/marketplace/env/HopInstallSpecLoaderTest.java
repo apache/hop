@@ -25,10 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class HopEnvironmentLoaderTest {
+class HopInstallSpecLoaderTest {
 
   @TempDir Path tempDir;
 
@@ -55,7 +56,7 @@ class HopEnvironmentLoaderTest {
         """,
         StandardCharsets.UTF_8);
 
-    HopEnvironmentSpec env = HopEnvironmentLoader.load(file);
+    HopInstallSpec env = HopInstallSpecLoader.load(file);
     assertEquals("1.0", env.getVersion());
     assertEquals("2.19.0", env.getHopVersion());
     assertTrue(env.isEnforceOnRun());
@@ -81,7 +82,7 @@ class HopEnvironmentLoaderTest {
         }
         """,
         StandardCharsets.UTF_8);
-    HopEnvironmentSpec env = HopEnvironmentLoader.load(file);
+    HopInstallSpec env = HopInstallSpecLoader.load(file);
     assertFalse(env.isEnforceOnRun());
     assertEquals(1, env.getPlugins().size());
     assertEquals("hop-tech-arrow", env.getPlugins().get(0).getArtifactId());
@@ -89,9 +90,9 @@ class HopEnvironmentLoaderTest {
 
   @Test
   void saveAndLoadYamlRoundTrip() throws Exception {
-    HopEnvironmentSpec spec = sampleSpec();
+    HopInstallSpec spec = sampleSpec();
     Path file = tempDir.resolve("roundtrip.yaml");
-    HopEnvironmentLoader.save(file, spec);
+    HopInstallSpecLoader.save(file, spec);
 
     String content = Files.readString(file, StandardCharsets.UTF_8);
     assertTrue(content.contains("hopVersion:"));
@@ -100,7 +101,7 @@ class HopEnvironmentLoaderTest {
     // blank groupId omitted
     assertFalse(content.contains("groupId: org.apache.hop"));
 
-    HopEnvironmentSpec loaded = HopEnvironmentLoader.load(file);
+    HopInstallSpec loaded = HopInstallSpecLoader.load(file);
     assertEquals("1.0", loaded.getVersion());
     assertEquals("2.19.0", loaded.getHopVersion());
     assertTrue(loaded.isEnforceOnRun());
@@ -117,11 +118,11 @@ class HopEnvironmentLoaderTest {
 
   @Test
   void saveAndLoadJsonRoundTrip() throws Exception {
-    HopEnvironmentSpec spec = sampleSpec();
+    HopInstallSpec spec = sampleSpec();
     Path file = tempDir.resolve("roundtrip.json");
-    HopEnvironmentLoader.save(file, spec);
+    HopInstallSpecLoader.save(file, spec);
 
-    HopEnvironmentSpec loaded = HopEnvironmentLoader.load(file);
+    HopInstallSpec loaded = HopInstallSpecLoader.load(file);
     assertEquals(spec.getHopVersion(), loaded.getHopVersion());
     assertEquals(spec.getPlugins().size(), loaded.getPlugins().size());
     assertEquals(
@@ -131,30 +132,66 @@ class HopEnvironmentLoaderTest {
 
   @Test
   void saveMinimalOmitsEmptyLists() throws Exception {
-    HopEnvironmentSpec spec = new HopEnvironmentSpec();
+    HopInstallSpec spec = new HopInstallSpec();
     spec.setVersion("1.0");
     spec.setHopVersion("2.19.0");
     Path file = tempDir.resolve("minimal.yaml");
-    HopEnvironmentLoader.save(file, spec);
+    HopInstallSpecLoader.save(file, spec);
     String content = Files.readString(file, StandardCharsets.UTF_8);
     assertFalse(content.contains("repositories:"));
     assertFalse(content.contains("plugins:"));
     assertFalse(content.contains("dependencies:"));
-    HopEnvironmentSpec loaded = HopEnvironmentLoader.load(file);
+    HopInstallSpec loaded = HopInstallSpecLoader.load(file);
     assertEquals("2.19.0", loaded.getHopVersion());
     assertTrue(loaded.getPlugins().isEmpty());
   }
 
-  private static HopEnvironmentSpec sampleSpec() {
-    HopEnvironmentSpec spec = new HopEnvironmentSpec();
+  @Test
+  void loadAndSaveThroughHopVfsFilename() throws Exception {
+    HopInstallSpec spec = sampleSpec();
+    Path file = tempDir.resolve("vfs.yaml");
+    HopInstallSpecLoader.save(file.toString(), spec, null);
+    HopInstallSpec loaded = HopInstallSpecLoader.load(file.toString(), null);
+    assertEquals("hop-tech-parquet", loaded.getPlugins().get(0).getArtifactId());
+  }
+
+  @Test
+  void loadResolvesVariables() throws Exception {
+    Path file = tempDir.resolve("hop-env.yaml");
+    Files.writeString(file, "version: \"1.0\"\nhopVersion: \"2.19.0\"\n", StandardCharsets.UTF_8);
+    Variables variables = new Variables();
+    variables.setVariable("PROJECT_HOME", tempDir.toString());
+    HopInstallSpec loaded = HopInstallSpecLoader.load("${PROJECT_HOME}/hop-env.yaml", variables);
+    assertEquals("2.19.0", loaded.getHopVersion());
+  }
+
+  @Test
+  void existsRecognizesVariablePathAndRejectsMissing() {
+    Variables variables = new Variables();
+    variables.setVariable("PROJECT_HOME", tempDir.toString());
+    assertFalse(HopInstallSpecFiles.exists("${PROJECT_HOME}/hop-env.yaml", variables));
+    assertFalse(HopInstallSpecFiles.exists("file:///no/such/hop-env.yaml", null));
+  }
+
+  @Test
+  void wellKnownBasenames() {
+    assertTrue(HopInstallSpecFiles.isWellKnown("/opt/hop/hop-env.yaml"));
+    assertTrue(HopInstallSpecFiles.isWellKnown("full-client-env.yaml"));
+    assertTrue(HopInstallSpecFiles.isFullClient("/install/full-client-env.yaml"));
+    assertFalse(HopInstallSpecFiles.isWellKnown("other.yaml"));
+    assertEquals("hop-env.yaml", HopInstallSpecFiles.ensureSpecExtension("hop-env"));
+  }
+
+  private static HopInstallSpec sampleSpec() {
+    HopInstallSpec spec = new HopInstallSpec();
     spec.setVersion("1.0");
     spec.setHopVersion("2.19.0");
     spec.setEnforceOnRun(true);
 
-    HopEnvironmentSpec.RepositoryRef asf = new HopEnvironmentSpec.RepositoryRef();
+    HopInstallSpec.RepositoryRef asf = new HopInstallSpec.RepositoryRef();
     asf.setId("asf");
     asf.setUrl("https://repository.apache.org/content/groups/public/");
-    HopEnvironmentSpec.RepositoryRef privateRepo = new HopEnvironmentSpec.RepositoryRef();
+    HopInstallSpec.RepositoryRef privateRepo = new HopInstallSpec.RepositoryRef();
     privateRepo.setId("private");
     privateRepo.setUrl("https://nexus.example/repository/hop/");
     privateRepo.setUsername("ci");
@@ -162,12 +199,12 @@ class HopEnvironmentLoaderTest {
     spec.getRepositories().add(asf);
     spec.getRepositories().add(privateRepo);
 
-    HopEnvironmentSpec.PluginRef plugin = new HopEnvironmentSpec.PluginRef();
+    HopInstallSpec.PluginRef plugin = new HopInstallSpec.PluginRef();
     plugin.setArtifactId("hop-tech-parquet");
     plugin.setVersion("2.19.0");
     spec.getPlugins().add(plugin);
 
-    HopEnvironmentSpec.DependencyRef dep = new HopEnvironmentSpec.DependencyRef();
+    HopInstallSpec.DependencyRef dep = new HopInstallSpec.DependencyRef();
     dep.setGroupId("org.postgresql");
     dep.setArtifactId("postgresql");
     dep.setVersion("42.7.3");

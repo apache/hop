@@ -158,14 +158,14 @@ Next to the username, a **session privilege** combo lets you temporarily *lower*
 * Username and audit identity stay the same; only UI authorization changes.
 * Open editors are not closed; the next save/edit uses the new permissions (dialogs and canvas already re-check).
 * Security configuration still requires Admin at the effective level—downgrade to Read-only hides it until you restore Full access.
-* Marketplace install/uninstall and hop-env *Apply* also require Admin (`plugin.manage`) at the effective level.
+* Marketplace install/uninstall and hop-env install spec *Apply* also require Admin (`plugin.manage`) at the effective level.
 
 Desktop unrestricted sessions can use the same control to simulate Operator / Read-only.
 
 ==== Marketplace and authorization
 
 The Tools → Marketplace dialog remains available for browsing the catalog when authentication is enabled.
-*Install*, *Uninstall*, repository configuration, and hop-env *Apply* require the `plugin.manage` permission (built-in *Admin* role only).
+*Install*, *Uninstall*, repository configuration, and hop-env install spec *Apply* require the `plugin.manage` permission (built-in *Admin* role only).
 *Validate* (drift check without installing) does not.
 
 Plugin installs affect the shared server installation for all Hop Web users; they are not per-session.

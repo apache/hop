@@ -17,8 +17,6 @@
 
 package org.apache.hop.marketplace.xp;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.AttributesContext;
 import org.apache.hop.core.Const;
@@ -28,8 +26,9 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.marketplace.env.HopInstallSpecFiles;
 import org.apache.hop.marketplace.env.MarketplaceAttributes;
-import org.apache.hop.marketplace.gui.HopEnvironmentDialog;
+import org.apache.hop.marketplace.gui.HopInstallSpecEditor;
 import org.apache.hop.marketplace.gui.MarketplaceGuiPlugin;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.AttributesDialogExtension;
@@ -48,12 +47,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Contributes a Marketplace / Plugins tab on the lifecycle environment dialog. Settings are stored
- * under {@link MarketplaceAttributes#GROUP} on the shared {@link AttributesContext}.
+ * Contributes a Marketplace plugins tab on the lifecycle environment dialog, including a pointer to
+ * a Hop install spec file. Settings are stored under {@link MarketplaceAttributes#GROUP} on the
+ * shared {@link AttributesContext}.
  */
 @ExtensionPoint(
     id = "MarketplaceLifecycleEnvironmentDialogTabs",
-    description = "Add marketplace plugin policy tab to the lifecycle environment dialog",
+    description = "Add marketplace install-spec policy tab to the lifecycle environment dialog",
     extensionPointId = "HopGuiLifecycleEnvironmentDialogTabs")
 public class LifecycleEnvironmentDialogTabsExtensionPoint
     implements IExtensionPoint<AttributesDialogExtension> {
@@ -116,18 +116,14 @@ public class LifecycleEnvironmentDialogTabsExtensionPoint
     wEditEnv.addListener(
         SWT.Selection,
         e -> {
-          Path initial = null;
-          String text = wEnvFile.getText();
-          if (StringUtils.isNotBlank(text)) {
-            String resolved = variables != null ? variables.resolve(text.trim()) : text.trim();
-            Path candidate = Path.of(resolved).toAbsolutePath().normalize();
-            if (Files.isRegularFile(candidate)) {
-              initial = candidate;
-            }
+          String initial = StringUtils.trimToNull(wEnvFile.getText());
+          if (initial != null && !HopInstallSpecFiles.exists(initial, variables)) {
+            initial = null;
           }
-          Path saved = new HopEnvironmentDialog(extension.getShell(), initial).open();
-          if (saved != null) {
-            wEnvFile.setText(saved.toString());
+          HopInstallSpecEditor editor = new HopInstallSpecEditor(extension.getShell(), initial);
+          editor.open();
+          if (editor.wasSaved() && StringUtils.isNotBlank(editor.getCurrentFilename())) {
+            wEnvFile.setText(editor.getCurrentFilename());
           }
         });
 
@@ -144,6 +140,8 @@ public class LifecycleEnvironmentDialogTabsExtensionPoint
               BaseDialog.presentFileDialog(
                   false,
                   extension.getShell(),
+                  null,
+                  variables,
                   new String[] {"*.yaml;*.yml;*.json", "*.*"},
                   new String[] {
                     BaseMessages.getString(PKG, "MarketplaceDialog.EnvFile.Filter.Env"),

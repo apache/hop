@@ -58,8 +58,8 @@ public enum Permission {
   SECURITY_MANAGE("security.manage"),
 
   /**
-   * Install/uninstall marketplace plugins, edit marketplace repositories, and apply hop-env plugin
-   * sets. Shared process install — Admin-only among built-in roles.
+   * Install/uninstall marketplace plugins, edit marketplace repositories, and apply hop-env install
+   * spec plugin sets. Shared process install — Admin-only among built-in roles.
    */
   PLUGIN_MANAGE("plugin.manage");
 

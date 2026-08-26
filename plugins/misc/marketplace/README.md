@@ -55,7 +55,7 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 ./hop marketplace query datavault --include-gav
 ./hop marketplace query --csv > plugins.csv
 
-# Declarative environment (CI/CD / Docker)
+# Declarative install spec (CI/CD / Docker)
 ./hop marketplace apply -f hop-env.yaml
 ./hop marketplace apply -f hop-env.yaml --prune
 ./hop marketplace validate -f hop-env.yaml

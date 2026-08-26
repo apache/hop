@@ -26,7 +26,7 @@ import lombok.Setter;
 import org.apache.hop.marketplace.config.MarketplaceSecrets;
 
 /**
- * Declarative Hop environment file ({@code hop-env.yaml} / {@code hop-env.json}).
+ * Declarative Hop install spec file ({@code hop-env.yaml} / {@code hop-env.json}).
  *
  * <pre>
  * version: "1.0"
@@ -46,7 +46,7 @@ import org.apache.hop.marketplace.config.MarketplaceSecrets;
  */
 @Getter
 @Setter
-public class HopEnvironmentSpec {
+public class HopInstallSpec {
   private String version = "1.0";
   private String hopVersion;
   private boolean enforceOnRun;
@@ -64,8 +64,8 @@ public class HopEnvironmentSpec {
     private String username;
 
     /**
-     * Optional Basic auth password, obfuscated in the environment file the same way as in
-     * hop-config.json. Environment files are meant to be shared, so prefer a variable or {@code
+     * Optional Basic auth password, obfuscated in the install spec file the same way as in
+     * hop-config.json. Install spec files are meant to be shared, so prefer a variable or {@code
      * HOP_MARKETPLACE_PASSWORD} over a password here.
      */
     @JsonSerialize(using = MarketplaceSecrets.Serializer.class)
