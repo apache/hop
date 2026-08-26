@@ -1224,7 +1224,17 @@ public class GuiResource {
   private Image getZoomedImaged(
       SwtUniversalImage universalImage, Device device, int width, int height) {
     return universalImage.getAsBitmapForSize(
-        device, (int) (zoomFactor * width), (int) (zoomFactor * height));
+        device,
+        ConstUi.zoomedIconSize(width, zoomFactor),
+        ConstUi.zoomedIconSize(height, zoomFactor));
+  }
+
+  /**
+   * Tree/toolbar-sized bitmap of {@code image}, scaled by the current zoom factor. Do not dispose
+   * the returned image; it is cached on the universal image.
+   */
+  public Image getSmallIcon(SwtUniversalImage image) {
+    return getZoomedImaged(image, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**

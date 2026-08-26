@@ -44,6 +44,14 @@ public class ConstUi {
 
   public static final int DOCUMENTATION_ICON_SIZE = 14;
 
+  /**
+   * Bitmap size of a logical icon at a Hop zoom factor. Same truncation as {@code
+   * GuiResource#getZoomedImaged} and explorer tree icons: {@code (int) (zoomFactor * logicalSize)}.
+   */
+  public static int zoomedIconSize(int logicalSize, double zoomFactor) {
+    return (int) (zoomFactor * logicalSize);
+  }
+
   /** Default checkbox width */
   public static final int CHECKBOX_WIDTH = 20;
 
