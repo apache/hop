@@ -263,7 +263,13 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
               public void beforeDestroy(UISessionEvent event) {
                 try {
                   HopGui hopGui = HopGui.getInstance();
-                  if (hopGui == null || hopGui.auditDelegate == null) {
+                  if (hopGui == null) {
+                    return;
+                  }
+                  // Let go of this session's VFS namespace: it closes once nothing is using it,
+                  // and the sessions still running keep theirs.
+                  hopGui.releaseVfsNamespace();
+                  if (hopGui.auditDelegate == null) {
                     return;
                   }
                   if (hopGui.getShell() != null && hopGui.getShell().isDisposed()) {

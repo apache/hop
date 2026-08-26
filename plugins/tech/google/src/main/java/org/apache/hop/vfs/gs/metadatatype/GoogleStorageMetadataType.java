@@ -33,7 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     image = "ui/images/authentication.svg",
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/google-storage-authentication.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.VFS_GCP_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.VFS_GCP_CONNECTION,
+    classLoaderGroup = "vfs-google")
 @Getter
 @Setter
 public class GoogleStorageMetadataType extends HopMetadataBase

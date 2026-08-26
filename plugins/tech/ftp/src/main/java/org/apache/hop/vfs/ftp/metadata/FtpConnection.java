@@ -47,7 +47,8 @@ import org.apache.hop.vfs.ftp.IFtpConnection;
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/ftp-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_FTP_CONNECTION,
-    supportsGlobalReplace = true)
+    supportsGlobalReplace = true,
+    classLoaderGroup = "sftp")
 public class FtpConnection extends HopMetadataBase
     implements Serializable, IHopMetadata, IFtpConnection {
 

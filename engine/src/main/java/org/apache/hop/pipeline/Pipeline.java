@@ -90,6 +90,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
@@ -563,8 +565,44 @@ public abstract class Pipeline
    *
    * @throws HopException in case the pipeline could not be prepared (initialized)
    */
+  /** The VFS namespace of this execution, when it runs against metadata of its own. */
+  private HopVfsNamespace vfsNamespace;
+
+  /** The metadata it was taken for. Kept so it is let go of by the same key it was taken with. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
   @Override
   public void prepareExecution() throws HopException {
+    // A pipeline carrying its own metadata - an export running on a Hop Server - resolves its
+    // named VFS connections in its own namespace, not in the one the server was started with.
+    vfsNamespaceProvider = getMetadataProvider();
+    vfsNamespace =
+        HopVfsNamespaces.acquire(this, vfsNamespaceProvider, "pipeline " + pipelineMeta.getName());
+    HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
+    boolean prepared = false;
+    try {
+      prepareExecutionInternal();
+      prepared = true;
+    } finally {
+      HopVfsNamespaces.restoreThread(previous);
+      if (!prepared) {
+        // Preparation failed, so nothing will ever finish this pipeline and let the namespace go.
+        // On a server that would leak a file system manager for every export that fails to start.
+        releaseVfsNamespace();
+      }
+    }
+  }
+
+  /** Let go of the VFS namespace of this execution, once and by the key it was taken with. */
+  private void releaseVfsNamespace() {
+    if (vfsNamespace != null) {
+      HopVfsNamespaces.release(vfsNamespaceProvider);
+      vfsNamespace = null;
+      vfsNamespaceProvider = null;
+    }
+  }
+
+  private void prepareExecutionInternal() throws HopException {
     setPreparing(true);
     executionStartDate = new Date();
     setRunning(false);
@@ -1251,6 +1289,15 @@ public abstract class Pipeline
    */
   @Override
   public void startThreads() throws HopException {
+    HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
+    try {
+      startThreadsInternal();
+    } finally {
+      HopVfsNamespaces.restoreThread(previous);
+    }
+  }
+
+  private void startThreadsInternal() throws HopException {
     // Now prepare to start all the threads...
     //
     nrOfFinishedTransforms = 0;
@@ -1498,6 +1545,10 @@ public abstract class Pipeline
     //
     ExtensionPointHandler.callExtensionPoint(
         log, this, HopExtensionPoint.PipelineCompleted.id, this);
+
+    // Only now: everything above can still touch files of this namespace, and closing it
+    // invalidates every file object resolved through it - the result files carry those.
+    releaseVfsNamespace();
   }
 
   public void pipelineCompleted() throws HopException {

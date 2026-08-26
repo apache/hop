@@ -81,9 +81,13 @@ import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -378,7 +382,7 @@ public class HopGui
     this.id = UUID.randomUUID().toString();
 
     commandLineArguments = new ArrayList<>();
-    variables = Variables.getADefaultVariableSpace();
+    setVariables(Variables.getADefaultVariableSpace());
 
     loggingObject = new LoggingObject(APP_NAME);
     log = new LogChannel(APP_NAME);
@@ -418,6 +422,77 @@ public class HopGui
 
   static {
     PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(HopGui.class);
+  }
+
+  /**
+   * Sits behind this GUI's variables and answers with the metadata of the project it has open, so
+   * that everything resolving a file through those variables lands in the right VFS namespace. In
+   * Hop Web every session has its own HopGui, so this is also what keeps one user's named VFS
+   * connections apart from another's. See issue #8106.
+   *
+   * <p>It is reached by walking the parent chain, never for looking a variable value up - {@link
+   * Variables#getVariable(String)} reads its own properties only - so variable inheritance is
+   * untouched.
+   */
+  private final IVariables metadataAnchor =
+      new Variables() {
+        @Override
+        public IHopMetadataProvider getMetadataProvider() {
+          return HopGui.this.metadataProvider;
+        }
+      };
+
+  /** The metadata this GUI took a VFS namespace for, so it can let go of it again. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
+  /**
+   * Take the VFS namespace of the project this GUI now has open, and let go of the previous one.
+   *
+   * <p>Only does anything where tenants share the JVM: in Hop Web this is what gives each session
+   * its own named VFS connections, so two people can both have a connection called {@code mydata}
+   * pointing somewhere different. On the desktop there is one project in the process and the
+   * process wide file system manager already holds its connections, so this reads them again
+   * instead. See Apache Hop issue #8106.
+   */
+  public void useVfsNamespaceOfOpenProject() {
+    IHopMetadataProvider previousProvider = vfsNamespaceProvider;
+    HopVfsNamespace namespace =
+        HopVfsNamespaces.acquire(variables, metadataProvider, "Hop GUI " + id);
+    vfsNamespaceProvider = namespace == null ? null : metadataProvider;
+
+    // Bind it for this session, so the call sites that resolve a file with no variables in hand
+    // land in it too. Deliberately not restored afterwards: it stays for as long as the session.
+    HopVfsNamespaces.bindThread(namespace);
+
+    if (previousProvider != null) {
+      HopVfsNamespaces.release(previousProvider);
+    }
+    if (namespace == null) {
+      HopVfs.refresh(variables);
+    }
+  }
+
+  /** Let go of the VFS namespace of this GUI, when its session ends. */
+  public void releaseVfsNamespace() {
+    if (vfsNamespaceProvider != null) {
+      HopVfsNamespaces.release(vfsNamespaceProvider);
+      vfsNamespaceProvider = null;
+    }
+    // Put back nothing: this session is going away.
+    HopVfsNamespaces.restoreThread(null);
+  }
+
+  /**
+   * Give this GUI a new set of variables, as loading a project does. The metadata of the open
+   * project stays reachable from them either way.
+   *
+   * @param variables the variables to use
+   */
+  public void setVariables(IVariables variables) {
+    this.variables = variables;
+    if (variables != null) {
+      variables.setParentVariables(metadataAnchor);
+    }
   }
 
   public static HopGui getInstance() {

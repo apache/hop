@@ -44,7 +44,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/sftp-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_SFTP_CONNECTION,
-    supportsGlobalReplace = true)
+    supportsGlobalReplace = true,
+    classLoaderGroup = "sftp")
 public class SftpConnection extends HopMetadataBase implements Serializable, IHopMetadata {
 
   public static final int DEFAULT_PORT = 22;

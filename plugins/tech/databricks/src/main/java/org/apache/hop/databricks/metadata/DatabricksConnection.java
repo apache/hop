@@ -44,7 +44,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::DatabricksConnection.Description",
     image = "databricks-connection.svg",
     category = HopMetadataCategory.CONNECTIONS,
-    documentationUrl = "/metadata-types/databricks-connection.html")
+    documentationUrl = "/metadata-types/databricks-connection.html",
+    classLoaderGroup = "vfs-databricks")
 public class DatabricksConnection extends HopMetadataBase implements Serializable, IHopMetadata {
 
   private static final String PARENT = DatabricksConnectionEditor.GUI_WIDGETS_PARENT_ID;

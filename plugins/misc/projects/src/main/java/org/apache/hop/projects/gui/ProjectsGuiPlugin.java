@@ -329,8 +329,10 @@ public class ProjectsGuiPlugin {
           HopExtensionPoint.HopGuiProjectAfterEnabled.name(),
           project);
 
-      // Reset VFS filesystem to load additional configurations
-      HopVfs.reset();
+      // The project that just opened has its own VFS connections: take its namespace, and let go
+      // of the one of the project we came from. Not a full reset - in Hop Web that would empty the
+      // file system manager of every other session as well.
+      hopGui.useVfsNamespaceOfOpenProject();
 
       // Finally, warn about metadata elements in this project which we can't load.
       // They're ignored so the project itself opens just fine.

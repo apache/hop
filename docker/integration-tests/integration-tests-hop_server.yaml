@@ -23,11 +23,19 @@ services:
     depends_on:
       hop_server:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     links:
       - hop_server
+      - minio
 
   hop_server:
     image: apache/hop:Development
+    depends_on:
+      minio:
+        condition: service_healthy
+    links:
+      - minio
     build:
       context: ../../.
       dockerfile: docker/Dockerfile
@@ -50,3 +58,23 @@ services:
       timeout: 10s
       retries: 6
       start_period: 120s
+
+  # Storage behind the "export-only-storage" VFS connection of main-0014. That connection lives in
+  # the client project's metadata-client-only folder, so it only ever reaches the server inside the
+  # export ZIP - which is what the test is about.
+  minio:
+    image: minio/minio
+    hostname: minio
+    environment:
+      MINIO_REGION: "local"
+      MINIO_REGION_NAME: "local"
+      MINIO_SCHEME: "http"
+      MINIO_ROOT_USER: "ApacheHopAccessKey"
+      MINIO_ROOT_PASSWORD: "ApacheHopSecretKey"
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s

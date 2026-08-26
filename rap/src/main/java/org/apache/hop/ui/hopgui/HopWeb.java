@@ -45,8 +45,10 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.ui.hopgui.canvas.CanvasRenderServiceHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.eclipse.rap.rwt.application.Application;
@@ -78,6 +80,10 @@ public class HopWeb implements ApplicationConfiguration {
 
   @Override
   public void configure(Application application) {
+
+    HopMetadataInstance.setScope(
+        new RapSessionScope<>(RapSessionScope.MetadataProviderHolder.class));
+    HopVfsNamespaces.setScope(new RapSessionScope<>(RapSessionScope.VfsNamespaceHolder.class));
 
     try {
       // Hop initialization is already done here.
