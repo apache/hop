@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -38,7 +37,6 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.FileLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
@@ -51,6 +49,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.ILegacyXml;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -74,8 +73,8 @@ import org.w3c.dom.Node;
 @SuppressWarnings("java:S1104")
 @Getter
 @Setter
-public class ActionShell extends ActionBase {
-  public static class ShellArgument {
+public class ActionShell extends ActionBase implements ILegacyXml {
+  public static class ShellArgument implements ILegacyXml {
     @HopMetadataProperty(key = "value")
     private String value;
 
@@ -105,6 +104,16 @@ public class ActionShell extends ActionBase {
 
     public void setHidden(boolean hidden) {
       this.hidden = hidden;
+    }
+
+    @Override
+    public void convertLegacyXml(Node node) {
+      if (XmlHandler.getSubNode(node, "value") == null) {
+        String text = XmlHandler.getNodeValue(node);
+        if (text != null) {
+          this.value = text;
+        }
+      }
     }
   }
 
@@ -164,37 +173,19 @@ public class ActionShell extends ActionBase {
     clear();
   }
 
-  /**
-   * @deprecated keep for backwards compatibility
-   * @param entrynode the top-level XML node
-   * @param metadataProvider The metadataProvider to optionally load from.
-   * @param variables
-   * @throws HopXmlException
-   */
   @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode, metadataProvider, variables);
-
-      // How many arguments?
-      int argnr = 0;
-      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
-        argnr++;
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
+    // Backward compatibility with legacy argument0, argument1... tags
+    int argnr = 0;
+    while (XmlHandler.getTagValue(node, "argument" + argnr) != null) {
+      if (arguments == null) {
+        arguments = new ArrayList<>();
       }
-
-      // Read them all...
-      // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
-      // THE XML "DUBIOUS". DON'T REUSE IT.
-      for (int a = 0; a < argnr; a++) {
-        if (arguments == null) {
-          arguments = new ArrayList<>();
-        }
-        arguments.add(new ShellArgument(XmlHandler.getTagValue(entrynode, "argument" + a), false));
-      }
-    } catch (HopException e) {
-      throw new HopXmlException("Unable to load action of type 'shell' from XML node", e);
+      arguments.add(new ShellArgument(XmlHandler.getTagValue(node, "argument" + argnr), false));
+      argnr++;
     }
   }
 
@@ -384,7 +375,6 @@ public class ActionShell extends ActionBase {
       // What's the exact command?
       String[] base = null;
       List<String> cmds = new ArrayList<>();
-      List<String> logCmds = new ArrayList<>();
 
       if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ActionShell.RunningOn", Const.getSystemOs()));
@@ -425,7 +415,6 @@ public class ActionShell extends ActionBase {
         // Add the base command...
         for (String s : base) {
           cmds.add(s);
-          logCmds.add(s);
         }
 
         if (Const.getSystemOs().equals(CONST_WINDOWS_95)
@@ -435,12 +424,9 @@ public class ActionShell extends ActionBase {
           // included in 1 argument to cmd/command.
 
           StringBuilder cmdline = new StringBuilder(300);
-          StringBuilder logCmdline = new StringBuilder(300);
 
           cmdline.append('"');
           cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
-          logCmdline.append('"');
-          logCmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
           // Add the arguments from previous results...
           for (RowMetaAndData r : cmdRows) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
@@ -448,14 +434,10 @@ public class ActionShell extends ActionBase {
             for (int j = 0; j < r.size(); j++) {
               cmdline.append(' ');
               cmdline.append(Const.optionallyQuoteStringByOS(r.getString(j, null)));
-              logCmdline.append(' ');
-              logCmdline.append(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
           }
           cmdline.append('"');
           cmds.add(cmdline.toString());
-          logCmdline.append('"');
-          logCmds.add(logCmdline.toString());
         } else {
           // Add the arguments from previous results...
           for (RowMetaAndData r : cmdRows) {
@@ -463,7 +445,6 @@ public class ActionShell extends ActionBase {
 
             for (int j = 0; j < r.size(); j++) {
               cmds.add(Const.optionallyQuoteStringByOS(r.getString(j, null)));
-              logCmds.add(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
           }
         }
@@ -471,7 +452,6 @@ public class ActionShell extends ActionBase {
         // Add the base command...
         for (String s : base) {
           cmds.add(s);
-          logCmds.add(s);
         }
 
         if (Const.getSystemOs().equals(CONST_WINDOWS_95)
@@ -481,49 +461,26 @@ public class ActionShell extends ActionBase {
           // included in 1 argument to cmd/command.
 
           StringBuilder cmdline = new StringBuilder(300);
-          StringBuilder logCmdline = new StringBuilder(300);
 
           cmdline.append('"');
           cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
-          logCmdline.append('"');
-          logCmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
 
-          for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
-            boolean hidden = hiddenArgs != null && i < hiddenArgs.length && hiddenArgs[i];
+          for (String arg : args) {
             cmdline.append(' ');
             cmdline.append(Const.optionallyQuoteStringByOS(arg));
-            logCmdline.append(' ');
-            logCmdline.append(hidden ? "***" : Const.optionallyQuoteStringByOS(arg));
           }
           cmdline.append('"');
           cmds.add(cmdline.toString());
-          logCmdline.append('"');
-          logCmds.add(logCmdline.toString());
         } else {
-          for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
-            boolean hidden = hiddenArgs != null && i < hiddenArgs.length && hiddenArgs[i];
+          for (String arg : args) {
             cmds.add(arg);
-            logCmds.add(hidden ? "***" : arg);
           }
         }
       }
 
-      StringBuilder command = new StringBuilder();
-
-      Iterator<String> it = logCmds.iterator();
-      boolean first = true;
-      while (it.hasNext()) {
-        if (!first) {
-          command.append(' ');
-        } else {
-          first = false;
-        }
-        command.append(it.next());
-      }
+      String logCommand = buildLogCommand(cmds, fileObject, args, hiddenArgs);
       if (isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "ActionShell.ExecCommand", command.toString()));
+        logBasic(BaseMessages.getString(PKG, "ActionShell.ExecCommand", logCommand));
       }
 
       // Build the environment variable list...
@@ -559,7 +516,7 @@ public class ActionShell extends ActionBase {
 
       proc.waitFor();
       if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionShell.CommandFinished", command.toString()));
+        logDetailed(BaseMessages.getString(PKG, "ActionShell.CommandFinished", logCommand));
       }
 
       // What's the exit status?
@@ -750,5 +707,56 @@ public class ActionShell extends ActionBase {
       throw new HopException(BaseMessages.getString(PKG, "ActionShell.NoScriptFileSpecified"));
     }
     return () -> filename;
+  }
+
+  @VisibleForTesting
+  protected String buildLogCommand(
+      List<String> cmds, FileObject fileObject, String[] args, boolean[] hiddenArgs) {
+    if (args == null || hiddenArgs == null || !hasHiddenArgs(hiddenArgs)) {
+      return String.join(" ", cmds);
+    }
+    StringBuilder sb = new StringBuilder();
+    boolean isWindows =
+        Const.getSystemOs().equals(CONST_WINDOWS_95)
+            || Const.getSystemOs().startsWith(CONST_WINDOWS);
+    if (isWindows) {
+      if (Const.getSystemOs().equals(CONST_WINDOWS_95)) {
+        sb.append("command.com /C \"");
+      } else {
+        sb.append("cmd.exe /C \"");
+      }
+      sb.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
+      for (int i = 0; i < args.length; i++) {
+        sb.append(' ');
+        if (i < hiddenArgs.length && hiddenArgs[i]) {
+          sb.append("***");
+        } else {
+          sb.append(Const.optionallyQuoteStringByOS(args[i]));
+        }
+      }
+      sb.append('"');
+    } else {
+      sb.append(HopVfs.getFilename(fileObject));
+      for (int i = 0; i < args.length; i++) {
+        sb.append(' ');
+        if (i < hiddenArgs.length && hiddenArgs[i]) {
+          sb.append("***");
+        } else {
+          sb.append(args[i]);
+        }
+      }
+    }
+    return sb.toString();
+  }
+
+  private boolean hasHiddenArgs(boolean[] hiddenArgs) {
+    if (hiddenArgs != null) {
+      for (boolean b : hiddenArgs) {
+        if (b) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
