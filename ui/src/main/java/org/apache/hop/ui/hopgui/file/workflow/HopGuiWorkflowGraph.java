@@ -5196,7 +5196,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // store & registry
           //
           if (workflow != null) {
-            DrillDownGuiPlugin.cleanupOnRunStart();
+            DrillDownGuiPlugin.cleanupOnRunStart(hopGui.getId());
             HopLogStore.discardLines(workflow.getLogChannelId(), true);
           }
 
@@ -5258,6 +5258,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Pass specific extension points...
           //
           workflow.getExtensionDataMap().putAll(executionConfiguration.getExtensionOptions());
+          DrillDownGuiPlugin.bindToHopGui(workflow, hopGui.getId());
 
           // Add action listeners
           //

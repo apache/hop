@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
@@ -59,50 +60,138 @@ public class DrillDownGuiPlugin {
 
   private static final Class<?> PKG = DrillDownGuiPlugin.class;
 
-  // Global registries to track running instances
-  private static final Map<String, IPipelineEngine<PipelineMeta>> runningPipelines =
-      new ConcurrentHashMap<>();
-  private static final Map<String, IWorkflowEngine<WorkflowMeta>> runningWorkflows =
-      new ConcurrentHashMap<>();
+  /**
+   * Extension-data key stamped onto engines started from the GUI so registration on engine threads
+   * (no RAP UISession) still belongs to one Hop Web session.
+   */
+  public static final String HOP_GUI_ID = "HOP_GUI_ID";
+
+  // Per HopGui-id registries so one user's run does not clear or expose another's engines.
+  private static final Map<String, Map<String, IPipelineEngine<PipelineMeta>>>
+      runningPipelinesByHopGui = new ConcurrentHashMap<>();
+  private static final Map<String, Map<String, IWorkflowEngine<WorkflowMeta>>>
+      runningWorkflowsByHopGui = new ConcurrentHashMap<>();
   public static final String DRILL_DOWN_ERROR_OPENING_EXECUTION =
       "DrillDown.Error.OpeningExecution";
   public static final String DRILL_DOWN_ERROR_TITLE = "DrillDown.Error.Title";
 
+  public static void bindToHopGui(IExtensionData engine, String hopGuiId) {
+    if (engine == null || hopGuiId == null || engine.getExtensionDataMap() == null) {
+      return;
+    }
+    engine.getExtensionDataMap().put(HOP_GUI_ID, hopGuiId);
+  }
+
+  public static String hopGuiIdOf(Object engine) {
+    Object current = engine;
+    while (current != null) {
+      if (current instanceof IExtensionData ext && ext.getExtensionDataMap() != null) {
+        Object id = ext.getExtensionDataMap().get(HOP_GUI_ID);
+        if (id instanceof String hopGuiId && !hopGuiId.isEmpty()) {
+          return hopGuiId;
+        }
+      }
+      if (current instanceof ILoggingObject logging) {
+        current = logging.getParent();
+      } else {
+        break;
+      }
+    }
+    return null;
+  }
+
   public static void registerRunningPipeline(
       String logChannelId, IPipelineEngine<PipelineMeta> pipeline) {
-    runningPipelines.put(logChannelId, pipeline);
+    String hopGuiId = ensureHopGuiId(pipeline);
+    if (hopGuiId == null || logChannelId == null || pipeline == null) {
+      return;
+    }
+    runningPipelinesByHopGui
+        .computeIfAbsent(hopGuiId, k -> new ConcurrentHashMap<>())
+        .put(logChannelId, pipeline);
   }
 
   public static void registerRunningWorkflow(
       String logChannelId, IWorkflowEngine<WorkflowMeta> workflow) {
-    runningWorkflows.put(logChannelId, workflow);
+    String hopGuiId = ensureHopGuiId(workflow);
+    if (hopGuiId == null || logChannelId == null || workflow == null) {
+      return;
+    }
+    runningWorkflowsByHopGui
+        .computeIfAbsent(hopGuiId, k -> new ConcurrentHashMap<>())
+        .put(logChannelId, workflow);
+  }
+
+  private static String ensureHopGuiId(IExtensionData engine) {
+    String hopGuiId = hopGuiIdOf(engine);
+    if (hopGuiId != null) {
+      return hopGuiId;
+    }
+    return null;
   }
 
   /**
-   * Clears all drill-down and sample-row state. Call when starting a new run to get a clean slate
-   * and avoid leaking memory.
+   * Clears drill-down and sample-row state for this HopGui session. Call when starting a new run.
    */
   public static void cleanupOnRunStart() {
-    runningPipelines.clear();
-    runningWorkflows.clear();
-    dataSnifferBuffersByLogChannelId.clear();
-    dataSnifferHopBuffersByLogChannelId.clear();
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui != null) {
+      cleanupOnRunStart(hopGui.getId());
+    }
+  }
+
+  public static void cleanupOnRunStart(String hopGuiId) {
+    if (hopGuiId == null) {
+      return;
+    }
+    Map<String, IPipelineEngine<PipelineMeta>> pipelines = runningPipelinesByHopGui.get(hopGuiId);
+    if (pipelines != null) {
+      pipelines.clear();
+    }
+    Map<String, IWorkflowEngine<WorkflowMeta>> workflows = runningWorkflowsByHopGui.get(hopGuiId);
+    if (workflows != null) {
+      workflows.clear();
+    }
+    Map<String, Map<String, RowBuffer>> sniffers = dataSnifferBuffersByHopGui.get(hopGuiId);
+    if (sniffers != null) {
+      sniffers.clear();
+    }
+    Map<String, Map<String, RowBuffer>> hopSniffers = dataSnifferHopBuffersByHopGui.get(hopGuiId);
+    if (hopSniffers != null) {
+      hopSniffers.clear();
+    }
+  }
+
+  /** Visible for tests. */
+  static IPipelineEngine<PipelineMeta> runningPipeline(String hopGuiId, String logChannelId) {
+    Map<String, IPipelineEngine<PipelineMeta>> pipelines = runningPipelinesByHopGui.get(hopGuiId);
+    return pipelines == null ? null : pipelines.get(logChannelId);
+  }
+
+  /** Drops every drill-down map for a UI session that is ending. */
+  public static void cleanupSession(String hopGuiId) {
+    if (hopGuiId == null) {
+      return;
+    }
+    runningPipelinesByHopGui.remove(hopGuiId);
+    runningWorkflowsByHopGui.remove(hopGuiId);
+    dataSnifferBuffersByHopGui.remove(hopGuiId);
+    dataSnifferHopBuffersByHopGui.remove(hopGuiId);
   }
 
   /**
-   * Per-run data sniffer buffers (logChannelId -> transform name -> RowBuffer). Filled when
-   * pipelines start so we have row data even if the pipeline tab is never opened. Only the latest
-   * run's data is kept per execution (each run has its own logChannelId).
+   * Per-session, per-run data sniffer buffers (hopGuiId -> logChannelId -> transform name ->
+   * RowBuffer).
    */
-  private static final Map<String, Map<String, RowBuffer>> dataSnifferBuffersByLogChannelId =
+  private static final Map<String, Map<String, Map<String, RowBuffer>>> dataSnifferBuffersByHopGui =
       new ConcurrentHashMap<>();
 
   /**
-   * Per-run hop-level sniffer buffers (logChannelId -> hop key -> RowBuffer) for target hops
-   * ({@code putRowTo}).
+   * Per-session hop-level sniffer buffers (hopGuiId -> logChannelId -> hop key -> RowBuffer) for
+   * target hops ({@code putRowTo}).
    */
-  private static final Map<String, Map<String, RowBuffer>> dataSnifferHopBuffersByLogChannelId =
-      new ConcurrentHashMap<>();
+  private static final Map<String, Map<String, Map<String, RowBuffer>>>
+      dataSnifferHopBuffersByHopGui = new ConcurrentHashMap<>();
 
   /**
    * Attach row listeners to a pipeline at start so we capture output rows for debugging. Uses the
@@ -114,13 +203,19 @@ public class DrillDownGuiPlugin {
     if (!(pipeline instanceof LocalPipelineEngine)) {
       return;
     }
+    String hopGuiId = ensureHopGuiId(pipeline);
     String logChannelId = pipeline.getLogChannelId();
+    if (hopGuiId == null || logChannelId == null) {
+      return;
+    }
     Map<String, RowBuffer> buffers =
-        dataSnifferBuffersByLogChannelId.computeIfAbsent(
-            logChannelId, k -> new ConcurrentHashMap<>());
+        dataSnifferBuffersByHopGui
+            .computeIfAbsent(hopGuiId, k -> new ConcurrentHashMap<>())
+            .computeIfAbsent(logChannelId, k -> new ConcurrentHashMap<>());
     Map<String, RowBuffer> hopBuffers =
-        dataSnifferHopBuffersByLogChannelId.computeIfAbsent(
-            logChannelId, k -> new ConcurrentHashMap<>());
+        dataSnifferHopBuffersByHopGui
+            .computeIfAbsent(hopGuiId, k -> new ConcurrentHashMap<>())
+            .computeIfAbsent(logChannelId, k -> new ConcurrentHashMap<>());
     PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, buffers, hopBuffers);
   }
 
@@ -129,7 +224,7 @@ public class DrillDownGuiPlugin {
    * attaching to a running/finished pipeline so the UI can show the rows that flowed through.
    */
   public static Map<String, RowBuffer> getDataSnifferBuffersForPipeline(String logChannelId) {
-    return dataSnifferBuffersByLogChannelId.get(logChannelId);
+    return findSnifferBuffers(dataSnifferBuffersByHopGui, logChannelId);
   }
 
   /**
@@ -139,7 +234,39 @@ public class DrillDownGuiPlugin {
    * @return hop key → RowBuffer, or null
    */
   public static Map<String, RowBuffer> getDataSnifferHopBuffersForPipeline(String logChannelId) {
-    return dataSnifferHopBuffersByLogChannelId.get(logChannelId);
+    return findSnifferBuffers(dataSnifferHopBuffersByHopGui, logChannelId);
+  }
+
+  private static Map<String, RowBuffer> findSnifferBuffers(
+      Map<String, Map<String, Map<String, RowBuffer>>> byHopGui, String logChannelId) {
+    if (logChannelId == null) {
+      return null;
+    }
+    for (Map<String, Map<String, RowBuffer>> sessionBuffers : byHopGui.values()) {
+      Map<String, RowBuffer> buffers = sessionBuffers.get(logChannelId);
+      if (buffers != null) {
+        return buffers;
+      }
+    }
+    return null;
+  }
+
+  private static Map<String, IPipelineEngine<PipelineMeta>> pipelinesFor(Object parentEngine) {
+    String hopGuiId = hopGuiIdOf(parentEngine);
+    if (hopGuiId == null) {
+      return Map.of();
+    }
+    Map<String, IPipelineEngine<PipelineMeta>> pipelines = runningPipelinesByHopGui.get(hopGuiId);
+    return pipelines != null ? pipelines : Map.of();
+  }
+
+  private static Map<String, IWorkflowEngine<WorkflowMeta>> workflowsFor(Object parentEngine) {
+    String hopGuiId = hopGuiIdOf(parentEngine);
+    if (hopGuiId == null) {
+      return Map.of();
+    }
+    Map<String, IWorkflowEngine<WorkflowMeta>> workflows = runningWorkflowsByHopGui.get(hopGuiId);
+    return workflows != null ? workflows : Map.of();
   }
 
   // ==================== TRANSFORM CONTEXT ====================
@@ -253,22 +380,22 @@ public class DrillDownGuiPlugin {
                     if (child.pipeline != null) {
                       PipelineMeta meta = child.pipeline.getPipelineMeta();
                       if (meta != null) {
-                        display.asyncExec(
-                            () -> openTabAndAttachPipeline(hopGui, meta, child.pipeline));
+                        runOnDisplay(
+                            display, () -> openTabAndAttachPipeline(hopGui, meta, child.pipeline));
                         return;
                       }
                     } else {
                       WorkflowMeta meta = child.workflow.getWorkflowMeta();
                       if (meta != null) {
-                        display.asyncExec(
-                            () -> openTabAndAttachWorkflow(hopGui, meta, child.workflow));
+                        runOnDisplay(
+                            display, () -> openTabAndAttachWorkflow(hopGui, meta, child.workflow));
                         return;
                       }
                     }
                   }
                   Thread.sleep(100);
                 }
-                display.asyncExec(() -> showNoRunningExecution(hopGui));
+                runOnDisplay(display, () -> showNoRunningExecution(hopGui));
               } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
               } catch (Exception e) {
@@ -359,6 +486,19 @@ public class DrillDownGuiPlugin {
    * Single scan over parent's children: looks up each child in both pipeline and workflow maps,
    * returns the one matching run (pipeline preferred over workflow, most recent by start time).
    */
+  private static void runOnDisplay(Display display, Runnable runnable) {
+    if (display == null || display.isDisposed()) {
+      return;
+    }
+    display.asyncExec(
+        () -> {
+          if (display.isDisposed()) {
+            return;
+          }
+          runnable.run();
+        });
+  }
+
   private RunningChild findRunningChild(Object parentEngine, String name) {
     String parentLogChannelId;
     if (parentEngine instanceof IPipelineEngine) {
@@ -372,6 +512,8 @@ public class DrillDownGuiPlugin {
     LoggingRegistry registry = LoggingRegistry.getInstance();
     List<String> childLogChannelIds = registry.getLogChannelChildren(parentLogChannelId);
 
+    Map<String, IPipelineEngine<PipelineMeta>> runningPipelines = pipelinesFor(parentEngine);
+    Map<String, IWorkflowEngine<WorkflowMeta>> runningWorkflows = workflowsFor(parentEngine);
     List<IPipelineEngine<PipelineMeta>> pipelines = new ArrayList<>();
     List<IWorkflowEngine<WorkflowMeta>> workflows = new ArrayList<>();
     for (String logChannelId : childLogChannelIds) {

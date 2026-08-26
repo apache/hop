@@ -513,7 +513,7 @@ public class ConfigGuiOptionsTab {
     appearanceExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -524,7 +524,7 @@ public class ConfigGuiOptionsTab {
     appearanceExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -596,7 +596,7 @@ public class ConfigGuiOptionsTab {
     fontsExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -607,7 +607,7 @@ public class ConfigGuiOptionsTab {
     fontsExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -750,7 +750,7 @@ public class ConfigGuiOptionsTab {
     canvasExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -761,7 +761,7 @@ public class ConfigGuiOptionsTab {
     canvasExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -876,7 +876,7 @@ public class ConfigGuiOptionsTab {
     autoLayoutExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -887,7 +887,7 @@ public class ConfigGuiOptionsTab {
     autoLayoutExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -974,7 +974,7 @@ public class ConfigGuiOptionsTab {
     tablesExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -985,7 +985,7 @@ public class ConfigGuiOptionsTab {
     tablesExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -1128,7 +1128,7 @@ public class ConfigGuiOptionsTab {
     metricsPanelExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -1139,7 +1139,7 @@ public class ConfigGuiOptionsTab {
     metricsPanelExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {

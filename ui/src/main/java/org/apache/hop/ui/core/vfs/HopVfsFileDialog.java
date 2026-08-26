@@ -185,7 +185,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private Image folderImage;
   private Image fileImage;
 
-  @Getter private static HopVfsFileDialog instance;
+  private static HopVfsFileDialog instance;
 
   private java.util.List<String> navigationHistory;
   private int navigationIndex;
@@ -303,6 +303,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           }
         });
     instance = this;
+    HopGui.getInstance().setOpenVfsFileDialog(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -1375,8 +1376,20 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
   }
 
+  public static HopVfsFileDialog getInstance() {
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui != null && hopGui.getOpenVfsFileDialog() != null) {
+      return hopGui.getOpenVfsFileDialog();
+    }
+    return instance;
+  }
+
   private void dispose() {
     instance = null;
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui != null && hopGui.getOpenVfsFileDialog() == this) {
+      hopGui.setOpenVfsFileDialog(null);
+    }
     try {
       // Save the navigation history
       //

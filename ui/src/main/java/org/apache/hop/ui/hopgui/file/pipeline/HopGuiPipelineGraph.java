@@ -5690,7 +5690,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Also make sure to clear the log entries in the central log store & registry
           //
           if (pipeline != null) {
-            DrillDownGuiPlugin.cleanupOnRunStart();
+            DrillDownGuiPlugin.cleanupOnRunStart(hopGui.getId());
             HopLogStore.discardLines(pipeline.getLogChannelId(), true);
           }
 
@@ -5714,6 +5714,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   variables.resolve(pipelineRunConfigurationName),
                   hopGui.getMetadataProvider(),
                   pipelineMeta);
+          DrillDownGuiPlugin.bindToHopGui(pipeline, hopGui.getId());
 
           // Set the variables from the execution configuration
           // These are values set by the user in the execution dialog
@@ -5895,7 +5896,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Do we have a previous execution to clean up in the logging registry?
         //
         if (pipeline != null) {
-          DrillDownGuiPlugin.cleanupOnRunStart();
+          DrillDownGuiPlugin.cleanupOnRunStart(hopGui.getId());
           HopLogStore.discardLines(pipeline.getLogChannelId(), false);
           LoggingRegistry.getInstance().removeIncludingChildren(pipeline.getLogChannelId());
         }
@@ -5904,6 +5905,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         //
         pipelineMeta.clearCaches();
         pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
+        DrillDownGuiPlugin.bindToHopGui(pipeline, hopGui.getId());
         pipeline.setPreview(true);
         pipeline.setVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "Y");
         pipeline.setMetadataProvider(hopGui.getMetadataProvider());
