@@ -64,6 +64,9 @@ The File Explorer perspective can be configured through the xref:hop-gui/perspec
 * **The initial depth to load not lazily**: Controls how many folder levels are loaded immediately when opening folders in the file explorer tree.
 * **The maximum file size to load**: Sets the maximum file size (in MB) that will be loaded when opening files in the explorer.
 * **Show file explorer panel by default**: When enabled, the file explorer panel (project tree) is shown by default when opening the explorer perspective. When disabled, the panel starts hidden, giving you more workspace for editing files.
+* **Open help pages in**: Where Help buttons and F1 open documentation: the system browser, a tab in this perspective, or a dialog on top of the current window.
++
+image::hop-gui/configuration-perspective-open-help-pages-in.png[Open help pages in,width="90%"]
 
 == Git integration
 
