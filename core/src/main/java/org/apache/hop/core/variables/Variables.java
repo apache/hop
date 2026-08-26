@@ -171,26 +171,6 @@ public class Variables implements IVariables {
     return resolved;
   }
 
-  /**
-   * Walk this variable space and its parents to find the metadata provider of the current execution
-   * (an execution engine exposes its own provider through {@link
-   * IVariables#getMetadataProvider()}).
-   *
-   * @return the first non-null metadata provider found, or {@code null} if none.
-   */
-  private IHopMetadataProvider findExecutionMetadataProvider() {
-    IVariables space = this;
-    int guard = 0;
-    while (space != null && guard++ < 100) {
-      IHopMetadataProvider provider = space.getMetadataProvider();
-      if (provider != null) {
-        return provider;
-      }
-      space = space.getParentVariables();
-    }
-    return null;
-  }
-
   private String substituteVariableResolvers(String input) {
     String resolved = input;
     int startIndex = 0;

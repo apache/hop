@@ -38,6 +38,7 @@ import java.util.concurrent.Future;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -171,5 +172,28 @@ class VariablesTest {
     assertEquals("ok", vars.getVariable("valid"));
     assertNull(vars.getVariable(null));
     assertNull(vars.getVariable(""));
+  }
+
+  /**
+   * Transform variable spaces do not expose a metadata provider themselves; the running pipeline
+   * (parent) does. Variable resolvers must walk that parent chain so remote export uses the bundled
+   * metadata rather than the process-global store (#8096).
+   */
+  @Test
+  void findExecutionMetadataProviderWalksParentChain() {
+    IHopMetadataProvider provider = mock(IHopMetadataProvider.class);
+    IVariables parent =
+        new Variables() {
+          @Override
+          public IHopMetadataProvider getMetadataProvider() {
+            return provider;
+          }
+        };
+
+    Variables child = new Variables();
+    child.setParentVariables(parent);
+
+    assertEquals(provider, child.findExecutionMetadataProvider());
+    assertNull(new Variables().findExecutionMetadataProvider());
   }
 }
