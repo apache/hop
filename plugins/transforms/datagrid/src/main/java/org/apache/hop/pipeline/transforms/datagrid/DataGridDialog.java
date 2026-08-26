@@ -262,6 +262,9 @@ public class DataGridDialog extends BaseTransformDialog {
     List<DataGridDataMeta> lines = dataGridMeta.getDataLines();
     wData = new TableView(variables, wDataComp, SWT.NONE, columns, lines.size(), lsMod, props);
     wData.setSortable(false);
+    // The data tab holds data rows: draw long / multi-line values shortened, the cell keeps the
+    // full value.
+    wData.setShortenDisplayedValues(true);
 
     for (int i = 0; i < lines.size(); i++) {
       DataGridDataMeta line = lines.get(i);

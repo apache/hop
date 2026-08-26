@@ -170,6 +170,22 @@ public class TableView extends Composite {
   private final Composite composite;
   private final ColumnInfo[] columns;
   @Getter @Setter private boolean readonly;
+
+  /**
+   * Draw long / multi-line text cells shortened and single-lined (see {@link
+   * #formatCellValueForDisplay(String)}). Off by default: it was added to keep the data-heavy grids
+   * responsive — the row preview and the data grids — and elsewhere it only changes how a
+   * configuration value looks. Switch it on per grid with {@link
+   * #setShortenDisplayedValues(boolean)}.
+   */
+  private boolean shortenDisplayedValues;
+
+  /** Layout of the table itself, kept so the web footnote can be inserted underneath it later. */
+  private FormData fdTable;
+
+  /** Hop Web only, and only for grids that shorten values: see {@link #addWebNewlineHint()}. */
+  private Label webNewlineHint;
+
   private int buttonRowNr;
   private int buttonColNr;
   private String buttonContent;
@@ -525,7 +541,7 @@ public class TableView extends Composite {
     PropsUi.setLook(table);
     table.setLinesVisible(true);
 
-    FormData fdTable = new FormData();
+    fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
     fdTable.right = new FormAttachment(100, 0);
     fdTable.width = WIDTH_HINT_PX;
@@ -536,21 +552,6 @@ public class TableView extends Composite {
     }
     fdTable.bottom = new FormAttachment(100, 0);
     table.setLayoutData(fdTable);
-
-    // Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
-    // which we use on the desktop). Add a footnote pointing users to the editor for the full value.
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      Label webNewlineHint = new Label(this, SWT.LEFT);
-      PropsUi.setLook(webNewlineHint);
-      webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
-      FormData fdHint = new FormData();
-      fdHint.left = new FormAttachment(0, 0);
-      fdHint.right = new FormAttachment(100, 0);
-      fdHint.bottom = new FormAttachment(100, 0);
-      webNewlineHint.setLayoutData(fdHint);
-      // The table now stops just above the footnote.
-      fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
-    }
 
     tableColumn = new TableColumn[columns.length + 1];
     tableColumn[0] = new TableColumn(table, SWT.RIGHT);
@@ -2251,6 +2252,50 @@ public class TableView extends Composite {
   }
 
   /**
+   * Shorten long / multi-line text cells for display in this grid: the cell is drawn cut to {@link
+   * PropsUi#getMaxPreviewCellLength()} characters and on a single line, while the stored value —
+   * what is copied, exported and saved — stays complete.
+   *
+   * <p>Off by default. Switch it on for grids that show data rather than configuration (the row
+   * preview, the data grids), where values are long, numerous, or multi-line and drawing them in
+   * full costs real time.
+   */
+  public void setShortenDisplayedValues(boolean shortenDisplayedValues) {
+    this.shortenDisplayedValues = shortenDisplayedValues;
+    if (shortenDisplayedValues) {
+      addWebNewlineHint();
+    }
+    if (table != null && !table.isDisposed()) {
+      table.redraw();
+    }
+  }
+
+  public boolean isShortenDisplayedValues() {
+    return shortenDisplayedValues;
+  }
+
+  /**
+   * Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
+   * which we use on the desktop). Add a footnote pointing users to the editor for the full value.
+   */
+  private void addWebNewlineHint() {
+    if (webNewlineHint != null || !EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    webNewlineHint = new Label(this, SWT.LEFT);
+    PropsUi.setLook(webNewlineHint);
+    webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
+    FormData fdHint = new FormData();
+    fdHint.left = new FormAttachment(0, 0);
+    fdHint.right = new FormAttachment(100, 0);
+    fdHint.bottom = new FormAttachment(100, 0);
+    webNewlineHint.setLayoutData(fdHint);
+    // The table now stops just above the footnote.
+    fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
+    layout(true, true);
+  }
+
+  /**
    * Format a cell value for display in a grid: keep it single-line and short so the native table
    * stays fast. Honors the Look &amp; Feel settings {@link PropsUi#getMaxPreviewCellLength()} and
    * {@link PropsUi#isShowPreviewLineBreaksAsSymbols()}. Returns null for a null value.
@@ -2331,7 +2376,10 @@ public class TableView extends Composite {
    * desktop owner-draw so {@link TableItem#getText(int)} keeps returning the full, saved value.
    */
   private String customCellText(TableItem item, int columnIndex) {
-    if (item == null || columnIndex < 1 || columnIndex - 1 >= columns.length) {
+    if (!shortenDisplayedValues
+        || item == null
+        || columnIndex < 1
+        || columnIndex - 1 >= columns.length) {
       return null;
     }
     ColumnInfo colinfo = columns[columnIndex - 1];

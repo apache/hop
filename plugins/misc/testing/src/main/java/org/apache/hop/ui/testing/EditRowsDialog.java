@@ -207,6 +207,8 @@ public class EditRowsDialog {
             null,
             props);
     wFields.setShowingBlueNullValues(true);
+    // Data rows, not configuration: draw long / multi-line values shortened.
+    wFields.setShortenDisplayedValues(true);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
