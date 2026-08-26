@@ -303,6 +303,9 @@ public class PreviewRowsDialog {
         new TableView(
             variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns, 0, null, props);
     wFields.setShowingBlueNullValues(true);
+    // A preview holds data, not configuration: values can be long or multi-line and there can be
+    // thousands of them, so draw them shortened (the full value stays in the cell).
+    wFields.setShortenDisplayedValues(true);
     // Rows stream in and are appended in load order, so sorting them would fight with the rows
     // still arriving. Keep the preview in load order.
     wFields.setSortable(false);

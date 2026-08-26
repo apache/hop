@@ -160,6 +160,8 @@ public final class ShowRowsDialog {
             null,
             PropsUi.getInstance());
     view.setShowingBlueNullValues(true);
+    // Data rows, not configuration: draw long / multi-line values shortened.
+    view.setShortenDisplayedValues(true);
     // Column sorting is enabled: items carry their full values, so a sort reorders complete rows.
     view.setSortable(true);
 
