@@ -20,8 +20,11 @@ package org.apache.hop.marketplace.gui;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 /** GUI entry points for the Hop plugin marketplace. */
 @GuiPlugin
@@ -67,5 +70,45 @@ public class MarketplaceGuiPlugin {
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Marketplace", "Unable to open the marketplace dialog", e);
     }
+  }
+
+  public static final String CONTEXT_MENU_EDIT_AS_INSTALL_SPEC =
+      "Marketplace-ContextMenu-10250-EditAsInstallSpec";
+
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_EDIT_AS_INSTALL_SPEC,
+      label = "i18n::MarketplaceGuiPlugin.Context.EditAsInstallSpec",
+      image = "ui/images/marketplace.svg",
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID)
+  public void editAsInstallSpec() {
+    ExplorerPerspective perspective = ExplorerPerspective.getInstance();
+    ExplorerFile explorerFile = perspective.getSelectedFile();
+    if (explorerFile == null || explorerFile.getFilename() == null) {
+      return;
+    }
+    String filename = explorerFile.getFilename();
+    try {
+      if (HopVfs.getFileObject(filename).isFolder()) {
+        return;
+      }
+    } catch (Exception e) {
+      HopGui.getInstance().getLog().logError("Error resolving selected item", e);
+      return;
+    }
+    if (!HopInstallSpecFileType.isYamlOrJson(filename)) {
+      return;
+    }
+    HopGui hopGui = HopGui.getInstance();
+    hopGui
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              try {
+                new HopInstallSpecFileType().openFile(hopGui, filename, hopGui.getVariables());
+              } catch (Exception e) {
+                hopGui.getLog().logError("Error opening file as Hop install spec", e);
+              }
+            });
   }
 }

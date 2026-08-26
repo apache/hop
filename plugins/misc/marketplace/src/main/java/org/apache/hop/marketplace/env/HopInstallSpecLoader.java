@@ -17,11 +17,11 @@
 
 package org.apache.hop.marketplace.env;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -29,44 +29,58 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.marketplace.config.MarketplaceSecrets;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-/** Loads and saves {@link HopEnvironmentSpec} as YAML or JSON. */
-public final class HopEnvironmentLoader {
+/** Loads and saves {@link HopInstallSpec} as YAML or JSON through HopVfs. */
+public final class HopInstallSpecLoader {
 
-  private HopEnvironmentLoader() {}
+  private HopInstallSpecLoader() {}
 
-  public static HopEnvironmentSpec load(Path file) throws HopException {
-    if (file == null || !Files.isRegularFile(file)) {
-      throw new HopException("Environment file not found: " + file);
+  public static HopInstallSpec load(Path file) throws HopException {
+    if (file == null) {
+      throw new HopException("Install spec file not found: " + file);
     }
-    String name = file.getFileName().toString().toLowerCase(Locale.ROOT);
-    try (InputStream in = Files.newInputStream(file)) {
-      if (name.endsWith(".json")) {
-        return HopJson.newMapper().readValue(in, HopEnvironmentSpec.class);
+    return load(file.toString(), null);
+  }
+
+  public static HopInstallSpec load(String filename, IVariables variables) throws HopException {
+    if (StringUtils.isBlank(filename)) {
+      throw new HopException("Install spec file path is required");
+    }
+    String resolved = HopInstallSpecFiles.resolve(filename, variables);
+    try {
+      FileObject fileObject = HopVfs.getFileObject(resolved, variables);
+      if (fileObject == null || !fileObject.exists() || !fileObject.isFile()) {
+        throw new HopException("Install spec file not found: " + resolved);
       }
-      // default: YAML (.yaml / .yml / anything else)
-      Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
-      Object loaded = yaml.load(in);
-      if (loaded == null) {
-        return new HopEnvironmentSpec();
+      String name = fileObject.getName().getBaseName().toLowerCase(Locale.ROOT);
+      try (InputStream in = HopVfs.getInputStream(fileObject)) {
+        if (name.endsWith(".json")) {
+          return HopJson.newMapper().readValue(in, HopInstallSpec.class);
+        }
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
+        Object loaded = yaml.load(in);
+        if (loaded == null) {
+          return new HopInstallSpec();
+        }
+        if (!(loaded instanceof Map)) {
+          throw new HopException("Install spec file root must be a YAML mapping: " + resolved);
+        }
+        return HopJson.newMapper().convertValue(loaded, HopInstallSpec.class);
       }
-      if (!(loaded instanceof Map)) {
-        throw new HopException("Environment file root must be a YAML mapping: " + file);
-      }
-      return HopJson.newMapper().convertValue(loaded, HopEnvironmentSpec.class);
-    } catch (IOException e) {
-      throw new HopException("Unable to read environment file: " + file, e);
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
-      throw new HopException("Unable to parse environment file: " + file, e);
+      throw new HopException("Unable to read install spec file: " + resolved, e);
     }
   }
 
@@ -74,42 +88,56 @@ public final class HopEnvironmentLoader {
    * Writes {@code spec} to {@code file}. Format is JSON when the path ends with {@code .json};
    * otherwise YAML.
    */
-  public static void save(Path file, HopEnvironmentSpec spec) throws HopException {
+  public static void save(Path file, HopInstallSpec spec) throws HopException {
     if (file == null) {
-      throw new HopException("Environment file path is required");
+      throw new HopException("Install spec file path is required");
+    }
+    save(file.toString(), spec, null);
+  }
+
+  public static void save(String filename, HopInstallSpec spec, IVariables variables)
+      throws HopException {
+    if (StringUtils.isBlank(filename)) {
+      throw new HopException("Install spec file path is required");
     }
     if (spec == null) {
-      throw new HopException("Environment specification is required");
+      throw new HopException("Install specification is required");
     }
+    String resolved = HopInstallSpecFiles.resolve(filename, variables);
     try {
-      Path parent = file.getParent();
-      if (parent != null) {
-        Files.createDirectories(parent);
+      FileObject fileObject = HopVfs.getFileObject(resolved, variables);
+      FileObject parent = fileObject.getParent();
+      if (parent != null && !parent.exists()) {
+        parent.createFolder();
       }
-      String name = file.getFileName().toString().toLowerCase(Locale.ROOT);
-      if (name.endsWith(".json")) {
-        HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValue(file.toFile(), spec);
-        return;
+      String name = fileObject.getName().getBaseName().toLowerCase(Locale.ROOT);
+      try (OutputStream out = HopVfs.getOutputStream(fileObject, false)) {
+        if (name.endsWith(".json")) {
+          HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValue(out, spec);
+          return;
+        }
+        Map<String, Object> map = toYamlMap(spec);
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        options.setIndent(2);
+        options.setIndicatorIndent(0);
+        Yaml yaml = new Yaml(options);
+        try (Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
+          yaml.dump(map, writer);
+        }
       }
-      Map<String, Object> map = toYamlMap(spec);
-      DumperOptions options = new DumperOptions();
-      options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-      options.setPrettyFlow(true);
-      options.setIndent(2);
-      options.setIndicatorIndent(0);
-      Yaml yaml = new Yaml(options);
-      try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-        yaml.dump(map, writer);
-      }
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
-      throw new HopException("Unable to write environment file: " + file, e);
+      throw new HopException("Unable to write install spec file: " + resolved, e);
     }
   }
 
   /**
    * Builds a LinkedHashMap with stable field order and omits blank optional fields / empty lists.
    */
-  static Map<String, Object> toYamlMap(HopEnvironmentSpec spec) {
+  static Map<String, Object> toYamlMap(HopInstallSpec spec) {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("version", StringUtils.defaultIfBlank(spec.getVersion(), "1.0"));
     if (StringUtils.isNotBlank(spec.getHopVersion())) {
@@ -118,7 +146,7 @@ public final class HopEnvironmentLoader {
     root.put("enforceOnRun", spec.isEnforceOnRun());
 
     List<Map<String, Object>> repos = new ArrayList<>();
-    for (HopEnvironmentSpec.RepositoryRef ref : nullSafe(spec.getRepositories())) {
+    for (HopInstallSpec.RepositoryRef ref : nullSafe(spec.getRepositories())) {
       if (ref == null || (StringUtils.isBlank(ref.getId()) && StringUtils.isBlank(ref.getUrl()))) {
         continue;
       }
@@ -142,7 +170,7 @@ public final class HopEnvironmentLoader {
     }
 
     List<Map<String, Object>> plugins = new ArrayList<>();
-    for (HopEnvironmentSpec.PluginRef ref : nullSafe(spec.getPlugins())) {
+    for (HopInstallSpec.PluginRef ref : nullSafe(spec.getPlugins())) {
       if (ref == null || StringUtils.isBlank(ref.getArtifactId())) {
         continue;
       }
@@ -161,7 +189,7 @@ public final class HopEnvironmentLoader {
     }
 
     List<Map<String, Object>> deps = new ArrayList<>();
-    for (HopEnvironmentSpec.DependencyRef ref : nullSafe(spec.getDependencies())) {
+    for (HopInstallSpec.DependencyRef ref : nullSafe(spec.getDependencies())) {
       if (ref == null
           || StringUtils.isAnyBlank(ref.getGroupId(), ref.getArtifactId(), ref.getVersion())) {
         continue;
@@ -174,7 +202,6 @@ public final class HopEnvironmentLoader {
       if (!"lib/jdbc".equals(target)) {
         m.put("target", target);
       } else if (StringUtils.isNotBlank(ref.getTarget())) {
-        // keep explicit default if user set it
         m.put("target", target);
       }
       deps.add(m);

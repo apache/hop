@@ -167,13 +167,13 @@ After creating an environment the user interface will switch to it.
 == Marketplace plugins
 
 When the xref:hop-tools/hop-marketplace.adoc[Marketplace] plugin is installed, the environment properties dialog includes a *Marketplace plugins* tab.
-These options control whether Hop checks a `hop-env` file when this environment is enabled.
+These options control whether Hop checks a Hop install spec (`hop-env.yaml`) when this lifecycle environment is enabled.
 
 image:hop-gui/environment/environment-dialog-marketplace-plugins-tab.png[Environment Properties Marketplace plugins tab,width="90%"]
 
 Typical options:
 
-* *Environment file* — path to a `hop-env.yaml` (variables allowed, for example under the project home)
+* *Install spec file* — path to a `hop-env.yaml` (variables allowed, for example under the project home). This is not a lifecycle environment config file.
 * *On enable* — `off` (no check), `warn` (log or dialog on drift), or `enforce` (fail enabling the environment if the install does not match)
 * *Strict* — treat extra marketplace plugins as drift
 * *Auto-apply missing plugins on enable* — optional; off by default

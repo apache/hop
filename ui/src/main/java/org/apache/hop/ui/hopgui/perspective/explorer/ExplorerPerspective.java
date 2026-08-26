@@ -4033,21 +4033,22 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return folderFileType != null ? folderFileType : new FolderFileType();
     }
 
+    // Exact base-name types first (hop-env.yaml, Dockerfile, .gitignore, …) so a specialized
+    // handler can win over a generic extension such as *.yaml.
+    String baseName = HopFileTypeBase.extractBaseName(path);
+    if (!Utils.isEmpty(baseName)) {
+      IHopFileType byName = fileTypeByBaseName.get(baseName);
+      if (byName != null) {
+        return byName;
+      }
+    }
+
     // Fast path: extension map (most project files)
     String extension = HopFileTypeBase.extractExtension(path);
     if (!Utils.isEmpty(extension)) {
       IHopFileType byExt = fileTypeByExtension.get(extension);
       if (byExt != null) {
         return byExt;
-      }
-    }
-
-    // Exact base-name types (Dockerfile, .gitignore, config, ...)
-    String baseName = HopFileTypeBase.extractBaseName(path);
-    if (!Utils.isEmpty(baseName)) {
-      IHopFileType byName = fileTypeByBaseName.get(baseName);
-      if (byName != null) {
-        return byName;
       }
     }
 

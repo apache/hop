@@ -28,7 +28,7 @@ Some Hop plugins are optional: they are not bundled in the default client zip so
 
 The default hop-client zip is intentionally smaller: we made large plugins optional since version 2.19.0. To install
 *all* marketplace-optional plugins that used to ship in the download (before version 2.19),
-use the generated environment file at the installation root:
+use the generated install spec at the installation root:
 
 [source,bash]
 ----
@@ -130,7 +130,7 @@ image::marketplace/marketplace-welcome-dialog.png[Marketplace welcome dialog,75%
 The main *Plugin Marketplace* dialog has three tabs:
 
 * *Plugins* — browse, search, install, and uninstall optional plugins
-* *Environment* — edit `hop-env.yaml` / JSON environments and validate or apply them
+* *Install spec* — edit a Hop install spec (`hop-env.yaml` / JSON) and validate or apply it
 * *Repositories* — configure Maven repositories (same settings as the CLI / hop-config)
 
 After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
@@ -153,18 +153,31 @@ Use this tab to work with the local optional-plugin catalog:
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 
-=== Environment tab
+=== Install spec tab
 
-image::marketplace/marketplace-dialog-environment.png[Marketplace dialog Environment tab,75%,align="left"]
+image::marketplace/marketplace-dialog-environment.png[Marketplace dialog Install spec tab,75%,align="left"]
 
-This tab embeds the full environment editor (no separate “Edit…” window). It is the GUI equivalent of `hop marketplace validate` / `apply` and of editing `hop-env.yaml` by hand.
+This tab is the editor for a *Hop install spec*: a YAML/JSON file that declares which marketplace plugins and jars *this Hop installation* should have. It is not a project lifecycle environment (dev/test/production).
+
+It is the GUI equivalent of `hop marketplace validate` / `apply`. Double-click `hop-env.yaml` in the Explorer perspective to open the same form editor. *Edit YAML in Explorer* opens the file as plain YAML for hand edits; *Reload* reads it back after you save there.
+
+Happy path:
+
+. *New*
+. Add plugins (*From catalog…*)
+. *Save As…* `{openvar}PROJECT_HOME{closevar}/hop-env.yaml` (default folder is the active project home)
+. *Validate*, then *Apply*, then restart Hop
+
+`full-client-env.yaml` at the install root is a generated list of every optional plugin. A banner says so; use *Apply* to restore the fat client, or *Save As* into a project for a custom set.
 
 ==== File toolbar
 
-* *New* — empty environment specification
-* *Open…* — open a `hop-env.yaml` / `.yml` / `.json` file
+* *New* — empty install spec
+* *Open…* — open a `hop-env.yaml` / `.yml` / `.json` file (Hop VFS, project variables allowed)
 * *Save* / *Save As…* — write YAML or JSON (by extension)
-* Filename *combo* — current path plus recently used environment files (remembered via the Hop audit list for this namespace). Selecting an entry loads that file.
+* *Edit YAML in Explorer* — open the current file in the Explorer perspective as YAML
+* *Reload* — re-read the file from disk
+* Filename *combo* — current path plus recently used install spec files (remembered via the Hop audit list for this namespace). Selecting an entry loads that file; a path that does not exist yet is kept so *Save* can create it.
 * On open, Hop prefers the last file you edited in this dialog; otherwise it may pre-select `full-client-env.yaml` at the install root when that file exists.
 
 ==== Nested editor tabs
@@ -188,7 +201,7 @@ This tab embeds the full environment editor (no separate “Edit…” window). 
 
 ==== Validate and Apply
 
-At the bottom of the Environment tab:
+At the bottom of the Install spec tab:
 
 * *Validate* — compare the local install to the saved environment file without downloading.
 * *Apply* — install missing plugins and dependencies declared in the file.
@@ -243,16 +256,18 @@ image::marketplace/marketplace-lifecycle-enviromnent-enforce-configuration.png[L
 
 Typical options:
 
-* *Environment file* — path to a `hop-env.yaml` (variables allowed, for example under the project home)
+* *Install spec file* — path to a `hop-env.yaml` (variables allowed, for example under the project home). This is a Hop install spec, not a lifecycle environment config file.
 * *On enable* — `off` (no check), `warn` (log or dialog on drift), or `enforce` (fail enabling the environment if the install does not match)
 * *Strict* — treat extra marketplace plugins as drift
 * *Auto-apply missing plugins on enable* — optional; off by default (use only on controlled machines)
 
 If *On enable* is unset, purpose-based defaults apply: *Production* → enforce, *Testing* / *Acceptance* → warn, *Development* / CI-style purposes → off.
 
-This complements hop-env `enforceOnRun` (checked at hop-run) and the Environment tab *Validate* / *Apply* actions (manual checks from the marketplace dialog).
+This complements hop-env `enforceOnRun` (checked at hop-run) and the Install spec tab *Validate* / *Apply* actions (manual checks from the marketplace dialog).
 
-== Declarative environments (`hop-env.yaml`)
+Do not confuse this file with a *project lifecycle environment* (dev/test/production variables) or with the `hop-env.sh` / `hop-env.cmd` launcher script written by hop-setup.
+
+== Hop install spec (`hop-env.yaml`)
 
 For CI/CD, Docker, and reproducible servers you can declare the required plugins (and optional jars) in a file, commit it to Git, and apply it without using the GUI.
 
@@ -263,7 +278,7 @@ Supported file names / formats:
 
 === `hop marketplace apply`
 
-Installs missing plugins and dependencies declared in the environment file. Already-satisfied plugins are skipped.
+Installs missing plugins and dependencies declared in the install spec file. Already-satisfied plugins are skipped.
 
 [cols="1,3"]
 |===
@@ -298,14 +313,14 @@ Always restart Hop after a successful apply when new plugins were installed.
 
 === `hop marketplace validate`
 
-Compares the local install to the environment file *without* downloading or installing anything. Useful in CI as a pre-flight check.
+Compares the local install to the install spec file *without* downloading or installing anything. Useful in CI as a pre-flight check.
 
 [cols="1,3"]
 |===
 | Option | Description
 
 | `-f`, `--file`
-| Path to the environment file. If omitted, Hop discovers a file (see <<hop-env-discovery>>).
+| Path to the install spec file. If omitted, Hop discovers a file (see <<hop-env-discovery>>).
 
 | `--strict`
 | Also fail when *extra* marketplace-installed plugins (receipts under `plugins/.marketplace/`) are present that are not listed in the file. Without `--strict`, extras are ignored.
@@ -313,7 +328,7 @@ Compares the local install to the environment file *without* downloading or inst
 
 Exit codes:
 
-* *0* — environment matches (prints `OK: environment matches …`)
+* *0* — install spec matches (prints `OK: install spec matches …`)
 * *non-zero* — drift detected or error (prints a drift report and suggests `hop marketplace apply -f …`)
 
 What counts as drift (always hard-fail):
@@ -346,7 +361,7 @@ Enable enforcement either:
 If a hop-env file is present but `enforceOnRun` is false and the property is unset, hop-run only logs that the file was found and skips the check.
 
 [[hop-env-discovery]]
-=== How the environment file is discovered
+=== How the install spec file is discovered
 
 Used by `validate` (when `-f` is omitted) and by hop-run:
 

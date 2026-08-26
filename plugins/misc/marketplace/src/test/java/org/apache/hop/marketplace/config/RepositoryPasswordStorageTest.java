@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.json.HopJson;
-import org.apache.hop.marketplace.env.HopEnvironmentSpec;
+import org.apache.hop.marketplace.env.HopInstallSpec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -144,7 +144,7 @@ class RepositoryPasswordStorageTest {
 
   @Test
   void environmentFilesObfuscatePasswordsToo() {
-    HopEnvironmentSpec.RepositoryRef ref = new HopEnvironmentSpec.RepositoryRef();
+    HopInstallSpec.RepositoryRef ref = new HopInstallSpec.RepositoryRef();
     ref.setId("acme");
     ref.setUrl("https://example.org/");
     ref.setPassword(PLAIN);
@@ -152,8 +152,8 @@ class RepositoryPasswordStorageTest {
     Map<String, Object> written = HopJson.newMapper().convertValue(ref, Map.class);
     assertTrue(String.valueOf(written.get("password")).startsWith("Encrypted "));
 
-    HopEnvironmentSpec.RepositoryRef read =
-        HopJson.newMapper().convertValue(written, HopEnvironmentSpec.RepositoryRef.class);
+    HopInstallSpec.RepositoryRef read =
+        HopJson.newMapper().convertValue(written, HopInstallSpec.RepositoryRef.class);
     assertEquals(PLAIN, read.getPassword());
   }
 }
