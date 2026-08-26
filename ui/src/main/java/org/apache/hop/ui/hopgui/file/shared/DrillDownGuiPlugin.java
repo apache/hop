@@ -196,8 +196,8 @@ public class DrillDownGuiPlugin {
   /**
    * Attach row listeners to a pipeline at start so we capture output rows for debugging. Uses the
    * pipeline's run configuration (sample type and size in GUI) when available; otherwise no
-   * sniffers are attached. Data is stored in {@link #dataSnifferBuffersByLogChannelId} so it is
-   * available when the user later opens the pipeline tab. Only applies to local pipeline engine.
+   * sniffers are attached. Data is stored in the per-session sniffer buffers so it is available
+   * when the user later opens the pipeline tab. Only applies to local pipeline engine.
    */
   public static void attachDataSniffersToPipeline(IPipelineEngine<PipelineMeta> pipeline) {
     if (!(pipeline instanceof LocalPipelineEngine)) {
