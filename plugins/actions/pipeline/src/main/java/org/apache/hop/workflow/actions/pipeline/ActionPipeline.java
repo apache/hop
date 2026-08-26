@@ -37,6 +37,7 @@ import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.FileUtil;
@@ -49,7 +50,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.resource.IResourceNaming;
@@ -535,19 +535,43 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         //
         pipeline.copyParametersFromDefinitions(pipelineMeta);
 
-        // Pass the parameter values and activate...
-        // Note: getValues() returns unresolved values, which will be resolved once in
-        // activateParams()
-        // We must NOT resolve them here to avoid double resolution
+        // Collect what this action hands to the child. A value taken from an incoming row is
+        // used as it stands, a value typed on the Parameters tab is resolved exactly once here.
         //
-        TransformWithMappingMeta.activateParams(
+        List<String> passedNames = new ArrayList<>();
+        List<String> passedValues = new ArrayList<>();
+        for (Parameter parameter : parameterDefinition.getParameters()) {
+          if (Utils.isEmpty(parameter.getName())) {
+            continue;
+          }
+          if (Utils.isEmpty(Const.trim(parameter.getField()))
+              && Utils.isEmpty(Const.trim(parameter.getValue()))) {
+            // The row names a parameter but configures no value for it. That is not the same as
+            // passing an empty value: leave the decision to the option below and to the child's
+            // own default.
+            //
+            continue;
+          }
+          passedNames.add(parameter.getName());
+          if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+            passedValues.add(Const.NVL(resolve(parameter.getValue()), ""));
+          } else {
+            passedValues.add(Const.NVL(namedParam.getParameterValue(parameter.getName()), ""));
+          }
+        }
+
+        // A sub-pipeline resolves its parameters exactly like a sub-workflow does, see
+        // SubExecutionParameters.
+        //
+        SubExecutionParameters.activate(
             pipeline,
             pipeline,
             this,
             parameterNames,
-            parameterDefinition.getNames(),
-            parameterDefinition.getValues(),
-            parameterDefinition.isPassingAllParameters());
+            passedNames.toArray(new String[0]),
+            passedValues.toArray(new String[0]),
+            parameterDefinition.isPassingAllParameters(),
+            false);
 
         // First get the root workflow
         //

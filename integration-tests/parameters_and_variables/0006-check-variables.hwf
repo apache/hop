@@ -39,6 +39,12 @@ limitations under the License.
       <default_value>default_test6_parameter4</default_value>
       <description>test6 parameter4</description>
     </parameter>
+    <parameter>
+      <name>TEST6_PARAMETER6</name>
+      <default_value>default_test6_parameter6</default_value>
+      <description>Issue #8084: the calling workflow has an unrelated variable with this exact
+      name. Nothing is mapped onto the parameter, so its own default has to win.</description>
+    </parameter>
   </parameters>
   <actions>
     <action>
@@ -67,7 +73,8 @@ limitations under the License.
       <attributes/>
       <logmessage>TEST6_VARIABLE1 = >${TEST6_VARIABLE1}&lt;
 TEST6_PARAMETER3 = >${TEST6_PARAMETER3}&lt;
-TEST6_PARAMETER4 = >${TEST6_PARAMETER4}&lt;</logmessage>
+TEST6_PARAMETER4 = >${TEST6_PARAMETER4}&lt;
+TEST6_PARAMETER6 = >${TEST6_PARAMETER6}&lt;</logmessage>
       <loglevel>Basic</loglevel>
       <logsubject>Workflow Variables</logsubject>
       <parallel>N</parallel>

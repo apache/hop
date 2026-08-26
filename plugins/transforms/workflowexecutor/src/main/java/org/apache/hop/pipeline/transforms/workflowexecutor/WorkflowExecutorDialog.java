@@ -630,8 +630,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     // Add a checkbox: inherit all variables...
     //
     wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(
-        BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
     PropsUi.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.left = new FormAttachment(0, 0);

@@ -77,3 +77,5 @@ You can close every input or output tab. A mapping with no inputs is a generator
 == Sample
 
 The samples project contains parent/child examples under `transforms/` for a single stream, a generator, a join, an info lookup, and multiple target outputs.
+
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

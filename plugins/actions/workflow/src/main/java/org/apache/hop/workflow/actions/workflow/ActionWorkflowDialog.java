@@ -101,7 +101,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
     shell.setText(BaseMessages.getString(PKG, "ActionWorkflow.Header"));
 
     wlPath.setText(BaseMessages.getString(PKG, "ActionWorkflow.WorkflowFile.Label"));
-    wPassParams.setText(BaseMessages.getString(PKG, "ActionWorkflow.PassAllParameters.Label"));
+    wPassParams.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
 
     wWaitingToFinish = new Button(gExecution, SWT.CHECK);
     PropsUi.setLook(wWaitingToFinish);

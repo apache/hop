@@ -620,8 +620,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     // Add a checkbox: inherit all variables...
     //
     wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(
-        BaseMessages.getString(PKG, "PipelineExecutorDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
     PropsUi.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.top = new FormAttachment(wPipelineExecutorParameters, 15);

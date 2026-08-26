@@ -32,6 +32,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -416,30 +417,19 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
     IPipelineEngine<PipelineMeta> pipeline = getExecutorPipeline();
 
-    // When a mapped field (or static input) is empty, clear sticky values inherited by the child
-    // from a previous PipelineExecutor iteration. NamedParameters.activateParameters prefers an
-    // existing variable over an empty param value when the child parameter has a non-empty default
-    // (HOSTNAME safety). Without clearing, an empty field mapping would keep the previous row's
-    // value instead of applying the child default — see IT main-0003-pipeline-pipeline-executor.
-    for (int i = 0; i < parameters.size(); i++) {
-      String variableName = parameters.get(i).getVariable();
-      if (Utils.isEmpty(variableName)) {
-        continue;
-      }
-      if (Utils.isEmpty(Const.trim(inputFieldValues[i]))) {
-        pipeline.setVariable(variableName, null);
-        this.setVariable(variableName, null);
-      }
-    }
-
-    TransformWithMappingMeta.activateParams(
+    // A value listed on the Parameters tab is authoritative, an empty one included: it never
+    // falls back to a leftover value from a previous iteration. SubExecutionParameters keeps
+    // that promise, so no sticky values have to be cleared here.
+    //
+    SubExecutionParameters.activate(
         pipeline,
         pipeline,
         this,
         pipeline.listParameters(),
         resolvingParameters.toArray(new String[0]),
         inputFieldValues,
-        meta.isInheritingAllVariables());
+        meta.isInheritingAllVariables(),
+        true);
   }
 
   @VisibleForTesting

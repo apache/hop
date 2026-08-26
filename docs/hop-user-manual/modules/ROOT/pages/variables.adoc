@@ -154,7 +154,8 @@ When the pipeline or workflow starts, each parameter is activated as a variable 
 Pass parameters from a parent through the *Parameters* tab of a xref:workflow/actions/pipeline.adoc[Pipeline] action, xref:workflow/actions/workflow.adoc[Workflow] action, xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], or xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor].
 Declare the same names on the receiving pipeline or workflow.
 
-How parameters differ from fields and from other variables, including inheritance and override rules, is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+How parameters differ from fields and from other variables is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+The exact rules that decide which value a parameter ends up with when one pipeline or workflow starts another are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
 
 === System properties
 

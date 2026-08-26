@@ -105,7 +105,9 @@ public class ActionPipelineDialog extends ActionBaseDialog {
     shell.setText(BaseMessages.getString(PKG, "ActionPipeline.Header"));
 
     wlPath.setText(BaseMessages.getString(PKG, "ActionPipeline.PipelineFile.Label"));
-    wPassParams.setText(BaseMessages.getString(PKG, "ActionPipeline.PassAllParameters.Label"));
+    wPassParams.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
 
     wClearRows = new Button(gExecution, SWT.CHECK);
     PropsUi.setLook(wClearRows);

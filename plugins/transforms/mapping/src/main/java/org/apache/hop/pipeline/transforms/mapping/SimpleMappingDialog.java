@@ -355,7 +355,9 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     // Add a checkbox: inherit all variables...
     //
     Button wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
     PropsUi.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.bottom = new FormAttachment(100, 0);
