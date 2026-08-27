@@ -264,7 +264,11 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
       AttributesContext context, IVariables variables, Path hopHome) {
     String explicit = MarketplaceAttributes.envFile(context);
     if (StringUtils.isNotBlank(explicit)) {
-      Path found = existingSpecPath(explicit.trim(), variables);
+      // A relative reference belongs to the project, not to the Hop install (issue #8012).
+      Path found =
+          existingSpecPath(
+              HopInstallSpecFiles.resolveInProject(explicit, variables, context.getProjectHome()),
+              variables);
       if (found != null) {
         return found;
       }

@@ -174,6 +174,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     attributesContext.setProjectName(environment.getProjectName());
     attributesContext.setEnvironmentName(environment.getName());
     attributesContext.setPurpose(environment.getPurpose());
+    // Tabs resolve project relative paths against this; without it they fall back to the Hop
+    // install directory (issue #8012).
+    attributesContext.setProjectHome(projectHomeOf(environment.getProjectName()));
     if (environment.getConfigurationFiles() != null) {
       attributesContext.setConfigurationFiles(new ArrayList<>(environment.getConfigurationFiles()));
     }
@@ -726,6 +729,25 @@ public class LifecycleEnvironmentDialog extends Dialog {
   public void dispose() {
     props.setScreen(new WindowProperty(shell));
     shell.dispose();
+  }
+
+  /**
+   * The home folder of the project this environment belongs to, with variables expanded. Empty when
+   * the project is unknown or has no home configured.
+   */
+  private String projectHomeOf(String projectName) {
+    if (StringUtils.isEmpty(projectName)) {
+      return null;
+    }
+    try {
+      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+      ProjectConfig projectConfig = config == null ? null : config.findProjectConfig(projectName);
+      String home = projectConfig == null ? null : projectConfig.getProjectHome();
+      return StringUtils.isEmpty(home) ? null : variables.resolve(home);
+    } catch (Exception e) {
+      // Best effort: an unreadable projects config must not stop the dialog from opening.
+      return null;
+    }
   }
 
   private void getData() {
