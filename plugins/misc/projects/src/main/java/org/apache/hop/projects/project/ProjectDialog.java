@@ -753,12 +753,24 @@ public class ProjectDialog extends Dialog {
     }
   }
 
+  /** Sanitize the path by removing leading/trailing whitespace and any trailing file separator. */
+  protected String sanitizePath(String path) {
+    if (path == null) {
+      return null;
+    }
+    path = path.trim();
+    while (path.endsWith("/") || path.endsWith("\\")) {
+      path = path.substring(0, path.length() - 1);
+    }
+    return path;
+  }
+
   private void ok() {
     try {
       String oriProjectName = projectConfig.getProjectName();
       String oriProjectHome = projectConfig.getProjectHome();
 
-      String homeFolder = wHome.getText();
+      String homeFolder = sanitizePath(wHome.getText());
       boolean projectHomeFolderChanged = this.editMode && !oriProjectHome.equals(homeFolder);
       boolean readOnly = wReadOnly.getSelection();
 
@@ -976,7 +988,7 @@ public class ProjectDialog extends Dialog {
   private void getInfo(Project project, ProjectConfig projectConfig) throws HopException {
 
     projectConfig.setProjectName(wName.getText());
-    projectConfig.setProjectHome(wHome.getText());
+    projectConfig.setProjectHome(sanitizePath(wHome.getText()));
     projectConfig.setConfigFilename(wConfigFile.getText());
     projectConfig.setReadOnly(wReadOnly.getSelection());
 
