@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.gui;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.eclipse.swt.SWT;
@@ -56,9 +57,8 @@ public class HopNamespace {
    * @return value of namespace
    */
   public static final String getNamespace() {
-    Display display = Display.getCurrent();
-    if (display != null && !display.isDisposed()) {
-      String sessionNamespace = NAMESPACE_BY_DISPLAY.get(display);
+    if (hasUserInterface()) {
+      String sessionNamespace = namespaceOfCurrentDisplay();
       if (!Utils.isEmpty(sessionNamespace)) {
         return sessionNamespace;
       }
@@ -75,12 +75,44 @@ public class HopNamespace {
    */
   public static final void setNamespace(String namespace) {
     getInstance().namespace = namespace;
-    Display display = Display.getCurrent();
-    if (display != null && !display.isDisposed()) {
-      if (!NAMESPACE_BY_DISPLAY.containsKey(display)) {
-        display.addListener(SWT.Dispose, e -> NAMESPACE_BY_DISPLAY.remove(display));
-      }
-      NAMESPACE_BY_DISPLAY.put(display, namespace);
+    if (hasUserInterface()) {
+      rememberForCurrentDisplay(namespace);
     }
+  }
+
+  /**
+   * Whether this process has a user interface at all.
+   *
+   * <p>Touching {@link Display} loads the SWT native libraries. A Hop Server has no reason to load
+   * them and in a container no way to: there is no GTK, so the attempt fails with an {@link
+   * UnsatisfiedLinkError} and the server never starts. It enables a project on startup like every
+   * other Hop tool, which is what brings it here.
+   *
+   * <p>The two methods below are kept apart from the ones above on purpose: it keeps every
+   * reference to {@link Display} out of the code path a headless process runs.
+   */
+  private static boolean hasUserInterface() {
+    return "GUI".equalsIgnoreCase(Const.getHopPlatformRuntime());
+  }
+
+  /** The namespace of the session on this thread, or null. Only call with a user interface. */
+  private static String namespaceOfCurrentDisplay() {
+    Display display = Display.getCurrent();
+    if (display == null || display.isDisposed()) {
+      return null;
+    }
+    return NAMESPACE_BY_DISPLAY.get(display);
+  }
+
+  /** Remember the namespace for the session on this thread. Only call with a user interface. */
+  private static void rememberForCurrentDisplay(String namespace) {
+    Display display = Display.getCurrent();
+    if (display == null || display.isDisposed()) {
+      return;
+    }
+    if (!NAMESPACE_BY_DISPLAY.containsKey(display)) {
+      display.addListener(SWT.Dispose, e -> NAMESPACE_BY_DISPLAY.remove(display));
+    }
+    NAMESPACE_BY_DISPLAY.put(display, namespace);
   }
 }
