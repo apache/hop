@@ -3574,6 +3574,42 @@ public class PipelineMeta extends AbstractMeta
     return info.getModifiedUser();
   }
 
+  /**
+   * Gets the version of Hop that created the pipeline.
+   *
+   * @return the Hop version that created the pipeline, or null when it isn't known.
+   */
+  public String getCreatedHopVersion() {
+    return info.getCreatedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that created the pipeline.
+   *
+   * @param createdHopVersion The Hop version to set.
+   */
+  public void setCreatedHopVersion(String createdHopVersion) {
+    info.setCreatedHopVersion(createdHopVersion);
+  }
+
+  /**
+   * Gets the version of Hop that last saved the pipeline.
+   *
+   * @return the Hop version that last saved the pipeline, or null when it isn't known.
+   */
+  public String getModifiedHopVersion() {
+    return info.getModifiedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that last saved the pipeline.
+   *
+   * @param modifiedHopVersion The Hop version to set.
+   */
+  public void setModifiedHopVersion(String modifiedHopVersion) {
+    info.setModifiedHopVersion(modifiedHopVersion);
+  }
+
   @Override
   protected INamedParameters getNamedParameters() {
     return info.namedParams;

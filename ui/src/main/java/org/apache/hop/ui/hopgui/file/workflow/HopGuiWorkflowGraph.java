@@ -4677,6 +4677,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       boolean fileExist = HopVfs.fileExists(workflowMeta.getFilename());
 
+      // Record the version of Hop saving this workflow
+      //
+      workflowMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+
       String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);
       try {

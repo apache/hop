@@ -1960,4 +1960,40 @@ public class WorkflowMeta extends AbstractMeta
   public void setModifiedUser(String modifiedUser) {
     info.setModifiedUser(modifiedUser);
   }
+
+  /**
+   * Gets the version of Hop that created the workflow.
+   *
+   * @return the Hop version that created the workflow, or null when it isn't known.
+   */
+  public String getCreatedHopVersion() {
+    return info.getCreatedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that created the workflow.
+   *
+   * @param createdHopVersion The Hop version to set.
+   */
+  public void setCreatedHopVersion(String createdHopVersion) {
+    info.setCreatedHopVersion(createdHopVersion);
+  }
+
+  /**
+   * Gets the version of Hop that last saved the workflow.
+   *
+   * @return the Hop version that last saved the workflow, or null when it isn't known.
+   */
+  public String getModifiedHopVersion() {
+    return info.getModifiedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that last saved the workflow.
+   *
+   * @param modifiedHopVersion The Hop version to set.
+   */
+  public void setModifiedHopVersion(String modifiedHopVersion) {
+    info.setModifiedHopVersion(modifiedHopVersion);
+  }
 }

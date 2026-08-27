@@ -2165,20 +2165,33 @@ public class Const {
   public static String getBaseDocUrl() {
     String url = BaseMessages.getString(PKG, "Const.BaseDocUrl");
 
-    // Get the implementation version:
-    // Temporary build: 2.4.0-SNAPSHOT (2023-02-13 08.50.52)
-    // Release version: 2.4.0
-    String version = Const.class.getPackage().getImplementationVersion();
+    String version = getHopVersion();
 
     // Check if implementation version is a SNAPHOT build or if version is not known.
     if (version == null || version.contains("SNAPSHOT")) {
       version = "next";
-    } else {
-      // Only keep until first space to remove the build date
-      version = version.split(" ")[0];
     }
 
     return url + version + "/";
+  }
+
+  /**
+   * Provides the version of Hop this code was built as, without the build date.
+   *
+   * @return the version, for example "2.20.0" or "2.20.0-SNAPSHOT", or null when the version can't
+   *     be determined. That is the case whenever Hop doesn't run from its packaged jars, for
+   *     example in an IDE or during unit tests.
+   */
+  public static String getHopVersion() {
+    // Get the implementation version:
+    // Temporary build: 2.4.0-SNAPSHOT (2023-02-13 08.50.52)
+    // Release version: 2.4.0
+    String version = Const.class.getPackage().getImplementationVersion();
+    if (version == null) {
+      return null;
+    }
+    // Only keep until first space to remove the build date
+    return version.split(" ")[0];
   }
 
   /**

@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -172,6 +173,10 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       //
       WorkflowMeta workflowMeta = new WorkflowMeta();
       workflowMeta.setName(BaseMessages.getString(PKG, "HopWorkflowFileType.New.Text"));
+
+      // Record the version of Hop creating this workflow
+      //
+      workflowMeta.setCreatedHopVersion(Const.NVL(Const.getHopVersion(), ""));
 
       // Pass the MetaStore for reference lookups
       //
