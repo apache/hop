@@ -5145,6 +5145,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       boolean fileExist = HopVfs.fileExists(pipelineMeta.getFilename());
 
+      // Record the version of Hop saving this pipeline
+      //
+      pipelineMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+
       String xml = pipelineMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(pipelineMeta.getFilename(), false);
       try {

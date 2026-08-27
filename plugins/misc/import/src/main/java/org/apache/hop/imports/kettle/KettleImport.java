@@ -207,6 +207,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       Node targetNode = XmlHandler.getSubNode(documentElement, "info");
       if (targetNode != null) {
         targetNode.insertBefore(nameSync, XmlHandler.getSubNode(targetNode, "description"));
+        addCreatedHopVersion(doc, targetNode);
       }
     } else if (extension.equalsIgnoreCase("kjb")) {
       kjbCounter++;
@@ -215,6 +216,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       // Add the name-sync node in /workflow/
       //
       documentElement.insertBefore(nameSync, XmlHandler.getSubNode(documentElement, "description"));
+      addCreatedHopVersion(doc, documentElement);
     }
 
     processNode(doc, documentElement, EntryType.OTHER, 0);
@@ -691,6 +693,24 @@ public class KettleImport extends HopImportBase implements IHopImport {
     if (child != null) {
       parent.removeChild(child);
     }
+  }
+
+  /**
+   * Record the version of Hop that imported this pipeline or workflow. The Kettle created and
+   * modified date and user elements carry the same names in Hop, so they pass through the import
+   * untouched and keep their original Kettle values.
+   *
+   * @param doc the document being imported
+   * @param parent the node holding the metadata: /pipeline/info/ for a pipeline, /workflow/ for a
+   *     workflow
+   */
+  private void addCreatedHopVersion(Document doc, Node parent) {
+    // An empty element when the version isn't known, which happens when we're not running from
+    // the packaged jars. That matches what the serializer writes for an unknown version.
+    //
+    Element createdHopVersion = doc.createElement("created_hop_version");
+    createdHopVersion.appendChild(doc.createTextNode(Const.NVL(Const.getHopVersion(), "")));
+    parent.insertBefore(createdHopVersion, XmlHandler.getSubNode(parent, "description"));
   }
 
   private void setChildElement(Document doc, Node parent, String name, String value) {
