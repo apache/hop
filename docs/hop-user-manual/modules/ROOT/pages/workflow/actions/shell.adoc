@@ -74,12 +74,21 @@ When the field is left empty or the working directory is invalid {openvar}user.d
 |Include time in filename?|Adds the system time to the filename. (_235959)
 |Loglevel|Specifies the logging level for the execution of the shell.
 See also the logging window in .14 Logging
+|===
+
+=== Arguments tab
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
 |Copy previous results to arguments?|The results from a previous pipeline can be sent to the shell script using the "Copy rows to result" transform. (as arguments)
-|Execute once for every input row|This implements looping.
+|Execute for every result row|This implements looping.
 If the previous workflow action returns a set of result rows, you can have this shell script executed once for every row found.
 One row is passed to this script at every execution in combination with the copy previous result to arguments.
 The values of the corresponding result row can then be found on command line argument $1, $2, ... (%1, %2, %3, ... on Windows)
-|Arguments table|Specify the strings to use as arguments for the shell script.
+|Arguments table a|Specify the strings to use as arguments for the shell script.
+
+The **Hidden (Y/N)** column controls logging only: when set to `Y`, the argument is replaced by `***` in the Shell action log. The script still receives the real value.
 |===
 
 === Script tab
