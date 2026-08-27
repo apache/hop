@@ -485,6 +485,31 @@ public class WorkflowMeta extends AbstractMeta
         addMissingAction(missingAction);
       }
     }
+    dropHopsToActionsNotInTheFile();
+  }
+
+  /**
+   * A hop naming an action that the file does not contain - a name left behind by a rename or by an
+   * action that was deleted elsewhere - is resolved to null while de-serializing. Half of a hop is
+   * of no use to anyone: it is not drawn, it is not executed, and saving the workflow again writes
+   * it back with one end missing. So it is dropped here, and the user is told about it.
+   */
+  private void dropHopsToActionsNotInTheFile() {
+    for (int i = workflowHops.size() - 1; i >= 0; i--) {
+      WorkflowHopMeta hop = workflowHops.get(i);
+      ActionMeta from = hop.getFromAction();
+      ActionMeta to = hop.getToAction();
+      if (from == null || to == null) {
+        workflowHops.remove(i);
+        ActionMeta known = from == null ? to : from;
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "WorkflowMeta.Log.RemovedHopToUnknownAction",
+                known == null ? "?" : known.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
   }
 
   /**
@@ -610,8 +635,23 @@ public class WorkflowMeta extends AbstractMeta
       if (deleted.getAction() instanceof MissingAction missingAction) {
         removeMissingAction(missingAction);
       }
+      // No hop may keep pointing at an action that is no longer in the workflow: a hop that
+      // outlives its action is written back to the file as a reference to an action that isn't
+      // there.
+      //
+      removeHopsAttachedTo(deleted);
     }
     setChanged();
+  }
+
+  /** Drops every hop that starts or ends at an action. */
+  private void removeHopsAttachedTo(ActionMeta action) {
+    for (int i = workflowHops.size() - 1; i >= 0; i--) {
+      WorkflowHopMeta hop = workflowHops.get(i);
+      if (action.equals(hop.getFromAction()) || action.equals(hop.getToAction())) {
+        workflowHops.remove(i);
+      }
+    }
   }
 
   /**
@@ -796,7 +836,7 @@ public class WorkflowMeta extends AbstractMeta
     for (WorkflowHopMeta hop : workflowHops) {
       // Look at all the hops
 
-      if (hop.isEnabled() && hop.getToAction().equals(to)) {
+      if (hop.isEnabled() && to.equals(hop.getToAction())) {
         count++;
       }
     }
@@ -817,7 +857,7 @@ public class WorkflowMeta extends AbstractMeta
     for (WorkflowHopMeta hop : workflowHops) {
       // Look at all the hops
 
-      if (hop.isEnabled() && hop.getToAction().equals(to)) {
+      if (hop.isEnabled() && to.equals(hop.getToAction())) {
         if (count == nr) {
           return hop.getFromAction();
         }

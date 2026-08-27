@@ -431,9 +431,35 @@ public class PipelineMeta extends AbstractMeta
       removeMissingPipeline(missingTransform);
     }
 
+    // Nothing may keep pointing at a transform that is no longer in the pipeline: a hop or an
+    // error handling entry that outlives its transform is written back to the file as a reference
+    // to a transform that isn't there.
+    //
+    removeReferencesTo(removeTransform);
+
     changedTransforms = true;
     setChanged();
     clearCaches();
+  }
+
+  /** Drops the hops attached to a transform and the error handling aimed at it. */
+  private void removeReferencesTo(TransformMeta removedTransform) {
+    for (int h = hops.size() - 1; h >= 0; h--) {
+      PipelineHopMeta hop = hops.get(h);
+      if (removedTransform.equals(hop.getFromTransform())
+          || removedTransform.equals(hop.getToTransform())) {
+        hops.remove(h);
+        changedHops = true;
+      }
+    }
+
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta != null && removedTransform.equals(errorMeta.getTargetTransform())) {
+        // The error rows have nowhere to go anymore, so the whole entry goes with the target.
+        transformMeta.setTransformErrorMeta(null);
+      }
+    }
   }
 
   /**
@@ -1691,7 +1717,47 @@ public class PipelineMeta extends AbstractMeta
         addMissingPipeline(missing);
       }
     }
+    dropReferencesToTransformsNotInTheFile();
     syncTransformErrorHandlingWithHops();
+  }
+
+  /**
+   * A hop or an error handling entry naming a transform that the file does not contain - a name
+   * left behind by a rename or by a transform that was deleted elsewhere - is resolved to null
+   * while de-serializing. Half of a hop is of no use to anyone: it is not drawn, it is not
+   * executed, and saving the pipeline again writes it back with one end missing. So it is dropped
+   * here, and the user is told about it.
+   */
+  private void dropReferencesToTransformsNotInTheFile() {
+    for (int i = hops.size() - 1; i >= 0; i--) {
+      PipelineHopMeta hop = hops.get(i);
+      TransformMeta from = hop.getFromTransform();
+      TransformMeta to = hop.getToTransform();
+      if (from == null || to == null) {
+        hops.remove(i);
+        changedHops = true;
+        TransformMeta known = from == null ? to : from;
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "PipelineMeta.Log.RemovedHopToUnknownTransform",
+                known == null ? "?" : known.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
+
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta != null && errorMeta.getTargetTransform() == null) {
+        transformMeta.setTransformErrorMeta(null);
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "PipelineMeta.Log.RemovedErrorHandlingToUnknownTransform",
+                transformMeta.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
   }
 
   /**
