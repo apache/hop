@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -38,7 +37,6 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.FileLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
@@ -51,6 +49,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.ILegacyXml;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -74,7 +73,50 @@ import org.w3c.dom.Node;
 @SuppressWarnings("java:S1104")
 @Getter
 @Setter
-public class ActionShell extends ActionBase {
+public class ActionShell extends ActionBase implements ILegacyXml {
+  public static class ShellArgument implements ILegacyXml {
+    @HopMetadataProperty(key = "value")
+    private String value;
+
+    @HopMetadataProperty(key = "hidden")
+    private boolean hidden;
+
+    public ShellArgument() {
+      this("", false);
+    }
+
+    public ShellArgument(String value, boolean hidden) {
+      this.value = value;
+      this.hidden = hidden;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
+
+    public boolean isHidden() {
+      return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+      this.hidden = hidden;
+    }
+
+    @Override
+    public void convertLegacyXml(Node node) {
+      if (XmlHandler.getSubNode(node, "value") == null) {
+        String text = XmlHandler.getNodeValue(node);
+        if (text != null) {
+          this.value = text;
+        }
+      }
+    }
+  }
+
   private static final Class<?> PKG = ActionShell.class;
   public static final String CONST_JAVA_IO_TMPDIR = "java.io.tmpdir";
   public static final String CONST_WINDOWS_95 = "Windows 95";
@@ -87,7 +129,7 @@ public class ActionShell extends ActionBase {
   private String workDirectory;
 
   @HopMetadataProperty(groupKey = "arguments", key = "argument")
-  public List<String> arguments;
+  public List<ShellArgument> arguments;
 
   @HopMetadataProperty(key = "arg_from_previous")
   public boolean argFromPrevious;
@@ -131,34 +173,19 @@ public class ActionShell extends ActionBase {
     clear();
   }
 
-  /**
-   * @deprecated keep for backwards compatibility
-   * @param entrynode the top-level XML node
-   * @param metadataProvider The metadataProvider to optionally load from.
-   * @param variables
-   * @throws HopXmlException
-   */
   @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode, metadataProvider, variables);
-
-      // How many arguments?
-      int argnr = 0;
-      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
-        argnr++;
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
+    // Backward compatibility with legacy argument0, argument1... tags
+    int argnr = 0;
+    while (XmlHandler.getTagValue(node, "argument" + argnr) != null) {
+      if (arguments == null) {
+        arguments = new ArrayList<>();
       }
-
-      // Read them all...
-      // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
-      // THE XML "DUBIOUS". DON'T REUSE IT.
-      for (int a = 0; a < argnr; a++) {
-        arguments.add(XmlHandler.getTagValue(entrynode, "argument" + a));
-      }
-    } catch (HopException e) {
-      throw new HopXmlException("Unable to load action of type 'shell' from XML node", e);
+      arguments.add(new ShellArgument(XmlHandler.getTagValue(node, "argument" + argnr), false));
+      argnr++;
     }
   }
 
@@ -243,15 +270,20 @@ public class ActionShell extends ActionBase {
 
     // "Translate" the arguments for later
     String[] substArgs = null;
+    boolean[] hiddenArgs = null;
     if (arguments != null) {
       substArgs = new String[arguments.size()];
+      hiddenArgs = new boolean[arguments.size()];
       for (int idx = 0; idx < arguments.size(); idx++) {
-        substArgs[idx] = resolve(arguments.get(idx));
+        ShellArgument arg = arguments.get(idx);
+        substArgs[idx] = resolve(arg.getValue());
+        hiddenArgs[idx] = arg.isHidden();
       }
     }
 
     int iteration = 0;
     String[] args = substArgs;
+    boolean[] hArgs = hiddenArgs;
     RowMetaAndData resultRow = null;
     boolean first = true;
     List<RowMetaAndData> rows = result.getRows();
@@ -281,6 +313,7 @@ public class ActionShell extends ActionBase {
 
           if (resultRow != null) {
             args = new String[resultRow.size()];
+            hArgs = new boolean[resultRow.size()];
             for (int i = 0; i < resultRow.size(); i++) {
               args[i] = resultRow.getString(i, null);
             }
@@ -295,8 +328,10 @@ public class ActionShell extends ActionBase {
         if (argFromPrevious) {
           // Only put the first Row on the arguments
           args = null;
+          hArgs = null;
           if (resultRow != null) {
             args = new String[resultRow.size()];
+            hArgs = new boolean[resultRow.size()];
             for (int i = 0; i < resultRow.size(); i++) {
               args[i] = resultRow.getString(i, null);
             }
@@ -309,7 +344,7 @@ public class ActionShell extends ActionBase {
         }
       }
 
-      executeShell(result, cmdRows, args);
+      executeShell(result, cmdRows, args, hArgs);
 
       iteration++;
     }
@@ -330,7 +365,8 @@ public class ActionShell extends ActionBase {
     return result;
   }
 
-  private void executeShell(Result result, List<RowMetaAndData> cmdRows, String[] args) {
+  private void executeShell(
+      Result result, List<RowMetaAndData> cmdRows, String[] args, boolean[] hiddenArgs) {
     FileObject fileObject = null;
     String realScript = null;
     FileObject tempFile = null;
@@ -442,20 +478,9 @@ public class ActionShell extends ActionBase {
         }
       }
 
-      StringBuilder command = new StringBuilder();
-
-      Iterator<String> it = cmds.iterator();
-      boolean first = true;
-      while (it.hasNext()) {
-        if (!first) {
-          command.append(' ');
-        } else {
-          first = false;
-        }
-        command.append(it.next());
-      }
+      String logCommand = buildLogCommand(cmds, fileObject, args, hiddenArgs);
       if (isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "ActionShell.ExecCommand", command.toString()));
+        logBasic(BaseMessages.getString(PKG, "ActionShell.ExecCommand", logCommand));
       }
 
       // Build the environment variable list...
@@ -491,7 +516,7 @@ public class ActionShell extends ActionBase {
 
       proc.waitFor();
       if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionShell.CommandFinished", command.toString()));
+        logDetailed(BaseMessages.getString(PKG, "ActionShell.CommandFinished", logCommand));
       }
 
       // What's the exit status?
@@ -682,5 +707,56 @@ public class ActionShell extends ActionBase {
       throw new HopException(BaseMessages.getString(PKG, "ActionShell.NoScriptFileSpecified"));
     }
     return () -> filename;
+  }
+
+  @VisibleForTesting
+  protected String buildLogCommand(
+      List<String> cmds, FileObject fileObject, String[] args, boolean[] hiddenArgs) {
+    if (args == null || hiddenArgs == null || !hasHiddenArgs(hiddenArgs)) {
+      return String.join(" ", cmds);
+    }
+    StringBuilder sb = new StringBuilder();
+    boolean isWindows =
+        Const.getSystemOs().equals(CONST_WINDOWS_95)
+            || Const.getSystemOs().startsWith(CONST_WINDOWS);
+    if (isWindows) {
+      if (Const.getSystemOs().equals(CONST_WINDOWS_95)) {
+        sb.append("command.com /C \"");
+      } else {
+        sb.append("cmd.exe /C \"");
+      }
+      sb.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
+      for (int i = 0; i < args.length; i++) {
+        sb.append(' ');
+        if (i < hiddenArgs.length && hiddenArgs[i]) {
+          sb.append("***");
+        } else {
+          sb.append(Const.optionallyQuoteStringByOS(args[i]));
+        }
+      }
+      sb.append('"');
+    } else {
+      sb.append(HopVfs.getFilename(fileObject));
+      for (int i = 0; i < args.length; i++) {
+        sb.append(' ');
+        if (i < hiddenArgs.length && hiddenArgs[i]) {
+          sb.append("***");
+        } else {
+          sb.append(args[i]);
+        }
+      }
+    }
+    return sb.toString();
+  }
+
+  private boolean hasHiddenArgs(boolean[] hiddenArgs) {
+    if (hiddenArgs != null) {
+      for (boolean b : hiddenArgs) {
+        if (b) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
