@@ -18,5 +18,6 @@ under the License.
 
 * xref:getting-started.adoc[Getting started]
 * xref:docker-container.adoc[Docker container]
+* xref:hop-web-docker.adoc[Hop Web in Docker]
 * xref:hop-logo-and-icons.adoc[Hop logo and icons]
 * xref:hop-vs-kettle/index.adoc[Kettle/PDI and Hop]
