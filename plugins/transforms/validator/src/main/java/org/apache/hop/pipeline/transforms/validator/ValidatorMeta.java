@@ -92,16 +92,6 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
       injectionKeyDescription = "Validator.Injection.SUPPRESS_LOG_FAILED_DATA")
   private boolean suppressingLogFailedData;
 
-  /**
-   * When true, no log line is written for every rejected row. Error rows are still sent to the
-   * error handling hop. Defaults to false so existing pipelines keep logging every rejected row.
-   */
-  @HopMetadataProperty(
-      key = "suppress_error_log",
-      injectionKey = "SUPPRESS_ERROR_LOG",
-      injectionKeyDescription = "Validator.Injection.SUPPRESS_ERROR_LOG")
-  private boolean suppressingErrorLog;
-
   /** The standard new validation stream */
   @Getter @Setter
   private static IStream newValidation =
