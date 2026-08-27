@@ -38,7 +38,9 @@ import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -334,9 +336,16 @@ public class TransformFn extends TransformBaseFn {
 
     // Create the transformation...
     //
-    pipeline =
-        new LocalPipelineEngine(
-            pipelineMeta, variables, new LoggingObject("apache-beam-transform"));
+    // Attach the per-transform pipeline's log channel to the parent Beam pipeline channel so that
+    // messages logged by the wrapped transform (e.g. the "Write to log" transform) show up in the
+    // pipeline log instead of a detached channel. Fall back to a standalone logging object when the
+    // parent isn't in the local registry (e.g. on a distributed runner running in another JVM).
+    ILoggingObject parentLoggingObject =
+        LoggingRegistry.getInstance().getLoggingObject(parentLogChannelId);
+    if (parentLoggingObject == null) {
+      parentLoggingObject = new LoggingObject("apache-beam-transform");
+    }
+    pipeline = new LocalPipelineEngine(pipelineMeta, variables, parentLoggingObject);
     pipeline.setLogLevel(
         context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
     pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
