@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
@@ -29,7 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.vfs.minio.metadata.MinioMeta;
 
-@VfsPlugin(type = "minio", typeDescription = "S3 VFS plugin", classLoaderGroup = "vfs-s3")
+@VfsPlugin(type = "minio", typeDescription = "Minio VFS plugin", classLoaderGroup = "vfs-minio")
 public class MinioVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {
@@ -44,16 +45,26 @@ public class MinioVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<MinioMeta> minioMetaTypes = metadataProvider.getSerializer(MinioMeta.class).loadAll();
       for (MinioMeta minioMeta : minioMetaTypes) {
         providers.put(minioMeta.getName(), new MinioFileProvider(variables, minioMeta));
       }
     } catch (Exception e) {
-      // Ignore errors
+      // Never silently: an unreadable connection here means files resolved through its scheme
+      // quietly land on the local disk instead of the object store.
+      LogChannel.GENERAL.logError("Unable to load the Minio VFS providers", e);
     }
     return providers;
   }

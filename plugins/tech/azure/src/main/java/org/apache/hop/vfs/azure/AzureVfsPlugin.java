@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
@@ -43,10 +44,18 @@ public class AzureVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<AzureMetadataType> azureMetadataTypes =
           metadataProvider.getSerializer(AzureMetadataType.class).loadAll();
       for (AzureMetadataType azureMetadataType : azureMetadataTypes) {
@@ -54,7 +63,7 @@ public class AzureVfsPlugin implements IVfs {
             azureMetadataType.getName(), new AzureFileProvider(variables, azureMetadataType));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LogChannel.GENERAL.logError("Unable to load the Azure VFS providers", e);
     }
     return providers;
   }

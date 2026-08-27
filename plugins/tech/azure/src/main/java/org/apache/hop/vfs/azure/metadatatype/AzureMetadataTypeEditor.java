@@ -301,6 +301,6 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
   @Override
   public void save() throws HopException {
     super.save();
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
   }
 }

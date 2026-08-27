@@ -228,6 +228,6 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
   @Override
   public void save() throws HopException {
     super.save();
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
   }
 }

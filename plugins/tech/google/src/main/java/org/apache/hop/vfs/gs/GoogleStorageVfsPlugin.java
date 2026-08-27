@@ -43,10 +43,18 @@ public class GoogleStorageVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<GoogleStorageMetadataType> googleStorageMetadataTypes =
           metadataProvider.getSerializer(GoogleStorageMetadataType.class).loadAll();
       for (GoogleStorageMetadataType googleStorageMetadataType : googleStorageMetadataTypes) {
