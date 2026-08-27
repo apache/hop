@@ -86,6 +86,10 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
       throws HopTransformException {
     GZIPInputStream fis = null;
     DataInputStream dis = null;
+    if (file == null || file.getName() == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "CubeInputMeta.Exception.NoFilenameSpecified"));
+    }
     try {
       InputStream is =
           HopVfs.getInputStream(

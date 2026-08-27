@@ -583,6 +583,10 @@ public abstract class Pipeline
     try {
       prepareExecutionInternal();
       prepared = true;
+    } catch (Throwable e) {
+      // Still on the bound namespace: bringing the pipeline down can touch its files.
+      flagPreparationFailure(e);
+      throw e;
     } finally {
       HopVfsNamespaces.restoreThread(previous);
       if (!prepared) {
@@ -600,6 +604,31 @@ public abstract class Pipeline
       vfsNamespace = null;
       vfsNamespaceProvider = null;
     }
+  }
+
+  /**
+   * A pipeline whose preparation failed never runs, and never reaches a terminal state by itself:
+   * it is left flagged as preparing or initializing. A Hop server keeps such an object in its map
+   * forever, because the timer that purges stale objects only collects the ones that are finished
+   * or stopped. Stop the pipeline and record the error so it is reported as a failure and can be
+   * cleaned up. See issue #3861.
+   */
+  protected void flagPreparationFailure(Throwable e) {
+    errors.incrementAndGet();
+    // Nothing else logs this: the exception travels up to whoever asked for the execution, which
+    // on a server is an HTTP reply that the pipeline's own log never sees. Report it the way a
+    // pipeline reports any other error, so it shows up wherever the log does.
+    if (e != null) {
+      log.logError(
+          BaseMessages.getString(PKG, "Pipeline.Log.ErrorPreparingPipeline", e.getMessage()), e);
+    }
+    if (isFinished() || isStopped()) {
+      // An inner failure handler already brought the pipeline to a terminal state.
+      return;
+    }
+    // Stopping is the terminal state this pipeline can still reach through the normal path: it
+    // releases whatever was already initialized and alerts the execution stopped listeners.
+    stopAll();
   }
 
   private void prepareExecutionInternal() throws HopException {
@@ -1846,14 +1875,20 @@ public abstract class Pipeline
   /** Stops all transforms from running, and alerts any registered listeners. */
   @Override
   public void stopAll() {
-    if (transforms == null || isAlreadyStopped.get()) {
+    if (isAlreadyStopped.get()) {
       return;
     }
 
-    transforms.forEach(combi -> stopTransform(combi, false));
+    // A pipeline that never got as far as allocating its transforms can still be stopped: it just
+    // has nothing to stop. Bailing out here used to leave it without a terminal state.
+    if (transforms != null) {
+      transforms.forEach(combi -> stopTransform(combi, false));
+    }
 
-    // if it is stopped it is not paused
+    // if it is stopped it is not paused, nor is it still preparing or initializing
     setPaused(false);
+    setPreparing(false);
+    setInitializing(false);
     setStopped(true);
     isAlreadyStopped.set(true);
 

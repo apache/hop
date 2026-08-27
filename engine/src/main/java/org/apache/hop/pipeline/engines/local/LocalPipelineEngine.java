@@ -341,6 +341,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         // Flag the pipeline as finished even if an exception was thrown
         setFinished(true);
       }
+      // Record the failure so the pipeline is reported as failed rather than as a clean finish.
+      flagPreparationFailure(e);
       throw e;
     }
   }
