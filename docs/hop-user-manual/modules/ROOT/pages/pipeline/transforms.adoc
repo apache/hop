@@ -80,6 +80,7 @@ Those are explained once in xref:pipeline/formatting-values.adoc[Formatting numb
 * xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
 * xref:pipeline/transforms/datagrid.adoc[Data Grid]
 * xref:pipeline/transforms/datasetinput.adoc[Data set input]
+* xref:pipeline/transforms/datasetoutput.adoc[Data set output]
 * xref:pipeline/transforms/data-stream-input.adoc[Data stream input]
 * xref:pipeline/transforms/data-stream-output.adoc[Data stream output]
 * xref:pipeline/transforms/dbimpactinput.adoc[Database impact input]

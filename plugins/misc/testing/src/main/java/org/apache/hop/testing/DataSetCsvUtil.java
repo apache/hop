@@ -18,17 +18,12 @@
 package org.apache.hop.testing;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.lang3.StringUtils;
@@ -223,49 +218,9 @@ public class DataSetCsvUtil {
   public static final void writeDataSetData(
       IVariables variables, DataSet dataSet, IRowMeta rowMeta, List<Object[]> rows)
       throws HopException {
-
-    String dataSetFilename = dataSet.getActualDataSetFilename(variables);
-
-    IRowMeta setRowMeta = rowMeta.clone(); // just making sure
-    setValueFormats(setRowMeta);
-
-    OutputStream outputStream = null;
-    BufferedWriter writer = null;
-    CSVPrinter csvPrinter = null;
-    try {
-
-      FileObject file = HopVfs.getFileObject(dataSetFilename);
-      outputStream = HopVfs.getOutputStream(file, false);
-      writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-      CSVFormat csvFormat = getCsvFormat(rowMeta);
-      csvPrinter = new CSVPrinter(writer, csvFormat);
-
+    try (DataSetCsvWriter writer = new DataSetCsvWriter(variables, dataSet, rowMeta)) {
       for (Object[] row : rows) {
-        List<String> strings = new ArrayList<>();
-        for (int i = 0; i < setRowMeta.size(); i++) {
-          IValueMeta valueMeta = setRowMeta.getValueMeta(i);
-          String string = valueMeta.getString(row[i]);
-          strings.add(string);
-        }
-        csvPrinter.printRecord(strings);
-      }
-      csvPrinter.flush();
-
-    } catch (Exception e) {
-      throw new HopException("Unable to write data set to file '" + dataSetFilename + "'", e);
-    } finally {
-      try {
-        if (csvPrinter != null) {
-          csvPrinter.close();
-        }
-        if (writer != null) {
-          writer.close();
-        }
-        if (outputStream != null) {
-          outputStream.close();
-        }
-      } catch (IOException e) {
-        throw new HopException("Error closing file " + dataSetFilename + " : ", e);
+        writer.writeRow(row);
       }
     }
   }

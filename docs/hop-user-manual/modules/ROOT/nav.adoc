@@ -129,6 +129,7 @@ under the License.
 *** xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
 *** xref:pipeline/transforms/datagrid.adoc[Data Grid]
 *** xref:pipeline/transforms/datasetinput.adoc[Data set input]
+*** xref:pipeline/transforms/datasetoutput.adoc[Data set output]
 *** xref:pipeline/transforms/dbimpactinput.adoc[Database impact input]
 *** xref:pipeline/transforms/ddl.adoc[DDL Generator]
 *** xref:pipeline/transforms/validator.adoc[Data Validator]

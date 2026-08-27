@@ -28,7 +28,7 @@ After processing the result of the pipeline is compared to a data set that has b
 
 == Related Plugins
 
-None/All
+xref:pipeline/transforms/datasetinput.adoc[Data set input], xref:pipeline/transforms/datasetoutput.adoc[Data set output]
 
 == Options
 

@@ -1,0 +1,64 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Data set output transform writes rows to a data set in the metadata
+
+= image:transforms/icons/datasetoutput.svg[Data set output transform Icon, role="image-doc-icon"] Data set output
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Data set output transform writes incoming rows to a xref:metadata-types/data-set.adoc[data set].
+Use it to generate or regenerate unit-test input and golden data sets from a pipeline, including headless `hop-run` executions, without hard-coding the CSV path in a Text file output transform.
+
+Rows are passed through unchanged so you can keep using the stream after the write.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
+!===
+|===
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|The name of this transform
+|Data set name|The name of the data set to write to. Select an existing data set or type a new name when (re)creating.
+|Folder name|Optional folder for the CSV file. Leave empty to use `'${HOP_DATASETS_FOLDER}'`.
+|CSV filename|Base filename of the data set CSV file. Leave empty to use the data set name with a `.csv` extension when (re)creating, or the filename stored on an existing data set.
+|(Re)create data set|When enabled, the transform creates or overwrites the data set metadata from the incoming row metadata, then writes the CSV (including a header-only file when the stream is empty).
+|Validate against existing data set|When (re)create is disabled, load the existing data set and fail if the incoming field count, names (same order, case-insensitive) or types do not match. Extra input fields are ignored when validation is off; missing data set fields are written empty.
+|===
+
+== Notes
+
+* The CSV is overwritten on every run.
+* Multiple copies of this transform are not supported.
+* (Re)create takes precedence over validate.
+* The GUI context actions *Create data set* and *Write rows to data set* remain available for interactive use on the pipeline canvas.
