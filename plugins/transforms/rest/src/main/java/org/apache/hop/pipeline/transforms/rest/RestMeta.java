@@ -55,7 +55,8 @@ import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
     description = "i18n::Rest.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::RestMeta.keyword",
-    documentationUrl = "/pipeline/transforms/rest.html")
+    documentationUrl = "/pipeline/transforms/rest.html",
+    classLoaderGroup = "rest")
 public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private static final Class<?> PKG = RestMeta.class;
 

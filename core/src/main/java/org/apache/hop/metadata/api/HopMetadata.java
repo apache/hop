@@ -68,4 +68,14 @@ public @interface HopMetadata {
    * @return true if global replace is supported
    */
   boolean supportsGlobalReplace() default false;
+
+  /**
+   * The class loader group this metadata type belongs to. Plugins sharing a group share a single
+   * class loader. Set this when transforms or actions in another plugin folder use this metadata
+   * class directly: without it the metadata class gets loaded twice (once by the metadata plugin,
+   * once by the consumer's class loader) and the two copies are not assignment compatible.
+   *
+   * @return the class loader group, empty for the default one-class-loader-per-plugin-folder
+   */
+  String classLoaderGroup() default "";
 }
