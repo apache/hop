@@ -553,7 +553,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
 
   /** Stores the selection of fields that are added to the stream */
   @HopMetadataProperty(groupKey = "outputFields", key = "outputField")
-  private List<OutputField> outputFields;
+  private List<OutputField> outputFields = new ArrayList<>();
 
   /**
    * @return the selection of fields added to the stream
@@ -597,6 +597,14 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     int n = outputFields.size();
 
     Object[] methodDescriptor = getMethodDescriptor();
+    if (methodDescriptor == null) {
+      throw new HopTransformException(
+          "Unknown or missing JDBC metadata method '"
+              + getMethodName()
+              + "' in transform '"
+              + origin
+              + "'");
+    }
     IValueMeta[] fields = (IValueMeta[]) methodDescriptor[2];
     int m = fields.length;
     IValueMeta field;
