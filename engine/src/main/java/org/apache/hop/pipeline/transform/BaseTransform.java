@@ -1540,10 +1540,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           break;
         }
       }
+      // Nothing is logged here on purpose. The row was handled: it went down the error handling
+      // hop that is by definition connected in this branch, carrying the description as a field,
+      // so anyone who wants it in the log routes that hop to a "Write to log" transform. An error
+      // hop is a hop, and the engine does not log the rows travelling down an ordinary one either.
+      // The unhandled case below is the one that is genuinely an error.
       incrementLinesRejected();
-      if (isLoggingErrorDescriptions() && !Utils.isEmpty(errorDescriptions)) {
-        logError(errorDescriptions);
-      }
     } else if (transformErrorMeta.isEnabled()) {
       String name =
           Objects.nonNull(transformErrorMeta.getTargetTransform())
@@ -2739,19 +2741,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   public void logRowlevel(String message, Object... arguments) {
     log.logRowlevel(message, arguments);
-  }
-
-  /**
-   * Whether rejected-row error descriptions should be written to the log.
-   *
-   * <p>Transforms that can produce a very large number of validation/rejection errors may override
-   * this to reduce log volume. Error rows are still sent to the error handling hop when configured.
-   *
-   * @return true when error descriptions should be logged (default)
-   * @since 2.19.0
-   */
-  protected boolean isLoggingErrorDescriptions() {
-    return true;
   }
 
   /**

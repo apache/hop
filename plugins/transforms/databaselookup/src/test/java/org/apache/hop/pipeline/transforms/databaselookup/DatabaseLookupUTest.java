@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -80,6 +81,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -574,6 +576,81 @@ class DatabaseLookupUTest {
     data.trimIndexes = new ArrayList<>();
 
     assertNull(transform.lookupValues(input, new Object[] {1L}));
+  }
+
+  /**
+   * The description of a rejected row is a field on the error stream and is written to the log at
+   * debug level, so a bare "No lookup found" repeated per row carries no information. It has to
+   * name the table and the key values that missed, and the error-fields column has to be filled in
+   * rather than left null.
+   */
+  @Test
+  void lookupValues_ErrorDescriptionNamesTheTableAndTheKeysThatMissed() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setCached(false);
+    meta.getLookup().setSchemaName("public");
+    meta.getLookup().setTableName("customers");
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "=", "ID"));
+    meta.getLookup()
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "name",
+                "",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    when(db.getLookup(anyBoolean())).thenReturn(null);
+
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, createNoneDbMeta());
+    doReturn(false).when(transform).isRowLevel();
+    when(mockHelper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    doNothing()
+        .when(transform)
+        .putError(
+            any(IRowMeta.class),
+            any(Object[].class),
+            anyLong(),
+            anyString(),
+            anyString(),
+            anyString());
+
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaInteger("id"));
+    transform.setInputRowMeta(input);
+
+    data.db = db;
+    data.keynrs = new int[] {0};
+    data.keynrs2 = new int[] {-1};
+    data.lookupMeta = new RowMeta();
+    data.lookupMeta.addValueMeta(new ValueMetaInteger("id"));
+    data.returnMeta = new RowMeta();
+    data.returnMeta.addValueMeta(new ValueMetaString("name"));
+    data.outputRowMeta = input.clone();
+    data.outputRowMeta.addValueMeta(new ValueMetaString("name"));
+    data.returnValueTypes = new int[] {IValueMeta.TYPE_STRING};
+    data.nullif = new Object[] {null};
+    data.trimIndexes = new ArrayList<>();
+
+    // the row is rejected, not passed on
+    assertNull(transform.lookupValues(input, new Object[] {1L}));
+
+    ArgumentCaptor<String> description = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<String> fieldNames = ArgumentCaptor.forClass(String.class);
+    verify(transform)
+        .putError(
+            any(IRowMeta.class),
+            any(Object[].class),
+            anyLong(),
+            description.capture(),
+            fieldNames.capture(),
+            eq("DBL001"));
+
+    assertEquals("No lookup found in public.customers for id=1", description.getValue());
+    assertEquals("id", fieldNames.getValue());
   }
 
   @Test

@@ -902,22 +902,10 @@ class ValidatorTest {
   }
 
   @Test
-  void testErrorDescriptionsAreLoggedByDefault() throws Exception {
+  void testRejectedRowReachesTheErrorHandlingHop() throws Exception {
     ValidatorMeta meta = createMeta(nullNotAllowed());
     Validator validator = createInitializedValidator(meta, stringRowMeta(), true);
 
-    assertTrue(validator.isLoggingErrorDescriptions());
-  }
-
-  @Test
-  void testSuppressErrorLogStopsTheLogLinePerRejectedRow() throws Exception {
-    ValidatorMeta meta = createMeta(nullNotAllowed());
-    meta.setSuppressingErrorLog(true);
-    Validator validator = createInitializedValidator(meta, stringRowMeta(), true);
-
-    assertFalse(validator.isLoggingErrorDescriptions());
-
-    // the error row itself still has to reach the error handling hop
     doReturn(new Object[] {null}).doReturn(null).when(validator).getRow();
     stubPutError(validator);
 
