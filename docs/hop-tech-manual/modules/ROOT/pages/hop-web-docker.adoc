@@ -1,0 +1,349 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Recommended volume mounts, environment variables, and upgrade procedure for the official apache/hop-web Docker image. Persist projects and HOP_CONFIG_FOLDER outside the image.
+:openvar: ${
+:closevar: }
+:TOC:
+
+[[HopWebDocker]]
+= Hop Web in Docker: persistence and upgrades
+
+The official Hop Web image is https://hub.docker.com/r/apache/hop-web[`apache/hop-web`].
+It is a long-lived GUI: people design pipelines and workflows in the browser, so **project files, Hop configuration, and security files are operator data**.
+They must live on the host or on a volume, not only inside the container filesystem.
+
+This page answers how to run that image in an upgrade-friendly way:
+
+* which folders to **preserve** when you pull a new tag
+* which content should **always come from the new image**
+* how to add **JDBC drivers** (and why you should not persist `plugins/`)
+* which **volume mounts** to use, with a small Compose example
+
+The xref:manual::hop-gui/hop-web.adoc[Hop Web user manual] covers starting the image, authentication modes, and the Security UI.
+The xref:docker-container.adoc[Docker container] page covers the sibling `apache/hop` image (hop-run and Hop Server).
+
+== Two images, two persistence models
+
+[cols="1,2,2"]
+|===
+| Image | Role | Where the project lives
+
+| `apache/hop-web`
+| Hop Gui in a browser (authoring)
+| **Outside** the image: a host folder or a volume.
+The baked-in `default` and `samples` projects are only a starter layout.
+
+| `apache/hop`
+| hop-run (short-lived) or Hop Server (long-lived)
+| Often **in a derived image** for production execution.
+That is xref:manual::hop-server/deploy-project-image.adoc[Project in a Docker image], not a Hop Web upgrade procedure.
+|===
+
+Do not `docker commit` a Hop Web container that has work saved in it, and do not treat the image's own `config/projects/` tree as your project home.
+
+== What always comes from the new image
+
+Replace the container (new tag) to pick these up.
+Do **not** bind-mount over them:
+
+[cols="2,3"]
+|===
+| Content | Typical path in `apache/hop-web`
+
+| Tomcat 10 and the JRE
+| image base
+
+| Hop Web application (RAP UI, servlets)
+| `/usr/local/tomcat/webapps/ROOT` (except the config tree you choose to persist)
+
+| Plugin tree
+| `/usr/local/tomcat/plugins` (`HOP_PLUGIN_BASE_FOLDERS`).
+The official image already copies the standard Hop plugin set.
+
+| Bundled JDBC drivers
+| `/usr/local/tomcat/jdbc-drivers`
+
+| Starter `default` and `samples` projects
+| `{openvar}HOP_CONFIG_FOLDER{closevar}/projects/` in the *image* config.
+Fine for a throwaway `docker run`.
+Not a place to save work.
+|===
+
+Pin an image tag (`apache/hop-web:2.20.0`, or the release you actually run).
+Do not use `latest` in production.
+
+== What to persist
+
+The Hop Web image passes `HOP_CONFIG_FOLDER` and `HOP_AUDIT_FOLDER` into the JVM as system properties (`CATALINA_OPTS` in `docker/web.Dockerfile`).
+Override those variables and mount volumes at the paths you choose.
+
+Recommended container paths below are conventions for this page and the Compose example; any path is fine as long as env vars and mounts match.
+
+[cols="1,2,2,3"]
+|===
+| Persist | Image default | Recommended container path | Holds
+
+| `{openvar}HOP_CONFIG_FOLDER{closevar}`
+| `/usr/local/tomcat/webapps/ROOT/config`
+| `/hop/config`
+| `hop-config.json` (GUI preferences, **project and environment registrations**), and `security/` (see <<hop-web-docker-auth>>)
+
+| Project homes
+| `{openvar}HOP_CONFIG_FOLDER{closevar}/projects/default` and `.../samples`
+| `/hop/projects/<name>`
+| `project-config.json`, `metadata/`, pipelines (`.hpl`), workflows (`.hwf`), and the rest of the project
+
+| Environment JSON
+| none
+| `/hop/config/environments/` or next to the project when the file is non-secret
+| Hostnames, paths, xref:manual::metadata-types/variable-resolver/index.adoc[resolvers].
+Keep secrets out of git.
+
+| `{openvar}HOP_AUDIT_FOLDER{closevar}`
+| `/tmp/hop-web-audit`
+| `/hop/audit`
+| Per-user UI state under `users/<username>/`
+
+| Extra JDBC (optional)
+| bundled drivers only
+| `/hop/jdbc` *or* download on start
+| Restricted drivers (Oracle, MySQL, MariaDB, DB2, …).
+See <<JDBCDriversAndPlugins>>.
+|===
+
+`hop-config.json` stores **project names and home paths**.
+It does not store the pipelines.
+If `projectHome` still points at `{openvar}HOP_CONFIG_FOLDER{closevar}/projects/samples`, you are editing starter samples inside config.
+Register real projects with homes under `/hop/projects/…`.
+
+The entrypoint (`docker/resources/run-web.sh`) can register one project on every start from `HOP_PROJECT_NAME` and `HOP_PROJECT_FOLDER`.
+That is enough for a single-project demo.
+It does **not** keep GUI settings, extra projects, users, or project-access rules.
+A shared Hop Web instance should persist the whole `HOP_CONFIG_FOLDER`.
+
+== Configure with environment variables
+
+Point Hop at the persisted layout.
+Do not copy files into the image and commit a new layer for day-to-day work.
+
+[cols="2,3"]
+|===
+| Variable | Role
+
+| `HOP_CONFIG_FOLDER`
+| Directory that contains `hop-config.json` and `security/`.
+Set to the config volume, for example `/hop/config`.
+
+| `HOP_AUDIT_FOLDER`
+| Per-user audit / UI state.
+Set to the audit volume, for example `/hop/audit`.
+
+| `HOP_PROJECT_NAME` / `HOP_PROJECT_FOLDER`
+| Optional.
+The entrypoint registers this project in `hop-config.json` when the folder exists.
+Use together with a mount at `HOP_PROJECT_FOLDER`.
+
+| `HOP_PROJECT_CONFIG_FILE_NAME`
+| Project config file name (default `project-config.json`).
+
+| `HOP_PARENT_PROJECT_NAME` / `HOP_PARENT_PROJECT_FOLDER`
+| Optional one-level parent project.
+See xref:manual::hop-gui/hop-web.adoc[Hop Web].
+
+| `HOP_ENVIRONMENT_NAME` / `HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`
+| Optional lifecycle environment registered on start.
+Paths are **inside** the container.
+
+| `HOP_SHARED_JDBC_FOLDERS`
+| Comma-separated JDBC directories.
+Keep `/usr/local/tomcat/jdbc-drivers` and add `/hop/jdbc` when you mount extra jars.
+
+| `HOP_DRIVERS_DOWNLOAD` / `HOP_DRIVERS_ACCEPT_LICENSE`
+| Download restricted drivers on start.
+See xref:docker-container.adoc#DownloadingJDBCDrivers[Downloading JDBC drivers].
+
+| `HOP_WEB_SECURITY_MODE` and related `HOP_WEB_*` variables
+| Authentication bootstrap.
+See xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
+|===
+
+.Permissions
+The process user is `hop` (UID and GID **501** in `docker/web.Dockerfile`).
+Bind-mounted host directories must be writable by that user.
+Named volumes created by Docker usually already are.
+
+.Do not
+* Bind-mount over `/usr/local/tomcat/plugins`.
+* Mount an **empty** directory onto the *default* config path (`/usr/local/tomcat/webapps/ROOT/config`) unless you intend to hide the image `hop-config.json` and the starter projects.
+Prefer a separate path (`/hop/config`) so the image tree stays available for reference.
+* Use the `/config` mount (Tomcat `tomcat-users.xml` / `web.xml` overlay) for environment JSON or project files.
+That path is only for xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[EXTERNAL] container authentication.
+
+[[JDBCDriversAndPlugins]]
+== JDBC drivers and plugins
+
+=== Plugins
+
+The official `apache/hop-web` and `apache/hop` images already include the standard Hop plugin set.
+A new image tag is how you pick up plugin fixes and additions.
+
+Do not persist `plugins/` on a volume: an old tree mixed with a new image is a common upgrade failure.
+
+Custom or xref:manual::hop-tools/hop-marketplace.adoc[marketplace] extras that are not in the image can be:
+
+* installed in a small derived image (`FROM apache/hop-web`, then `hop marketplace apply` or `COPY` the plugin), or
+* re-applied after you recreate the container (`hop marketplace apply -f …` in the new container).
+
+Plugin installs in Hop Web affect the shared server installation for every user; they are not per-session.
+
+=== JDBC
+
+Apache Hop does not redistribute drivers with a restricted license (Oracle, MySQL, MariaDB, IBM DB2, and others).
+Use one of:
+
+. **Download on start** — set `HOP_DRIVERS_DOWNLOAD` (and `HOP_DRIVERS_ACCEPT_LICENSE=true` for restricted drivers).
+Jars are written into `HOP_SHARED_JDBC_FOLDERS`.
+They are ephemeral unless that folder is itself a volume.
+See xref:docker-container.adoc#DownloadingJDBCDrivers[Downloading JDBC drivers].
+
+. **Mount extra jars** — put vendor jars on the host and mount them at `/hop/jdbc`:
++
+[source,bash]
+----
+HOP_SHARED_JDBC_FOLDERS=/usr/local/tomcat/jdbc-drivers,/hop/jdbc
+----
++
+Keep the image's `/usr/local/tomcat/jdbc-drivers` on that list so bundled drivers still load.
+
+[[hop-web-docker-auth]]
+== Authentication, authorization, and project mapping
+
+From Hop 2.20, Hop Web can authenticate users and map them to built-in roles (Admin, User, Operator, Read-only), and the Projects plugin can **restrict which projects a user may open**.
+
+Full behaviour, login modes (`NONE`, `EXTERNAL`, `BASIC`, `OAUTH2`), and the Security UI are documented in xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
+For upgrades, the important fact is **where those files live**.
+
+All of the following sit under `{openvar}HOP_CONFIG_FOLDER{closevar}/security/`:
+
+[cols="1,3"]
+|===
+| File | Purpose
+
+| `security-config.json`
+| Authentication mode, OAuth settings, container/IdP role → Hop role mappings, login welcome message
+
+| `users.json`
+| Hop-managed BASIC users (PBKDF2 hashes)
+
+| `projects-access.json`
+| Project access rules (user, Hop role, or IdP/LDAP group → project names or all projects)
+|===
+
+Persist `{openvar}HOP_CONFIG_FOLDER{closevar}` and you keep project registrations, users, and “who may open which project” across image upgrades.
+
+Configure project mapping in the GUI: **Configuration → Security → Projects** (xref:manual::hop-gui/hop-web.adoc#hop-web-project-access[project access]).
+Enable filtering, add rules (`user` / `role` / `group`), and either allow all projects for that subject or list names.
+Security administrators (`security.manage`) always see every project.
+When no rule matches, `defaultAllowAll` decides whether the user sees all projects or none.
+
+Put Hop Web behind TLS in any shared deployment.
+Do not use the seeded demo users (`HOP_WEB_SEED_DEMO_USERS`) outside local development.
+
+== Recommended mounts and Compose example
+
+[cols="1,2,3"]
+|===
+| Host / volume | Container path | Why
+
+| Named volume `hop-config`
+| `/hop/config`
+| Survives `docker compose down` without `-v`.
+Holds `hop-config.json` and `security/`.
+
+| Bind mount `./projects`
+| `/hop/projects`
+| Git working tree on the host.
+Commit pipelines from the host, not from inside the image.
+
+| Named volume `hop-audit`
+| `/hop/audit`
+| Last opened files and similar per-user UI state
+
+| Bind mount `./jdbc` (optional)
+| `/hop/jdbc`
+| Extra JDBC jars.
+Skip this mount if you use `HOP_DRIVERS_DOWNLOAD`.
+|===
+
+The same layout works under Kubernetes: persist those four paths with PersistentVolumeClaims or ConfigMaps/Secrets for environment JSON.
+The Helm chart does not yet declare them for you.
+
+.Upgrade-friendly Hop Web
+[source,yaml]
+----
+services:
+  hop-web:
+    image: apache/hop-web:<tag>
+    ports:
+      - "8080:8080"
+    environment:
+      HOP_CONFIG_FOLDER: /hop/config
+      HOP_AUDIT_FOLDER: /hop/audit
+      HOP_PROJECT_NAME: my-project
+      HOP_PROJECT_FOLDER: /hop/projects/my-project
+      HOP_SHARED_JDBC_FOLDERS: /usr/local/tomcat/jdbc-drivers,/hop/jdbc
+      HOP_WEB_SECURITY_MODE: BASIC
+      HOP_WEB_ADMIN_USER: admin
+      HOP_WEB_ADMIN_PASSWORD: {openvar}HOP_WEB_ADMIN_PASSWORD{closevar}
+    volumes:
+      - hop-config:/hop/config
+      - hop-audit:/hop/audit
+      - ./projects:/hop/projects
+      - ./jdbc:/hop/jdbc
+
+volumes:
+  hop-config:
+  hop-audit:
+----
+
+Replace `<tag>` with a released Hop version.
+Create `./projects/my-project` (with `project-config.json`) on the host before the first start, and ensure it is writable by UID 501.
+Set `HOP_WEB_ADMIN_PASSWORD` in the environment or a Compose `.env` file; do not commit it.
+
+For OAuth or Tomcat EXTERNAL authentication, keep this volume layout and follow xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication] for the extra settings.
+If you use EXTERNAL, mount `tomcat-users.xml` and `web.xml` at `/config/` and do not put project files there.
+
+== Upgrade procedure
+
+. Commit or back up `./projects` (and keep the Compose file and secrets).
+. Change the image tag in Compose to the new Hop version.
+. `docker compose pull`
+. `docker compose up -d` — same volumes and environment variables.
+. Open http://localhost:8080/ui, confirm the project switcher, and (if authentication is enabled) sign in and check project access.
+
+Do **not** copy `plugins/`, `webapps/ROOT`, or `/opt/hop` out of the old container into the new one.
+
+Hop configuration from a previous 2.x version is expected to load.
+If you added marketplace plugins that are not in the new image, re-apply the install spec after the container is up.
+
+== See also
+
+* xref:manual::hop-gui/hop-web.adoc[Hop Web] — start the image, roles, BASIC / OAuth / EXTERNAL
+* xref:docker-container.adoc[Docker container] — `apache/hop` (hop-run and Hop Server)
+* xref:manual::installation-configuration.adoc[Installation and configuration] — desktop `HOP_CONFIG_FOLDER` (same idea, no container)
+* xref:manual::projects/index.adoc[Projects and environments]
+* xref:manual::hop-server/deploy-project-image.adoc[Project in a Docker image] — baking a project into `apache/hop` for execution

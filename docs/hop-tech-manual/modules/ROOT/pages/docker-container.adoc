@@ -31,6 +31,9 @@ It's a **Hop Docker image** supporting both **short-lived** and **long-lived** s
 A short-lived setup executes a pipeline or workflow and stops right after.
 A long-lived setup starts a Hop server and waits for work.
 
+This page describes `apache/hop` (hop-run and Hop Server).
+For the Hop Web GUI image (`apache/hop-web`), including which folders to persist across upgrades, see xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
+
 == Operating system
 
 The docker container runs a minimal Linux system called https://hub.docker.com/_/alpine[Alpine].
@@ -48,6 +51,7 @@ The Linux user used to execute in the container is `hop` and the group is `hop` 
 |```/files```
 | This volume has read-write permissions for Linux user `hop`.
 You can use it for example to mount a folder that contains the **hop and project config** as well as the **workflows and pipelines**.
+Do not persist project files only under `/opt/hop`; that tree is replaced when you pull a new image.
 
 |```/home/hop```
 | The initial working directory location of the docker container.
@@ -69,6 +73,18 @@ Use one of: `None`, `Error`, `Minimal`, `Basic`, `Detailed`, `Debug` or `Rowleve
 |```HOP_LOG_PATH```
 |`/opt/hop/hop.err.log`
 | The file path to the Hop log file.
+
+|```HOP_CONFIG_FOLDER```
+|
+| Folder that contains `hop-config.json` (project and environment registrations, GUI settings).
+Leave unset to use the image default (`config/` under the Hop install).
+Point this at a mounted volume if the configuration must survive replacing the container.
+See xref:hop-web-docker.adoc[Hop Web in Docker] for the Hop Web layout; the same variable applies here.
+
+|```HOP_AUDIT_FOLDER```
+|
+| Folder for GUI / execution audit data.
+Point this at a mounted volume to keep it across container recreation.
 
 |```HOP_PROJECT_NAME```
 |
@@ -392,6 +408,7 @@ In this example, a project is created in the container and exposed in the Hop Py
 
 NOTE: The option to run commands is available from Hop version 2.18.
 
+[[DownloadingJDBCDrivers]]
 == Downloading JDBC drivers
 
 Apache Hop ships the JDBC drivers it is allowed to redistribute (PostgreSQL, MS SQL Server, Snowflake, ...). Drivers with a restricted license - Oracle, MySQL, MariaDB, IBM DB2 and others - are *not* bundled and have to be added to the `lib/jdbc` folder yourself.
