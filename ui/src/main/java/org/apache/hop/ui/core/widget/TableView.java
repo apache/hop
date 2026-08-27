@@ -2516,8 +2516,21 @@ public class TableView extends Composite {
     if (id == SWT.YES) {
       table.removeAll();
       new TableItem(table, SWT.NONE);
-      if (!readonly) {
-        composite.getDisplay().asyncExec(() -> edit(0, 1));
+      // Only start editing when the user cleared an already-visible grid. Programmatic refill
+      // before a dialog is opened (run options Parameters/Variables) must not grab focus.
+      Shell parentShell = composite.getShell();
+      if (!readonly
+          && parentShell != null
+          && !parentShell.isDisposed()
+          && parentShell.isVisible()) {
+        composite
+            .getDisplay()
+            .asyncExec(
+                () -> {
+                  if (!table.isDisposed() && table.getItemCount() > 0) {
+                    edit(0, 1);
+                  }
+                });
       }
       this.setModified(); // timh
     }
