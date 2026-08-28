@@ -32,6 +32,7 @@ The configuration perspective groups configuration options in the following tabs
 
 * **General** options control the behavior of Apache Hop and Hop Gui.
 * **Look &amp; Feel** control how Hop Gui looks like on your desktop or in your browser.
+* **Regional settings** control the interface language and, independently, the number, currency and date formats used by Hop GUI, `hop-run` and `hop-server`.
 * **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins (including Explorer and xref:hop-gui/perspective-search.adoc[Search] limits).
 * **System variables** allows you to set and configure Apache Hop global variables.
 
@@ -113,11 +114,67 @@ The `Look & Feel` configuration options allow you to configure various aspects o
 |Hide the menu bar|Do not show the menu bar. If enabled (default), the menu options are available from the Apache Hop icon in Hop GUI's upper left corner. |yes
 |Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down, navigate to a column, manage xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views] etc in table grids (e.g. in preview dialogs, transform configuration options)|yes
 |Dark mode|use dark mode. On Hop Web and Windows you can toggle this; on macOS and other desktop platforms it follows the operating system theme. Changing it in Hop Web reloads the page to apply the theme. |N/A
+|===
+
+=== Regional settings
+
+The `Regional settings` configuration tab controls two things that used to be tied together: the language of the Hop GUI interface, and the number, currency and date formats used throughout Hop.
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
 |Preferred Language
-a|the default language to use in Hop GUI.
+a|the language used for the Hop GUI interface. This does not affect number, currency or date formats; those are controlled separately below.
 
 TIP: Check the https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation Contribution Guide] to translate Apache Hop to your native language.|English (US)
+
+|Use operating system regional settings
+a|use the number, currency and date formats of the operating system Hop is running on, regardless of the preferred language. This is the default.
+|yes
+
+|Override regional settings
+a|use an explicitly chosen locale for number, currency and date formats, regardless of the preferred language. The dropdown lists every locale available on the platform, not only the languages Hop is translated into, and is only enabled when this option is ticked.
+|no
 |===
+
+`Use operating system regional settings` and `Override regional settings` are mutually exclusive: ticking one disables the other. `Use operating system regional settings` is ticked on a fresh installation, so number, currency and date formats come from the machine Hop runs on unless you say otherwise. Unticking both makes the regional settings follow the preferred language, which is the way to have the interface language and the formats move together.
+
+Two preview panels below the options show sample dates, times, numbers and currency for the current selection, updated live as options change, before anything is saved.
+
+Whichever source is in effect, operating system or an explicit override, applies both to Hop GUI and to headless runs: `hop-run` and `hop-server` read the regional configuration of the machine they run on and honor it the same way the GUI does.
+
+NOTE: Because this setting applies to the whole running process, in Hop Web it belongs to the installation rather than to each connected user. This is already true of the preferred language today, so it is not a new limitation introduced by this feature. Saving this tab applies the preferred language to the whole running process as well, so in Hop Web it affects every connected session until the server restarts.
+
+==== How regional settings are resolved
+
+The preferred language and the regional settings are two independent settings, and keeping them apart is the point of this tab. The preferred language governs the interface: menus, dialogs, button captions and messages. The regional settings govern the formats data is rendered with: the decimal separator, the grouping separator, the currency symbol, and the date and time patterns. An English interface with Italian numbers is a valid and supported combination, and so is the reverse.
+
+The table below shows which locale ends up driving the formats, for each source and for each side of Hop.
+
+[%header, width=90%, cols="2,2,2"]
+|===
+|Source |Hop GUI |`hop-run` and `hop-server`
+
+|`Use operating system regional settings` (the default)
+|operating system
+|operating system
+
+|`Override regional settings`
+|the chosen locale
+|the chosen locale
+
+|Neither option ticked
+|preferred language
+|preferred language
+|===
+
+Previously the resolution was not consistent. In Hop GUI the preferred language decided the formats, except on fields carrying explicit decimal, grouping or currency symbols, which followed the operating system; `hop-run` and `hop-server` always used the operating system, so the editor and production could disagree on the same pipeline. The formats now come from the operating system everywhere unless an explicit choice is made, and the preferred language never affects them.
+
+On an existing installation whose configuration is left untouched, nothing changes for `hop-run` and `hop-server`. In Hop GUI, fields that carry explicit decimal, grouping or currency symbols are unchanged as well; fields left blank, and dates with no explicit mask, now follow the operating system where they previously followed the preferred language.
+
+The reason to untick both options is reproducibility against the preferred language: it makes Hop GUI, `hop-run` and `hop-server` agree on that language, so a number converted to a string reads the same in the editor and in production, and any hash computed over such a string stays stable between them.
+
+The setting belongs to the Hop installation, not to a project or a pipeline, and it applies to the whole running process rather than to an individual project or session. In Hop Web that means the whole server, and therefore every connected session, shares one set of regional settings, updated live whenever the configuration tab is saved.
 
 === Plugins
 

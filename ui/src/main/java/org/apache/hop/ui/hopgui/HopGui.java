@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -85,7 +84,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.HopVfsNamespace;
 import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.i18n.RegionalSettings;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -592,7 +591,7 @@ public class HopGui
       if (!HopLogStore.isInitialized()) {
         HopLogStore.init();
       }
-      Locale.setDefault(LanguageChoice.getInstance().getDefaultLocale());
+      RegionalSettings.getInstance().applyGui();
 
       HopGui hopGui = HopGui.getInstance();
       hopGui.getCommandLineArguments().addAll(Arrays.asList(arguments));

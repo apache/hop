@@ -313,9 +313,9 @@ public class ValueMetaBase implements IValueMeta {
     this.storageType = STORAGE_TYPE_NORMAL;
     this.sortedDescending = false;
     this.outputPaddingEnabled = false;
-    this.decimalSymbol = "" + Const.DEFAULT_DECIMAL_SEPARATOR;
-    this.groupingSymbol = "" + Const.DEFAULT_GROUPING_SEPARATOR;
-    this.currencySymbol = "" + Const.DEFAULT_CURRENCY_SYMBOL;
+    this.decimalSymbol = "" + Const.getDefaultDecimalSeparator();
+    this.groupingSymbol = "" + Const.getDefaultGroupingSeparator();
+    this.currencySymbol = "" + Const.getDefaultCurrencySymbol();
     this.dateFormatLocale = Locale.getDefault();
     this.collatorDisabled = true;
     this.collatorLocale = Locale.getDefault();
@@ -1296,7 +1296,13 @@ public class ValueMetaBase implements IValueMeta {
 
       // Do we have a locale?
       //
-      if (dateFormatLocale == null || dateFormatLocale.equals(Locale.getDefault())) {
+      // Compared against the FORMAT category, not against Locale.getDefault(): that one carries the
+      // interface language, so a locale deliberately picked on the field would be dismissed as "no
+      // locale set" whenever it happened to match the language, and the field would silently follow
+      // the regional settings instead of the choice.
+      //
+      if (dateFormatLocale == null
+          || dateFormatLocale.equals(Locale.getDefault(Locale.Category.FORMAT))) {
         if (mask != null) {
           dateFormat = new SimpleDateFormat(mask);
         }

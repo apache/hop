@@ -24,12 +24,9 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.GlobalMessages;
-import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -124,7 +121,6 @@ public class ConfigGuiOptionsTab {
   private Button wMetricsPanelShowDataVolume;
   private Button wMetricsPanelShowDataVolumeIn;
   private Button wMetricsPanelShowDataVolumeOut;
-  private Combo wDefaultLocale;
 
   private Combo wAutoLayoutDirection;
   private Text wAutoLayoutLayerSpacing;
@@ -268,15 +264,6 @@ public class ConfigGuiOptionsTab {
       // Reload global zoom
       String globalZoomFactor = Integer.toString((int) (props.getGlobalZoomFactor() * 100)) + '%';
       wGlobalZoom.setText(globalZoomFactor);
-
-      // Reload default locale
-      int idxDefault =
-          Const.indexOfString(
-              LanguageChoice.getInstance().getDefaultLocale().toString(),
-              GlobalMessages.localeCodes);
-      if (idxDefault >= 0) {
-        wDefaultLocale.select(idxDefault);
-      }
     } finally {
       // Always reset the flag
       isReloading = false;
@@ -336,24 +323,6 @@ public class ConfigGuiOptionsTab {
     lookComp = wLookComp;
     lookScrolledComposite = sLookComp;
     lastControl = expandToolbar;
-
-    // Preferred language - at the top
-    Control[] defaultLocaleControls =
-        createComboField(
-            wLookComp,
-            "EnterOptionsDialog.DefaultLocale.Label",
-            null,
-            GlobalMessages.localeDescr,
-            lastControl,
-            margin);
-    wDefaultLocale = (Combo) defaultLocaleControls[1];
-    int idxDefault =
-        Const.indexOfString(
-            LanguageChoice.getInstance().getDefaultLocale().toString(), GlobalMessages.localeCodes);
-    if (idxDefault >= 0) {
-      wDefaultLocale.select(idxDefault);
-    }
-    lastControl = wDefaultLocale;
 
     // Hide menu bar - at the top
     wHideMenuBar =
@@ -1351,15 +1320,6 @@ public class ConfigGuiOptionsTab {
         dataVolumeVarEnabled && wMetricsPanelShowDataVolumeIn.getSelection());
     props.setMetricsPanelShowDataVolumeOut(
         dataVolumeVarEnabled && wMetricsPanelShowDataVolumeOut.getSelection());
-
-    int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
-    if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {
-      // Code hardening, when the combo-box ever gets in a strange state,
-      // use the first language as default (should be English)
-      defaultLocaleIndex = 0;
-    }
-    String defaultLocale = GlobalMessages.localeCodes[defaultLocaleIndex];
-    LanguageChoice.getInstance().setDefaultLocale(EnvUtil.createLocale(defaultLocale));
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       // Hop Web: store theme in audit (per-user); followSystem = follow OS/browser dark mode
