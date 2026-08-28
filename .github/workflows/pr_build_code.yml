@@ -31,6 +31,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
       - uses: actions/checkout@v2
@@ -59,6 +60,10 @@ jobs:
   # Add a UI and run the UI tests only
   ui-tests:
     runs-on: ubuntu-latest
+    # A hung SWT event loop used to sit here until GitHub's 6 hour default cut it off, with no
+    # log to show for it. The harness watchdog and the surefire fork timeout should fire long
+    # before this does; if this one trips, the hang is outside the test JVM.
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v2

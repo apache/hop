@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.history.AuditManager;
@@ -33,6 +34,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.SWTBot;
@@ -57,6 +59,19 @@ public abstract class SwtBotTestBase {
    * {@code -Dswtbot.test.holdMillis=5000}.
    */
   private static final String HOLD_MILLIS_PROPERTY = "swtbot.test.holdMillis";
+
+  /**
+   * Hard ceiling (milliseconds) on a single scene/dialog. A UI test that never finishes - a modal
+   * box nobody dismissed, a worker that walked away from the event loop - would otherwise hold the
+   * build until CI kills the job hours later. When it expires the harness tears the windows down
+   * and fails the test with the thread stacks, e.g. {@code -Dswtbot.test.timeoutMillis=300000}.
+   */
+  private static final String TIMEOUT_MILLIS_PROPERTY = "swtbot.test.timeoutMillis";
+
+  private static final long DEFAULT_TIMEOUT_MILLIS = 120_000L;
+
+  /** How often the {@link Pump} wakes the display on its own. */
+  private static final int PUMP_INTERVAL_MILLIS = 50;
 
   protected static Display display;
 
@@ -162,11 +177,20 @@ public abstract class SwtBotTestBase {
                 }
               },
               "swtbot-worker");
+      // Daemon: a worker wedged in a syncExec must never keep the surefire JVM alive.
+      worker.setDaemon(true);
       worker.start();
 
-      pumpUntil(done);
-      join(worker);
-      rethrow(error.get());
+      Pump pump = new Pump(worker);
+      try {
+        pump.until(done::get);
+        // The worker sets `done` from its finally, so it is a hair away from exiting. Keep pumping
+        // rather than joining outright: its last act may still need the UI thread.
+        pump.until(() -> !worker.isAlive());
+      } finally {
+        pump.close();
+      }
+      rethrow(pump.timedOut() ? pump.timeoutFailure() : error.get());
     } finally {
       if (!shell.isDisposed()) {
         shell.dispose();
@@ -219,18 +243,31 @@ public abstract class SwtBotTestBase {
                 }
               },
               "swtbot-worker");
+      worker.setDaemon(true);
       worker.start();
 
+      // The pump's deadline fires from whichever event loop is dispatching at the time - the
+      // dialog's own blocking loop below, or a modal box nested inside it - so a window nobody
+      // closed ends the test instead of parking the build.
+      Pump pump = new Pump(worker);
       Throwable openError = null;
       try {
-        // Runs the dialog's own event loop on the UI thread until the dialog closes.
-        blockingOpener.accept(parent);
-      } catch (Throwable t) {
-        openError = t;
+        try {
+          // Runs the dialog's own event loop on the UI thread until the dialog closes.
+          blockingOpener.accept(parent);
+        } catch (Throwable t) {
+          openError = t;
+        }
+        // Keep pumping so the worker's SWTBot calls resolve (or time out) and its cleanup runs.
+        pump.until(() -> !worker.isAlive());
+        drain();
+      } finally {
+        pump.close();
       }
-      // Keep pumping so the worker's SWTBot calls resolve (or time out) and its cleanup runs.
-      pumpUntilThreadDone(worker);
 
+      if (pump.timedOut()) {
+        rethrow(pump.timeoutFailure());
+      }
       rethrow(error.get() != null ? error.get() : openError);
     } finally {
       if (!parent.isDisposed()) {
@@ -254,21 +291,158 @@ public abstract class SwtBotTestBase {
     }
   }
 
-  private void pumpUntil(AtomicBoolean done) {
-    while (!done.get()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
+  /**
+   * Keeps the event loop honest for the length of one scene or dialog, and ends the test if that
+   * takes longer than {@link #TIMEOUT_MILLIS_PROPERTY}.
+   *
+   * <p>Two things run for as long as a pump is open. A heartbeat thread wakes the display every
+   * {@value #PUMP_INTERVAL_MILLIS} ms, and a timer on the UI thread carries the deadline.
+   *
+   * <p>The heartbeat is what makes the rest of this reliable. Waking the loop from the worker's
+   * {@link Display#wake()} alone is a lost-wakeup race: the wake can be consumed by a
+   * readAndDispatch that runs between the loop's condition check and its {@link Display#sleep()},
+   * and that sleep then parks with nobody left to wake it - the worker has already finished. It is
+   * a microsecond-wide window locally and a real hang on a loaded CI runner, where the worker can
+   * be descheduled between its last statement and the thread actually dying. The heartbeat also
+   * gets the deadline timer dispatched on macOS, where a Cocoa run loop does not return for timers
+   * (they are not input sources) and a sleeping display would otherwise never run it.
+   */
+  private final class Pump implements AutoCloseable {
+
+    private final AtomicReference<String> stuckReport = new AtomicReference<>();
+    private final Thread worker;
+    private final Thread heartbeat;
+    private final Runnable deadline;
+
+    private Pump(Thread worker) {
+      this.worker = worker;
+      this.deadline = this::giveUp;
+      this.heartbeat = new Thread(this::beat, "swtbot-heartbeat");
+      heartbeat.setDaemon(true);
+      display.timerExec((int) timeoutMillis(), deadline);
+      heartbeat.start();
+    }
+
+    /**
+     * Pumps the event loop on this (the UI) thread until {@code done} turns true, or we give up.
+     */
+    private void until(BooleanSupplier done) {
+      while (!done.getAsBoolean() && stuckReport.get() == null) {
+        if (!display.readAndDispatch()) {
+          display.sleep();
+        }
       }
+    }
+
+    private boolean timedOut() {
+      return stuckReport.get() != null;
+    }
+
+    private AssertionError timeoutFailure() {
+      return new AssertionError(
+          "SWTBot UI test did not finish within "
+              + timeoutMillis()
+              + " ms; the harness closed the windows so the build could carry on. Where it was "
+              + "stuck:"
+              + System.lineSeparator()
+              + stuckReport.get());
+    }
+
+    private void beat() {
+      while (!Thread.currentThread().isInterrupted()) {
+        try {
+          Thread.sleep(PUMP_INTERVAL_MILLIS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return;
+        }
+        try {
+          if (display.isDisposed()) {
+            return;
+          }
+          display.wake();
+        } catch (SWTException disposedMeanwhile) {
+          return;
+        }
+      }
+    }
+
+    /**
+     * Runs on the UI thread once the deadline passes: records what the threads were doing,
+     * screenshots the display, then closes - and, where a shell ignores that, disposes - every
+     * window so any event loop parked in one returns.
+     */
+    private void giveUp() {
+      if (!stuckReport.compareAndSet(null, describeStuckThreads(worker))) {
+        return;
+      }
+      captureScreenshot("timeout");
+      for (Shell openShell : display.getShells()) {
+        if (!openShell.isDisposed()) {
+          openShell.close();
+        }
+        if (!openShell.isDisposed()) {
+          // A close() the shell vetoed - or never saw, because its own loop is wedged - still has
+          // to go, or the loop we are trying to unblock keeps running.
+          openShell.dispose();
+        }
+      }
+      if (worker.isAlive()) {
+        worker.interrupt();
+      }
+    }
+
+    @Override
+    public void close() {
+      heartbeat.interrupt();
+      display.timerExec(-1, deadline);
     }
   }
 
-  private void pumpUntilThreadDone(Thread worker) {
-    while (worker.isAlive()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
+  private static long timeoutMillis() {
+    return Long.getLong(TIMEOUT_MILLIS_PROPERTY, DEFAULT_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * What the UI thread and the worker were doing when the deadline passed, plus the names of the
+   * other live threads. A hung job leaves nothing else behind, so this travels in the failure
+   * message rather than in output nobody keeps.
+   */
+  private static String describeStuckThreads(Thread worker) {
+    StringBuilder report = new StringBuilder();
+    appendStack(report, "UI thread", Thread.currentThread());
+    appendStack(report, "worker", worker);
+    report.append("other live threads:");
+    for (Thread other : Thread.getAllStackTraces().keySet()) {
+      if (other != Thread.currentThread() && other != worker) {
+        report.append(' ').append(other.getName());
       }
     }
-    drain();
+    return report.toString();
+  }
+
+  private static void appendStack(StringBuilder report, String label, Thread thread) {
+    report
+        .append(label)
+        .append(" [")
+        .append(thread.getName())
+        .append("] ")
+        .append(thread.getState())
+        .append(':')
+        .append(System.lineSeparator());
+    for (StackTraceElement frame : thread.getStackTrace()) {
+      // Drop the frames of the dump itself; the caller wants the frames underneath it.
+      if (frame.getClassName().equals(SwtBotTestBase.class.getName())
+          && (frame.getMethodName().equals("appendStack")
+              || frame.getMethodName().equals("describeStuckThreads"))) {
+        continue;
+      }
+      if (frame.getClassName().equals("java.lang.Thread")
+          && frame.getMethodName().equals("getStackTrace")) {
+        continue;
+      }
+      report.append("\tat ").append(frame).append(System.lineSeparator());
+    }
   }
 
   private void drain() {
@@ -277,18 +451,10 @@ public abstract class SwtBotTestBase {
     }
   }
 
-  private static void join(Thread worker) {
-    try {
-      worker.join();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
   private static final AtomicInteger SCREENSHOT_COUNTER = new AtomicInteger();
 
   /**
-   * Captures the SWT display to {@code screenshots/<TestClass>.<method>-N.png} the moment a UI
+   * Captures the SWT display to {@code target/screenshots/<TestClass>.<method>-N.png} the moment a
    * test's worker thread sees an assertion failure or unexpected exception. We do this here, before
    * the harness's finally tears the dialog/shell down - by the time the SWTBot extension's
    * testFailed runs the UI is gone and its auto-screenshot would just be the empty Xvfb desktop.
@@ -296,6 +462,11 @@ public abstract class SwtBotTestBase {
    * propagates with its full stack trace.
    */
   private static void captureLiveScreenshot(Throwable failure) {
+    captureScreenshot(screenshotName(failure));
+  }
+
+  /** The test frame a failure came from, for use as the screenshot's file name. */
+  private static String screenshotName(Throwable failure) {
     String name = "harness-failure";
     for (StackTraceElement frame : failure.getStackTrace()) {
       String cn = frame.getClassName();
@@ -310,8 +481,14 @@ public abstract class SwtBotTestBase {
         break;
       }
     }
+    return name;
+  }
+
+  private static void captureScreenshot(String name) {
+    // Under target/ so a screenshot never lands in the checked-out tree; CI collects the folder
+    // from wherever it is (the workflow globs **/screenshots/**).
     String path =
-        String.format("screenshots/%s-%d.png", name, SCREENSHOT_COUNTER.incrementAndGet());
+        String.format("target/screenshots/%s-%d.png", name, SCREENSHOT_COUNTER.incrementAndGet());
     try {
       SWTUtils.captureScreenshot(path);
     } catch (Throwable ignored) {

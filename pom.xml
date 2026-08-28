@@ -148,6 +148,7 @@
             --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED
             --add-exports java.base/sun.nio.ch=ALL-UNNAMED</maven-surefire-plugin.argLine>
         <maven-surefire-plugin.forkCount>1</maven-surefire-plugin.forkCount>
+        <maven-surefire-plugin.forkedProcessTimeoutInSeconds>0</maven-surefire-plugin.forkedProcessTimeoutInSeconds>
         <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
         <maven-surefire-plugin.testFailureIgnore>false</maven-surefire-plugin.testFailureIgnore>
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
@@ -401,6 +402,7 @@
                                 -DHOP_AUDIT_FOLDER=${project.build.directory}/audit
                                 ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
+                            <forkedProcessTimeoutInSeconds>${maven-surefire-plugin.forkedProcessTimeoutInSeconds}</forkedProcessTimeoutInSeconds>
                             <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
                             <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
                             <groups>${ui.test.includedGroups}</groups>
@@ -792,6 +794,7 @@
         <profile>
             <id>uitest</id>
             <properties>
+                <maven-surefire-plugin.forkedProcessTimeoutInSeconds>1200</maven-surefire-plugin.forkedProcessTimeoutInSeconds>
                 <ui.test.excludedGroups></ui.test.excludedGroups>
                 <ui.test.includedGroups>uitest</ui.test.includedGroups>
             </properties>
