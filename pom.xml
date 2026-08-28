@@ -650,6 +650,20 @@
                 <module>assemblies</module>
             </modules>
         </profile>
+        <!-- Selenium tests that drive Hop Web in a container. Opt-in: they need Docker
+             and take minutes, so they stay out of the normal build. Run them with
+             mvn -Pwebtest -pl web-tests test -->
+        <profile>
+            <id>webtest</id>
+            <activation>
+                <property>
+                    <name>webtest</name>
+                </property>
+            </activation>
+            <modules>
+                <module>web-tests</module>
+            </modules>
+        </profile>
         <profile>
             <id>assembly</id>
             <activation>

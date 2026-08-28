@@ -1427,6 +1427,30 @@ public class ContextDialog extends Dialog {
     return wSearch;
   }
 
+  /**
+   * The filtered item whose name is exactly the search text, ignoring case, or null if there is
+   * none.
+   *
+   * <p>Relevance scoring on its own does not put it first: searching for "Null if" scores "If null"
+   * higher, and "Table input" scores "Spark lake table input" higher, so typing a transform's full
+   * name and pressing Enter gave you a different transform - and one whose name shares words with
+   * others could not be selected by typing at all when it landed in another category.
+   */
+  private Item exactNameMatch(String text) {
+    for (Item item : filteredItems) {
+      if (isExactName(item.getAction().getName(), text)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  /** Whether a name is exactly what was searched for, ignoring case and surrounding space. */
+  static boolean isExactName(String name, String searchText) {
+    String wanted = Const.trim(searchText);
+    return StringUtils.isNotEmpty(wanted) && wanted.equalsIgnoreCase(Const.trim(name));
+  }
+
   public void filter(String text) {
 
     if (text == null) {
@@ -1451,8 +1475,23 @@ public class ContextDialog extends Dialog {
       filteredItems.sort((a, b) -> Double.compare(scores.get(b), scores.get(a)));
     }
 
+    // An item called exactly what was typed comes first, whatever it scored.
+    //
+    Item exactMatch = exactNameMatch(text);
+    if (exactMatch != null) {
+      filteredItems.remove(exactMatch);
+      filteredItems.add(0, exactMatch);
+    }
+
     if (filteredItems.isEmpty()) {
       selectItem(null, false);
+    }
+
+    // Typing something's full name selects that thing, even if the selection was already on a
+    // result that survived the narrowing.
+    //
+    else if (exactMatch != null) {
+      selectItem(exactMatch, false);
     }
 
     // if selected item is exclude, change to a new default selection: first in the list

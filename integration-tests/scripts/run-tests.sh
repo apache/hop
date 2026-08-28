@@ -376,7 +376,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   #cleanup project testcases
   rm -f "${TMP_TESTCASES}"
 
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
 
     # If there is a file called disabled.txt the project is disabled, unless the run explicitly
     # opted in with INCLUDE_DISABLED=true (see run-tests-docker.sh).
