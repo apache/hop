@@ -23,20 +23,27 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.database.types.IValueBinding;
 import org.apache.hop.core.database.types.StandardJdbcTypeMapper;
+import org.apache.hop.core.database.validation.ColumnValueConstraints;
+import org.apache.hop.core.database.validation.StringLengthUnit;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 
 /** Contains PostgreSQL specific information through static final members */
 @DatabaseMetaPlugin(
@@ -1267,5 +1274,86 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   public void addDefaultOptions() {
     setSupportsBooleanDataType(true);
     setSupportsTimestampDataType(true);
+  }
+
+  @Override
+  public String getDatabaseCharacterSet(Database database) throws HopDatabaseException {
+    if (database == null) {
+      return "UTF8";
+    }
+    try {
+      RowMetaAndData row = database.getOneRow("SHOW server_encoding");
+      if (row != null && row.getData() != null && row.getRowMeta() != null) {
+        String encoding = row.getRowMeta().getString(row.getData(), 0);
+        if (!Utils.isEmpty(encoding)) {
+          return encoding;
+        }
+      }
+    } catch (Exception e) {
+      // Fall through to UTF8; validation still runs with a sensible default.
+    }
+    return "UTF8";
+  }
+
+  @Override
+  public void enrichColumnValueConstraints(
+      ColumnValueConstraints spec, DatabaseColumn column, String characterSet) {
+    ColumnValueConstraints.enrichFromJdbc(spec, column);
+    if (spec == null || column == null) {
+      return;
+    }
+    String nativeType = nativeTypeKey(column.getNativeTypeName());
+    switch (nativeType) {
+      case "varchar", "character varying" -> {
+        spec.setLengthUnit(StringLengthUnit.CHARACTERS);
+        spec.setRejectNulChar(true);
+      }
+      case "bpchar", "char", "character" -> {
+        spec.setLengthUnit(StringLengthUnit.CHARACTERS);
+        spec.setRejectNulChar(true);
+      }
+      case "text", "citext" -> {
+        spec.setStringMaxLength(-1);
+        spec.setRejectNulChar(true);
+      }
+      case "uuid" -> spec.setUuid(true);
+      case "json", "jsonb" -> spec.setJson(true);
+      case "int2", "smallint", "smallserial", "serial2" -> {
+        spec.setIntegerMin(-32768L);
+        spec.setIntegerMax(32767L);
+      }
+      case "int4", "integer", "int", "serial", "serial4" -> {
+        spec.setIntegerMin((long) Integer.MIN_VALUE);
+        spec.setIntegerMax((long) Integer.MAX_VALUE);
+      }
+      case "int8", "bigint", "bigserial", "serial8" -> {
+        spec.setIntegerMin(Long.MIN_VALUE);
+        spec.setIntegerMax(Long.MAX_VALUE);
+      }
+      case "numeric", "decimal" -> {
+        if (column.getPrecision() <= 0) {
+          spec.setNumericPrecision(-1);
+          spec.setNumericScale(-1);
+        } else {
+          spec.setNumericPrecision(column.getPrecision());
+          spec.setNumericScale(Math.max(column.getScale(), 0));
+        }
+      }
+      default -> {
+        // JDBC defaults from enrichFromJdbc already applied.
+      }
+    }
+  }
+
+  private static String nativeTypeKey(String nativeTypeName) {
+    if (Utils.isEmpty(nativeTypeName)) {
+      return "";
+    }
+    String name = nativeTypeName.trim().toLowerCase(java.util.Locale.ROOT);
+    int paren = name.indexOf('(');
+    if (paren > 0) {
+      name = name.substring(0, paren).trim();
+    }
+    return name;
   }
 }

@@ -1,0 +1,101 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Database value validation transform checks incoming values against a target table so you can see which rows, columns and values would fail an insert.
+
+= image:transforms/icons/databasevaluevalidation.svg[Database value validation transform Icon, role="image-doc-icon"] Database value validation
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Database value validation transform checks incoming rows against a target table *before* you write them.
+
+Relational inserts often fail on one column of one row among millions, with a database message that does not name the stream field or the value. This transform loads the table's column types, lengths, nullability and encoding at start, then checks every mapped field on every row. Valid rows are passed through unchanged. Invalid rows are sent to an xref:pipeline/errorhandling.adoc[error handling] hop with *all* failing fields of that row in one go.
+
+Typical use: Source -> Database value validation -> xref:pipeline/transforms/tableoutput.adoc[Table Output] / xref:pipeline/transforms/insertupdate.adoc[Insert / Update] / xref:pipeline/transforms/postgresbulkloader.adoc[PostgreSQL bulk loader], with an error hop from the validator to a text file or reject table.
+
+This is complementary to xref:pipeline/transforms/validator.adoc[Data Validator], which uses hand-authored rules. Database value validation keeps the rules in sync with the live table.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
+!===
+|===
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Unique name of this transform in the pipeline
+|Connection|Relational database connection of the table to validate against
+|Schema|Optional schema of the target table. You can use a variable, for example `'${SCHEMA_NAME}'`.
+|Table|Name of the table to validate against. You can use a variable, for example `'${TABLE_NAME}'`.
+|Browse table|Select the schema and table from the database
+|Get fields / Enter mapping|Map stream fields to table columns. When the mapping is empty, stream fields are matched to table columns by name.
+|Omit values from error messages|Show failed values as `?` so they do not appear in the log or on the error hop
+|Fail if required columns are not mapped|Fail at start when a NOT NULL table column without a default is missing from the mapping
+|Error separator|String used to concatenate multiple field errors on the same row. Default is `'; '`.
+|===
+
+== Checks
+
+The checks that run depend on the database dialect. A generic JDBC profile always covers nullability, string length, numeric precision/scale, integer ranges and type conversion. PostgreSQL also checks:
+
+* `varchar` / `char` length in Unicode characters (not Java `String.length()`)
+* `NUL` (`U+0000`) in text, which PostgreSQL reports as `invalid byte sequence for encoding "UTF8": 0x00`
+* values that cannot be encoded in the database character set (`SHOW server_encoding`)
+* `numeric(p,s)` overflow (after rounding to scale, matching PostgreSQL)
+* `int2` / `int4` / `int8` ranges
+* UUID format and JSON/JSONB parse
+
+Unique keys, foreign keys and CHECK constraints are *not* pre-flighted. Those still fail at write time.
+
+== Error hop
+
+Enable error handling on this transform. The error description, fields and codes name every failing column on the row:
+
+[options="header"]
+|===
+|Code|Meaning
+|DBV001|Null in a NOT NULL column
+|DBV002|String too long
+|DBV003|Encoding / NUL character
+|DBV004|Numeric overflow
+|DBV005|Type conversion
+|DBV006|Integer out of range
+|DBV007|Invalid UUID
+|DBV008|Invalid JSON
+|===
+
+At the end of the stream the transform logs how many rows were checked, how many were rejected, and error counts per column.
+
+== Notes
+
+* Table metadata is loaded once at start. After that the transform does not talk to the database.
+* An empty mapping matches incoming field names to table columns by name (case-insensitive).
+* If there is no error hop, the first bad row fails the transform, but the message still lists every failing field on that row.

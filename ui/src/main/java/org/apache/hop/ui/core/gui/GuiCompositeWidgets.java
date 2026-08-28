@@ -1775,6 +1775,22 @@ public class GuiCompositeWidgets {
       Control bottom,
       String guiParentId,
       Object sourceData) {
+    return addScrolledComposite(parent, variables, top, bottom, guiParentId, sourceData, null);
+  }
+
+  /**
+   * Same as {@link #addScrolledComposite(Composite, IVariables, Control, Control, String, Object)}
+   * but {@code beforeCreate} runs after the widgets object exists and before fields are built, so
+   * extra groups (a {@code TableView}, for example) can be registered.
+   */
+  public static GuiCompositeWidgets addScrolledComposite(
+      Composite parent,
+      IVariables variables,
+      Control top,
+      Control bottom,
+      String guiParentId,
+      Object sourceData,
+      Consumer<GuiCompositeWidgets> beforeCreate) {
     ScrolledComposite scrolledComposite =
         new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
     scrolledComposite.setMinSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -1799,6 +1815,9 @@ public class GuiCompositeWidgets {
     // We add all the widgets...
     //
     GuiCompositeWidgets widgets = new GuiCompositeWidgets(variables);
+    if (beforeCreate != null) {
+      beforeCreate.accept(widgets);
+    }
     widgets.createCompositeWidgets(sourceData, null, composite, guiParentId, null);
     widgets.setWidgetsContents(sourceData, composite, guiParentId);
     scrolledComposite.setContent(composite);

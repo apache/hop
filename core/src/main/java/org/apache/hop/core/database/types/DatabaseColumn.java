@@ -201,4 +201,14 @@ public final class DatabaseColumn {
   public int getColumnIndex() {
     return columnIndex;
   }
+
+  /**
+   * Describes a column when the caller already has JDBC type information and is not holding a live
+   * {@link ResultSet} or {@link ResultSetMetaData}. Used by value-constraint loading.
+   */
+  public static DatabaseColumn of(
+      String name, int sqlType, String nativeTypeName, int precision, int scale, int displaySize) {
+    return new DatabaseColumn(
+        name, null, sqlType, nativeTypeName, precision, scale, displaySize, true, null, null, -1);
+  }
 }
