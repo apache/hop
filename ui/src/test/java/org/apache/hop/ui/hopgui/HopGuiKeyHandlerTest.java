@@ -33,6 +33,8 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -211,6 +213,24 @@ class HopGuiKeyHandlerTest {
 
     assertFalse(keyHandler.attachTo(textVar));
     verify(textVar, never()).addKeyListener(keyHandler);
+  }
+
+  @Test
+  void doesNotAttachToWidgetsThatOnlyPassOnTheirListeners() {
+    // MetaSelectionLine and StyledTextComp delegate addListener() instead of addKeyListener(), so
+    // they were not recognised and opening a metadata editor threw a NullPointerException.
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    Shell shell = mock(Shell.class);
+    MetaSelectionLine<?> metaSelectionLine = mock(MetaSelectionLine.class);
+    when(metaSelectionLine.getShell()).thenReturn(shell);
+    StyledTextComp styledTextComp = mock(StyledTextComp.class);
+    when(styledTextComp.getShell()).thenReturn(shell);
+    keyHandler.addHandledShell(null, shell);
+
+    assertFalse(keyHandler.attachTo(metaSelectionLine));
+    verify(metaSelectionLine, never()).addKeyListener(keyHandler);
+    assertFalse(keyHandler.attachTo(styledTextComp));
+    verify(styledTextComp, never()).addKeyListener(keyHandler);
   }
 
   @Test
