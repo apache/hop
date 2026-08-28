@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -28,13 +29,18 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeButtonsListener;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -45,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class DatabaseValueValidationDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DatabaseValueValidationMeta.class;
@@ -117,12 +124,24 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
           }
         });
     widgets.setCompositeButtonsListener(
-        sourceObject -> {
-          widgets.getWidgetsContents(
-              input, DatabaseValueValidationMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-          persistFieldsTable();
+        new IGuiPluginCompositeButtonsListener() {
+          @Override
+          public void buttonPressed(Object sourceObject) {
+            widgets.getWidgetsContents(
+                input, DatabaseValueValidationMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+            persistFieldsTable();
+            browseTargetTable();
+          }
+
+          @Override
+          public void afterButtonPressed(Object sourceObject) {
+            writeWidgetText("schemaName", Const.NVL(input.getSchemaName(), ""));
+            writeWidgetText("tableName", Const.NVL(input.getTableName(), ""));
+          }
         });
 
+    populateFieldsTable();
+    refreshCombos();
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
@@ -220,6 +239,92 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
     input.setFields(fields);
   }
 
+  /**
+   * Open the database explorer on the transform dialog shell and write the selected schema/table
+   * into the Target widgets. Must run from the composite button listener (not the annotated Meta
+   * method): {@code setWidgetsContents} after a Meta mutation re-reads widgets that are still empty
+   * and would wipe the selection.
+   */
+  private void browseTargetTable() {
+    String connectionName = variables.resolve(readWidgetText("connectionName"));
+    if (Utils.isEmpty(connectionName)) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      box.setMessage(
+          BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Message"));
+      box.setText(
+          BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Title"));
+      box.open();
+      return;
+    }
+    try {
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+      if (databaseMeta == null) {
+        databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(connectionName);
+      }
+      if (databaseMeta == null) {
+        MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        box.setMessage(
+            BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Message"));
+        box.setText(
+            BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Title"));
+        box.open();
+        return;
+      }
+      DatabaseExplorerDialog explorer =
+          new DatabaseExplorerDialog(
+              shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases());
+      explorer.setSelectedSchemaAndTable(readWidgetText("schemaName"), readWidgetText("tableName"));
+      if (explorer.open()) {
+        String schema = Const.NVL(explorer.getSchemaName(), "");
+        String table = Const.NVL(explorer.getTableName(), "");
+        input.setSchemaName(schema);
+        input.setTableName(table);
+        writeWidgetText("schemaName", schema);
+        writeWidgetText("tableName", table);
+        input.setChanged();
+        refreshCombos();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "DatabaseValueValidationDialog.BrowseError.Title"),
+          BaseMessages.getString(PKG, "DatabaseValueValidationDialog.BrowseError.Message"),
+          e);
+    }
+  }
+
+  private String readWidgetText(String widgetId) {
+    if (widgets == null) {
+      return "";
+    }
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control instanceof TextVar textVar) {
+      return Const.NVL(textVar.getText(), "");
+    }
+    if (control instanceof Text text) {
+      return Const.NVL(text.getText(), "");
+    }
+    if (control instanceof MetaSelectionLine<?> line) {
+      return Const.NVL(line.getText(), "");
+    }
+    return "";
+  }
+
+  private void writeWidgetText(String widgetId, String value) {
+    if (widgets == null) {
+      return;
+    }
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    String text = Const.NVL(value, "");
+    if (control instanceof TextVar textVar) {
+      textVar.setText(text);
+    } else if (control instanceof Text widget) {
+      widget.setText(text);
+    } else if (control instanceof MetaSelectionLine<?> line) {
+      line.setText(text);
+    }
+  }
+
   private void refreshCombos() {
     String[] streamNames = new String[0];
     try {
@@ -236,8 +341,14 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
 
     String[] tableNames = new String[0];
     try {
-      widgets.getWidgetsContents(input, DatabaseValueValidationMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-      IRowMeta tableFields = input.loadTableFields(variables, metadataProvider);
+      // Read target widgets into a snapshot. Copying them onto {@code input} here races with
+      // {@code setWidgetsContents} after Browse: connection setText fires Modify while schema
+      // and table widgets are still empty and would wipe the explorer result.
+      DatabaseValueValidationMeta snapshot = new DatabaseValueValidationMeta();
+      snapshot.setConnectionName(readWidgetText("connectionName"));
+      snapshot.setSchemaName(readWidgetText("schemaName"));
+      snapshot.setTableName(readWidgetText("tableName"));
+      IRowMeta tableFields = snapshot.loadTableFields(variables, metadataProvider);
       if (tableFields != null) {
         tableNames = tableFields.getFieldNames();
       }

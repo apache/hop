@@ -43,11 +43,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.swt.SWT;
 
 @Getter
 @Setter
@@ -123,6 +118,11 @@ public class DatabaseValueValidationMeta
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
+  /**
+   * Annotated so the Target tab shows a Browse button. The explorer is opened from {@code
+   * DatabaseValueValidationDialog} so it can use the transform dialog shell and write the schema
+   * and table widgets directly.
+   */
   @GuiWidgetElement(
       id = "browseTable",
       order = "0400",
@@ -134,54 +134,7 @@ public class DatabaseValueValidationMeta
       group = GROUP_TARGET,
       groupOrder = "0100")
   public void browseTable(Object object) {
-    if (!(object instanceof DatabaseValueValidationMeta meta)) {
-      return;
-    }
-    HopGui hopGui = HopGui.getInstance();
-    if (hopGui == null) {
-      return;
-    }
-    try {
-      String name = hopGui.getVariables().resolve(Const.NVL(meta.getConnectionName(), ""));
-      if (Utils.isEmpty(name)) {
-        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_ERROR);
-        box.setMessage(
-            BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Message"));
-        box.setText(
-            BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Title"));
-        box.open();
-        return;
-      }
-      DatabaseMeta databaseMeta =
-          hopGui.getMetadataProvider().getSerializer(DatabaseMeta.class).load(name);
-      if (databaseMeta == null) {
-        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_ERROR);
-        box.setMessage(
-            BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Message"));
-        box.setText(
-            BaseMessages.getString(PKG, "DatabaseValueValidationDialog.ConnectionMissing.Title"));
-        box.open();
-        return;
-      }
-      DatabaseExplorerDialog explorer =
-          new DatabaseExplorerDialog(
-              hopGui.getShell(),
-              SWT.NONE,
-              hopGui.getVariables(),
-              databaseMeta,
-              List.of(databaseMeta));
-      explorer.setSelectedSchemaAndTable(meta.getSchemaName(), meta.getTableName());
-      if (explorer.open()) {
-        meta.setSchemaName(Const.NVL(explorer.getSchemaName(), ""));
-        meta.setTableName(Const.NVL(explorer.getTableName(), ""));
-      }
-    } catch (Exception e) {
-      new ErrorDialog(
-          hopGui.getShell(),
-          BaseMessages.getString(PKG, "DatabaseValueValidationDialog.BrowseError.Title"),
-          BaseMessages.getString(PKG, "DatabaseValueValidationDialog.BrowseError.Message"),
-          e);
-    }
+    // no-op: DatabaseValueValidationDialog.browseTargetTable() handles the click
   }
 
   @HopMetadataProperty(
