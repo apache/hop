@@ -1,0 +1,141 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The plugin types that decide what data looks like and where it comes from: value types, database dialects, type rules, compression, VFS and data streams.
+[[PluginTypes-DataConnectivity]]
+= Data and connectivity
+
+The shared mechanics — discovery, annotation attributes, classloading, how a plugin gets into the distribution — are on the xref:plugin-types/index.adoc[plugin types overview].
+
+== Value type
+
+A value type is a data type in the row stream: String, Integer, Date, Timestamp, JSON, and so on.
+Adding one is rare and has consequences everywhere, because every transform that touches a field of that type has to cope with it.
+
+Annotation:: `@ValueMetaPlugin`
+Implement:: `IValueMeta`, in practice by extending `ValueMetaBase`
+Plugin type:: `ValueMetaPluginType`, id `VALUEMETA`
+Examples:: `core/src/main/java/org/apache/hop/core/row/value` for the built-ins, `plugins/valuetypes` for the pluggable ones
+Details:: xref:value-types.adoc[Value types]
+
+The `id` in the annotation is the numeric type constant as a string, and it is written into pipeline files, so it is permanent.
+There is no allocation registry: the built-ins use low numbers, the shipped plugins use `20` for Avro and `32` for UUID, and two plugins picking the same id collide in ways that are hard to diagnose.
+
+== Database
+
+A database plugin teaches Hop to speak to one database: how to build a JDBC URL, which driver to load, what its SQL dialect looks like, and how its column types map onto Hop values.
+Around fifty ship with Hop and writing another is one of the more common reasons to extend it.
+
+Annotation:: `@DatabaseMetaPlugin`
+Implement:: `IDatabase`, in practice by extending `BaseDatabaseMeta`
+Plugin type:: `DatabasePluginType`, id `DATABASE`
+Examples:: `plugins/databases`
+Details:: xref:database/index.adoc[Database plugins]
+
+Two things are specific to this type:
+
+* The annotation uses `type` and `typeDescription` instead of `id` and `name`.
+`type` is what ends up in the metadata of a connection.
+* The JDBC driver is usually *not* shipped with the plugin, for licensing reasons.
+Drivers are picked up from `lib/jdbc`, which `DatabasePluginType` adds as an extra library folder (configurable with `HOP_SHARED_JDBC_FOLDERS`).
+A bulk loader transform living in the same module needs the same `classLoaderGroup` as the dialect to see the driver.
+
+== Database type rules
+
+Type rules describe how a column of a database becomes a Hop value and how a Hop value becomes a column definition.
+They are separate from the dialect for one reason: a rule plugin can name the dialects it applies to, so you can correct or extend the type mapping of a dialect you do not own without forking it.
+
+Annotation:: `@DatabaseTypeRulesPlugin`
+Implement:: `IDatabaseTypeRuleProvider`
+Plugin type:: `DatabaseTypeRulesPluginType`, id `DATABASE_TYPE_RULES`
+Details:: xref:database/column-types.adoc[Column types and type rules] and xref:database/extending-another-dialect.adoc[Extending a dialect you don't own]
+
+The `dialects` and `valueTypes` attributes scope the rules; an empty `dialects` means the rules apply everywhere.
+`getTypeRules()` returns the list of `IDatabaseTypeRule` objects that do the actual work.
+
+== Compression
+
+A compression provider is what fills the "Compression" dropdown in the file transforms.
+Hop ships None, GZip, Zip, Snappy and Hadoop Snappy.
+
+Annotation:: `@CompressionPlugin`
+Implement:: `ICompressionProvider`
+Plugin type:: `CompressionPluginType`, id `COMPRESSION`
+Examples:: `engine/src/main/java/org/apache/hop/core/compress`
+
+The interface is small and symmetric:
+
+[source,java]
+----
+CompressionInputStream createInputStream(InputStream in) throws IOException;
+CompressionOutputStream createOutputStream(OutputStream out) throws IOException;
+boolean supportsInput();
+boolean supportsOutput();
+String getDefaultExtension();
+----
+
+A codec that only decompresses returns false from `supportsOutput()` and is then offered on input only.
+The two stream classes are thin wrappers extending `CompressionInputStream` / `CompressionOutputStream`; the `getDefaultExtension()` value is what output transforms append to the filename.
+
+== VFS
+
+Hop addresses every file through Apache VFS, so adding support for a new kind of storage means adding a VFS provider.
+This is how `s3://`, `azure://`, `gs://`, `hdfs://`, `ftp://` and `sftp://` work.
+
+Annotation:: `@VfsPlugin`
+Implement:: `IVfs`
+Plugin type:: `VfsPluginType`, id `VFS`
+Examples:: `plugins/tech/azure`, `plugins/tech/google`, `plugins/tech/aws`, `plugins/tech/ftp`, `plugins/tech/sftp`
+
+[source,java]
+----
+@VfsPlugin(type = "azure", typeDescription = "Azure VFS plugin", classLoaderGroup = "vfs-azure")
+public class AzureVfsPlugin implements IVfs {
+  public String[] getUrlSchemes() { return new String[] {"azure", "azfs"}; }
+  public FileProvider getProvider() { return new AzureFileProvider(); }
+  public Map<String, FileProvider> getProviders(IVariables variables) { ... }
+}
+----
+
+`getUrlSchemes()` is the list of URL prefixes the plugin claims.
+`getProvider()` returns the plain provider.
+`getProviders(IVariables)` is the interesting one: it returns *named* providers, one per configured metadata object, which is how a named connection becomes its own URL scheme (`myconnection://path/to/file`).
+
+[IMPORTANT]
+====
+Named VFS connections register as global schemes on one shared VFS manager.
+Keep the metadata classes and the VFS classes in the same `classLoaderGroup`, or the metadata object loaded by one classloader will not match the one the provider expects.
+====
+
+== Data stream
+
+A data stream is a named source or target of rows that lives outside a pipeline: rows go in on one side and come out on the other, potentially in another process or on another machine.
+The Arrow plugin uses it for Arrow files and Arrow Flight.
+
+Annotation:: `@DataStreamPlugin`
+Implement:: `IDataStream`
+Plugin type:: `DataStreamPluginType`, id `DATA_STREAM`
+Examples:: `plugins/tech/arrow/src/main/java/org/apache/hop/arrow/datastream`
+
+The interface is a blocking row pipe:
+
+`initialize(variables, metadataProvider, writing, dataStreamMeta)`:: set up, told whether this end is reading or writing
+`setRowMeta(...)` / `getRowMeta()`:: the writer declares the layout first, the reader blocks until it is available
+`writeRow(...)` / `setOutputDone()`:: the writing side
+`readRow()`:: the reading side, blocking, returning null at the end
+`close()`:: tear down
+
+The settings of a data stream are held in a `DataStreamMeta` metadata object, so the plugin is chosen from a dropdown the same way a run configuration engine is.

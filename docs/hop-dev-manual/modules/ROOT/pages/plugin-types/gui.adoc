@@ -1,0 +1,138 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The plugin types that extend the Hop GUI: GUI plugins, perspectives, file types, search analysers and dialog tabs.
+[[PluginTypes-Gui]]
+= GUI
+
+These four — five, counting the two dialog tab types — are the plugin types registered by `HopGuiEnvironment.init()`, so they only exist when the Hop GUI is running.
+The shared mechanics are on the xref:plugin-types/index.adoc[plugin types overview].
+
+Anything that draws SWT widgets belongs in a `org.apache.hop.ui.*` package, so a headless `hop run` never loads it.
+And the Hop GUI also runs in a browser as Hop Web, on RAP rather than SWT — see xref:hopweb/hopweb-antipatterns.adoc[Hop Web antipatterns] for what that rules out.
+
+== GUI plugin
+
+`@GuiPlugin` is the general-purpose way into the Hop GUI.
+A class with that annotation is scanned for further annotations that each contribute one thing: a menu item, a toolbar button, a widget on a settings page, a keyboard shortcut, a right-click action, a tab.
+With over two hundred of them in the codebase, this is the most-used GUI plugin type by a wide margin.
+
+Annotation:: `@GuiPlugin`, plus one or more contribution annotations on its methods and fields
+Implement:: nothing — there is no main class type
+Plugin type:: `GuiPluginType`, id `GUI`
+Details:: xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars]
+
+Most contribution annotations live in `org.apache.hop.core.gui.plugin` and its sub-packages:
+
+`@GuiMenuElement`:: an item in the main menu
+`@GuiToolbarElement` and `@GuiToolbarElementFilter`:: a toolbar button, and a rule for when it is shown
+`@GuiWidgetElement`:: a widget on a settings page or metadata editor
+`@GuiContextAction` and `@GuiContextActionFilter` (in `org.apache.hop.core.action`):: an entry in a context dialog or right-click menu
+`@GuiKeyboardShortcut` / `@GuiOsxKeyboardShortcut`:: a keyboard shortcut
+`@GuiTab`:: a tab on an existing tab folder
+`@GuiCallback`:: a method called on a GUI lifecycle event
+
+Everything is wired by `parentId`, a string naming the host that the contribution attaches to, and ordered by the contribution's own `id`.
+Ids are conventionally prefixed with a number (`20010-search-max-results`) because sorting is alphabetical.
+
+A `@GuiPlugin` class that holds state — a settings page, for instance — needs a static `getInstance()` method, because the GUI works with one shared instance rather than constructing a new one per contribution.
+
+[WARNING]
+====
+A toolbar element *filter* is asked about every button on the toolbar it hooks into, not just your own.
+Return the incoming verdict unchanged for ids you do not own, or you will hide everyone else's buttons.
+xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars] covers this and the mid-construction pitfall in detail.
+====
+
+== Perspective
+
+A perspective is a full screen in the Hop GUI, selected from the icons in the left sidebar: the Data Orchestration, Metadata, Explorer and Execution Information perspectives are all plugins.
+
+Annotation:: `@HopPerspectivePlugin`
+Implement:: `IHopPerspective`
+Plugin type:: `HopPerspectivePluginType`, id `HOP_PERSPECTIVES`
+Examples:: `ui/src/main/java/org/apache/hop/ui/hopgui/perspective`
+Related:: xref:manual::hop-gui/perspective-plugin.adoc[the user manual page on perspectives]
+
+Perspectives are sorted by id, so ids carry a numeric prefix that decides the sidebar order:
+
+[source,java]
+----
+@HopPerspectivePlugin(
+    id = "100-HopExplorerPerspective",
+    name = "i18n::ExplorerPerspective.Name",
+    image = "ui/images/folder.svg",
+    documentationUrl = "/hop-gui/perspective-file-explorer.html")
+@GuiPlugin(...)
+public class ExplorerPerspective implements IHopPerspective, TabClosable { ... }
+----
+
+`initialize(HopGui, Composite)` builds the UI into the composite it is given, `activate()` and `perspectiveActivated()` are called when the user switches to it, and `getSupportedHopFileTypes()` says which file types it can open.
+Most perspectives are also a `@GuiPlugin`, which is how they get their own toolbar and menu entries.
+
+[IMPORTANT]
+====
+A perspective listed in `disabledGuiElements` is skipped entirely by `HopGui`: it is never constructed there and `initialize(...)` is never called.
+But most perspectives are also singletons that assign `instance = this` in their constructor, and other code reaching that singleton will construct one anyway — a perspective object that exists and was never initialized, whose widgets are all null.
+The NPE then surfaces at startup or on the next project switch, and usually from inside a catch block that hides the real one.
+Guard the entry points with an `isInitialized()` check rather than assuming the object implies a usable perspective; the Explorer, Configuration and Execution perspectives all do.
+====
+
+== File type
+
+A file type tells the Hop GUI what a file is: which extensions belong to it, which icon it gets, whether it can be opened, what happens when it is, and how it is searched.
+Pipelines and workflows are file types; so are folders and "no extension" in the Explorer perspective.
+
+Annotation:: `@HopFileTypePlugin`
+Implement:: `IHopFileType`, in practice by extending `HopFileTypeBase`
+Plugin type:: `HopFileTypePluginType`, id `HOP_FILE_TYPES`
+Examples:: `ui/src/main/java/org/apache/hop/ui/hopgui/file`, `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types`
+
+The methods that matter are `getFilterExtensions()` / `getFilterNames()` for the file dialogs, `supportsFile(...)` for recognising one, `getCapabilities()` and `hasCapability(...)` for what the GUI may offer to do with it, `getContextHandlers()` for its right-click actions, and `createSearchable(...)` to make it findable.
+
+`HopFileTypeRegistry` registers this plugin type on demand, so file types are available slightly earlier than the other GUI types.
+
+== Searchable analyser
+
+A searchable analyser teaches the search perspective how to look inside one kind of object.
+There is one per searchable type: pipelines, workflows, and each metadata type.
+
+Annotation:: `@SearchableAnalyserPlugin`
+Implement:: `ISearchableAnalyser<T>`, usually by extending `BaseMetadataSearchableAnalyser<T>`
+Plugin type:: `SearchableAnalyserPluginType`, id `SEARCH_ANALYSER`
+Examples:: `engine/src/main/java/org/apache/hop/core/search`
+
+Two methods: `getSearchableClass()` says which type this analyser handles, and `search(searchable, query)` returns the matches.
+For a metadata type, extending `BaseMetadataSearchableAnalyser` and letting it walk the `@HopMetadataProperty` fields is usually all that is needed.
+
+Matching itself should go through the shared `SearchMatcher` in core rather than a hand-rolled `String.contains`, so that a new searchable type behaves like all the others.
+
+== Pipeline and workflow dialog tabs
+
+Two symmetric plugin types that add a tab to the pipeline or workflow properties dialog.
+
+Annotations:: `@PipelineDialogPlugin` and `@WorkflowDialogPlugin`
+Implement:: `IPipelineDialogPlugin` and `IWorkflowDialogPlugin`
+Plugin types:: `PipelineDialogPluginType` (id `PIPELINE_DIALOG`) and `WorkflowDialogPluginType` (id `WORKFLOW_DIALOG`)
+
+The interfaces are small — `addTab(...)` to build the tab, `getData(...)` to fill it, `ok(...)` to write the values back.
+
+[NOTE]
+====
+Neither plugin type is added to the registry at startup: no environment class calls `PluginRegistry.addPluginType(...)` for them.
+`PipelineDialog` and `WorkflowDialog` do ask the registry for their plugins, so the hook is in place, but as things stand the lookup returns nothing and an annotated class is silently ignored.
+Register the plugin type yourself before the dialog opens if you need this, or use a `@GuiPlugin` with `@GuiTab` instead.
+====

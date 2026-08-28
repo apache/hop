@@ -1,0 +1,375 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Every extension point in Hop is a plugin type. This is the catalogue: what each type does, what you annotate and implement, and what you need to know before you start.
+[[PluginTypes-Index]]
+= Plugin types
+
+Almost everything in Hop is a plugin.
+Transforms and actions are the obvious ones, but so are the data types flowing through a pipeline, the engines that run it, the databases it talks to, the metadata objects you edit in the GUI, the perspectives of that GUI, and the `hop` commands you type in a terminal.
+
+There are just over thirty plugin types.
+This section is the catalogue: one entry per type, saying what it does, what you annotate, what you implement, and the things that are easy to get wrong.
+
+If you already know which type you need, jump straight to its group:
+
+* xref:plugin-types/pipeline-workflow.adoc[Pipelines and workflows] — transforms, actions, engines, partitioners, row distribution
+* xref:plugin-types/data-connectivity.adoc[Data and connectivity] — value types, databases, compression, VFS, data streams
+* xref:plugin-types/metadata-configuration.adoc[Metadata and configuration] — metadata objects, CLI commands and options, variable resolvers, password encoders, authentication
+* xref:plugin-types/execution-observability.adoc[Execution and observability] — extension points, logging, execution information, data samplers, lineage sinks, server servlets
+* xref:plugin-types/gui.adoc[GUI] — GUI plugins, perspectives, file types, search analysers, dialog tabs
+
+The rest of this page is the part that is the same for all of them.
+
+== How a plugin is found
+
+There is no registration file to edit and no service loader.
+A plugin is a class with an annotation, in a jar, in a folder Hop looks at.
+
+Discovery works in two passes, both driven by a https://smallrye.io/jandex/[Jandex] annotation index:
+
+Native plugins::
+Everything on the classpath whose jar carries a `META-INF/jandex.idx`.
+This is how the plugins built into `hop-core`, `hop-engine` and `hop-ui` are found.
+
+Plugin folders::
+Every jar under `plugins/` (configurable with the `HOP_PLUGIN_BASE_FOLDERS` variable, default `plugins`) that carries a `META-INF/jandex.idx`.
+This is how everything in the `plugins/` folder of the distribution is found, and how anything a user drops in later is found.
+
+[IMPORTANT]
+====
+No index, no plugin.
+The index is produced by the `jandex-maven-plugin`, which the Hop root pom already binds for every module, so a plugin inside the Hop repository gets one for free.
+A plugin built outside the Hop repository has to add the plugin itself — see xref:porting-kettle-plugins.adoc[Porting Kettle plugins] for the snippet.
+After a build you should see `META-INF/jandex.idx` inside the plugin jar.
+====
+
+Each plugin found in a plugin folder gets its own `URLClassLoader` covering the plugin jar plus the jars in its `lib/` folder, with the Hop classloader as parent.
+Two consequences worth remembering:
+
+* Anything already shipped in `lib/core` must *not* be shipped again inside the plugin — the child classloader sees the parent's copy, and a duplicate is at best waste and at worst a subtle version conflict.
+* Two plugins that need to see each other's classes (a database dialect and its bulk loader, an SFTP connection type and the actions using it) must declare the same `classLoaderGroup`.
+Plugins in one group share a single classloader.
+
+== The registry
+
+All of this ends up in one place:
+
+[source,java]
+----
+PluginRegistry.getInstance()
+----
+
+The registry keeps the plugins per type, along with the classloaders it created for them, so a plugin is loaded once no matter how many times it is asked for.
+You look plugins up by type and id, and load their main class:
+
+[source,java]
+----
+PluginRegistry registry = PluginRegistry.getInstance();
+IPlugin plugin = registry.findPluginWithId(TransformPluginType.class, "TableInput");
+ITransformMeta meta = registry.loadClass(plugin, ITransformMeta.class);
+----
+
+The registry is filled by the environment classes at startup, and which environment you start decides which plugin types exist:
+
+`HopClientEnvironment.init()`:: the eight core types — logging, value types, databases, database type rules, extension points, password encoders, variable resolvers and VFS.
+`HopEnvironment.init()`:: the above plus everything engine-side: transforms, actions, engines, metadata, server servlets, and the rest.
+`HopGuiEnvironment.init()`:: the above plus the four GUI types.
+
+That layering is why a headless tool that only calls `HopClientEnvironment.init()` cannot load transforms, and why a plugin type is useless until something adds it with `PluginRegistry.addPluginType(...)`.
+
+== What every plugin type has in common
+
+Each plugin type is a class implementing `IPluginType<T extends Annotation>`, in practice by extending `BasePluginType<T>`.
+It declares two things:
+
+[source,java]
+----
+@PluginMainClassType(ITransformMeta.class)   // the interface your class must implement
+@PluginAnnotationType(Transform.class)       // the annotation that marks your class
+public class TransformPluginType extends BasePluginType<Transform> { ... }
+----
+
+The annotations differ per type, but most of them draw from the same set of attributes, which the plugin type copies into the `IPlugin` object in the registry:
+
+|===
+|Attribute |Meaning
+
+|`id`
+|Unique within the plugin type, and written into `.hpl` / `.hwf` files, so it is effectively permanent.
+A comma-separated list is allowed (`id = "New,Old"`) to merge a plugin with a predecessor while staying backwards compatible with existing files.
+
+|`name`
+|Shown in the user interface.
+
+|`description`
+|Shown in the user interface, usually as a tooltip.
+
+|`image`
+|Path to the SVG icon inside the plugin jar. See xref:svg-files.adoc[SVG Files].
+
+|`categoryDescription` / `category`
+|Groups the plugin in the UI, for transforms, actions, metadata types and perspectives.
+
+|`keywords`
+|Extra search terms for the context dialog and the search perspective.
+
+|`documentationUrl`
+|Path on the Hop documentation site, opened by the help button in the dialog.
+
+|`classLoaderGroup`
+|Plugins sharing this string share one classloader.
+
+|`isSeparateClassLoaderNeeded`
+|A fresh classloader per instantiation. Rarely what you want.
+|===
+
+Any of the text attributes can be an i18n key instead of a literal, using a three-part `i18n:<package>:<key>` syntax.
+An empty package means "the package of the annotated class":
+
+[source,java]
+----
+@Transform(
+    id = "DetectEmptyStream",
+    image = "detectemptystream.svg",
+    name = "i18n::DetectEmptyStream.Name",
+    description = "i18n::DetectEmptyStream.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::DetectEmptyStreamMeta.keyword",
+    documentationUrl = "/pipeline/transforms/detectemptystream.html")
+----
+
+See xref:internationalisation.adoc[Internationalisation] for the message bundles behind those keys.
+
+== The catalogue
+
+[cols="2,2,2,4", options="header"]
+|===
+|Plugin type |Annotation |Implement |What it does
+
+4+^s|xref:plugin-types/pipeline-workflow.adoc[Pipelines and workflows]
+
+|`TransformPluginType`
+|`@Transform`
+|`ITransformMeta`
+|A transform: the unit of work in a pipeline.
+
+|`TransformEngineSupportPluginType`
+|`@TransformEngineSupport`
+|(fragment)
+|Declares engine compatibility for a transform you do not own.
+
+|`ActionPluginType`
+|`@Action`
+|`IAction`
+|An action: the unit of work in a workflow.
+
+|`PipelineEnginePluginType`
+|`@PipelineEnginePlugin`
+|`IPipelineEngine`
+|A runtime that executes pipelines.
+
+|`WorkflowEnginePluginType`
+|`@WorkflowEnginePlugin`
+|`IWorkflowEngine`
+|A runtime that executes workflows.
+
+|`PartitionerPluginType`
+|`@PartitionerPlugin`
+|`IPartitioner`
+|Decides which partition a row belongs to.
+
+|`RowDistributionPluginType`
+|`@RowDistributionPlugin`
+|`IRowDistribution`
+|Decides which target copy a row is sent to.
+
+4+^s|xref:plugin-types/data-connectivity.adoc[Data and connectivity]
+
+|`ValueMetaPluginType`
+|`@ValueMetaPlugin`
+|`IValueMeta`
+|A data type in the row stream.
+
+|`DatabasePluginType`
+|`@DatabaseMetaPlugin`
+|`IDatabase`
+|A database dialect.
+
+|`DatabaseTypeRulesPluginType`
+|`@DatabaseTypeRulesPlugin`
+|`IDatabaseTypeRuleProvider`
+|Column type mapping rules, also for dialects you do not own.
+
+|`CompressionPluginType`
+|`@CompressionPlugin`
+|`ICompressionProvider`
+|A compression codec for file transforms.
+
+|`VfsPluginType`
+|`@VfsPlugin`
+|`IVfs`
+|A URL scheme for Apache VFS.
+
+|`DataStreamPluginType`
+|`@DataStreamPlugin`
+|`IDataStream`
+|A named source or target of rows outside a pipeline.
+
+4+^s|xref:plugin-types/metadata-configuration.adoc[Metadata and configuration]
+
+|`MetadataPluginType`
+|`@HopMetadata`
+|`IHopMetadata`
+|A metadata object type, editable in the GUI and serialised as JSON.
+
+|`ConfigPluginType`
+|`@ConfigPlugin`
+|`IConfigOptions`
+|Extra options on an existing Hop command line tool.
+
+|`HopCommandPluginType`
+|`@HopCommand`
+|`IHopCommand`
+|A new `hop` sub-command.
+
+|`ImportPluginType`
+|`@ImportPlugin`
+|`IHopImport`
+|An importer from another tool into a Hop project.
+
+|`VariableResolverPluginType`
+|`@VariableResolverPlugin`
+|`IVariableResolver`
+|Resolves values from a vault or secret manager.
+
+|`TwoWayPasswordEncoderPluginType`
+|`@TwoWayPasswordEncoderPlugin`
+|`ITwoWayPasswordEncoder`
+|How passwords are obfuscated or encrypted in metadata.
+
+|`AuthenticationProviderPluginType`
+|`@AuthenticationProviderPlugin`
+|`IAuthenticationProviderType`
+|A kind of credential.
+
+|`AuthenticationConsumerPluginType`
+|`@AuthenticationConsumerPlugin`
+|`IAuthenticationConsumerType`
+|Something that consumes such a credential.
+
+4+^s|xref:plugin-types/execution-observability.adoc[Execution and observability]
+
+|`ExtensionPointPluginType`
+|`@ExtensionPoint`
+|`IExtensionPoint`
+|Code that runs at one of Hop's named hook points.
+
+|`LoggingPluginType`
+|`@LoggingPlugin`
+|`ILoggingPlugin`
+|Participates in the logging subsystem lifecycle.
+
+|`ExecutionInfoLocationPluginType`
+|`@ExecutionInfoLocationPlugin`
+|`IExecutionInfoLocation`
+|Where execution information, logs and metrics are stored.
+
+|`ExecutionDataSamplerPluginType`
+|`@ExecutionDataSamplerPlugin`
+|`IExecutionDataSampler`
+|Which rows are captured while a pipeline runs.
+
+|`LineageSinkPluginType`
+|`@LineageSinkPlugin`
+|`ILineageSink`
+|Where lineage events are delivered.
+
+|`HopServerPluginType`
+|`@HopServerServlet`
+|`IHopServerPlugin`
+|An HTTP endpoint on Hop Server.
+
+4+^s|xref:plugin-types/gui.adoc[GUI]
+
+|`GuiPluginType`
+|`@GuiPlugin`
+|(none)
+|Menus, toolbars, context actions and widgets in the Hop GUI.
+
+|`HopPerspectivePluginType`
+|`@HopPerspectivePlugin`
+|`IHopPerspective`
+|A perspective: a full screen in the Hop GUI.
+
+|`HopFileTypePluginType`
+|`@HopFileTypePlugin`
+|`IHopFileType`
+|A file type the GUI recognises, opens and searches.
+
+|`SearchableAnalyserPluginType`
+|`@SearchableAnalyserPlugin`
+|`ISearchableAnalyser`
+|Makes one kind of object searchable.
+
+|`PipelineDialogPluginType`
+|`@PipelineDialogPlugin`
+|`IPipelineDialogPlugin`
+|An extra tab in the pipeline properties dialog.
+
+|`WorkflowDialogPluginType`
+|`@WorkflowDialogPlugin`
+|`IWorkflowDialogPlugin`
+|An extra tab in the workflow properties dialog.
+|===
+
+== Where plugins live, and how they ship
+
+Plugins that are part of Hop live under https://github.com/apache/hop/tree/main/plugins[`plugins/`], grouped by what they are:
+
+`plugins/transforms`:: pipeline transforms
+`plugins/actions`:: workflow actions
+`plugins/databases`:: database dialects
+`plugins/engines`:: pipeline and workflow engines
+`plugins/tech`:: everything belonging to one technology (Azure, Google, AWS, FTP, SFTP, Arrow, …), often several plugin types in one module
+`plugins/vfs`:: VFS plugins that are not part of a `tech` module
+`plugins/valuetypes`:: value types
+`plugins/resolvers`:: variable resolvers
+`plugins/misc`:: everything else
+
+Adding one is three edits and one new file:
+
+. A new Maven module under the right category, with the category pom as its parent, added to that pom's `<modules>`.
+The parent already provides `hop-core`, `hop-engine`, `hop-ui` and SWT as `provided` dependencies, the Jandex index, and the SWTBot test stack.
+. `src/assembly/assembly.xml` in the module.
+Its presence activates the assembly profile that turns the module into a plugin zip.
+Copy one from a comparable plugin: it declares the zip id, ships `version.xml`, and pulls in the shared `assemblies/shared/hop-plugin-libs.xml` component that routes the plugin jar and its dependencies to the right folders.
+. `src/main/resources/version.xml`, a one-liner containing `${project.version}`.
+. A `<dependency>` on the module with `<type>zip</type>` in `assemblies/plugins/pom.xml`, which is what actually puts the plugin in the distribution.
+
+The shared assembly component decides where each dependency lands based on its Maven scope: `provided` dependencies that are not part of Hop itself go to the shared `lib/core`, runtime dependencies go to the plugin's own `lib/` folder, and JDBC drivers go to `lib/jdbc`.
+Review what ends up in the zip.
+Anything already in `lib/core` should be excluded.
+
+Plugins that are *not* part of Hop follow the same shape but build and release on their own — see xref:start-your-own-plugin.adoc[Creating your own plugin] and xref:marketplace-publish-plugin.adoc[Publishing a plugin to Nexus].
+That route is the one to take when a dependency is not https://www.apache.org/legal/resolved.html[Apache category A].
+
+== Documenting and sampling a plugin
+
+Two things are easy to forget and are expected of plugins in the Hop repository:
+
+* A documentation page under `docs/hop-user-manual`, referenced from the plugin's `documentationUrl`.
+* A sample pipeline or workflow, see xref:plugin-samples.adoc[Plugin samples].

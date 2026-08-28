@@ -22,7 +22,7 @@ A database plugin teaches Hop to speak to one database.
 Hop ships around fifty of them, and writing another is one of the more common reasons to extend Hop.
 
 This section is about writing one.
-For connecting to a database that already has a plugin, see the xref:hop-user-manual:database/databases/index.adoc[database pages in the user manual] instead.
+For connecting to a database that already has a plugin, see the xref:manual::database/databases.adoc[database pages in the user manual] instead.
 
 == What a database plugin is made of
 

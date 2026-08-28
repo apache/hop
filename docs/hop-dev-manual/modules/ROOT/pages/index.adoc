@@ -14,18 +14,46 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-= Index Page
+:description: Documentation for people working on Apache Hop itself, or on plugins for it.
+[[DevManual-Index]]
+= Development documentation
 
-* xref:getting-started.adoc[Getting started]
-* xref:metadata-plugins.adoc[Metadata plugins]
-* xref:porting-kettle-plugins.adoc[Porting Kettle plugins]
-* xref:setup-dev-environment.adoc[Setting up your development environment]
-* xref:docker-build.adoc[Docker Build Script]
-* xref:integration-testing.adoc[Integration Testing]
-* xref:plugin-development.adoc[Plugin Development]
-* xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars]
-* xref:lineage.adoc[Lineage observation hub]
-* xref:plugin-samples.adoc[Plugin Samples]
-* xref:svg-files.adoc[SVG Files]
-* xref:start-your-own-plugin.adoc[Creating your own plugin]
-* xref:internationalisation.adoc[Internationalisation (i18n)]
+This manual is for people working *on* Hop: contributors to the Hop codebase, and anyone writing a plugin for it.
+For using Hop, see the xref:manual::index.adoc[user manual].
+
+== New here?
+
+Start with these, in order:
+
+. xref:getting-started.adoc[The Hop codebase] — what the modules are and what lives where.
+. xref:setup-dev-environment.adoc[Setting up your development environment] — IDE, fork, clone, formatting.
+. xref:build-and-test.adoc[Building and testing] — the Maven build, its profiles, and the checks that must pass.
+. xref:contributing.adoc[Contributing changes] — issues, pull requests, review.
+
+If you came to write a plugin rather than to change Hop itself, read xref:plugin-development.adoc[How plugins work] and then find your plugin type in the xref:plugin-types/index.adoc[plugin type catalogue].
+
+== The sections
+
+Getting started::
+Orientation, development environment, the build, how to contribute code and documentation.
+
+Architecture::
+How Hop works underneath: what happens when a pipeline runs, how variables and metadata resolve, how dependencies and classloaders are organised, logging and debugging, what to watch for on the row hot path, and what the security model means for a developer.
+
+xref:plugin-types/index.adoc[Plugin development]::
+The largest section, because almost everything in Hop is a plugin.
+The xref:plugin-types/index.adoc[plugin type catalogue] lists all of them; the pages around it go deeper on the ones with more to say — metadata, databases, value types, the GUI, i18n, engine compatibility — and on packaging and publishing a plugin.
+
+Testing::
+Unit tests, the integration test framework, and the SWTBot UI tests.
+
+Embedding and interfaces::
+Driving Hop from your own code with the SDK, the REST module, and Hop Web.
+
+Distribution and release::
+Container images and the Apache release process.
+
+== Something missing or wrong?
+
+Pages in this manual are marked when they are still a scaffold rather than finished documentation.
+Filling one in is a genuinely useful contribution and a good first one — see xref:writing-documentation.adoc[Writing documentation].
