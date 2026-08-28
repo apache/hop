@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.sql;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -34,6 +37,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -62,6 +66,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             "replace_variables",
             "quoteString",
             "set_params",
+            "sqlFromFile",
             "arguments");
 
     Map<String, String> getterMap =
@@ -78,6 +83,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             put("replace_variables", "isReplaceVariables");
             put("quoteString", "isQuoteString");
             put("set_params", "isParams");
+            put("sqlFromFile", "getSqlFromFile");
             put("arguments", "getArguments");
           }
         };
@@ -95,6 +101,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             put("replace_variables", "setReplaceVariables");
             put("quoteString", "setQuoteString");
             put("set_params", "setParams");
+            put("sqlFromFile", "setSqlFromFile");
             put("arguments", "setArguments");
           }
         };
@@ -177,5 +184,57 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  @Test
+  void getEffectiveSqlUsesInlineWhenNoFile() throws Exception {
+    ExecSqlMeta meta = new ExecSqlMeta();
+    meta.setSql("SELECT 1");
+    Assertions.assertEquals("SELECT 1", meta.getEffectiveSql(new Variables()));
+  }
+
+  @Test
+  void getEffectiveSqlLoadsFromFile() throws Exception {
+    Path file = Files.createTempFile("execsql-", ".sql");
+    try {
+      String sql = "insert into public.testtable (key, value) values ('k', 'v');";
+      Files.writeString(file, sql);
+      ExecSqlMeta meta = new ExecSqlMeta();
+      meta.setSql("SELECT 1");
+      meta.setSqlFromFile(file.toAbsolutePath().toString());
+      Assertions.assertEquals(sql, meta.getEffectiveSql(new Variables()));
+    } finally {
+      Files.deleteIfExists(file);
+    }
+  }
+
+  @Test
+  void getEffectiveSqlResolvesVariablesInPath() throws Exception {
+    Path file = Files.createTempFile("execsql-", ".sql");
+    try {
+      Files.writeString(file, "SELECT 2");
+      ExecSqlMeta meta = new ExecSqlMeta();
+      meta.setSqlFromFile("${SQL_FILE}");
+      Variables variables = new Variables();
+      variables.setVariable("SQL_FILE", file.toAbsolutePath().toString());
+      Assertions.assertEquals("SELECT 2", meta.getEffectiveSql(variables));
+    } finally {
+      Files.deleteIfExists(file);
+    }
+  }
+
+  @Test
+  void getEffectiveSqlMissingFileThrows() {
+    ExecSqlMeta meta = new ExecSqlMeta();
+    meta.setSqlFromFile("/this/path/does/not-exist-execsql.sql");
+    Assertions.assertThrows(HopException.class, () -> meta.getEffectiveSql(new Variables()));
+  }
+
+  @Test
+  void getEffectiveSqlEmptyFilePathUsesInlineSql() throws Exception {
+    ExecSqlMeta meta = new ExecSqlMeta();
+    meta.setSql("SELECT 1");
+    meta.setSqlFromFile("");
+    Assertions.assertEquals("SELECT 1", meta.getEffectiveSql(new Variables()));
   }
 }

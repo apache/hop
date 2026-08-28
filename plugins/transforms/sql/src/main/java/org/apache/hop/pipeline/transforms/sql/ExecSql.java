@@ -294,10 +294,11 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
           logDetailed(BaseMessages.getString(PKG, "ExecSql.Log.ConnectedToDB"));
         }
 
+        String sqlToUse = meta.getEffectiveSql(this);
         if (meta.isReplaceVariables()) {
-          data.sql = resolve(meta.getSql());
+          data.sql = resolve(sqlToUse);
         } else {
-          data.sql = meta.getSql();
+          data.sql = sqlToUse;
         }
         // If the SQL needs to be executed once, this is a starting transform
         // somewhere.

@@ -17,40 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
-import java.util.Objects;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.hop.metadata.api.HopMetadataProperty;
+import java.util.List;
+import org.apache.hop.ui.testing.DisabledGuiWidgetsTestBase;
+import org.junit.jupiter.api.Tag;
 
-@Getter
-@Setter
-public class ExecSqlArgumentItem {
-
-  @HopMetadataProperty(
-      injectionKeyDescription = "ExecSqlMeta.Injection.PARAMETER_NAME",
-      injectionKey = "PARAMETER_NAME")
-  private String name;
-
-  public ExecSqlArgumentItem() {}
-
-  public ExecSqlArgumentItem(String name) {
-    this.name = name;
-  }
+/**
+ * Disables every {@code @GuiWidgetElement} this plugin registers, one at a time, and checks that
+ * its composite still builds and still survives the listener callbacks. See {@link
+ * DisabledGuiWidgetsTestBase}.
+ */
+@Tag("uitest")
+class ExecSqlDisabledWidgetsTest extends DisabledGuiWidgetsTestBase {
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ExecSqlArgumentItem that = (ExecSqlArgumentItem) o;
-    return Objects.equals(name, that.name);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(name);
+  protected List<String> packagesUnderTest() {
+    return List.of("org.apache.hop.pipeline.transforms.sql");
   }
 }
