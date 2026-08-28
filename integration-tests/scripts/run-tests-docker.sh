@@ -245,7 +245,7 @@ if docker info >/dev/null 2>&1; then
 fi
 
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
     if [ -d "$d" ] && { [ ! -f "$d/disabled.txt" ] || is_included "$(basename "$d")"; }; then
       # Project root: MDI target_file=…-injected.hpl writes here.
       chmod a+rwx "$d" 2>/dev/null || true
@@ -427,7 +427,7 @@ EOF
 # Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
-  if [[ "$d" == *"scripts/" ]] || [[ "$d" == *"surefire-reports/" ]] || [[ "$d" == *"hopweb/" ]]; then
+  if [[ "$d" == *"scripts/" ]] || [[ "$d" == *"surefire-reports/" ]]; then
     continue
   fi
 

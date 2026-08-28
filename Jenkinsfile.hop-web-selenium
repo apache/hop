@@ -21,7 +21,8 @@ def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
 def JDK_NAME = env.JDK_NAME ?: 'jdk_21_latest'
 def MAVEN_NAME = env.MAVEN_NAME ?: 'maven_3_latest'
 
-def MAVEN_PARAMS = "-T 2 -U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
+// The image the tests drive. Overridable so a release candidate can be checked the same way.
+def HOP_WEB_IMAGE = env.HOP_WEB_IMAGE ?: 'apache/hop-web:Development'
 
 pipeline {
 
@@ -53,6 +54,7 @@ pipeline {
             logRotator(artifactNumToKeepStr: '5', numToKeepStr: '10')
         )
         disableConcurrentBuilds()
+        timeout(time: 1, unit: 'HOURS')
     }
 
     stages {
@@ -77,14 +79,24 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Record image under test') {
+            steps {
+                // These tests drive a published image rather than this checkout, so record which
+                // one actually ran. Without this a broken main build leaves the job quietly
+                // testing yesterday's image and reporting green.
+                sh "docker pull ${HOP_WEB_IMAGE}"
+                sh "docker image inspect ${HOP_WEB_IMAGE} --format 'Testing {{.RepoTags}} digest {{.Id}} created {{.Created}}'"
+            }
+        }
         stage('Run Selenium tests'){
             steps {
-                 sh "mvn -f integration-tests/hopweb/pom.xml clean test"
+                 sh "mvn -f web-tests/pom.xml -B -e clean test -Dhopweb.image=${HOP_WEB_IMAGE}"
                 }
             post {
                 always {
-                    archiveArtifacts(artifacts: 'integration-tests/hopweb/**/*.png', allowEmptyArchive: true)
-                    junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
+                    // Screenshot and rendered DOM of every failed test.
+                    archiveArtifacts(artifacts: 'web-tests/target/hopweb-artifacts/**', allowEmptyArchive: true)
+                    junit(testResults: 'web-tests/target/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
         }
@@ -93,6 +105,10 @@ pipeline {
     post {
         always {
             cleanWs()
+        }
+        // Only mail when there is something to act on: a nightly green build does not need
+        // to reach every developer's inbox.
+        unsuccessful {
             emailext(
                 subject: '${DEFAULT_SUBJECT}',
                 body: '${DEFAULT_CONTENT}',
