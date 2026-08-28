@@ -43,6 +43,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaJson;
@@ -246,6 +247,18 @@ class CrateDBBulkLoaderTest {
     rowMeta.addValueMeta(new ValueMetaInteger("amount"));
 
     assertEquals("\"Acme\",42\n", writeRow(rowMeta, new Object[] {"Acme", 42L}));
+  }
+
+  @Test
+  void writesBinaryValuesAsHex() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaBinary("hash"));
+
+    assertEquals(
+        "\"deadbeef\"\n",
+        writeRow(
+            rowMeta,
+            new Object[] {new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}}));
   }
 
   /** A value carrying the separator has to be enclosed or it becomes two columns. */

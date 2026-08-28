@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -706,6 +707,13 @@ public class RedshiftBulkLoader
    * @throws HopValueException
    */
   private byte[] formatField(IValueMeta v, Object valueData) throws HopValueException {
+    if (v.isBinary()) {
+      byte[] bytes = v.getBinary(valueData);
+      if (bytes == null) {
+        return null;
+      }
+      return Hex.encodeHexString(bytes).getBytes(StandardCharsets.UTF_8);
+    }
     if (v.isString()) {
       if (v.isStorageBinaryString()
           && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE

@@ -30,6 +30,8 @@ The Vertica Bulk Loader uses https://www.vertica.com/docs/12.0.x/HTML/Content/Au
 
 This is typically significantly faster than loading data through e.g. a Table Output transform.
 
+TIP: binary stream fields are sent as raw bytes in Vertica's native binary protocol (`BINARY` is zero-padded to the column width, `VARBINARY` carries a length prefix).
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

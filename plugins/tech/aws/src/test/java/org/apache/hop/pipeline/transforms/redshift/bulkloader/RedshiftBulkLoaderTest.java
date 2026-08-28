@@ -44,6 +44,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaJson;
@@ -264,6 +265,19 @@ class RedshiftBulkLoaderTest {
     rowMeta.addValueMeta(new ValueMetaInteger("amount"));
 
     assertEquals("\"Acme, Inc\",42\n", writeRow(rowMeta, new Object[] {"Acme, Inc", 42L}, false));
+  }
+
+  @Test
+  void writesBinaryValuesAsHexWithoutAPostgresPrefix() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaBinary("hash"));
+
+    assertEquals(
+        "deadbeef\n",
+        writeRow(
+            rowMeta,
+            new Object[] {new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}},
+            false));
   }
 
   /** Quotes inside a value are doubled, the way the COPY statement expects them. */

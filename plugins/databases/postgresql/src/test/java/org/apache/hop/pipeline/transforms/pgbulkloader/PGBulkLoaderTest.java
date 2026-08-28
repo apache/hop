@@ -44,6 +44,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -116,6 +117,19 @@ class PGBulkLoaderTest {
         "f".getBytes(StandardCharsets.UTF_8),
         PGBulkLoader.booleanFieldBytesForPgCopyText(meta, Boolean.FALSE, StandardCharsets.UTF_8));
     assertNull(PGBulkLoader.booleanFieldBytesForPgCopyText(meta, null, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void binaryFieldBytesForPgCopyText_usesPostgresByteaHex() throws HopValueException {
+    ValueMetaBinary meta = new ValueMetaBinary("hash");
+    byte[] bytes = {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef};
+    assertArrayEquals(
+        "\\xdeadbeef".getBytes(StandardCharsets.UTF_8),
+        PGBulkLoader.binaryFieldBytesForPgCopyText(meta, bytes, StandardCharsets.UTF_8));
+    assertArrayEquals(
+        "\\x".getBytes(StandardCharsets.UTF_8),
+        PGBulkLoader.binaryFieldBytesForPgCopyText(meta, new byte[0], StandardCharsets.UTF_8));
+    assertNull(PGBulkLoader.binaryFieldBytesForPgCopyText(meta, null, StandardCharsets.UTF_8));
   }
 
   @Test

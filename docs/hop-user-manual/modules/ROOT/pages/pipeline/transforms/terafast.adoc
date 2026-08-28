@@ -30,6 +30,8 @@ under the License.
 
 The Teradata Bulkloader transform supports fastloading data into a Teradata database using the fastload command line tool.
 
+TIP: binary stream fields are written as lowercase hex, which is the format FastLoad expects for `BYTE`/`VARBYTE` in a VARTEXT data file.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

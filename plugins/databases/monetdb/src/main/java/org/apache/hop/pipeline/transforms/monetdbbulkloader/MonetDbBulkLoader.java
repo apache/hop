@@ -16,9 +16,11 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -194,6 +196,16 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     addRowToBuffer(rowMeta, r);
   }
 
+  /** MonetDB COPY INTO reads BLOB values as hexadecimal strings with no prefix. */
+  @VisibleForTesting
+  static String hexFieldForMonetDbCopy(IValueMeta valueMeta, Object valueData) throws HopException {
+    byte[] bytes = valueMeta.getBinary(valueData);
+    if (bytes == null) {
+      return null;
+    }
+    return Hex.encodeHexString(bytes);
+  }
+
   protected void addRowToBuffer(IRowMeta rowMeta, Object[] r) throws HopException {
 
     StringBuilder line = new StringBuilder();
@@ -346,6 +358,14 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
                           precision,
                           java.math.BigDecimal.ROUND_HALF_UP));
                 }
+              }
+              break;
+            case IValueMeta.TYPE_BINARY:
+              String hex = hexFieldForMonetDbCopy(valueMeta, valueData);
+              if (hex == null) {
+                line.append(data.nullrepresentation);
+              } else {
+                line.append(hex);
               }
               break;
             default:
