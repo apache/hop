@@ -33,8 +33,6 @@
         <hopweb.browser>auto</hopweb.browser>
         <hopweb.browserImage>selenium/standalone-chrome:4.47.0</hopweb.browserImage>
         <hopweb.build>false</hopweb.build>
-        <hopweb.excludedGroups>full</hopweb.excludedGroups>
-        <hopweb.groups></hopweb.groups>
         <hopweb.headless>true</hopweb.headless>
         <hopweb.image>apache/hop-web:Development</hopweb.image>
         <hopweb.pull>true</hopweb.pull>
@@ -84,8 +82,6 @@
                         <id>default-test</id>
                         <configuration>
                             <argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
-                            <groups>${hopweb.groups}</groups>
-                            <excludedGroups>${hopweb.excludedGroups}</excludedGroups>
                             <trimStackTrace>false</trimStackTrace>
                             <systemPropertyVariables>
                                 <hopweb.image>${hopweb.image}</hopweb.image>
@@ -112,14 +108,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>webtest-full</id>
-            <properties>
-                <hopweb.excludedGroups></hopweb.excludedGroups>
-                <hopweb.groups>full</hopweb.groups>
-            </properties>
-        </profile>
-    </profiles>
 </project>
