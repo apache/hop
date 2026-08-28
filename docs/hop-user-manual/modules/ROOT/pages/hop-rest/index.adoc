@@ -32,6 +32,16 @@ We suggest that you rename it to `hop.war` or that you unzip it in a `hop` folde
 
 When deployed under a `webapps/hop` folder you will get the services, detailed below, under the base URL of `/hop/api/v1/`.
 
+== Error responses
+
+Every service reports failures as an HTTP `500` with a `text/plain` body containing the error message followed by a simple stack trace, for example:
+
+----
+Unable to find service with name 'test'
+org.apache.hop.core.exception.HopException : Unable to find service with name 'test'
+  at org.apache.hop.rest.v1.resources.ExecutionResource.executeSynchronously(ExecutionResource.java:76)
+----
+
 == Configuration
 
 When the web application starts it will look for an environment variable called `HOP_REST_CONFIG_FOLDER` to determine where it will look for a file called `hop-rest.properties`.
@@ -154,6 +164,11 @@ The metadata services are deployed under sub-path `metadata/`.
 |Example call
 |`curl -X POST http://localhost:8080/hop/api/v1/metadata/pipeline-run-configuration/ -d '{"engineRunConfiguration":{"Local":{"feedback_size":"50000","sample_size":"1000","sample_type_in_gui":"None","wait_time":"2","rowset_size":"10000","safe_mode":false,"show_feedback":false,"topo_sort":false,"gather_metrics":false,"transactional":false}},"defaultSelection":false,"configurationVariables":[],"name":"local","description":"Runs your pipelines locally with the standard local Hop pipeline engine","dataProfile":"first-last","executionInfoLocationName":"local"}'`
 
+|Example output
+|The name of the element that was saved:
+
+`local`
+
 |===
 
 === Delete a metadata element
@@ -217,7 +232,7 @@ The plugins services are deployed under sub-path `plugins/`.
 |`plugins/list/\{typeClassName\}/`
 
 |Arguments
-|`key` : the class name of the plugin type
+|`typeClassName` : the class name of the plugin type, as returned by <<List all the plugin type classes>>. Any other class name is rejected.
 
 |Produces
 |`application/json`
@@ -235,7 +250,7 @@ This call retrieves all the information about all the pipeline engine plugins.
 
 == Execution services
 
-The 'Execution' services are deployed under sub-path `execution/`.
+The 'Execution' services are deployed under sub-path `execute/`.
 
 === Execute a pipeline synchronously
 
@@ -245,16 +260,20 @@ The 'Execution' services are deployed under sub-path `execution/`.
 |`POST`
 
 |Path
-|`execution/sync`
+|`execute/sync`
 
-|Produces
+|Consumes
 |`application/json`
 
+|Produces
+|The content type configured on the xref:hop-server/web-service.adoc[Web Service] metadata element, `text/plain` when that option is left empty.
+
 |Example call
-|`curl -X POST  http://localhost:8080/hop/api/v1/execution/sync/  -H 'Content-Type: application/json'  -d '{ "service" : "test", "runConfig" : "local", "variables" : { "VAR1" : "value1", "VAR2" : "value2" }, "bodyContent" : "This is body content" }'`
-`
+|`curl -X POST  http://localhost:8080/hop/api/v1/execute/sync/  -H 'Content-Type: application/json'  -d '{ "service" : "test", "runConfig" : "local", "variables" : { "VAR1" : "value1", "VAR2" : "value2" }, "bodyContent" : "This is body content" }'`
+
 |Example output
-|The executing pipeline can produce output like this:
+|The response body is the concatenation of the values of the output field, for every row written by the transform configured in the Web Service metadata element.
+A pipeline writing a single JSON document in that field produces output like this:
 
 `{
 "rows" : [ {
@@ -275,16 +294,48 @@ The body to post can contain the following options (see also: the example above)
 * `variables`: a map with variables (or parameters) with their names and values
 * `bodyContent`: this will be set as a variable using the body content variable option in the Web Service metadata.
 
+NOTE: only synchronous xref:hop-server/web-service.adoc[Web Service] elements can be executed here.
+The xref:hop-server/async-web-service.adoc[Asynchronous Web Service] endpoints `hop/asyncRun` and `hop/asyncStatus` are served by xref:hop-server/index.adoc[Hop Server], not by this application.
+
 == Execution Information Location services
 
 The execution information location services are deployed under sub-path `location/`.
+
+=== Register an execution
+
+[cols="1,2"]
+|===
+|Type
+|`POST`
+
+|Path
+|`location/executions/\{locationName\}`
+
+|Arguments
+|`locationName` : the name of the execution information location to register the execution with.
+
+|Consumes
+|`application/json`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X POST  http://localhost:8080/hop/api/v1/location/executions/local/  -H 'Content-Type: application/json'  -d '{ "id" : "df84cbc2-0166-4dea-956f-72b73cf66d0d", "name" : "pipeline-name", "filename" : "/path/filename.hpl", "executionType" : "Pipeline", "parentId" : null, "runConfigurationName" : "local", "registrationDate" : 1678191016156, "executionStartDate" : 1678191016156 }'`
+
+|Example output
+|`execution registered successfully`
+
+|===
+
+The body to post is a serialized `Execution` object, the same structure that is returned by <<Get execution>>.
 
 === Get execution IDs
 
 [cols="1,2"]
 |===
 |Type
-|`POST`
+|`GET`
 
 |Path
 |`location/executions/\{locationName\}`
@@ -300,7 +351,7 @@ The execution information location services are deployed under sub-path `locatio
 
 |Example call
 |`curl -X GET  http://localhost:8080/hop/api/v1/location/executions/local/  -H 'Content-Type: application/json'  -d '{ "includeChildren" : "true", "limit" : 100 }'`
-`
+
 |Example output
 |The list of execution IDs looks like this:
 
@@ -331,7 +382,7 @@ The body to post can contain the following options (see also: the example above)
 
 |Example call
 |`curl -X GET  http://localhost:8080/hop/api/v1/location/executions/local/df84cbc2-0166-4dea-956f-72b73cf66d0d/`
-`
+
 |Example output
 |The execution details look like this:
 
@@ -357,7 +408,7 @@ The body to post can contain the following options (see also: the example above)
 
 |Example call
 |`curl -X GET  http://localhost:8080/hop/api/v1/location/state/local/df84cbc2-0166-4dea-956f-72b73cf66d0d/`
-`
+
 |Example output
 |The execution state looks like this:
 

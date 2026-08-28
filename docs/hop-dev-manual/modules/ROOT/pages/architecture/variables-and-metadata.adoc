@@ -1,0 +1,57 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How a variable is resolved, how parameters differ from variables, and which metadata provider a running pipeline actually sees.
+[[Architecture-VariablesAndMetadata]]
+= Variables, parameters and metadata
+
+Two resolution mechanisms run through everything in Hop, and both have a scope that is easy to get wrong.
+
+== Variables
+
+Everything that can resolve variables implements `IVariables`, and those objects form a *parent chain*: a transform looks in its own space, then its pipeline's, then the parent workflow's, and so on up to the system properties and `hop-config.json`.
+
+`${VAR}` resolves from that chain.
+`#{path}` goes to a xref:plugin-types/metadata-configuration.adoc[variable resolver] instead — a secret manager, a vault, another pipeline.
+
+The chain is why a variable set in a parent workflow is visible in a child pipeline, and why a variable set inside a transform is not visible to its siblings.
+
+== Parameters
+
+Parameters are declared, documented and given a default; variables are not.
+A parameter becomes a variable when execution starts.
+
+The subtlety worth knowing: a sub-pipeline and a sub-workflow do not treat "pass all parameters" the same way, and a pipeline's own parameters must not silently adopt an ambient variable of the same name.
+
+== Metadata providers
+
+Metadata — database connections, run configurations, VFS connections — is reached through an `IHopMetadataProvider`.
+There is a process-wide one set at startup, and there is the one belonging to the running pipeline or workflow.
+They are not always the same object, and code that reaches for the global one is wrong in exactly the cases that are hardest to test: an exported run on a Hop Server sees the exported metadata, not the client's.
+
+Resolve through the execution's provider — `IVariables.getMetadataProvider()`, walking the parent chain — rather than the global one.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* The full resolution order, in order, with where each level comes from.
+* The complete list of built-in `Internal.*` variables and when each is set.
+* Parameter passing across the four combinations of pipeline and workflow, parent and child.
+* Where metadata is loaded from: project, environment, and the multi-provider that stacks them.
+* Serializing a run for a remote engine: what is exported, what is rewritten, and what breaks if you assume otherwise.
+* Guidance for plugin authors: when to resolve a variable, and why resolving one at design time is usually a bug.
+====
