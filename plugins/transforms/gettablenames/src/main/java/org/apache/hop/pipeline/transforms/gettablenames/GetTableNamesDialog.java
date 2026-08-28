@@ -204,7 +204,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wIncludeCatalog.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeCatalog.Tooltip"));
     FormData fdIncludeCatalog = new FormData();
-    fdIncludeCatalog.left = new FormAttachment(middle, -margin);
+    fdIncludeCatalog.left = new FormAttachment(middle, 0);
     fdIncludeCatalog.top = new FormAttachment(wlIncludeCatalog, 0, SWT.CENTER);
     wIncludeCatalog.setLayoutData(fdIncludeCatalog);
 
@@ -222,7 +222,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wIncludeSchema.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeSchema.Tooltip"));
     FormData fdincludeSchema = new FormData();
-    fdincludeSchema.left = new FormAttachment(middle, -margin);
+    fdincludeSchema.left = new FormAttachment(middle, 0);
     fdincludeSchema.top = new FormAttachment(wlIncludeSchema, 0, SWT.CENTER);
     wIncludeSchema.setLayoutData(fdincludeSchema);
     SelectionAdapter lincludeSchema =
@@ -248,7 +248,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wIncludeTable.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeTable.Tooltip"));
     FormData fdincludeTable = new FormData();
-    fdincludeTable.left = new FormAttachment(middle, -margin);
+    fdincludeTable.left = new FormAttachment(middle, 0);
     fdincludeTable.top = new FormAttachment(wlIncludeTable, 0, SWT.CENTER);
     wIncludeTable.setLayoutData(fdincludeTable);
     SelectionAdapter lincludeTable =
@@ -274,7 +274,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wIncludeView.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeView.Tooltip"));
     FormData fdincludeView = new FormData();
-    fdincludeView.left = new FormAttachment(middle, -margin);
+    fdincludeView.left = new FormAttachment(middle, 0);
     fdincludeView.top = new FormAttachment(wlIncludeView, 0, SWT.CENTER);
     wIncludeView.setLayoutData(fdincludeView);
     SelectionAdapter lincludeView =
@@ -301,7 +301,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wIncludeProcedure.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeProcedure.Tooltip"));
     FormData fdincludeProcedure = new FormData();
-    fdincludeProcedure.left = new FormAttachment(middle, -margin);
+    fdincludeProcedure.left = new FormAttachment(middle, 0);
     fdincludeProcedure.top = new FormAttachment(wlIncludeProcedure, 0, SWT.CENTER);
     wIncludeProcedure.setLayoutData(fdincludeProcedure);
     SelectionAdapter lincludeProcedure =
@@ -328,7 +328,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wIncludeSynonym.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeSynonym.Tooltip"));
     FormData fdincludeSynonym = new FormData();
-    fdincludeSynonym.left = new FormAttachment(middle, -margin);
+    fdincludeSynonym.left = new FormAttachment(middle, 0);
     fdincludeSynonym.top = new FormAttachment(wlIncludeSynonym, 0, SWT.CENTER);
     wIncludeSynonym.setLayoutData(fdincludeSynonym);
     SelectionAdapter lincludeSynonym =
@@ -355,7 +355,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wAddSchemaInOutput.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.addSchemaInOutput.Tooltip"));
     FormData fdaddSchemaInOutput = new FormData();
-    fdaddSchemaInOutput.left = new FormAttachment(middle, -margin);
+    fdaddSchemaInOutput.left = new FormAttachment(middle, 0);
     fdaddSchemaInOutput.top = new FormAttachment(wlAddSchemaInOutput, 0, SWT.CENTER);
     wAddSchemaInOutput.setLayoutData(fdaddSchemaInOutput);
     SelectionAdapter laddSchemaInOutput =
