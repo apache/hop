@@ -21,6 +21,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.validation.SchemaFactory;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
@@ -141,6 +142,28 @@ public class XmlParserFactoryProducer {
     factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
     factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, LOCAL_FILE_ACCESS_ONLY);
 
+    return factory;
+  }
+
+  /**
+   * Creates an instance of {@link XMLInputFactory} with DTD processing and external entity
+   * resolution disabled to protect against XML External Entity (XXE) attacks and XML entity
+   * expansion bombs.
+   *
+   * <p>{@link XMLConstants#ACCESS_EXTERNAL_DTD} and {@link XMLConstants#ACCESS_EXTERNAL_SCHEMA} are
+   * set when the StAX provider recognizes them. Woodstox (the factory on Hop's runtime classpath)
+   * does not, so those two calls are best-effort.
+   */
+  public static XMLInputFactory createSecureXmlInputFactory() {
+    XMLInputFactory factory = XMLInputFactory.newInstance();
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    try {
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    } catch (IllegalArgumentException e) {
+      // Property not supported by this StAX provider
+    }
     return factory;
   }
 }
