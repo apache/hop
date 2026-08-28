@@ -31,6 +31,7 @@
 
     <properties>
         <hopweb.browser>auto</hopweb.browser>
+        <hopweb.browserImage>selenium/standalone-chrome:4.47.0</hopweb.browserImage>
         <hopweb.build>false</hopweb.build>
         <hopweb.excludedGroups>full</hopweb.excludedGroups>
         <hopweb.groups></hopweb.groups>
@@ -93,6 +94,7 @@
                                 <hopweb.repository>${project.basedir}/..</hopweb.repository>
                                 <hopweb.url>${hopweb.url}</hopweb.url>
                                 <hopweb.browser>${hopweb.browser}</hopweb.browser>
+                                <hopweb.browserImage>${hopweb.browserImage}</hopweb.browserImage>
                                 <hopweb.headless>${hopweb.headless}</hopweb.headless>
                                 <hopweb.startupTimeout>${hopweb.startupTimeout}</hopweb.startupTimeout>
                                 <hopweb.artifacts>${project.build.directory}/hopweb-artifacts</hopweb.artifacts>

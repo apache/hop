@@ -60,6 +60,7 @@ import org.testcontainers.utility.MountableFile;
  *   <li>{@code hopweb.url} - URL of an already running Hop Web. Set it while writing tests to skip
  *       container startup entirely, e.g. {@code -Dhopweb.url=http://localhost:8080/ui}
  *   <li>{@code hopweb.browser} - {@code auto} (default), {@code container} or {@code local}
+ *   <li>{@code hopweb.browserImage} - the browser image, for a containerised browser
  *   <li>{@code hopweb.headless} - only meaningful for a local browser
  * </ul>
  */
@@ -67,6 +68,16 @@ public final class HopWebEnvironment {
 
   private static final String LOCAL_IMAGE_VERSION = "local";
   private static final String LOCAL_IMAGE = "hop-web:" + LOCAL_IMAGE_VERSION;
+
+  /**
+   * The browser image. Pinned here rather than left to Testcontainers, which derives the tag from
+   * the Selenium client on the classpath: the selenium/standalone-* images are published a release
+   * behind that client, so every client bump would fail the build on a manifest that does not exist
+   * yet ({@code 404 manifest for selenium/standalone-chrome:4.48.0 not found}). Bump this when the
+   * matching image is out; the client and the browser only have to speak the same WebDriver
+   * protocol, not carry the same version.
+   */
+  private static final String DEFAULT_BROWSER_IMAGE = "selenium/standalone-chrome:4.47.0";
 
   private static final String HOP_WEB_ALIAS = "hop-web";
   private static final int HOP_WEB_PORT = 8080;
@@ -276,7 +287,8 @@ public final class HopWebEnvironment {
 
   private WebDriver containerBrowser(Network network) {
     BrowserWebDriverContainer<?> browser =
-        new BrowserWebDriverContainer<>()
+        new BrowserWebDriverContainer<>(
+                DockerImageName.parse(property("hopweb.browserImage", DEFAULT_BROWSER_IMAGE)))
             .withNetwork(network)
             .withCapabilities(chromeOptions())
             .withStartupTimeout(Duration.ofSeconds(startupTimeoutSeconds()));
