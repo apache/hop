@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -182,21 +183,33 @@ public class HopGuiKeyHandler extends KeyAdapter {
    * Composite widgets like TextVar and ComboVar pass the key listeners they get on to the widget
    * inside them. They style themselves before creating that widget, so it is not always there yet,
    * and it gets the handler through its own {@code PropsUi.setLook()} call anyway.
+   *
+   * <p>Both ways of delegating count: overriding {@code addKeyListener()} and overriding the {@code
+   * addListener()} that {@link Control#addKeyListener(KeyListener)} ends up calling. Widgets like
+   * MetaSelectionLine and StyledTextComp only do the latter.
    */
   private static boolean delegatesKeyListeners(Control control) {
     if (!(control instanceof Composite)) {
       return false;
     }
     return DELEGATING_KEY_LISTENERS.computeIfAbsent(
-        control.getClass(),
-        widgetClass -> {
-          try {
-            Method method = widgetClass.getMethod("addKeyListener", KeyListener.class);
-            return !Control.class.equals(method.getDeclaringClass());
-          } catch (NoSuchMethodException e) {
-            return Boolean.FALSE;
-          }
-        });
+        control.getClass(), HopGuiKeyHandler::isDelegatingClass);
+  }
+
+  private static Boolean isDelegatingClass(Class<?> widgetClass) {
+    return isOverridden(widgetClass, Control.class, "addKeyListener", KeyListener.class)
+        || isOverridden(widgetClass, Widget.class, "addListener", int.class, Listener.class);
+  }
+
+  /** Is the method of the given widget class declared below the class that normally declares it? */
+  private static boolean isOverridden(
+      Class<?> widgetClass, Class<?> declaringClass, String name, Class<?>... parameterTypes) {
+    try {
+      Method method = widgetClass.getMethod(name, parameterTypes);
+      return !declaringClass.equals(method.getDeclaringClass());
+    } catch (NoSuchMethodException e) {
+      return false;
+    }
   }
 
   /** The terminal widget and everything in it handles all keys itself. */
