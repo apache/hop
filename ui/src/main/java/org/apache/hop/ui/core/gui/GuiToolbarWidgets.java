@@ -265,6 +265,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         break;
       case TEXT:
         addWebToolbarText(toolbarItem, parent);
+        addWebToolbarGap(parent);
+        break;
       default:
         break;
     }
@@ -352,6 +354,12 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     text.addListener(SWT.DefaultSelection, listener);
     addTextEnterKeyListener(text, listener);
     widgetsMap.put(toolbarItem.getId(), text);
+  }
+
+  private void addWebToolbarGap(Composite parent) {
+    Label spacer = new Label(parent, SWT.NONE);
+    PropsUi.setLook(spacer, Props.WIDGET_STYLE_TOOLBAR);
+    spacer.setLayoutData(new RowData(PropsUi.getMargin() * 2, 1));
   }
 
   /**
@@ -521,9 +529,19 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
 
   private void addToolbarText(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem textSeparator = new ToolItem(toolBar, SWT.SEPARATOR | SWT.BOTTOM);
+    int gap = PropsUi.getMargin() * 2;
+
+    Composite wrapper = new Composite(toolBar, SWT.NONE);
+    GridLayout layout = new GridLayout(1, false);
+    layout.marginWidth = 0;
+    layout.marginHeight = 0;
+    layout.marginRight = gap;
+    wrapper.setLayout(layout);
+    PropsUi.setLook(wrapper, Props.WIDGET_STYLE_TOOLBAR);
+
     Text text =
         new Text(
-            toolBar,
+            wrapper,
             SWT.SINGLE
                 | SWT.BORDER
                 | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT)
@@ -531,10 +549,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     text.setText(Const.NVL(toolbarItem.getDefaultText(), ""));
     text.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
-    text.pack();
-    // extra room for widget decorations
-    textSeparator.setWidth(200 + toolbarItem.getExtraWidth());
-    textSeparator.setControl(text);
+    text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
     Listener listener = getListener(toolbarItem);
     text.addListener(SWT.Selection, listener);
@@ -543,9 +558,13 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     // SEPARATOR. Explicit CR / KEYPAD_CR ensures Enter applies the filter (e.g. Execution
     // perspective).
     addTextEnterKeyListener(text, listener);
+
+    // Extra width is the input size; gap keeps the next item (often Highlight) from sitting flush
+    // against the field. widgetsMap still stores the Text so callers can read it directly.
+    textSeparator.setWidth(200 + toolbarItem.getExtraWidth() + gap);
+    textSeparator.setControl(wrapper);
     toolItemMap.put(toolbarItem.getId(), textSeparator);
     widgetsMap.put(toolbarItem.getId(), text);
-    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
   }
 
   private void addToolbarCheckbox(GuiToolbarItem toolbarItem, ToolBar toolBar) {

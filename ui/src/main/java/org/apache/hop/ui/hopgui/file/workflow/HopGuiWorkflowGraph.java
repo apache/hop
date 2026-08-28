@@ -103,6 +103,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.WidgetUtils;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ContextDialog;
@@ -4786,10 +4787,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     // Create toolbar for the panel controls in the upper right corner...
-    //
-    ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
-    extraViewTabFolder.setTopRight(extraViewToolBar, SWT.RIGHT);
-    PropsUi.setLook(extraViewToolBar);
+    ToolBar extraViewToolBar = WidgetUtils.createCenteredTopRightToolBar(extraViewTabFolder);
 
     if (detached) {
       ToolItem dockItem = new ToolItem(extraViewToolBar, SWT.PUSH);
