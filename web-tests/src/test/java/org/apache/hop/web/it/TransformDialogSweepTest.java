@@ -25,7 +25,6 @@ import org.apache.hop.web.it.pages.PipelineGraphPage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
@@ -33,10 +32,9 @@ import org.junit.jupiter.params.provider.CsvFileSource;
  * Adds every transform in transforms.csv to a pipeline, opens its dialog, closes it and removes it
  * again.
  *
- * <p>Tagged {@code full} because it takes the better part of an hour: the daily job runs {@link
- * HopWebSmokeTest} instead and this sweep is started explicitly with {@code mvn -Pwebtest-full}.
+ * <p>Around eleven minutes for the whole palette, which the daily job pays: a dialog that stopped
+ * opening is worth knowing about the next morning rather than whenever somebody thinks to look.
  */
-@Tag("full")
 @DisplayName("Transform dialogs")
 class TransformDialogSweepTest extends HopWebTestBase {
 
