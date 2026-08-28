@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -29,10 +32,16 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -55,14 +64,122 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ExecSqlMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsql.html",
     actionTransformTypes = {ActionTransformType.RDBMS})
+@GuiPlugin
+@Getter
+@Setter
 public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   private static final Class<?> PKG = ExecSqlMeta.class;
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "EXEC_SQL_DIALOG_OPTIONS";
+  public static final String WIDGET_CONNECTION = "CONNECTION";
+  public static final String WIDGET_INSERT_FIELD = "INSERT_FIELD";
+  public static final String WIDGET_UPDATE_FIELD = "UPDATE_FIELD";
+  public static final String WIDGET_DELETE_FIELD = "DELETE_FIELD";
+  public static final String WIDGET_READ_FIELD = "READ_FIELD";
+  public static final String WIDGET_SQL_FROM_FILE = "SQL_FROM_FILE";
+  public static final String WIDGET_BIND_PARAMETERS = "BIND_PARAMETERS";
+
+  public static final String GROUP_GENERAL = "i18n::ExecSqlMeta.Group.General";
+  public static final String GROUP_SQL = "i18n::ExecSqlMeta.Group.SQL";
+  public static final String GROUP_PARAMETERS = "i18n::ExecSqlMeta.Group.Parameters";
+
+  @GuiWidgetElement(
+      id = WIDGET_CONNECTION,
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadata = DatabaseMeta.class,
+      label = "i18n::ExecSqlMeta.Connection.Label",
+      toolTip = "i18n::ExecSqlMeta.Connection.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_GENERAL,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
   @HopMetadataProperty(
       key = "connection",
       injectionKeyDescription = "ExecSqlMeta.Injection.CONNECTIONNAME",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
+
+  @GuiWidgetElement(
+      id = WIDGET_INSERT_FIELD,
+      order = "0200",
+      type = GuiElementType.TEXT,
+      label = "i18n::ExecSqlDialog.InsertField.Label",
+      toolTip = "i18n::ExecSqlMeta.Injection.INSERT_STATS_FIELD",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_GENERAL,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(
+      key = "insert_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.INSERT_STATS_FIELD",
+      injectionKey = "INSERT_STATS_FIELD")
+  private String insertField;
+
+  @GuiWidgetElement(
+      id = WIDGET_UPDATE_FIELD,
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::ExecSqlDialog.UpdateField.Label",
+      toolTip = "i18n::ExecSqlMeta.Injection.UPDATE_STATS_FIELD",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_GENERAL,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(
+      key = "update_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.UPDATE_STATS_FIELD",
+      injectionKey = "UPDATE_STATS_FIELD")
+  private String updateField;
+
+  @GuiWidgetElement(
+      id = WIDGET_DELETE_FIELD,
+      order = "0400",
+      type = GuiElementType.TEXT,
+      label = "i18n::ExecSqlDialog.DeleteField.Label",
+      toolTip = "i18n::ExecSqlMeta.Injection.DELETE_STATS_FIELD",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_GENERAL,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(
+      key = "delete_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.DELETE_STATS_FIELD",
+      injectionKey = "DELETE_STATS_FIELD")
+  private String deleteField;
+
+  @GuiWidgetElement(
+      id = WIDGET_READ_FIELD,
+      order = "0500",
+      type = GuiElementType.TEXT,
+      label = "i18n::ExecSqlDialog.ReadField.Label",
+      toolTip = "i18n::ExecSqlMeta.Injection.READ_STATS_FIELD",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_GENERAL,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(
+      key = "read_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.READ_STATS_FIELD",
+      injectionKey = "READ_STATS_FIELD")
+  private String readField;
+
+  @GuiWidgetElement(
+      id = WIDGET_SQL_FROM_FILE,
+      order = "0100",
+      type = GuiElementType.FILENAME,
+      typeFilename = TypeSqlFilename.class,
+      label = "i18n::ExecSqlMeta.SqlFromFile.Label",
+      toolTip = "i18n::ExecSqlMeta.SqlFromFile.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_SQL,
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(
+      key = "sql_from_file",
+      injectionKey = "SQL_FROM_FILE",
+      injectionKeyDescription = "ExecSqlMeta.Injection.SQL_FROM_FILE")
+  private String sqlFromFile;
 
   @HopMetadataProperty(
       injectionKeyDescription = "ExecSqlMeta.Injection.SQL",
@@ -75,30 +192,6 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
       injectionKeyDescription = "ExecSqlMeta.Injection.EXECUTE_FOR_EACH_ROW",
       injectionKey = "EXECUTE_FOR_EACH_ROW")
   private boolean executedEachInputRow;
-
-  @HopMetadataProperty(
-      key = "update_field",
-      injectionKeyDescription = "ExecSqlMeta.Injection.UPDATE_STATS_FIELD",
-      injectionKey = "UPDATE_STATS_FIELD")
-  private String updateField;
-
-  @HopMetadataProperty(
-      key = "insert_field",
-      injectionKeyDescription = "ExecSqlMeta.Injection.INSERT_STATS_FIELD",
-      injectionKey = "INSERT_STATS_FIELD")
-  private String insertField;
-
-  @HopMetadataProperty(
-      key = "delete_field",
-      injectionKeyDescription = "ExecSqlMeta.Injection.DELETE_STATS_FIELD",
-      injectionKey = "DELETE_STATS_FIELD")
-  private String deleteField;
-
-  @HopMetadataProperty(
-      key = "read_field",
-      injectionKeyDescription = "ExecSqlMeta.Injection.READ_STATS_FIELD",
-      injectionKey = "READ_STATS_FIELD")
-  private String readField;
 
   @HopMetadataProperty(
       key = "single_statement",
@@ -117,6 +210,18 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
       injectionKey = "QUOTE_STRINGS")
   private boolean quoteString;
 
+  @GuiWidgetElement(
+      id = WIDGET_BIND_PARAMETERS,
+      order = "0100",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ExecSqlDialog.SetParams.Label",
+      toolTip = "i18n::ExecSqlDialog.SetParams.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_PARAMETERS,
+      groupOrder = "30",
+      groupType = GuiWidgetGroupType.TABS,
+      getterMethod = "isParams",
+      setterMethod = "setParams")
   @HopMetadataProperty(
       key = "set_params",
       injectionKeyDescription = "ExecSqlMeta.Injection.BIND_PARAMETERS",
@@ -136,121 +241,27 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   }
 
   /**
-   * @return Returns the true if we have to set params.
+   * Returns the SQL to execute: either from the inline editor or loaded from the file specified by
+   * sqlFromFile (using VFS). Variables are resolved in the file path.
    */
-  public boolean isParams() {
-    return this.params;
-  }
-
-  /**
-   * @param value set true if we have to set params.
-   */
-  public void setParams(boolean value) {
-    this.params = value;
-  }
-
-  /**
-   * @return Returns the sql.
-   */
-  public String getSql() {
+  public String getEffectiveSql(IVariables variables) throws HopException {
+    if (!Utils.isEmpty(sqlFromFile)) {
+      String path = variables.resolve(sqlFromFile);
+      try {
+        return HopVfs.getTextFileContent(path, StandardCharsets.UTF_8);
+      } catch (HopFileException e) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ExecSqlMeta.Exception.CouldNotLoadSqlFromFile", path), e);
+      }
+    }
     return sql;
-  }
-
-  /**
-   * @param sql The sql to set.
-   */
-  public void setSql(String sql) {
-    this.sql = sql;
-  }
-
-  /**
-   * @return Returns the arguments.
-   */
-  public List<ExecSqlArgumentItem> getArguments() {
-    return arguments;
-  }
-
-  /**
-   * @param arguments The arguments to set.
-   */
-  public void setArguments(List<ExecSqlArgumentItem> arguments) {
-    this.arguments = arguments;
-  }
-
-  /**
-   * @return Returns the executedEachInputRow.
-   */
-  public boolean isExecutedEachInputRow() {
-    return executedEachInputRow;
-  }
-
-  /**
-   * @param executedEachInputRow The executedEachInputRow to set.
-   */
-  public void setExecutedEachInputRow(boolean executedEachInputRow) {
-    this.executedEachInputRow = executedEachInputRow;
-  }
-
-  /**
-   * @return Returns the deleteField.
-   */
-  public String getDeleteField() {
-    return deleteField;
-  }
-
-  /**
-   * @param deleteField The deleteField to set.
-   */
-  public void setDeleteField(String deleteField) {
-    this.deleteField = deleteField;
-  }
-
-  /**
-   * @return Returns the insertField.
-   */
-  public String getInsertField() {
-    return insertField;
-  }
-
-  /**
-   * @param insertField The insertField to set.
-   */
-  public void setInsertField(String insertField) {
-    this.insertField = insertField;
-  }
-
-  /**
-   * @return Returns the readField.
-   */
-  public String getReadField() {
-    return readField;
-  }
-
-  /**
-   * @param readField The readField to set.
-   */
-  public void setReadField(String readField) {
-    this.readField = readField;
-  }
-
-  /**
-   * @return Returns the updateField.
-   */
-  public String getUpdateField() {
-    return updateField;
-  }
-
-  /**
-   * @param updateField The updateField to set.
-   */
-  public void setUpdateField(String updateField) {
-    this.updateField = updateField;
   }
 
   @Override
   public void setDefault() {
     sql = "";
-    arguments = new ArrayList();
+    sqlFromFile = "";
+    arguments = new ArrayList<>();
   }
 
   @Override
@@ -318,20 +329,34 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
                 transformMeta);
         remarks.add(cr);
 
-        if (!Utils.isEmpty(sql)) {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK,
-                  BaseMessages.getString(PKG, "ExecSqlMeta.CheckResult.SQLStatementEntered"),
-                  transformMeta);
-          remarks.add(cr);
-        } else {
+        String effectiveSql = null;
+        try {
+          effectiveSql = getEffectiveSql(variables);
+        } catch (HopException e) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  BaseMessages.getString(PKG, "ExecSqlMeta.CheckResult.SQLStatementMissing"),
+                  BaseMessages.getString(PKG, "ExecSqlMeta.CheckResult.CouldNotGetSql")
+                      + e.getMessage(),
                   transformMeta);
           remarks.add(cr);
+        }
+        if (effectiveSql != null) {
+          if (!Utils.isEmpty(effectiveSql)) {
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK,
+                    BaseMessages.getString(PKG, "ExecSqlMeta.CheckResult.SQLStatementEntered"),
+                    transformMeta);
+            remarks.add(cr);
+          } else {
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(PKG, "ExecSqlMeta.CheckResult.SQLStatementMissing"),
+                    transformMeta);
+            remarks.add(cr);
+          }
         }
       } catch (HopException e) {
         cr =
@@ -405,6 +430,12 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     try {
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      String impactSql;
+      try {
+        impactSql = getEffectiveSql(variables);
+      } catch (HopException e) {
+        impactSql = sql;
+      }
       DatabaseImpact ii =
           new DatabaseImpact(
               DatabaseImpact.TYPE_IMPACT_READ_WRITE,
@@ -415,7 +446,7 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
               BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown2.Label"),
               BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown3.Label"),
               transformMeta.getName(),
-              sql,
+              impactSql,
               BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Title"));
       impact.add(ii);
 
@@ -426,52 +457,8 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     }
   }
 
-  /**
-   * @return Returns the variableReplacementActive.
-   */
-  public boolean isReplaceVariables() {
-    return replaceVariables;
-  }
-
-  /**
-   * @param replaceVariables The variableReplacement to set.
-   */
-  public void setReplaceVariables(boolean replaceVariables) {
-    this.replaceVariables = replaceVariables;
-  }
-
-  public boolean isQuoteString() {
-    return quoteString;
-  }
-
-  public void setQuoteString(boolean quoteString) {
-    this.quoteString = quoteString;
-  }
-
-  public String getConnection() {
-    return connection;
-  }
-
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  /**
-   * @return the singleStatement
-   */
-  public boolean isSingleStatement() {
-    return singleStatement;
-  }
-
-  /**
-   * @param singleStatement the singleStatement to set
-   */
-  public void setSingleStatement(boolean singleStatement) {
-    this.singleStatement = singleStatement;
   }
 }

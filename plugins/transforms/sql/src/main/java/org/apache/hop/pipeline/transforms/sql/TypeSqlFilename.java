@@ -17,40 +17,27 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
-import java.util.Objects;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+import org.apache.hop.i18n.BaseMessages;
 
-@Getter
-@Setter
-public class ExecSqlArgumentItem {
+public class TypeSqlFilename implements ITypeFilename {
+  private static final Class<?> PKG = ExecSqlMeta.class;
 
-  @HopMetadataProperty(
-      injectionKeyDescription = "ExecSqlMeta.Injection.PARAMETER_NAME",
-      injectionKey = "PARAMETER_NAME")
-  private String name;
-
-  public ExecSqlArgumentItem() {}
-
-  public ExecSqlArgumentItem(String name) {
-    this.name = name;
+  @Override
+  public String getDefaultFileExtension() {
+    return ".sql";
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ExecSqlArgumentItem that = (ExecSqlArgumentItem) o;
-    return Objects.equals(name, that.name);
+  public String[] getFilterExtensions() {
+    return new String[] {"*.sql", "*"};
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(name);
+  public String[] getFilterNames() {
+    return new String[] {
+      BaseMessages.getString(PKG, "ExecSqlMeta.SqlFiles"),
+      BaseMessages.getString("System.FileType.AllFiles")
+    };
   }
 }
