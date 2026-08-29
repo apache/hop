@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -365,6 +366,11 @@ public class SnowflakeBulkLoader
     data.db.execStatement("commit");
   }
 
+  private static boolean isSnowflakeBinaryColumn(String type) {
+    String upper = type.toUpperCase();
+    return upper.startsWith("BINARY") || upper.startsWith("VARBINARY");
+  }
+
   /**
    * Determines the value metadata to use when writing the fields of the stream to a temp file. Date
    * and timestamp values are written with the conversion mask matching the file format of the COPY
@@ -481,7 +487,15 @@ public class SnowflakeBulkLoader
             }
             Object valueData = null;
             if (fieldIndex >= 0) {
-              valueData = v.convertData(rowMeta.getValueMeta(fieldIndex), row[fieldIndex]);
+              IValueMeta streamMeta = rowMeta.getValueMeta(fieldIndex);
+              // Binary must not be converted through String (that is `new String(bytes)`). Keep
+              // the stream metadata so formatField can emit hex for COPY BINARY_FORMAT='HEX'.
+              if (streamMeta.isBinary() || isSnowflakeBinaryColumn(field[1])) {
+                v = streamMeta;
+                valueData = row[fieldIndex];
+              } else {
+                valueData = v.convertData(streamMeta, row[fieldIndex]);
+              }
             } else if (meta.isErrorColumnMismatch()) {
               throw new HopException(
                   "Error column mismatch: Database field "
@@ -514,6 +528,13 @@ public class SnowflakeBulkLoader
    * @throws HopValueException
    */
   private byte[] formatField(IValueMeta v, Object valueData) throws HopValueException {
+    if (v.isBinary()) {
+      byte[] bytes = v.getBinary(valueData);
+      if (bytes == null) {
+        return null;
+      }
+      return Hex.encodeHexString(bytes).getBytes(StandardCharsets.UTF_8);
+    }
     if (v.isString()) {
       if (v.isStorageBinaryString()
           && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE

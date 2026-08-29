@@ -29,6 +29,8 @@ The PostgreSQL bulk loader transform streams data from Hop to Postgresql using h
 
 TIP: boolean stream fields are serialized as `t` or `f`, which PostgreSQL `COPY` accepts for boolean columns.
 
+TIP: binary stream fields (for example a 16-byte hash key) are serialized as PostgreSQL `bytea` hex, `\xdeadbeef`.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

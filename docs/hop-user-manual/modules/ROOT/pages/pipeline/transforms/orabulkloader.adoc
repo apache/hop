@@ -27,6 +27,8 @@ under the License.
 
 This transform allows you to bulk load data to an Oracle database. It will write the data it receives to a proper load format and will then invoke Oracle SQL*Loader to transfer it to the specified table.
 
+TIP: binary stream fields are written as lowercase hex. The SQL*Loader control file converts them with `HEXTORAW`.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

@@ -31,7 +31,8 @@ https://learn.microsoft.com/en-us/sql/connect/jdbc/using-bulk-copy-with-the-jdbc
 API, which is typically much faster than inserting the same rows with a Table Output transform.
 
 Rows never leave the JVM as text: they are buffered and handed to the driver as typed values, so a
-NULL stays a NULL and no value can be mistaken for a field separator.
+NULL stays a NULL and no value can be mistaken for a field separator. Binary stream fields are
+passed through as `byte[]` for `BINARY`/`VARBINARY` columns.
 
 Use the xref:workflow/actions/mssqlbulkload.adoc[MSSQL Bulk Load] action instead when the data is
 already sitting in a file the server itself can read.

@@ -20,9 +20,18 @@ package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.variables.Variables;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SnowflakeBulkLoaderMetaTest {
+
+  @BeforeAll
+  static void initHop() throws Exception {
+    HopClientEnvironment.init();
+  }
 
   @Test
   void testDefaultTruncateFlagsAreOff() {
@@ -53,5 +62,16 @@ class SnowflakeBulkLoaderMetaTest {
 
     meta.setOnlyWhenHaveRows(false);
     assertFalse(meta.isOnlyWhenHaveRows());
+  }
+
+  @Test
+  void copyStatementDeclaresHexBinaryFormat() throws Exception {
+    SnowflakeBulkLoaderMeta meta = new SnowflakeBulkLoaderMeta();
+    meta.setDefault();
+    meta.setTargetTable("orders");
+
+    String sql = meta.getCopyStatement(new Variables(), List.of("/tmp/orders.csv"));
+
+    assertTrue(sql.contains("BINARY_FORMAT = 'HEX'"), sql);
   }
 }

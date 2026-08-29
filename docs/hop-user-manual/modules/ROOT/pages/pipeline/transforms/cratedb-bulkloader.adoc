@@ -30,6 +30,8 @@ The CrateDB Bulk Loader transform loads data from Apache Hop to CrateDB using tw
 * the https://cratedb.com/docs/crate/reference/en/5.7/sql/statements/copy-from.html#copy-from[`COPY FROM`^] command.
 * The https://cratedb.com/docs/crate/reference/en/latest/interfaces/http.html#bulk-operations[CrateDB HTTP endpoint] for bulk operations.
 
+TIP: CrateDB has no native binary column type. Binary stream fields are written as lowercase hex strings, which can be loaded into a `STRING` column.
+
 
 |
 == Supported Engines

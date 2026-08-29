@@ -42,6 +42,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
@@ -291,6 +292,30 @@ class SnowflakeBulkLoaderTest {
 
     assertEquals(
         "2023-02-09,2023-02-09 10:11:12.000" + SnowflakeBulkLoaderMeta.CSV_RECORD_DELIMITER,
+        output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void writesBinaryValuesAsHex() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaBinary("hash"));
+
+    data.outputRowMeta = rowMeta;
+    data.writeValueMetas = bulkLoaderSpy.getWriteValueMetas(rowMeta);
+    data.binarySeparator = SnowflakeBulkLoaderMeta.CSV_DELIMITER.getBytes(StandardCharsets.UTF_8);
+    data.binaryEnclosure = SnowflakeBulkLoaderMeta.ENCLOSURE.getBytes(StandardCharsets.UTF_8);
+    data.escapeCharacters =
+        SnowflakeBulkLoaderMeta.CSV_ESCAPE_CHAR.getBytes(StandardCharsets.UTF_8);
+    data.binaryNewline =
+        SnowflakeBulkLoaderMeta.CSV_RECORD_DELIMITER.getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    data.writer = output;
+
+    bulkLoaderSpy.writeRowToFile(
+        rowMeta, new Object[] {new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}});
+
+    assertEquals(
+        "deadbeef" + SnowflakeBulkLoaderMeta.CSV_RECORD_DELIMITER,
         output.toString(StandardCharsets.UTF_8));
   }
 }

@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.mysqlbulkloader;
 import static org.apache.hop.pipeline.transforms.mysqlbulkloader.MySqlBulkLoaderMeta.Field;
 import static org.apache.hop.pipeline.transforms.mysqlbulkloader.MySqlBulkLoaderMeta.FieldFormatType;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -27,12 +28,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -52,6 +58,12 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
 
   private static final long THREAD_WAIT_TIME = 300000;
   private static final String THREAD_WAIT_TIME_TEXT = "5min";
+
+  /**
+   * MySQL LOAD DATA reads this unquoted token as SQL NULL, including when the column is bound as a
+   * user variable for {@code UNHEX}.
+   */
+  private static final byte[] MYSQL_NULL_TOKEN = "\\N".getBytes(StandardCharsets.US_ASCII);
 
   public MySqlBulkLoader(
       TransformMeta transformMeta,
@@ -181,17 +193,16 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
             + ("\\".equals(meta.getEscapeChar()) ? meta.getEscapeChar() : "")
             + "' ");
 
-    // Build list of column names to set
-    loadCommand.append("(");
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+    String[] quotedNames = new String[meta.getFields().size()];
     for (int cnt = 0; cnt < meta.getFields().size(); cnt++) {
-      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
-      loadCommand.append(databaseMeta.quoteField(meta.getFields().get(cnt).getFieldTable()));
-      if (cnt < meta.getFields().size() - 1) {
-        loadCommand.append(",");
-      }
+      quotedNames[cnt] = databaseMeta.quoteField(meta.getFields().get(cnt).getFieldTable());
     }
-
-    loadCommand.append(");" + Const.CR);
+    boolean[] binaryFields = data.binaryFields;
+    if (binaryFields == null || binaryFields.length != quotedNames.length) {
+      binaryFields = new boolean[quotedNames.length];
+    }
+    appendLoadColumns(loadCommand, quotedNames, binaryFields);
 
     if (isBasic()) {
       logBasic(
@@ -261,8 +272,12 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         // Cache field indexes.
         //
         data.keynrs = new int[meta.getFields().size()];
+        data.binaryFields = new boolean[data.keynrs.length];
         for (int i = 0; i < data.keynrs.length; i++) {
           data.keynrs[i] = getInputRowMeta().indexOfValue(meta.getFields().get(i).getFieldStream());
+          if (data.keynrs[i] >= 0) {
+            data.binaryFields[i] = getInputRowMeta().getValueMeta(data.keynrs[i]).isBinary();
+          }
         }
 
         data.bulkFormatMeta = new IValueMeta[data.keynrs.length];
@@ -370,7 +385,9 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         Field field = meta.getFields().get(i);
 
         if (valueData == null) {
-          data.fifoStream.write("NULL".getBytes());
+          // Binary columns are bound as user variables and converted with UNHEX. The word NULL
+          // assigned to a user variable is the string "NULL", so use MySQL's \N token instead.
+          data.fifoStream.write(valueMeta.isBinary() ? MYSQL_NULL_TOKEN : "NULL".getBytes());
         } else {
           switch (valueMeta.getType()) {
             case IValueMeta.TYPE_STRING:
@@ -481,6 +498,12 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
                 }
               }
               break;
+            case IValueMeta.TYPE_BINARY:
+              byte[] binaryBytes = binaryFieldBytesForMysqlLoadData(valueMeta, valueData);
+              if (binaryBytes != null) {
+                data.fifoStream.write(binaryBytes);
+              }
+              break;
             default:
               break;
           }
@@ -516,6 +539,49 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
       // Null pointer exceptions etc.
       throw new HopException(BaseMessages.getString(PKG, MESSAGE_ERRORSERIALIZING), e2);
     }
+  }
+
+  /**
+   * Encodes binary data as lowercase hex so {@code LOAD DATA ... SET col = UNHEX(@col)} can restore
+   * the original bytes.
+   */
+  @VisibleForTesting
+  static byte[] binaryFieldBytesForMysqlLoadData(IValueMeta valueMeta, Object valueData)
+      throws HopValueException {
+    byte[] bytes = valueMeta.getBinary(valueData);
+    if (bytes == null) {
+      return null;
+    }
+    return Hex.encodeHexString(bytes).getBytes(StandardCharsets.US_ASCII);
+  }
+
+  /**
+   * Binary columns cannot be loaded as text. They are bound as {@code @colN} user variables and
+   * converted with {@code UNHEX} so the BLOB receives the original bytes, not the hex characters.
+   */
+  @VisibleForTesting
+  static void appendLoadColumns(
+      StringBuilder loadCommand, String[] quotedNames, boolean[] binaryFields) {
+    loadCommand.append("(");
+    List<String> setClauses = new ArrayList<>();
+    for (int i = 0; i < quotedNames.length; i++) {
+      if (i > 0) {
+        loadCommand.append(",");
+      }
+      if (binaryFields[i]) {
+        String variable = "@col" + i;
+        loadCommand.append(variable);
+        setClauses.add(quotedNames[i] + " = UNHEX(" + variable + ")");
+      } else {
+        loadCommand.append(quotedNames[i]);
+      }
+    }
+    loadCommand.append(")");
+    if (!setClauses.isEmpty()) {
+      loadCommand.append(" SET ");
+      loadCommand.append(String.join(", ", setClauses));
+    }
+    loadCommand.append(";" + Const.CR);
   }
 
   protected void verifyDatabaseConnection() throws HopException {

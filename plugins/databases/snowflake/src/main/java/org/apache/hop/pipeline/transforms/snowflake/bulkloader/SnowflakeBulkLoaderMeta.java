@@ -1091,6 +1091,7 @@ public class SnowflakeBulkLoaderMeta
           .append(errorColumnMismatch)
           .append(" ");
       returnValue.append("COMPRESSION = 'GZIP' ");
+      returnValue.append("BINARY_FORMAT = 'HEX' ");
 
     } else if (dataType.equals(DATA_TYPE_CODES[DATA_TYPE_JSON])) {
       returnValue.append("'JSON' COMPRESSION = 'GZIP' STRIP_OUTER_ARRAY = FALSE ");

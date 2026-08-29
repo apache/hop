@@ -29,6 +29,8 @@ The Redshift Bulk Loader transform loads data from Apache Hop to AWS Redshift us
 
 TIP: make sure your target Redshift table has a layout that is compatible with Parquet data types, e.g. use `int8` instead of `int4` data types.
 
+TIP: binary stream fields are written as lowercase hex (no `\x` prefix), which is what Redshift `COPY` expects for `VARBYTE`.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

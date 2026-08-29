@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -438,6 +439,11 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
           v.setConversionMask(DATE_CONVERSION_MASK);
           vc.setConversionMask(DATE_CONVERSION_MASK);
           convertedValue = (String) vc.convertData(v, rowItem);
+          break;
+        case IValueMeta.TYPE_BINARY:
+          // CrateDB has no BYTEA type. Hex is JSON/CSV-safe and can be stored in a STRING column.
+          byte[] bytes = v.getBinary(rowItem);
+          convertedValue = bytes == null ? null : Hex.encodeHexString(bytes);
           break;
         default:
           convertedValue = v.getString(rowItem);

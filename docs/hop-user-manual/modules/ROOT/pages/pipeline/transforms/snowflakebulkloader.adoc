@@ -31,6 +31,8 @@ The Snowflake bulk loader transform utilizes the Snowflake Copy command to load 
 * Run a put statement to copy the local files to a Snowflake stage.
 * Run a copy command to bulk load the data from the Snowflake stage to a table.
 
+TIP: binary stream fields are written as lowercase hex. The `COPY` file format sets `BINARY_FORMAT = 'HEX'`.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
