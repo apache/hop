@@ -66,8 +66,8 @@ limitations under the License.
         <type>Number</type>
         <format/>
         <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
+        <decimal/>
+        <group/>
         <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
