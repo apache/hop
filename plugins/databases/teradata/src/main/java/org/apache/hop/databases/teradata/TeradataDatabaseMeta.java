@@ -28,6 +28,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -58,6 +59,8 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
           // Teradata has had a JSON type since 15.0.
           .write(IValueMeta.TYPE_JSON)
           .as("JSON")
+          // An integer with no declared length is a Long, not a double precision. Issue #4174.
+          .rule(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG)
           .build();
 
   @Override

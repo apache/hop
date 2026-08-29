@@ -7,92 +7,132 @@ STRING       len=      -1 prec=  -1 -        -> TEXT
 STRING       len=       0 prec=   0 -        -> TEXT
 STRING       len=       4 prec=   0 -        -> TEXT
 STRING       len=       9 prec=   0 -        -> TEXT
+STRING       len=      10 prec=   2 -        -> TEXT
 STRING       len=      15 prec=   0 -        -> TEXT
 STRING       len=      18 prec=   0 -        -> TEXT
 STRING       len=      20 prec=   0 -        -> TEXT
-STRING       len=      10 prec=   2 -        -> TEXT
 STRING       len= 9999999 prec=   0 -        -> BLOB
 INTEGER      len=      -1 prec=  -1 -        -> NUMERIC
 INTEGER      len=       0 prec=   0 -        -> INTEGER
 INTEGER      len=       4 prec=   0 -        -> INTEGER
 INTEGER      len=       9 prec=   0 -        -> INTEGER
+INTEGER      len=      10 prec=   2 -        -> INTEGER
 INTEGER      len=      15 prec=   0 -        -> INTEGER
 INTEGER      len=      18 prec=   0 -        -> INTEGER
 INTEGER      len=      20 prec=   0 -        -> NUMERIC
-INTEGER      len=      10 prec=   2 -        -> INTEGER
 INTEGER      len= 9999999 prec=   0 -        -> NUMERIC
 NUMBER       len=      -1 prec=  -1 -        -> NUMERIC
 NUMBER       len=       0 prec=   0 -        -> INTEGER
 NUMBER       len=       4 prec=   0 -        -> INTEGER
 NUMBER       len=       9 prec=   0 -        -> INTEGER
+NUMBER       len=      10 prec=   2 -        -> NUMERIC
 NUMBER       len=      15 prec=   0 -        -> INTEGER
 NUMBER       len=      18 prec=   0 -        -> INTEGER
 NUMBER       len=      20 prec=   0 -        -> NUMERIC
-NUMBER       len=      10 prec=   2 -        -> NUMERIC
 NUMBER       len= 9999999 prec=   0 -        -> NUMERIC
 BIGNUMBER    len=      -1 prec=  -1 -        -> NUMERIC
 BIGNUMBER    len=       0 prec=   0 -        -> INTEGER
 BIGNUMBER    len=       4 prec=   0 -        -> INTEGER
 BIGNUMBER    len=       9 prec=   0 -        -> INTEGER
+BIGNUMBER    len=      10 prec=   2 -        -> NUMERIC
 BIGNUMBER    len=      15 prec=   0 -        -> INTEGER
 BIGNUMBER    len=      18 prec=   0 -        -> INTEGER
 BIGNUMBER    len=      20 prec=   0 -        -> NUMERIC
-BIGNUMBER    len=      10 prec=   2 -        -> NUMERIC
 BIGNUMBER    len= 9999999 prec=   0 -        -> NUMERIC
 DATE         len=      -1 prec=  -1 -        -> DATETIME
 DATE         len=       0 prec=   0 -        -> DATETIME
 DATE         len=       4 prec=   0 -        -> DATETIME
 DATE         len=       9 prec=   0 -        -> DATETIME
+DATE         len=      10 prec=   2 -        -> DATETIME
 DATE         len=      15 prec=   0 -        -> DATETIME
 DATE         len=      18 prec=   0 -        -> DATETIME
 DATE         len=      20 prec=   0 -        -> DATETIME
-DATE         len=      10 prec=   2 -        -> DATETIME
 DATE         len= 9999999 prec=   0 -        -> DATETIME
 TIMESTAMP    len=      -1 prec=  -1 -        -> DATETIME
 TIMESTAMP    len=       0 prec=   0 -        -> DATETIME
 TIMESTAMP    len=       4 prec=   0 -        -> DATETIME
 TIMESTAMP    len=       9 prec=   0 -        -> DATETIME
+TIMESTAMP    len=      10 prec=   2 -        -> DATETIME
 TIMESTAMP    len=      15 prec=   0 -        -> DATETIME
 TIMESTAMP    len=      18 prec=   0 -        -> DATETIME
 TIMESTAMP    len=      20 prec=   0 -        -> DATETIME
-TIMESTAMP    len=      10 prec=   2 -        -> DATETIME
 TIMESTAMP    len= 9999999 prec=   0 -        -> DATETIME
 BOOLEAN      len=      -1 prec=  -1 -        -> CHAR(1)
 BOOLEAN      len=       0 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       4 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       9 prec=   0 -        -> CHAR(1)
+BOOLEAN      len=      10 prec=   2 -        -> CHAR(1)
 BOOLEAN      len=      15 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=      18 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=      20 prec=   0 -        -> CHAR(1)
-BOOLEAN      len=      10 prec=   2 -        -> CHAR(1)
 BOOLEAN      len= 9999999 prec=   0 -        -> CHAR(1)
 BINARY       len=      -1 prec=  -1 -        -> BLOB
 BINARY       len=       0 prec=   0 -        -> BLOB
 BINARY       len=       4 prec=   0 -        -> BLOB
 BINARY       len=       9 prec=   0 -        -> BLOB
+BINARY       len=      10 prec=   2 -        -> BLOB
 BINARY       len=      15 prec=   0 -        -> BLOB
 BINARY       len=      18 prec=   0 -        -> BLOB
 BINARY       len=      20 prec=   0 -        -> BLOB
-BINARY       len=      10 prec=   2 -        -> BLOB
 BINARY       len= 9999999 prec=   0 -        -> BLOB
 INET         len=      -1 prec=  -1 -        -> TEXT
 INET         len=       0 prec=   0 -        -> TEXT
 INET         len=       4 prec=   0 -        -> TEXT
 INET         len=       9 prec=   0 -        -> TEXT
+INET         len=      10 prec=   2 -        -> TEXT
 INET         len=      15 prec=   0 -        -> TEXT
 INET         len=      18 prec=   0 -        -> TEXT
 INET         len=      20 prec=   0 -        -> TEXT
-INET         len=      10 prec=   2 -        -> TEXT
 INET         len= 9999999 prec=   0 -        -> TEXT
 JSON         len=      -1 prec=  -1 -        -> BLOB
 JSON         len=       0 prec=   0 -        -> BLOB
 JSON         len=       4 prec=   0 -        -> TEXT
 JSON         len=       9 prec=   0 -        -> TEXT
+JSON         len=      10 prec=   2 -        -> TEXT
 JSON         len=      15 prec=   0 -        -> TEXT
 JSON         len=      18 prec=   0 -        -> TEXT
 JSON         len=      20 prec=   0 -        -> TEXT
-JSON         len=      10 prec=   2 -        -> TEXT
 JSON         len= 9999999 prec=   0 -        -> BLOB
+
+[strings]
+STRING       len=     254 prec=   0 -        -> TEXT
+STRING       len=     255 prec=   0 -        -> TEXT
+STRING       len=     256 prec=   0 -        -> TEXT
+STRING       len=    1999 prec=   0 -        -> TEXT
+STRING       len=    2000 prec=   0 -        -> TEXT
+STRING       len=    2001 prec=   0 -        -> TEXT
+STRING       len=    3999 prec=   0 -        -> TEXT
+STRING       len=    4000 prec=   0 -        -> TEXT
+STRING       len=    4001 prec=   0 -        -> TEXT
+STRING       len=    7999 prec=   0 -        -> TEXT
+STRING       len=    8000 prec=   0 -        -> TEXT
+STRING       len=    8001 prec=   0 -        -> TEXT
+STRING       len=   21843 prec=   0 -        -> TEXT
+STRING       len=   21844 prec=   0 -        -> TEXT
+STRING       len=   32663 prec=   0 -        -> TEXT
+STRING       len=   32664 prec=   0 -        -> TEXT
+STRING       len=   32671 prec=   0 -        -> TEXT
+STRING       len=   32672 prec=   0 -        -> TEXT
+STRING       len=   32699 prec=   0 -        -> TEXT
+STRING       len=   32700 prec=   0 -        -> TEXT
+STRING       len=   32719 prec=   0 -        -> TEXT
+STRING       len=   32720 prec=   0 -        -> TEXT
+STRING       len=   32766 prec=   0 -        -> TEXT
+STRING       len=   32767 prec=   0 -        -> TEXT
+STRING       len=   32768 prec=   0 -        -> TEXT
+STRING       len=   65532 prec=   0 -        -> TEXT
+STRING       len=   65533 prec=   0 -        -> TEXT
+STRING       len=   65534 prec=   0 -        -> TEXT
+STRING       len=   65535 prec=   0 -        -> TEXT
+STRING       len=   65536 prec=   0 -        -> TEXT
+STRING       len= 1999999 prec=   0 -        -> TEXT
+STRING       len= 2000000 prec=   0 -        -> TEXT
+STRING       len= 2000001 prec=   0 -        -> TEXT
+STRING       len= 9999998 prec=   0 -        -> TEXT
+STRING       len= 9999999 prec=   0 -        -> BLOB
+STRING       len=10000000 prec=   0 -        -> BLOB
+STRING       len=16777215 prec=   0 -        -> BLOB
+STRING       len=16777216 prec=   0 -        -> BLOB
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -107,6 +147,9 @@ INTEGER      len=       4 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 INTEGER      len=       9 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=       9 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=       9 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
+INTEGER      len=      10 prec=   2 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
+INTEGER      len=      10 prec=   2 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
+INTEGER      len=      10 prec=   2 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=      15 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=      15 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=      15 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -116,9 +159,6 @@ INTEGER      len=      18 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 INTEGER      len=      20 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=      20 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len=      20 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
-INTEGER      len=      10 prec=   2 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
-INTEGER      len=      10 prec=   2 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
-INTEGER      len=      10 prec=   2 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len= 9999999 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len= 9999999 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 INTEGER      len= 9999999 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -134,6 +174,9 @@ NUMBER       len=       4 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 NUMBER       len=       9 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=       9 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=       9 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
+NUMBER       len=      10 prec=   2 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
+NUMBER       len=      10 prec=   2 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
+NUMBER       len=      10 prec=   2 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=      15 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=      15 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=      15 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -143,9 +186,6 @@ NUMBER       len=      18 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 NUMBER       len=      20 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=      20 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len=      20 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
-NUMBER       len=      10 prec=   2 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
-NUMBER       len=      10 prec=   2 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
-NUMBER       len=      10 prec=   2 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len= 9999999 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len= 9999999 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 NUMBER       len= 9999999 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -161,6 +201,9 @@ BIGNUMBER    len=       4 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 BIGNUMBER    len=       9 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=       9 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=       9 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
+BIGNUMBER    len=      10 prec=   2 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
+BIGNUMBER    len=      10 prec=   2 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
+BIGNUMBER    len=      10 prec=   2 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=      15 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=      15 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=      15 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -170,9 +213,6 @@ BIGNUMBER    len=      18 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 BIGNUMBER    len=      20 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=      20 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len=      20 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
-BIGNUMBER    len=      10 prec=   2 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
-BIGNUMBER    len=      10 prec=   2 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
-BIGNUMBER    len=      10 prec=   2 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len= 9999999 prec=   0 tk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len= 9999999 prec=   0 pk       -> INTEGER PRIMARY KEY AUTOINCREMENT
 BIGNUMBER    len= 9999999 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMENT
@@ -180,61 +220,61 @@ BIGNUMBER    len= 9999999 prec=   0 autoinc  -> INTEGER PRIMARY KEY AUTOINCREMEN
 [alter]
 STRING       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL TEXT
 STRING       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL TEXT
-STRING       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
-STRING       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
 STRING       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
 STRING       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+STRING       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+STRING       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
 INTEGER      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL NUMERIC
 INTEGER      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL NUMERIC
-INTEGER      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL INTEGER
-INTEGER      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
 INTEGER      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL INTEGER
 INTEGER      len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
+INTEGER      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL INTEGER
+INTEGER      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
 NUMBER       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL NUMERIC
 NUMBER       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL NUMERIC
-NUMBER       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL INTEGER
-NUMBER       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
 NUMBER       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL NUMERIC
 NUMBER       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL NUMERIC
+NUMBER       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL INTEGER
+NUMBER       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
 BIGNUMBER    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL NUMERIC
 BIGNUMBER    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL NUMERIC
-BIGNUMBER    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL INTEGER
-BIGNUMBER    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
 BIGNUMBER    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL NUMERIC
 BIGNUMBER    len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL NUMERIC
+BIGNUMBER    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL INTEGER
+BIGNUMBER    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL INTEGER
 DATE         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DATETIME
 DATE         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
-DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME
-DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
 DATE         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DATETIME
 DATE         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
+DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME
+DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
 TIMESTAMP    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DATETIME
 TIMESTAMP    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
-TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME
-TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
 TIMESTAMP    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DATETIME
 TIMESTAMP    len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
+TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME
+TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DATETIME
 BOOLEAN      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL CHAR(1)
 BOOLEAN      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
-BOOLEAN      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL CHAR(1)
-BOOLEAN      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
+BOOLEAN      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL CHAR(1)
+BOOLEAN      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
 BINARY       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL BLOB
 BINARY       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL BLOB
-BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL BLOB
-BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL BLOB
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL BLOB
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL BLOB
+BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL BLOB
+BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL BLOB
 INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL TEXT
 INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL TEXT
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
 INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
 INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
 JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL BLOB
 JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL BLOB
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT
 JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TEXT
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TEXT

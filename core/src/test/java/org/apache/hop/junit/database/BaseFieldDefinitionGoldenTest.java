@@ -77,24 +77,81 @@ public abstract class BaseFieldDefinitionGoldenTest {
   /** The table name used by the ALTER TABLE matrix. */
   private static final String TABLE = "TBL";
 
-  /** Length/precision pairs exercised for every type. */
+  /**
+   * Length/precision pairs exercised for every type, in ascending order of length. Keep them
+   * sorted: the golden files are read as a size ladder, and a row out of sequence reads as a
+   * dialect contradicting itself when it is only the matrix that is out of order.
+   */
   private static final int[][] SIZES = {
     {-1, -1},
     {0, 0},
     {4, 0},
     {9, 0},
+    {10, 2},
     {15, 0},
     {18, 0},
     {20, 0},
-    {10, 2},
     {DatabaseMeta.CLOB_LENGTH, 0}
   };
 
-  /** A shorter matrix for the ALTER statements: unsized, sized, and sized with a precision. */
+  /**
+   * String lengths that bracket every VARCHAR to TEXT/CLOB cliff in the dialects: each dialect
+   * switches at its own limit, and the pair either side of that limit is what makes the switch
+   * visible. The values come from the dialects themselves - 255 Access, 256 Informix and MySQL,
+   * 2000 Oracle, 4000 Vertica, 8000 MS SQL Server, 21844 SingleStore, then the crowded band from
+   * 32664 Interbase through 32672 AS/400 and DB2, 32700 Derby, 32720 Firebird and SAPDB, 32767
+   * Netezza and 32768 Informix, then 65533 Doris, 65535 MySQL and Impala, 2000000 Exasol,
+   * CLOB_LENGTH itself, and 16777216 MySQL and SingleStore.
+   *
+   * <p>Strings only, and its own section: running this ladder through every type would multiply the
+   * file for no information, because only the string branch has these limits.
+   */
+  private static final int[] STRING_SIZES = {
+    254,
+    255,
+    256,
+    1999,
+    2000,
+    2001,
+    3999,
+    4000,
+    4001,
+    7999,
+    8000,
+    8001,
+    21843,
+    21844,
+    32663,
+    32664,
+    32671,
+    32672,
+    32699,
+    32700,
+    32719,
+    32720,
+    32766,
+    32767,
+    32768,
+    65532,
+    65533,
+    65534,
+    65535,
+    65536,
+    1999999,
+    2000000,
+    2000001,
+    DatabaseMeta.CLOB_LENGTH - 1,
+    DatabaseMeta.CLOB_LENGTH,
+    DatabaseMeta.CLOB_LENGTH + 1,
+    16777215,
+    16777216
+  };
+
+  /** A shorter matrix for the ALTER statements: unsized, sized with a precision, and sized. */
   private static final int[][] ALTER_SIZES = {
     {-1, -1},
-    {15, 0},
-    {10, 2}
+    {10, 2},
+    {15, 0}
   };
 
   /**
@@ -165,6 +222,14 @@ public abstract class BaseFieldDefinitionGoldenTest {
       for (int[] size : SIZES) {
         out.append(line(databaseMeta, type, size[0], size[1], null, null, false));
       }
+    }
+
+    // Where each dialect stops writing a VARCHAR and starts writing its large text type. The
+    // limits differ per database and are easy to regress, so the cliff is snapshotted directly.
+    out.append("\n[strings]\n");
+    TypeCase string = new TypeCase("STRING", () -> new ValueMetaString(COLUMN));
+    for (int length : STRING_SIZES) {
+      out.append(line(databaseMeta, string, length, 0, null, null, false));
     }
 
     // Technical/primary key and auto-increment only change the outcome for numeric types.
