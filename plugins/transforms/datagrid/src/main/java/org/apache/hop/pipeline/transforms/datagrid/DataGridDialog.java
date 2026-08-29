@@ -271,7 +271,7 @@ public class DataGridDialog extends BaseTransformDialog {
       TableItem item = wData.table.getItem(i);
 
       for (int f = 0; f < line.getDatalines().size(); f++) {
-        item.setText(f + 1, Const.NVL(line.getDatalines().get(f), ""));
+        wData.setCellValue(item, f + 1, Const.NVL(line.getDatalines().get(f), ""));
       }
     }
 
@@ -413,7 +413,8 @@ public class DataGridDialog extends BaseTransformDialog {
       DataGridDataMeta line = new DataGridDataMeta();
       TableItem item = wData.table.getItem(i);
       for (int f = 0; f < nrFields; f++) {
-        line.getDatalines().add(item.getText(f + 1));
+        // The cell is drawn shortened; the value itself comes back out of the grid.
+        line.getDatalines().add(TableView.getCellValue(item, f + 1));
       }
       data.add(line);
     }
