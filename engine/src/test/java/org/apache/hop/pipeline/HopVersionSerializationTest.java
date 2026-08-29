@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -35,10 +36,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * The Hop version that created and last saved a pipeline or workflow is recorded in the file so a
  * project can be scanned for files built with an older release.
  *
- * <p>Files written before these elements existed must keep them empty rather than silently claim to
- * have been created by the running version: the XML deserializer only assigns a field when its
- * element is present, so anything defaulted in the constructor would survive a load and get written
- * back out on the next save.
+ * <p>Files written before these elements existed must not silently claim to have been created by
+ * the running version: the XML deserializer only assigns a field when its element is present, so
+ * anything defaulted in the constructor would survive a load. Empty version strings are omitted
+ * from XML (the same as a missing tag), so a subsequent save still does not invent a version.
  */
 @ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class HopVersionSerializationTest {
@@ -150,10 +151,10 @@ class HopVersionSerializationTest {
     assertEquals("", loaded.getCreatedHopVersion());
     assertEquals("", loaded.getModifiedHopVersion());
 
-    // Both elements are written on every save, empty meaning "we don't know".
+    // Empty versions are omitted, same as a file that never had these elements.
     String xml = loaded.getXml(variables);
-    assertTrue(xml.contains("<created_hop_version/>"));
-    assertTrue(xml.contains("<modified_hop_version/>"));
+    assertFalse(xml.contains("<created_hop_version"));
+    assertFalse(xml.contains("<modified_hop_version"));
   }
 
   @Test
@@ -164,8 +165,8 @@ class HopVersionSerializationTest {
     assertEquals("", loaded.getModifiedHopVersion());
 
     String xml = loaded.getXml(variables);
-    assertTrue(xml.contains("<created_hop_version/>"));
-    assertTrue(xml.contains("<modified_hop_version/>"));
+    assertFalse(xml.contains("<created_hop_version"));
+    assertFalse(xml.contains("<modified_hop_version"));
   }
 
   @Test
@@ -178,7 +179,7 @@ class HopVersionSerializationTest {
 
     String xml = loaded.getXml(variables);
     assertTrue(xml.contains("<created_hop_version>1.2.0</created_hop_version>"));
-    assertTrue(xml.contains("<modified_hop_version/>"));
+    assertFalse(xml.contains("<modified_hop_version"));
   }
 
   @Test
@@ -190,6 +191,6 @@ class HopVersionSerializationTest {
 
     String xml = loaded.getXml(variables);
     assertTrue(xml.contains("<created_hop_version>1.2.0</created_hop_version>"));
-    assertTrue(xml.contains("<modified_hop_version/>"));
+    assertFalse(xml.contains("<modified_hop_version"));
   }
 }

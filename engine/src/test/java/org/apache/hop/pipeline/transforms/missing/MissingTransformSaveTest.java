@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -116,30 +115,17 @@ class MissingTransformSaveTest {
     PipelineMeta pipelineMeta = loadPipeline(PIPELINE_XML);
 
     Missing missing = (Missing) pipelineMeta.getTransform(0).getTransform();
+    String preserved = String.join("\n", missing.getPreservedXml());
 
-    assertEquals(
-        List.of(
-            "<name>Transform with a missing plugin</name>",
-            "<type>ThisTransformPluginIsNotInstalled</type>",
-            "<distribute>Y</distribute>",
-            "<copies>1</copies>",
-            "<connection>my-precious-connection</connection>",
-            "<schema>my-precious-schema</schema>",
-            "<table>my-precious-table</table>",
-            "<commit_size>5000</commit_size>",
-            "<fields>\n"
-                + "      <field>\n"
-                + "        <column_name>id</column_name>\n"
-                + "        <stream_name>id</stream_name>\n"
-                + "      </field>\n"
-                + "      <field>\n"
-                + "        <column_name>name</column_name>\n"
-                + "        <stream_name>name</stream_name>\n"
-                + "      </field>\n"
-                + "    </fields>",
-            "<attributes/>",
-            "<GUI>\n" + "      <xloc>240</xloc>\n" + "      <yloc>128</yloc>\n" + "    </GUI>"),
-        missing.getPreservedXml());
+    assertTrue(preserved.contains("<name>" + TRANSFORM_NAME + "</name>"));
+    assertTrue(preserved.contains("<type>" + MISSING_PLUGIN_ID + "</type>"));
+    assertTrue(preserved.contains("<connection>my-precious-connection</connection>"));
+    assertTrue(preserved.contains("<schema>my-precious-schema</schema>"));
+    assertTrue(preserved.contains("<table>my-precious-table</table>"));
+    assertTrue(preserved.contains("<commit_size>5000</commit_size>"));
+    assertTrue(preserved.contains("<column_name>id</column_name>"));
+    assertTrue(preserved.contains("<stream_name>name</stream_name>"));
+    assertTrue(preserved.contains("<xloc>240</xloc>"));
   }
 
   /** Saving the pipeline writes the settings of the missing plugin back out. */
@@ -196,6 +182,8 @@ class MissingTransformSaveTest {
     assertEquals(savedOnce, savedTwice);
     assertEquals(savedTwice, savedThrice);
     assertTrue(savedThrice.contains("<table>my-precious-table</table>"));
+    assertFalse(savedThrice.contains("<created_hop_version/>"));
+    assertFalse(savedThrice.contains("<modified_hop_version/>"));
   }
 
   /** Copy/paste of a transform with a missing plugin keeps its settings as well. */

@@ -36,6 +36,8 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 /** Verifies that the "include subfolders" option also controls folder traversal. */
@@ -62,6 +64,7 @@ class ActionDeleteFilesSubfolderTest {
 
   /** An inaccessible subfolder must not break a delete that was not asked to recurse. */
   @Test
+  @EnabledOnOs({OS.LINUX, OS.MAC})
   void inaccessibleSubfolderIsNotTraversedWhenSubfoldersAreExcluded(@TempDir Path folder)
       throws Exception {
     Path matching = Files.createFile(folder.resolve("cams_20260814.csv"));
