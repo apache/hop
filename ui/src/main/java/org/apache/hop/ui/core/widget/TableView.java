@@ -268,6 +268,13 @@ public class TableView extends Composite {
   private int[] rememberedWidths;
 
   /**
+   * Last width we asked each native column to take during {@link #optWidth}. Win32/DPI often
+   * returns a slightly different {@code getWidth()} than the value passed to {@code setWidth}, so
+   * grow-only mode uses this to avoid applying the same target again every refresh.
+   */
+  private int[] lastOptWidthApplied;
+
+  /**
    * Create a table to add to a dialog
    *
    * @param variables IVariables for variable resolution inside the table
@@ -3683,6 +3690,21 @@ public class TableView extends Composite {
   }
 
   public void optWidth(boolean header, int nrLines) {
+    optWidth(header, nrLines, false);
+  }
+
+  /**
+   * Size columns to their content.
+   *
+   * @param header include header text in the packed size
+   * @param nrLines max rows to measure, or {@code <= 0} for all rows
+   * @param growOnly when true, never shrink a column and never touch columns with an explicit
+   *     {@link ColumnInfo} width (user-sized). Used by live grids that refresh often.
+   */
+  public void optWidth(boolean header, int nrLines, boolean growOnly) {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
 
     int extraForMargin;
     if (Const.isWindows()) {
@@ -3692,117 +3714,130 @@ public class TableView extends Composite {
     }
     extraForMargin += EXTRA_COLUMN_WIDTH_MARGIN;
 
-    for (int c = 0; c < table.getColumnCount(); c++) {
-      TableColumn tc = table.getColumn(c);
-      if (c > 0 && hiddenDataColumns.contains(c - 1)) {
-        if (tc.getWidth() != 0) {
-          tc.setWidth(0);
+    boolean widthChanged = false;
+    table.setRedraw(false);
+    try {
+      for (int c = 0; c < table.getColumnCount(); c++) {
+        TableColumn tc = table.getColumn(c);
+        if (c > 0 && hiddenDataColumns.contains(c - 1)) {
+          if (tc.getWidth() != 0) {
+            tc.setWidth(0);
+            rememberAppliedColumnWidth(c, 0);
+            widthChanged = true;
+          }
+          continue;
         }
-        continue;
-      }
-      int max = 0;
-      if (header) {
-        max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
-        if (tc.getImage() != null) {
-          max += tc.getImage().getBounds().width;
-        }
+        int max = 0;
+        if (header) {
+          max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
+          if (tc.getImage() != null) {
+            max += tc.getImage().getBounds().width;
+          }
 
-        // Check if the column has a sorted mark set. In that case, we need the
-        // header to be a bit wider...
-        //
-        if (c == sortField && sortable) {
-          max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
-        }
-      }
-      Set<String> columnStrings = new HashSet<>();
-
-      boolean haveToGetTexts = false;
-      if (c > 0) {
-        final ColumnInfo column = columns[c - 1];
-        if (column != null) {
-          switch (column.getType()) {
-            case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
-              haveToGetTexts = true;
-              break;
-            case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
-              haveToGetTexts = true;
-              if (column.getComboValues() != null) {
-                for (String comboValue : columns[c - 1].getComboValues()) {
-                  columnStrings.add(comboValue);
-                }
-              }
-              break;
-            case ColumnInfo.COLUMN_TYPE_BUTTON:
-              columnStrings.add(column.getButtonText());
-              break;
-            default:
-              break;
+          // Check if the column has a sorted mark set. In that case, we need the
+          // header to be a bit wider...
+          //
+          if (c == sortField && sortable) {
+            max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
           }
         }
-      } else {
-        haveToGetTexts = true;
-      }
+        Set<String> columnStrings = new HashSet<>();
 
-      if (haveToGetTexts) {
-        for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
-          TableItem ti = table.getItem(r);
-          if (ti != null) {
-            // Size on what is actually drawn: a long or multi-line value is shown shortened, so
-            // measuring the full value would stretch the column for text nobody sees.
-            String display = customCellText(ti, c);
-            columnStrings.add(display != null ? display : ti.getText(c));
-          }
-        }
-      }
-
-      for (String str : columnStrings) {
-        int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
-        if (len > max) {
-          max = len;
-        }
-      }
-
-      try {
-        max += extraForMargin;
+        boolean haveToGetTexts = false;
         if (c > 0) {
-          max += extraForMargin; // margins on both sides of the column
-        }
-        if (Const.isWindows() || Const.isLinux()) {
-          max += extraForMargin;
-        }
-
-        // The line number column
-        //
-        if (c == 0) {
-          if (tc.getWidth() != max) {
-            tc.setWidth(max);
+          final ColumnInfo column = columns[c - 1];
+          if (column != null) {
+            switch (column.getType()) {
+              case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
+                haveToGetTexts = true;
+                break;
+              case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
+                haveToGetTexts = true;
+                if (column.getComboValues() != null) {
+                  for (String comboValue : columns[c - 1].getComboValues()) {
+                    columnStrings.add(comboValue);
+                  }
+                }
+                break;
+              case ColumnInfo.COLUMN_TYPE_BUTTON:
+                columnStrings.add(column.getButtonText());
+                break;
+              default:
+                break;
+            }
           }
         } else {
-          int desiredWidth = columns[c - 1].getWidth();
-          if (desiredWidth > 0) {
-            if (tc.getWidth() != desiredWidth) {
-              tc.setWidth(desiredWidth);
-            }
-          } else {
-            if (tc.getWidth() != max) {
-              tc.setWidth(max);
+          haveToGetTexts = true;
+        }
+
+        if (haveToGetTexts) {
+          for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
+            TableItem ti = table.getItem(r);
+            if (ti != null) {
+              // Size on what is actually drawn: a long or multi-line value is shown shortened, so
+              // measuring the full value would stretch the column for text nobody sees.
+              String display = customCellText(ti, c);
+              columnStrings.add(display != null ? display : ti.getText(c));
             }
           }
         }
 
-        if (tc.getWidth() != max) {
-          if (c > 0 && columns[c - 1].getWidth() > 0) {
-            tc.setWidth(columns[c - 1].getWidth());
-          } else {
-            tc.setWidth(max);
+        for (String str : columnStrings) {
+          int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
+          if (len > max) {
+            max = len;
           }
         }
-      } catch (Exception e) {
-        // Ignore errors
-        LogChannel.UI.logError("error in TableView", e);
+
+        try {
+          max += extraForMargin;
+          if (c > 0) {
+            max += extraForMargin; // margins on both sides of the column
+          }
+          if (Const.isWindows() || Const.isLinux()) {
+            max += extraForMargin;
+          }
+
+          int desiredWidth = preferredColumnWidth(c);
+          int target;
+          if (c == 0) {
+            // Line-number column: always pack unless the caller marked a preferred width.
+            target = desiredWidth > 0 ? desiredWidth : max;
+          } else if (desiredWidth > 0) {
+            target = desiredWidth;
+          } else {
+            target = max;
+          }
+
+          if (growOnly) {
+            if (desiredWidth > 0) {
+              continue;
+            }
+            int baseline = Math.max(tc.getWidth(), lastAppliedColumnWidth(c));
+            if (max <= baseline) {
+              continue;
+            }
+            target = max;
+          }
+
+          if (tc.getWidth() != target) {
+            tc.setWidth(target);
+            rememberAppliedColumnWidth(c, target);
+            widthChanged = true;
+          } else {
+            rememberAppliedColumnWidth(c, target);
+          }
+        } catch (Exception e) {
+          // Ignore errors
+          LogChannel.UI.logError("error in TableView", e);
+        }
+      }
+    } finally {
+      if (!table.isDisposed()) {
+        table.setRedraw(true);
       }
     }
-    if (table.isListening(SWT.Resize)) {
+    if (widthChanged && table.isListening(SWT.Resize)) {
       Event resizeEvent = new Event();
       resizeEvent.widget = table;
       resizeEvent.type = SWT.Resize;
@@ -3811,6 +3846,60 @@ public class TableView extends Composite {
       table.notifyListeners(SWT.Resize, resizeEvent);
     }
     unEdit();
+  }
+
+  /**
+   * Records a preferred width for a table column ({@code 0} is the "#" index column). Later {@link
+   * #optWidth} calls honor this instead of packing, and grow-only mode will not change it.
+   *
+   * @param tableColumnIndex native table column index
+   * @param width pixel width
+   */
+  public void setPreferredColumnWidth(int tableColumnIndex, int width) {
+    if (tableColumnIndex == 0) {
+      if (numberColumn != null) {
+        numberColumn.setWidth(width);
+      }
+      return;
+    }
+    int dataIndex = tableColumnIndex - 1;
+    if (dataIndex >= 0 && dataIndex < columns.length) {
+      columns[dataIndex].setWidth(width);
+    }
+  }
+
+  private int preferredColumnWidth(int tableColumnIndex) {
+    if (tableColumnIndex == 0) {
+      return numberColumn != null ? numberColumn.getWidth() : -1;
+    }
+    int dataIndex = tableColumnIndex - 1;
+    if (dataIndex >= 0 && dataIndex < columns.length && columns[dataIndex] != null) {
+      return columns[dataIndex].getWidth();
+    }
+    return -1;
+  }
+
+  private int lastAppliedColumnWidth(int tableColumnIndex) {
+    if (lastOptWidthApplied == null || tableColumnIndex >= lastOptWidthApplied.length) {
+      return -1;
+    }
+    return lastOptWidthApplied[tableColumnIndex];
+  }
+
+  private void rememberAppliedColumnWidth(int tableColumnIndex, int width) {
+    int count = table.getColumnCount();
+    if (lastOptWidthApplied == null || lastOptWidthApplied.length != count) {
+      int[] next = new int[count];
+      Arrays.fill(next, -1);
+      if (lastOptWidthApplied != null) {
+        System.arraycopy(
+            lastOptWidthApplied, 0, next, 0, Math.min(lastOptWidthApplied.length, count));
+      }
+      lastOptWidthApplied = next;
+    }
+    if (tableColumnIndex >= 0 && tableColumnIndex < lastOptWidthApplied.length) {
+      lastOptWidthApplied[tableColumnIndex] = width;
+    }
   }
 
   public void optimizeTableView() {
