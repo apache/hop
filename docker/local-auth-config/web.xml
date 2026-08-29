@@ -44,9 +44,19 @@
         <filter-name>HopOidcAuth</filter-name>
         <filter-class>org.apache.hop.ui.hopgui.security.HopOidcAuthFilter</filter-class>
     </filter>
+    <!-- RBAC for the embedded Hop Server API. Runs after the auth filters so the container
+         principal is set. Maps each /hop/* endpoint to the permission its role must hold. -->
+    <filter>
+        <filter-name>HopServerAuthorization</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopServerAuthorizationFilter</filter-class>
+    </filter>
     <filter-mapping>
         <filter-name>HopBasicAuth</filter-name>
         <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>HopServerAuthorization</filter-name>
+        <url-pattern>/hop/*</url-pattern>
     </filter-mapping>
 
     <servlet>

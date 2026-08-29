@@ -147,6 +147,11 @@ There are two complementary layers:
 IMPORTANT: The same security constraint must cover the whole application (`/*`), not only `/ui`.
 Hop Web co-deploys the RAP UI, RAP service handlers, and the Hop Server servlet under `/hop/*` on the same origin.
 
+NOTE: The Hop Server API under `/hop/*` follows the same authorization as the rest of Hop Web.
+In the authenticated modes (`BASIC`, `EXTERNAL`, `OAUTH2`) each endpoint requires the matching permission from the caller's role — for example a *Read-only* user can call `status` and the status/image endpoints but not `addPipeline`, `startPipeline`, `execWorkflow`, or the register/remove endpoints, and an *Operator* can run and stop but not deploy (`add*`) or remove.
+Endpoints that are not recognized are denied by default.
+In mode `NONE` (the default, open install) `/hop/*` is unauthenticated just like `/ui`; put an authentication layer in front of Hop Web for any shared deployment.
+
 === Built-in Hop roles
 
 When a user is authenticated, Hop Web reads the servlet `Principal` and container roles and maps them to one or more of these built-in roles:
