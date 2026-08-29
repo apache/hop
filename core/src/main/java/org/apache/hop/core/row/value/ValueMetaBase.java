@@ -316,7 +316,10 @@ public class ValueMetaBase implements IValueMeta {
     this.decimalSymbol = "" + Const.getDefaultDecimalSeparator();
     this.groupingSymbol = "" + Const.getDefaultGroupingSeparator();
     this.currencySymbol = "" + Const.getDefaultCurrencySymbol();
-    this.dateFormatLocale = Locale.getDefault();
+    // FORMAT, not Locale.getDefault(): the latter is the interface language once DISPLAY and
+    // FORMAT are split, and a field with no explicit date locale must follow the regional
+    // settings rather than the GUI language.
+    this.dateFormatLocale = Locale.getDefault(Locale.Category.FORMAT);
     this.collatorDisabled = true;
     this.collatorLocale = Locale.getDefault();
     this.collator = Collator.getInstance(this.collatorLocale);

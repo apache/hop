@@ -19,7 +19,9 @@ package org.apache.hop.i18n;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.TimeZone;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -141,6 +143,7 @@ public class RegionalSettings {
       return;
     }
     Locale.setDefault(Locale.Category.FORMAT, formatLocale);
+    logEffective(LogChannel.GENERAL, "installation:" + source.name());
   }
 
   /**
@@ -160,6 +163,31 @@ public class RegionalSettings {
       return;
     }
     Locale.setDefault(Locale.Category.FORMAT, formatLocale);
+    logEffective(LogChannel.GENERAL, "installation:" + source.name());
+  }
+
+  /**
+   * Writes the language, FORMAT locale and default timezone currently in effect. hop-gui, hop-run
+   * and hop-server all log this so a machine-local mismatch is visible without inspecting
+   * configuration files.
+   *
+   * @param log channel to write to; {@link LogChannel#GENERAL} when none is available yet
+   * @param sourceDescription where the FORMAT locale came from, for example {@code
+   *     installation:CUSTOM}
+   */
+  public static void logEffective(ILogChannel log, String sourceDescription) {
+    if (log == null) {
+      return;
+    }
+    log.logBasic(
+        "Regional settings: language="
+            + Locale.getDefault()
+            + " format="
+            + Locale.getDefault(Locale.Category.FORMAT)
+            + " timezone="
+            + TimeZone.getDefault().getID()
+            + " source="
+            + sourceDescription);
   }
 
   private static boolean isUsable(Locale locale) {

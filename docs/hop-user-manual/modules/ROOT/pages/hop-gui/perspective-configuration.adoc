@@ -141,7 +141,9 @@ a|use an explicitly chosen locale for number, currency and date formats, regardl
 
 Two preview panels below the options show sample dates, times, numbers and currency for the current selection, updated live as options change, before anything is saved.
 
-Whichever source is in effect, operating system or an explicit override, applies both to Hop GUI and to headless runs: `hop-run` and `hop-server` read the regional configuration of the machine they run on and honor it the same way the GUI does.
+Whichever source is in effect, operating system or an explicit override, applies both to Hop GUI and to headless runs: `hop-run` and `hop-server` read the same `hop-config.json` and honor it the same way the GUI does.
+
+At start, hop-gui, `hop-run` and `hop-server` log the effective settings, for example `Regional settings: language=en_US format=it_IT timezone=Europe/Rome source=installation:CUSTOM`. Use that line to confirm the process you are looking at is formatting the way you think it is.
 
 NOTE: Because this setting applies to the whole running process, in Hop Web it belongs to the installation rather than to each connected user. This is already true of the preferred language today, so it is not a new limitation introduced by this feature. Saving this tab applies the preferred language to the whole running process as well, so in Hop Web it affects every connected session until the server restarts.
 
@@ -174,7 +176,15 @@ On an existing installation whose configuration is left untouched, nothing chang
 
 The reason to untick both options is reproducibility against the preferred language: it makes Hop GUI, `hop-run` and `hop-server` agree on that language, so a number converted to a string reads the same in the editor and in production, and any hash computed over such a string stays stable between them.
 
-The setting belongs to the Hop installation, not to a project or a pipeline, and it applies to the whole running process rather than to an individual project or session. In Hop Web that means the whole server, and therefore every connected session, shares one set of regional settings, updated live whenever the configuration tab is saved.
+Resolution order, most specific first:
+
+. Field-level decimal, grouping, currency, date locale and date timezone on a transform field. These always win.
+. This installation tab (operating system, an explicit override, or the preferred language).
+. The JVM / operating system default.
+
+The default source is the operating system. Hop GUI, `hop-run` and `hop-server` then agree *on the same machine*, but a laptop on `nl_BE` and a hop-server on `en_US` still format blank fields differently. *Override regional settings* (and copying that `hop-config.json`) is the way to pin a locale for an installation. Transform field symbols remain the way to handle a file that does not match that locale.
+
+Distributed Beam and Spark workers never load `hop-config.json`. They format with their own JVM locale and timezone unless the pipeline sets field-level symbols.
 
 === Plugins
 
