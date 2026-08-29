@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.gettablenames;
 
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,6 +30,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.PreviewTableSettingsDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -60,9 +62,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
   private Text wTableNameField;
   private Text wSqlCreationField;
   private Button wIncludeTable;
-
   private Button wIncludeSchema;
-
   private Button wIncludeCatalog;
   private Label wlIncludeCatalog;
 
@@ -79,6 +79,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
   private Text wIsSystemObjectField;
 
   private Label wlSchemaName;
+  private Button wbSchemaName;
   private TextVar wSchemaName;
 
   private Button wDynamicSchema;
@@ -120,6 +121,16 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     fdlschemaname.right = new FormAttachment(middle, -margin);
     fdlschemaname.top = new FormAttachment(wConnection, margin);
     wlSchemaName.setLayoutData(fdlschemaname);
+
+    wbSchemaName = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchemaName);
+    wbSchemaName.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchemaName = new FormData();
+    fdbSchemaName.top = new FormAttachment(wConnection, margin);
+    fdbSchemaName.right = new FormAttachment(100, 0);
+    wbSchemaName.setLayoutData(fdbSchemaName);
+    wbSchemaName.addListener(SWT.Selection, e -> getSchemaNames());
+
     wSchemaName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSchemaName.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.SchemaNameName.Tooltip"));
@@ -127,7 +138,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdschemaname = new FormData();
     fdschemaname.left = new FormAttachment(middle, 0);
     fdschemaname.top = new FormAttachment(wConnection, margin);
-    fdschemaname.right = new FormAttachment(100, 0);
+    fdschemaname.right = new FormAttachment(wbSchemaName, -margin);
     wSchemaName.setLayoutData(fdschemaname);
     ModifyListener lsModSchema = e -> refreshIncludeCatalog();
     wSchemaName.addModifyListener(lsModSchema);
@@ -507,6 +518,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     wSchemaField.setEnabled(wDynamicSchema.getSelection());
     wPreview.setEnabled(!wDynamicSchema.getSelection());
     wlSchemaName.setEnabled(!wDynamicSchema.getSelection());
+    wbSchemaName.setEnabled(!wDynamicSchema.getSelection());
     wSchemaName.setEnabled(!wDynamicSchema.getSelection());
     if (wDynamicSchema.getSelection()) {
       wIncludeCatalog.setSelection(false);
@@ -619,6 +631,44 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     info.setAddSchemaInOutput(wAddSchemaInOutput.getSelection());
     info.setDynamicSchema(wDynamicSchema.getSelection());
     info.setSchemaNameField(wSchemaField.getText());
+  }
+
+  private void getSchemaNames() {
+    if (wSchemaName.isDisposed()) {
+      return;
+    }
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+        if (null != schemas && schemas.length > 0) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
+          String name = dialog.open();
+          if (name != null) {
+            wSchemaName.setText(name);
+          }
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
+            e);
+      }
+    }
   }
 
   private boolean checkUserInput(GetTableNamesMeta meta) {
