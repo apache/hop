@@ -60,6 +60,10 @@ import org.apache.hop.core.logging.ILogChannel;
  * org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager Connection pool} of 200
  * connections. Maximum connections per one route is 100. Provides inner builder class for creating
  * {@link org.apache.hc.client5.http.classic.HttpClient HttpClients}.
+ *
+ * <p>Clients are built with {@code setConnectionManagerShared(true)} so that closing one client
+ * (transform dispose, dialog preview, try-with-resources) does not shut this process-wide pool down
+ * for every other caller. See <a href="https://github.com/apache/hop/issues/8160">HOP-8160</a>.
  */
 public class HttpClientManager {
   private static final int CONNECTIONS_PER_ROUTE = 100;
@@ -82,7 +86,10 @@ public class HttpClientManager {
   }
 
   public CloseableHttpClient createDefaultClient() {
-    return HttpClients.custom().setConnectionManager(manager).build();
+    return HttpClients.custom()
+        .setConnectionManager(manager)
+        .setConnectionManagerShared(true)
+        .build();
   }
 
   public HttpClientBuilderFacade createBuilder() {
@@ -163,11 +170,14 @@ public class HttpClientManager {
           new BasicHttpClientConnectionManager(socketFactoryRegistry);
 
       httpClientBuilder.setConnectionManager(connectionManager);
+      // This manager is per-client, so the client should close it.
+      httpClientBuilder.setConnectionManagerShared(false);
     }
 
     public CloseableHttpClient build() {
       HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
       httpClientBuilder.setConnectionManager(manager);
+      httpClientBuilder.setConnectionManagerShared(true);
 
       RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
       if (socketTimeout > 0) {
