@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -96,7 +98,7 @@ public class DataSetCsvUtil {
               constantValueMeta.setConversionMetadata(valueMeta);
               if (i < csvRecord.size()) {
                 String value = csvRecord.get(i);
-                row[i] = valueMeta.convertData(constantValueMeta, value);
+                row[i] = csvValueToField(valueMeta, constantValueMeta, value);
               }
             }
             rows.add(row);
@@ -169,7 +171,7 @@ public class DataSetCsvUtil {
                 IValueMeta valueMeta = setRowMeta.getValueMeta(index);
                 constantValueMeta.setConversionMetadata(valueMeta);
                 String value = csvRecord.get(index);
-                row[i] = valueMeta.convertData(constantValueMeta, value);
+                row[i] = csvValueToField(valueMeta, constantValueMeta, value);
               } else {
                 row[i] = null;
               }
@@ -222,6 +224,30 @@ public class DataSetCsvUtil {
       for (Object[] row : rows) {
         writer.writeRow(row);
       }
+    }
+  }
+
+  /**
+   * Binary data-set fields are stored as lowercase hex (no {@code \\x} prefix). Everything else
+   * uses the field's normal string conversion.
+   */
+  static Object csvValueToField(IValueMeta valueMeta, IValueMeta stringMeta, String value)
+      throws HopException {
+    if (valueMeta.isBinary()) {
+      return decodeHex(value, valueMeta.getName());
+    }
+    return valueMeta.convertData(stringMeta, value);
+  }
+
+  static byte[] decodeHex(String value, String fieldName) throws HopException {
+    if (value == null || value.isEmpty()) {
+      return null;
+    }
+    try {
+      return Hex.decodeHex(value);
+    } catch (DecoderException e) {
+      throw new HopException(
+          "Unable to decode hex binary value for field '" + fieldName + "': " + value, e);
     }
   }
 

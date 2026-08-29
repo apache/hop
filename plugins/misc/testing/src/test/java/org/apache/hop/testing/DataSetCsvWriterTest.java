@@ -17,7 +17,9 @@
 
 package org.apache.hop.testing;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -130,5 +132,39 @@ class DataSetCsvWriterTest {
     }
 
     assertTrue(Files.exists(nested.resolve("nested.csv")));
+  }
+
+  @Test
+  void binaryValuesRoundTripAsLowercaseHex() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable(DataSet.VARIABLE_HOP_DATASETS_FOLDER, tempDir.toString());
+
+    DataSet dataSet = new DataSet();
+    dataSet.setName("binary");
+    dataSet.setBaseFilename("binary.csv");
+    dataSet.setFields(
+        List.of(
+            new DataSetField("id", IValueMeta.TYPE_INTEGER, -1, 0, "", "0"),
+            new DataSetField("payload", IValueMeta.TYPE_BINARY, -1, -1, "", "")));
+
+    IRowMeta rowMeta = dataSet.getSetRowMeta();
+    byte[] hash = {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef};
+    byte[] nulHigh = {0x00, (byte) 0xff};
+    try (DataSetCsvWriter writer = new DataSetCsvWriter(variables, dataSet, rowMeta)) {
+      writer.writeRow(new Object[] {1L, hash});
+      writer.writeRow(new Object[] {2L, nulHigh});
+      writer.writeRow(new Object[] {3L, null});
+    }
+
+    String csv = Files.readString(tempDir.resolve("binary.csv"));
+    assertTrue(csv.contains("deadbeef"), csv);
+    assertTrue(csv.contains("00ff"), csv);
+
+    List<Object[]> rows = DataSetCsvUtil.getAllRows(variables, dataSet);
+    assertEquals(3, rows.size());
+    assertEquals(1L, rows.get(0)[0]);
+    assertArrayEquals(hash, (byte[]) rows.get(0)[1]);
+    assertArrayEquals(nulHigh, (byte[]) rows.get(1)[1]);
+    assertNull(rows.get(2)[1]);
   }
 }

@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -73,7 +74,12 @@ public class DataSetCsvWriter implements AutoCloseable {
       List<String> strings = new ArrayList<>(setRowMeta.size());
       for (int i = 0; i < setRowMeta.size(); i++) {
         IValueMeta valueMeta = setRowMeta.getValueMeta(i);
-        strings.add(valueMeta.getString(row[i]));
+        if (valueMeta.isBinary()) {
+          byte[] bytes = valueMeta.getBinary(row[i]);
+          strings.add(bytes == null ? null : Hex.encodeHexString(bytes));
+        } else {
+          strings.add(valueMeta.getString(row[i]));
+        }
       }
       csvPrinter.printRecord(strings);
     } catch (Exception e) {
