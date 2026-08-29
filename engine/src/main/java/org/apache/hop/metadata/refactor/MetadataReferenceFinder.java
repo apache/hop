@@ -371,6 +371,7 @@ public class MetadataReferenceFinder {
       String projectHome = variables.resolve(Const.VAR_PROJECT_HOME);
       if (projectHome != null && !projectHome.isEmpty() && newPath.startsWith(projectHome)) {
         String rel = newPath.substring(projectHome.length());
+        rel = rel.replace(File.separatorChar, '/');
         if (!rel.startsWith("/")) {
           rel = '/' + rel;
         }
@@ -529,6 +530,7 @@ public class MetadataReferenceFinder {
     if (tagNames.isEmpty()) {
       return;
     }
+    oldPath = normalizeFilePath(oldPath);
     for (MetadataReferenceResult result : results) {
       replaceInFile(result.getFilePath(), tagNames, oldPath, newPath, variables);
     }
@@ -787,6 +789,9 @@ public class MetadataReferenceFinder {
             if (target == null) {
               continue;
             }
+
+            oldPath = normalizeFilePath(oldPath);
+
             if (cf.listFieldName != null) {
               if (replaceFilePathInList(target, cf, oldPath, newPath, variables)) {
                 updated = true;
