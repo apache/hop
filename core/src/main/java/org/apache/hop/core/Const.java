@@ -916,6 +916,25 @@ public class Const {
   public static final String HOP_AGGREGATION_ALL_NULLS_ARE_ZERO =
       "HOP_AGGREGATION_ALL_NULLS_ARE_ZERO";
 
+  /**
+   * The FORMAT locale currently in effect (language_COUNTRY, for example {@code en_US} or {@code
+   * nl_BE}). Set when a lifecycle environment is enabled so pipelines can see which regional
+   * settings they are running under.
+   */
+  @Variable(
+      description =
+          "The FORMAT locale in effect for number, currency and date conversion (for example en_US). Set automatically when a lifecycle environment with a format locale is enabled.")
+  public static final String HOP_FORMAT_LOCALE = "HOP_FORMAT_LOCALE";
+
+  /**
+   * The default timezone currently in effect (IANA id, for example {@code Europe/Brussels}). Set
+   * when a lifecycle environment is enabled.
+   */
+  @Variable(
+      description =
+          "The default timezone in effect for date and timestamp conversion (IANA id, for example Europe/Brussels). Set automatically when a lifecycle environment with a timezone is enabled.")
+  public static final String HOP_TIMEZONE = "HOP_TIMEZONE";
+
   /** The name of the variable containing an alternative default timestamp format */
   @Variable(
       description = "The name of the variable containing an alternative default timestamp format")

@@ -40,6 +40,7 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.environment.EnvironmentRegionalSettings;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.ParentProjectFolderSynchronizer;
 import org.apache.hop.projects.project.Project;
@@ -100,6 +101,10 @@ public class ProjectsUtil {
     // We'll use those to change the loaded variables in HopGui
     //
     project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
+
+    LifecycleEnvironment environment =
+        StringUtils.isNotEmpty(environmentName) ? config.findEnvironment(environmentName) : null;
+    EnvironmentRegionalSettings.apply(log, environment, variables);
 
     // Re-bind the process-global two-way password encoder from project/environment variables
     // (HOP_PASSWORD_ENCODER_PLUGIN, HOP_AES_ENCODER_KEY / HOP_AES_ENCODER_KEY_FILE). This resets

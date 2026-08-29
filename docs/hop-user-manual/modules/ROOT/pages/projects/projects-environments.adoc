@@ -117,7 +117,7 @@ Click it to open the environment menu, then choose *Add environment...*.
 image:hop-gui/environment/environment-add.png[Add environment menu]
 
 This opens the environment properties dialog.
-The fields are grouped on tabs: *General*, *Configuration files*, and when the matching plugins are installed *Marketplace plugins* and *System resources*.
+The fields are grouped on tabs: *General*, *Regional*, *Configuration files*, and when the matching plugins are installed *Marketplace plugins* and *System resources*.
 
 image:hop-gui/environment/environment-dialog-general-tab.png[Environment Properties General tab,width="90%"]
 
@@ -138,6 +138,24 @@ image:hop-gui/environment/environment-dialog-general-tab.png[Environment Propert
 |Project|The project to which this environment belongs|No|No|The last created project
 |Canvas text|Large text drawn in the top-right of pipeline and workflow canvases when this environment is active|Yes|No|
 |===
+
+.Environment Properties -- Regional
+[id="tab-env-props-regional",cols="20%,45%,5%,5%,25%",options="header"]
+|===
+|Property|Description|Variables Supported|Mandatory|Default
+|Format locale a|Locale used for decimal separator, grouping separator, currency and date formats when this environment is enabled in Hop GUI, `hop-run` and `hop-server`. Independent of the Hop GUI language.
+
+Leave *Inherit installation / OS* to use the xref:hop-gui/perspective-configuration.adoc#_regional_settings[Configuration perspective Regional settings]. Field-level decimal, grouping and date locale options still override this default. The effective value is published as `'{openvar}HOP_FORMAT_LOCALE{closevar}'`.
+|No|No|Inherit installation / OS
+|Timezone a|IANA timezone used as the default for date and timestamp conversion (for example `Europe/Brussels`).
+
+Leave *Inherit installation / OS* to keep the JVM default. Field-level date timezones still override this default. The effective value is published as `'{openvar}HOP_TIMEZONE{closevar}'`.
+|No|No|Inherit installation / OS
+|===
+
+A preview under the two combos shows a sample number, a long date and the selected timezone, updated as you change the values.
+
+Pinning locale and timezone on the environment is how a pipeline that omits field-level decimal and grouping symbols produces the same result on a laptop and on a hop-server. Without it, those defaults follow the machine, which is the classic "it works on my machine" failure.
 
 image:hop-gui/environment/environment-dialog-configuration-files-tab.png[Environment Properties Configuration files tab,width="90%"]
 

@@ -18,8 +18,12 @@
 package org.apache.hop.projects.environment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.AttributesContext;
@@ -29,10 +33,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.RegionalSettingsPreview;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
@@ -48,6 +54,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboFilterPopup;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -61,8 +68,10 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -83,6 +92,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Combo wPurpose;
   private Combo wProject;
   private Text wCanvasText;
+  private Combo wFormatLocale;
+  private Combo wTimeZone;
+  private Label wNumberPreview;
+  private Label wDatePreview;
+  private Label wTimeZonePreview;
+  private List<Locale> localeList;
   private TableView wConfigFiles;
 
   private IVariables variables;
@@ -102,6 +117,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private boolean nameAutoManaged;
 
   private boolean updatingSuggestedName;
+
+  /** Skip environment-refresh flags while widgets are populated from the environment. */
+  private boolean loadingData;
 
   /** Localized purpose label → fixed English suffix (for new-environment name suggestion). */
   private Map<String, String> knownPurposeSuffixes;
@@ -167,6 +185,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wTabFolder.setLayoutData(fdTabs);
 
     createGeneralTab(wTabFolder, margin);
+    createRegionalTab(wTabFolder, margin);
     createConfigurationFilesTab(wTabFolder, margin);
 
     // Optional plugins (marketplace, resource checks, …) contribute extra tabs
@@ -297,6 +316,192 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdCanvasText.right = new FormAttachment(100, 0);
     fdCanvasText.top = new FormAttachment(wlCanvasText, 0, SWT.CENTER);
     wCanvasText.setLayoutData(fdCanvasText);
+  }
+
+  private void createRegionalTab(CTabFolder folder, int margin) {
+    CTabItem tab = new CTabItem(folder, SWT.NONE);
+    tab.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Tab.Regional"));
+    Composite comp = new Composite(folder, SWT.NONE);
+    PropsUi.setLook(comp);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    comp.setLayout(layout);
+    tab.setControl(comp);
+
+    int middle = props.getMiddlePct();
+
+    Label wlHelp = new Label(comp, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wlHelp);
+    wlHelp.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Regional.Help"));
+    FormData fdlHelp = new FormData();
+    fdlHelp.left = new FormAttachment(0, 0);
+    fdlHelp.right = new FormAttachment(100, 0);
+    fdlHelp.top = new FormAttachment(0, margin);
+    wlHelp.setLayoutData(fdlHelp);
+
+    Label wlFormatLocale = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlFormatLocale);
+    wlFormatLocale.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.FormatLocale"));
+    FormData fdlFormatLocale = new FormData();
+    fdlFormatLocale.left = new FormAttachment(0, 0);
+    fdlFormatLocale.right = new FormAttachment(middle, 0);
+    fdlFormatLocale.top = new FormAttachment(wlHelp, margin * 2);
+    wlFormatLocale.setLayoutData(fdlFormatLocale);
+
+    localeList = buildLocaleList();
+    wFormatLocale = new Combo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wFormatLocale);
+    wFormatLocale.setItems(localeComboItems());
+    wFormatLocale.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ToolTip.FormatLocale"));
+    FormData fdFormatLocale = new FormData();
+    fdFormatLocale.left = new FormAttachment(middle, margin);
+    fdFormatLocale.right = new FormAttachment(100, 0);
+    fdFormatLocale.top = new FormAttachment(wlFormatLocale, 0, SWT.CENTER);
+    wFormatLocale.setLayoutData(fdFormatLocale);
+    ComboFilterPopup.attach(wFormatLocale, () -> Arrays.asList(wFormatLocale.getItems()), null);
+    wFormatLocale.addListener(SWT.Modify, this::onRegionalChanged);
+
+    Label wlTimeZone = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlTimeZone);
+    wlTimeZone.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.TimeZone"));
+    FormData fdlTimeZone = new FormData();
+    fdlTimeZone.left = new FormAttachment(0, 0);
+    fdlTimeZone.right = new FormAttachment(middle, 0);
+    fdlTimeZone.top = new FormAttachment(wFormatLocale, margin);
+    wlTimeZone.setLayoutData(fdlTimeZone);
+
+    wTimeZone = new Combo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTimeZone);
+    wTimeZone.setItems(timeZoneComboItems());
+    wTimeZone.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ToolTip.TimeZone"));
+    FormData fdTimeZone = new FormData();
+    fdTimeZone.left = new FormAttachment(middle, margin);
+    fdTimeZone.right = new FormAttachment(100, 0);
+    fdTimeZone.top = new FormAttachment(wlTimeZone, 0, SWT.CENTER);
+    wTimeZone.setLayoutData(fdTimeZone);
+    ComboFilterPopup.attach(wTimeZone, () -> Arrays.asList(wTimeZone.getItems()), null);
+    wTimeZone.addListener(SWT.Modify, this::onRegionalChanged);
+
+    Group preview = new Group(comp, SWT.SHADOW_NONE);
+    PropsUi.setLook(preview);
+    preview.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Regional.Preview"));
+    FormLayout previewLayout = new FormLayout();
+    previewLayout.marginWidth = PropsUi.getFormMargin();
+    previewLayout.marginHeight = PropsUi.getFormMargin();
+    preview.setLayout(previewLayout);
+    FormData fdPreview = new FormData();
+    fdPreview.left = new FormAttachment(0, 0);
+    fdPreview.right = new FormAttachment(100, 0);
+    fdPreview.top = new FormAttachment(wTimeZone, margin * 2);
+    preview.setLayoutData(fdPreview);
+
+    wNumberPreview =
+        createPreviewRow(
+            preview, "LifecycleEnvironmentDialog.Regional.Preview.Number", null, margin);
+    wDatePreview =
+        createPreviewRow(
+            preview, "LifecycleEnvironmentDialog.Regional.Preview.Date", wNumberPreview, margin);
+    wTimeZonePreview =
+        createPreviewRow(
+            preview, "LifecycleEnvironmentDialog.Regional.Preview.TimeZone", wDatePreview, margin);
+  }
+
+  private List<Locale> buildLocaleList() {
+    return Arrays.stream(Locale.getAvailableLocales())
+        .filter(l -> !l.getCountry().isEmpty())
+        .filter(l -> l.getVariant().isEmpty() && l.getScript().isEmpty())
+        .sorted(Comparator.comparing(Locale::getDisplayName))
+        .toList();
+  }
+
+  private String inheritLabel() {
+    return BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Regional.Inherit");
+  }
+
+  private String[] localeComboItems() {
+    String[] items = new String[localeList.size() + 1];
+    items[0] = inheritLabel();
+    for (int i = 0; i < localeList.size(); i++) {
+      items[i + 1] = localeList.get(i).getDisplayName();
+    }
+    return items;
+  }
+
+  private String[] timeZoneComboItems() {
+    String[] zones = EnvUtil.getTimeZones();
+    String[] items = new String[zones.length + 1];
+    items[0] = inheritLabel();
+    System.arraycopy(zones, 0, items, 1, zones.length);
+    return items;
+  }
+
+  private void onRegionalChanged(Event event) {
+    if (!loadingData) {
+      needingEnvironmentRefresh = true;
+    }
+    refreshRegionalPreview();
+  }
+
+  private void refreshRegionalPreview() {
+    if (wNumberPreview == null || wNumberPreview.isDisposed()) {
+      return;
+    }
+    Locale locale = selectedFormatLocale();
+    if (locale == null) {
+      locale = Locale.getDefault(Locale.Category.FORMAT);
+    }
+    RegionalSettingsPreview preview = RegionalSettingsPreview.of(locale);
+    wNumberPreview.setText(preview.getNumber());
+    wDatePreview.setText(preview.getLongDate());
+
+    String timeZoneId = selectedTimeZoneId();
+    TimeZone timeZone =
+        timeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(timeZoneId);
+    wTimeZonePreview.setText(timeZone.getID() + " (" + timeZone.getDisplayName() + ")");
+  }
+
+  private Locale selectedFormatLocale() {
+    int index = wFormatLocale.indexOf(wFormatLocale.getText());
+    if (index <= 0) {
+      return null;
+    }
+    return localeList.get(index - 1);
+  }
+
+  private String selectedTimeZoneId() {
+    String text = wTimeZone.getText();
+    if (StringUtils.isEmpty(text) || inheritLabel().equals(text)) {
+      return null;
+    }
+    return text;
+  }
+
+  private Label createPreviewRow(Group group, String labelKey, Control lastControl, int margin) {
+    Label caption = new Label(group, SWT.RIGHT);
+    PropsUi.setLook(caption);
+    caption.setText(BaseMessages.getString(PKG, labelKey));
+    FormData fdCaption = new FormData();
+    fdCaption.left = new FormAttachment(0, 0);
+    fdCaption.right = new FormAttachment(PropsUi.getInstance().getMiddlePct(), -margin);
+    if (lastControl != null) {
+      fdCaption.top = new FormAttachment(lastControl, margin);
+    } else {
+      fdCaption.top = new FormAttachment(0, margin);
+    }
+    caption.setLayoutData(fdCaption);
+
+    Label value = new Label(group, SWT.LEFT);
+    PropsUi.setLook(value);
+    FormData fdValue = new FormData();
+    fdValue.left = new FormAttachment(PropsUi.getInstance().getMiddlePct(), 0);
+    fdValue.right = new FormAttachment(100, 0);
+    fdValue.top = new FormAttachment(caption, 0, SWT.CENTER);
+    value.setLayoutData(fdValue);
+    return value;
   }
 
   private void createConfigurationFilesTab(CTabFolder folder, int margin) {
@@ -729,6 +934,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   }
 
   private void getData() {
+    loadingData = true;
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     String developmentLabel =
@@ -797,6 +1003,40 @@ public class LifecycleEnvironmentDialog extends Dialog {
     if (!environment.getConfigurationFiles().isEmpty()) {
       wConfigFiles.setSelection(new int[] {0});
     }
+
+    selectFormatLocale(environment.getFormatLocale());
+    selectTimeZone(environment.getTimeZone());
+    refreshRegionalPreview();
+    loadingData = false;
+  }
+
+  private void selectFormatLocale(String localeCode) {
+    if (StringUtils.isEmpty(localeCode)) {
+      wFormatLocale.setText(inheritLabel());
+      return;
+    }
+    Locale locale = EnvUtil.createLocale(localeCode);
+    int index = locale == null ? -1 : localeList.indexOf(locale);
+    if (index < 0 && locale != null) {
+      localeList = new ArrayList<>(localeList);
+      localeList.add(locale);
+      wFormatLocale.setItems(localeComboItems());
+      index = localeList.indexOf(locale);
+    }
+    if (index >= 0) {
+      wFormatLocale.select(index + 1);
+      wFormatLocale.setText(wFormatLocale.getItem(index + 1));
+    } else {
+      wFormatLocale.setText(localeCode);
+    }
+  }
+
+  private void selectTimeZone(String timeZoneId) {
+    if (StringUtils.isEmpty(timeZoneId)) {
+      wTimeZone.setText(inheritLabel());
+      return;
+    }
+    wTimeZone.setText(timeZoneId);
   }
 
   private boolean isNewEnvironment() {
@@ -851,6 +1091,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     env.setPurpose(wPurpose.getText());
     env.setProjectName(wProject.getText());
     env.setCanvasText(wCanvasText.getText());
+    Locale formatLocale = selectedFormatLocale();
+    env.setFormatLocale(formatLocale == null ? null : formatLocale.toString());
+    env.setTimeZone(selectedTimeZoneId());
 
     env.getConfigurationFiles().clear();
     for (TableItem item : wConfigFiles.getNonEmptyItems()) {

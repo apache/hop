@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.IAttributes;
 
 /**
@@ -31,6 +34,8 @@ import org.apache.hop.core.IAttributes;
  * namespaced group/key/value settings without hard-wiring fields into this class. Groups are
  * persisted under {@code attributesMap} in hop-config projects configuration.
  */
+@Getter
+@Setter
 public class LifecycleEnvironment implements IAttributes {
 
   private String name;
@@ -41,9 +46,24 @@ public class LifecycleEnvironment implements IAttributes {
 
   private String canvasText;
 
+  /**
+   * FORMAT locale for number, currency and date conversion when this environment is enabled
+   * (language_COUNTRY, for example {@code nl_BE}). Empty inherits the installation regional
+   * settings.
+   */
+  private String formatLocale;
+
+  /**
+   * Default timezone for date and timestamp conversion when this environment is enabled (IANA id,
+   * for example {@code Europe/Brussels}). Empty inherits the JVM default.
+   */
+  private String timeZone;
+
   private List<String> configurationFiles;
 
   /** Group → (key → value); see {@link IAttributes}. */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private Map<String, Map<String, String>> attributesMap;
 
   public LifecycleEnvironment() {
@@ -65,7 +85,12 @@ public class LifecycleEnvironment implements IAttributes {
     this.purpose = env.purpose;
     this.projectName = env.projectName;
     this.canvasText = env.canvasText;
-    this.configurationFiles = new ArrayList<>(env.configurationFiles);
+    this.formatLocale = env.formatLocale;
+    this.timeZone = env.timeZone;
+    this.configurationFiles =
+        env.configurationFiles != null
+            ? new ArrayList<>(env.configurationFiles)
+            : new ArrayList<>();
     this.attributesMap = deepCopyAttributes(env.attributesMap);
   }
 
@@ -101,86 +126,6 @@ public class LifecycleEnvironment implements IAttributes {
   @Override
   public int hashCode() {
     return Objects.hash(name);
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * Gets purpose
-   *
-   * @return value of purpose
-   */
-  public String getPurpose() {
-    return purpose;
-  }
-
-  /**
-   * @param purpose The purpose to set
-   */
-  public void setPurpose(String purpose) {
-    this.purpose = purpose;
-  }
-
-  /**
-   * Gets projectName
-   *
-   * @return value of projectName
-   */
-  public String getProjectName() {
-    return projectName;
-  }
-
-  /**
-   * @param projectName The projectName to set
-   */
-  public void setProjectName(String projectName) {
-    this.projectName = projectName;
-  }
-
-  /**
-   * Gets canvasText — optional large watermark drawn top-right on pipeline/workflow canvases.
-   *
-   * @return value of canvasText
-   */
-  public String getCanvasText() {
-    return canvasText;
-  }
-
-  /**
-   * @param canvasText The canvas text to set (empty/null means do not draw)
-   */
-  public void setCanvasText(String canvasText) {
-    this.canvasText = canvasText;
-  }
-
-  /**
-   * Gets configurationFiles
-   *
-   * @return value of configurationFiles
-   */
-  public List<String> getConfigurationFiles() {
-    return configurationFiles;
-  }
-
-  /**
-   * @param configurationFiles The configurationFiles to set
-   */
-  public void setConfigurationFiles(List<String> configurationFiles) {
-    this.configurationFiles = configurationFiles;
   }
 
   @Override

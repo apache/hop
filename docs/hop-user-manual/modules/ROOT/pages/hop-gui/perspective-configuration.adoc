@@ -15,6 +15,8 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
 
 = Configuration Perspective
 
@@ -179,12 +181,17 @@ The reason to untick both options is reproducibility against the preferred langu
 Resolution order, most specific first:
 
 . Field-level decimal, grouping, currency, date locale and date timezone on a transform field. These always win.
+. The active xref:projects/projects-environments.adoc[lifecycle environment] format locale and timezone, when set.
 . This installation tab (operating system, an explicit override, or the preferred language).
 . The JVM / operating system default.
 
-The default source is the operating system. Hop GUI, `hop-run` and `hop-server` then agree *on the same machine*, but a laptop on `nl_BE` and a hop-server on `en_US` still format blank fields differently. *Override regional settings* (and copying that `hop-config.json`) is the way to pin a locale for an installation. Transform field symbols remain the way to handle a file that does not match that locale.
+The default source on this tab is the operating system. Hop GUI, `hop-run` and `hop-server` then agree *on the same machine*, but a laptop on `nl_BE` and a hop-server on `en_US` still format blank fields differently unless the lifecycle environment pins a locale (or you use *Override regional settings* and copy that `hop-config.json`). Transform field symbols remain the way to handle a file that does not match that locale.
 
-Distributed Beam and Spark workers never load `hop-config.json`. They format with their own JVM locale and timezone unless the pipeline sets field-level symbols.
+When an environment is enabled, Hop publishes the effective values as `{openvar}HOP_FORMAT_LOCALE{closevar}` and `{openvar}HOP_TIMEZONE{closevar}` and the start log line's `source=` shows `environment:name` instead of `installation:…`.
+
+Distributed Beam and Spark workers never load `hop-config.json` or the lifecycle environment. They format with their own JVM locale and timezone unless the pipeline sets field-level symbols.
+
+A hop-server JVM is expected to run one default environment for these conversion defaults. Mixing environments with different FORMAT locales in one process is not supported: `Locale.setDefault` and `TimeZone.setDefault` are process-wide. Field-level overrides still work per pipeline.
 
 === Plugins
 

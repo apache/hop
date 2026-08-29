@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "amount",
+          "data_set_field": "amount"
+        }
+      ],
+      "field_order": [
+        "amount"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-format-number-defaults"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0001-format-number-defaults UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0001-format-number-defaults.hpl",
+  "test_type": "UNIT_TEST"
+}
