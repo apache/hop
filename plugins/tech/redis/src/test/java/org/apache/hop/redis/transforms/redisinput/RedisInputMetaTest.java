@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -75,19 +76,26 @@ class RedisInputMetaTest {
 
     @Override
     public boolean validateTestObject(RedisInputField testObject, Object actual) {
-      if (!(actual instanceof RedisInputField)) {
+      if (!(actual instanceof RedisInputField other)) {
         return false;
       }
-      RedisInputField other = (RedisInputField) actual;
+
       return Objects.equals(testObject.getRedisKey(), other.getRedisKey())
           && testObject.getRedisKeyCodec() == other.getRedisKeyCodec()
           && testObject.getDataStructure() == other.getDataStructure()
-          && Objects.equals(testObject.getHashField(), other.getHashField())
+          && sameOmittedString(testObject.getHashField(), other.getHashField())
           && testObject.getHashFieldCodec() == other.getHashFieldCodec()
           && Objects.equals(testObject.getValueField(), other.getValueField())
           && testObject.getValueCodec() == other.getValueCodec()
           && Objects.equals(testObject.getListStart(), other.getListStart())
           && Objects.equals(testObject.getListStop(), other.getListStop());
+    }
+
+    /** Empty strings are omitted from XML and come back as null. */
+    private static boolean sameOmittedString(String expected, String actual) {
+      return StringUtils.isEmpty(expected)
+          ? StringUtils.isEmpty(actual)
+          : Objects.equals(expected, actual);
     }
   }
 }
