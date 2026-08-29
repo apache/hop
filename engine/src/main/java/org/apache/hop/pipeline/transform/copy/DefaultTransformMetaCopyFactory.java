@@ -112,34 +112,14 @@ public class DefaultTransformMetaCopyFactory implements ITransformMetaCopyFactor
       copy.setParentPipelineMeta(source.getParentPipelineMeta());
     }
 
-    // Handle changed state preservation/clearing based on context
-    if (context.isPreserveChangedState()) {
-      // Check if the source or its inner transform has changes
-      boolean hasChanges =
-          source.hasChanged()
-              || (source.getTransform() != null && source.getTransform().hasChanged());
-
-      if (hasChanges) {
-        if (log.isDebug()) {
-          log.logDebug("Preserving changed state for TransformMeta: " + source.getName());
-        }
-        copy.setChanged();
-        if (copy.getTransform() != null) {
-          copy.getTransform().setChanged();
-        }
-      }
-    } else {
-      // Explicitly clear changed state if not preserving it
-      if (log.isDebug()) {
-        log.logDebug("Clearing changed state for TransformMeta: " + source.getName());
-      }
-      copy.setChanged(false);
-      if (copy.getTransform() != null
-          && copy.getTransform() instanceof org.apache.hop.pipeline.transform.BaseTransformMeta) {
-        ((org.apache.hop.pipeline.transform.BaseTransformMeta) copy.getTransform())
-            .setChanged(false);
-      }
-    }
+    // Apply the intended dirty flag last. Setters such as setRowDistribution() and
+    // setLocation() mark wrapperChanged while copying; a clone of a clean transform
+    // must remain clean.
+    boolean hasChanges =
+        context.isPreserveChangedState()
+            && (source.hasChanged()
+                || (source.getTransform() != null && source.getTransform().hasChanged()));
+    copy.setChanged(hasChanges);
 
     return copy;
   }
@@ -164,21 +144,8 @@ public class DefaultTransformMetaCopyFactory implements ITransformMetaCopyFactor
     }
 
     try {
-      // Capture the changed state before cloning
-      boolean hadChanges = context.isPreserveChangedState() && source.hasChanged();
-
-      // Perform the clone
       ITransformMeta copy = (ITransformMeta) source.clone();
-
-      // Restore changed state if needed
-      if (hadChanges) {
-        if (log.isDebug()) {
-          log.logDebug(
-              "Restoring changed state for ITransformMeta: " + source.getClass().getSimpleName());
-        }
-        copy.setChanged();
-      }
-
+      copy.setChanged(context.isPreserveChangedState() && source.hasChanged());
       return copy;
 
     } catch (Exception e) {

@@ -31,6 +31,7 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.classes.Field;
 import org.apache.hop.metadata.serializer.xml.classes.Info;
 import org.apache.hop.metadata.serializer.xml.classes.MetaData;
+import org.apache.hop.metadata.serializer.xml.classes.MixedValueMeta;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
 import org.apache.hop.metadata.serializer.xml.classes.WithListReference;
 import org.apache.hop.metadata.serializer.xml.classes.WithMap;
@@ -241,5 +242,100 @@ class XmlMetadataUtilTest {
     assertEquals(1, withCopy.getHops().size());
     assertEquals("S1", withCopy.getHops().get(0).getFrom().getName());
     assertNull(withCopy.getHops().get(0).getTo());
+  }
+
+  @Test
+  void emptyStringFieldIsOmittedLikeNull() throws Exception {
+    MetaData withNull = new MetaData();
+    MetaData withEmpty = new MetaData();
+    withEmpty.setFilename("");
+
+    String nullXml = XmlMetadataUtil.serializeObjectToXml(withNull);
+    String emptyXml = XmlMetadataUtil.serializeObjectToXml(withEmpty);
+
+    assertEquals(nullXml, emptyXml);
+    assertFalse(nullXml.contains("<filename"));
+    assertFalse(emptyXml.contains("<filename"));
+  }
+
+  @Test
+  void emptyNestedStringIsOmittedLikeNull() throws Exception {
+    Field withNullFormat = new Field("a", "String", 1, 0, null, null);
+    Field withEmptyFormat = new Field("a", "String", 1, 0, "", null);
+
+    assertEquals(
+        XmlMetadataUtil.serializeObjectToXml(withNullFormat),
+        XmlMetadataUtil.serializeObjectToXml(withEmptyFormat));
+  }
+
+  @Test
+  void nonEmptyStringFieldIsWritten() throws Exception {
+    MetaData meta = new MetaData();
+    meta.setFilename("filename.csv");
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(meta);
+
+    assertTrue(xml.contains("<filename>filename.csv</filename>"));
+  }
+
+  @Test
+  void whitespaceStringFieldIsWritten() throws Exception {
+    MetaData meta = new MetaData();
+    meta.setFilename(" ");
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(meta);
+
+    assertTrue(xml.contains("<filename> </filename>"));
+  }
+
+  @Test
+  void emptyListIsStillSerialized() throws Exception {
+    MixedValueMeta meta = new MixedValueMeta();
+    meta.setName("keep");
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(meta);
+
+    assertTrue(xml.contains("<items>"));
+    assertTrue(xml.contains("</items>"));
+    assertFalse(xml.contains("<item>"));
+    assertFalse(xml.contains("<item/>"));
+  }
+
+  @Test
+  void emptyStringInListIsStillSerialized() throws Exception {
+    MetaData meta = new MetaData();
+    meta.setValues(List.of(""));
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(meta);
+
+    assertTrue(xml.contains("<values>"));
+    assertTrue(xml.contains("<value/>") || xml.contains("<value></value>"));
+  }
+
+  @Test
+  void booleanFalseAndZeroAreStillSerialized() throws Exception {
+    MixedValueMeta meta = new MixedValueMeta();
+    meta.setEnabled(false);
+    meta.setCount(0);
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(meta);
+
+    assertTrue(xml.contains("<enabled>N</enabled>"));
+    assertTrue(xml.contains("<count>0</count>"));
+  }
+
+  @Test
+  void omittedEmptyStringRoundTripsAsNull() throws Exception {
+    MetaData withEmpty = new MetaData();
+    withEmpty.setFilename("");
+    withEmpty.setSeparator(",");
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(withEmpty);
+    Node node = XmlHandler.loadXmlString(XmlHandler.aroundTag("meta", xml), "meta");
+    MetaData loaded =
+        XmlMetadataUtil.deSerializeFromXml(node, MetaData.class, new MemoryMetadataProvider());
+
+    assertNull(loaded.getFilename());
+    assertEquals(",", loaded.getSeparator());
   }
 }

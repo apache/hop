@@ -107,10 +107,6 @@ public class DefaultActionCopyFactory implements IActionCopyFactory {
       log.logRowlevel(
           "Copying action: " + source.getClass().getSimpleName() + " with context: " + context);
 
-      // Capture the changed state before cloning
-      boolean hadChanges = context.isPreserveChangedState() && source.hasChanged();
-
-      // Perform the actual clone operation using the existing clone method
       IAction copy = (IAction) source.clone();
 
       if (copy == null) {
@@ -119,16 +115,7 @@ public class DefaultActionCopyFactory implements IActionCopyFactory {
         return null;
       }
 
-      // Apply context-specific behavior
-      if (context.isPreserveChangedState() && hadChanges) {
-        // Restore the changed state that was lost during cloning
-        copy.setChanged();
-        log.logRowlevel("Restored changed state to copied action");
-      } else if (!context.isPreserveChangedState()) {
-        // Explicitly clear changed state for lightweight copies
-        copy.setChanged(false);
-        log.logRowlevel("Cleared changed state for lightweight copy");
-      }
+      copy.setChanged(context.isPreserveChangedState() && source.hasChanged());
 
       log.logRowlevel("Successfully copied action: " + source.getClass().getSimpleName());
       return copy;
@@ -202,12 +189,13 @@ public class DefaultActionCopyFactory implements IActionCopyFactory {
         copy.setParentWorkflowMeta(source.getParentWorkflowMeta());
       }
 
-      // Apply changed state based on context - this fixes the race condition
-      if (context.isPreserveChangedState()) {
-        // This will call setChanged() which sets the changed state on the underlying action
-        copy.setChanged();
-        log.logRowlevel("Set changed state on copied ActionMeta");
-      }
+      // Apply the intended dirty flag last. setLocation() marks wrapperChanged while copying
+      // canvas coordinates, which must not leak onto a clone of a clean action.
+      boolean hasChanges =
+          context.isPreserveChangedState()
+              && (source.hasChanged()
+                  || (source.getAction() != null && source.getAction().hasChanged()));
+      copy.setChanged(hasChanges);
 
       log.logRowlevel("Successfully copied ActionMeta");
       return copy;

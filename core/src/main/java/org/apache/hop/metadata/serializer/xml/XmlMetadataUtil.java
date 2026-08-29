@@ -403,6 +403,11 @@ public class XmlMetadataUtil {
     // Get the value of the field...
     //
     Object value = ReflectionUtil.getFieldValue(parentObject, field.getName(), isBoolean);
+    // Empty strings are omitted like null. Dialogs write "" for blank widgets; serializing that as
+    // <tag/> while null omits the tag made OK-without-edits look like a configuration change.
+    if (value instanceof String string && StringUtils.isEmpty(string)) {
+      return value;
+    }
     if (value != null) {
       // We only serialize non-null values to save space and performance.
       //

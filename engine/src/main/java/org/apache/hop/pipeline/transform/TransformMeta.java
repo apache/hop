@@ -746,6 +746,12 @@ public class TransformMeta
   }
 
   public void setRowDistribution(IRowDistribution rowDistribution) {
+    if (this.rowDistribution == rowDistribution) {
+      if (rowDistribution != null) {
+        setDistributes(true);
+      }
+      return;
+    }
     this.rowDistribution = rowDistribution;
     if (rowDistribution != null) {
       setDistributes(true);

@@ -29,6 +29,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transform.copy.CopyContext;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -42,6 +43,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.action.copy.DefaultActionCopyFactory;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -292,19 +294,35 @@ public class HopGuiWorkflowActionDelegate {
       }
 
       byte[] beforeSnapshot = workflowGraph.captureUndoSnapshot();
+      boolean wasChanged = action.hasChanged();
+      // Edit a copy so every action plugin shares one dirty-flag path. Do not patch dialogs.
+      IAction original = action.getAction();
+      IAction working =
+          DefaultActionCopyFactory.getInstance().copy(original, CopyContext.SAME_PIPELINE);
+      if (working == null) {
+        working = original;
+      }
 
-      IAction jei = action.getAction();
-
-      dialog = getActionDialog(jei, workflowMeta);
+      dialog = getActionDialog(working, workflowMeta);
       if (dialog != null) {
         dialogs.put(action.getName(), dialog);
-        // Subject stack covers legacy action dialogs that never set BaseDialog.DIALOG_SUBJECT
-        if (BaseDialog.withDialogSubject(jei, dialog::open) != null) {
-          // First see if the name changed.
-          // If so, we need to verify that the name is not already used in the workflow.
-          //
+        IAction result = BaseDialog.withDialogSubject(working, dialog::open);
+        if (result != null && working != original) {
+          if (original.getXml().equals(working.getXml())) {
+            action.setChanged(wasChanged);
+          } else {
+            action.setAction(working);
+            working.setParentWorkflowMeta(workflowMeta);
+            workflowMeta.renameActionIfNameCollides(action);
+            action.setChanged();
+            workflowGraph.commitDialogUndo(beforeSnapshot);
+          }
+        } else if (result != null) {
           workflowMeta.renameActionIfNameCollides(action);
+          action.setChanged();
           workflowGraph.commitDialogUndo(beforeSnapshot);
+        } else {
+          action.setChanged(wasChanged);
         }
         workflowGraph.updateGui();
       } else {

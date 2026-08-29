@@ -52,7 +52,6 @@ class DefaultActionCopyFactoryTest {
   private DefaultActionCopyFactory factory;
   private ActionStart sourceAction;
   private ActionMeta sourceActionMeta;
-  private WorkflowMeta workflowMeta;
 
   @BeforeEach
   void setUp() {
@@ -69,7 +68,7 @@ class DefaultActionCopyFactoryTest {
     sourceActionMeta.setAttribute("testGroup", "testKey", "testValue");
 
     // Create a test workflow meta
-    workflowMeta = new WorkflowMeta();
+    WorkflowMeta workflowMeta = new WorkflowMeta();
     sourceActionMeta.setParentWorkflowMeta(workflowMeta);
   }
 
@@ -194,6 +193,21 @@ class DefaultActionCopyFactoryTest {
 
     assertNotNull(copy, "Copy should not be null");
     assertTrue(copy.hasChanged(), "Copy should preserve changed state");
+  }
+
+  @Test
+  void testCleanActionMetaCopyRemainsUnchanged() {
+    sourceActionMeta.setLocation(120, 40);
+    sourceActionMeta.setChanged(false);
+    sourceAction.setChanged(false);
+
+    assertFalse(sourceActionMeta.hasChanged(), "Source ActionMeta should start clean");
+
+    ActionMeta copy = factory.copy(sourceActionMeta, CopyContext.DEFAULT);
+
+    assertFalse(
+        copy.hasChanged(),
+        "Copy of a clean action must stay clean (setLocation must not leak dirty flag)");
   }
 
   @Test

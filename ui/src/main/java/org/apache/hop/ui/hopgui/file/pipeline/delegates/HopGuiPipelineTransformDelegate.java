@@ -50,6 +50,8 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.copy.CopyContext;
+import org.apache.hop.pipeline.transform.copy.DefaultTransformMetaCopyFactory;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.ui.core.PropsUi;
@@ -197,47 +199,34 @@ public class HopGuiPipelineTransformDelegate {
         return null;
       }
 
-      dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
-      TransformMeta before = null;
+      boolean wasChanged = transformMeta.hasChanged();
+      transformMeta.getTransform().convertIOMetaToTransformNames();
+      wasChanged = transformMeta.hasChanged();
+
+      // Dialogs write widget values back onto whatever instance they were given. Edit a copy so
+      // open / getData / OK-without-edits cannot dirty the live transform. All plugins share this
+      // path — do not add per-dialog dirty-flag workarounds.
+      ITransformMeta originalInner = transformMeta.getTransform();
+      ITransformMeta working =
+          DefaultTransformMetaCopyFactory.getInstance()
+              .copy(originalInner, CopyContext.SAME_PIPELINE);
+      if (working == null) {
+        working = originalInner;
+      }
+
+      dialog = getTransformDialog(working, pipelineMeta, name);
       byte[] beforeSnapshot = null;
       if (dialog != null) {
         dialogs.put(name, dialog);
 
         dialog.setMetadataProvider(hopGui.getMetadataProvider());
-        transformMeta.getTransform().convertIOMetaToTransformNames();
-        // Snapshot after IO-meta normalization so OK-without-edits is not treated as a change.
-        before = (TransformMeta) transformMeta.clone();
         beforeSnapshot = pipelineGraph.captureUndoSnapshot();
-        // Subject stack covers legacy dialogs that never set BaseDialog.DIALOG_SUBJECT
-        transformName = BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open);
+        transformName = BaseDialog.withDialogSubject(working, dialog::open);
 
         dialogs.remove(name);
       }
 
-      if (!Utils.isEmpty(transformName) && before != null) {
-        // Force the recreation of the transform IO metadata object. (cached by default)
-        //
-        transformMeta.getTransform().resetTransformIoMeta();
-
-        // For backward compatibility: set the subjects to the names of the transforms
-        // This prevents UI data loss.
-        //
-        for (IStream infoStream :
-            transformMeta.getTransform().getTransformIOMeta().getInfoStreams()) {
-          if (infoStream.getTransformMeta() != null) {
-            infoStream.setSubject(infoStream.getTransformMeta().getName());
-          }
-        }
-
-        // Re-search the metadata
-        //
-        transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
-
-        //
-        // See if the new name the user enter, doesn't collide with
-        // another transform.
-        // If so, change the transformName and warn the user!
-        //
+      if (!Utils.isEmpty(transformName) && working != originalInner) {
         String newname = transformName;
         TransformMeta smeta = pipelineMeta.findTransform(newname, transformMeta);
         int nr = 2;
@@ -256,19 +245,40 @@ public class HopGuiPipelineTransformDelegate {
           mb.open();
         }
 
-        TransformMeta newTransformMeta = (TransformMeta) transformMeta.clone();
-        newTransformMeta.setName(transformName);
-        pipelineMeta.clearCaches();
-        pipelineMeta.notifyAllListeners(transformMeta, newTransformMeta);
-        transformMeta.setName(transformName);
+        boolean nameChanged = !name.equals(transformName);
+        boolean innerChanged = hasInnerXmlChanged(originalInner, working);
 
-        TransformMeta after = (TransformMeta) transformMeta.clone();
-        pipelineGraph.commitDialogUndo(beforeSnapshot);
-        if (hasTransformMetaChanged(before, after)) {
+        if (innerChanged || nameChanged) {
+          if (innerChanged) {
+            transformMeta.setTransform(working);
+          }
+
+          transformMeta.getTransform().resetTransformIoMeta();
+          for (IStream infoStream :
+              transformMeta.getTransform().getTransformIOMeta().getInfoStreams()) {
+            if (infoStream.getTransformMeta() != null) {
+              infoStream.setSubject(infoStream.getTransformMeta().getName());
+            }
+          }
+          transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+
+          TransformMeta newTransformMeta = (TransformMeta) transformMeta.clone();
+          newTransformMeta.setName(transformName);
+          pipelineMeta.clearCaches();
+          pipelineMeta.notifyAllListeners(transformMeta, newTransformMeta);
+          transformMeta.setName(transformName);
           transformMeta.setChanged();
+          pipelineGraph.commitDialogUndo(beforeSnapshot);
         } else {
-          transformMeta.setChanged(before.hasChanged());
+          transformMeta.setChanged(wasChanged);
         }
+      } else if (!Utils.isEmpty(transformName) && working == originalInner) {
+        // Copy failed; keep the previous live-edit behavior.
+        transformMeta.setName(transformName);
+        transformMeta.setChanged();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
+      } else {
+        transformMeta.setChanged(wasChanged);
       }
       pipelineGraph.updateGui();
 
@@ -547,6 +557,7 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void editTransformPartitioning(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    boolean wasChanged = transformMeta.hasChanged();
     byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
     String[] schemaNames;
     try {
@@ -606,12 +617,8 @@ public class HopGuiPipelineTransformDelegate {
 
         TransformMeta partitionBefore = partitionSettings.getBefore();
         TransformMeta partitionAfter = partitionSettings.getAfter();
+        applyChangedAfterDialog(transformMeta, partitionBefore, partitionAfter, wasChanged);
         pipelineGraph.commitDialogUndo(beforeSnapshot);
-        if (hasTransformMetaChanged(partitionBefore, partitionAfter)) {
-          transformMeta.setChanged();
-        } else {
-          transformMeta.setChanged(partitionBefore.hasChanged());
-        }
         pipelineGraph.redraw();
       }
     } catch (Exception e) {
@@ -676,6 +683,7 @@ public class HopGuiPipelineTransformDelegate {
       List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta, true);
 
       // now edit this transformErrorMeta object:
+      boolean wasChanged = transformMeta.hasChanged();
       TransformMeta before = (TransformMeta) transformMeta.clone();
       byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
       TransformErrorMetaDialog dialog =
@@ -689,14 +697,33 @@ public class HopGuiPipelineTransformDelegate {
           BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open))) {
         transformMeta.setTransformErrorMeta(transformErrorMeta);
         TransformMeta after = (TransformMeta) transformMeta.clone();
+        applyChangedAfterDialog(transformMeta, before, after, wasChanged);
         pipelineGraph.commitDialogUndo(beforeSnapshot);
-        if (hasTransformMetaChanged(before, after)) {
-          transformMeta.setChanged();
-        } else {
-          transformMeta.setChanged(before.hasChanged());
-        }
         pipelineGraph.redraw();
       }
+    }
+  }
+
+  private static boolean hasInnerXmlChanged(ITransformMeta original, ITransformMeta working) {
+    try {
+      return !original.getXml().equals(working.getXml());
+    } catch (HopException e) {
+      return true;
+    }
+  }
+
+  /**
+   * Marks the transform dirty only when persisted configuration actually changed. When there is no
+   * real change, the live object is restored from {@code before} so getInfo() artifacts do not
+   * linger in memory.
+   */
+  private static void applyChangedAfterDialog(
+      TransformMeta transformMeta, TransformMeta before, TransformMeta after, boolean wasChanged) {
+    if (hasTransformMetaChanged(before, after)) {
+      transformMeta.setChanged();
+    } else {
+      transformMeta.replaceMeta(before);
+      transformMeta.setChanged(wasChanged);
     }
   }
 
