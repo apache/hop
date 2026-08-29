@@ -116,6 +116,8 @@ public class PropsUi extends Props {
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME = "MetricsPanel.ShowDataVolume";
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME_IN = "MetricsPanel.ShowDataVolumeIn";
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME_OUT = "MetricsPanel.ShowDataVolumeOut";
+  private static final String METRICS_PANEL_DYNAMIC_COLUMN_RESIZE =
+      "MetricsPanel.DynamicColumnResize";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
@@ -738,6 +740,18 @@ public class PropsUi extends Props {
 
   public void setMetricsPanelShowDataVolumeOut(boolean show) {
     setProperty(METRICS_PANEL_SHOW_DATA_VOLUME_OUT, show ? YES : NO);
+  }
+
+  /**
+   * When true (default), auto-sized metrics columns grow during execution as values get wider. When
+   * false, widths stay where they were after the last pack or user drag.
+   */
+  public boolean isMetricsPanelDynamicColumnResize() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, YES));
+  }
+
+  public void setMetricsPanelDynamicColumnResize(boolean dynamic) {
+    setProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, dynamic ? YES : NO);
   }
 
   public static void setLook(Widget widget) {

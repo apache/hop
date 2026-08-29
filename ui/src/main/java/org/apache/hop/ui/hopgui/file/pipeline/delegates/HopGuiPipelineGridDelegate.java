@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,7 +75,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
@@ -103,6 +103,8 @@ public class HopGuiPipelineGridDelegate {
   public static final String TOOLBAR_ICON_COPY = "ToolbarIcon-10020-Copy";
 
   public static final long UPDATE_TIME_VIEW = 1000L;
+
+  private static final int METRICS_TABLE_STYLE = SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI;
 
   private final HopGui hopGui;
   private final HopGuiPipelineGraph pipelineGraph;
@@ -156,10 +158,16 @@ public class HopGuiPipelineGridDelegate {
   private final Map<String, Integer> metricsColumnWidths = new HashMap<>();
 
   /**
-   * True while we are programmatically restoring column widths. Resize listeners must not persist
+   * True while we are programmatically changing column widths. Resize listeners must not persist
    * those changes or they overwrite the user's saved widths.
    */
   private boolean restoringColumnWidths = false;
+
+  /**
+   * When true, the next {@link #refreshView()} fully packs columns (View menu toggled units or
+   * visibility). Steady-state timer ticks only grow auto-sized columns.
+   */
+  private boolean packColumnsOnNextRefresh = false;
 
   /**
    * @param hopGui Hop GUI instance
@@ -196,6 +204,7 @@ public class HopGuiPipelineGridDelegate {
         gridSortColumn = 0;
         gridSortDescending = false;
         lastEngineMetrics = null;
+        packColumnsOnNextRefresh = true;
         startRefreshMetricsTimer();
         return;
       }
@@ -304,33 +313,12 @@ public class HopGuiPipelineGridDelegate {
     columns[12].setAlignment(SWT.RIGHT);
     columns[13].setAlignment(SWT.RIGHT);
 
-    pipelineGridView =
-        new TableView(
-            pipelineGraph.getVariables(),
-            pipelineGridComposite,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            columns,
-            1,
-            true, // readonly
-            null,
-            hopGui.getProps(),
-            true,
-            null,
-            false,
-            false); // no TableView toolbar; copy/filter are on our toolbar
-    FormData fdView = new FormData();
-    fdView.left = new FormAttachment(0, 0);
-    fdView.right = new FormAttachment(100, 0);
-    fdView.top = new FormAttachment(toolbar, 0);
-    fdView.bottom = new FormAttachment(100, 0);
-    pipelineGridView.setLayoutData(fdView);
-    pipelineGridView.setSortable(true);
+    pipelineGridView = createMetricsTableView(columns, 1);
+    metricsColumnKeys = placeholderColumnKeys();
+    attachColumnWidthListeners();
     attachMetricsTableListeners(pipelineGridView);
-
-    ColumnInfo numberColumn = pipelineGridView.getNumberColumn();
-    IValueMeta numberColumnValueMeta =
-        new ValueMetaString("#", HopGuiPipelineGridDelegate::subTransformCompare);
-    numberColumn.setValueMeta(numberColumnValueMeta);
+    applyNumberColumnComparator();
+    previousRefreshColumns = Arrays.asList(columns);
 
     startRefreshMetricsTimer();
     pipelineGridTab.addDisposeListener(disposeEvent -> stopRefreshMetricsTimer());
@@ -423,9 +411,10 @@ public class HopGuiPipelineGridDelegate {
   }
 
   /**
-   * Add a "View" dropdown to the toolbar with checkable items for metrics panel options (hide
-   * units, hide columns). Syncs with PropsUi so options dialog and toolbar stay in sync. Uses a
-   * CLabel with SWT.CENTER so the text is centered consistently across platforms (e.g. Linux).
+   * Add a "View" dropdown to the toolbar with checkable items for metrics panel options (units,
+   * column resizing, hide columns). Syncs with PropsUi so options dialog and toolbar stay in sync.
+   * Uses a CLabel with SWT.CENTER so the text is centered consistently across platforms (e.g.
+   * Linux).
    */
   private void addMetricsViewDropdown(Control toolbarControl) {
     if (!(toolbarControl instanceof ToolBar tb)) {
@@ -464,6 +453,30 @@ public class HopGuiPipelineGridDelegate {
         e ->
             setMetricsOptionAndRefresh(
                 () -> props.setMetricsPanelShowUnits(showUnitsItem.getSelection())));
+
+    MenuItem dynamicResizeItem = new MenuItem(menu, SWT.CHECK);
+    dynamicResizeItem.setText(
+        BaseMessages.getString(PKG, "PipelineLog.MetricsView.DynamicColumnResize"));
+    dynamicResizeItem.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineLog.MetricsView.DynamicColumnResize.Tooltip"));
+    dynamicResizeItem.setSelection(props.isMetricsPanelDynamicColumnResize());
+    dynamicResizeItem.addListener(
+        SWT.Selection,
+        e ->
+            setMetricsOptionAndRefresh(
+                () -> props.setMetricsPanelDynamicColumnResize(dynamicResizeItem.getSelection()),
+                false));
+
+    MenuItem fitColumnsItem = new MenuItem(menu, SWT.PUSH);
+    fitColumnsItem.setText(BaseMessages.getString(PKG, "PipelineLog.MetricsView.FitColumns"));
+    fitColumnsItem.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineLog.MetricsView.FitColumns.Tooltip"));
+    fitColumnsItem.addListener(
+        SWT.Selection,
+        e -> {
+          packColumnsOnNextRefresh = true;
+          refreshView();
+        });
 
     new MenuItem(menu, SWT.SEPARATOR);
 
@@ -546,12 +559,17 @@ public class HopGuiPipelineGridDelegate {
   }
 
   private void setMetricsOptionAndRefresh(Runnable setOption) {
+    setMetricsOptionAndRefresh(setOption, true);
+  }
+
+  private void setMetricsOptionAndRefresh(Runnable setOption, boolean packColumns) {
     setOption.run();
     try {
       HopConfig.getInstance().saveToFile();
     } catch (Exception ignored) {
       // best-effort persist
     }
+    packColumnsOnNextRefresh = packColumns;
     refreshView();
   }
 
@@ -678,21 +696,37 @@ public class HopGuiPipelineGridDelegate {
       List<List<String>> componentStringsList =
           buildComponentStringsList(engineMetrics, shownComponents, usedMetrics);
 
-      recreateTableIfColumnsChanged(columns, shownComponents.size(), usedMetrics);
+      boolean recreated =
+          recreateTableIfColumnsChanged(columns, shownComponents.size(), usedMetrics);
+      boolean packColumns = packColumnsOnNextRefresh;
+      packColumnsOnNextRefresh = false;
 
       sortComponentStringsByColumn(componentStringsList, gridSortColumn, gridSortDescending);
+
+      Table table = pipelineGridView.table;
+      int topIndex = table.getTopIndex();
+      int[] selection = table.getSelectionIndices();
 
       int errorCol = indexOfMetric(usedMetrics, Pipeline.METRIC_ERROR);
       fillTableRows(componentStringsList, errorCol);
 
       setSortIndicator();
 
-      // Ignore resize events from optWidth and restoreColumnWidths so we don't overwrite saved
-      // widths
+      // Ignore resize events from optWidth / restore so we don't treat them as user drags.
       restoringColumnWidths = true;
-      pipelineGridView.optWidth(true);
-      restoreColumnWidths(usedMetrics);
+      try {
+        if (packColumns && !recreated) {
+          pipelineGridView.optWidth(true);
+          restoreColumnWidths(usedMetrics);
+        } else if (PropsUi.getInstance().isMetricsPanelDynamicColumnResize()) {
+          // Recreate already packed in the constructor; timer ticks only grow auto-sized columns.
+          pipelineGridView.optWidth(true, 0, true);
+        }
+      } finally {
+        restoringColumnWidths = false;
+      }
       previousRefreshColumns = columns;
+      restoreTableViewport(table, topIndex, selection);
       updateEditButtonState();
     } finally {
       refreshViewLock.unlock();
@@ -918,39 +952,100 @@ public class HopGuiPipelineGridDelegate {
     return componentStringsList;
   }
 
-  private void recreateTableIfColumnsChanged(
+  /**
+   * Rebuilds the metrics {@link TableView} when the column set changes. Returns true when a new
+   * table was created (constructor already packed columns).
+   */
+  private boolean recreateTableIfColumnsChanged(
       List<ColumnInfo> columns, int rowCount, List<IEngineMetric> usedMetrics) {
     if (!haveColumnsChanged(columns)) {
-      return;
+      return false;
     }
     saveColumnWidths();
     pipelineGridView.dispose();
-    pipelineGridView =
+    pipelineGridView = createMetricsTableView(columns.toArray(new ColumnInfo[0]), rowCount);
+    metricsColumnKeys = getColumnKeys(usedMetrics);
+    applyNumberColumnComparator();
+    attachColumnWidthListeners();
+    attachMetricsTableListeners(pipelineGridView);
+    pipelineGridComposite.layout(true, true);
+    restoreColumnWidths(usedMetrics);
+    return true;
+  }
+
+  private TableView createMetricsTableView(ColumnInfo[] columns, int rowCount) {
+    TableView view =
         new TableView(
             pipelineGraph.getVariables(),
             pipelineGridComposite,
-            SWT.NONE,
-            columns.toArray(new ColumnInfo[0]),
-            rowCount,
+            METRICS_TABLE_STYLE,
+            columns,
+            Math.max(rowCount, 1),
             true,
             null,
-            PropsUi.getInstance(),
+            hopGui.getProps(),
             true,
             null,
             false,
             false); // no TableView toolbar; copy/filter are on our toolbar
-    pipelineGridView.setSortable(true);
-    metricsColumnKeys = getColumnKeys(usedMetrics);
-    attachColumnWidthListeners();
-    attachMetricsTableListeners(pipelineGridView);
+    view.setSortable(true);
     FormData fdView = new FormData();
     fdView.left = new FormAttachment(0, 0);
     fdView.right = new FormAttachment(100, 0);
     fdView.top = new FormAttachment(toolbar, 0);
     fdView.bottom = new FormAttachment(100, 0);
-    pipelineGridView.setLayoutData(fdView);
-    pipelineGridComposite.layout(true, true);
-    restoreColumnWidths(usedMetrics);
+    view.setLayoutData(fdView);
+    return view;
+  }
+
+  private void applyNumberColumnComparator() {
+    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+      return;
+    }
+    ColumnInfo numberColumn = pipelineGridView.getNumberColumn();
+    IValueMeta numberColumnValueMeta =
+        new ValueMetaString("#", HopGuiPipelineGridDelegate::subTransformCompare);
+    numberColumn.setValueMeta(numberColumnValueMeta);
+  }
+
+  /**
+   * Column keys used by the placeholder table created in {@link #addPipelineGrid()} before the
+   * first engine-metrics refresh rebuilds the real column set.
+   */
+  private static List<String> placeholderColumnKeys() {
+    List<String> keys = new ArrayList<>();
+    keys.add("#");
+    keys.add("TransformName");
+    keys.add("Copy");
+    keys.add(Pipeline.METRIC_NAME_INPUT);
+    keys.add(Pipeline.METRIC_NAME_READ);
+    keys.add(Pipeline.METRIC_NAME_WRITTEN);
+    keys.add(Pipeline.METRIC_NAME_OUTPUT);
+    keys.add(Pipeline.METRIC_NAME_UPDATED);
+    keys.add(Pipeline.METRIC_NAME_REJECTED);
+    keys.add(Pipeline.METRIC_NAME_ERROR);
+    keys.add(Pipeline.METRIC_NAME_BUFFER_IN);
+    keys.add(Pipeline.METRIC_NAME_BUFFER_OUT);
+    keys.add("duration");
+    keys.add("speed");
+    keys.add("status");
+    return keys;
+  }
+
+  private void restoreTableViewport(Table table, int topIndex, int[] selection) {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    int itemCount = table.getItemCount();
+    if (selection != null && selection.length > 0) {
+      int[] valid = Arrays.stream(selection).filter(i -> i >= 0 && i < itemCount).toArray();
+      if (valid.length > 0) {
+        table.setSelection(valid);
+      }
+    }
+    if (topIndex >= 0 && topIndex < itemCount) {
+      table.setTopIndex(topIndex);
+    }
   }
 
   /**
@@ -971,54 +1066,65 @@ public class HopGuiPipelineGridDelegate {
     return keys;
   }
 
-  /** Saves current column widths to the session map so they can be restored after refresh. */
+  /**
+   * Refreshes native widths for columns the user has already resized. Auto-sized columns are not
+   * stored so grow-only packing can still widen them as counts grow.
+   */
   private void saveColumnWidths() {
     if (pipelineGridView == null || pipelineGridView.isDisposed()) {
       return;
     }
-    if (metricsColumnKeys == null || metricsColumnKeys.size() == 0) {
+    if (metricsColumnKeys == null || metricsColumnKeys.isEmpty() || metricsColumnWidths.isEmpty()) {
       return;
     }
-    org.eclipse.swt.widgets.Table table = pipelineGridView.table;
+    Table table = pipelineGridView.table;
     int n = Math.min(table.getColumnCount(), metricsColumnKeys.size());
     for (int i = 0; i < n; i++) {
+      String key = metricsColumnKeys.get(i);
+      if (!metricsColumnWidths.containsKey(key)) {
+        continue;
+      }
       int w = table.getColumn(i).getWidth();
       if (w > 0) {
-        metricsColumnWidths.put(metricsColumnKeys.get(i), w);
+        metricsColumnWidths.put(key, w);
       }
     }
   }
 
   /**
-   * Restores column widths from the session map onto the table. Needed for the "#" column (no
-   * ColumnInfo) and as a fallback so widths are applied after optWidth.
+   * Restores user-resized column widths from the session map onto the table. Needed for the "#"
+   * column (no data {@link ColumnInfo}) and after a table recreate.
    */
   private void restoreColumnWidths(List<IEngineMetric> usedMetrics) {
     if (pipelineGridView == null || pipelineGridView.isDisposed()) {
       return;
     }
+    if (metricsColumnWidths.isEmpty()) {
+      return;
+    }
+    boolean nested = restoringColumnWidths;
     restoringColumnWidths = true;
+    Table table = pipelineGridView.table;
+    table.setRedraw(false);
     try {
       List<String> keys = getColumnKeys(usedMetrics);
-      Table table = pipelineGridView.table;
       int n = Math.min(table.getColumnCount(), keys.size());
       for (int i = 0; i < n; i++) {
         String key = keys.get(i);
         Integer w = metricsColumnWidths.get(key);
         if (w != null && w > 0) {
           TableColumn tc = table.getColumn(i);
-          tc.setWidth(w);
+          if (tc.getWidth() != w) {
+            tc.setWidth(w);
+          }
+          pipelineGridView.setPreferredColumnWidth(i, w);
         }
       }
     } finally {
-      // Clear flag asynchronously so any Resize events queued by setWidth() are still ignored
-      Display display =
-          pipelineGridView != null && !pipelineGridView.isDisposed()
-              ? pipelineGridView.table.getDisplay()
-              : null;
-      if (display != null && !display.isDisposed()) {
-        display.asyncExec(() -> restoringColumnWidths = false);
-      } else {
+      if (!table.isDisposed()) {
+        table.setRedraw(true);
+      }
+      if (!nested) {
         restoringColumnWidths = false;
       }
     }
@@ -1029,12 +1135,13 @@ public class HopGuiPipelineGridDelegate {
     if (pipelineGridView == null || pipelineGridView.isDisposed()) {
       return;
     }
-    if (metricsColumnKeys == null || metricsColumnKeys.size() == 0) {
+    if (metricsColumnKeys == null || metricsColumnKeys.isEmpty()) {
       return;
     }
     Table table = pipelineGridView.table;
     for (int i = 0; i < table.getColumnCount() && i < metricsColumnKeys.size(); i++) {
       final String key = metricsColumnKeys.get(i);
+      final int columnIndex = i;
       TableColumn col = table.getColumn(i);
       col.addListener(
           SWT.Resize,
@@ -1043,32 +1150,56 @@ public class HopGuiPipelineGridDelegate {
               return;
             }
             if (!col.isDisposed()) {
-              metricsColumnWidths.put(key, col.getWidth());
+              int w = col.getWidth();
+              if (w > 0) {
+                metricsColumnWidths.put(key, w);
+                pipelineGridView.setPreferredColumnWidth(columnIndex, w);
+              }
             }
           });
     }
   }
 
   private void fillTableRows(List<List<String>> componentStringsList, int errorColumnIndex) {
-    while (pipelineGridView.table.getItemCount() > componentStringsList.size()) {
-      pipelineGridView.table.remove(pipelineGridView.table.getItemCount() - 1);
+    Table table = pipelineGridView.table;
+    table.setRedraw(false);
+    try {
+      while (table.getItemCount() > componentStringsList.size()) {
+        table.remove(table.getItemCount() - 1);
+      }
+      int errorsCol = 3 + errorColumnIndex; // row has #, name, copy, then metrics
+      Color errorBg = GuiResource.getInstance().getColorLightRed();
+      for (int row = 0; row < componentStringsList.size(); row++) {
+        List<String> componentStrings = componentStringsList.get(row);
+        TableItem item;
+        if (row < table.getItemCount()) {
+          item = table.getItem(row);
+        } else {
+          item = new TableItem(table, SWT.NONE);
+        }
+        applyRowTextsIfChanged(item, componentStrings);
+        if (errorColumnIndex >= 0 && errorsCol < componentStrings.size()) {
+          long err = parseFormattedLong(componentStrings.get(errorsCol));
+          boolean wantError = err > 0;
+          boolean hasError = errorBg.equals(item.getBackground());
+          if (wantError != hasError) {
+            item.setBackground(wantError ? errorBg : null);
+          }
+        }
+      }
+    } finally {
+      if (!table.isDisposed()) {
+        table.setRedraw(true);
+      }
     }
-    int errorsCol = 3 + errorColumnIndex; // row has #, name, copy, then metrics
-    Color errorBg = GuiResource.getInstance().getColorLightRed();
-    for (int row = 0; row < componentStringsList.size(); row++) {
-      List<String> componentStrings = componentStringsList.get(row);
-      TableItem item;
-      if (row < pipelineGridView.table.getItemCount()) {
-        item = pipelineGridView.table.getItem(row);
-      } else {
-        item = new TableItem(pipelineGridView.table, SWT.NONE);
-      }
-      for (int col = 0; col < componentStrings.size(); col++) {
-        item.setText(col, componentStrings.get(col));
-      }
-      if (errorColumnIndex >= 0 && errorsCol < componentStrings.size()) {
-        long err = parseFormattedLong(componentStrings.get(errorsCol));
-        item.setBackground(err > 0 ? errorBg : null);
+  }
+
+  /** Anti-flicker: only push cell text that actually changed. */
+  private static void applyRowTextsIfChanged(TableItem item, List<String> texts) {
+    for (int col = 0; col < texts.size(); col++) {
+      String next = Const.NVL(texts.get(col), "");
+      if (!next.equals(item.getText(col))) {
+        item.setText(col, next);
       }
     }
   }
@@ -1247,9 +1378,16 @@ public class HopGuiPipelineGridDelegate {
       return;
     }
     Table table = pipelineGridView.table;
-    if (gridSortColumn >= 0 && gridSortColumn < table.getColumnCount()) {
-      table.setSortColumn(table.getColumn(gridSortColumn));
-      table.setSortDirection(gridSortDescending ? SWT.DOWN : SWT.UP);
+    if (gridSortColumn < 0 || gridSortColumn >= table.getColumnCount()) {
+      return;
+    }
+    TableColumn wanted = table.getColumn(gridSortColumn);
+    int direction = gridSortDescending ? SWT.DOWN : SWT.UP;
+    if (table.getSortColumn() != wanted) {
+      table.setSortColumn(wanted);
+    }
+    if (table.getSortDirection() != direction) {
+      table.setSortDirection(direction);
     }
   }
 

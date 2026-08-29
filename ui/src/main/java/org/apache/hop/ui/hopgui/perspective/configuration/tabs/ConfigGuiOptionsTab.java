@@ -115,6 +115,7 @@ public class ConfigGuiOptionsTab {
   private Text wMaxPreviewCellLength;
   private Button wShowPreviewLineBreaks;
   private Button wMetricsPanelShowUnits;
+  private Button wMetricsPanelDynamicColumnResize;
   private Button wMetricsPanelShowInput;
   private Button wMetricsPanelShowRead;
   private Button wMetricsPanelShowOutput;
@@ -215,6 +216,10 @@ public class ConfigGuiOptionsTab {
       }
       if (wMetricsPanelShowUnits != null && !wMetricsPanelShowUnits.isDisposed()) {
         wMetricsPanelShowUnits.setSelection(props.isMetricsPanelShowUnits());
+        if (wMetricsPanelDynamicColumnResize != null
+            && !wMetricsPanelDynamicColumnResize.isDisposed()) {
+          wMetricsPanelDynamicColumnResize.setSelection(props.isMetricsPanelDynamicColumnResize());
+        }
         wMetricsPanelShowInput.setSelection(props.isMetricsPanelShowInput());
         wMetricsPanelShowRead.setSelection(props.isMetricsPanelShowRead());
         wMetricsPanelShowOutput.setSelection(props.isMetricsPanelShowOutput());
@@ -1024,6 +1029,16 @@ public class ConfigGuiOptionsTab {
             margin);
     lastMetricsPanelControl = wMetricsPanelShowUnits;
 
+    wMetricsPanelDynamicColumnResize =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.DynamicColumnResize.Label",
+            "EnterOptionsDialog.MetricsPanel.DynamicColumnResize.ToolTip",
+            props.isMetricsPanelDynamicColumnResize(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelDynamicColumnResize;
+
     wMetricsPanelShowInput =
         createCheckbox(
             metricsPanelContent,
@@ -1336,6 +1351,10 @@ public class ConfigGuiOptionsTab {
         Const.toInt(wMaxPreviewCellLength.getText(), props.getMaxPreviewCellLength()));
     props.setShowPreviewLineBreaksAsSymbols(wShowPreviewLineBreaks.getSelection());
     props.setMetricsPanelShowUnits(wMetricsPanelShowUnits.getSelection());
+    if (wMetricsPanelDynamicColumnResize != null
+        && !wMetricsPanelDynamicColumnResize.isDisposed()) {
+      props.setMetricsPanelDynamicColumnResize(wMetricsPanelDynamicColumnResize.getSelection());
+    }
     props.setMetricsPanelShowInput(wMetricsPanelShowInput.getSelection());
     props.setMetricsPanelShowRead(wMetricsPanelShowRead.getSelection());
     props.setMetricsPanelShowOutput(wMetricsPanelShowOutput.getSelection());
