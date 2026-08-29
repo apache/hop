@@ -7,92 +7,132 @@ STRING       len=      -1 prec=  -1 -        -> VARCHAR(9999)
 STRING       len=       0 prec=   0 -        -> VARCHAR(9999)
 STRING       len=       4 prec=   0 -        -> VARCHAR(4)
 STRING       len=       9 prec=   0 -        -> VARCHAR(9)
+STRING       len=      10 prec=   2 -        -> VARCHAR(10)
 STRING       len=      15 prec=   0 -        -> VARCHAR(15)
 STRING       len=      18 prec=   0 -        -> VARCHAR(18)
 STRING       len=      20 prec=   0 -        -> VARCHAR(20)
-STRING       len=      10 prec=   2 -        -> VARCHAR(10)
 STRING       len= 9999999 prec=   0 -        -> VARCHAR(32000)
 INTEGER      len=      -1 prec=  -1 -        -> INTEGER
 INTEGER      len=       0 prec=   0 -        -> INTEGER1
 INTEGER      len=       4 prec=   0 -        -> SMALLINT
 INTEGER      len=       9 prec=   0 -        -> INTEGER
+INTEGER      len=      10 prec=   2 -        -> BIGINT
 INTEGER      len=      15 prec=   0 -        -> BIGINT
 INTEGER      len=      18 prec=   0 -        -> BIGINT
 INTEGER      len=      20 prec=   0 -        -> BIGINT
-INTEGER      len=      10 prec=   2 -        -> BIGINT
 INTEGER      len= 9999999 prec=   0 -        -> BIGINT
 NUMBER       len=      -1 prec=  -1 -        -> FLOAT8
 NUMBER       len=       0 prec=   0 -        -> INTEGER1
 NUMBER       len=       4 prec=   0 -        -> SMALLINT
 NUMBER       len=       9 prec=   0 -        -> INTEGER
+NUMBER       len=      10 prec=   2 -        -> FLOAT8
 NUMBER       len=      15 prec=   0 -        -> BIGINT
 NUMBER       len=      18 prec=   0 -        -> BIGINT
 NUMBER       len=      20 prec=   0 -        -> BIGINT
-NUMBER       len=      10 prec=   2 -        -> FLOAT8
 NUMBER       len= 9999999 prec=   0 -        -> BIGINT
 BIGNUMBER    len=      -1 prec=  -1 -        -> FLOAT8
 BIGNUMBER    len=       0 prec=   0 -        -> INTEGER1
 BIGNUMBER    len=       4 prec=   0 -        -> SMALLINT
 BIGNUMBER    len=       9 prec=   0 -        -> INTEGER
+BIGNUMBER    len=      10 prec=   2 -        -> FLOAT8
 BIGNUMBER    len=      15 prec=   0 -        -> BIGINT
 BIGNUMBER    len=      18 prec=   0 -        -> BIGINT
 BIGNUMBER    len=      20 prec=   0 -        -> BIGINT
-BIGNUMBER    len=      10 prec=   2 -        -> FLOAT8
 BIGNUMBER    len= 9999999 prec=   0 -        -> BIGINT
 DATE         len=      -1 prec=  -1 -        -> TIMESTAMP
 DATE         len=       0 prec=   0 -        -> TIMESTAMP
 DATE         len=       4 prec=   0 -        -> TIMESTAMP
 DATE         len=       9 prec=   0 -        -> TIMESTAMP
+DATE         len=      10 prec=   2 -        -> TIMESTAMP
 DATE         len=      15 prec=   0 -        -> TIMESTAMP
 DATE         len=      18 prec=   0 -        -> TIMESTAMP
 DATE         len=      20 prec=   0 -        -> TIMESTAMP
-DATE         len=      10 prec=   2 -        -> TIMESTAMP
 DATE         len= 9999999 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=      -1 prec=  -1 -        -> TIMESTAMP
 TIMESTAMP    len=       0 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=       4 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=       9 prec=   0 -        -> TIMESTAMP
+TIMESTAMP    len=      10 prec=   2 -        -> TIMESTAMP
 TIMESTAMP    len=      15 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=      18 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=      20 prec=   0 -        -> TIMESTAMP
-TIMESTAMP    len=      10 prec=   2 -        -> TIMESTAMP
 TIMESTAMP    len= 9999999 prec=   0 -        -> TIMESTAMP
 BOOLEAN      len=      -1 prec=  -1 -        -> CHAR(1)
 BOOLEAN      len=       0 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       4 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       9 prec=   0 -        -> CHAR(1)
+BOOLEAN      len=      10 prec=   2 -        -> CHAR(1)
 BOOLEAN      len=      15 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=      18 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=      20 prec=   0 -        -> CHAR(1)
-BOOLEAN      len=      10 prec=   2 -        -> CHAR(1)
 BOOLEAN      len= 9999999 prec=   0 -        -> CHAR(1)
 BINARY       len=      -1 prec=  -1 -        -> UNKNOWN
 BINARY       len=       0 prec=   0 -        -> UNKNOWN
 BINARY       len=       4 prec=   0 -        -> UNKNOWN
 BINARY       len=       9 prec=   0 -        -> UNKNOWN
+BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len=      15 prec=   0 -        -> UNKNOWN
 BINARY       len=      18 prec=   0 -        -> UNKNOWN
 BINARY       len=      20 prec=   0 -        -> UNKNOWN
-BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len= 9999999 prec=   0 -        -> UNKNOWN
 INET         len=      -1 prec=  -1 -        -> VARCHAR(45)
 INET         len=       0 prec=   0 -        -> VARCHAR(45)
 INET         len=       4 prec=   0 -        -> VARCHAR(45)
 INET         len=       9 prec=   0 -        -> VARCHAR(45)
+INET         len=      10 prec=   2 -        -> VARCHAR(45)
 INET         len=      15 prec=   0 -        -> VARCHAR(45)
 INET         len=      18 prec=   0 -        -> VARCHAR(45)
 INET         len=      20 prec=   0 -        -> VARCHAR(45)
-INET         len=      10 prec=   2 -        -> VARCHAR(45)
 INET         len= 9999999 prec=   0 -        -> VARCHAR(45)
 JSON         len=      -1 prec=  -1 -        -> VARCHAR(32000)
 JSON         len=       0 prec=   0 -        -> VARCHAR(32000)
 JSON         len=       4 prec=   0 -        -> VARCHAR(4)
 JSON         len=       9 prec=   0 -        -> VARCHAR(9)
+JSON         len=      10 prec=   2 -        -> VARCHAR(10)
 JSON         len=      15 prec=   0 -        -> VARCHAR(15)
 JSON         len=      18 prec=   0 -        -> VARCHAR(18)
 JSON         len=      20 prec=   0 -        -> VARCHAR(20)
-JSON         len=      10 prec=   2 -        -> VARCHAR(10)
 JSON         len= 9999999 prec=   0 -        -> VARCHAR(32000)
+
+[strings]
+STRING       len=     254 prec=   0 -        -> VARCHAR(254)
+STRING       len=     255 prec=   0 -        -> VARCHAR(255)
+STRING       len=     256 prec=   0 -        -> VARCHAR(256)
+STRING       len=    1999 prec=   0 -        -> VARCHAR(1999)
+STRING       len=    2000 prec=   0 -        -> VARCHAR(2000)
+STRING       len=    2001 prec=   0 -        -> VARCHAR(2001)
+STRING       len=    3999 prec=   0 -        -> VARCHAR(3999)
+STRING       len=    4000 prec=   0 -        -> VARCHAR(4000)
+STRING       len=    4001 prec=   0 -        -> VARCHAR(4001)
+STRING       len=    7999 prec=   0 -        -> VARCHAR(7999)
+STRING       len=    8000 prec=   0 -        -> VARCHAR(8000)
+STRING       len=    8001 prec=   0 -        -> VARCHAR(8001)
+STRING       len=   21843 prec=   0 -        -> VARCHAR(21843)
+STRING       len=   21844 prec=   0 -        -> VARCHAR(21844)
+STRING       len=   32663 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32664 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32671 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32672 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32699 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32700 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32719 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32720 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32766 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32767 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   32768 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   65532 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   65533 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   65534 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   65535 prec=   0 -        -> VARCHAR(32000)
+STRING       len=   65536 prec=   0 -        -> VARCHAR(32000)
+STRING       len= 1999999 prec=   0 -        -> VARCHAR(32000)
+STRING       len= 2000000 prec=   0 -        -> VARCHAR(32000)
+STRING       len= 2000001 prec=   0 -        -> VARCHAR(32000)
+STRING       len= 9999998 prec=   0 -        -> VARCHAR(32000)
+STRING       len= 9999999 prec=   0 -        -> VARCHAR(32000)
+STRING       len=10000000 prec=   0 -        -> VARCHAR(32000)
+STRING       len=16777215 prec=   0 -        -> VARCHAR(32000)
+STRING       len=16777216 prec=   0 -        -> VARCHAR(32000)
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> BIGINT PRIMARY KEY NOT NULL
@@ -107,6 +147,9 @@ INTEGER      len=       4 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 INTEGER      len=       9 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len=       9 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len=       9 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
+INTEGER      len=      10 prec=   2 tk       -> BIGINT PRIMARY KEY NOT NULL
+INTEGER      len=      10 prec=   2 pk       -> BIGINT PRIMARY KEY NOT NULL
+INTEGER      len=      10 prec=   2 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
 INTEGER      len=      15 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len=      15 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len=      15 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
@@ -116,9 +159,6 @@ INTEGER      len=      18 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 INTEGER      len=      20 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len=      20 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len=      20 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
-INTEGER      len=      10 prec=   2 tk       -> BIGINT PRIMARY KEY NOT NULL
-INTEGER      len=      10 prec=   2 pk       -> BIGINT PRIMARY KEY NOT NULL
-INTEGER      len=      10 prec=   2 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
 INTEGER      len= 9999999 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len= 9999999 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 INTEGER      len= 9999999 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
@@ -134,6 +174,9 @@ NUMBER       len=       4 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 NUMBER       len=       9 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len=       9 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len=       9 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
+NUMBER       len=      10 prec=   2 tk       -> BIGINT PRIMARY KEY NOT NULL
+NUMBER       len=      10 prec=   2 pk       -> BIGINT PRIMARY KEY NOT NULL
+NUMBER       len=      10 prec=   2 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
 NUMBER       len=      15 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len=      15 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len=      15 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
@@ -143,9 +186,6 @@ NUMBER       len=      18 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 NUMBER       len=      20 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len=      20 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len=      20 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
-NUMBER       len=      10 prec=   2 tk       -> BIGINT PRIMARY KEY NOT NULL
-NUMBER       len=      10 prec=   2 pk       -> BIGINT PRIMARY KEY NOT NULL
-NUMBER       len=      10 prec=   2 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
 NUMBER       len= 9999999 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len= 9999999 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 NUMBER       len= 9999999 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
@@ -161,6 +201,9 @@ BIGNUMBER    len=       4 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 BIGNUMBER    len=       9 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len=       9 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len=       9 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
+BIGNUMBER    len=      10 prec=   2 tk       -> BIGINT PRIMARY KEY NOT NULL
+BIGNUMBER    len=      10 prec=   2 pk       -> BIGINT PRIMARY KEY NOT NULL
+BIGNUMBER    len=      10 prec=   2 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
 BIGNUMBER    len=      15 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len=      15 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len=      15 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
@@ -170,9 +213,6 @@ BIGNUMBER    len=      18 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 BIGNUMBER    len=      20 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len=      20 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len=      20 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
-BIGNUMBER    len=      10 prec=   2 tk       -> BIGINT PRIMARY KEY NOT NULL
-BIGNUMBER    len=      10 prec=   2 pk       -> BIGINT PRIMARY KEY NOT NULL
-BIGNUMBER    len=      10 prec=   2 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
 BIGNUMBER    len= 9999999 prec=   0 tk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len= 9999999 prec=   0 pk       -> BIGINT PRIMARY KEY NOT NULL
 BIGNUMBER    len= 9999999 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY START WITH 1 INCREMENT BY 1
@@ -180,61 +220,61 @@ BIGNUMBER    len= 9999999 prec=   0 autoinc  -> GENERATED ALWAYS AS IDENTITY STA
 [alter]
 STRING       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(9999)
 STRING       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(9999)
-STRING       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(15)
-STRING       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(15)
 STRING       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(10)
 STRING       len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(10)
+STRING       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(15)
+STRING       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(15)
 INTEGER      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL INTEGER
 INTEGER      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL INTEGER
-INTEGER      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
-INTEGER      len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
 INTEGER      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
 INTEGER      len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
+INTEGER      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
+INTEGER      len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
 NUMBER       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL FLOAT8
 NUMBER       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL FLOAT8
-NUMBER       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
-NUMBER       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
 NUMBER       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL FLOAT8
 NUMBER       len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL FLOAT8
+NUMBER       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
+NUMBER       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
 BIGNUMBER    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL FLOAT8
 BIGNUMBER    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL FLOAT8
-BIGNUMBER    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
-BIGNUMBER    len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
 BIGNUMBER    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL FLOAT8
 BIGNUMBER    len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL FLOAT8
+BIGNUMBER    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL BIGINT
+BIGNUMBER    len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL BIGINT
 DATE         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
 DATE         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
-DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
-DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
 DATE         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
 DATE         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
+DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
+DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
 TIMESTAMP    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
 TIMESTAMP    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
-TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
-TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
 TIMESTAMP    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
 TIMESTAMP    len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
+TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL TIMESTAMP
+TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL TIMESTAMP
 BOOLEAN      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL CHAR(1)
 BOOLEAN      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL CHAR(1)
-BOOLEAN      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL CHAR(1)
-BOOLEAN      len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL CHAR(1)
+BOOLEAN      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL CHAR(1)
+BOOLEAN      len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL CHAR(1)
 BINARY       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL UNKNOWN
 BINARY       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL UNKNOWN
-BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL UNKNOWN
-BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL UNKNOWN
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL UNKNOWN
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL UNKNOWN
+BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL UNKNOWN
+BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL UNKNOWN
 INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(45)
 INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(45)
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(45)
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(45)
 INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(45)
 INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(45)
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(45)
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(45)
 JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(32000)
 JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(32000)
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(15)
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(15)
 JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(10)
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(10)
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VARCHAR(15)
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL VARCHAR(15)

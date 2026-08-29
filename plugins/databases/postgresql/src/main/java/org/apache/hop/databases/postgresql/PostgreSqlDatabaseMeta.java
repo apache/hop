@@ -29,6 +29,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.database.types.IValueBinding;
@@ -141,6 +142,8 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           .bind(IValueMeta.TYPE_JSON, JSON_BINDING)
           .bind(IValueMeta.TYPE_UUID, UNSPECIFIED_STRING_BINDING)
           .bind(IValueMeta.TYPE_INET, UNSPECIFIED_STRING_BINDING)
+          // An integer with no declared length is a Long, not a double precision. Issue #4174.
+          .rule(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG)
           .build();
 
   @Override
@@ -149,6 +152,10 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   private static final int GB_LIMIT = 1_073_741_824;
+
+  /** The largest precision PostgreSQL accepts in a NUMERIC(p, s) declaration. */
+  private static final int MAX_NUMERIC_PRECISION = 1000;
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
   @Override
@@ -455,7 +462,17 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           if (length > 0) {
             if (precision > 0 || length > 18) {
               // Numeric(Precision, Scale): Precision = total length; Scale = decimal places
-              retval += "NUMERIC(" + (length + precision) + ", " + precision + ")";
+              int numericPrecision = length + precision;
+              if (numericPrecision > MAX_NUMERIC_PRECISION) {
+                // PostgreSQL refuses a declared precision above 1000 outright: "NUMERIC precision
+                // 1073741824 must be between 1 and 1000". A length that large only ever arrives
+                // from the CLOB_LENGTH marker, which means unbounded, and an unconstrained NUMERIC
+                // is exactly that: it holds 131072 digits before the point, far past anything a
+                // Hop value carries.
+                retval += "NUMERIC";
+              } else {
+                retval += "NUMERIC(" + numericPrecision + ", " + precision + ")";
+              }
             } else {
               if (length > 9) {
                 retval += "BIGINT";

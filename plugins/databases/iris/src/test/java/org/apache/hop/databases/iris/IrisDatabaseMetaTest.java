@@ -73,10 +73,11 @@ class IrisDatabaseMetaTest {
     assertEquals(
         "ALTER TABLE FOO ADD COLUMN ( BAR INT ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", 0, 0), "", false, "", false));
+    // An Integer with no declared length is a Long, so it needs a column that holds one rather
+    // than the DOUBLE this used to produce. Issue #4174.
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
-        cdm.getAddColumnStatement(
-            "FOO", new ValueMetaInteger("BAR"), "", false, "", false)); // I believe this is a bug!
+        "ALTER TABLE FOO ADD COLUMN ( BAR DECIMAL(18) ) ",
+        cdm.getAddColumnStatement("FOO", new ValueMetaInteger("BAR"), "", false, "", false));
     assertEquals(
         "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", 10, -7), "", false, "", false));

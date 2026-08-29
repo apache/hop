@@ -39,6 +39,7 @@ import org.apache.hop.core.extension.IPluginMock;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -149,6 +150,106 @@ class DatabaseTypeRulesTest {
 
   @DatabaseMetaPlugin(type = "TEST_PLAIN", typeDescription = "Dialect with no rules")
   static class PlainDialect extends NoneDatabaseMeta {}
+
+  // ------------------------------------------------------------------ unsized integer, #4174
+
+  /**
+   * Two dialects that spell a Long wide integer differently, to show the rule asks rather than
+   * decides.
+   */
+  @DatabaseMetaPlugin(type = "TEST_BIGINT", typeDescription = "Spells a wide integer BIGINT")
+  static class BigintDialect extends NoneDatabaseMeta {
+    @Override
+    public String getFieldDefinition(
+        IValueMeta v,
+        String tk,
+        String pk,
+        boolean useAutoIncrement,
+        boolean addFieldName,
+        boolean addCr) {
+      return (addFieldName ? v.getName() + " " : "") + "BIGINT(" + v.getLength() + ")";
+    }
+  }
+
+  @DatabaseMetaPlugin(type = "TEST_INT64", typeDescription = "Spells a wide integer INT64")
+  static class Int64Dialect extends NoneDatabaseMeta {
+    @Override
+    public String getFieldDefinition(
+        IValueMeta v,
+        String tk,
+        String pk,
+        boolean useAutoIncrement,
+        boolean addFieldName,
+        boolean addCr) {
+      return (addFieldName ? v.getName() + " " : "") + "INT64";
+    }
+  }
+
+  private String unsizedInteger(DatabaseMeta meta, IValueMeta valueMeta, ColumnContext context) {
+    return ColumnTypeRules.UNSIZED_INTEGER_AS_LONG.getColumnType(
+        variables, meta.getIDatabase(), valueMeta, context);
+  }
+
+  @Test
+  void anUnsizedIntegerIsWidenedToTheLongBoundaryAndSpelledByTheDialect() {
+    ValueMetaInteger unsized = new ValueMetaInteger("id");
+    unsized.setLength(-1);
+
+    // The width handed to the dialect is 18, the most a Long is guaranteed to hold.
+    assertEquals(
+        "BIGINT(18)", unsizedInteger(metaFor(new BigintDialect()), unsized, createContext()));
+    // Same rule, different database, no type name of its own.
+    assertEquals("INT64", unsizedInteger(metaFor(new Int64Dialect()), unsized, createContext()));
+  }
+
+  @Test
+  void aZeroLengthIntegerCountsAsUnsizedToo() {
+    ValueMetaInteger zeroLength = new ValueMetaInteger("id");
+    zeroLength.setLength(0);
+    assertEquals(
+        "BIGINT(18)", unsizedInteger(metaFor(new BigintDialect()), zeroLength, createContext()));
+  }
+
+  @Test
+  void anIntegerThatStatedItsLengthIsLeftToTheDialect() {
+    ValueMetaInteger sized = new ValueMetaInteger("id");
+    sized.setLength(4);
+    assertNull(unsizedInteger(metaFor(new BigintDialect()), sized, createContext()));
+  }
+
+  @Test
+  void anUnsizedNonIntegerIsLeftAlone() {
+    assertNull(
+        unsizedInteger(metaFor(new BigintDialect()), new ValueMetaString("s"), createContext()));
+  }
+
+  /** A key column already has its own spelling in every dialect that has one. */
+  @Test
+  void aKeyColumnIsLeftToTheDialect() {
+    ValueMetaInteger unsized = new ValueMetaInteger("id");
+    unsized.setLength(-1);
+    DatabaseMeta meta = metaFor(new BigintDialect());
+
+    assertNull(
+        unsizedInteger(
+            meta,
+            unsized,
+            new ColumnContext(ColumnContext.Purpose.CREATE, "id", null, false, false, false)));
+    assertNull(
+        unsizedInteger(
+            meta,
+            unsized,
+            new ColumnContext(ColumnContext.Purpose.CREATE, null, "ID", false, false, false)));
+  }
+
+  /** The dialect is handed a copy: several of them modify the value they are given. */
+  @Test
+  void theValueTheCallerOwnsIsNotModified() {
+    ValueMetaInteger unsized = new ValueMetaInteger("id");
+    unsized.setLength(-1);
+    unsizedInteger(metaFor(new BigintDialect()), unsized, createContext());
+    assertEquals(-1, unsized.getLength());
+  }
 
   // ------------------------------------------------------------------ builder semantics
 

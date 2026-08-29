@@ -7,92 +7,132 @@ STRING       len=      -1 prec=  -1 -        -> VARCHAR(64000)
 STRING       len=       0 prec=   0 -        -> VARCHAR(64000)
 STRING       len=       4 prec=   0 -        -> VARCHAR(4)
 STRING       len=       9 prec=   0 -        -> VARCHAR(9)
+STRING       len=      10 prec=   2 -        -> VARCHAR(10)
 STRING       len=      15 prec=   0 -        -> VARCHAR(15)
 STRING       len=      18 prec=   0 -        -> VARCHAR(18)
 STRING       len=      20 prec=   0 -        -> VARCHAR(20)
-STRING       len=      10 prec=   2 -        -> VARCHAR(10)
 STRING       len= 9999999 prec=   0 -        -> CLOB
-INTEGER      len=      -1 prec=  -1 -        -> DOUBLE PRECISION
-INTEGER      len=       0 prec=   0 -        -> DOUBLE PRECISION
+INTEGER      len=      -1 prec=  -1 -        -> DECIMAL(18, 0)
+INTEGER      len=       0 prec=   0 -        -> DECIMAL(18, 0)
 INTEGER      len=       4 prec=   0 -        -> SMALLINT
 INTEGER      len=       9 prec=   0 -        -> INTEGER
+INTEGER      len=      10 prec=   2 -        -> DECIMAL(10, 0)
 INTEGER      len=      15 prec=   0 -        -> DECIMAL(15, 0)
 INTEGER      len=      18 prec=   0 -        -> DECIMAL(18, 0)
 INTEGER      len=      20 prec=   0 -        -> DECIMAL(20, 0)
-INTEGER      len=      10 prec=   2 -        -> DECIMAL(10, 0)
 INTEGER      len= 9999999 prec=   0 -        -> DECIMAL(9999999, 0)
 NUMBER       len=      -1 prec=  -1 -        -> DOUBLE PRECISION
 NUMBER       len=       0 prec=   0 -        -> DOUBLE PRECISION
 NUMBER       len=       4 prec=   0 -        -> SMALLINT
 NUMBER       len=       9 prec=   0 -        -> INTEGER
+NUMBER       len=      10 prec=   2 -        -> DECIMAL(10, 2)
 NUMBER       len=      15 prec=   0 -        -> DECIMAL(15, 0)
 NUMBER       len=      18 prec=   0 -        -> DECIMAL(18, 0)
 NUMBER       len=      20 prec=   0 -        -> DECIMAL(20, 0)
-NUMBER       len=      10 prec=   2 -        -> DECIMAL(10, 2)
 NUMBER       len= 9999999 prec=   0 -        -> DECIMAL(9999999, 0)
 BIGNUMBER    len=      -1 prec=  -1 -        -> DOUBLE PRECISION
 BIGNUMBER    len=       0 prec=   0 -        -> DOUBLE PRECISION
 BIGNUMBER    len=       4 prec=   0 -        -> SMALLINT
 BIGNUMBER    len=       9 prec=   0 -        -> INTEGER
+BIGNUMBER    len=      10 prec=   2 -        -> DECIMAL(10, 2)
 BIGNUMBER    len=      15 prec=   0 -        -> DECIMAL(15, 0)
 BIGNUMBER    len=      18 prec=   0 -        -> DECIMAL(18, 0)
 BIGNUMBER    len=      20 prec=   0 -        -> DECIMAL(20, 0)
-BIGNUMBER    len=      10 prec=   2 -        -> DECIMAL(10, 2)
 BIGNUMBER    len= 9999999 prec=   0 -        -> DECIMAL(9999999, 0)
 DATE         len=      -1 prec=  -1 -        -> TIMESTAMP
 DATE         len=       0 prec=   0 -        -> TIMESTAMP
 DATE         len=       4 prec=   0 -        -> TIMESTAMP
 DATE         len=       9 prec=   0 -        -> TIMESTAMP
+DATE         len=      10 prec=   2 -        -> TIMESTAMP
 DATE         len=      15 prec=   0 -        -> TIMESTAMP
 DATE         len=      18 prec=   0 -        -> TIMESTAMP
 DATE         len=      20 prec=   0 -        -> TIMESTAMP
-DATE         len=      10 prec=   2 -        -> TIMESTAMP
 DATE         len= 9999999 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=      -1 prec=  -1 -        -> TIMESTAMP
 TIMESTAMP    len=       0 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=       4 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=       9 prec=   0 -        -> TIMESTAMP
+TIMESTAMP    len=      10 prec=   2 -        -> TIMESTAMP
 TIMESTAMP    len=      15 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=      18 prec=   0 -        -> TIMESTAMP
 TIMESTAMP    len=      20 prec=   0 -        -> TIMESTAMP
-TIMESTAMP    len=      10 prec=   2 -        -> TIMESTAMP
 TIMESTAMP    len= 9999999 prec=   0 -        -> TIMESTAMP
 BOOLEAN      len=      -1 prec=  -1 -        -> CHAR(1)
 BOOLEAN      len=       0 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       4 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       9 prec=   0 -        -> CHAR(1)
+BOOLEAN      len=      10 prec=   2 -        -> CHAR(1)
 BOOLEAN      len=      15 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=      18 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=      20 prec=   0 -        -> CHAR(1)
-BOOLEAN      len=      10 prec=   2 -        -> CHAR(1)
 BOOLEAN      len= 9999999 prec=   0 -        -> CHAR(1)
 BINARY       len=      -1 prec=  -1 -        -> UNKNOWN
 BINARY       len=       0 prec=   0 -        -> UNKNOWN
 BINARY       len=       4 prec=   0 -        -> UNKNOWN
 BINARY       len=       9 prec=   0 -        -> UNKNOWN
+BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len=      15 prec=   0 -        -> UNKNOWN
 BINARY       len=      18 prec=   0 -        -> UNKNOWN
 BINARY       len=      20 prec=   0 -        -> UNKNOWN
-BINARY       len=      10 prec=   2 -        -> UNKNOWN
 BINARY       len= 9999999 prec=   0 -        -> UNKNOWN
 INET         len=      -1 prec=  -1 -        -> VARCHAR(45)
 INET         len=       0 prec=   0 -        -> VARCHAR(45)
 INET         len=       4 prec=   0 -        -> VARCHAR(45)
 INET         len=       9 prec=   0 -        -> VARCHAR(45)
+INET         len=      10 prec=   2 -        -> VARCHAR(45)
 INET         len=      15 prec=   0 -        -> VARCHAR(45)
 INET         len=      18 prec=   0 -        -> VARCHAR(45)
 INET         len=      20 prec=   0 -        -> VARCHAR(45)
-INET         len=      10 prec=   2 -        -> VARCHAR(45)
 INET         len= 9999999 prec=   0 -        -> VARCHAR(45)
 JSON         len=      -1 prec=  -1 -        -> JSON
 JSON         len=       0 prec=   0 -        -> JSON
 JSON         len=       4 prec=   0 -        -> JSON
 JSON         len=       9 prec=   0 -        -> JSON
+JSON         len=      10 prec=   2 -        -> JSON
 JSON         len=      15 prec=   0 -        -> JSON
 JSON         len=      18 prec=   0 -        -> JSON
 JSON         len=      20 prec=   0 -        -> JSON
-JSON         len=      10 prec=   2 -        -> JSON
 JSON         len= 9999999 prec=   0 -        -> JSON
+
+[strings]
+STRING       len=     254 prec=   0 -        -> VARCHAR(254)
+STRING       len=     255 prec=   0 -        -> VARCHAR(255)
+STRING       len=     256 prec=   0 -        -> VARCHAR(256)
+STRING       len=    1999 prec=   0 -        -> VARCHAR(1999)
+STRING       len=    2000 prec=   0 -        -> VARCHAR(2000)
+STRING       len=    2001 prec=   0 -        -> VARCHAR(2001)
+STRING       len=    3999 prec=   0 -        -> VARCHAR(3999)
+STRING       len=    4000 prec=   0 -        -> VARCHAR(4000)
+STRING       len=    4001 prec=   0 -        -> VARCHAR(4001)
+STRING       len=    7999 prec=   0 -        -> VARCHAR(7999)
+STRING       len=    8000 prec=   0 -        -> VARCHAR(8000)
+STRING       len=    8001 prec=   0 -        -> VARCHAR(8001)
+STRING       len=   21843 prec=   0 -        -> VARCHAR(21843)
+STRING       len=   21844 prec=   0 -        -> VARCHAR(21844)
+STRING       len=   32663 prec=   0 -        -> VARCHAR(32663)
+STRING       len=   32664 prec=   0 -        -> VARCHAR(32664)
+STRING       len=   32671 prec=   0 -        -> VARCHAR(32671)
+STRING       len=   32672 prec=   0 -        -> VARCHAR(32672)
+STRING       len=   32699 prec=   0 -        -> VARCHAR(32699)
+STRING       len=   32700 prec=   0 -        -> VARCHAR(32700)
+STRING       len=   32719 prec=   0 -        -> VARCHAR(32719)
+STRING       len=   32720 prec=   0 -        -> VARCHAR(32720)
+STRING       len=   32766 prec=   0 -        -> VARCHAR(32766)
+STRING       len=   32767 prec=   0 -        -> VARCHAR(32767)
+STRING       len=   32768 prec=   0 -        -> VARCHAR(32768)
+STRING       len=   65532 prec=   0 -        -> CLOB
+STRING       len=   65533 prec=   0 -        -> CLOB
+STRING       len=   65534 prec=   0 -        -> CLOB
+STRING       len=   65535 prec=   0 -        -> CLOB
+STRING       len=   65536 prec=   0 -        -> CLOB
+STRING       len= 1999999 prec=   0 -        -> CLOB
+STRING       len= 2000000 prec=   0 -        -> CLOB
+STRING       len= 2000001 prec=   0 -        -> CLOB
+STRING       len= 9999998 prec=   0 -        -> CLOB
+STRING       len= 9999999 prec=   0 -        -> CLOB
+STRING       len=10000000 prec=   0 -        -> CLOB
+STRING       len=16777215 prec=   0 -        -> CLOB
+STRING       len=16777216 prec=   0 -        -> CLOB
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> INTEGER
@@ -107,6 +147,9 @@ INTEGER      len=       4 prec=   0 autoinc  -> INTEGER
 INTEGER      len=       9 prec=   0 tk       -> INTEGER
 INTEGER      len=       9 prec=   0 pk       -> INTEGER
 INTEGER      len=       9 prec=   0 autoinc  -> INTEGER
+INTEGER      len=      10 prec=   2 tk       -> INTEGER
+INTEGER      len=      10 prec=   2 pk       -> INTEGER
+INTEGER      len=      10 prec=   2 autoinc  -> INTEGER
 INTEGER      len=      15 prec=   0 tk       -> INTEGER
 INTEGER      len=      15 prec=   0 pk       -> INTEGER
 INTEGER      len=      15 prec=   0 autoinc  -> INTEGER
@@ -116,9 +159,6 @@ INTEGER      len=      18 prec=   0 autoinc  -> INTEGER
 INTEGER      len=      20 prec=   0 tk       -> INTEGER
 INTEGER      len=      20 prec=   0 pk       -> INTEGER
 INTEGER      len=      20 prec=   0 autoinc  -> INTEGER
-INTEGER      len=      10 prec=   2 tk       -> INTEGER
-INTEGER      len=      10 prec=   2 pk       -> INTEGER
-INTEGER      len=      10 prec=   2 autoinc  -> INTEGER
 INTEGER      len= 9999999 prec=   0 tk       -> INTEGER
 INTEGER      len= 9999999 prec=   0 pk       -> INTEGER
 INTEGER      len= 9999999 prec=   0 autoinc  -> INTEGER
@@ -134,6 +174,9 @@ NUMBER       len=       4 prec=   0 autoinc  -> INTEGER
 NUMBER       len=       9 prec=   0 tk       -> INTEGER
 NUMBER       len=       9 prec=   0 pk       -> INTEGER
 NUMBER       len=       9 prec=   0 autoinc  -> INTEGER
+NUMBER       len=      10 prec=   2 tk       -> INTEGER
+NUMBER       len=      10 prec=   2 pk       -> INTEGER
+NUMBER       len=      10 prec=   2 autoinc  -> INTEGER
 NUMBER       len=      15 prec=   0 tk       -> INTEGER
 NUMBER       len=      15 prec=   0 pk       -> INTEGER
 NUMBER       len=      15 prec=   0 autoinc  -> INTEGER
@@ -143,9 +186,6 @@ NUMBER       len=      18 prec=   0 autoinc  -> INTEGER
 NUMBER       len=      20 prec=   0 tk       -> INTEGER
 NUMBER       len=      20 prec=   0 pk       -> INTEGER
 NUMBER       len=      20 prec=   0 autoinc  -> INTEGER
-NUMBER       len=      10 prec=   2 tk       -> INTEGER
-NUMBER       len=      10 prec=   2 pk       -> INTEGER
-NUMBER       len=      10 prec=   2 autoinc  -> INTEGER
 NUMBER       len= 9999999 prec=   0 tk       -> INTEGER
 NUMBER       len= 9999999 prec=   0 pk       -> INTEGER
 NUMBER       len= 9999999 prec=   0 autoinc  -> INTEGER
@@ -161,6 +201,9 @@ BIGNUMBER    len=       4 prec=   0 autoinc  -> INTEGER
 BIGNUMBER    len=       9 prec=   0 tk       -> INTEGER
 BIGNUMBER    len=       9 prec=   0 pk       -> INTEGER
 BIGNUMBER    len=       9 prec=   0 autoinc  -> INTEGER
+BIGNUMBER    len=      10 prec=   2 tk       -> INTEGER
+BIGNUMBER    len=      10 prec=   2 pk       -> INTEGER
+BIGNUMBER    len=      10 prec=   2 autoinc  -> INTEGER
 BIGNUMBER    len=      15 prec=   0 tk       -> INTEGER
 BIGNUMBER    len=      15 prec=   0 pk       -> INTEGER
 BIGNUMBER    len=      15 prec=   0 autoinc  -> INTEGER
@@ -170,9 +213,6 @@ BIGNUMBER    len=      18 prec=   0 autoinc  -> INTEGER
 BIGNUMBER    len=      20 prec=   0 tk       -> INTEGER
 BIGNUMBER    len=      20 prec=   0 pk       -> INTEGER
 BIGNUMBER    len=      20 prec=   0 autoinc  -> INTEGER
-BIGNUMBER    len=      10 prec=   2 tk       -> INTEGER
-BIGNUMBER    len=      10 prec=   2 pk       -> INTEGER
-BIGNUMBER    len=      10 prec=   2 autoinc  -> INTEGER
 BIGNUMBER    len= 9999999 prec=   0 tk       -> INTEGER
 BIGNUMBER    len= 9999999 prec=   0 pk       -> INTEGER
 BIGNUMBER    len= 9999999 prec=   0 autoinc  -> INTEGER
@@ -180,61 +220,61 @@ BIGNUMBER    len= 9999999 prec=   0 autoinc  -> INTEGER
 [alter]
 STRING       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL VARCHAR(64000)
 STRING       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(64000)
-STRING       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL VARCHAR(15)
-STRING       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(15)
 STRING       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL VARCHAR(10)
 STRING       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(10)
-INTEGER      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DOUBLE PRECISION
-INTEGER      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL DOUBLE PRECISION
-INTEGER      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DECIMAL(15, 0)
-INTEGER      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(15, 0)
+STRING       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL VARCHAR(15)
+STRING       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(15)
+INTEGER      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DECIMAL(18, 0)
+INTEGER      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(18, 0)
 INTEGER      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DECIMAL(10, 0)
 INTEGER      len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(10, 0)
+INTEGER      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DECIMAL(15, 0)
+INTEGER      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(15, 0)
 NUMBER       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DOUBLE PRECISION
 NUMBER       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL DOUBLE PRECISION
-NUMBER       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DECIMAL(15, 0)
-NUMBER       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(15, 0)
 NUMBER       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DECIMAL(10, 2)
 NUMBER       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(10, 2)
+NUMBER       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DECIMAL(15, 0)
+NUMBER       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(15, 0)
 BIGNUMBER    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DOUBLE PRECISION
 BIGNUMBER    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL DOUBLE PRECISION
-BIGNUMBER    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DECIMAL(15, 0)
-BIGNUMBER    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(15, 0)
 BIGNUMBER    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DECIMAL(10, 2)
 BIGNUMBER    len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(10, 2)
+BIGNUMBER    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DECIMAL(15, 0)
+BIGNUMBER    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL DECIMAL(15, 0)
 DATE         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
 DATE         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
-DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
-DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
 DATE         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
 DATE         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
+DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
+DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
 TIMESTAMP    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
 TIMESTAMP    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
-TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
-TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
 TIMESTAMP    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
 TIMESTAMP    len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
+TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TIMESTAMP
+TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL TIMESTAMP
 BOOLEAN      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL CHAR(1)
 BOOLEAN      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
-BOOLEAN      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL CHAR(1)
-BOOLEAN      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
+BOOLEAN      len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL CHAR(1)
+BOOLEAN      len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL CHAR(1)
 BINARY       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL UNKNOWN
 BINARY       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
-BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
-BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL UNKNOWN
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
+BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL UNKNOWN
+BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL UNKNOWN
 INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
 INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
 INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
 INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL VARCHAR(45)
 JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL JSON
 JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL JSON
-JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL JSON
-JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL JSON
 JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL JSON
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL JSON
+JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL JSON
+JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL JSON

@@ -18,7 +18,9 @@ package org.apache.hop.core.database.types;
 
 import java.sql.Types;
 import java.util.List;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 
 /**
  * Reusable column rules, named after the behaviour rather than after a vendor.
@@ -83,6 +85,63 @@ public final class ColumnTypeRules {
           .as(IValueMeta.TYPE_NUMBER, -1, -1)
           .build()
           .get(0);
+
+  /**
+   * An integer with no declared length must still be written as a column that holds one. A Hop
+   * Integer is a 64 bit Long whatever its length says, so a length of zero or -1 means "the full
+   * width", not "no width".
+   *
+   * <p>Without this the value falls into whichever branch of a dialect's size ladder happens to
+   * catch a length of zero. Ten dialects answer with a floating point column, which cannot hold a
+   * large Long exactly (issue #4174); others answer with a one byte column, which cannot hold most
+   * of them at all. Neither is a decision anyone made.
+   *
+   * <p>The width used is {@value #LONG_DIGITS} digits, the most a Long is guaranteed to hold, and
+   * the same boundary {@link StandardJdbcTypeMapper} uses when it reads such a column back. The
+   * dialect is then asked how it spells an integer that wide, so no type name is invented here and
+   * every database keeps its own vocabulary.
+   *
+   * <p>Key columns are left to the dialect: a technical or primary key already has its own spelling
+   * wherever one exists, and it is not a plain integer column.
+   */
+  public static final IDatabaseTypeRule UNSIZED_INTEGER_AS_LONG = new UnsizedIntegerRule();
+
+  /** The most significant digits a Java Long is guaranteed to hold. */
+  private static final int LONG_DIGITS = 18;
+
+  /**
+   * Asks the dialect for its own spelling of a Long wide integer rather than naming a type, which
+   * is what lets one rule serve databases that spell it BIGINT, INT64, NUMERIC(18) or DECIMAL(18,
+   * 0).
+   */
+  private static final class UnsizedIntegerRule implements IDatabaseTypeRule {
+
+    @Override
+    public String getColumnType(
+        IVariables variables, IDatabase database, IValueMeta valueMeta, ColumnContext context) {
+
+      if (valueMeta.getType() != IValueMeta.TYPE_INTEGER || valueMeta.getLength() > 0) {
+        return null;
+      }
+      if (context.isKey(valueMeta.getName())) {
+        return null;
+      }
+
+      // A copy: a dialect's getFieldDefinition is free to modify the value it is handed, and
+      // several do.
+      IValueMeta asLong = valueMeta.clone();
+      asLong.setLength(LONG_DIGITS);
+      asLong.setPrecision(0);
+
+      return database.getFieldDefinition(
+          asLong,
+          context.getTechnicalKeyField(),
+          context.getPrimaryKeyField(),
+          context.isUseAutoIncrement(),
+          false,
+          false);
+    }
+  }
 
   /** What a dialect speaking to a MySQL driver reads differently. */
   public static final List<IDatabaseTypeRule> MYSQL_COMPATIBLE =

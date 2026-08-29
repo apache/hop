@@ -28,6 +28,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.encryption.Encr;
@@ -91,6 +92,8 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta
           // goes in a SUPER, and an address is text like anything else.
           .write(IValueMeta.TYPE_JSON)
           .as("SUPER")
+          // An integer with no declared length is a Long, not a double precision. Issue #4174.
+          .rule(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG)
           .build();
 
   @Getter
