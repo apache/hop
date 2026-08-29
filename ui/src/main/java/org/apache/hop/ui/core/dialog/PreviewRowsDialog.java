@@ -411,9 +411,9 @@ public class PreviewRowsDialog {
       }
 
       if (show != null) {
-        // Store the full value: the grid shortens long / multi-line text at paint time, so what is
-        // copied, exported or read back out of the table stays complete.
-        item.setText(c + 1, show);
+        // The cell holds the shortened, single-line text while the grid keeps the full value
+        // aside, so what is copied, expanded or read back out of the table stays complete.
+        wFields.setCellValue(item, c + 1, show);
         item.setForeground(c + 1, GuiResource.getInstance().getColorBlack());
       } else {
         // Set null value

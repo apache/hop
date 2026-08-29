@@ -629,6 +629,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
                     null,
                     props);
 
+            // Data rows, not configuration: draw long / multi-line values shortened. The value
+            // itself stays on the item, out of the cell, so the row keeps to a single line.
+            dataView.setShortenDisplayedValues(true);
+
             for (int r = 0; r < rowBuffer.size(); r++) {
               Object[] row = rowBuffer.getBuffer().get(r);
               TableItem item = dataView.table.getItem(r);
@@ -638,7 +642,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
                 if (value == null) {
                   value = "";
                 }
-                item.setText(c + 1, value);
+                dataView.setCellValue(item, c + 1, value);
               }
             }
             dataView.optWidth(true);

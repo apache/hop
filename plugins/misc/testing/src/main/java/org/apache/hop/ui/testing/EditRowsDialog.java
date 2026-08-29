@@ -279,7 +279,7 @@ public class EditRowsDialog {
       }
 
       if (show != null) {
-        item.setText(c + 1, show);
+        wFields.setCellValue(item, c + 1, show);
         item.setForeground(c + 1, GuiResource.getInstance().getColorBlack());
       } else {
         // Set null value
@@ -302,7 +302,8 @@ public class EditRowsDialog {
         if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(colnr))) {
           row[i] = null; // <null> value
         } else {
-          String string = item.getText(colnr);
+          // The cell is drawn shortened; the value itself comes back out of the grid.
+          String string = TableView.getCellValue(item, colnr);
           row[i] =
               valueMeta.convertDataFromString(
                   string, stringValueMeta, null, null, IValueMeta.TRIM_TYPE_NONE);
