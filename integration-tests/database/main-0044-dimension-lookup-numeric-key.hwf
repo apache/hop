@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0044-dimension-lookup-numeric-key</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Issue #8130: Dimension lookup/update against a numeric(38,0) technical key. The key column reads back as a BigNumber while every generator hands back a Long, so both generator methods that can feed one are covered.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/08/29 09:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/08/29 09:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>scripts/script-dimension-numeric-key.sql</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>unit-test-db</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql/>
+      <sqlfilename>${PROJECT_HOME}/scripts/script-dimension-numeric-key.sql</sqlfilename>
+      <sqlfromfile>Y</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0044-dimension-lookup-numeric-key.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0044-dimension-lookup-numeric-key.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>5 rows from the sequence</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <connection>unit-test-db</connection>
+      <custom_sql></custom_sql>
+      <is_custom_sql>N</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>5</limit>
+      <schemaname>public</schemaname>
+      <success_condition>rows_count_equal</success_condition>
+      <tablename>dimension_numeric_key</tablename>
+      <parallel>N</parallel>
+      <xloc>560</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>4 generated keys from the sequence</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <connection>unit-test-db</connection>
+      <custom_sql>SELECT 1
+FROM   public.dimension_numeric_key
+WHERE  dimension_id &gt; 0
+</custom_sql>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>4</limit>
+      <schemaname>public</schemaname>
+      <success_condition>rows_count_equal</success_condition>
+      <tablename>dimension_numeric_key</tablename>
+      <parallel>N</parallel>
+      <xloc>736</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>2 versions for key 1 from the sequence</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <connection>unit-test-db</connection>
+      <custom_sql>SELECT 1
+FROM   public.dimension_numeric_key
+WHERE  "key" = 1
+</custom_sql>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>2</limit>
+      <schemaname>public</schemaname>
+      <success_condition>rows_count_equal</success_condition>
+      <tablename>dimension_numeric_key</tablename>
+      <parallel>N</parallel>
+      <xloc>912</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0044-dimension-lookup-numeric-key-tablemax.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0044-dimension-lookup-numeric-key-tablemax.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>5 rows from the table maximum</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <connection>unit-test-db</connection>
+      <custom_sql></custom_sql>
+      <is_custom_sql>N</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>5</limit>
+      <schemaname>public</schemaname>
+      <success_condition>rows_count_equal</success_condition>
+      <tablename>dimension_numeric_tablemax</tablename>
+      <parallel>N</parallel>
+      <xloc>560</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>4 generated keys from the table maximum</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <connection>unit-test-db</connection>
+      <custom_sql>SELECT 1
+FROM   public.dimension_numeric_tablemax
+WHERE  dimension_id &gt; 0
+</custom_sql>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>4</limit>
+      <schemaname>public</schemaname>
+      <success_condition>rows_count_equal</success_condition>
+      <tablename>dimension_numeric_tablemax</tablename>
+      <parallel>N</parallel>
+      <xloc>736</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>2 versions for key 1 from the table maximum</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <connection>unit-test-db</connection>
+      <custom_sql>SELECT 1
+FROM   public.dimension_numeric_tablemax
+WHERE  "key" = 1
+</custom_sql>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>2</limit>
+      <schemaname>public</schemaname>
+      <success_condition>rows_count_equal</success_condition>
+      <tablename>dimension_numeric_tablemax</tablename>
+      <parallel>N</parallel>
+      <xloc>912</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>scripts/script-dimension-numeric-key.sql</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>scripts/script-dimension-numeric-key.sql</from>
+      <to>0044-dimension-lookup-numeric-key.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0044-dimension-lookup-numeric-key.hpl</from>
+      <to>5 rows from the sequence</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>5 rows from the sequence</from>
+      <to>4 generated keys from the sequence</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>4 generated keys from the sequence</from>
+      <to>2 versions for key 1 from the sequence</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>2 versions for key 1 from the sequence</from>
+      <to>0044-dimension-lookup-numeric-key-tablemax.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0044-dimension-lookup-numeric-key-tablemax.hpl</from>
+      <to>5 rows from the table maximum</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>5 rows from the table maximum</from>
+      <to>4 generated keys from the table maximum</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>4 generated keys from the table maximum</from>
+      <to>2 versions for key 1 from the table maximum</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
