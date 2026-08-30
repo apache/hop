@@ -24,7 +24,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -36,7 +35,8 @@ import org.apache.hop.core.util.Utils;
     type = "H2",
     typeDescription = "H2",
     documentationUrl = "/database/databases/h2.html",
-    classLoaderGroup = "h2-db")
+    classLoaderGroup = "h2-db",
+    image = "h2.svg")
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -163,7 +163,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
@@ -183,8 +183,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ALTER "
-        + getColumnDefinition(
-            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   @Override
