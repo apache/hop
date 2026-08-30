@@ -283,6 +283,16 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       inputError(errMsg);
       return false;
     } else if (!file.exists()) {
+      if (meta.isDoNotFailIfNoFile()) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "JsonInput.Log.IsNotAFile", file.getName().getFriendlyURI()));
+        }
+        // Skip this missing file; InputsReader will advance to the next one.
+        data.skipEmptyFile = true;
+        return false;
+      }
       String errMsg =
           BaseMessages.getString(PKG, "JsonInput.Log.IsNotAFile", file.getName().getFriendlyURI());
       logError(errMsg);

@@ -58,8 +58,9 @@ public class JsonInputData extends BaseFileInputTransformData implements ITransf
   public BitSet repeatedFields;
 
   /**
-   * When {@link JsonInput#onNewFile} rejects an empty file with "ignore empty file" enabled, the
-   * file iterator loops to the next file instead of substituting placeholder JSON.
+   * When {@link JsonInput#onNewFile} rejects a file that should be skipped (empty with "ignore
+   * empty file", or missing with "do not fail if no files"), the file iterator loops to the next
+   * file instead of substituting placeholder JSON.
    */
   public boolean skipEmptyFile;
 

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.jsoninput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -47,6 +48,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
@@ -985,6 +987,121 @@ class JsonInputTest {
     assertTrue(errMsgs.contains("No file(s) specified!"), errMsgs);
   }
 
+  /**
+   * Issue #2723 A/C: listed files that exist must not emit "No file(s) specified" or finish with
+   * errors, regardless of Required and "Do not raise an error if no files".
+   */
+  @Test
+  void testExistingListedFilesDoNotEmitNoFilesError() throws Exception {
+    for (boolean fileRequired : new boolean[] {false, true}) {
+      for (boolean doNotFailIfNoFile : new boolean[] {false, true}) {
+        assertExistingListedFilesProcessed(fileRequired, doNotFailIfNoFile);
+      }
+    }
+  }
+
+  /** Issue #2723 E: no files and checkbox unchecked still errors. */
+  @Test
+  void testMissingListedFilesFailWhenDoNotFailUnchecked() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    JsonInputMeta meta = createListedFilesMeta(false, BASE_RAM_DIR + "does-not-exist.json");
+    meta.setDoNotFailIfNoFile(false);
+    meta.getInputFields().add(priceField());
+
+    try (LocaleChange enUS = new LocaleChange(Locale.US)) {
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 1);
+      disposeJsonInput(jsonInput);
+      String errMsgs = err.toString();
+      assertTrue(errMsgs.contains("No file(s) specified!"), errMsgs);
+      assertTrue(jsonInput.getErrors() > 0, "expected errors when no files and checkbox off");
+    }
+  }
+
+  /** Invalid / missing path with the checkbox on must not fail the transform. */
+  @Test
+  void testInvalidListedPathDoesNotFailWhenDoNotFailChecked() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    JsonInputMeta meta = createListedFilesMeta(false, BASE_RAM_DIR + "does-not-exist.json");
+    meta.setDoNotFailIfNoFile(true);
+    meta.getInputFields().add(priceField());
+
+    try (LocaleChange enUS = new LocaleChange(Locale.US)) {
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 1);
+      disposeJsonInput(jsonInput);
+      String errMsgs = err.toString();
+      assertFalse(errMsgs.contains("No file(s) specified!"), errMsgs);
+      assertEquals(0, jsonInput.getErrors(), errMsgs);
+    }
+  }
+
+  /**
+   * {@link JsonInput#onNewFile} must honor "Do not raise an error if no files" when a listed
+   * FileObject does not exist (the checkbox used to only guard the empty-list check).
+   */
+  @Test
+  void testOnNewFileMissingFileHonorsDoNotFailIfNoFile() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    try (FileObject missing = HopVfs.getFileObject(BASE_RAM_DIR + "missing.json");
+        FileObject good = HopVfs.getFileObject(BASE_RAM_DIR + "good.json");
+        LocaleChange enUS = new LocaleChange(Locale.US)) {
+      try (OutputStream out = good.getContent().getOutputStream()) {
+        out.write(getBasicTestJson().getBytes(StandardCharsets.UTF_8));
+      }
+
+      JsonInputMeta meta = createFileListMeta(List.of(missing, good));
+      meta.getInputFields().add(priceField());
+      meta.setDoNotFailIfNoFile(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      jsonInput.addRowListener(
+          new RowComparatorListener(
+              new Object[] {8.95d},
+              new Object[] {12.99d},
+              new Object[] {8.99d},
+              new Object[] {22.99d}));
+      processRows(jsonInput, 8);
+      disposeJsonInput(jsonInput);
+
+      String errMsgs = err.toString();
+      assertFalse(errMsgs.contains("is not a file"), errMsgs);
+      assertEquals(0, jsonInput.getErrors(), errMsgs);
+      assertEquals(4, jsonInput.getLinesWritten(), "rows written");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testOnNewFileMissingFileFailsWhenDoNotFailUnchecked() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    try (FileObject missing = HopVfs.getFileObject(BASE_RAM_DIR + "missing.json");
+        LocaleChange enUS = new LocaleChange(Locale.US)) {
+      JsonInputMeta meta = createFileListMeta(List.of(missing));
+      meta.getInputFields().add(priceField());
+      meta.setDoNotFailIfNoFile(false);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 3);
+      disposeJsonInput(jsonInput);
+
+      String errMsgs = err.toString();
+      assertTrue(errMsgs.contains("is not a file"), errMsgs);
+      assertTrue(jsonInput.getErrors() > 0, errMsgs);
+    } finally {
+      deleteFiles();
+    }
+  }
+
   @Test
   void testZipFileInput() throws Exception {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -1426,6 +1543,74 @@ class JsonInputTest {
     meta.setInFields(false);
     meta.setIgnoringMissingPath(false);
     return meta;
+  }
+
+  /**
+   * Meta that lists files through {@link JsonInputMeta#getFileInputList(IVariables)} (the GUI
+   * path), not a stubbed list.
+   */
+  private JsonInputMeta createListedFilesMeta(boolean fileRequired, String... fileNames) {
+    JsonInputMeta meta = new JsonInputMeta();
+    meta.setInFields(false);
+    meta.setIgnoringMissingPath(false);
+    for (String fileName : fileNames) {
+      InputFile inputFile = new InputFile();
+      inputFile.setFileName(fileName);
+      inputFile.setFileRequired(fileRequired);
+      meta.getFileInput().getInputFiles().add(inputFile);
+    }
+    return meta;
+  }
+
+  private JsonInputField priceField() {
+    JsonInputField price = new JsonInputField();
+    price.setName("price");
+    price.setType(IValueMeta.TYPE_NUMBER);
+    price.setPath("$..book[*].price");
+    return price;
+  }
+
+  private void assertExistingListedFilesProcessed(boolean fileRequired, boolean doNotFailIfNoFile)
+      throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    final String input1 = getBasicTestJson();
+    final String input2 = "{ \"store\": { \"book\": [ { \"price\": 9.99 } ] } }";
+    String flags = "required=" + fileRequired + ", doNotFailIfNoFile=" + doNotFailIfNoFile;
+    try (FileObject fileObj1 = HopVfs.getFileObject(BASE_RAM_DIR + "test1.json");
+        FileObject fileObj2 = HopVfs.getFileObject(BASE_RAM_DIR + "test2.json");
+        LocaleChange enUS = new LocaleChange(Locale.US)) {
+      try (OutputStream out = fileObj1.getContent().getOutputStream()) {
+        out.write(input1.getBytes(StandardCharsets.UTF_8));
+      }
+      try (OutputStream out = fileObj2.getContent().getOutputStream()) {
+        out.write(input2.getBytes(StandardCharsets.UTF_8));
+      }
+
+      JsonInputMeta meta =
+          createListedFilesMeta(
+              fileRequired, BASE_RAM_DIR + "test1.json", BASE_RAM_DIR + "test2.json");
+      meta.setDoNotFailIfNoFile(doNotFailIfNoFile);
+      meta.getInputFields().add(priceField());
+
+      JsonInput jsonInput = createJsonInput(meta);
+      jsonInput.addRowListener(
+          new RowComparatorListener(
+              new Object[] {8.95d},
+              new Object[] {12.99d},
+              new Object[] {8.99d},
+              new Object[] {22.99d},
+              new Object[] {9.99d}));
+      processRows(jsonInput, 8);
+      disposeJsonInput(jsonInput);
+
+      String errMsgs = err.toString();
+      assertFalse(errMsgs.contains("No file(s) specified!"), flags + " " + errMsgs);
+      assertEquals(0, jsonInput.getErrors(), flags + " " + errMsgs);
+      assertEquals(5, jsonInput.getLinesWritten(), flags);
+    } finally {
+      deleteFiles();
+    }
   }
 
   protected void testSimpleJsonPath(
