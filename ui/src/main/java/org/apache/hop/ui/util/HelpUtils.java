@@ -30,6 +30,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -49,6 +50,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class HelpUtils {
   private static final Class<?> PKG = HelpUtils.class;
+  private static final String RAP_CUSTOM_VARIANT = "org.eclipse.rap.rwt.customVariant";
+  private static final String HELP_BUTTON_VARIANT = "helpButton";
 
   public static Button createHelpButton(final Composite parent, final IPlugin plugin) {
     Button button = newButton(parent);
@@ -65,16 +68,54 @@ public class HelpUtils {
   private static Button newButton(final Composite parent) {
     Button button = new Button(parent, SWT.PUSH);
     PropsUi.setLook(button);
-    button.setImage(GuiResource.getInstance().getImageHelp());
     button.setText(BaseMessages.getString(PKG, "System.Button.Help"));
     button.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
     FormData fdButton = new FormData();
     fdButton.left = new FormAttachment(0, 0);
     fdButton.bottom = new FormAttachment(100, 0);
     button.setLayoutData(fdButton);
+    applyHelpButtonImage(button);
     // Always available in read-only dialogs
     BaseDialog.keepEnabledInReadOnly(button);
     return button;
+  }
+
+  /**
+   * Set the standard help icon on a push button.
+   *
+   * <p>Call after {@code setText} and after attaching {@link FormData}. On Hop Web, RAP sizes PUSH
+   * buttons to the zoomed bitmap plus theme padding, which would make Help taller than OK/Cancel. A
+   * font-sized bitmap, a compact {@code helpButton} variant, and a locked height keep the
+   * question-mark icon without changing the row height. Native SWT already fits {@link
+   * ConstUi#SMALL_ICON_SIZE} in platform chrome.
+   */
+  public static void applyHelpButtonImage(Button button) {
+    if (button == null || button.isDisposed()) {
+      return;
+    }
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      button.setImage(GuiResource.getInstance().getImageHelp());
+      return;
+    }
+
+    int textHeight = button.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+    int request = webHelpIconRequestSize(PropsUi.getInstance().getZoomFactor());
+    button.setImage(GuiResource.getInstance().getImage("ui/images/help.svg", request, request));
+    button.setData(RAP_CUSTOM_VARIANT, HELP_BUTTON_VARIANT);
+    if (button.getLayoutData() instanceof FormData fd) {
+      fd.height = textHeight;
+    }
+  }
+
+  /**
+   * Inverse of {@link GuiResource} zoom so the help bitmap is {@link ConstUi#SMALL_ICON_SIZE} px on
+   * Hop Web.
+   */
+  static int webHelpIconRequestSize(double zoomFactor) {
+    if (zoomFactor <= 0) {
+      return ConstUi.SMALL_ICON_SIZE;
+    }
+    return Math.max(1, (int) Math.round(ConstUi.SMALL_ICON_SIZE / zoomFactor));
   }
 
   public static boolean isPluginDocumented(IPlugin plugin) {
