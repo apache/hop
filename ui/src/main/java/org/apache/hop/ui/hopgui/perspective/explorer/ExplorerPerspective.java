@@ -209,6 +209,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-Toolbar-10400-Show-hidden";
   public static final String TOOLBAR_ITEM_SELECT_OPENED_FILE =
       "ExplorerPerspective-Toolbar-10500-Select-opened-file";
+  public static final String CONTEXT_MENU_CREATE_PIPELINE =
+      "ExplorerPerspective-ContextMenu-10010-CreatePipeline";
+  public static final String CONTEXT_MENU_CREATE_WORKFLOW =
+      "ExplorerPerspective-ContextMenu-10020-CreateWorkflow";
+  public static final String CONTEXT_MENU_CREATE_FILE =
+      "ExplorerPerspective-ContextMenu-10030-CreateFile";
   public static final String CONTEXT_MENU_CREATE_FOLDER =
       "ExplorerPerspective-ContextMenu-10050-CreateFolder";
   public static final String CONTEXT_MENU_EXPAND_ALL =
@@ -781,9 +787,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             deleteItem.setEnabled(selection.length == 1);
           }
 
-          MenuItem createFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_CREATE_FOLDER);
-          if (createFolderItem != null) {
-            createFolderItem.setEnabled(selection.length == 1);
+          // Creating anything only makes sense inside a folder.
+          //
+          boolean folderSelected = selection.length == 1 && tif != null && tif.folder;
+          for (String createMenuId :
+              new String[] {
+                CONTEXT_MENU_CREATE_PIPELINE,
+                CONTEXT_MENU_CREATE_WORKFLOW,
+                CONTEXT_MENU_CREATE_FILE,
+                CONTEXT_MENU_CREATE_FOLDER
+              }) {
+            MenuItem createItem = menuWidgets.findMenuItem(createMenuId);
+            if (createItem != null) {
+              createItem.setEnabled(folderSelected);
+            }
           }
 
           MenuItem refreshFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_REFRESH_FOLDER);
@@ -3115,6 +3132,209 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                 PKG, "ExplorerPerspective.Error.OpenFileInExplorer.Message", tif.path),
             e);
       }
+    }
+  }
+
+  /**
+   * The path of the selected folder, or null when the selection is not a single folder or the user
+   * has no write permission.
+   */
+  private String getSelectedFolderPath() {
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return null;
+    }
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length != 1) {
+      return null;
+    }
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif == null || !tif.folder) {
+      return null;
+    }
+    return tif.path;
+  }
+
+  private boolean refuseExistingFile(String path) {
+    try {
+      if (ExplorerCreateUtils.fileExists(path)) {
+        MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+        box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.FileExists.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "ExplorerPerspective.Error.FileExists.Message", path));
+        box.open();
+        return true;
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", path),
+          e);
+      return true;
+    }
+    return false;
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_PIPELINE,
+      label = "i18n::ExplorerPerspective.Menu.CreatePipeline",
+      image = "ui/images/pipeline.svg")
+  public void createPipeline() {
+    String folder = getSelectedFolderPath();
+    if (folder == null) {
+      return;
+    }
+    EnterStringDialog dialog =
+        new EnterStringDialog(
+            getShell(),
+            "",
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreatePipeline.Header"),
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreatePipeline.Message", folder));
+    String typedName = dialog.open();
+    if (typedName == null) {
+      return;
+    }
+    if (!ExplorerCreateUtils.isSimpleFileName(typedName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    String fileName =
+        ExplorerCreateUtils.applyExtension(typedName, pipelineFileType.getDefaultFileExtension());
+    String filename = ExplorerCreateUtils.childPath(folder, fileName);
+    if (!ExplorerCreateUtils.resolvesInsideFolder(folder, filename)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    if (refuseExistingFile(filename)) {
+      return;
+    }
+    try {
+      PipelineMeta pipelineMeta = new PipelineMeta();
+      pipelineMeta.setName(ExplorerCreateUtils.baseName(fileName));
+      pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
+      pipelineMeta.setFilename(filename);
+      IHopFileTypeHandler handler = addPipeline(pipelineMeta);
+      handler.save();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          e);
+    }
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_WORKFLOW,
+      label = "i18n::ExplorerPerspective.Menu.CreateWorkflow",
+      image = "ui/images/workflow.svg")
+  public void createWorkflow() {
+    String folder = getSelectedFolderPath();
+    if (folder == null) {
+      return;
+    }
+    EnterStringDialog dialog =
+        new EnterStringDialog(
+            getShell(),
+            "",
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreateWorkflow.Header"),
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreateWorkflow.Message", folder));
+    String typedName = dialog.open();
+    if (typedName == null) {
+      return;
+    }
+    if (!ExplorerCreateUtils.isSimpleFileName(typedName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    String fileName =
+        ExplorerCreateUtils.applyExtension(typedName, workflowFileType.getDefaultFileExtension());
+    String filename = ExplorerCreateUtils.childPath(folder, fileName);
+    if (!ExplorerCreateUtils.resolvesInsideFolder(folder, filename)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    if (refuseExistingFile(filename)) {
+      return;
+    }
+    try {
+      WorkflowMeta workflowMeta = new WorkflowMeta();
+      workflowMeta.setName(ExplorerCreateUtils.baseName(fileName));
+      workflowMeta.setMetadataProvider(hopGui.getMetadataProvider());
+      workflowMeta.setFilename(filename);
+      IHopFileTypeHandler handler = addWorkflow(workflowMeta);
+      handler.save();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          e);
+    }
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_FILE,
+      label = "i18n::ExplorerPerspective.Menu.CreateFile",
+      image = "ui/images/new.svg")
+  public void createFile() {
+    String folder = getSelectedFolderPath();
+    if (folder == null) {
+      return;
+    }
+    List<IHopFileType> creatable = ExplorerCreateUtils.creatableFileTypes(fileTypes);
+    if (creatable.isEmpty()) {
+      return;
+    }
+    CreateFileDialog dialog = new CreateFileDialog(getShell(), folder, creatable);
+    String filename = dialog.open();
+    if (Utils.isEmpty(filename)) {
+      return;
+    }
+    if (refuseExistingFile(filename)) {
+      return;
+    }
+    try {
+      ExplorerCreateUtils.createEmptyFile(filename);
+      refresh();
+      IHopFileTypeHandler handler =
+          dialog.getSelectedFileType().openFile(hopGui, filename, hopGui.getVariables());
+      if (handler != null) {
+        handler.updateGui();
+        hopGui.auditDelegate.writeLastOpenFiles();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          e);
     }
   }
 

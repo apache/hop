@@ -48,6 +48,8 @@ image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar item
 * Refresh: Refresh the file list.
 * Show or hide files: Show or hide files or directories.
 
+New pipelines, workflows and files are created from the file explorer's right-click menu rather than the toolbar; see the "Right-click menu options" section below.
+
 == Toggling the File Explorer Panel
 
 When the File Explorer perspective is already active, clicking the File Explorer button in the perspectives toolbar (left side) will toggle the visibility of the file explorer panel (project tree). This allows you to maximize the workspace area when you don't need to see the file tree.
@@ -95,7 +97,10 @@ Small information icons will be added to the various transforms, actions and hop
 === Right-click menu options
 The right-click menu in Apache Hop Git integration offers several useful options to help manage your files and Git operations directly from the interface. Here’s a breakdown of each option:
 
-* Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources.
+* Create pipeline: Create a new, empty pipeline inside the selected folder and open it. Only available when a folder is selected.
+* Create workflow: Create a new, empty workflow inside the selected folder and open it. Only available when a folder is selected.
+* Create file: Create a new, empty file inside the selected folder, choosing its name and file type, and open it. Only available when a folder is selected.
+* Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources. Only available when a folder is selected.
 * Expand all folders: Reveals all nested folders in the project directory tree. Useful for getting a full overview of your project structure without opening folders one by one.
 * Collapse all folders: Closes all expanded folders, showing only the top-level directory. Helps reset the view or reduce visual clutter.
 * Open: Opens the selected file or folder. For workflows and pipelines, it launches them in the Data Orchestration perspective, while other file types will open in a new tab.

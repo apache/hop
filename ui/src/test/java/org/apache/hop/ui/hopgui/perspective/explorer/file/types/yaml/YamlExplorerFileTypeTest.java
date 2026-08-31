@@ -95,7 +95,7 @@ class YamlExplorerFileTypeTest {
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_PASTE));
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_SELECT));
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_SEARCH));
-    assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_NEW));
+    assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_NEW));
     assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_START));
   }
 
