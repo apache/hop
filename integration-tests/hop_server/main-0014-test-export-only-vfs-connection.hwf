@@ -65,7 +65,7 @@ limitations under the License.
         export from bundling an existing file in place of the connection reference.</description>
       <type>DELETE_FILE</type>
       <attributes/>
-      <filename>export-only-storage:///demo/marker-8106.txt</filename>
+      <filename>export-only-storage:///hop-server-export-only/marker-8106.txt</filename>
       <fail_if_file_not_exists>N</fail_if_file_not_exists>
       <parallel>N</parallel>
       <xloc>220</xloc>
@@ -103,7 +103,7 @@ limitations under the License.
       <description/>
       <type>FILE_EXISTS</type>
       <attributes/>
-      <filename>export-only-storage:///demo/marker-8106.txt</filename>
+      <filename>export-only-storage:///hop-server-export-only/marker-8106.txt</filename>
       <parallel>N</parallel>
       <xloc>730</xloc>
       <yloc>50</yloc>
@@ -116,7 +116,7 @@ limitations under the License.
         bucket, so the folder is prepared here.</description>
       <type>CREATE_FOLDER</type>
       <attributes/>
-      <foldername>export-only-storage:///demo</foldername>
+      <foldername>export-only-storage:///hop-server-export-only</foldername>
       <parallel>N</parallel>
       <xloc>350</xloc>
       <yloc>50</yloc>
