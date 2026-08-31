@@ -38,4 +38,4 @@ Covered here are:
 * xref:hop-gui/hop-gui-git.adoc[Working with git]: Manage files in the git version control system
 * xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]: a list of the keyboard shortcuts that are available in Hop Gui.
 * xref:hop-gui/hop-web.adoc[Hop Web]: a web version of Hop Gui that provides the exact same functionality and user experience as the desktop version.
-For Docker volume mounts and upgrades, see xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker].
+For Docker volume mounts and upgrades, see xref:hop-web-docker.adoc[Hop Web in Docker].

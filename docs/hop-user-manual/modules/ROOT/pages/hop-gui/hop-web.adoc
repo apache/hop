@@ -122,7 +122,7 @@ Save real pipelines and workflows on the host or on a volume, not under the imag
 Set `HOP_CONFIG_FOLDER` and `HOP_AUDIT_FOLDER` to mounted paths so project registrations, security files, and UI audit data survive `docker pull` of a new `apache/hop-web` tag.
 The official image already includes the standard plugin set; extra JDBC drivers belong on a separate folder or `HOP_DRIVERS_DOWNLOAD`.
 
-The full persist/replace table, Compose example, and upgrade steps are in the xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker] technical documentation.
+The full persist/replace table, Compose example, and upgrade steps are in the xref:hop-web-docker.adoc[Hop Web in Docker] page.
 
 == Using the Hop CLI tools in Hop Web.
 
@@ -136,8 +136,8 @@ The tools are available in `/usr/local/tomcat/webapps/ROOT` in a running Hop Web
 Hop Web runs on a Tomcat server by default and ships with **no authentication** (open access).
 For any shared or production deployment you should put an authentication layer in front of it.
 
-TIP: Persist `HOP_CONFIG_FOLDER/security/` (or the whole config folder) across container upgrades so users, role mappings, and xref:tech-manual::hop-web-docker.adoc[project access rules] are not lost.
-See xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
+TIP: Persist `HOP_CONFIG_FOLDER/security/` (or the whole config folder) across container upgrades so users, role mappings, and xref:hop-web-docker.adoc[project access rules] are not lost.
+See xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
 
 There are two complementary layers:
 
@@ -360,7 +360,7 @@ docker run -it --rm -p 8080:8080 \
 ----
 
 This volume keeps `users.json` only.
-To keep project registrations, GUI settings, and xref:#hop-web-project-access[project access] rules as well, persist the whole `HOP_CONFIG_FOLDER` as shown in xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker].
+To keep project registrations, GUI settings, and xref:#hop-web-project-access[project access] rules as well, persist the whole `HOP_CONFIG_FOLDER` as shown in xref:hop-web-docker.adoc[Hop Web in Docker].
 
 Or from a local source build:
 

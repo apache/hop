@@ -398,7 +398,7 @@ include::../snippets/hop-tools/hop-import.adoc[]
 
 &nbsp; +
 
-The example command below prints the `hop-import` help. Check the xref:tech-manual::hop-vs-kettle/import-kettle-projects.adoc[] docs for more information.
+The example command below prints the `hop-import` help. Check the xref:hop-vs-kettle/import-kettle-projects.adoc[] docs for more information.
 
 &nbsp; +
 
@@ -425,5 +425,5 @@ Linux, macOS::
 
 ====
 
-Read more at xref:tech-manual::hop-vs-kettle/import-kettle-projects.adoc[Technical Manual -> Hop vs Kettle -> Import Kettle Projects]
+Read more at xref:hop-vs-kettle/import-kettle-projects.adoc[Import Kettle (PDI) projects]
 

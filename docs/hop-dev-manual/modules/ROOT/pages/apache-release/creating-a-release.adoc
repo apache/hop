@@ -397,7 +397,6 @@ Cheers,
 Update following files and set the correct documentation version and name
 
 * docs/hop-user-manual/antora.yml
-* docs/hop-tech-manual/antora.yml
 * docs/hop-dev-manual/antora.yml
 
 Remove the `prerelease` and `display_version` attributes
