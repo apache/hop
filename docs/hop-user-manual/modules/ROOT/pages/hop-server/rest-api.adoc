@@ -26,6 +26,8 @@ Hop Server has a rich set of web services that can be used to query and manage t
 
 TIP: when specified, the id for a workflow or pipeline represents one execution of a workflow or pipeline on the server.
 
+Next to these services, Hop Server also exposes a xref:hop-server/json-api.adoc[JSON API] under `/hop/api/v1/`, which additionally covers reading and writing metadata and querying the plugin registry.
+
 == addExport _(deprecated)_
 
 [WARNING]

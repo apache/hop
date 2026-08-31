@@ -1678,11 +1678,17 @@ This product bundles jersey-container-servlet-core 2.47, which is available unde
 This product bundles jersey-container-servlet-core 3.0.18, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
+This product bundles jersey-entity-filtering 4.0.2, which is available under a
+"Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
+
 This product bundles jersey-hk2 4.0.2, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
 This product bundles jersey-json 1.22.0, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
+
+This product bundles jersey-media-json-jackson 4.0.2, which is available under a
+"Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
 This product bundles jersey-server 4.0.2, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.

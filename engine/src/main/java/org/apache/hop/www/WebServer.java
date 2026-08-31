@@ -35,6 +35,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.www.api.HopApiApplication;
+import org.apache.hop.www.api.HopServerApiContext;
 import org.eclipse.jetty.ee11.servlet.DefaultServlet;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
@@ -63,6 +65,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 public class WebServer {
 
@@ -252,6 +255,20 @@ public class WebServer {
     shutdownServlet.setup(pipelineMap, workflowMap);
     shutdownServlet.setJettyMode(true);
     shutdownContext.addServlet(new ServletHolder(shutdownServlet), "/*");
+
+    // JSON API (JAX-RS/Jersey). Added inside this collection so it sits behind the same
+    // security constraint as every servlet above it.
+    ServletContextHandler apiContext =
+        new ServletContextHandler(HopApiApplication.CONTEXT_PATH, ServletContextHandler.SESSIONS);
+    apiContext.setAllowNullPathInContext(true);
+    contexts.addHandler(apiContext);
+    ServletHolder apiHolder =
+        new ServletHolder(
+            "hop-api",
+            new ServletContainer(
+                new HopApiApplication(new HopServerApiContext(pipelineMap, workflowMap, log))));
+    apiHolder.setInitOrder(1);
+    apiContext.addServlet(apiHolder, "/*");
 
     // Static resources
     ServletHolder staticHolder = new ServletHolder("static", DefaultServlet.class);

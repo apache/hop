@@ -31,12 +31,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
-import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionInfoLocations;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
-import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 @HopServerServlet(id = "getExecInfo", name = "Get execution information")
@@ -124,180 +122,166 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
                 + locationName);
       }
 
-      // Look up the location in the metadata.
+      // Look up the location in the metadata, initialize it and close it again afterwards.
       //
       MultiMetadataProvider provider = pipelineMap.getHopServerConfig().getMetadataProvider();
-      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
-          provider.getSerializer(ExecutionInfoLocation.class);
-      ExecutionInfoLocation location = serializer.load(locationName);
-      if (location == null) {
-        throw new HopException("Unable to find execution information location " + locationName);
-      }
+      ExecutionInfoLocations.withLocation(
+          locationName,
+          variables,
+          provider,
+          log,
+          iLocation -> {
+            switch (type) {
+              case STATE:
+                {
+                  // Get the state of an execution: we need an execution ID
+                  //
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException(
+                        "Please specify the ID of execution state with parameter 'id'");
+                  }
+                  ExecutionState executionState = iLocation.getExecutionState(id);
+                  outputExecutionStateAsJson(out, executionState);
+                }
+                break;
+              case STATE_LOGGING:
+                {
+                  // Get the logging text for the state of an execution: we need an execution ID
+                  //
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException(
+                        "Please specify the ID of execution state with parameter 'id'");
+                  }
+                  // -1 means: no limit. The underlying plugin(s) might still limit though.
+                  // Log files can get really large.
+                  //
+                  String sizeLimitString = request.getParameter(PARAMETER_LIMIT);
+                  int sizeLimit = Const.toInt(sizeLimitString, -1);
+                  String loggingText = iLocation.getExecutionStateLoggingText(id, sizeLimit);
+                  outputIdAsJson(out, loggingText);
+                }
+                break;
+              case IDS:
+                {
+                  String children = request.getParameter(PARAMETER_CHILDREN);
+                  boolean includeChildren =
+                      "Y".equalsIgnoreCase(children) || "true".equalsIgnoreCase(children);
+                  String limit = request.getParameter(PARAMETER_LIMIT);
+                  int limitNr = Const.toInt(limit, 100);
+                  List<String> ids = iLocation.getExecutionIds(includeChildren, limitNr);
+                  outputExecutionIdsAsJson(out, ids);
+                }
+                break;
+              case EXECUTION:
+                {
+                  // Get an execution: we need an execution ID
+                  //
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException("Please specify the execution ID with parameter 'id'");
+                  }
+                  Execution execution = iLocation.getExecution(id);
+                  outputExecutionAsJson(out, execution);
+                }
+                break;
+              case CHILDREN:
+                {
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException(
+                        "Please specify the parent execution ID with parameter 'id'");
+                  }
+                  List<Execution> children = iLocation.findExecutions(id);
+                  outputExecutionChildrenAsJson(out, children);
+                }
+                break;
+              case DATA:
+                {
+                  // Get execution data: we need an execution ID and its parent
+                  //
+                  String parentId = request.getParameter(PARAMETER_PARENT_ID);
+                  if (StringUtils.isEmpty(parentId)) {
+                    throw new HopException(
+                        "Please specify the parent execution ID with parameter 'parentId'");
+                  }
+                  String id = request.getParameter("id");
+                  ExecutionData data = iLocation.getExecutionData(parentId, id);
+                  outputExecutionDataAsJson(out, data);
+                }
+                break;
+              case LAST_EXECUTION:
+                {
+                  // Get the last execution: we need an execution type and a name
+                  //
+                  String name = request.getParameter(PARAMETER_NAME);
+                  if (StringUtils.isEmpty(name)) {
+                    throw new HopException(
+                        "Please specify the name of the last execution to find with parameter 'name'");
+                  }
+                  String execType = request.getParameter(PARAMETER_EXEC_TYPE);
+                  if (StringUtils.isEmpty(execType)) {
+                    throw new HopException(
+                        "Please specify the type of the last execution to find with parameter 'execType'");
+                  }
+                  ExecutionType executionType = ExecutionType.valueOf(execType);
 
-      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+                  Execution execution = iLocation.findLastExecution(executionType, name);
+                  outputExecutionAsJson(out, execution);
+                }
+                break;
+              case CHILD_IDS:
+                {
+                  String execType = request.getParameter(PARAMETER_EXEC_TYPE);
+                  if (StringUtils.isEmpty(execType)) {
+                    throw new HopException(
+                        "Please specify the type of execution to find children for with parameter 'execType'");
+                  }
+                  ExecutionType executionType = ExecutionType.valueOf(execType);
 
-      // Initialize the location.
-      iLocation.initialize(variables, provider);
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException(
+                        "Please specify the ID of execution to find children for with parameter 'id'");
+                  }
 
-      try {
-        switch (type) {
-          case STATE:
-            {
-              // Get the state of an execution: we need an execution ID
-              //
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException(
-                    "Please specify the ID of execution state with parameter 'id'");
-              }
-              ExecutionState executionState =
-                  location.getExecutionInfoLocation().getExecutionState(id);
-              outputExecutionStateAsJson(out, executionState);
+                  List<String> ids = iLocation.findChildIds(executionType, id);
+                  outputExecutionIdsAsJson(out, ids);
+                }
+                break;
+              case PARENT_ID:
+                {
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException(
+                        "Please specify the child execution ID to find the parent for with parameter 'id'");
+                  }
+                  String parentId = iLocation.findParentId(id);
+                  outputIdAsJson(out, parentId);
+                }
+                break;
+              case DELETE:
+                {
+                  String id = request.getParameter(PARAMETER_ID);
+                  if (StringUtils.isEmpty(id)) {
+                    throw new HopException(
+                        "Please specify the ID of the execution to delete with parameter 'id'");
+                  }
+                  boolean deleted = iLocation.deleteExecution(id);
+                  outputSuccessAsJson(out, deleted);
+                }
+                break;
+              default:
+                StringBuilder message =
+                    new StringBuilder("Unknown update type: " + type + ". Allowed values are: ");
+                for (Type typeValue : Type.values()) {
+                  message.append(typeValue.name()).append(" ");
+                }
+                throw new HopException(message.toString());
             }
-            break;
-          case STATE_LOGGING:
-            {
-              // Get the logging text for the state of an execution: we need an execution ID
-              //
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException(
-                    "Please specify the ID of execution state with parameter 'id'");
-              }
-              // -1 means: no limit. The underlying plugin(s) might still limit though.
-              // Log files can get really large.
-              //
-              String sizeLimitString = request.getParameter(PARAMETER_LIMIT);
-              int sizeLimit = Const.toInt(sizeLimitString, -1);
-              String loggingText =
-                  location.getExecutionInfoLocation().getExecutionStateLoggingText(id, sizeLimit);
-              outputIdAsJson(out, loggingText);
-            }
-            break;
-          case IDS:
-            {
-              String children = request.getParameter(PARAMETER_CHILDREN);
-              boolean includeChildren =
-                  "Y".equalsIgnoreCase(children) || "true".equalsIgnoreCase(children);
-              String limit = request.getParameter(PARAMETER_LIMIT);
-              int limitNr = Const.toInt(limit, 100);
-              List<String> ids =
-                  location.getExecutionInfoLocation().getExecutionIds(includeChildren, limitNr);
-              outputExecutionIdsAsJson(out, ids);
-            }
-            break;
-          case EXECUTION:
-            {
-              // Get an execution: we need an execution ID
-              //
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException("Please specify the execution ID with parameter 'id'");
-              }
-              Execution execution = location.getExecutionInfoLocation().getExecution(id);
-              outputExecutionAsJson(out, execution);
-            }
-            break;
-          case CHILDREN:
-            {
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException(
-                    "Please specify the parent execution ID with parameter 'id'");
-              }
-              List<Execution> children = location.getExecutionInfoLocation().findExecutions(id);
-              outputExecutionChildrenAsJson(out, children);
-            }
-            break;
-          case DATA:
-            {
-              // Get execution data: we need an execution ID and its parent
-              //
-              String parentId = request.getParameter(PARAMETER_PARENT_ID);
-              if (StringUtils.isEmpty(parentId)) {
-                throw new HopException(
-                    "Please specify the parent execution ID with parameter 'parentId'");
-              }
-              String id = request.getParameter("id");
-              ExecutionData data =
-                  location.getExecutionInfoLocation().getExecutionData(parentId, id);
-              outputExecutionDataAsJson(out, data);
-            }
-            break;
-          case LAST_EXECUTION:
-            {
-              // Get the last execution: we need an execution type and a name
-              //
-              String name = request.getParameter(PARAMETER_NAME);
-              if (StringUtils.isEmpty(name)) {
-                throw new HopException(
-                    "Please specify the name of the last execution to find with parameter 'name'");
-              }
-              String execType = request.getParameter(PARAMETER_EXEC_TYPE);
-              if (StringUtils.isEmpty(execType)) {
-                throw new HopException(
-                    "Please specify the type of the last execution to find with parameter 'execType'");
-              }
-              ExecutionType executionType = ExecutionType.valueOf(execType);
-
-              Execution execution =
-                  location.getExecutionInfoLocation().findLastExecution(executionType, name);
-              outputExecutionAsJson(out, execution);
-            }
-            break;
-          case CHILD_IDS:
-            {
-              String execType = request.getParameter(PARAMETER_EXEC_TYPE);
-              if (StringUtils.isEmpty(execType)) {
-                throw new HopException(
-                    "Please specify the type of execution to find children for with parameter 'execType'");
-              }
-              ExecutionType executionType = ExecutionType.valueOf(execType);
-
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException(
-                    "Please specify the ID of execution to find children for with parameter 'id'");
-              }
-
-              List<String> ids =
-                  location.getExecutionInfoLocation().findChildIds(executionType, id);
-              outputExecutionIdsAsJson(out, ids);
-            }
-            break;
-          case PARENT_ID:
-            {
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException(
-                    "Please specify the child execution ID to find the parent for with parameter 'id'");
-              }
-              String parentId = location.getExecutionInfoLocation().findParentId(id);
-              outputIdAsJson(out, parentId);
-            }
-            break;
-          case DELETE:
-            {
-              String id = request.getParameter(PARAMETER_ID);
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException(
-                    "Please specify the ID of the execution to delete with parameter 'id'");
-              }
-              boolean deleted = location.getExecutionInfoLocation().deleteExecution(id);
-              outputSuccessAsJson(out, deleted);
-            }
-            break;
-          default:
-            StringBuilder message =
-                new StringBuilder("Unknown update type: " + type + ". Allowed values are: ");
-            for (Type typeValue : Type.values()) {
-              message.append(typeValue.name()).append(" ");
-            }
-            throw new HopException(message.toString());
-        }
-      } finally {
-        iLocation.close();
-      }
+            return null;
+          });
     } catch (Exception e) {
       logError("Execution info request failed", e);
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

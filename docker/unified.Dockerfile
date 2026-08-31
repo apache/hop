@@ -21,7 +21,6 @@
 # This Dockerfile can build all Hop container images using multi-stage builds:
 # - hop (client/server)
 # - hop-web
-# - hop-rest
 # - hop-dataflow-template
 #
 # Build arguments:
@@ -29,7 +28,7 @@
 #   HOP_GIT_REPO: GitHub repository URL
 #   HOP_GIT_TAG: Git tag/branch to build from
 #   HOP_VERSION: Version string for labeling
-#   TARGET_IMAGE: Which image to build (client, web, rest, dataflow)
+#   TARGET_IMAGE: Which image to build (client, web, dataflow)
 #   BUILDER_TYPE: Builder flavor (full, fast)
 ################################################################################
 
@@ -104,14 +103,12 @@ WORKDIR /build
 COPY ./assemblies/client/target/hop-client-*.zip /build/assemblies/client/target/
 COPY ./assemblies/web/target/hop.war /build/assemblies/web/target/
 COPY ./assemblies/plugins/target/hop-assemblies-*.zip /build/assemblies/plugins/target/
-COPY ./rest/target/hop-rest*.war /build/rest/target/
 COPY ./docker/resources/ /build/docker/resources/
 
 # builder-fast produces the same artifacts as builder-full:
 # - /build/assemblies/client/target/hop-client-*.zip
 # - /build/assemblies/web/target/hop.war
 # - /build/assemblies/plugins/target/hop-assemblies-*.zip
-# - /build/rest/target/hop-rest*.war
 # - /build/docker/resources/*
 #
 # These will be extracted and prepared in Stage 3
@@ -274,18 +271,6 @@ RUN mkdir -p /build/hop-client-prepared && \
     cp /build/docker/resources/load-and-execute.sh /build/hop-client-prepared/load-and-execute.sh && \
     chmod +x /build/hop-client-prepared/run.sh /build/hop-client-prepared/load-and-execute.sh
 
-# Prepare Hop REST directory structure
-RUN mkdir -p /build/hop-rest-prepared/plugins && \
-    mkdir -p /build/hop-rest-prepared/webapps && \
-    mkdir -p /build/hop-rest-prepared/lib/swt/linux/x86_64 && \
-    # Copy plugins
-    cp -r /build/assemblies/plugins/target/plugins/* /build/hop-rest-prepared/plugins/ && \
-    # Copy REST war
-    cp /build/rest/target/hop-rest*.war /build/hop-rest-prepared/webapps/hop.war && \
-    # Copy run script
-    cp /build/docker/resources/run-rest.sh /build/hop-rest-prepared/run-rest.sh && \
-    chmod +x /build/hop-rest-prepared/run-rest.sh
-
 ################################################################################
 # Stage 4a: Hop Client/Server Image (Standard)
 ################################################################################
@@ -422,43 +407,6 @@ USER hop
 
 CMD ["/bin/bash", "/usr/local/tomcat/run-web.sh"]
 
-
-################################################################################
-# Stage 4c: Hop REST Image
-################################################################################
-FROM tomcat:10-jdk21 AS rest
-
-# Environment variables
-ENV HOP_CONFIG_FOLDER=""
-ENV HOP_AES_ENCODER_KEY=""
-ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
-ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
-ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-Xmx4g"
-ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
-ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
-ENV HOP_SHARED_JDBC_FOLDERS=""
-ENV HOP_REST_CONFIG_FOLDER="/config"
-
-# Set TOMCAT start variables
-ENV CATALINA_OPTS='${HOP_OPTIONS} \
-  -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" \
-  -DHOP_AES_ENCODER_KEY_FILE="${HOP_AES_ENCODER_KEY_FILE}" \
-  -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" \
-  -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" \
-  -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" \
-  -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" \
-  -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" \
-  -DHOP_REST_CONFIG_FOLDER="${HOP_REST_CONFIG_FOLDER}" \
-  -DHOP_SHARED_JDBC_FOLDERS="${HOP_SHARED_JDBC_FOLDERS}"\'
-
-# Cleanup and copy resources
-RUN rm -rf webapps/*
-
-COPY --from=builder /build/hop-rest-prepared/ "${CATALINA_HOME}"/
-
-CMD ["/bin/bash", "/usr/local/tomcat/run-rest.sh"]
 
 ################################################################################
 # Stage 4d: Hop Dataflow Template Image

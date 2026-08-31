@@ -44,6 +44,12 @@ public final class HopServerEndpointPermissionMapper {
    */
   private static final Map<String, Permission> ENDPOINT_PERMISSIONS = buildTable();
 
+  /** Context path of the JSON API, whose permissions additionally depend on the HTTP method. */
+  public static final String API_PREFIX = "/hop/api/v1";
+
+  private static final Map<String, Permission> API_READ_PERMISSIONS = buildApiReadTable();
+  private static final Map<String, Permission> API_WRITE_PERMISSIONS = buildApiWriteTable();
+
   private HopServerEndpointPermissionMapper() {
     // utility
   }
@@ -98,6 +104,34 @@ public final class HopServerEndpointPermissionMapper {
   }
 
   /**
+   * JSON API ({@code /hop/api/v1}) permissions for reading methods (GET).
+   *
+   * <p>The JSON API carries the verb in the HTTP method rather than in the path, so unlike the
+   * servlets above one prefix serves both reads and writes and the two have to be tabulated apart.
+   */
+  private static Map<String, Permission> buildApiReadTable() {
+    Map<String, Permission> map = new LinkedHashMap<>();
+    map.put(API_PREFIX + "/metadata", Permission.METADATA_READ);
+    // Registry introspection: informational, same level as any other read endpoint.
+    map.put(API_PREFIX + "/plugins", Permission.FILE_VIEW);
+    // Mirrors /hop/getExecInfo.
+    map.put(API_PREFIX + "/location", Permission.FILE_VIEW);
+    return map;
+  }
+
+  /** JSON API permissions for mutating methods (POST, PUT, PATCH, DELETE). */
+  private static Map<String, Permission> buildApiWriteTable() {
+    Map<String, Permission> map = new LinkedHashMap<>();
+    map.put(API_PREFIX + "/metadata", Permission.METADATA_WRITE);
+    // A POST here synchronously executes a pipeline, exactly like /hop/webService.
+    map.put(API_PREFIX + "/execute", Permission.RUN_EXECUTE);
+    // Mirrors /hop/registerExecInfo and /hop/deleteExecInfo.
+    map.put(API_PREFIX + "/location", Permission.METADATA_WRITE);
+    // Listing plugins is a GET only; a write here is not a known endpoint.
+    return map;
+  }
+
+  /**
    * Required permission for a Hop Server request path.
    *
    * @param path servlet path within the app, e.g. {@code /hop/startPipeline} or {@code
@@ -105,13 +139,39 @@ public final class HopServerEndpointPermissionMapper {
    * @return the required permission, or empty when the path is not a known Hop Server endpoint
    */
   public static Optional<Permission> requiredPermission(String path) {
+    return requiredPermission(null, path);
+  }
+
+  /**
+   * Required permission for a Hop Server request, taking the HTTP method into account.
+   *
+   * <p>The {@code /hop/*} servlets encode the operation in the path, so the method is ignored for
+   * them. The JSON API under {@value #API_PREFIX} is method-driven: the same path reads with GET
+   * and mutates with POST, PUT or DELETE, and the two need different permissions.
+   *
+   * @param method the HTTP method, or null when it is unknown or irrelevant. An unknown method on
+   *     an API path is treated as a mutation, so a new verb cannot land on the read permission.
+   * @param path servlet path within the app; a leading context path must already be stripped
+   * @return the required permission, or empty when the path is not a known Hop Server endpoint
+   */
+  public static Optional<Permission> requiredPermission(String method, String path) {
     String normalized = normalize(path);
     if (normalized == null) {
       return Optional.empty();
     }
+    if (normalized.equals(API_PREFIX) || normalized.startsWith(API_PREFIX + "/")) {
+      Map<String, Permission> table =
+          isReadMethod(method) ? API_READ_PERMISSIONS : API_WRITE_PERMISSIONS;
+      return longestMatch(table, normalized);
+    }
+    return longestMatch(ENDPOINT_PERMISSIONS, normalized);
+  }
+
+  private static Optional<Permission> longestMatch(
+      Map<String, Permission> table, String normalized) {
     Permission best = null;
     int bestLen = -1;
-    for (Map.Entry<String, Permission> entry : ENDPOINT_PERMISSIONS.entrySet()) {
+    for (Map.Entry<String, Permission> entry : table.entrySet()) {
       String key = entry.getKey();
       if ((normalized.equals(key) || normalized.startsWith(key + "/")) && key.length() > bestLen) {
         best = entry.getValue();
@@ -119,6 +179,11 @@ public final class HopServerEndpointPermissionMapper {
       }
     }
     return Optional.ofNullable(best);
+  }
+
+  /** Only GET and HEAD are reads; anything else (including an unknown verb) is a mutation. */
+  private static boolean isReadMethod(String method) {
+    return "GET".equalsIgnoreCase(method) || "HEAD".equalsIgnoreCase(method);
   }
 
   /**
@@ -129,7 +194,10 @@ public final class HopServerEndpointPermissionMapper {
    * @return true if a built-in endpoint permission is defined for the path
    */
   public static boolean isKnownEndpoint(String path) {
-    return requiredPermission(path).isPresent();
+    // A method-less question: known if ANY method could reach it. Asking with a null method alone
+    // would resolve API paths against the write table and miss the read-only ones.
+    return requiredPermission("GET", path).isPresent()
+        || requiredPermission(null, path).isPresent();
   }
 
   private static String normalize(String path) {
