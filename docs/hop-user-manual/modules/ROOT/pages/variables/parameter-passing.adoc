@@ -40,48 +40,107 @@ Throughout this page, *caller* is the pipeline or workflow that starts another o
 
 Each of those actions and transforms gives you two things, and they answer different questions.
 
-The *Parameters* tab is a grid. Each row names a parameter and says where its value comes from: a fixed value, a variable expression, or a field from the incoming row. **A row that supplies a value always wins.**
+The *Parameters* tab is a grid. Each row names a parameter and says where its value comes from: a fixed value, a variable expression, or a stream field from the incoming row. **A row that supplies a value always wins.**
 
-The checkbox *Pass parent values to matching parameters* answers a different question: what to do about the parameters you did *not* list. With the option on, the caller's own value of that name is passed down. With it off, the child keeps its own default.
+The columns are labelled differently per executor. This page says *value* and *stream field*; in the dialogs those are:
+
+[cols="1,1,1", options="header"]
+|===
+|Executor |"value" is the column |"stream field" is the column
+
+|Pipeline and Workflow action
+|*Value*
+|*Stream Column Name*
+
+|Pipeline and Workflow Executor
+|*Static input value*
+|*Field to use*
+
+|Simple and Multi Mapping
+|*String value (can include variable expressions)*
+|-- (no stream field column)
+|===
+
+The checkbox *Pass parent values to matching parameters* answers a different question: what to do about the parameters you did *not supply a value for*. That covers a name you left out of the grid altogether **and** a name you typed into the grid without giving it a value. With the option on, the caller's own value of that name is passed down. With it off, the child keeps its own default.
+
+The moment a row does supply a value, the checkbox is out of the picture for that parameter - even if the value turns out to be empty. See <<supplies>>.
 
 [IMPORTANT]
 ====
 Neither control has anything to do with variable inheritance.
 A child **always** inherits the caller's variables. The option only decides whether a parameter *declared by the child* is filled in from the caller or keeps its own default.
 
-This is a common misreading, because the option used to be labelled "Inherit all variables from pipeline".
+This is a common misreading, and the old labels did not help. On the executor transforms the option
+was called "Inherit all variables from pipeline", which describes something it never did. On the
+Pipeline and Workflow actions it was "Pass parameter values to sub pipeline", which is closer, but
+still reads as if it governed every parameter rather than only the ones you leave unset.
 ====
 
 == The rules
 
 For each parameter the child declares, in this order:
 
-. **A row on the caller's Parameters tab that supplies a value.** This wins over everything, including the checkbox. It is how you override a child's default for one execution.
-. **Otherwise, if _Pass parent values to matching parameters_ is on:** the caller's value of a parameter or variable with that same name.
+. **A value supplied on the caller's Parameters tab.** This wins over everything, including the checkbox. It is how you override a child's default for one execution.
+. **Otherwise, if _Pass parent values to matching parameters_ is on: the caller's own value of that same name.** That can be a parameter the caller declared or any variable in its scope - once the caller is running, the two are the same thing.
 . **Otherwise: the child's own default**, as declared in the child's pipeline or workflow properties.
 . If the child declares no default either, the parameter is an empty string.
 
+"Otherwise" means the row supplied nothing, which includes a name you typed in and left blank. What
+counts as supplying a value is not always obvious - see <<supplies>>.
+
 A row that names a parameter the child does *not* declare is not ignored: that parameter is declared on the child and set, so the child can use `{openvar}NAME{closevar}` as if it had declared it itself.
 
+[[supplies]]
 == What counts as "supplies a value"
 
-Rule 1 only applies to a row that actually configures something. Three cases look similar and behave differently on purpose:
+Rule 1 only applies to a row that actually configures something. Several cases look alike in the dialog and behave differently on purpose:
 
 [cols="2,3", options="header"]
 |===
 |The row |What happens
 
-|A value or variable expression is filled in
+|A value is filled in
 |That value is used. Rule 1.
 
-|A field is mapped, and the field is empty on this row
-|You did configure a source, it just produced nothing this time. The child falls back to its own default. It does **not** reuse the value from a previous row.
+|A value that is a variable expression resolving to empty, such as `{openvar}OTHER_VARIABLE{closevar}` when `OTHER_VARIABLE` is set but empty
+|You configured a value; it just came out empty. The child falls back to its own default. **The checkbox makes no difference here** - the row already claimed the parameter, so the caller's own value of that name is not considered.
 
-|No value and no field - only the name
-|Nothing is configured, so the row is treated as if it were not there. The option and the child's default decide, as in rules 2 and 3.
+|A stream field is mapped, and it is empty on this row
+|You configured a source, it just produced nothing this time. The child falls back to its own default. It does **not** reuse the value from a previous row.
+
+|No value and no stream field - only the name
+|Nothing is configured, so the row behaves as if it were not there. The checkbox and the child's default decide, as in rules 2 and 3.
+
+|Both a stream field and a value are filled in
+|The stream field wins. The value acts as neither a fallback nor an override; if the stream field is empty on this row you get the child's default, not the value.
 |===
 
-The last case matters more than it looks. Pressing *Get Parameters* fills the grid with the names the child declares and leaves the values empty. Those rows do not pass anything by themselves; whether the caller's values reach the child is still decided by the checkbox.
+The "only the name" case matters more than it looks. Pressing *Get Parameters* fills the grid with the names the child declares and leaves the values empty. Those rows pass nothing by themselves; whether the caller's values reach the child is still decided by the checkbox.
+
+The contrast to keep in mind is between an empty cell and an expression that evaluates to empty. Both look like nothing, and both pass nothing, but they land on opposite sides of the checkbox:
+
+[cols="2,1,1", options="header"]
+|===
+|Value column |Checkbox off |Checkbox on
+
+|left blank
+|`child-default`
+|`parent-value`
+
+|`{openvar}EMPTY_VAR{closevar}`, where `EMPTY_VAR` is set but empty
+|`child-default`
+|`child-default`
+|===
+
+There is therefore no way to say "use my expression, and fall back to the caller's value when it is empty". If you need that, compute the fallback in the caller and pass the result.
+
+[WARNING]
+====
+If the variable in such an expression does not exist at all, Hop cannot resolve it and passes the
+text through unchanged: the child receives the literal string `{openvar}OTHER_VARIABLE{closevar}`,
+not an empty value. An undefined variable and a variable set to empty behave very differently, and
+unticking the checkbox does not protect you from this one.
+====
 
 == The full picture
 
@@ -95,15 +154,23 @@ A child that declares `MY_PARAM` with default `child-default`, a caller whose sc
 |`from-tab`
 |`from-tab`
 
-|`MY_PARAM` mapped to a field holding `abc`
+|`MY_PARAM` mapped to a stream field holding `abc`
 |`abc`
 |`abc`
 
-|`MY_PARAM` mapped to a field that is empty on this row
+|`MY_PARAM` mapped to a stream field that is empty on this row
 |`child-default`
 |`child-default`
 
-|`MY_PARAM` listed, no value, no field
+|`MY_PARAM` = `{openvar}EMPTY_VAR{closevar}`, where `EMPTY_VAR` is set but empty
+|`child-default`
+|`child-default`
+
+|`MY_PARAM` = `{openvar}NO_SUCH_VAR{closevar}`, where the variable does not exist
+|`{openvar}NO_SUCH_VAR{closevar}`
+|`{openvar}NO_SUCH_VAR{closevar}`
+
+|`MY_PARAM` listed, no value, no stream field
 |`child-default`
 |`parent-value`
 
@@ -114,11 +181,15 @@ A child that declares `MY_PARAM` with default `child-default`, a caller whose sc
 
 The two bottom rows are the reason a parameter is worth declaring: a child that declares a parameter is shielded from an unrelated value of the same name that happens to exist in the caller, unless you deliberately allow it.
 
+It follows that if every parameter the child declares is listed on the caller's tab **with a value**, the checkbox changes nothing at all - there is nothing left for it to act on. The checkbox only ever decides the fate of a parameter that the child declares and the caller supplies no value for.
+
 == Things that surprise people
 
 === You cannot blank out a parameter by leaving the value empty
 
-An empty parameter value means "nothing was passed", so the child's default applies. There is no way to force a parameter that has a non-empty default to become an empty string from the caller.
+An empty parameter value means "nothing was passed", so the child's default applies. There is no way to force a parameter that has a non-empty default to become an empty string from the caller. This holds however the emptiness arrives: a blank cell, a mapped stream field that is empty on this row, or a variable expression that resolves to empty all end at the child's default.
+
+Passing an empty value does work when no non-empty default is in the way. A parameter the child declares with an empty default, and a name the child does not declare at all, both end up empty. What you cannot do is override a non-empty default with emptiness.
 
 If the child must be able to run with an empty value, declare it in the child with an *empty* default. It is then empty unless something passes a value.
 
@@ -143,13 +214,15 @@ It reads the pipeline or workflow the action or transform points at, not the who
 |Executor |Notes
 
 |Pipeline / Workflow action
-|The Parameters tab also has a *Copy results to parameters* option, which pre-fills the values from the incoming result rows before the rules above are applied.
+a|*Stream Column Name* reads from the incoming result row, so it only produces a value when *Execute for every input row* is ticked. Without it there is no row to read and the child falls back to its default, whatever *Copy results to parameters* is set to.
+
+Naming a column that is not present in the incoming row does not yield an empty value: it raises an error and stops the workflow.
 
 |Pipeline / Workflow Executor
 |Parameters are set once per executor iteration, from the first row of the group. A child started for the next row starts over from these rules; nothing carries over.
 
 |Mapping / Multi Mapping
-|Same rules. The grid has no field column, so only the "value filled in" and "nothing configured" cases occur.
+|Same rules. The grid has no stream field column, so only the "value filled in" and "nothing configured" cases occur.
 
 |Metadata Injection
 |Same rules, applied to the template pipeline. Files saved before the Parameters tab existed behave as if the option is on, which is what they always did.
