@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.ui.core.ConstUi;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link HelpUtils} */
 class HelpUtilsTest {
 
   @Test
@@ -45,5 +47,15 @@ class HelpUtilsTest {
   void appendUtmParametersPassesThroughBlank() {
     assertEquals("", HelpUtils.appendUtmParameters(""));
     assertEquals(null, HelpUtils.appendUtmParameters(null));
+  }
+
+  @Test
+  void webHelpIconRequestSizeCancelsDefaultWebZoom() {
+    // nativeZoomFactor on web is globalZoom / 0.75; at 100% that is 4/3
+    assertEquals(12, HelpUtils.webHelpIconRequestSize(4.0 / 3.0));
+    assertEquals(8, HelpUtils.webHelpIconRequestSize(2.0));
+    assertEquals(ConstUi.SMALL_ICON_SIZE, HelpUtils.webHelpIconRequestSize(0));
+    assertEquals(ConstUi.SMALL_ICON_SIZE, HelpUtils.webHelpIconRequestSize(-1));
+    assertEquals(1, HelpUtils.webHelpIconRequestSize(100));
   }
 }
