@@ -44,6 +44,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @DatabaseMetaPlugin(
     type = "DATABRICKS",
     typeDescription = "Databricks",
+    image = "databricks-connection.svg",
     documentationUrl = "/database/databases/databricks.html")
 @GuiPlugin(id = "GUI-DatabricksDatabaseMeta")
 public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

@@ -36,7 +36,8 @@ import org.apache.hop.core.util.Utils;
     type = "H2",
     typeDescription = "H2",
     documentationUrl = "/database/databases/h2.html",
-    classLoaderGroup = "h2-db")
+    classLoaderGroup = "h2-db",
+    image = "h2.svg")
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

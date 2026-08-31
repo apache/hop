@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "EXASOL4",
     typeDescription = "Exasol",
+    image = "exasol.svg",
     documentationUrl = "/database/databases/exasol.html",
     classLoaderGroup = "exasol4-db")
 @GuiPlugin(id = "GUI-ExasolDatabaseMeta")
