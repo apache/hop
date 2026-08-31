@@ -1802,7 +1802,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     if (databaseMeta != null) {
       try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
-        String[] schemas = Const.sortStrings(database.getSchemas());
+        String[] schemas = database.getSchemas();
 
         if (schemas != null && schemas.length > 0) {
           EnterSelectionDialog dialog =

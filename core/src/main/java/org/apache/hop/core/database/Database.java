@@ -3783,16 +3783,15 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public String[] getTableTypes() throws HopDatabaseException {
-    try {
+    try (ResultSet resultSet = getDatabaseMetaData().getTableTypes()) {
       ArrayList<String> types = new ArrayList<>();
-
-      ResultSet rstt = getDatabaseMetaData().getTableTypes();
-      while (rstt.next()) {
-        String ttype = rstt.getString("TABLE_TYPE");
+      while (resultSet.next()) {
+        String ttype = resultSet.getString("TABLE_TYPE");
         types.add(ttype);
       }
 
-      return types.toArray(new String[types.size()]);
+      types.sort(String.CASE_INSENSITIVE_ORDER);
+      return types.toArray(new String[0]);
     } catch (SQLException e) {
       throw new HopDatabaseException("Unable to get table types from database!", e);
     }
@@ -3827,7 +3826,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
     res.sort(String.CASE_INSENSITIVE_ORDER);
-    return res.toArray(new String[res.size()]);
+    return res.toArray(new String[0]);
   }
 
   public Map<String, Collection<String>> getTableMap() throws HopDatabaseException {
@@ -3847,10 +3846,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
     }
     Map<String, Collection<String>> tableMap = new HashMap<>();
-    ResultSet alltables = null;
-    try {
-      alltables =
-          getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getTableTypes());
+    try (ResultSet alltables =
+        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getTableTypes())) {
       while (alltables.next()) {
         String cat = "";
         try {
@@ -3905,15 +3902,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     } catch (SQLException e) {
       log.logError("Error getting tablenames from schema [" + schemaname + "]");
-    } finally {
-      try {
-        if (alltables != null) {
-          alltables.close();
-        }
-      } catch (SQLException e) {
-        throw new HopDatabaseException(
-            "Error closing resultset after getting views from schema [" + schemaname + "]", e);
-      }
     }
 
     if (log.isDetailed()) {
@@ -3945,7 +3933,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
     res.sort(String.CASE_INSENSITIVE_ORDER);
-    return res.toArray(new String[res.size()]);
+    return res.toArray(new String[0]);
   }
 
   public Map<String, Collection<String>> getViewMap() throws HopDatabaseException {
@@ -3964,10 +3952,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     Map<String, Collection<String>> viewMap = new HashMap<>();
-    ResultSet allviews = null;
-    try {
-      allviews =
-          getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getViewTypes());
+    try (ResultSet allviews =
+        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getViewTypes())) {
       while (allviews.next()) {
         String cat = "";
         try {
@@ -4005,15 +3991,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     } catch (SQLException e) {
       throw new HopDatabaseException("Error getting views from schema [" + schemaname + "]", e);
-    } finally {
-      try {
-        if (allviews != null) {
-          allviews.close();
-        }
-      } catch (SQLException e) {
-        throw new HopDatabaseException(
-            "Error closing resultset after getting views from schema [" + schemaname + "]", e);
-      }
     }
 
     if (log.isDetailed()) {
@@ -4046,7 +4023,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
     res.sort(String.CASE_INSENSITIVE_ORDER);
-    return res.toArray(new String[res.size()]);
+    return res.toArray(new String[0]);
   }
 
   public Map<String, Collection<String>> getSynonymMap() throws HopDatabaseException {
@@ -4064,10 +4041,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
     }
     Map<String, Collection<String>> synonymMap = new HashMap<>();
-    ResultSet alltables = null;
-    try {
-      alltables =
-          getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getSynonymTypes());
+    try (ResultSet alltables =
+        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getSynonymTypes())) {
       while (alltables.next()) {
         String cat = "";
         try {
@@ -4105,15 +4080,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     } catch (SQLException e) {
       throw new HopDatabaseException("Error getting synonyms from schema [" + schemaname + "]", e);
-    } finally {
-      try {
-        if (alltables != null) {
-          alltables.close();
-        }
-      } catch (SQLException e) {
-        throw new HopDatabaseException(
-            "Error closing resultset after getting synonyms from schema [" + schemaname + "]", e);
-      }
     }
 
     if (log.isDetailed()) {
@@ -4141,59 +4107,41 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public String[] getSchemas() throws HopDatabaseException {
-    ArrayList<String> catalogList = new ArrayList<>();
-    ResultSet catalogResultSet = null;
-    try {
-      catalogResultSet = getDatabaseMetaData().getSchemas();
+    ArrayList<String> schemaList = new ArrayList<>();
+    try (ResultSet resultSet = getDatabaseMetaData().getSchemas()) {
       // Grab all the catalog names and put them in an array list
-      while (catalogResultSet != null && catalogResultSet.next()) {
-        catalogList.add(catalogResultSet.getString(1));
+      while (resultSet != null && resultSet.next()) {
+        schemaList.add(resultSet.getString(1));
       }
     } catch (SQLException e) {
       throw new HopDatabaseException("Error getting schemas!", e);
-    } finally {
-      try {
-        if (catalogResultSet != null) {
-          catalogResultSet.close();
-        }
-      } catch (SQLException e) {
-        throw new HopDatabaseException("Error closing resultset after getting schemas!", e);
-      }
     }
 
     if (log.isDetailed()) {
-      log.logDetailed(CONST_READ + catalogList.size() + " schemas from db meta-data.");
+      log.logDetailed(CONST_READ + schemaList.size() + " schemas from db meta-data.");
     }
 
-    return catalogList.toArray(new String[catalogList.size()]);
+    schemaList.sort(String.CASE_INSENSITIVE_ORDER);
+    return schemaList.toArray(new String[0]);
   }
 
   public String[] getCatalogs() throws HopDatabaseException {
     ArrayList<String> catalogList = new ArrayList<>();
-    ResultSet catalogResultSet = null;
-    try {
-      catalogResultSet = getDatabaseMetaData().getCatalogs();
+    try (ResultSet resultSet = getDatabaseMetaData().getCatalogs()) {
       // Grab all the catalog names and put them in an array list
-      while (catalogResultSet != null && catalogResultSet.next()) {
-        catalogList.add(catalogResultSet.getString(1));
+      while (resultSet != null && resultSet.next()) {
+        catalogList.add(resultSet.getString(1));
       }
     } catch (SQLException e) {
       throw new HopDatabaseException("Error getting catalogs!", e);
-    } finally {
-      try {
-        if (catalogResultSet != null) {
-          catalogResultSet.close();
-        }
-      } catch (SQLException e) {
-        throw new HopDatabaseException("Error closing resultset after getting catalogs!", e);
-      }
     }
 
     if (log.isDetailed()) {
       log.logDetailed(CONST_READ + catalogList.size() + " catalogs from db meta-data.");
     }
 
-    return catalogList.toArray(new String[catalogList.size()]);
+    catalogList.sort(String.CASE_INSENSITIVE_ORDER);
+    return catalogList.toArray(new String[0]);
   }
 
   public String[] getProcedures() throws HopDatabaseException {
