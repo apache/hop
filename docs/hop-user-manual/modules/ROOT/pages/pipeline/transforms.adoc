@@ -78,6 +78,7 @@ Those are explained once in xref:pipeline/formatting-values.adoc[Formatting numb
 * xref:pipeline/transforms/csvinput.adoc[CSV file input]
 * xref:pipeline/transforms/databasejoin.adoc[Database Join]
 * xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
+* xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation]
 * xref:pipeline/transforms/datagrid.adoc[Data Grid]
 * xref:pipeline/transforms/datasetinput.adoc[Data set input]
 * xref:pipeline/transforms/datasetoutput.adoc[Data set output]

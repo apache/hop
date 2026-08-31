@@ -31,6 +31,8 @@ TIP: boolean stream fields are serialized as `t` or `f`, which PostgreSQL `COPY`
 
 TIP: binary stream fields (for example a 16-byte hash key) are serialized as PostgreSQL `bytea` hex, `\xdeadbeef`.
 
+COPY error messages rarely name the stream field and value. Put xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation] in front of this transform to catch over-long strings, encoding problems, numeric overflow and invalid UUID/JSON before COPY runs.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

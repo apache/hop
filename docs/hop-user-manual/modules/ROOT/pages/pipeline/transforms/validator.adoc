@@ -29,6 +29,8 @@ The Data Validator transform allows you to add data validations which can each v
 
 To get a list of all the validation errors you can define an xref:pipeline/errorhandling.adoc[error handling] hop from this transform.
 
+To check values against a live database table (column lengths, types, encoding) instead of hand-authored rules, use xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation].
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

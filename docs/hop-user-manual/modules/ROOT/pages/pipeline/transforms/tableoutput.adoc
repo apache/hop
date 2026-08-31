@@ -40,6 +40,8 @@ The Table Output transform inserts data into a relational database table.
 !===
 |===
 
+To find which rows, columns and values the database would reject before writing, put xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation] in front of this transform.
+
 Table Output is equivalent to the DML operator INSERT.
 
 This transform provides configuration options for target table and a lot of housekeeping and/or performance-related options such as Commit Size and Use batch update for inserts.

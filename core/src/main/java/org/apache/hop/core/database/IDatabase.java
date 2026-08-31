@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.hop.core.database.types.DatabaseColumn;
+import org.apache.hop.core.database.validation.ColumnValueConstraints;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -1408,4 +1410,22 @@ public interface IDatabase extends Cloneable {
   String getSshTunnelPassphrase();
 
   void setSshTunnelPassphrase(String passphrase);
+
+  /**
+   * Character set of this database, used to validate that stream strings can be stored. The default
+   * is UTF-8; dialects that keep an encoding at the database level (PostgreSQL {@code
+   * server_encoding}, MySQL {@code character_set_database}) override this.
+   */
+  default String getDatabaseCharacterSet(Database database) throws HopDatabaseException {
+    return "UTF-8";
+  }
+
+  /**
+   * Fill in dialect-specific column constraints (NUL policy, character vs byte length, integer
+   * ranges, UUID/JSON flags). The default uses JDBC SQL types from {@code column}.
+   */
+  default void enrichColumnValueConstraints(
+      ColumnValueConstraints spec, DatabaseColumn column, String characterSet) {
+    ColumnValueConstraints.enrichFromJdbc(spec, column);
+  }
 }

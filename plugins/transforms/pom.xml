@@ -51,6 +51,7 @@
         <module>cubeoutput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
+        <module>databasevaluevalidation</module>
         <module>datagrid</module>
         <module>datastream</module>
         <module>dbimpact</module>
