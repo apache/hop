@@ -42,7 +42,7 @@ A couple of things have been renamed to align Apache Hop with modern data proces
 |Kettle|Hop|Difference
 |Spoon|Hop Gui|Spoon has been abandoned.
 Hop Gui was written from scratch.
-Check the xref:manual::getting-started/index.adoc[Getting Started guide] or the xref:manual::hop-gui/index.adoc[Hop Gui docs] to find out more.
+Check the xref:getting-started/index.adoc[Getting Started guide] or the xref:hop-gui/index.adoc[Hop Gui docs] to find out more.
 |Transformation|Pipeline|No conceptual changes.
 You'll develop pipelines just like you would develop a transformation, but a pipeline in Hop can run on different runtimes
 |Job|Workflow|No conceptual changes.
@@ -56,18 +56,18 @@ This happens behind the scenes.
 Except for increased usability, as a Hop developer, you'll hardly notice.
 |Carte|Hop Server|Again, smooth sailing.
 A lot has changed behind the scenes, but you'll hardly notice.
-Check the xref:manual::hop-server/index.adoc[docs]
+Check the xref:hop-server/index.adoc[docs]
 |Pan/Kitchen/(Maitre)|Hop Run|Kitchen and Pan depended on the Spoon GUI code.
 With the rewrite of Spoon to Hop Gui, we've recreated the command line tools.
 We believe this now is more consistent while providing more options and being easier to use at the same time.
-Check the xref:manual::hop-run/index.adoc[docs]
+Check the xref:hop-run/index.adoc[docs]
 |JNDI|gone|jndi in Kettle/PDI is based on an open source project that hasn't been updated in about a decade.
 As there was no reason to keep this functionality in Hop, it was abandoned.
 |Repositories|gone|Code repositories belong in a VCS these days.
 We've abandoned the file and database (and PDI EE repositories) repositories, but implemented Git integration instead.
 |-|Projects, Environments, Run Config|The https://github.com/mattcasters/kettle-environment[Kettle Environments Plugin] has been integrated and significantly extended.
 Hop now has integrated functionality to support your projects, environments and run configurations.
-Check the xref:manual::projects/projects-environments.adoc[docs].
+Check the xref:projects/projects-environments.adoc[docs].
 |-|Hop Config|This is a new command line tool to configure your projects, environments and run configurations.
 |===
 

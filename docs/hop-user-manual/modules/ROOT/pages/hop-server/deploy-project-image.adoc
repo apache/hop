@@ -63,7 +63,7 @@ When you set the variables below it:
 . otherwise starts Hop Server with the environment enabled
 
 You do not need a custom `CMD`.
-The xref:tech-manual::docker-container.adoc[Docker container] page lists every variable.
+The xref:docker-container.adoc[Docker container] page lists every variable.
 
 [cols="2,3",options="header"]
 |===
@@ -296,4 +296,4 @@ Export resources is optional here: the server already has the project.
 Prefer executing a filename under `{openvar}PROJECT_HOME{closevar}` that exists in the image.
 
 For the short-lived alternative, see <<skip_hop_server_short_lived_containers>>.
-The xref:tech-manual::docker-container.adoc[Docker container] page lists every hop-run variable. The xref:how-to-guides/apache-hop-web-services-docker.adoc[web services in Docker] how-to is the long-lived case.
+The xref:docker-container.adoc[Docker container] page lists every hop-run variable. The xref:how-to-guides/apache-hop-web-services-docker.adoc[web services in Docker] how-to is the long-lived case.

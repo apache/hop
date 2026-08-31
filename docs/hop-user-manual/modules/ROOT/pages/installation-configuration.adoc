@@ -28,7 +28,7 @@ This page covers everything you need to know to install and run Apache Hop on yo
 
 Hop is designed to be as flexible and lightweight as possible, and is intended to blend in with your architecture, not the other way around. This makes the basic installation process extremely easy, but there's a lot of configuration that can be applied to make Hop behave exactly the way you want it to.
 
-TIP: Take a look at the xref:tech-manual::docker-container.adoc[Docker] page for `apache/hop` (hop-run and Hop Server), and xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker] for persisting projects and config across image upgrades.
+TIP: Take a look at the xref:docker-container.adoc[Docker] page for `apache/hop` (hop-run and Hop Server), and xref:hop-web-docker.adoc[Hop Web in Docker] for persisting projects and config across image upgrades.
 
 == System Requirements
 
@@ -132,7 +132,7 @@ With the environment variables described in the previous section, all you need t
 
 TIP: Apache Hop releases are tested for smooth upgrades. You can replace your existing installation when a new version is released. If you want to keep multiple Apache Hop versions around, consider renaming your unzipped `hop` folder to `hop-version-number`, e.g. `hop-2.5.0`, `hop-2.60` etc.
 
-TIP: For Hop Web in Docker, persist `HOP_CONFIG_FOLDER` and project homes on volumes and replace the image. See xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
+TIP: For Hop Web in Docker, persist `HOP_CONFIG_FOLDER` and project homes on volumes and replace the image. See xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
 
 
 == Additional configuration

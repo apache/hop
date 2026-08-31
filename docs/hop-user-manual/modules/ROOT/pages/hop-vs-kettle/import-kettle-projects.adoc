@@ -57,18 +57,25 @@ The options in this dialog are:
 
 [options="header",width=90%]
 |===
-|Option|Description|Optional
-|Import From|The folder to import Kettle/PDI jobs and transformations from|No
-|Import in existing project|check to import into an existing project, uncheck to import into a folder|No
-|Import in project|Dropdown list of available projects to import the Kettle/PDI project into|Conditional
+|Option|Description|Default
+|Import from|The folder to import Kettle/PDI jobs and transformations from|-
+|Import in existing project|Check to import into an existing project, uncheck to import into a folder|Selected
+|Import in project|Dropdown list of available projects to import the Kettle/PDI project into|-
 |Import to folder|Path to import the Kettle/PDI project to.
-All imported items will be imported into a Hop project in this folder.|Conditional
+All imported items will be imported into a Hop project in this folder.
+Only available when *Import in existing project* is unchecked.|-
 |Path to kettle.properties|Path to a kettle.properties file.
-All properties in this file will be imported as variables in the Hop project.|Yes
+All properties in this file will be imported as variables in the Hop project.|-
 |Path to shared.xml|Path to a shared.xml file.
-All database connections in this file will be imported as Hop relational database connection metadata objects in the specified Hop project or folder.|Yes
+All database connections in this file will be imported as Hop relational database connection metadata objects in the specified Hop project or folder.|-
 |Path to jdbc.properties|Path to a jdbc.properties file.
-All Kettle/PDI JNDI database connections in this file will be imported as Hop (generic) relational database connection metadata objects in the specified Hop project or folder.|Yes
+All Kettle/PDI JNDI database connections in this file will be imported as Hop (generic) relational database connection metadata objects in the specified Hop project or folder.|-
+|Skip existing target files?|Skip files that are already present in the target folder|Selected
+|Skip hidden files and folders?|Exclude hidden files and folders such as `.git` and `.gitignore` from the import|Selected
+|Skip folders in the source?|Exclude the sub-folders of the source folder from the import|Selected
+|Target environment variables config file|Name of the environment configuration file the variables from `kettle.properties` are written to|`imported-env-conf.json`
+|Pipeline default run configuration|The run configuration set as the default on imported pipelines|-
+|Workflow default run configuration|The run configuration set as the default on imported workflows|-
 |===
 
 After entering your import details, click the 'Import' button.
@@ -96,4 +103,4 @@ This file contains a list of all jobs and transformations, with the connections 
 
 The `hop-import.sh/bat` CLI tool lets you import Kettle/PDI projects from the command line.
 
-Check the xref:hop-vs-kettle/hop-import.adoc[hop-import] page for details.
+Check the xref:hop-tools/hop-import.adoc[hop-import] page for details.

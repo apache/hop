@@ -33,7 +33,7 @@ This page answers how to run that image in an upgrade-friendly way:
 * how to add **JDBC drivers** (and why you should not persist `plugins/`)
 * which **volume mounts** to use, with a small Compose example
 
-The xref:manual::hop-gui/hop-web.adoc[Hop Web user manual] covers starting the image, authentication modes, and the Security UI.
+The xref:hop-gui/hop-web.adoc[Hop Web user manual] covers starting the image, authentication modes, and the Security UI.
 The xref:docker-container.adoc[Docker container] page covers the sibling `apache/hop` image (hop-run and Hop Server).
 
 == Two images, two persistence models
@@ -50,7 +50,7 @@ The baked-in `default` and `samples` projects are only a starter layout.
 | `apache/hop`
 | hop-run (short-lived) or Hop Server (long-lived)
 | Often **in a derived image** for production execution.
-That is xref:manual::hop-server/deploy-project-image.adoc[Project in a Docker image], not a Hop Web upgrade procedure.
+That is xref:hop-server/deploy-project-image.adoc[Project in a Docker image], not a Hop Web upgrade procedure.
 |===
 
 Do not `docker commit` a Hop Web container that has work saved in it, and do not treat the image's own `config/projects/` tree as your project home.
@@ -110,7 +110,7 @@ Recommended container paths below are conventions for this page and the Compose 
 | Environment JSON
 | none
 | `/hop/config/environments/` or next to the project when the file is non-secret
-| Hostnames, paths, xref:manual::metadata-types/variable-resolver/index.adoc[resolvers].
+| Hostnames, paths, xref:metadata-types/variable-resolver/index.adoc[resolvers].
 Keep secrets out of git.
 
 | `{openvar}HOP_AUDIT_FOLDER{closevar}`
@@ -162,7 +162,7 @@ Use together with a mount at `HOP_PROJECT_FOLDER`.
 
 | `HOP_PARENT_PROJECT_NAME` / `HOP_PARENT_PROJECT_FOLDER`
 | Optional one-level parent project.
-See xref:manual::hop-gui/hop-web.adoc[Hop Web].
+See xref:hop-gui/hop-web.adoc[Hop Web].
 
 | `HOP_ENVIRONMENT_NAME` / `HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`
 | Optional lifecycle environment registered on start.
@@ -178,7 +178,7 @@ See xref:docker-container.adoc#DownloadingJDBCDrivers[Downloading JDBC drivers].
 
 | `HOP_WEB_SECURITY_MODE` and related `HOP_WEB_*` variables
 | Authentication bootstrap.
-See xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
+See xref:hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
 |===
 
 .Permissions
@@ -191,7 +191,7 @@ Named volumes created by Docker usually already are.
 * Mount an **empty** directory onto the *default* config path (`/usr/local/tomcat/webapps/ROOT/config`) unless you intend to hide the image `hop-config.json` and the starter projects.
 Prefer a separate path (`/hop/config`) so the image tree stays available for reference.
 * Use the `/config` mount (Tomcat `tomcat-users.xml` / `web.xml` overlay) for environment JSON or project files.
-That path is only for xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[EXTERNAL] container authentication.
+That path is only for xref:hop-gui/hop-web.adoc#hop-web-authentication[EXTERNAL] container authentication.
 
 [[JDBCDriversAndPlugins]]
 == JDBC drivers and plugins
@@ -203,7 +203,7 @@ A new image tag is how you pick up plugin fixes and additions.
 
 Do not persist `plugins/` on a volume: an old tree mixed with a new image is a common upgrade failure.
 
-Custom or xref:manual::hop-tools/hop-marketplace.adoc[marketplace] extras that are not in the image can be:
+Custom or xref:hop-tools/hop-marketplace.adoc[marketplace] extras that are not in the image can be:
 
 * installed in a small derived image (`FROM apache/hop-web`, then `hop marketplace apply` or `COPY` the plugin), or
 * re-applied after you recreate the container (`hop marketplace apply -f …` in the new container).
@@ -234,7 +234,7 @@ Keep the image's `/usr/local/tomcat/jdbc-drivers` on that list so bundled driver
 
 From Hop 2.20, Hop Web can authenticate users and map them to built-in roles (Admin, User, Operator, Read-only), and the Projects plugin can **restrict which projects a user may open**.
 
-Full behaviour, login modes (`NONE`, `EXTERNAL`, `BASIC`, `OAUTH2`), and the Security UI are documented in xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
+Full behaviour, login modes (`NONE`, `EXTERNAL`, `BASIC`, `OAUTH2`), and the Security UI are documented in xref:hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
 For upgrades, the important fact is **where those files live**.
 
 All of the following sit under `{openvar}HOP_CONFIG_FOLDER{closevar}/security/`:
@@ -255,7 +255,7 @@ All of the following sit under `{openvar}HOP_CONFIG_FOLDER{closevar}/security/`:
 
 Persist `{openvar}HOP_CONFIG_FOLDER{closevar}` and you keep project registrations, users, and “who may open which project” across image upgrades.
 
-Configure project mapping in the GUI: **Configuration → Security → Projects** (xref:manual::hop-gui/hop-web.adoc#hop-web-project-access[project access]).
+Configure project mapping in the GUI: **Configuration → Security → Projects** (xref:hop-gui/hop-web.adoc#hop-web-project-access[project access]).
 Enable filtering, add rules (`user` / `role` / `group`), and either allow all projects for that subject or list names.
 Security administrators (`security.manage`) always see every project.
 When no rule matches, `defaultAllowAll` decides whether the user sees all projects or none.
@@ -324,7 +324,7 @@ Replace `<tag>` with a released Hop version.
 Create `./projects/my-project` (with `project-config.json`) on the host before the first start, and ensure it is writable by UID 501.
 Set `HOP_WEB_ADMIN_PASSWORD` in the environment or a Compose `.env` file; do not commit it.
 
-For OAuth or Tomcat EXTERNAL authentication, keep this volume layout and follow xref:manual::hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication] for the extra settings.
+For OAuth or Tomcat EXTERNAL authentication, keep this volume layout and follow xref:hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication] for the extra settings.
 If you use EXTERNAL, mount `tomcat-users.xml` and `web.xml` at `/config/` and do not put project files there.
 
 == Upgrade procedure
@@ -342,8 +342,8 @@ If you added marketplace plugins that are not in the new image, re-apply the ins
 
 == See also
 
-* xref:manual::hop-gui/hop-web.adoc[Hop Web] — start the image, roles, BASIC / OAuth / EXTERNAL
+* xref:hop-gui/hop-web.adoc[Hop Web] — start the image, roles, BASIC / OAuth / EXTERNAL
 * xref:docker-container.adoc[Docker container] — `apache/hop` (hop-run and Hop Server)
-* xref:manual::installation-configuration.adoc[Installation and configuration] — desktop `HOP_CONFIG_FOLDER` (same idea, no container)
-* xref:manual::projects/index.adoc[Projects and environments]
-* xref:manual::hop-server/deploy-project-image.adoc[Project in a Docker image] — baking a project into `apache/hop` for execution
+* xref:installation-configuration.adoc[Installation and configuration] — desktop `HOP_CONFIG_FOLDER` (same idea, no container)
+* xref:projects/index.adoc[Projects and environments]
+* xref:hop-server/deploy-project-image.adoc[Project in a Docker image] — baking a project into `apache/hop` for execution

@@ -121,4 +121,4 @@ The Hop Web image uses `/config` for an optional Tomcat `tomcat-users.xml` / `we
 
 In the same way you can set the standard variable `HOP_AUDIT_FOLDER` to store GUI auditing and logging information.
 
-For the operator-facing volume layout, Compose example, and upgrade procedure, see xref:tech-manual::hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
+For the operator-facing volume layout, Compose example, and upgrade procedure, see xref:manual::hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].

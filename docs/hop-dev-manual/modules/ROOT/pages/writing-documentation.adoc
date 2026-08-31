@@ -31,8 +31,7 @@ For people *using* Hop. Every transform, action and metadata type has a page her
 `docs/hop-dev-manual`::
 This manual: for people working on Hop or writing plugins for it.
 
-`docs/hop-tech-manual`::
-Deeper technical notes that are neither user-facing nor about contributing.
+There is no third manual: if a page tells someone how to *use* or *operate* Hop it belongs in the user manual, and if it tells someone how to *build, extend or release* Hop it belongs here.
 
 Inside a manual the layout is always `modules/ROOT/`, with `pages/` for the content, `assets/images/` for images, `nav.adoc` for the navigation tree, and — in the user manual — `templates/` with starting points for a plugin, sample or FAQ page.
 
@@ -44,7 +43,7 @@ Without it, Apache RAT fails the build.
 . Add a `:description:` line. It is used as the page summary and for search.
 . Add the page to `modules/ROOT/nav.adoc`, or it will not be published.
 . Link between pages with an `xref` macro, with the path relative to `pages/` rather than to the current file: `+xref:database/index.adoc[Database plugins]+`.
-Across manuals, prefix the component name — `manual`, `dev-manual` or `tech-manual`: `+xref:manual::pipeline/transforms/tableinput.adoc[Table input]+`.
+Across manuals, prefix the component name — `manual` or `dev-manual`: `+xref:manual::pipeline/transforms/tableinput.adoc[Table input]+`.
 
 == Documenting a plugin
 

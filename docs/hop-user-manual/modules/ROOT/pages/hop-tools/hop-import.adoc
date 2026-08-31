@@ -14,11 +14,16 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:openvar: ${
+:closevar: }
 :description: Hop Import is a command line tool for importing and convert third party metadata to an Apache Hop format.
 
 = Hop Import
 
 Hop Import is a command line tool to import and convert third party metadata to an Apache Hop format.
+
+The same import runs from the Hop GUI through `File / Import from Kettle/PDI`.
+See xref:hop-vs-kettle/import-kettle-projects.adoc[Import Kettle (PDI) projects] for that walkthrough and the options in the import dialog.
 
 == Usage
 
@@ -133,3 +138,46 @@ Creating new default Hop configuration file: s3:///apache-hop/s3project/imported
 2021/06/22 16:39:43 - HopImport - Connections with the same name and different configurations have only been saved once.
 2021/06/22 16:39:43 - HopImport - Check the following file for a list of connections that might need extra attention: s3:///apache-hop/s3project/connections.csv
 ----
+
+== Functionality
+
+In general the plugin copies Kettle files and non-Kettle files.
+
+=== Kettle files
+
+|===
+|File |Conversion
+
+|Transformations
+|Kettle transformation files (.ktr extension) are converted to Hop pipelines.
+During this process the XML metadata is converted to the appropriate Hop format.
+
+|Jobs
+|Kettle job files (.kjb extension) are converted to Hop workflows.
+During this process the XML metadata is converted to the appropriate Hop format.
+
+|kettle.properties
+|The Kettle properties file in your .kettle folder (typically found in the home directory or `{openvar}KETTLE_HOME{closevar}`) often contains variables and values regarding your environment.
+These variables and values are converted into an environment configuration file if you specified the `-c` or `--target-config-file` option.
+When you create an environment in Hop you can simply add this file to it to make everything work.
+If the configuration file already exists it will be updated, not overwritten.
+The description of the newly imported variables is set to `Imported from Kettle` to indicate that it's new.
+Values of existing variables are overwritten and the existing description is kept.
+
+|shared.xml
+|The shared.xml file in your .kettle folder (typically found in the home directory or `{openvar}KETTLE_HOME{closevar}`) often contains connections which are shared across many transformations and jobs.
+These connections are imported as Relational Database Connection metadata stored in the target folder `metadata/rdbms` folder.
+
+|jdbc.properties
+|A jdbc.properties file sometimes contains relational database metadata which is converted into generic RDBMS connections metadata.
+|===
+
+=== Non-Kettle files
+
+Non-Kettle files like text files, JSON, XML, ... they are all copied over by default, including the sub-folders.
+You can change this behavior with the options:
+
+* `--skip-folders` : don't copy sub-folders from the input folder
+* `--skip-hidden` : Don't copy hidden files and folders like `.git`, `.gitignore` and so on
+* `--skip-existing` : Only copy files which haven't been copied yet
+
