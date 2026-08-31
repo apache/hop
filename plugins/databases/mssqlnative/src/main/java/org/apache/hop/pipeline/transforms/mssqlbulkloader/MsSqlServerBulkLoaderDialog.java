@@ -51,6 +51,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -178,23 +179,22 @@ public class MsSqlServerBulkLoaderDialog extends BaseTransformDialog {
     wSettingsComp.layout();
 
     // Look up the incoming fields in the background, they feed the stream field drop-down.
-    new Thread(
-            () -> {
-              TransformMeta stepMeta = pipelineMeta.findTransform(transformName);
-              if (stepMeta == null) {
-                return;
-              }
-              try {
-                IRowMeta row = pipelineMeta.getPrevTransformFields(variables, stepMeta);
-                for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), i);
-                }
-                setComboBoxes();
-              } catch (HopException e) {
-                logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-              }
-            })
-        .start();
+    BackgroundThreadFacade.start(
+        () -> {
+          TransformMeta stepMeta = pipelineMeta.findTransform(transformName);
+          if (stepMeta == null) {
+            return;
+          }
+          try {
+            IRowMeta row = pipelineMeta.getPrevTransformFields(variables, stepMeta);
+            for (int i = 0; i < row.size(); i++) {
+              inputFields.put(row.getValueMeta(i).getName(), i);
+            }
+            setComboBoxes();
+          } catch (HopException e) {
+            logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+          }
+        });
 
     wContent.pack();
     Rectangle bounds = wContent.getBounds();
