@@ -24,6 +24,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -172,7 +173,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ADD ( "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false)
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN)
         + " ) ";
   }
 
@@ -211,7 +212,8 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " MODIFY COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override
