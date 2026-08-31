@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -237,6 +238,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10402-FindReferences";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
+
+  /** Maximum number of paths listed in the delete confirmation dialog. */
+  private static final int MAX_LISTED_DELETE_PATHS = 20;
+
   private static final String TREE_WIDTH_AUDIT_TYPE = "explorer-perspective-tree-width";
   private static final String EXPLORER_AUDIT_TYPE = "explorer-perspective-state";
 
@@ -784,7 +789,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           MenuItem deleteItem = menuWidgets.findMenuItem(CONTEXT_MENU_DELETE);
           if (deleteItem != null) {
-            deleteItem.setEnabled(selection.length == 1);
+            deleteItem.setEnabled(selection.length >= 1);
           }
 
           // Creating anything only makes sense inside a folder.
@@ -1227,72 +1232,82 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
-  private void deleteFile(final TreeItem treeItem) {
+  private void deleteFiles(final TreeItem[] treeItems) {
     try {
-      TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
-      if (tif == null || tif.fileType == null) {
+      // Items nested inside another selected folder are deleted along with that folder, so drop
+      // them from the list. Otherwise we'd try to delete and dispose them a second time.
+      //
+      List<TreeItem> items = new ArrayList<>();
+      List<FileObject> fileObjects = new ArrayList<>();
+      for (TreeItem treeItem : removeNestedSelection(treeItems)) {
+        TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
+        if (tif == null || tif.fileType == null) {
+          continue;
+        }
+        items.add(treeItem);
+        fileObjects.add(HopVfs.getFileObject(tif.path));
+      }
+      if (fileObjects.isEmpty()) {
         return;
       }
-      FileObject fileObject = HopVfs.getFileObject(tif.path);
 
-      // For pipeline/workflow files check if any other files or metadata objects still
-      // reference them before showing the standard confirmation box.
-      if (!fileObject.isFolder()) {
-        String path = HopVfs.getFilename(fileObject);
-        if (path.endsWith(".hpl") || path.endsWith(".hwf")) {
-          boolean confirmed =
-              confirmDeleteWithReferenceCheck(List.of(path), fileObject.getName().getBaseName());
-          if (!confirmed) {
-            return;
-          }
-          // User confirmed via the reference dialog — proceed directly to deletion.
-          List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
-          fileObject.deleteAll();
-          removeTreeItemAfterDelete(treeItem, filenames);
-          return;
-        }
-      } else {
-        // For folders: collect all .hpl/.hwf files and check for references collectively.
-        List<String> pipelineWorkflowFiles = new ArrayList<>();
-        for (String filename : getRecursiveFilenames(fileObject, new ArrayList<>())) {
+      // Collect everything which is about to disappear. The pipelines and workflows in there are
+      // checked for references collectively, for the complete selection at once.
+      //
+      List<List<String>> filenamesPerItem = new ArrayList<>();
+      List<String> pipelineWorkflowFiles = new ArrayList<>();
+      List<String> paths = new ArrayList<>();
+      for (FileObject fileObject : fileObjects) {
+        List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
+        filenamesPerItem.add(filenames);
+        for (String filename : filenames) {
           if (filename.endsWith(".hpl") || filename.endsWith(".hwf")) {
             pipelineWorkflowFiles.add(filename);
           }
         }
-        if (!pipelineWorkflowFiles.isEmpty()) {
-          String folderName = fileObject.getName().getBaseName();
-          boolean confirmed = confirmDeleteWithReferenceCheck(pipelineWorkflowFiles, folderName);
-          if (!confirmed) {
-            return;
-          }
-          // User confirmed — proceed directly to deletion.
-          List<String> allFilenames = getRecursiveFilenames(fileObject, new ArrayList<>());
-          fileObject.deleteAll();
-          removeTreeItemAfterDelete(treeItem, allFilenames);
-          return;
-        }
+        paths.add(HopVfs.getFilename(fileObject));
+      }
+      boolean singleFolder = fileObjects.size() == 1 && fileObjects.get(0).isFolder();
+
+      boolean confirmed;
+      if (pipelineWorkflowFiles.isEmpty()) {
+        confirmed = showDeleteConfirmation(paths, singleFolder);
+      } else {
+        String displayName =
+            fileObjects.size() == 1
+                ? fileObjects.get(0).getName().getBaseName()
+                : BaseMessages.getString(
+                    PKG, "ExplorerPerspective.DeleteFiles.Selection", fileObjects.size());
+        confirmed =
+            confirmDeleteWithReferenceCheck(
+                pipelineWorkflowFiles,
+                displayName,
+                () -> showDeleteConfirmation(paths, singleFolder));
+      }
+      if (!confirmed) {
+        return;
       }
 
-      // No pipeline/workflow files involved — use the standard confirmation box.
-      String header =
-          fileObject.isFolder()
-              ? BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header")
-              : BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
-      String message =
-          fileObject.isFolder()
-              ? BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message")
-              : BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+      if (fileObjects.size() == 1) {
+        if (fileObjects.get(0).deleteAll() > 0) {
+          removeTreeItemAfterDelete(items.get(0), filenamesPerItem.get(0));
+        }
+        return;
+      }
 
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-      box.setText(header);
-      box.setMessage(message + Const.CR + Const.CR + HopVfs.getFilename(fileObject));
-
-      if ((box.open() & SWT.YES) != 0) {
-        List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
-        if (fileObject.deleteAll() > 0) {
-          removeTreeItemAfterDelete(treeItem, filenames);
+      // Refreshing the tree per item would dispose the tree items still queued up here, so for a
+      // multiple selection everything is deleted first and the tree is refreshed once afterwards.
+      //
+      List<String> deletedFilenames = new ArrayList<>();
+      for (int i = 0; i < fileObjects.size(); i++) {
+        if (fileObjects.get(i).deleteAll() > 0) {
+          updateLastSelectedFolderAfterDelete(items.get(i));
+          deletedFilenames.addAll(filenamesPerItem.get(i));
         }
       }
+      closeTabsForFilenames(deletedFilenames);
+      refresh();
+      updateSelection();
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
@@ -1300,6 +1315,66 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           BaseMessages.getString(PKG, "ExplorerPerspective.Error.DeleteFile.Message"),
           e);
     }
+  }
+
+  /** Removes the tree items which have another item of the same selection as an ancestor. */
+  private static List<TreeItem> removeNestedSelection(TreeItem[] treeItems) {
+    List<TreeItem> selection = Arrays.asList(treeItems);
+    List<TreeItem> topLevel = new ArrayList<>();
+    for (TreeItem treeItem : treeItems) {
+      boolean nested = false;
+      for (TreeItem parent = treeItem.getParentItem();
+          parent != null;
+          parent = parent.getParentItem()) {
+        if (selection.contains(parent)) {
+          nested = true;
+          break;
+        }
+      }
+      if (!nested) {
+        topLevel.add(treeItem);
+      }
+    }
+    return topLevel;
+  }
+
+  /** The plain "are you sure?" confirmation, listing the files and folders about to be deleted. */
+  private boolean showDeleteConfirmation(List<String> paths, boolean singleFolder) {
+    String header;
+    String message;
+    if (paths.size() > 1) {
+      header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFiles.Confirmation.Header");
+      message =
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.DeleteFiles.Confirmation.Message", paths.size());
+    } else if (singleFolder) {
+      header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header");
+      message =
+          BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message");
+    } else {
+      header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
+      message = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+    }
+
+    StringBuilder listedPaths = new StringBuilder();
+    for (int i = 0; i < paths.size(); i++) {
+      if (i >= MAX_LISTED_DELETE_PATHS) {
+        listedPaths
+            .append(Const.CR)
+            .append(
+                BaseMessages.getString(
+                    PKG,
+                    "ExplorerPerspective.DeleteFiles.Confirmation.More",
+                    paths.size() - MAX_LISTED_DELETE_PATHS));
+        break;
+      }
+      listedPaths.append(Const.CR).append(paths.get(i));
+    }
+
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText(header);
+    box.setMessage(message + Const.CR + listedPaths);
+    return (box.open() & SWT.YES) != 0;
   }
 
   /**
@@ -1320,6 +1395,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * shows the standard Yes/No confirmation. Returns {@code true} if the user confirmed deletion.
    */
   public boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
+      throws HopException {
+    return confirmDeleteWithReferenceCheck(filePaths, displayName, null);
+  }
+
+  /**
+   * Same as {@link #confirmDeleteWithReferenceCheck(List, String)} but with a custom confirmation
+   * for the case where no references are found. Pass {@code null} for the standard one.
+   */
+  private boolean confirmDeleteWithReferenceCheck(
+      List<String> filePaths, String displayName, BooleanSupplier plainConfirmation)
       throws HopException {
     String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
     List<String> searchRoots =
@@ -1368,6 +1453,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
 
     // No references — use the standard confirmation box.
+    if (plainConfirmation != null) {
+      return plainConfirmation.getAsBoolean();
+    }
     String header =
         BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
     String message =
@@ -3378,6 +3466,27 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       newPath += folder;
       try {
         FileObject newFolder = HopVfs.getFileObject(newPath);
+        if (newFolder.exists()) {
+          // createFolder() silently does nothing for an existing folder and fails for an existing
+          // file, so tell the user rather than leaving them guessing.
+          //
+          MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+          box.setText(
+              BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.AlreadyExists.Header"));
+          box.setMessage(
+              BaseMessages.getString(
+                  PKG,
+                  newFolder.isFolder()
+                      ? "ExplorerPerspective.CreateFolder.AlreadyExists.Message"
+                      : "ExplorerPerspective.CreateFolder.FileAlreadyExists.Message",
+                  folder,
+                  tif.path));
+          box.open();
+
+          // Select the existing folder so it's clear where it is.
+          selectInTree(newPath, false);
+          return;
+        }
         newFolder.createFolder();
 
         refresh();
@@ -3517,18 +3626,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
     // Shortcut only fires when focus is in file explorer.
-    // Deleting is deliberately limited to a single file: the confirmation (and the reference
-    // check behind it) is written for one file at a time.
     //
     if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
       return;
     }
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length != 1) {
+    if (selection == null || selection.length == 0) {
       return;
     }
 
-    deleteFile(selection[0]);
+    deleteFiles(selection);
   }
 
   @GuiMenuElement(
