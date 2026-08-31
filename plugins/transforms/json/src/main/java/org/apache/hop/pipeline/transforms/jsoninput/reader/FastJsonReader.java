@@ -29,6 +29,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.RandomAccess;
@@ -299,7 +300,7 @@ public class FastJsonReader implements IJsonReader {
     int i = 0;
     for (JsonPath path : paths) {
       Object raw = getReadContext().read(path);
-      List<Object> result = normalizeJsonPathResult(raw);
+      List<Object> result = raw == null ? readFunctionPath(path) : normalizeJsonPathResult(raw);
       if (result.size() != lastSize && lastSize > 0 && !result.isEmpty()) {
         throw new JsonInputException(
             BaseMessages.getString(
@@ -320,6 +321,27 @@ public class FastJsonReader implements IJsonReader {
       i++;
     }
     return results;
+  }
+
+  /**
+   * JsonPath never evaluates a function path (length(), sum(), keys(), ...) while
+   * ALWAYS_RETURN_LIST is set: combined with SUPPRESS_EXCEPTIONS it silently yields null. Such a
+   * path is re-evaluated here without that option, and the scalar it produces is exposed as a
+   * single row.
+   */
+  private List<Object> readFunctionPath(JsonPath path) throws JsonInputException {
+    ReadContext context = getReadContext();
+    EnumSet<Option> options = EnumSet.noneOf(Option.class);
+    options.addAll(context.configuration().getOptions());
+    options.remove(Option.ALWAYS_RETURN_LIST);
+    Configuration functionConfiguration =
+        context.configuration().setOptions(options.toArray(new Option[0]));
+    Object document = context.json();
+    Object value = path.read(document, functionConfiguration);
+    if (value instanceof List<?> || value instanceof ArrayNode) {
+      return normalizeJsonPathResult(value);
+    }
+    return Collections.singletonList(value);
   }
 
   public static boolean isAllNull(Iterable<?> list) {

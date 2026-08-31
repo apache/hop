@@ -180,6 +180,14 @@ You can use Regex in the Path expression.
 
 *Example Path to filter on those that start with the letter 'a':* $.data[?(@=~/a.*/i)]
 
+*JsonPath functions*
+
+The aggregation functions provided by JayWay can be used at the end of a Path expression, e.g. `length()` (or its alias `size()`), `sum()`, `avg()`, `min()`, `max()`, `stddev()`, `keys()`, `first()`, `last()` and `index()`.
+
+*Example Path to retrieve the number of elements of an array:* $.someArray.length()
+
+A function always produces a single value, and therefore a single output row. Combining a function field with a field whose Path matches several elements is not supported: the transform reports a structure error because the two Paths do not yield the same number of rows. Read such a value in a dedicated JSON Input transform when the other fields return multiple rows.
+
 
 === Additional output fields tab
 
