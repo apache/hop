@@ -156,7 +156,10 @@ where strict outbound TLS verification is required (see §9).
   ([`XmlParserFactoryProducer.java`](core/src/main/java/org/apache/hop/core/xml/XmlParserFactoryProducer.java)) with external general/parameter entities and
   external DTD loading disabled and `FEATURE_SECURE_PROCESSING` on — XXE
   file-read/SSRF and entity-expansion are mitigated (verified empirically). The
-  same secure parser is used by the Hop Server remote-add endpoints.
+  same secure parser is used by the Hop Server remote-add endpoints. StAX ingest
+  (`XmlInputStream` and other `XMLInputFactory` sites) uses
+  `createSecureXmlInputFactory()`, which disables DTD processing and external
+  entities.
 - **Credential storage — NOT confidential by default.** Connection passwords in
   metadata are by default only **reversibly obfuscated, not encrypted**: the
   built-in `Hop` encoder ([`HopTwoWayPasswordEncoder.java`](core/src/main/java/org/apache/hop/core/encryption/HopTwoWayPasswordEncoder.java)) XORs against a

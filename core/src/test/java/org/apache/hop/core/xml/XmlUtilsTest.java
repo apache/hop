@@ -18,15 +18,21 @@
 package org.apache.hop.core.xml;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.SchemaFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -103,5 +109,47 @@ class XmlUtilsTest {
         XmlParserFactoryProducer.createSecureSchemaFactory(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
     assertDoesNotThrow(() -> schemaFactory.newSchema(including));
+  }
+
+  @Test
+  void secureXmlInputFactoryDisablesDtdAndExternalEntities() {
+    XMLInputFactory factory = XmlParserFactoryProducer.createSecureXmlInputFactory();
+
+    assertFalse((Boolean) factory.getProperty(XMLInputFactory.SUPPORT_DTD));
+    assertFalse((Boolean) factory.getProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES));
+  }
+
+  @Test
+  void secureXmlInputFactoryDoesNotResolveExternalEntities(@TempDir Path tempDir) throws Exception {
+    Path secret = tempDir.resolve("secret.txt");
+    Files.writeString(secret, "CANARY_SECRET_VALUE");
+    String xml =
+        "<?xml version=\"1.0\"?>"
+            + "<!DOCTYPE foo [ <!ENTITY xxe SYSTEM \""
+            + secret.toUri()
+            + "\"> ]>"
+            + "<root>&xxe;</root>";
+
+    XMLInputFactory factory = XmlParserFactoryProducer.createSecureXmlInputFactory();
+    StringBuilder text = new StringBuilder();
+    XMLStreamReader streamReader = factory.createXMLStreamReader(new StringReader(xml));
+    try {
+      while (streamReader.hasNext()) {
+        int event = streamReader.next();
+        if (event == XMLStreamConstants.CHARACTERS || event == XMLStreamConstants.CDATA) {
+          text.append(streamReader.getText());
+        }
+      }
+    } catch (XMLStreamException e) {
+      // Expected when DTD processing is disabled
+      assertFalse(text.toString().contains("CANARY_SECRET_VALUE"));
+      return;
+    } finally {
+      streamReader.close();
+    }
+
+    assertFalse(
+        text.toString().contains("CANARY_SECRET_VALUE"),
+        "external entity content must not appear in the parse result");
   }
 }
