@@ -171,8 +171,11 @@ Hop Web creates one RAP `UISession` (and one SWT `Display`) per browser session.
 * **Perspectives:** `getInstance()` must prefer `HopGui.findSessionPerspective(...)`. A static `instance` field is only a fallback for tests and disabled perspectives.
 * **Caches of SWT `Image`s:** key by `Device`/`Display` and dispose on *that* device. Never one process-wide dispose hook.
 * **Engine-thread maps (drill-down):** stamp `hopGui.getId()` on the engine in the GUI thread; do not call `HopGui.getInstance()` from pipeline worker threads (no RAP `UISession`).
+* **Background threads started by a dialog:** start them with `BackgroundThreadFacade.start(runnable)` instead of `new Thread(runnable).start()`. A dialog that looks up its input fields in the background reads session state while doing so (`ConstUi.sortFieldNames` asks `PropsUi`), and a plain thread has no `UISession` to read it from.
 
 Do not store `Control`, `Shell`, `SashForm`, `Image`, `Color`, `Font` or `GC` in `static` fields. When session A ends RAP disposes those objects; session B then hits `Invalid thread access` or `Widget is disposed`.
+
+A thread that carries a session is still not the UI thread: widgets stay off limits to it, and it reaches them the same way as before, through `Display.asyncExec`.
 
 == Avoid use of unimplemented SWT APIs
 

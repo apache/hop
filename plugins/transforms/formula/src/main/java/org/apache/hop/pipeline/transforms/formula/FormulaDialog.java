@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -144,25 +145,24 @@ public class FormulaDialog extends BaseTransformDialog {
     fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
-    new Thread(
-            () -> {
-              TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-              if (transformMeta != null) {
-                try {
-                  IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+    BackgroundThreadFacade.start(
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-                  // Remember these fields...
-                  for (int i = 0; i < row.size(); i++) {
-                    inputFields.add(row.getValueMeta(i).getName());
-                  }
-
-                  setComboBoxes();
-                } catch (HopTransformException e) {
-                  logError(BaseMessages.getString(PKG, "FormulaDialog.Log.UnableToFindInput"));
-                }
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
               }
-            })
-        .start();
+
+              setComboBoxes();
+            } catch (HopTransformException e) {
+              logError(BaseMessages.getString(PKG, "FormulaDialog.Log.UnableToFindInput"));
+            }
+          }
+        });
 
     colinf[1].setSelectionAdapter(
         new SelectionAdapter() {
