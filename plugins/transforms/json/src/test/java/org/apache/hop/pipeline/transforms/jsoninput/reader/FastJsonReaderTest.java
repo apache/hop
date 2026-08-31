@@ -20,15 +20,20 @@ package org.apache.hop.pipeline.transforms.jsoninput.reader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Option;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputField;
@@ -109,5 +114,58 @@ class FastJsonReaderTest {
     mainList.add(l2);
     mainList.add(l3);
     assertEquals(3, FastJsonReader.getMaxRowSize(Collections.singletonList(mainList)));
+  }
+
+  private static final String ARRAY_JSON = "{\"someArray\":[{\"x\":1},{\"x\":2}]}";
+
+  private static IRowSet readString(String json, String path) throws HopException {
+    JsonInputField field = new JsonInputField("value");
+    field.setPath(path);
+    FastJsonReader reader =
+        new FastJsonReader(new JsonInputField[] {field}, mock(ILogChannel.class));
+    return reader.parseStringValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+  }
+
+  @Test
+  void testLengthFunctionPathReturnsNumberOfArrayElements() throws Exception {
+    IRowSet rowSet = readString(ARRAY_JSON, "$.someArray.length()");
+    Object[] row = rowSet.getRow();
+    assertNotNull(row);
+    assertEquals(2, ((Number) row[0]).intValue());
+  }
+
+  @Test
+  void testSumFunctionPathIsEvaluated() throws Exception {
+    IRowSet rowSet = readString("{\"values\":[1,2,4]}", "$.values.sum()");
+    Object[] row = rowSet.getRow();
+    assertNotNull(row);
+    assertEquals(7, ((Number) row[0]).intValue());
+  }
+
+  @Test
+  void testFunctionPathReturnsSingleRow() throws Exception {
+    IRowSet rowSet = readString(ARRAY_JSON, "$.someArray.length()");
+    assertNotNull(rowSet.getRow());
+    assertNull(rowSet.getRow());
+  }
+
+  @Test
+  void testLengthFunctionPathOnJsonNodeInput() throws Exception {
+    JsonInputField field = new JsonInputField("value");
+    field.setPath("$.someArray.length()");
+    FastJsonReader reader =
+        new FastJsonReader(new JsonInputField[] {field}, mock(ILogChannel.class));
+    IRowSet rowSet = reader.parseJsonNodeValue(new ObjectMapper().readTree(ARRAY_JSON));
+    Object[] row = rowSet.getRow();
+    assertNotNull(row);
+    assertEquals(2, ((Number) row[0]).intValue());
+  }
+
+  @Test
+  void testRegularPathStillReturnsOneRowPerMatch() throws Exception {
+    IRowSet rowSet = readString(ARRAY_JSON, "$.someArray[*].x");
+    assertNotNull(rowSet.getRow());
+    assertNotNull(rowSet.getRow());
+    assertNull(rowSet.getRow());
   }
 }
