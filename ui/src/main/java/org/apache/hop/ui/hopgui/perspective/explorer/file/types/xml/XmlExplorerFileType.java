@@ -43,6 +43,7 @@ public class XmlExplorerFileType extends BaseTextExplorerFileType<XmlExplorerFil
         new String[] {"*.xml"},
         new String[] {"XML files"},
         FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_NEW,
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,
