@@ -111,7 +111,7 @@ limitations under the License.
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>export-only-storage:///demo/marker-8106</name>
+      <name>export-only-storage:///hop-server-export-only/marker-8106</name>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
       <extention>txt</extention>
