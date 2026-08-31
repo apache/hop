@@ -179,4 +179,146 @@ class HopServerEndpointPermissionMapperTest {
     assertTrue(HopServerEndpointPermissionMapper.requiredPermission("  ").isEmpty());
     assertFalse(HopServerEndpointPermissionMapper.isKnownEndpoint(null));
   }
+
+  // --- JSON API (/hop/api/v1): permissions depend on the HTTP method ---
+
+  @Test
+  void apiMetadataReadsNeedMetadataReadAndWritesNeedMetadataWrite() {
+    assertEquals(
+        Optional.of(Permission.METADATA_READ),
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/api/v1/metadata/types"));
+    assertEquals(
+        Optional.of(Permission.METADATA_READ),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "GET", "/hop/api/v1/metadata/rdbms/mydb"));
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission("POST", "/hop/api/v1/metadata/rdbms"));
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "DELETE", "/hop/api/v1/metadata/rdbms/mydb"));
+  }
+
+  @Test
+  void apiExecuteNeedsRunExecute() {
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("POST", "/hop/api/v1/execute/sync"));
+  }
+
+  @Test
+  void apiExecuteIsNotReachableAsARead() {
+    // There is no GET on /execute; a viewer must not slip through on the read table.
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/api/v1/execute/sync")
+            .isEmpty());
+  }
+
+  @Test
+  void apiLocationMirrorsTheExecutionInfoServlets() {
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "GET", "/hop/api/v1/location/local/executions"));
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "GET", "/hop/api/v1/location/local/executions/abc/state/logging"));
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "POST", "/hop/api/v1/location/local/executions"));
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "PUT", "/hop/api/v1/location/local/executions/abc/state"));
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "DELETE", "/hop/api/v1/location/local/executions/abc"));
+  }
+
+  @Test
+  void apiPluginsAreReadOnly() {
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/api/v1/plugins/types"));
+    // No write endpoint exists under /plugins, so a mutation there is unknown and default-denied.
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("POST", "/hop/api/v1/plugins/types")
+            .isEmpty());
+  }
+
+  @Test
+  void anUnknownVerbOnAnApiPathIsTreatedAsAMutation() {
+    // A future verb must not fall through to the read permission.
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "PATCH", "/hop/api/v1/metadata/rdbms/mydb"));
+    assertEquals(
+        Optional.of(Permission.METADATA_WRITE),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            null, "/hop/api/v1/metadata/rdbms/mydb"));
+  }
+
+  @Test
+  void headIsAReadLikeGet() {
+    assertEquals(
+        Optional.of(Permission.METADATA_READ),
+        HopServerEndpointPermissionMapper.requiredPermission("HEAD", "/hop/api/v1/metadata/types"));
+  }
+
+  @Test
+  void unmappedApiPathsStayUnknownSoTheFilterDeniesThem() {
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/api/v1/somethingNew")
+            .isEmpty());
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/api/v1").isEmpty());
+    // A future /hop/api/v2 must not inherit v1's table.
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/api/v2/metadata/types")
+            .isEmpty());
+  }
+
+  @Test
+  void apiPathsStripSessionAndQueryLikeTheServlets() {
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "GET", "/hop/api/v1/location/local/executions?children=true&limit=10"));
+    assertEquals(
+        Optional.of(Permission.METADATA_READ),
+        HopServerEndpointPermissionMapper.requiredPermission(
+            "GET", "/hop/api/v1/metadata/types;jsessionid=ABC123"));
+  }
+
+  @Test
+  void servletPermissionsIgnoreTheMethod() {
+    // The /hop/* servlets encode the operation in the path, so a verb must not change the answer.
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("GET", "/hop/startPipeline"));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("POST", "/hop/startPipeline"));
+  }
+
+  @Test
+  void readOnlyApiEndpointsAreStillRecognisedAsKnown() {
+    // isKnownEndpoint asks without a method. Resolving that against the write table alone would
+    // report the read-only /plugins endpoint as unknown, i.e. default-denied.
+    assertTrue(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/api/v1/plugins/types"));
+    assertTrue(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/api/v1/metadata/types"));
+    assertTrue(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/api/v1/execute/sync"));
+    assertTrue(
+        HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/api/v1/location/x/executions"));
+  }
+
+  @Test
+  void unmappedApiEndpointsStayUnknown() {
+    assertFalse(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/api/v1/nope"));
+  }
 }

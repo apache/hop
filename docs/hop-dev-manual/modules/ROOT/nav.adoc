@@ -66,7 +66,6 @@ under the License.
 * Embedding and interfaces
 ** xref:sdk/index.adoc[SDK]
 *** xref:sdk/hop-sdk.adoc[The Hop SDK]
-** xref:rest-api.adoc[The REST module]
 ** xref:hopweb/index.adoc[Hop Web]
 *** xref:hopweb/developer-guide.adoc[Hop Web Developer Guide]
 *** xref:hopweb/hopweb-antipatterns.adoc[Hop Web Antipatterns]

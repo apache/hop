@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,9 +34,8 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
-import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionInfoLocations;
 import org.apache.hop.execution.ExecutionState;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
@@ -105,64 +105,65 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
       // initialize() is always followed by a close().
       //
       MultiMetadataProvider provider = pipelineMap.getHopServerConfig().getMetadataProvider();
-      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
-          provider.getSerializer(ExecutionInfoLocation.class);
-      ExecutionInfoLocation location = serializer.load(locationName);
-      if (location == null) {
-        throw new HopException("Unable to find execution information location " + locationName);
+
+      // First read the complete JSON document in memory from the request.
+      // This doesn't need the location, so we do it before opening one.
+      //
+      StringBuilder json = new StringBuilder(request.getContentLength());
+      int c;
+      while ((c = in.read()) != -1) {
+        json.append((char) c);
       }
-      try {
-        location.getExecutionInfoLocation().initialize(variables, provider);
+      String jsonString = json.toString();
 
-        // First read the complete JSON document in memory from the request
-        //
-        StringBuilder json = new StringBuilder(request.getContentLength());
-        int c;
-        while ((c = in.read()) != -1) {
-          json.append((char) c);
-        }
+      ExecutionInfoLocations.withLocation(
+          locationName,
+          variables,
+          provider,
+          log,
+          iLocation -> {
+            // What type of information are we receiving?
+            //
+            switch (type) {
+              case TYPE_EXECUTION:
+                iLocation.registerExecution(parseJson(jsonString, Execution.class));
+                break;
+              case TYPE_STATE:
+                iLocation.updateExecutionState(parseJson(jsonString, ExecutionState.class));
+                break;
+              case TYPE_DATA:
+                iLocation.registerData(parseJson(jsonString, ExecutionData.class));
+                break;
+              default:
+                throw new HopException(
+                    "Unknown update type: "
+                        + type
+                        + " allowed are: "
+                        + TYPE_EXECUTION
+                        + ", "
+                        + TYPE_STATE
+                        + ", "
+                        + TYPE_DATA);
+            }
 
-        // What type of information are we receiving?
-        //
-        switch (type) {
-          case TYPE_EXECUTION:
-            Execution execution = HopJson.newMapper().readValue(json.toString(), Execution.class);
-            location.getExecutionInfoLocation().registerExecution(execution);
-            break;
-          case TYPE_STATE:
-            ExecutionState state =
-                HopJson.newMapper().readValue(json.toString(), ExecutionState.class);
-            location.getExecutionInfoLocation().updateExecutionState(state);
-            break;
-          case TYPE_DATA:
-            ExecutionData data =
-                HopJson.newMapper().readValue(json.toString(), ExecutionData.class);
-            location.getExecutionInfoLocation().registerData(data);
-            break;
-          default:
-            throw new HopException(
-                "Unknown update type: "
-                    + type
-                    + " allowed are: "
-                    + TYPE_EXECUTION
-                    + ", "
-                    + TYPE_STATE
-                    + ", "
-                    + TYPE_DATA);
-        }
-
-        // Log successful registration of execution, state or data
-        //
-        out.println(
-            new WebResult(
-                WebResult.STRING_OK, "Registration successful at location " + locationName));
-
-      } finally {
-        location.getExecutionInfoLocation().close();
-      }
+            // Log successful registration of execution, state or data
+            //
+            out.println(
+                new WebResult(
+                    WebResult.STRING_OK, "Registration successful at location " + locationName));
+            return null;
+          });
     } catch (Exception ex) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)));
+    }
+  }
+
+  private static <T> T parseJson(String json, Class<T> type) throws HopException {
+    try {
+      return HopJson.newMapper().readValue(json, type);
+    } catch (JsonProcessingException e) {
+      throw new HopException("Error parsing " + type.getSimpleName() + " from the request", e);
     }
   }
 

@@ -24,5 +24,5 @@ Hop is a set of Java libraries before it is a GUI or a command line tool, so a p
 
 Related:
 
-* xref:rest-api.adoc[The REST module] — the same capability over HTTP, when embedding the libraries is not an option.
+* xref:manual::hop-server/json-api.adoc[The Hop Server JSON API] — the same capability over HTTP, when embedding the libraries is not an option.
 * xref:architecture/execution-model.adoc[How a pipeline and a workflow run] — what the SDK is driving underneath.

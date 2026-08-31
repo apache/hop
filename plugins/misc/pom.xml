@@ -29,7 +29,6 @@
     <name>Hop Plugins Miscellaneous</name>
 
     <modules>
-        <module>async</module>
         <module>debug</module>
         <module>documentation</module>
         <module>execution-database</module>

@@ -125,7 +125,8 @@ public class HopServerAuthorizationFilter implements Filter {
       return;
     }
 
-    Optional<Permission> required = HopServerEndpointPermissionMapper.requiredPermission(path);
+    Optional<Permission> required =
+        HopServerEndpointPermissionMapper.requiredPermission(httpRequest.getMethod(), path);
     if (required.isEmpty()) {
       // Unknown endpoint: default-deny so new/plugin servlets cannot bypass RBAC.
       LOG.log(

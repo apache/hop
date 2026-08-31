@@ -636,7 +636,6 @@
                 <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
-                <module>rest</module>
                 <module>ui</module>
             </modules>
         </profile>
@@ -888,7 +887,7 @@
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
                             <!-- Comma-separated Ant patterns (single excludes element). -->
-                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,hop-rest/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
+                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>
