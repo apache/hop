@@ -87,6 +87,17 @@ public class KettleConst {
                 {"step7", "transform7"},
                 {"step8", "transform8"},
                 {"step9", "transform9"},
+                // Output transform metrics (Kettle: Output steps metrics)
+                {"stepRequired", "transformRequired"},
+                {"stepnamefield", "transformnamefield"},
+                {"stepidfield", "transformidfield"},
+                {"steplinesinputfield", "transformlinesinputfield"},
+                {"steplinesoutputfield", "transformlinesoutputfield"},
+                {"steplinesreadfield", "transformlinesreadfield"},
+                {"steplinesupdatedfield", "transformlinesupdatedfield"},
+                {"steplineswrittentfield", "transformlineswrittenfield"},
+                {"steplineserrorsfield", "transformlineserrorsfield"},
+                {"stepsecondsfield", "transformsecondsfield"},
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -160,6 +171,7 @@ public class KettleConst {
                 {"ROOT_JOB", "ROOT_WORKFLOW"},
                 {"BlockingStep", "BlockingTransform"},
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
+                {"StepsMetrics", "TransformsMetrics"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
                 {"StepMetastructure", "TransformMetaStructure"},
                 {"JobExecutor", "WorkflowExecutor"},

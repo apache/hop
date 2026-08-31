@@ -177,6 +177,7 @@ Those are explained once in xref:pipeline/formatting-values.adoc[Formatting numb
 * xref:pipeline/transforms/numberrange.adoc[Number range]
 * xref:pipeline/transforms/odata-input.adoc[OData input]
 * xref:pipeline/transforms/orabulkloader.adoc[Oracle Bulk Loader]
+* xref:pipeline/transforms/outputtransformmetrics.adoc[Output transform metrics]
 * xref:pipeline/transforms/parquet-file-input.adoc[Parquet file input]
 * xref:pipeline/transforms/parquet-file-output.adoc[Parquet file output]
 * xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe]

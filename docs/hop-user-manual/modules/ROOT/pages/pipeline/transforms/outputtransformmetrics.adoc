@@ -1,0 +1,91 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Wait for selected transforms to finish and output their metrics as rows.
+
+= image:transforms/icons/transformsmetrics.svg[Output transform metrics Icon, role="image-doc-icon"] Output transform metrics
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+Output transform metrics waits until the listed transform copies in the same pipeline have finished, then emits *one output row per watched copy* with the requested counters.
+
+This transform is a *row generator*. It does not consume incoming rows and must not have incoming hops. Connecting an upstream hop can deadlock the pipeline: the watched transform cannot finish while its output buffer is full, and this transform never drains that buffer.
+
+Use this transform when a pipeline itself needs metrics (for example after a Kettle/PDI import, or to feed Write to log). For project-wide monitoring, prefer xref:metadata-types/pipeline-log.adoc[Pipeline logging] or xref:pipeline/transforms/execinfo.adoc[Execution information].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:cross.svg[Not Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
+!===
+|===
+
+== Options
+
+=== Transforms
+
+image:transforms/output-transform-metrics-dialog-transforms-tab.png[Output transform metrics Transforms tab, width="90%"]
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of this transform.
+|Metrics for the following transforms|The transform copies to wait for. You cannot watch this transform itself or a downstream target of it.
+|Get Fields|Fill the grid with every other transform that is not a downstream target.
+|===
+
+[options="header"]
+|===
+|Column|Description
+|Transform name|Name of the transform to watch.
+|Copy Nr|0-based copy number. Use one grid row per copy if the transform runs multiple copies. Variables are allowed.
+|Required|When Yes, the pipeline fails if that copy cannot be found. When No, a missing copy is skipped.
+|===
+
+=== Fields
+
+image:transforms/output-transform-metrics-dialog-fields-tab.png[Output transform metrics Fields tab, width="90%"]
+
+Leave a field name empty to omit that column from the output.
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the watched transform.
+|Transform id|Plugin id of the watched transform.
+|Lines input|Rows read from an external source.
+|Lines output|Rows written to an external destination.
+|Lines read|Rows read from previous transforms.
+|Lines updated|Rows updated.
+|Lines written|Rows written to the next transforms.
+|Lines rejected|Rows sent to an error hop (`getLinesRejected()`). This is *not* the error count.
+|Duration (ms)|Execution duration in milliseconds.
+|===
+
+== Kettle / PDI import
+
+Kettle called this transform *Output steps metrics* (`StepsMetrics`). Hop import rewrites the plugin type to `TransformsMetrics` and the XML tags from `step*` to `transform*`. Stored *values* of output field names (for example `Step name`) are left unchanged so existing pipelines keep their column names.
