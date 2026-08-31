@@ -35,6 +35,7 @@
         <module>execution-database</module>
         <module>git</module>
         <module>import</module>
+        <module>lint</module>
         <module>mail</module>
         <module>marketplace</module>
         <module>passwords</module>

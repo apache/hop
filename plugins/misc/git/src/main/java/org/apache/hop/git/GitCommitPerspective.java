@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -37,6 +38,7 @@ import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.util.FileTypeUtils;
+import org.apache.hop.git.util.PreCommitCheck;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
@@ -54,6 +56,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileBeforeCommitExtension;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
@@ -869,11 +872,33 @@ public class GitCommitPerspective implements IHopPerspective {
         return;
       }
 
+      List<String> pathsToCommit = filesToCommit.stream().map(UIFile::getName).toList();
+
+      // Let optional plugins refuse the commit, the way git's pre-commit hook can. Nothing is
+      // staged or committed when they do.
+      //
+      HopGuiFileBeforeCommitExtension preCommit =
+          PreCommitCheck.check(
+              HopGui.getInstance().getLog(),
+              HopGui.getInstance().getVariables(),
+              uiGit.getDirectory(),
+              pathsToCommit);
+      if (preCommit.isCancelled()) {
+        showStatus(
+            GuiResource.getInstance().getImageError(),
+            BaseMessages.getString(
+                PKG,
+                "GitCommitPerspective.Error.CommitRefused.Message",
+                Const.NVL(
+                    preCommit.getCancelReason(),
+                    BaseMessages.getString(PKG, "GitCommitPerspective.CommitRefused.NoReason"))));
+        return;
+      }
+
       // Stage and commit the checked files, keeping the staged files which were unchecked out of
       // the commit
       //
-      uiGit.commitPaths(
-          filesToCommit.stream().map(UIFile::getName).toList(), authorName, message, amend);
+      uiGit.commitPaths(pathsToCommit, authorName, message, amend);
       String commitId = uiGit.getCommitId(Constants.HEAD);
 
       GitGuiPlugin.getInstance().beforeRefresh();

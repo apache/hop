@@ -1,0 +1,152 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopLint]]
+:imagesdir: ../assets/images
+:description: hop lint runs the Hop linter from the command line, for a quick check while you work or as a build step in CI.
+
+= hop lint
+
+`hop lint` runs the Hop linter over a file, a folder or a whole project and reports what it finds.
+
+It performs static analysis only: it reads pipelines, workflows and metadata without running anything and without connecting to a database, so it is safe to run in a build.
+
+The linter is not part of the standard Hop client, so `hop lint` only exists once the plugin is installed. See xref:linting/index.adoc#_installing[Installing].
+
+See xref:linting/index.adoc[Linting] for what the linter does, and xref:linting/lint-rules.adoc[Lint rules] for the rules and how a project configures them.
+
+== Usage
+
+[source,bash]
+----
+hop lint                              # lint the current directory
+hop lint pipelines/load.hpl           # lint one file
+hop lint /path/to/project             # lint a folder
+hop lint --list-rules                 # show the effective rule set
+hop lint --help                       # full option list
+----
+
+== Options
+
+[cols="1,3", options="header"]
+|===
+|Option |Description
+
+|`--format <format>`
+|Report format: `text` (default), `json` or `sarif`
+
+|`--output <file>`
+|Write the report to a file instead of stdout
+
+|`--fail-on <severity>`
+|Exit with 1 when a finding reaches this severity. Default `ERROR`.
+
+|`--max-warnings <n>`
+|Exit with 1 when more than `n` warnings are reported
+
+|`--baseline <file>`
+|Report only findings that are not in this baseline file
+
+|`--write-baseline <file>`
+|Write today's findings to a baseline file and exit
+
+|`--list-rules`
+|Print the effective rule set, with the pack each rule came from, and exit
+
+|`--list-metadata-types`
+|Print the metadata type keys this installation has registered, and exit
+
+|`--list-fields <plugin-id>`
+|Print the field names a rule can use for a transform or action plugin, and exit
+
+|`--install-hook`
+|Write a git pre-commit hook into `.git/hooks/pre-commit` and exit
+
+|`-c`, `--config <file>`
+|Use this `hop-lint.yml` instead of the one in the project root
+
+|`-s`, `--severity <severity>`
+|Report only findings at this severity or above. This filters the report; it does not change the build verdict, which `--fail-on` decides.
+
+|`-v`, `--verbose`
+|More detail in the report
+
+|`-q`, `--quiet`
+|Report findings only, without the summary
+|===
+
+`--pre-commit` and `--staged-file` are used by the generated git hook and are not normally typed by hand.
+
+== Exit codes
+
+[cols="1,3", options="header"]
+|===
+|Code |Meaning
+
+|`0`
+|No findings at or above the `--fail-on` threshold
+
+|`1`
+|Findings at or above the threshold, or more warnings than `--max-warnings`
+|===
+
+== Continuous integration
+
+[source,bash]
+----
+hop lint --format sarif --output lint.sarif .
+hop lint --fail-on WARNING .
+hop lint --max-warnings 20 .
+----
+
+`sarif` is the format GitHub code scanning, Azure DevOps and most review tooling read, so findings show up as annotations on the pull request.
+`json` is there for everything else.
+Both formats write only the report to stdout, so they can be piped.
+
+[[baseline]]
+== Adopting the linter on an existing project
+
+Pointed at a project that has been running for years, the linter will report a great deal at once.
+Nobody triages that, so record it and fail only on what is added from then on:
+
+[source,bash]
+----
+hop lint --write-baseline hop-lint-baseline.json .   # accept today's findings
+hop lint --baseline hop-lint-baseline.json .         # report only what is new
+----
+
+Commit the baseline file.
+From then on the build passes on the existing backlog and fails the moment something new appears, and the backlog is paid down by deleting entries from the file.
+Runs report how many baseline entries no longer occur, so the file can be pruned as things get fixed.
+
+Findings are matched on the rule, the file and the transform or action they point at.
+They are deliberately not matched on the message, which carries values that change for the same underlying problem, nor on a line number, which lint findings do not have.
+Counts are kept, so a second orphaned transform in a file that already had one is still reported.
+
+== Git pre-commit hook
+
+[source,bash]
+----
+hop lint --install-hook
+----
+
+This writes a `pre-commit` hook into the current repository's `.git/hooks`.
+The hook lints the staged Hop files and blocks the commit when they fail.
+
+Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Linter -> Block Git Commits*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.
+
+As with git's own `pre-commit` hook, only commits you author are checked.
+Reverting a file and cherry-picking a file are not, because both replay content that is already in the history — and reverting is often how you fix a lint failure in the first place.
