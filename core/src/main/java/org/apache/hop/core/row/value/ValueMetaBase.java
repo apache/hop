@@ -5716,16 +5716,7 @@ public class ValueMetaBase implements IValueMeta {
           }
           break;
         case IValueMeta.TYPE_BINARY:
-          if (iDatabase.isSupportsGetBlob()) {
-            Blob blob = resultSet.getBlob(index + 1);
-            if (blob != null) {
-              data = blob.getBytes(1L, (int) blob.length());
-            } else {
-              data = null;
-            }
-          } else {
-            data = resultSet.getBytes(index + 1);
-          }
+          data = getBinaryFromResultSet(resultSet, index + 1);
           break;
 
         case IValueMeta.TYPE_DATE:
@@ -5748,6 +5739,40 @@ public class ValueMetaBase implements IValueMeta {
           "Unable to get value '" + toStringMeta() + "' from database resultset, index " + index,
           e);
     }
+  }
+
+  /**
+   * Reads a binary column the way the JDBC specification defines it.
+   *
+   * <p>Hop has one binary value type, so BINARY, VARBINARY, LONGVARBINARY and BLOB all arrive here
+   * as {@link IValueMeta#TYPE_BINARY} and the JDBC type they came from is the only thing left that
+   * says how to fetch them. The specification maps BLOB to {@code java.sql.Blob} and the other
+   * three to {@code byte[]}, so asking for a Blob is right for exactly one of the four.
+   *
+   * <p>This used to be decided by {@code isSupportsGetBlob()}, a per-connection flag, which meant a
+   * VARBINARY column was fetched as a Blob on every dialect that did not opt out. Drivers that
+   * follow the specification refuse that conversion outright: SAP HANA answers "Cannot convert SQL
+   * type VARBINARY to Java type java.sql.Blob" (issue #8207). A driver that really cannot serve a
+   * Blob says so with a value binding of its own, which is consulted before this method is ever
+   * reached. No dialect Hop ships needs one: DB2, the one dialect that recorded a reason for the
+   * flag, was looking at this same defect, and a current DB2 driver serves a real BLOB column
+   * without complaint.
+   *
+   * <p>An unknown original type means the value metadata did not come from a result set, so there
+   * is nothing to say the column is a BLOB, and {@code getBytes()} is the wider of the two getters.
+   *
+   * @param resultSet the result set to read from
+   * @param index the 1-based column index
+   */
+  private byte[] getBinaryFromResultSet(ResultSet resultSet, int index) throws SQLException {
+    if (getOriginalColumnType() != Types.BLOB) {
+      return resultSet.getBytes(index);
+    }
+    Blob blob = resultSet.getBlob(index);
+    if (blob == null) {
+      return null;
+    }
+    return blob.getBytes(1L, (int) blob.length());
   }
 
   @Override

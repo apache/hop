@@ -1123,7 +1123,16 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   /**
    * @return true if the database JDBC driver supports getBlob on the resultset. If not we must use
    *     getBytes() to get the data.
+   * @deprecated The getter a binary column needs is decided by the JDBC type the driver reports for
+   *     that column, not by the connection: BLOB maps to {@code java.sql.Blob} and BINARY,
+   *     VARBINARY and LONGVARBINARY map to {@code byte[]}. A flag answered once per connection
+   *     could not tell those apart, so it fetched VARBINARY columns as Blobs and drivers that
+   *     follow the specification refused (issue #8207). It is no longer consulted anywhere; a
+   *     driver that genuinely cannot serve a Blob says so with a value binding for {@link
+   *     org.apache.hop.core.row.IValueMeta#TYPE_BINARY} in its own {@link #getTypeRules()}. This
+   *     method will be removed.
    */
+  @Deprecated(since = "2.20")
   @Override
   public boolean isSupportsGetBlob() {
     return true;

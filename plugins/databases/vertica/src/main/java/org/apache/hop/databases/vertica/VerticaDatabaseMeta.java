@@ -663,14 +663,6 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /*
-   * @return false as the database does not support BLOB data type
-   */
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
-
   /**
    * @return Handles the special case of Vertica where the display size returned is twice the
    *     precision. In that case, the length is the precision.

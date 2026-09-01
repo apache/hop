@@ -181,11 +181,6 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   }
 
   @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
-
-  @Override
   public boolean isMsSqlServerNativeVariant() {
     return true;
   }

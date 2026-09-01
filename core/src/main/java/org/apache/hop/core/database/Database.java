@@ -22,7 +22,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.BatchUpdateException;
-import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -4363,16 +4362,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
             v = cstmt.getString(pos);
             break;
           case IValueMeta.TYPE_BINARY:
-            if (databaseMeta.supportsGetBlob()) {
-              Blob blob = cstmt.getBlob(pos);
-              if (blob != null) {
-                v = blob.getBytes(1L, (int) blob.length());
-              } else {
-                v = null;
-              }
-            } else {
-              v = cstmt.getBytes(pos);
-            }
+            v = cstmt.getBytes(pos);
             break;
           case IValueMeta.TYPE_DATE:
             if (databaseMeta.supportsTimeStampToDateConversion()) {
@@ -4408,16 +4398,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
               v = cstmt.getString(pos + i);
               break;
             case IValueMeta.TYPE_BINARY:
-              if (databaseMeta.supportsGetBlob()) {
-                Blob blob = cstmt.getBlob(pos + i);
-                if (blob != null) {
-                  v = blob.getBytes(1L, (int) blob.length());
-                } else {
-                  v = null;
-                }
-              } else {
-                v = cstmt.getBytes(pos + i);
-              }
+              v = cstmt.getBytes(pos + i);
               break;
             case IValueMeta.TYPE_DATE:
               if (databaseMeta.supportsTimeStampToDateConversion()) {

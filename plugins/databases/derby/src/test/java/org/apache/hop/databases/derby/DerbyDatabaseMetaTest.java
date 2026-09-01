@@ -60,7 +60,6 @@ class DerbyDatabaseMetaTest {
     assertTrue(nativeMeta.isFetchSizeSupported());
     assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertEquals(1527, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertEquals(
         "http://db.apache.org/derby/papers/DerbyClientSpec.html",
         nativeMeta.getExtraOptionsHelpText());

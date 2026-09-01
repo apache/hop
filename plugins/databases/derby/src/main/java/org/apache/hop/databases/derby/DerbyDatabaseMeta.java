@@ -255,11 +255,6 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
-
-  @Override
   public String getExtraOptionsHelpText() {
     return "http://db.apache.org/derby/papers/DerbyClientSpec.html";
   }

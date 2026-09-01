@@ -1246,11 +1246,6 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return true;
   }
 
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
-
   /**
    * @return true if the database supports the use of safe-points and if it is appropriate to ever
    *     use it (default to false)
