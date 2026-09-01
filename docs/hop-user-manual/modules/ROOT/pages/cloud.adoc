@@ -1,0 +1,262 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[RunningHopInTheCloud]]
+:imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
+:description: Hop has no cloud mode. Running a Hop project in the cloud is five decisions - where the files live, where configuration and secrets live, what executes, what starts it, and where run history goes. This page maps those decisions onto Hop concepts, independently of any cloud provider.
+
+= Running Apache Hop in the cloud
+
+Hop does not have a cloud edition, a cloud deployment mode or a cloud installer.
+A Hop project that runs on your laptop runs unchanged on a cloud container platform.
+What changes is not Hop, it is where five things live.
+
+This page is intended as a guide to help you run Hop in the cloud, it is deliberately provider-neutral.
+Check your cloud vendor's documentation for bucket configuration, IAM roles, cluster setup etc. 
+The Hop side of each decision is identical whichever cloud you are on.
+
+Check xref:docker-container.adoc[Hop in Docker] and xref:hop-server/deploying.adoc[Deploying Hop Server] for more information of what each approach entails.
+
+== The five decisions
+
+[cols="1,2,2",options="header"]
+|===
+|Decision |In Hop that is |Your cloud typically provides
+
+|Where the project files live
+|A project folder registered with Hop
+|A container registry, a git repository, object storage
+
+|Where configuration and secrets live
+|Lifecycle environments and variable resolvers
+|A secret store, mounted config, injected environment variables
+
+|What executes a pipeline or workflow
+|A short-lived container, a long-lived Hop Server, or a Beam runner
+|A container runtime or a managed cluster
+
+|What starts a run
+|Nothing in Hop — Hop is not a scheduler
+|A scheduler, a cron service, a workflow/orchestration service
+
+|Where run history and logs go
+|An execution information location, pipeline/workflow logs
+|A managed database, object storage, a search service, a log collector
+|===
+
+
+== 1. Where the project files live
+
+A Hop project is a folder: `project-config.json`, a `metadata/` folder, pipelines, workflows and whatever else the project owns.
+See xref:projects/index.adoc[Projects and environments].
+
+Something has to put that folder inside the runtime.
+The three patterns on xref:hop-server/deploying.adoc[Deploying Hop Server] are not Hop Server specific — they are the three ways a project reaches *any* runtime, server or not:
+
+* *Baked into an image.* CI builds a container image that contains the project, and the platform pulls that image.
+The build is the deployment; a run is immutable and reproducible.
+See xref:hop-server/deploy-project-image.adoc[Project in a Docker image].
+* *Fetched at start-up.* The image is the stock `apache/hop` image and the project is pulled in when the container starts — from git, from object storage, or from a mounted volume.
+`HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH` exists for exactly this: a script that runs before Hop starts.
+See xref:hop-server/deploy-git-checkout.adoc[Git checkout on the server].
+* *Sent by a client.* A xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote run configuration] with *Export linked resources to server* ships a ZIP to a server that owns no files.
+See xref:hop-server/deploy-export-resources.adoc[Remote run with export resources].
+
+Baking the project into an image is the optimal choice on a container platform, because it is the only one of the three where the running unit is fully described by an image tag.
+Fetching at start-up is attractive when many small projects share one image, at the cost of a network dependency on every start.
+
+Data files are a separate question from project files.
+Read and write them through xref:vfs.adoc[Apache Hop VFS] so a path is a configuration value rather than something baked into a transform — see <<Rules that hold on every cloud>>.
+
+== 2. Where configuration and secrets live
+
+*Environment configuration* is per runtime: hostnames, credentials, inbound and outbound paths, and a purpose (Development, Test, Production).
+They live in a xref:projects/projects-environments.adoc[lifecycle environment], which is one or more JSON files that must *not* be in the project repository when they contain secrets.
+
+On a cloud runtime, those environment files usually arrive as a mounted configuration object or a file written by the deployment pipeline.
+An environment can list several files; in the container image that is the comma-separated `HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS` variable.
+
+For secrets, prefer not to place the value in the file at all.
+A xref:metadata-types/variable-resolver/index.adoc[variable resolver] lets the committed file hold an expression that is resolved at runtime against your secret store:
+
+[source,json]
+----
+{
+  "variables" : [ {
+    "name" : "DB_HOSTNAME",
+    "value" : "warehouse.internal.example.com",
+    "description" : "Warehouse host"
+  }, {
+    "name" : "DB_PASSWORD",
+    "value" : "#{vault:secret/data/warehouse:password}",
+    "description" : "Resolved at runtime, never stored"
+  } ]
+}
+----
+
+The expression format is `#{name:key:element}`, where `name` is a resolver you configured.
+Every major cloud secret store, and Vault and OpenBAO, have a resolver — see <<Where your cloud provider plugs in>>.
+This is what keeps the same project and the same image running unchanged in Development, Test and Production: only the resolved values differ.
+
+The default password protection in Hop metadata is obfuscation, not encryption.
+For anything running outside your laptop, use the AES2 encoder or a secrets resolver (also check xref:password/passwords.adoc[Passwords]).
+
+== 3. What executes a pipeline or workflow
+
+*A short-lived container.*
+The `apache/hop` image runs xref:hop-run/index.adoc[hop-run] and exits when `HOP_FILE_PATH` and `HOP_RUN_CONFIG` are set.
+On a container platform this is a job or task that starts, runs and disappears, and it is the default production pattern that can be used with any scheduler.
+
+*A long-lived Hop Server.*
+The same image starts xref:hop-server/index.adoc[Hop Server] when those two variables are omitted.
+Choose this when you need xref:hop-server/web-service.adoc[web services] or the xref:hop-server/rest-api.adoc[REST API], or when many clients submit work to a shared always-on engine.
+It is a normal long-running HTTP service: give it a readiness and liveness probe on `hop/status`, put it behind whatever ingress you already use, and enable TLS and non-default credentials before exposing it.
+
+*A distributed engine.*
+For volumes that do not fit one container, the pipeline can be executed on a cluster and only the run configuration changes: the project, the metadata and the pipeline stay the same.
+xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark] compiles the pipeline into a Spark job and submits it to your own cluster or to xref:pipeline/spark/databricks.adoc[Databricks], where a xref:metadata-types/databricks-connection.adoc[Databricks Connection] carries the workspace and its token.
+xref:pipeline/beam/getting-started-with-beam.adoc[Apache Beam] runs the same pipeline on Google Cloud Dataflow, Apache Spark, Apache Flink or another Beam runner.
+A workflow can also hand work to the platform rather than run it: xref:workflow/actions/databricks-job-run.adoc[Databricks job run] triggers a job that already exists in the workspace, and xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait] polls a run started fire-and-forget, or started by something else entirely, until it reaches a terminal state.
+
+Hop Web is a fourth, different thing: a browser-based Hop Gui for development, not an execution runtime.
+Running it on a cloud platform requires you to manage its persistence and upgrades — see xref:hop-web-docker.adoc[Hop Web in Docker].
+
+== 4. What starts a run
+
+Hop Server is not a scheduler and Hop has no calendar of its own.
+Something outside Hop decides when a pipeline or workflow runs: a scheduler, a cron service, an orchestration service, a CI pipeline, or a message that arrives.
+
+That is a feature on a cloud platform, not a gap.
+Whatever already schedules the rest of your workload can start a Hop container or call a Hop Server, and you keep one place where dependencies, retries, alerting and calendars live.
+
+Two things are worth deciding explicitly:
+
+* *Does the trigger wait for the result?*
+A short-lived container that exits non-zero on failure is the simplest contract there is, and every orchestrator understands it.
+Fire-and-forget submission to a Hop Server needs you to poll or to use the xref:hop-server/async-web-service.adoc[async web service].
+* *What happens on restart?*
+Hop Server does not keep a durable work queue; a restart drops in-flight executions unless `--shutdown-timeout` / `HOP_SERVER_SHUTDOWN_TIMEOUT` is set and the platform honours it during a graceful shutdown.
+Short-lived containers do not have this problem: the orchestrator retries the job.
+
+The xref:how-to-guides/run-hop-in-apache-airflow.adoc[Apache Airflow how-to] is a worked example of the pattern; the same principle applies to any scheduler.
+
+== 5. Where run history and logs go
+
+A container is ephemeral.
+When a short-lived run finishes, the container and everything written inside it is gone — including the execution history you would want to look at when someone asks why last night's load was empty.
+
+Configure an xref:metadata-types/execution-information-location.adoc[execution information location] that outlives the container.
+The available types cover the usual cloud building blocks: a file or caching-file location on a mounted volume or object storage, a relational database, Neo4j, Elastic, OpenSearch, or a remote Hop Server.
+Runs recorded there are readable afterwards from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective] in Hop Gui, whichever runtime produced them.
+
+For log *lines* rather than execution metadata, containers write to stdout and your platform's log collector picks them up; set the verbosity with `HOP_LOG_LEVEL`.
+When you need logging as data — durable, queryable, joined to your own tables — use the xref:metadata-types/pipeline-log.adoc[pipeline log] and xref:metadata-types/workflow-log.adoc[workflow log] metadata types to write it to a database of your choice.
+
+== Rules that hold on every cloud
+
+These are provider-independent and worth checking before the first production run.
+
+*Nothing written inside the container survives it.*
+Temporary files, `{openvar}java.io.tmpdir{closevar}`, sort and group-by spill files, and anything a transform writes to a relative path are all gone when the container exits.
+Anything that must outlive the run goes to a mounted volume, object storage or a database.
+
+*Object storage is not a filesystem.*
+There are no real folders, no atomic rename, no append, and listing is a paid API call that returns objects rather than a directory tree.
+Assert existence with a check on the object itself rather than on its "folder", write once rather than appending, and expect eventual consistency in listings.
+xref:vfs.adoc#_supported_operations[Supported operations] lists what each file system can actually do.
+
+*Environment configuration must reach the runtime, and must not be in the project repository.*
+The project's default image is the same in every environment; the environment files are not part of it.
+
+*JDBC drivers and extra plugins never travel with the project.*
+They are baked into the image, downloaded at start-up with `HOP_DRIVERS_DOWNLOAD` (pointing `HOP_DRIVERS_MAVEN_REPO` at an internal repository for restricted networks), or mounted.
+Notably they are *not* included when a client sends export resources.
+
+*Give the JVM the memory the container was granted.*
+The image defaults `HOP_OPTIONS` to `-XX:+AggressiveHeap` so the JVM uses the memory assigned to the container.
+If you override `HOP_OPTIONS`, set the heap deliberately — a container memory limit is not a JVM heap setting, and the platform will kill a container that exceeds its limit rather than let the JVM handle it.
+
+*Identity beats long-lived keys.*
+Where your platform can grant the running container an identity that carries permissions to storage, databases and secrets, use it and keep static credentials out of the environment files entirely.
+
+*Egress and network policy are part of the deployment.*
+A pipeline that reaches a database, an API or object storage needs that path open from wherever the container runs, which is rarely the same place development happened.
+
+*Scale out, not up.*
+A pipeline on the local engine is a single JVM.
+More throughput means more containers each running a smaller unit of work, or a distributed engine — and splitting the workload is a design decision in the workflow, not a runtime setting.
+
+*Pin the image tag.*
+`latest` may make a run irreproducible and can turn an unrelated pull into an unplanned upgrade.
+Pin a release tag and upgrade on purpose.
+
+== Two reference shapes
+
+Almost every cloud deployment is one of these, or a mix.
+
+=== Scheduled short-lived containers
+
+....
+scheduler ──▶ container (apache/hop, project baked in)
+                 │  environment config mounted
+                 │  secrets resolved at runtime
+                 ├──▶ data sources / object storage
+                 └──▶ execution information location  (outlives the container)
+....
+
+No Hop Server, no always-on process, one container per run, exit code as the contract.
+This is the default recommendation for batch workloads.
+
+=== Long-lived Hop Server
+
+....
+clients / web service consumers
+        │  HTTPS
+        ▼
+   Hop Server (apache/hop, project baked in, replicas as needed)
+        │  environment config mounted
+        ├──▶ data sources / object storage
+        └──▶ execution information location
+....
+
+Choose this for xref:hop-server/web-service.adoc[web services], the xref:hop-server/rest-api.adoc[REST API], or a shared engine that many clients submit to.
+It needs the things any long-running service needs: health probes, TLS, non-default credentials, a rollout strategy and graceful shutdown.
+The default Hop Server credential is `cluster` / `cluster`: change it with `HOP_SERVER_USER` and `HOP_SERVER_PASS`, and set `HOP_SERVER_KEYSTORE` for TLS before the server is reachable by anything but you.
+
+== Where your cloud provider plugs in
+
+Everything above is the same on every cloud.
+The provider-specific part is narrow, and it is already documented per provider:
+
+* *Storage* — xref:vfs.adoc[Virtual File System], with pages for xref:vfs/aws-s3-vfs.adoc[Amazon S3], xref:vfs/azure-blob-storage-vfs.adoc[Azure Storage], xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/minio-vfs.adoc[MinIO] and xref:vfs/databricks-vfs.adoc[Databricks].
+Any S3-compatible service, including those of providers without a dedicated page, is reachable through the S3 or MinIO file system.
+* *Secrets* — xref:metadata-types/variable-resolver/index.adoc[Variable Resolver], with resolvers for xref:metadata-types/variable-resolver/aws-secrets-manager-variable-resolver.adoc[AWS Secrets Manager], xref:metadata-types/variable-resolver/azure-key-vault-variable-resolver.adoc[Azure Key Vault], xref:metadata-types/variable-resolver/google-secret-manager-variable-resolver.adoc[Google Secret Manager], xref:metadata-types/variable-resolver/hashicorp-vault-variable-resolver.adoc[HashiCorp Vault] and xref:metadata-types/variable-resolver/openbao-variable-resolver.adoc[OpenBAO].
+* *Databases* — xref:database/databases.adoc[Relational Database Connections].
+Managed database services are ordinary JDBC connections; the driver still has to be in the image.
+* *Distributed execution* — xref:pipeline/beam/getting-started-with-beam.adoc[Apache Beam], including xref:pipeline/beam/beam-samples-dataflow.adoc[Google Cloud Dataflow] and xref:pipeline/beam/flink-k8s-operator-running-hop-pipeline.adoc[Flink on Kubernetes].
+
+If your provider is not in these lists, the question to ask is which standard it speaks — S3-compatible storage, a JDBC-compatible database, an OCI container runtime — rather than whether Hop supports it by name.
+
+== See also
+
+* xref:docker-container.adoc[Hop in Docker] — the image, its environment variables and its two run modes
+* xref:hop-server/deploying.adoc[Deploying Hop Server] — the three ways a project reaches a server, compared
+* xref:projects/index.adoc[Projects and environments] — what belongs in the project and what belongs in the environment
+* xref:metadata-types/execution-information-location.adoc[Execution Information Location] — where run history is kept
+* xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow] — a worked scheduler example
+* xref:best-practices/index.adoc[Best Practices]

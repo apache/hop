@@ -27,6 +27,9 @@ It is not a scheduler: something else (Hop Gui, xref:hop-run/index.adoc[hop-run]
 
 This page is the deployment story: after you develop a project, how does a running Hop Server get the files and the configuration it needs?
 
+The same three patterns are how a project reaches any runtime, not only a server.
+For the wider picture -- containers, schedulers, secrets, object storage and run history on a cloud platform -- see xref:cloud.adoc[Running Apache Hop in the cloud].
+
 There are three patterns that cover almost every production setup:
 
 * xref:hop-server/deploy-project-image.adoc[Project in a Docker image] -- CI builds an image that contains the project.

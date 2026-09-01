@@ -31,6 +31,7 @@ under the License.
 * xref:installation-configuration.adoc[Installation and Configuration]
 * xref:docker-container.adoc[Hop in Docker]
 ** xref:hop-web-docker.adoc[Hop Web in Docker]
+* xref:cloud.adoc[Hop in the Cloud]
 * xref:supported-jvms.adoc[Supported Java Versions]
 * xref:hop-gui/index.adoc[Hop Gui]
 ** xref:hop-gui/disable-ui-elements.adoc[Customize the UI]
