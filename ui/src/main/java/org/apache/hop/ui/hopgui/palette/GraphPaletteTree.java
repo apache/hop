@@ -402,7 +402,7 @@ public class GraphPaletteTree extends Composite {
         TreeItem categoryItem = new TreeItem(tree, SWT.NONE);
         categoryItem.setText(category.name());
         if (favoritesName.equals(category.name())) {
-          categoryItem.setImage(images.getImage("ui/images/bookmark-add.svg"));
+          categoryItem.setImage(images.getImage("ui/images/star.svg"));
         } else {
           categoryItem.setImage(images.getImageFolder());
         }
