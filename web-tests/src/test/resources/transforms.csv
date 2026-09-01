@@ -19,6 +19,14 @@
 # English message bundles. Regenerate rather than edit by hand: the previous list had
 # drifted to Title Case ('Avro Decode' for 'Avro decode'), which made every entry after
 # the ninth fail, and it was missing 55 transforms added since it was last touched.
+#
+# Two entries a regeneration has to get right, because a generator reading annotations
+# alone gets them wrong:
+#  - a transform whose meta class is @Deprecated is registered under its name plus
+#    " (deprecated)", which is what the palette and the canvas call it.
+#  - the list must hold names, not plugin ids. 'Fake' is the id of the transform named
+#    'Fake data'; it was in here as an entry of its own and passed only because the
+#    fake.svg icon draws the word "Fake", which the old tests read as a transform name.
 (Experimental) Beam Hive catalog input
 Abort
 Add a checksum
@@ -99,7 +107,6 @@ Execute row SQL script
 Execute SQL script
 Execute unit tests
 Execution information
-Fake
 Fake data
 File exists
 File metadata
@@ -115,7 +122,7 @@ Get files from result
 Get files rows count
 Get JDBC metadata
 Get Neo4j logging info
-Get records from stream
+Get records from stream (deprecated)
 Get rows from result
 Get server status
 Get subfolder names

@@ -166,6 +166,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
+import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
@@ -618,6 +619,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     canvas = new Canvas(sashForm, SWT.NO_BACKGROUND | SWT.BORDER);
     canvas.setData("hop-zoom-canvas", "true"); // Mark this canvas for zoom handling
+    TestIdFacade.set(canvas, "pipeline-graph-canvas");
     Listener listener = CanvasListener.getInstance();
     canvas.addListener(SWT.MouseDown, listener);
     canvas.addListener(SWT.MouseMove, listener);

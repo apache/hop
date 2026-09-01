@@ -21,11 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import org.apache.hop.web.it.pages.HopGuiPage;
 import org.apache.hop.web.it.pages.PipelineGraphPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.JavascriptExecutor;
 
 /**
  * The daily signal: can Hop Web still be started, opened, and used to build a pipeline?
@@ -45,6 +47,21 @@ class HopWebSmokeTest extends HopWebTestBase {
     assertNotNull(driver.findElement(HopGuiPage.OPEN_FILE), "open file toolbar item");
     assertNotNull(driver.findElement(HopGuiPage.SAVE_FILE), "save file toolbar item");
     assertTrue(hopGui.openDialogTitles().isEmpty(), "no dialog should be blocking the GUI");
+  }
+
+  @Test
+  @DisplayName("a browser side failure would be noticed")
+  void watchesTheBrowserConsole() {
+    // Half of what breaks in Hop Web breaks in the browser and is never mentioned server side, so
+    // every test reads the console afterwards. A check nobody can see working is a check that
+    // quietly stops working, hence this: provoke one error and confirm the reader sees it.
+    assumeTrue(BrowserConsole.isSupported(driver), "this browser does not hand over its console");
+
+    ((JavascriptExecutor) driver).executeScript("console.error('hop web selenium self check');");
+
+    assertTrue(
+        BrowserConsole.errors(driver).stream().anyMatch(e -> e.contains("self check")),
+        "the browser console is not being read, so no test can fail on what happens in it");
   }
 
   @Test
