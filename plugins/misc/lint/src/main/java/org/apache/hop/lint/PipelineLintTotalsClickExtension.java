@@ -49,7 +49,14 @@ public class PipelineLintTotalsClickExtension
       if (LintCanvasOverlayHelper.totalsRectContains(
           filePath, ext.getEvent().x, ext.getEvent().y)) {
         ext.setPreventingDefault(true);
-        LintResultsUi.showResultsForFile(filePath);
+        // Straight to the Problems tab, never the results window: the overlay is drawn on the
+        // canvas of an open file, and an open file always has a tab to show its findings in. The
+        // window is for what has no editor — a folder, a project, a file that is not open.
+        //
+        // Nothing to show is not an error either: revealForFile does nothing when the file is
+        // clean and no tab has been opened for it, so clicking a 0/0/0 overlay is a no-op rather
+        // than an empty window.
+        PipelineProblemsTabSync.revealForFile(filePath);
       }
     } catch (Exception e) {
       log.logError("Error handling lint totals overlay click: " + e.getMessage(), e);
