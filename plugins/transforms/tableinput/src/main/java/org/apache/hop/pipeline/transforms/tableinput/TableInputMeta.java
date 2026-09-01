@@ -180,6 +180,15 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
           e);
     }
 
+    // The connection name can be a variable which isn't set at design time.  Without a connection
+    // we can't determine any fields, so report it instead of failing with an NPE further down.
+    //
+    if (databaseMeta == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "TableInputMeta.Exception.ConnectionNotFound", variables.resolve(connection)));
+    }
+
     Database db = new Database(loggingObject, variables, databaseMeta);
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
