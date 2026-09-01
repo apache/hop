@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -372,6 +373,29 @@ class TableInputMetaTest {
                     r.getType() == ICheckResult.TYPE_RESULT_OK
                         && r.getText().contains("receiving 3")
                         && r.getText().contains("3 fields")));
+  }
+
+  @Test
+  void getFieldsReportsUnresolvedConnectionVariable() {
+    // A connection name which is a variable that isn't set at design time used to fail with a
+    // NullPointerException deep inside the Database object.  See issue #8203.
+    //
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection("${connection_name}");
+    meta.setSql("SELECT * FROM t");
+
+    HopTransformException e =
+        Assertions.assertThrows(
+            HopTransformException.class,
+            () ->
+                meta.getFields(
+                    new RowMeta(),
+                    "Table input",
+                    null,
+                    null,
+                    new Variables(),
+                    new MemoryMetadataProvider()));
+    Assertions.assertTrue(e.getMessage().contains("${connection_name}"), e.getMessage());
   }
 
   private static TableInputMeta namedParameterMeta() {
