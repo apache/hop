@@ -138,6 +138,21 @@ public enum HopExtensionPoint {
   HopGuiPipelineAfterClose("Called after a pipeline is closed in the Hop GUI (PipelineMeta)"),
   HopGuiWorkflowAfterClose("Called after a workflow is closed in the Hop GUI (WorkflowMeta)"),
 
+  /**
+   * Called before Hop GUI commits files to git, so that optional plugins can inspect what is about
+   * to be committed and refuse it. Payload is a GUI extension object (see ui module) carrying the
+   * git directory, the files being committed, and a cancel flag the listener sets to stop the
+   * commit.
+   *
+   * <p>Like git's own {@code pre-commit} hook this is called for commits the user authors, and not
+   * for revert or cherry-pick, which replay content that is already in the history.
+   *
+   * <p>Refusing the commit leaves the working tree and the index as they are, again as git's hook
+   * behaves: files which were already staged stay staged.
+   */
+  HopGuiFileBeforeCommit(
+      "Called before Hop GUI commits files to git (HopGuiFileBeforeCommitExtension)"),
+
   GetFieldsExtension("Get Fields dialog"),
 
   HopEnvironmentAfterInit(

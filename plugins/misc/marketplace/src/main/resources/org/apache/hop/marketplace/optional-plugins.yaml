@@ -244,6 +244,12 @@ plugins:
     description: Import Kettle / Pentaho Data Integration metadata
     installPath: plugins/misc/import
     modulePath: plugins/misc/import
+  - artifactId: hop-misc-lint
+    name: Lint
+    category: Miscellaneous
+    description: Check pipelines, workflows and metadata against lint rules, in Hop Gui and with the hop lint command
+    installPath: plugins/misc/lint
+    modulePath: plugins/misc/lint
   - artifactId: hop-misc-mail
     name: Mail
     category: Miscellaneous

@@ -1,0 +1,319 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ==========================================================================
+# Apache Hop core lint rules
+# ==========================================================================
+# This pack is deliberately small. It ships enabled by default for every Hop
+# user, so a rule belongs here only if a violation is defensible as a problem
+# in any Hop project, regardless of house style. Anything that encodes a team
+# preference — naming schemes, size ceilings, mandatory documentation — is a
+# rule pack's job, not the platform's.
+#
+# The two tests a rule has to pass to live here:
+#
+#   1. Would Apache Hop's own sample projects pass it?
+#   2. If a user disagreed with the finding, would they be wrong?
+#
+# Rules that fail either one ship disabled, as worked examples, and are
+# switched on per project in hop-lint.yml. Sites wanting a fuller policy set
+# install a rule pack or write their own; see PLUGIN_DEVELOPMENT.md.
+# ==========================================================================
+
+pack:
+  id: hop-core
+  name: Apache Hop Core Lint Rules
+  owner: APACHE
+  priority: 100
+
+rules:
+
+  # ------------------------------------------------------------------
+  # Enabled by default. Each of these is a defect in any project.
+  # ------------------------------------------------------------------
+
+  DB-001:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: DATABASE_CONNECTION
+    targetField: password
+    condition: NO_HARDCODED
+    name: "Hardcoded Database Password"
+    description: "Database connections must take the password from a variable rather than storing it in the project"
+
+  SEC-002:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: TRANSFORM
+    targetField: password
+    condition: NO_HARDCODED
+    name: "Hardcoded Password or Secret in Transform"
+    description: "Transforms must not store passwords, tokens or API keys in the project; use a variable instead"
+    parameters:
+      fieldPatterns:
+        - "password"
+        - "pwd"
+        - "passwd"
+        - "secret"
+        - "secretKey"
+        - "credential"
+        - "credentials"
+        - "apiKey"
+        - "apikey"
+        - "token"
+        - "accessToken"
+        - "authToken"
+
+  SEC-003:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: ACTION
+    targetField: password
+    condition: NO_HARDCODED
+    name: "Hardcoded Password or Secret in Action"
+    description: "Workflow actions must not store passwords, tokens or API keys in the project; use a variable instead"
+    parameters:
+      fieldPatterns:
+        - "password"
+        - "pwd"
+        - "passwd"
+        - "secret"
+        - "secretKey"
+        - "credential"
+        - "credentials"
+        - "apiKey"
+        - "apikey"
+        - "token"
+        - "accessToken"
+        - "authToken"
+
+  TRANS-002:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: PIPELINE
+    targetField: hasOrphanedTransforms
+    condition: MUST_BE_FALSE
+    name: "Orphaned Transform"
+    description: "A transform with no incoming or outgoing hop never executes"
+
+  WORKFLOW-002:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: WORKFLOW
+    targetField: hasOrphanedActions
+    condition: MUST_BE_FALSE
+    name: "Orphaned Action"
+    description: "An action with no incoming or outgoing hop never executes"
+
+  NAMING-004:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: TRANSFORM
+    targetField: hasDefaultName
+    condition: MUST_BE_FALSE
+    name: "Default Transform Name"
+    description: "Auto-generated names such as 'Transform 1' make logs and error messages hard to trace back to the pipeline"
+
+  # ------------------------------------------------------------------
+  # Worked examples, shipped disabled.
+  #
+  # These are reasonable rules that are not universal: thresholds vary by
+  # team and the naming patterns are one convention among many. They are
+  # here so the YAML format is self-documenting — copy an id into the
+  # project's hop-lint.yml with `enabled: true` to switch one on, and
+  # override `severity` or `conditionValue` in the same place.
+  # ------------------------------------------------------------------
+
+  DOC-001:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: PIPELINE
+    targetField: description
+    condition: NOT_EMPTY
+    name: "Pipeline Description Required"
+    description: "Pipelines should carry a description explaining their purpose"
+
+  DOC-002:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: WORKFLOW
+    targetField: description
+    condition: NOT_EMPTY
+    name: "Workflow Description Required"
+    description: "Workflows should carry a description explaining their purpose"
+
+  DOC-003:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: PIPELINE
+    targetField: hasNotes
+    condition: MUST_BE_TRUE
+    name: "Pipeline Notes Required"
+    description: "Pipelines should carry at least one note on the canvas explaining what they do, the way the Hop samples do"
+
+  DOC-004:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: WORKFLOW
+    targetField: hasNotes
+    condition: MUST_BE_TRUE
+    name: "Workflow Notes Required"
+    description: "Workflows should carry at least one note on the canvas explaining what they do, the way the Hop samples do"
+
+  # Answered only by a project lint: a single file cannot know who calls it. "hop lint <file>"
+  # and the editor's lint-on-save skip these rather than guess.
+  STRUCT-004:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: PIPELINE
+    targetField: isReferenced
+    condition: MUST_BE_TRUE
+    name: "Unreferenced Pipeline"
+    description: "No workflow or pipeline in the project calls this pipeline. It may be dead code, or it may be a deliberate entry point"
+
+  STRUCT-005:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: WORKFLOW
+    targetField: isReferenced
+    condition: MUST_BE_TRUE
+    name: "Unreferenced Workflow"
+    description: "No workflow in the project calls this workflow. It may be dead code, or it may be a deliberate entry point"
+
+  STRUCT-001:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: PIPELINE
+    targetField: transformCount
+    condition: MAX_VALUE
+    conditionValue: "50"
+    name: "Maximum Transforms"
+    description: "Flags pipelines above a transform count. Adjust conditionValue to the ceiling your team uses"
+
+  STRUCT-002:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: WORKFLOW
+    targetField: actionCount
+    condition: MAX_VALUE
+    conditionValue: "30"
+    name: "Maximum Actions"
+    description: "Flags workflows above an action count. Adjust conditionValue to the ceiling your team uses"
+
+  STRUCT-003:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: PIPELINE
+    targetField: hasDisabledHops
+    condition: MUST_BE_FALSE
+    name: "Disabled Hops"
+    description: "Flags disabled hops. Teams that treat a disabled hop as work-in-progress will want this off; teams that treat it as commented-out code will want it on, as an error"
+
+  BEST-003:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: TRANSFORM
+    targetField: isDummy
+    condition: MUST_BE_FALSE
+    name: "Dummy Transform"
+    description: "Flags Dummy transforms. Legitimate as a hop target or placeholder, so this is off by default"
+
+  NAMING-001:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: PIPELINE
+    targetField: name
+    condition: MATCHES_PATTERN
+    conditionValue: "^[A-Z][A-Z0-9_]*$"
+    name: "Pipeline Naming Convention"
+    description: "Example naming rule: UPPER_SNAKE_CASE pipeline names. Replace conditionValue with your own pattern"
+
+  NAMING-002:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: WORKFLOW
+    targetField: name
+    condition: MATCHES_PATTERN
+    conditionValue: "^[A-Z][A-Z0-9_]*$"
+    name: "Workflow Naming Convention"
+    description: "Example naming rule: UPPER_SNAKE_CASE workflow names. Replace conditionValue with your own pattern"
+
+  # A worked example of a rule that checks more than one thing. allOf reports only when every
+  # clause is broken, so a SELECT * that is bounded by a row limit is left alone; anyOf would
+  # report when either was. Each clause names its own field, condition and value.
+  SQL-002:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: TRANSFORM
+    appliesTo:
+      - TableInput
+    allOf:
+      - targetField: sql
+        condition: MATCHES_PATTERN
+        conditionValue: "(?is).*\\bselect\\s+\\*.*"
+      - targetField: rowLimit
+        condition: NOT_EMPTY
+    name: "Unbounded SELECT *"
+    description: "A Table Input that selects every column and sets no row limit reads more than it needs, and breaks when the table gains a column"
+
+  PERF-003:
+    type: custom
+    enabled: false
+    severity: WARNING
+    target: TRANSFORM
+    targetField: copies
+    condition: MAX_VALUE
+    conditionValue: "10"
+    name: "High Transform Copies"
+    description: "Flags transforms running many copies, which can indicate a workaround for a slow step"
+
+# ==========================================================================
+# Removed from this pack
+# ==========================================================================
+# DOC-003       Pipeline name not empty. Hop derives the name from the
+#               filename, so it cannot meaningfully be empty.
+#
+# STRUCT-005    Pipelines with fewer than 2 transforms. A single-transform
+#               pipeline is a normal thing to write.
+#
+# WORKFLOW-001  Workflows with fewer than 1 action. Native verify already
+#               reports an empty workflow.
+#
+# PERF-001      "Blocking transform". The built-in list was wrong: WebService,
+#               HTTPClient, Mail, MailInput and StreamLookup do not buffer the
+#               stream, and SortRows spills to disk rather than holding it all
+#               in memory. Needs per-transform accuracy before it is worth
+#               shipping, otherwise it trains users to ignore findings.
+# ==========================================================================

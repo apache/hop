@@ -20,6 +20,9 @@ REM
 setlocal EnableDelayedExpansion
 
 REM switch to script directory
+REM The JVM runs from the Hop installation, so user.dir is never where the user typed the
+REM command. Remember the directory they were in, for subcommands which take a path from them.
+set _ORIGINDIR=%CD%
 cd /D %~dp0
 
 REM Optional user-level env written by `hop setup` (does not override already-set variables)
@@ -107,5 +110,5 @@ set _cmdline=%*
 
 :Run
 
-%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %_HOP_OPTIONS% org.apache.hop.hop.Hop %_cmdline%%
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% -Dhop.origin.dir="%_ORIGINDIR%" %_HOP_OPTIONS% org.apache.hop.hop.Hop %_cmdline%%
 
