@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.ReadContext;
@@ -323,12 +324,6 @@ public class FastJsonReader implements IJsonReader {
     return results;
   }
 
-  /**
-   * JsonPath never evaluates a function path (length(), sum(), keys(), ...) while
-   * ALWAYS_RETURN_LIST is set: combined with SUPPRESS_EXCEPTIONS it silently yields null. Such a
-   * path is re-evaluated here without that option, and the scalar it produces is exposed as a
-   * single row.
-   */
   private List<Object> readFunctionPath(JsonPath path) throws JsonInputException {
     ReadContext context = getReadContext();
     EnumSet<Option> options = EnumSet.noneOf(Option.class);
@@ -337,7 +332,20 @@ public class FastJsonReader implements IJsonReader {
     Configuration functionConfiguration =
         context.configuration().setOptions(options.toArray(new Option[0]));
     Object document = context.json();
-    Object value = path.read(document, functionConfiguration);
+    Object value;
+    try {
+      value = path.read(document, functionConfiguration);
+    } catch (JsonPathException e) {
+      // A function may still throw where SUPPRESS_EXCEPTIONS cannot help, e.g. an aggregation over
+      // an empty array. Honour the option and let the missing path handling decide what to do.
+      if (!options.contains(Option.SUPPRESS_EXCEPTIONS)) {
+        throw e;
+      }
+      if (log.isDebug()) {
+        log.logDebug(e.getMessage());
+      }
+      value = null;
+    }
     if (value instanceof List<?> || value instanceof ArrayNode) {
       return normalizeJsonPathResult(value);
     }
