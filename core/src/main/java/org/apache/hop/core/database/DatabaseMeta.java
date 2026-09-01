@@ -1891,7 +1891,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   /**
    * @return true if the database JDBC driver supports getBlob on the resultset. If not we must use
    *     getBytes() to get the data.
+   * @deprecated See {@link IDatabase#isSupportsGetBlob()}.
    */
+  @Deprecated(since = "2.20")
   public boolean supportsGetBlob() {
     return iDatabase.isSupportsGetBlob();
   }

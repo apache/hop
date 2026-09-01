@@ -940,9 +940,4 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   public boolean isSupportsBatchUpdates() {
     return false;
   }
-
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
 }

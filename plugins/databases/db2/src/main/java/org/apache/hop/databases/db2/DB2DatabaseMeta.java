@@ -749,15 +749,6 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * @return false because the DB2 JDBC driver doesn't support getBlob on the resultset. We must use
-   *     getBytes() to get the data.
-   */
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
-
-  /**
    * @return true if the database supports sequences
    */
   @Override

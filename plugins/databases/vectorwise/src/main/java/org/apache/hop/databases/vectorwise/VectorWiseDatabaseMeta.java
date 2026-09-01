@@ -191,9 +191,4 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
   public String getTruncateTableStatement(String tableName) {
     return "CALL VECTORWISE( COMBINE '" + tableName + " - " + tableName + "' )";
   }
-
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
 }

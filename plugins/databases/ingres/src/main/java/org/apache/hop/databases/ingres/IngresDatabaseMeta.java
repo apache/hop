@@ -240,9 +240,4 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public String getTruncateTableStatement(String tableName) {
     return "DELETE FROM " + tableName;
   }
-
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
 }

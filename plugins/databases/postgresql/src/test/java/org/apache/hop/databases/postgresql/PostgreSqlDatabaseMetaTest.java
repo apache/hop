@@ -703,7 +703,6 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getExtraOptionsHelpText());
     assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isUseSafePoints());
     assertTrue(nativeMeta.isSupportsBooleanDataType());
     assertTrue(nativeMeta.isSupportsTimestampDataType());
