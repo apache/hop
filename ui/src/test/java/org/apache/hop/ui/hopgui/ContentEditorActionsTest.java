@@ -43,6 +43,20 @@ class ContentEditorActionsTest {
     assertEquals("ui/images/find-replace.svg", replace.image());
   }
 
+  @Test
+  void databaseSqlRunIsOnTheContentEditorToolbar() throws Exception {
+    Method method =
+        org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab.class.getMethod(
+            "runFromEditor", IContentEditorWidget.class);
+    GuiToolbarElement element = method.getAnnotation(GuiToolbarElement.class);
+    assertNotNull(element);
+    assertEquals(IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID, element.root());
+    assertEquals(
+        org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab.TOOLBAR_ITEM_RUN,
+        element.id());
+    assertEquals("ui/images/run.svg", element.image());
+  }
+
   private static GuiToolbarElement toolbarElement(String methodName) throws Exception {
     Method method = ContentEditorActions.class.getMethod(methodName, IContentEditorWidget.class);
     GuiToolbarElement element = method.getAnnotation(GuiToolbarElement.class);

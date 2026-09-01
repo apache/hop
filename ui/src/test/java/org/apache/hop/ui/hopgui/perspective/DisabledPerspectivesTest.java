@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.junit.jupiter.api.Test;
@@ -75,6 +76,22 @@ class DisabledPerspectivesTest {
 
     assertFalse(perspective.isActive());
     assertDoesNotThrow(perspective::activate);
+  }
+
+  @Test
+  void aDisabledDatabasePerspectiveStaysInert() {
+    DatabasePerspective perspective = new DatabasePerspective();
+
+    assertFalse(perspective.isActive());
+    assertDoesNotThrow(
+        () -> {
+          perspective.activate();
+          perspective.clearSearchFilters();
+          perspective.openSqlFile("x.sql", null, "select 1", false);
+        });
+    assertTrue(perspective.getItems().isEmpty());
+    assertTrue(perspective.connectionNames().isEmpty());
+    assertFalse(perspective.remove(null));
   }
 
   @Test

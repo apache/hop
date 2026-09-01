@@ -1,0 +1,65 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+:description: Browse relational database connections, run SQL and inspect tables from the Database perspective.
+
+= Database perspective
+
+Icon: image:icons/database.svg[width="24px"]
+
+Keyboard shortcut: `CTRL-SHIFT-D` (macOS: `Cmd-Shift-D`)
+
+== Description
+
+The Database perspective is a non-modal alternative to the SQL editor dialog. Use it to browse the relational connections in the current project, run SQL, preview tables and inspect column and index metadata without blocking the rest of Hop Gui.
+
+It is *not* a full database IDE. There is no visual query builder, autocomplete, or grid editing.
+
+== Connection tree
+
+The left-hand tree lists every relational (`DatabaseMeta`) connection in the project. A filter field above the tree matches connection, schema and table names.
+
+Toolbar:
+
+* *Connect* — load schemas and their tables (background; does not freeze Hop Gui)
+* *Disconnect* — drop the loaded schema list
+* *Refresh* — reload the selected connected connection, or the connection list
+* *Open SQL editor* — new SQL tab for the selected connection (`SELECT * FROM table` when a table is selected)
+* *Generate DDL* — `CREATE TABLE` for the selected table, opened in a SQL tab
+* *Preview 1000* — run `SELECT` with a dialect-aware row limit of 1000
+* *Show* — table information tab (database, schema, table, columns, indexes)
+
+Double-click a disconnected connection to connect. Double-click a table to preview it.
+
+== SQL editor
+
+Each SQL tab is bound to one connection.
+
+* *Run* on the SQL editor toolbar (`Ctrl+Enter` / `Cmd+Enter`) executes the statement around the caret.
+* If you have a selection, that selection is executed (all statements in it).
+* If you do not, the statement is the blank-line-delimited block around the caret, then split on `;` as usual.
+* Results appear in a sash under the editor (one tab per query, plus a messages tab). Close hides the results panel; the next run shows it again.
+* Queries are capped at 1000 rows. Statement timeout follows `'${HOP_QUERY_PREVIEW_TIMEOUT}'` (seconds; `0` is the driver default).
+
+Long-running work (connect, listing, SQL, DDL, table info) is listed in the operations panel at the bottom of the right-hand side. Select a running row and *Kill* to cancel it (`Statement.cancel`).
+
+Open and save `.sql` files with the normal File menu. Explorer `.sql` files stay in the File explorer; use the database icon on the content-editor toolbar to open the buffer in this perspective (you pick the connection).
+
+== See also
+
+* xref:hop-gui/perspectives.adoc[Perspectives]
+* xref:metadata-types/rdbms-connection.adoc[Relational database connections]
