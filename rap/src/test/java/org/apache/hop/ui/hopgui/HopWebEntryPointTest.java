@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -97,6 +98,35 @@ class HopWebEntryPointTest {
             new String[] {"CTRL+S", "CTRL+C", "CTRL+S"});
 
     assertEquals(cancelledShortcuts.length, Arrays.stream(cancelledShortcuts).distinct().count());
+  }
+
+  @Test
+  void refusesBareLetterShortcuts() {
+    // RAP cancels the browser's handling of every key it is told about, so a bare "z" - the
+    // pipeline canvas shortcut that opens a referenced object - took the letter z away from every
+    // text field in Hop Web.
+    KeyboardShortcut shortcut = mock(KeyboardShortcut.class);
+    when(shortcut.getKeyCode()).thenReturn((int) 'z');
+
+    assertNull(new HopWebEntryPoint().convertToRapFormat(shortcut));
+  }
+
+  @Test
+  void stillMapsTheSameLetterWithAModifier() {
+    KeyboardShortcut shortcut = mock(KeyboardShortcut.class);
+    when(shortcut.getKeyCode()).thenReturn((int) 'z');
+    when(shortcut.isControl()).thenReturn(true);
+
+    assertEquals("CTRL+Z", new HopWebEntryPoint().convertToRapFormat(shortcut));
+  }
+
+  @Test
+  void keepsUnmodifiedSpecialKeys() {
+    // Special keys type nothing, so cancelling them costs the browser nothing.
+    KeyboardShortcut shortcut = mock(KeyboardShortcut.class);
+    when(shortcut.getKeyCode()).thenReturn(SWT.ARROW_LEFT);
+
+    assertEquals("ARROW_LEFT", new HopWebEntryPoint().convertToRapFormat(shortcut));
   }
 
   @Test

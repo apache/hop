@@ -177,6 +177,20 @@ import org.eclipse.swt.widgets.ToolItem;
 @Setter
 public class HopGui
     implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
+
+  /**
+   * What a perspective's sidebar button is called in the browser, plus the perspective's plugin id.
+   * Switching perspective is the first thing any Hop Web test has to do, and the buttons are icons
+   * with no text to go by.
+   */
+  public static final String PERSPECTIVE_TEST_ID_PREFIX = "perspective-";
+
+  /**
+   * What a perspective's own content area is called in the browser. Exactly one is visible at a
+   * time, so it says which perspective is showing rather than which button was pressed.
+   */
+  public static final String PERSPECTIVE_CONTENT_TEST_ID_PREFIX = "perspective-content-";
+
   private static final Class<?> PKG = HopGui.class;
 
   public static final String TEXT_EDITOR_FOCUS_DATA = HopGui.class.getName() + ".textEditorFocus";
@@ -1031,6 +1045,9 @@ public class HopGui
         imageLabel.setToolTipText(tooltip);
         imageLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
         SvgLabelFacade.setData(perspective.getId() + "-sidebar", imageLabel, imagePath, imageSize);
+        // The composite is what a click has to land on; the image only draws the icon.
+        TestIdFacade.set(comp, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId());
+        TestIdFacade.set(imageLabel, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId() + "-icon");
 
         // Center the label in the composite
         GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
@@ -1038,6 +1055,7 @@ public class HopGui
       } else {
         Canvas canvas = new Canvas(parent, SWT.NONE);
         composite = canvas;
+        TestIdFacade.set(canvas, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId());
         canvas.setToolTipText(tooltip);
         canvas.setBackground(normalBg);
         imageLabel = null;
@@ -2445,6 +2463,10 @@ public class HopGui
     //
     StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
     layout.topControl = perspective.getControl();
+    // Only the perspective on top is visible, so naming every perspective's own control is what
+    // tells a browser which perspective is showing - the sidebar buttons all look alike.
+    TestIdFacade.set(
+        perspective.getControl(), PERSPECTIVE_CONTENT_TEST_ID_PREFIX + perspective.getId());
     mainPerspectivesComposite.layout();
 
     // Notify the perspective that it has been activated.
@@ -2537,6 +2559,7 @@ public class HopGui
         imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
         String svgId = "sidebar-bottom-" + d.getId();
         SvgLabelFacade.setData(svgId, imgLabel, d.getImagePath(), d.getImageSize());
+        TestIdFacade.set(comp, svgId);
 
         GridData compGd = new GridData();
         compGd.widthHint = buttonSize;
@@ -2603,6 +2626,7 @@ public class HopGui
         canvas.setToolTipText(d.getTooltip());
         canvas.setBackground(normalBg);
         canvas.setData("descriptor", d);
+        TestIdFacade.set(canvas, "sidebar-bottom-" + d.getId());
         canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
         canvas.setData("hovered", false);
 

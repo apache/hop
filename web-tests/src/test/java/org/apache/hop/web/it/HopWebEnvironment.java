@@ -25,11 +25,15 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import org.apache.hop.web.it.pages.HopGuiPage;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
@@ -89,6 +93,9 @@ public final class HopWebEnvironment {
 
   private final String uiUrl;
   private final WebDriver driver;
+  private final BrowserMode browserMode;
+  private final Network network;
+  private final List<WebDriver> extraBrowsers = new ArrayList<>();
 
   /**
    * Everything Hop Web has printed, streamed as it runs. Null when the tests drive a Hop Web that
@@ -115,6 +122,8 @@ public final class HopWebEnvironment {
     }
 
     this.uiUrl = urlForBrowser;
+    this.browserMode = browserMode;
+    this.network = network;
     this.driver = browserMode == BrowserMode.CONTAINER ? containerBrowser(network) : localBrowser();
   }
 
@@ -134,11 +143,43 @@ public final class HopWebEnvironment {
   }
 
   private void close() {
+    extraBrowsers.forEach(HopWebEnvironment::quietly);
+    quietly(driver);
+  }
+
+  private static void quietly(WebDriver browser) {
     try {
-      driver.quit();
+      browser.quit();
     } catch (RuntimeException e) {
       // Nothing useful left to do while the JVM is going down.
     }
+  }
+
+  /**
+   * A second browser, looking at the same Hop Web through a session of its own.
+   *
+   * <p>A second window of the same browser would not do: it carries the same session cookie, so Hop
+   * Web would hand it the GUI the first window is already using and nothing about session isolation
+   * would be under test. A separate browser gets a separate RAP session, which is what the state in
+   * Hop Web is scoped to (issue #8047).
+   *
+   * <p>The caller closes it with {@link #closeBrowser}; whatever is left over is closed with the
+   * JVM.
+   */
+  public WebDriver openAnotherBrowser() {
+    WebDriver browser =
+        browserMode == BrowserMode.CONTAINER ? containerBrowser(network) : localBrowser();
+    extraBrowsers.add(browser);
+    browser.get(uiUrl);
+    HopGuiPage.waitFor(browser, Duration.ofSeconds(startupTimeoutSeconds()))
+        .until(ExpectedConditions.presenceOfElementLocated(HopGuiPage.NEW_FILE));
+    return browser;
+  }
+
+  /** Closes a browser opened with {@link #openAnotherBrowser}. */
+  public void closeBrowser(WebDriver browser) {
+    extraBrowsers.remove(browser);
+    quietly(browser);
   }
 
   public WebDriver getDriver() {
@@ -180,6 +221,21 @@ public final class HopWebEnvironment {
         .until(ExpectedConditions.presenceOfElementLocated(HopGuiPage.NEW_FILE));
     System.out.println("Hop GUI ready in " + (System.currentTimeMillis() - start) + " ms");
     uiOpened = true;
+  }
+
+  /**
+   * The samples project, as the Hop Web under test sees it.
+   *
+   * <p>A path rather than a project name: switching the active project changes what every later
+   * test in the session sees, and a file dialog takes an absolute path without any of that.
+   */
+  public static String samplesFolder() {
+    return property("hopweb.samples", "/usr/local/tomcat/webapps/ROOT/config/projects/samples");
+  }
+
+  /** A folder the Hop Web under test may write test files into. */
+  public static String scratchFolder() {
+    return property("hopweb.scratch", "/tmp");
   }
 
   /** The Hop Web URL as the browser has to address it, which is not always how we address it. */
@@ -310,6 +366,10 @@ public final class HopWebEnvironment {
     options.addArguments("--disable-dev-shm-usage");
     options.addArguments("--window-size=1600,1000");
     options.addArguments("--remote-allow-origins=*");
+    // Without this the browser keeps its console to itself and BrowserConsole reads an empty log.
+    LoggingPreferences logging = new LoggingPreferences();
+    logging.enable(LogType.BROWSER, Level.WARNING);
+    options.setCapability("goog:loggingPrefs", logging);
     return options;
   }
 

@@ -53,6 +53,55 @@ class ServerLogTest {
     assertTrue(crashes.get(0).contains("CheckSumDialog.setComboBoxes"), crashes.get(0));
   }
 
+  /** Verbatim from Hop Web painting a graph with an image another session had disposed. */
+  private static final String DISPOSED_IMAGE_CRASH =
+      """
+      SEVERE [qtp-1] org.eclipse.rap.rwt.internal.lifecycle.UIThread java.lang.IllegalArgumentException: Argument not valid
+      \tat org.eclipse.swt.SWT.error(SWT.java:4527)
+      \tat org.eclipse.swt.graphics.GC.drawImage(GC.java:1234)
+      \tat org.apache.hop.ui.hopgui.shared.SwtGc.drawImage(SwtGc.java:212)
+      \tat org.eclipse.rap.rwt.internal.lifecycle.UIThread.run(UIThread.java:104)
+      """;
+
+  @Test
+  @DisplayName("a failure Hop caught and logged is a crash too")
+  void reportsLoggedFailures() {
+    List<String> crashes = ServerLog.crashes(DISPOSED_IMAGE_CRASH);
+
+    assertEquals(1, crashes.size(), () -> "expected one crash, got " + crashes);
+    assertTrue(crashes.get(0).contains("Argument not valid"), crashes.get(0));
+    assertTrue(crashes.get(0).contains("SwtGc.drawImage"), crashes.get(0));
+  }
+
+  @Test
+  @DisplayName("a widget used after its session went away is a crash")
+  void reportsDisposedWidgets() {
+    String log =
+        "ERROR: org.eclipse.swt.SWTException: Widget is disposed\n"
+            + "\tat org.apache.hop.ui.hopgui.HopGui.handleFileCapabilities(HopGui.java:900)\n";
+
+    assertEquals(1, ServerLog.crashes(log).size());
+  }
+
+  @Test
+  @DisplayName("the same failure logged over and over is reported once")
+  void collapsesRepeats() {
+    // A broken repaint logs on every paint; a hundred identical lines say no more than one.
+    assertEquals(1, ServerLog.crashes(DISPOSED_IMAGE_CRASH.repeat(20)).size());
+  }
+
+  @Test
+  @DisplayName("the cause of a reported failure is not counted a second time")
+  void ignoresCausedBy() {
+    String log =
+        "ERROR org.eclipse.swt.SWTException: Invalid thread access\n"
+            + "\tat org.apache.hop.ui.core.gui.GuiResource.getImage(GuiResource.java:1)\n"
+            + "Caused by: java.lang.IllegalStateException: Invalid thread access\n"
+            + "\tat org.eclipse.rap.rwt.RWT.checkContext(RWT.java:765)\n";
+
+    assertEquals(1, ServerLog.crashes(log).size());
+  }
+
   @Test
   @DisplayName("handled problems Hop Web logs all the time are not failures")
   void ignoresHandledProblems() {
@@ -63,6 +112,8 @@ class ServerLogTest {
         java.lang.IllegalArgumentException: can't parse argument number: ...
         \tat java.base/java.text.MessageFormat.makeFormat(MessageFormat.java:1449)
         org.w3c.css.sac.CSSException: Failed to read property box-shadow
+        INFO Disposing the image cache of a session that timed out
+        \tat org.apache.hop.pipeline.Pipeline.run: Invalid thread access recovered
         """;
 
     assertEquals(List.of(), ServerLog.crashes(noise));
@@ -76,8 +127,8 @@ class ServerLogTest {
   }
 
   @Test
-  @DisplayName("several crashes are reported separately")
+  @DisplayName("different crashes are reported separately")
   void reportsEachCrash() {
-    assertEquals(2, ServerLog.crashes(CHECKSUM_CRASH + CHECKSUM_CRASH).size());
+    assertEquals(2, ServerLog.crashes(CHECKSUM_CRASH + DISPOSED_IMAGE_CRASH).size());
   }
 }

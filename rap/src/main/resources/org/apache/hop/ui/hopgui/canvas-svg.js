@@ -529,6 +529,72 @@
             this._fetchAndRender(0);
         },
 
+        /**
+         * Publishes the graph the server just drew on the overlay element, so anything outside the
+         * renderer can read what is on the canvas without parsing the SVG.
+         *
+         * The SVG is a picture: its <text> nodes are whatever the icons happen to draw, so an icon
+         * that spells "AWSSNS" or "csv" looks exactly like a transform name to a reader. The area
+         * owners are the model behind that picture - the same list the renderer hit-tests clicks
+         * against - so a UI test can ask for "the transform called X" and get the rectangle the
+         * server put it in rather than guessing from glyphs.
+         *
+         * The model is a live accessor rather than a snapshot: magnification and offset change on
+         * the client between server paints, so screen coordinates have to be computed when they
+         * are asked for.
+         */
+        _publishGraphModel: function () {
+            if (!this._overlay) {
+                return;
+            }
+            var self = this;
+            this._overlay.setAttribute("data-hop-canvas", "graph");
+            this._overlay.setAttribute("data-hop-revision", String(this._revision || 0));
+            this._overlay.hopGraph = {
+                revision: this._revision || 0,
+                areas: this._areas || [],
+                props: function () {
+                    return self._getCanvasProps();
+                },
+                /** Every transform/action on the graph, with where it is drawn right now. */
+                nodes: function () {
+                    var props = self._getCanvasProps();
+                    if (props.magnification == null && self._props
+                        && self._props.magnification != null) {
+                        props = self._props;
+                    }
+                    var overlayRect = self._overlay.getBoundingClientRect();
+                    var nodes = [];
+                    (self._areas || []).forEach(function (area) {
+                        if (area.areaType !== "TRANSFORM_ICON" && area.areaType !== "ACTION_ICON") {
+                            return;
+                        }
+                        var name = iconOwnerName(area);
+                        if (name == null) {
+                            return;
+                        }
+                        var rect = graphRectToScreen(
+                            area.x, area.y, area.width, area.height, props);
+                        nodes.push({
+                            kind: area.areaType === "ACTION_ICON" ? "action" : "transform",
+                            name: name,
+                            // Relative to the overlay, which covers exactly the canvas.
+                            x: rect.left,
+                            y: rect.top,
+                            width: rect.width,
+                            height: rect.height,
+                            centerX: rect.left + rect.width / 2,
+                            centerY: rect.top + rect.height / 2,
+                            // Relative to the viewport, for a driver that clicks in page space.
+                            viewportX: overlayRect.left + rect.left + rect.width / 2,
+                            viewportY: overlayRect.top + rect.top + rect.height / 2
+                        });
+                    });
+                    return nodes;
+                }
+            };
+        },
+
         _syncOverlayLayout: function (canvas) {
             if (!this._overlay || !canvas) {
                 return;
@@ -597,6 +663,7 @@
                     self._revision = data.revision;
                     self._areas = data.areas || [];
                     self._props = data.props || {};
+                    self._publishGraphModel();
                     if (data.svg && self._svgHost) {
                         self._svgHost.innerHTML = data.svg;
                         var svg = self._svgHost.querySelector("svg");

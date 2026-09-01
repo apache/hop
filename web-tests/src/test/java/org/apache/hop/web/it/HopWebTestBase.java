@@ -60,25 +60,58 @@ public abstract class HopWebTestBase {
   private int serverLogMark;
 
   @BeforeEach
-  void markServerLog() {
+  void markLogs() {
     serverLogMark = HopWebEnvironment.get().serverLog().length();
+    BrowserConsole.drain(driver);
   }
 
   /**
-   * Fails the test if Hop Web crashed while it ran, even though the browser looked fine.
+   * Fails the test if either side of Hop Web reported a failure while it ran, even though the page
+   * looked fine.
    *
-   * <p>Plenty goes wrong server side without reaching the page: a dialog can open perfectly while
-   * the thread it started to populate its widgets dies. Asserting only on what is visible declares
-   * those green.
+   * <p>Plenty goes wrong without reaching what a test asserts on: a dialog can open perfectly while
+   * the thread it started to populate its widgets dies, and the browser can fail to apply what the
+   * server sent without the server ever hearing about it. Asserting only on what is visible
+   * declares both green.
    */
   @AfterEach
-  void failOnServerCrashes() {
+  void failOnCrashes() {
+    List<String> crashes = serverCrashes();
+    List<String> browserErrors = BrowserConsole.errors(driver);
+    String errorDialog = openErrorDialog();
+    assertTrue(
+        crashes.isEmpty() && browserErrors.isEmpty() && errorDialog == null,
+        () ->
+            "Hop Web reported failures during this test:"
+                + (crashes.isEmpty() ? "" : "\n  server: " + String.join("\n          ", crashes))
+                + (browserErrors.isEmpty()
+                    ? ""
+                    : "\n  browser: " + String.join("\n           ", browserErrors))
+                + (errorDialog == null ? "" : "\n  dialog: " + errorDialog));
+  }
+
+  /**
+   * What Hop is reporting in an error dialog, if it put one on screen.
+   *
+   * <p>The third place a failure can surface, and the one neither log sees: Hop catches the
+   * exception, tells the user about it in a dialog and writes nothing anywhere. Without this a test
+   * only notices when the modal dialog blocks whatever it does next - which is usually the next
+   * test, so the failure gets reported against innocent code.
+   */
+  private String openErrorDialog() {
+    if (!hopGui.openDialogTitles().contains(HopGuiPage.ERROR_DIALOG)) {
+      return null;
+    }
+    String text = hopGui.topDialogText().replace("\n", " ");
+    return text.length() > 500 ? text.substring(0, 500) + "..." : text;
+  }
+
+  private List<String> serverCrashes() {
     String log = HopWebEnvironment.get().serverLog();
     if (log.length() <= serverLogMark) {
-      return;
+      return List.of();
     }
-    List<String> crashes = ServerLog.crashes(log.substring(serverLogMark));
-    assertTrue(crashes.isEmpty(), () -> "Hop Web crashed during this test: " + crashes);
+    return ServerLog.crashes(log.substring(serverLogMark));
   }
 
   @AfterEach
