@@ -47,7 +47,8 @@ public final class WorkflowProblemsTabSync {
     List<LintResult> results = LintResultsManager.getInstance().getResultsForFile(filePath);
     HopGuiAbstractGraph graph = LintEditorGraphHelper.findOpenGraphForFilename(filePath);
     if (graph instanceof HopGuiWorkflowGraph workflowGraph) {
-      refreshGraph(workflowGraph, results);
+      // Passive: fill the tab if it exists, never create or select it.
+      refreshGraph(workflowGraph, results, false);
       return true;
     }
     return false;
@@ -75,7 +76,8 @@ public final class WorkflowProblemsTabSync {
       // click.
       return false;
     }
-    refreshGraph(workflowGraph, results);
+    // The explicit path: create the tab if it is not there, then bring it to the front.
+    refreshGraph(workflowGraph, results, true);
     workflowGraph
         .getDisplay()
         .asyncExec(
@@ -102,6 +104,23 @@ public final class WorkflowProblemsTabSync {
   }
 
   public static void refreshGraph(HopGuiWorkflowGraph graph, List<LintResult> results) {
+    refreshGraph(graph, results, false);
+  }
+
+  /**
+   * Put the findings into the editor's Problems tab.
+   *
+   * <p>A background sync — opening a file, saving it, linting on edit — only fills a tab which is
+   * already there. Creating one would put it in the tab folder ahead of Log and Metrics, which
+   * changes which tab {@code addAllTabs()} selects when the pipeline runs, and would open a panel
+   * the user never asked for. Only an explicit lint creates the tab, and only that selects it.
+   *
+   * @param graph the editor to update
+   * @param results the findings for its file
+   * @param createTab whether the Problems tab may be created when it does not exist yet
+   */
+  public static void refreshGraph(
+      HopGuiWorkflowGraph graph, List<LintResult> results, boolean createTab) {
     if (graph == null || graph.isDisposed()) {
       return;
     }
@@ -123,21 +142,10 @@ public final class WorkflowProblemsTabSync {
             boolean tabExists =
                 delegate.getWorkflowCheckTab() != null
                     && !delegate.getWorkflowCheckTab().isDisposed();
-            if (results.isEmpty() && !tabExists) {
+            if (!tabExists && (results.isEmpty() || !createTab)) {
               return;
             }
             delegate.addWorkflowCheck();
-
-            // Creating the tab does not select it, and a CTabFolder with no selection draws an
-            // empty client area: the findings were going into a tab nobody could see. Select it
-            // only when nothing else is, so we never pull the user off the execution results.
-            if (graph.extraViewTabFolder != null
-                && !graph.extraViewTabFolder.isDisposed()
-                && graph.extraViewTabFolder.getSelectionIndex() == -1
-                && delegate.getWorkflowCheckTab() != null
-                && !delegate.getWorkflowCheckTab().isDisposed()) {
-              graph.extraViewTabFolder.setSelection(delegate.getWorkflowCheckTab());
-            }
 
             WorkflowMeta workflowMeta = graph.getWorkflowMeta();
             List<ICheckResult> remarks =

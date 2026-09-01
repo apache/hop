@@ -49,6 +49,22 @@ public final class LintResultsUi {
    * checks, rather than in a window of their own. The window is what is left for the cases the
    * Problems tab cannot serve: a whole project or folder, and files which are not open.
    */
+  /**
+   * Show the findings for everything under a folder, in the results window.
+   *
+   * <p>A folder has no editor to put its findings in, so unlike a single file this always opens the
+   * window rather than trying the Problems tab first.
+   *
+   * @param folderPath the folder that was linted
+   */
+  public static void showResultsForFolder(String folderPath) {
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui == null || hopGui.getShell() == null) {
+      return;
+    }
+    openResultsWindow(hopGui, panel -> panel.setFolderFilter(folderPath));
+  }
+
   public static void showResultsForFile(String filePath) {
     HopGui hopGui = HopGui.getInstance();
     if (hopGui == null || hopGui.getShell() == null) {
@@ -62,7 +78,12 @@ public final class LintResultsUi {
     }
 
     final String normalizedFilter = filePath != null ? LintPathUtils.normalizePath(filePath) : null;
+    openResultsWindow(hopGui, panel -> panel.setFileFilter(normalizedFilter));
+  }
 
+  /** Open (or raise) the shared results window and apply a filter to it. */
+  private static void openResultsWindow(
+      HopGui hopGui, java.util.function.Consumer<LintResultsPanel> applyFilter) {
     Runnable open =
         () -> {
           Shell parent = hopGui.getShell();
@@ -80,7 +101,7 @@ public final class LintResultsUi {
           }
 
           if (resultsPanel != null && !resultsPanel.isDisposed()) {
-            resultsPanel.setFileFilter(normalizedFilter);
+            applyFilter.accept(resultsPanel);
           }
 
           centerOverParent(resultsShell, parent);

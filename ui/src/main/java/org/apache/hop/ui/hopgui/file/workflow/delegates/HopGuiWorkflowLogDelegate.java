@@ -78,7 +78,11 @@ public class HopGuiWorkflowLogDelegate {
   private HopGui hopGui;
   private HopGuiWorkflowGraph workflowGraph;
 
-  private CTabItem workflowLogTab;
+  /**
+   * Exposed, as the pipeline log delegate already exposes its own, so a plugin can bring the
+   * logging tab to the front.
+   */
+  @Getter private CTabItem workflowLogTab;
 
   private TextComposite workflowLogText;
   private TextZoom textZoom;

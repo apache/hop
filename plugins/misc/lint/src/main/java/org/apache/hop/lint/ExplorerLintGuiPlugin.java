@@ -552,6 +552,10 @@ public class ExplorerLintGuiPlugin {
                           progressDialog.close();
                           refreshExplorerIcons();
                           LintResultsUi.logSummary(results, new File(folderPath).getName());
+                          // A folder has no editor to put findings in, so this is one of the cases
+                          // the results window exists for. Without this the run finished with
+                          // nothing to show for it but a line in the log.
+                          LintResultsUi.showResultsForFolder(folderPath);
                         });
 
               } catch (Exception e) {

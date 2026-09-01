@@ -16,6 +16,7 @@
  */
 package org.apache.hop.lint;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.logging.ILogChannel;
@@ -50,6 +51,7 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   private Text detailsText;
   private Label statusLabel;
   private String fileFilter;
+  private String folderFilter;
 
   public LintResultsPanel(Composite parent, int style) {
     super(parent, style);
@@ -63,6 +65,22 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
 
   public void setFileFilter(String filePath) {
     this.fileFilter = filePath != null ? LintPathUtils.normalizePath(filePath) : null;
+    this.folderFilter = null;
+    refreshResults();
+    updateShellTitle();
+  }
+
+  /**
+   * Show the findings for everything under a folder.
+   *
+   * <p>Distinct from the file filter, which looks a single file up by path: a folder matches every
+   * result beneath it, which is what a "lint this folder" run wants to show.
+   *
+   * @param folderPath the folder that was linted
+   */
+  public void setFolderFilter(String folderPath) {
+    this.folderFilter = folderPath != null ? LintPathUtils.normalizePath(folderPath) : null;
+    this.fileFilter = null;
     refreshResults();
     updateShellTitle();
   }
@@ -70,6 +88,12 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   private void updateShellTitle() {
     Shell shell = getShell();
     if (shell == null || shell.isDisposed()) {
+      return;
+    }
+    if (folderFilter != null) {
+      shell.setText(
+          BaseMessages.getString(
+              PKG, "LintResultsPanel.Shell.TitleForFolder", new File(folderFilter).getName()));
       return;
     }
     if (fileFilter != null) {
@@ -274,6 +298,16 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   private List<LintResult> getDisplayedResults() {
     if (fileFilter != null) {
       return resultsManager.getResultsForFile(fileFilter);
+    }
+    if (folderFilter != null) {
+      String prefix = folderFilter.endsWith("/") ? folderFilter : folderFilter + "/";
+      return resultsManager.getAllResults().stream()
+          .filter(
+              result -> {
+                String file = LintPathUtils.normalizePath(result.getFileName());
+                return file != null && file.startsWith(prefix);
+              })
+          .toList();
     }
     return resultsManager.getAllResults();
   }

@@ -35,8 +35,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lint.registry.ProjectLintYamlExporter;
 import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
 /**
@@ -46,7 +51,7 @@ import picocli.CommandLine;
  */
 @ConfigPlugin(id = "linter-config", description = "Configure linter rules and settings")
 @GuiPlugin(description = "Linter Configuration GUI")
-public class LinterConfigPlugin implements IConfigOptions {
+public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -72,9 +77,7 @@ public class LinterConfigPlugin implements IConfigOptions {
    * of these options inert, and they did not survive a restart either.
    */
   public static LinterConfigPlugin getInstance() {
-    LinterConfigPlugin config = new LinterConfigPlugin();
-    config.loadFromHopConfig();
-    return config;
+    return new LinterConfigPlugin();
   }
 
   /** Populate this instance from the persisted Hop configuration. */
@@ -95,6 +98,62 @@ public class LinterConfigPlugin implements IConfigOptions {
       // means the field defaults stand.
       log.logDetailed("Using default linter settings: " + e.getMessage());
     }
+  }
+
+  @Override
+  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+    // Nothing to do: the widgets are filled from this instance's fields, which the constructor
+    // has already loaded from hop-config.json.
+  }
+
+  @Override
+  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+    // Nothing to do.
+  }
+
+  @Override
+  public void widgetModified(
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    persistContents(compositeWidgets);
+  }
+
+  /**
+   * Write what the user chose back into hop-config.json.
+   *
+   * <p>Without this the configuration perspective changed nothing: it fills the widgets from this
+   * instance and then relies on this listener to save them. Every linter option was inert, and
+   * reverted the moment the dialog closed.
+   *
+   * @param compositeWidgets the widgets holding the user's choices
+   */
+  @Override
+  public void persistContents(GuiCompositeWidgets compositeWidgets) {
+    for (String widgetId : compositeWidgets.getWidgetsMap().keySet()) {
+      Control control = compositeWidgets.getWidgetsMap().get(widgetId);
+      switch (widgetId) {
+        case "linter-enabled" -> linterEnabled = ((Button) control).getSelection();
+        case "linter-lint-on-edit" -> lintOnEditEnabled = ((Button) control).getSelection();
+        case "linter-show-problems-bar" ->
+            showProblemsBarEnabled = ((Button) control).getSelection();
+        case "linter-config-file" -> configFilePath = ((TextVar) control).getText();
+        case "linter-pre-commit-enabled" ->
+            preCommitLintEnabled = ((Button) control).getSelection();
+        case "linter-pre-commit-block-warnings" ->
+            preCommitBlockWarnings = ((Button) control).getSelection();
+        case "linter-pre-commit-include-metadata" ->
+            preCommitIncludeMetadata = ((Button) control).getSelection();
+        case "linter-include-in-pipeline-verify" ->
+            includeLintInPipelineVerify = ((Button) control).getSelection();
+        case "linter-include-in-workflow-verify" ->
+            includeLintInWorkflowVerify = ((Button) control).getSelection();
+        case "linter-include-native-checks" ->
+            includeNativeChecks = ((Button) control).getSelection();
+        default -> {
+          // A widget this plugin does not own.
+        }
+      }
+    }
+    saveToHopConfig();
   }
 
   /**
@@ -243,7 +302,11 @@ public class LinterConfigPlugin implements IConfigOptions {
   private Boolean includeNativeChecks;
 
   public LinterConfigPlugin() {
-    // Lint rules are resolved on demand from the RuleRegistry (YAML packs + project overrides).
+    // Load here rather than only in getInstance(): the configuration perspective builds its own
+    // instance through the plugin registry and fills the widgets straight from these fields, so an
+    // unloaded instance showed every option at its default instead of what the user had chosen.
+    // Lint rules themselves are resolved on demand from the RuleRegistry.
+    loadFromHopConfig();
   }
 
   /**
