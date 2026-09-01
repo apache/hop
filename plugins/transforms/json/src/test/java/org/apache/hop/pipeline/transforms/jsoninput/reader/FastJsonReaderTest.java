@@ -168,4 +168,19 @@ class FastJsonReaderTest {
     assertNotNull(rowSet.getRow());
     assertNull(rowSet.getRow());
   }
+
+  @Test
+  void testFailingFunctionPathIsSuppressedAsNullValue() throws Exception {
+    JsonInputField field = new JsonInputField("value");
+    field.setPath("$.emptyList.sum()");
+    FastJsonReader reader =
+        new FastJsonReader(new JsonInputField[] {field}, mock(ILogChannel.class));
+    reader.setIgnoreMissingPath(true);
+    IRowSet rowSet =
+        reader.parseStringValue(
+            new ByteArrayInputStream("{\"emptyList\":[]}".getBytes(StandardCharsets.UTF_8)));
+    Object[] row = rowSet.getRow();
+    assertNotNull(row);
+    assertNull(row[0]);
+  }
 }
