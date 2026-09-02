@@ -358,8 +358,8 @@ public abstract class Workflow extends Variables
         log.logBasic(BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED));
         fireExecutionFinishedListeners();
 
-        // release unused vfs connections
-        HopVfs.freeUnusedResources();
+        // release unused vfs connections, of the namespace this workflow resolved its files in
+        HopVfs.freeUnusedResources(this);
 
       } catch (HopException e) {
         result.setNrErrors(1);

@@ -80,6 +80,19 @@ public class HopVfsNamespaces {
   /** Set when the runtime serves several tenants at once, so nobody shares the process manager. */
   private static boolean isolateEverything;
 
+  /**
+   * Does this JVM serve several tenants at once - Hop Web, with a session scope installed?
+   *
+   * <p>What it really answers is whether anything process wide may be thrown away on behalf of one
+   * of them. It may not: every tenant has a namespace of its own and the ones that are not asking
+   * are in the middle of something.
+   *
+   * @return true when a runtime installed a scope of its own with {@link #setScope(IHopScope)}
+   */
+  public static synchronized boolean isIsolated() {
+    return isolateEverything;
+  }
+
   private HopVfsNamespaces() {
     // Utility class
   }

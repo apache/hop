@@ -1467,8 +1467,8 @@ public abstract class Pipeline
           // Safe here: all transform threads have finished before this listener runs.
           cleanupRowSets();
 
-          // release unused vfs connections
-          HopVfs.freeUnusedResources();
+          // release unused vfs connections, of the namespace this pipeline resolved its files in
+          HopVfs.freeUnusedResources(this);
         };
     // This should always be done first so that the other listeners achieve a clean state to start
     // from (setFinished and
