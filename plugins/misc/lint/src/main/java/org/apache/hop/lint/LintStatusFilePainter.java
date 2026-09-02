@@ -19,12 +19,11 @@ package org.apache.hop.lint;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
@@ -48,23 +47,23 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   private static final String BASE_ICON_KEY = "lintBaseIcon";
   private static final String APPLIED_STATUS_KEY = "lintAppliedStatus";
 
+  /** Size of the status badge, matching the small icons the Explorer tree draws. */
+  private static final int BADGE_SIZE = 12;
+
   private final Map<String, LintStatus> fileStatusCache = new ConcurrentHashMap<>();
   private final Map<String, Long> cacheTimestamps = new ConcurrentHashMap<>();
 
   // Bounded cache of composited (base icon + badge) images, keyed by base/badge identity.
   // Reused across paints and tree items so we never allocate a new Image per paint.
   private final Map<String, Image> compositeIconCache = new ConcurrentHashMap<>();
-  private final ScheduledExecutorService cleanupExecutor =
-      Executors.newSingleThreadScheduledExecutor(
-          r -> {
-            Thread t = new Thread(r, "LintStatusFilePainter-Cleanup");
-            t.setDaemon(true);
-            return t;
-          });
 
-  private Image errorIcon;
-  private Image warningIcon;
-  private Image cleanIcon;
+  /**
+   * The display of the GUI this painter belongs to, read when it is built on the UI thread.
+   *
+   * <p>{@code Display.getDefault()} answers for the session bound to the calling thread, and the
+   * results this repaints for arrive on lint threads that may have none.
+   */
+  private final Display display;
 
   // Last Explorer tree we painted into; lets us repaint icons on result changes without a full
   // perspective.refresh() (which rebuilds the tree and loses selection/expansion state).
@@ -78,66 +77,45 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   }
 
   public LintStatusFilePainter() {
-    initializeIcons();
+    this.display = Display.getCurrent() != null ? Display.getCurrent() : Display.getDefault();
     updateFileStatusCache();
 
     LintResultsManager.getInstance()
         .addListener(
             () -> {
               updateFileStatusCache();
-              Display display = Display.getDefault();
               if (display != null && !display.isDisposed()) {
                 display.asyncExec(this::repaintExplorerIcons);
               }
             });
 
-    // Start periodic cache cleanup
-    startCacheCleanupScheduler();
-
     log.logBasic("Lint Status File Painter initialized");
   }
 
-  private void initializeIcons() {
-    Display display = Display.getDefault();
-    if (display != null && !display.isDisposed()) {
-      try {
-        errorIcon = new Image(display, 12, 12);
-        org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(errorIcon);
-        gc.setBackground(display.getSystemColor(SWT.COLOR_RED));
-        gc.fillOval(0, 0, 11, 11);
-        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        org.eclipse.swt.graphics.Font smallFont =
-            new org.eclipse.swt.graphics.Font(display, "Arial", 8, SWT.BOLD);
-        gc.setFont(smallFont);
-        gc.drawString("!", 4, -1, true);
-        smallFont.dispose();
-        gc.dispose();
-
-        warningIcon = new Image(display, 12, 12);
-        gc = new org.eclipse.swt.graphics.GC(warningIcon);
-        gc.setBackground(display.getSystemColor(SWT.COLOR_YELLOW));
-        int[] triangle = {6, 0, 0, 11, 11, 11};
-        gc.fillPolygon(triangle);
-        gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-        smallFont = new org.eclipse.swt.graphics.Font(display, "Arial", 8, SWT.BOLD);
-        gc.setFont(smallFont);
-        gc.drawString("!", 4, 2, true);
-        smallFont.dispose();
-        gc.dispose();
-
-        cleanIcon = new Image(display, 12, 12);
-        gc = new org.eclipse.swt.graphics.GC(cleanIcon);
-        gc.setBackground(display.getSystemColor(SWT.COLOR_GREEN));
-        gc.fillOval(0, 0, 11, 11);
-        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        smallFont = new org.eclipse.swt.graphics.Font(display, "Arial", 8, SWT.BOLD);
-        gc.setFont(smallFont);
-        gc.drawString("✓", 3, -1, true);
-        smallFont.dispose();
-        gc.dispose();
-      } catch (Exception e) {
-        log.logError("Error creating lint status icons: " + e.getMessage(), e);
-      }
+  /**
+   * The badge for a status, or null when there is none to draw.
+   *
+   * <p>These used to be drawn here into off-screen images with a {@code GC}, which Hop Web cannot
+   * do: RWT only draws on a control, so the very first call failed and the Explorer showed no lint
+   * status at all. Hop ships the three icons as SVG, and {@link GuiResource} loads and caches them
+   * per session, which also settles who disposes them - not us.
+   */
+  private Image badgeIcon(LintStatus status) {
+    String location =
+        switch (status) {
+          case ERROR -> "ui/images/error.svg";
+          case WARNING -> "ui/images/warning.svg";
+          case CLEAN -> "ui/images/success.svg";
+          case UNKNOWN -> null;
+        };
+    if (location == null) {
+      return null;
+    }
+    try {
+      return GuiResource.getInstance().getImage(location, BADGE_SIZE, BADGE_SIZE);
+    } catch (Exception e) {
+      log.logDetailed("No lint status icon available for " + status + ": " + e.getMessage());
+      return null;
     }
   }
 
@@ -203,24 +181,22 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
       }
     }
 
+    Image badge = badgeIcon(status);
+    if (badge == null || badge.isDisposed()) {
+      return;
+    }
     switch (status) {
       case ERROR:
-        if (errorIcon != null && !errorIcon.isDisposed()) {
-          addOverlayIcon(treeItem, errorIcon, status);
-          addLintTooltip(treeItem, name, "Linter errors");
-        }
+        addOverlayIcon(treeItem, badge, status);
+        addLintTooltip(treeItem, name, "Linter errors");
         break;
       case WARNING:
-        if (warningIcon != null && !warningIcon.isDisposed()) {
-          addOverlayIcon(treeItem, warningIcon, status);
-          addLintTooltip(treeItem, name, "Linter warnings");
-        }
+        addOverlayIcon(treeItem, badge, status);
+        addLintTooltip(treeItem, name, "Linter warnings");
         break;
       case CLEAN:
-        if (cleanIcon != null && !cleanIcon.isDisposed()) {
-          addOverlayIcon(treeItem, cleanIcon, status);
-          addLintTooltip(treeItem, name, "No linter issues");
-        }
+        addOverlayIcon(treeItem, badge, status);
+        addLintTooltip(treeItem, name, "No linter issues");
         break;
       default:
         break;
@@ -319,8 +295,13 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
         return;
       }
 
+      // No composite (Hop Web cannot draw one): leave the file's own icon alone. The item's
+      // colour already says what the status is, and replacing the icon with a bare badge would
+      // cost more than it tells.
       Image compositeIcon = getOrCreateComposite(base, lintIcon);
-      treeItem.setImage(compositeIcon != null ? compositeIcon : lintIcon);
+      if (compositeIcon != null) {
+        treeItem.setImage(compositeIcon);
+      }
       treeItem.setData(APPLIED_STATUS_KEY, status);
     } catch (Exception e) {
       log.logError("Error creating overlay icon: " + e.getMessage(), e);
@@ -344,7 +325,6 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
 
   private Image createCompositeIcon(Image originalIcon, Image lintIcon) {
     try {
-      Display display = Display.getDefault();
       if (display == null || display.isDisposed()) {
         return null;
       }
@@ -409,17 +389,13 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     return LintEditorGraphHelper.isLintableFilename(filePath);
   }
 
-  /** Start the cache cleanup scheduler */
-  private void startCacheCleanupScheduler() {
-    // Clean up cache every 30 minutes
-    cleanupExecutor.scheduleAtFixedRate(
-        this::cleanupExpiredCacheEntries,
-        CACHE_EXPIRATION_MINUTES,
-        CACHE_EXPIRATION_MINUTES,
-        TimeUnit.MINUTES);
-  }
-
-  /** Clean up expired and excess cache entries */
+  /**
+   * Clean up expired and excess cache entries.
+   *
+   * <p>Done when the cache is rebuilt rather than on a timer of its own: a thread per painter is a
+   * thread per Hop Web session, and one holding a reference to the painter keeps that session's
+   * images alive long after the session is gone.
+   */
   private void cleanupExpiredCacheEntries() {
     try {
       long currentTime = System.currentTimeMillis();
@@ -484,21 +460,14 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
         fileStatusCache.put(normalizedPath, status);
         cacheTimestamps.put(normalizedPath, System.currentTimeMillis());
       }
+      cleanupExpiredCacheEntries();
     } catch (Exception e) {
       log.logError("Error updating file status cache: " + e.getMessage(), e);
     }
   }
 
   public void dispose() {
-    if (errorIcon != null && !errorIcon.isDisposed()) {
-      errorIcon.dispose();
-    }
-    if (warningIcon != null && !warningIcon.isDisposed()) {
-      warningIcon.dispose();
-    }
-    if (cleanIcon != null && !cleanIcon.isDisposed()) {
-      cleanIcon.dispose();
-    }
+    // The badge icons belong to GuiResource, which disposes them with the session.
 
     // Dispose cached composite images
     for (Image composite : compositeIconCache.values()) {
@@ -511,13 +480,5 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     // Clean up cache
     fileStatusCache.clear();
     cacheTimestamps.clear();
-
-    // Shutdown cleanup executor
-    cleanupExecutor.shutdown();
-    try {
-      cleanupExecutor.awaitTermination(5, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      log.logError("Interrupted while shutting down cache cleanup executor", e);
-    }
   }
 }

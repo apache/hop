@@ -436,7 +436,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
     // Try to get project path from Hop variables
     try {
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       if (hopGui != null && hopGui.getVariables() != null) {
         String projectPath = hopGui.getVariables().getVariable("PROJECT_HOME");
         if (Utils.isEmpty(projectPath)) {

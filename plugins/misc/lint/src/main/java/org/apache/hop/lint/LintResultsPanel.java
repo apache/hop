@@ -30,7 +30,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -174,7 +173,9 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   }
 
   private void refreshResults() {
-    Display.getDefault()
+    // The panel's own display, not Display.getDefault(): results arrive on lint threads, and in
+    // Hop Web a thread that was started without a session has no default display to find.
+    getDisplay()
         .asyncExec(
             () -> {
               if (isDisposed()) {

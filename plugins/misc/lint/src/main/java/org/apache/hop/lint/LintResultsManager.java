@@ -24,12 +24,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.hopgui.HopGui;
 
 /** Manages lint results and provides access for GUI components */
 public class LintResultsManager {
 
   private static final ILogChannel log = LogChannel.GENERAL;
-  private static LintResultsManager instance;
+
+  /** Used when there is no GUI to own the findings: the command line, and unit tests. */
+  private static LintResultsManager fallback;
 
   // Store results by file path for quick lookup
   private final Map<String, List<LintResult>> resultsByFile = new ConcurrentHashMap<>();
@@ -58,11 +61,25 @@ public class LintResultsManager {
     // Singleton
   }
 
-  public static synchronized LintResultsManager getInstance() {
-    if (instance == null) {
-      instance = new LintResultsManager();
+  /**
+   * The findings of the GUI that asks for them.
+   *
+   * <p>Findings are what one person's editors show, and Hop Web serves many of them from one JVM: a
+   * single set of results would let one user's project decide what another sees, and would send
+   * every session's Problems tab a refresh whenever anybody linted anything. The desktop has one
+   * HopGui, so there it is still one set.
+   */
+  public static LintResultsManager getInstance() {
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(LintResultsManager.class, LintResultsManager::new);
     }
-    return instance;
+    synchronized (LintResultsManager.class) {
+      if (fallback == null) {
+        fallback = new LintResultsManager();
+      }
+      return fallback;
+    }
   }
 
   /**

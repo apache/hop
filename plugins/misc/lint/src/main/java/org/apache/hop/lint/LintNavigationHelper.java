@@ -35,7 +35,7 @@ public final class LintNavigationHelper {
       return;
     }
 
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui == null) {
       return;
     }

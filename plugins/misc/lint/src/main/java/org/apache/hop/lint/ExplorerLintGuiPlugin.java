@@ -32,6 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -49,33 +50,64 @@ import org.eclipse.swt.widgets.Display;
 public class ExplorerLintGuiPlugin {
 
   private static final ILogChannel log = LogChannel.GENERAL;
-  private static ExplorerLintGuiPlugin instance;
-  private static LintStatusFilePainter filePainter;
 
+  /** Used when there is no GUI to own this: unit tests. */
+  private static ExplorerLintGuiPlugin fallback;
+
+  private LintStatusFilePainter filePainter;
+
+  /**
+   * The plugin state of the GUI that asks for it. Hop Web serves many people from one JVM, each
+   * with an Explorer of their own; the desktop has one HopGui and therefore one of these.
+   */
   public static ExplorerLintGuiPlugin getInstance() {
-    if (instance == null) {
-      instance = new ExplorerLintGuiPlugin();
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(ExplorerLintGuiPlugin.class, ExplorerLintGuiPlugin::new);
     }
-    return instance;
+    synchronized (ExplorerLintGuiPlugin.class) {
+      if (fallback == null) {
+        fallback = new ExplorerLintGuiPlugin();
+      }
+      return fallback;
+    }
   }
 
   public ExplorerLintGuiPlugin() {
-    instance = this;
+    // The GUI plugin registry builds one of these for its callbacks, and getInstance() builds one
+    // per session. Both go through the static helpers below, so this holds nothing itself.
   }
 
   @GuiCallback(callbackId = ExplorerPerspective.GUI_TOOLBAR_CREATED_CALLBACK_ID)
   public void registerExplorerPaintListener() {
-    if (filePainter == null) {
-      filePainter = new LintStatusFilePainter();
-    }
+    LintStatusFilePainter painter = getFilePainter();
     ExplorerPerspective perspective = ExplorerPerspective.getInstance();
-    if (!perspective.getFilePaintListeners().contains(filePainter)) {
-      perspective.getFilePaintListeners().add(filePainter);
+    if (!perspective.getFilePaintListeners().contains(painter)) {
+      perspective.getFilePaintListeners().add(painter);
     }
   }
 
-  /** Get the file painter instance */
+  /**
+   * The painter of the GUI that asks for it.
+   *
+   * <p>It caches the icons it composites, and an image belongs to the display that created it: in
+   * Hop Web a shared painter hands one session images another session's display disposed, which SWT
+   * reports as "Argument not valid" (issue #3508). It also remembers the Explorer tree it last
+   * painted, and that tree is one session's widget.
+   */
   public static LintStatusFilePainter getFilePainter() {
+    return getInstance().filePainter();
+  }
+
+  /**
+   * Built here rather than by the session singleton map itself: the painter subscribes to that
+   * session's lint results, and asking for one singleton while another is being built is a
+   * recursive update of the map they both live in.
+   */
+  private synchronized LintStatusFilePainter filePainter() {
+    if (filePainter == null) {
+      filePainter = new LintStatusFilePainter();
+    }
     return filePainter;
   }
 
@@ -85,12 +117,13 @@ public class ExplorerLintGuiPlugin {
    * the painter has not yet been attached.
    */
   public static void refreshExplorerIcons() {
+    LintStatusFilePainter painter = getFilePainter();
     Display.getDefault()
         .asyncExec(
             () -> {
               try {
-                if (filePainter != null) {
-                  filePainter.repaintExplorerIcons();
+                if (painter != null) {
+                  painter.repaintExplorerIcons();
                   return;
                 }
                 ExplorerPerspective perspective = HopGui.getExplorerPerspective();
@@ -223,7 +256,7 @@ public class ExplorerLintGuiPlugin {
   }
 
   private static void runLintOnFile(String filePath) {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui == null) {
       showMessage("Hop GUI Not Available", "Could not access Hop GUI instance.", SWT.ICON_ERROR);
       return;
@@ -274,38 +307,36 @@ public class ExplorerLintGuiPlugin {
     final HopGuiAbstractGraph graph = (HopGuiAbstractGraph) handler;
     final IHopFileTypeHandler openHandler = handler;
 
-    Thread linterThread =
-        new Thread(
-            () -> {
-              try {
-                List<LintResult> results =
-                    lintFileResults(normalizedPath, openHandler, metadataProvider, variables);
+    BackgroundThreadFacade.start(
+        () -> {
+          try {
+            List<LintResult> results =
+                lintFileResults(normalizedPath, openHandler, metadataProvider, variables);
 
-                LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
+            LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
 
-                Display.getDefault()
-                    .asyncExec(
-                        () -> {
-                          // Populates the editor Problems tab + toolbar badge (UI thread).
-                          LintProblemsBarManager.getInstance().updateProblemsBar(normalizedPath);
-                          refreshExplorerIcons();
-                          LintResultsUi.logSummary(results, new File(normalizedPath).getName());
-                          // Bring the Problems tab to the front once it has been populated.
-                          Display.getDefault().asyncExec(() -> bringProblemsTabToFront(graph));
-                        });
-              } catch (Exception e) {
-                log.logError("Error during file linting: " + e.getMessage(), e);
-                Display.getDefault()
-                    .asyncExec(
-                        () ->
-                            showErrorDialog(
-                                "Linting Error",
-                                "An error occurred during linting: " + e.getMessage(),
-                                e));
-              }
-            },
-            "HopLinter-File");
-    linterThread.start();
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      // Populates the editor Problems tab + toolbar badge (UI thread).
+                      LintProblemsBarManager.getInstance().updateProblemsBar(normalizedPath);
+                      refreshExplorerIcons();
+                      LintResultsUi.logSummary(results, new File(normalizedPath).getName());
+                      // Bring the Problems tab to the front once it has been populated.
+                      Display.getDefault().asyncExec(() -> bringProblemsTabToFront(graph));
+                    });
+          } catch (Exception e) {
+            log.logError("Error during file linting: " + e.getMessage(), e);
+            Display.getDefault()
+                .asyncExec(
+                    () ->
+                        showErrorDialog(
+                            "Linting Error",
+                            "An error occurred during linting: " + e.getMessage(),
+                            e));
+          }
+        },
+        "HopLinter-File");
   }
 
   /** Bring the editor's check/Problems tab to the front, creating it if needed. */
@@ -353,36 +384,34 @@ public class ExplorerLintGuiPlugin {
     final IVariables variables = hopGui.getVariables();
     final IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
-    Thread linterThread =
-        new Thread(
-            () -> {
-              try {
-                List<LintResult> results =
-                    lintFileResults(normalizedPath, openHandler, metadataProvider, variables);
+    BackgroundThreadFacade.start(
+        () -> {
+          try {
+            List<LintResult> results =
+                lintFileResults(normalizedPath, openHandler, metadataProvider, variables);
 
-                LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
+            LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
 
-                Display.getDefault()
-                    .asyncExec(
-                        () -> {
-                          LintProblemsBarManager.getInstance().updateProblemsBar(normalizedPath);
-                          refreshExplorerIcons();
-                          LintResultsUi.logSummary(results, new File(normalizedPath).getName());
-                          LintResultsUi.showResultsForFile(normalizedPath);
-                        });
-              } catch (Exception e) {
-                log.logError("Error during file linting: " + e.getMessage(), e);
-                Display.getDefault()
-                    .asyncExec(
-                        () ->
-                            showErrorDialog(
-                                "Linting Error",
-                                "An error occurred during linting: " + e.getMessage(),
-                                e));
-              }
-            },
-            "HopLinter-File");
-    linterThread.start();
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      LintProblemsBarManager.getInstance().updateProblemsBar(normalizedPath);
+                      refreshExplorerIcons();
+                      LintResultsUi.logSummary(results, new File(normalizedPath).getName());
+                      LintResultsUi.showResultsForFile(normalizedPath);
+                    });
+          } catch (Exception e) {
+            log.logError("Error during file linting: " + e.getMessage(), e);
+            Display.getDefault()
+                .asyncExec(
+                    () ->
+                        showErrorDialog(
+                            "Linting Error",
+                            "An error occurred during linting: " + e.getMessage(),
+                            e));
+          }
+        },
+        "HopLinter-File");
   }
 
   private static List<LintResult> lintFileResults(
@@ -456,7 +485,7 @@ public class ExplorerLintGuiPlugin {
   }
 
   private static void runLintOnFolder(String folderPath) {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui == null) {
       showMessage("Hop GUI Not Available", "Could not access Hop GUI instance.", SWT.ICON_ERROR);
       return;
@@ -467,116 +496,113 @@ public class ExplorerLintGuiPlugin {
 
     final LinterProgressDialog progressDialog = new LinterProgressDialog(hopGui.getShell());
 
-    Thread linterThread =
-        new Thread(
-            () -> {
-              try {
-                HopLinter linter = new HopLinter();
-                linter.loadConfigurationForContext(new File(folderPath));
+    BackgroundThreadFacade.start(
+        () -> {
+          try {
+            HopLinter linter = new HopLinter();
+            linter.loadConfigurationForContext(new File(folderPath));
 
-                List<String> hopFilePaths = linter.findLintableFiles(folderPath, true);
+            List<String> hopFilePaths = linter.findLintableFiles(folderPath, true);
 
-                if (hopFilePaths.isEmpty()) {
-                  Display.getDefault()
-                      .asyncExec(
-                          () -> {
-                            progressDialog.close();
-                            showMessage(
-                                "No Hop Files",
-                                "No .hpl or .hwf files found in the selected folder.",
-                                SWT.ICON_INFORMATION);
-                          });
-                  return;
-                }
+            if (hopFilePaths.isEmpty()) {
+              Display.getDefault()
+                  .asyncExec(
+                      () -> {
+                        progressDialog.close();
+                        showMessage(
+                            "No Hop Files",
+                            "No .hpl or .hwf files found in the selected folder.",
+                            SWT.ICON_INFORMATION);
+                      });
+              return;
+            }
 
-                progressDialog.updateProgress(
-                    "Found " + hopFilePaths.size() + " files to analyze", 0, hopFilePaths.size());
+            progressDialog.updateProgress(
+                "Found " + hopFilePaths.size() + " files to analyze", 0, hopFilePaths.size());
 
-                Display.getDefault().asyncExec(progressDialog::show);
+            Display.getDefault().asyncExec(progressDialog::show);
 
-                List<LintResult> results = new java.util.ArrayList<>();
-                int processedFilesCount = 0;
+            List<LintResult> results = new java.util.ArrayList<>();
+            int processedFilesCount = 0;
 
-                for (String filePath : hopFilePaths) {
-                  File file = new File(filePath);
-                  if (progressDialog.isCancelled()) {
-                    log.logDetailed("Folder linting cancelled by user");
-                    return;
-                  }
-
-                  try {
-                    progressDialog.updateProgress(
-                        "Processing: " + file.getName(), processedFilesCount, hopFilePaths.size());
-                    String normalizedPath = LintPathUtils.normalizePath(file.getAbsolutePath());
-                    List<LintResult> fileResults;
-                    if (normalizedPath.toLowerCase().endsWith(".hpl")) {
-                      PipelineMeta pipelineMeta =
-                          new PipelineMeta(file.getAbsolutePath(), metadataProvider, variables);
-                      fileResults =
-                          PipelineLintResultsBuilder.build(
-                              pipelineMeta, normalizedPath, metadataProvider, variables);
-                    } else if (HopMetadataFileLoader.isMetadataJsonFile(normalizedPath)) {
-                      fileResults = linter.processFile(file, metadataProvider, variables);
-                    } else {
-                      fileResults = linter.processFile(file, metadataProvider, variables);
-                    }
-                    results.addAll(fileResults);
-                    LintResultsManager.getInstance()
-                        .updateResultsForFile(normalizedPath, fileResults);
-                    processedFilesCount++;
-                  } catch (Exception e) {
-                    log.logError("Error processing file: " + file.getAbsolutePath(), e);
-                    LintResult errorResult =
-                        new LintResult(
-                            "SYSTEM-001",
-                            "File Processing Error",
-                            "ERROR",
-                            "Failed to process file: " + e.getMessage(),
-                            LintPathUtils.normalizePath(file.getAbsolutePath()));
-                    results.add(errorResult);
-                    LintResultsManager.getInstance()
-                        .updateResultsForFile(
-                            LintPathUtils.normalizePath(file.getAbsolutePath()),
-                            List.of(errorResult));
-                    processedFilesCount++;
-                  }
-                }
-
-                progressDialog.setComplete("Completed. Found " + results.size() + " issues");
-
-                LintProblemsBarManager.getInstance().refreshAllOpenEditors();
-
-                Display.getDefault()
-                    .asyncExec(
-                        () -> {
-                          progressDialog.close();
-                          refreshExplorerIcons();
-                          LintResultsUi.logSummary(results, new File(folderPath).getName());
-                          // A folder has no editor to put findings in, so this is one of the cases
-                          // the results window exists for. Without this the run finished with
-                          // nothing to show for it but a line in the log.
-                          LintResultsUi.showResultsForFolder(folderPath);
-                        });
-
-              } catch (Exception e) {
-                log.logError("Error during folder linting: " + e.getMessage(), e);
-                Display.getDefault()
-                    .asyncExec(
-                        () -> {
-                          progressDialog.close();
-                          showErrorDialog(
-                              "Linting Error",
-                              "An error occurred during linting: " + e.getMessage(),
-                              e);
-                        });
+            for (String filePath : hopFilePaths) {
+              File file = new File(filePath);
+              if (progressDialog.isCancelled()) {
+                log.logDetailed("Folder linting cancelled by user");
+                return;
               }
-            });
-    linterThread.start();
+
+              try {
+                progressDialog.updateProgress(
+                    "Processing: " + file.getName(), processedFilesCount, hopFilePaths.size());
+                String normalizedPath = LintPathUtils.normalizePath(file.getAbsolutePath());
+                List<LintResult> fileResults;
+                if (normalizedPath.toLowerCase().endsWith(".hpl")) {
+                  PipelineMeta pipelineMeta =
+                      new PipelineMeta(file.getAbsolutePath(), metadataProvider, variables);
+                  fileResults =
+                      PipelineLintResultsBuilder.build(
+                          pipelineMeta, normalizedPath, metadataProvider, variables);
+                } else if (HopMetadataFileLoader.isMetadataJsonFile(normalizedPath)) {
+                  fileResults = linter.processFile(file, metadataProvider, variables);
+                } else {
+                  fileResults = linter.processFile(file, metadataProvider, variables);
+                }
+                results.addAll(fileResults);
+                LintResultsManager.getInstance().updateResultsForFile(normalizedPath, fileResults);
+                processedFilesCount++;
+              } catch (Exception e) {
+                log.logError("Error processing file: " + file.getAbsolutePath(), e);
+                LintResult errorResult =
+                    new LintResult(
+                        "SYSTEM-001",
+                        "File Processing Error",
+                        "ERROR",
+                        "Failed to process file: " + e.getMessage(),
+                        LintPathUtils.normalizePath(file.getAbsolutePath()));
+                results.add(errorResult);
+                LintResultsManager.getInstance()
+                    .updateResultsForFile(
+                        LintPathUtils.normalizePath(file.getAbsolutePath()), List.of(errorResult));
+                processedFilesCount++;
+              }
+            }
+
+            progressDialog.setComplete("Completed. Found " + results.size() + " issues");
+
+            LintProblemsBarManager.getInstance().refreshAllOpenEditors();
+
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      progressDialog.close();
+                      refreshExplorerIcons();
+                      LintResultsUi.logSummary(results, new File(folderPath).getName());
+                      // A folder has no editor to put findings in, so this is one of the cases
+                      // the results window exists for. Without this the run finished with
+                      // nothing to show for it but a line in the log.
+                      LintResultsUi.showResultsForFolder(folderPath);
+                    });
+
+          } catch (Exception e) {
+            log.logError("Error during folder linting: " + e.getMessage(), e);
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      progressDialog.close();
+                      showErrorDialog(
+                          "Linting Error",
+                          "An error occurred during linting: " + e.getMessage(),
+                          e);
+                    });
+          }
+        },
+        "HopLinter-Folder");
   }
 
   private static void showMessage(String title, String message, int style) {
     log.logBasic(title + ": " + message);
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui != null && hopGui.getShell() != null) {
       MessageBox box = new MessageBox(hopGui.getShell(), style | SWT.OK);
       box.setText(title);
@@ -586,7 +612,7 @@ public class ExplorerLintGuiPlugin {
   }
 
   private static void showErrorDialog(String title, String message, Exception e) {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui != null && hopGui.getShell() != null) {
       new ErrorDialog(hopGui.getShell(), title, message, e);
     }
