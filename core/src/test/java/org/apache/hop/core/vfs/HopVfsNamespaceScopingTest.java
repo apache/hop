@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.vfs;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,9 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs2.provider.ram.RamFileProvider;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.scope.IHopScope;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.junit.jupiter.api.AfterEach;
@@ -69,6 +72,16 @@ class HopVfsNamespaceScopingTest {
     HopMetadataInstance.setScope(perSession);
     HopVfsNamespaces.setScope(IHopScope.process());
     return perSession;
+  }
+
+  /** The variables of something running against this metadata, the way an execution's are. */
+  private Variables variablesOf(IHopMetadataProvider provider) {
+    return new Variables() {
+      @Override
+      public IHopMetadataProvider getMetadataProvider() {
+        return provider;
+      }
+    };
   }
 
   /** Build the process wide manager the way loading a project does, from this metadata. */
@@ -193,6 +206,133 @@ class HopVfsNamespaceScopingTest {
     } finally {
       HopVfsNamespaces.release(sessionA);
       HopVfsNamespaces.release(sessionB);
+    }
+  }
+
+  @Test
+  @DisplayName("Enabling a project in one session leaves the namespaces of the others alone")
+  void enablingAProjectDoesNotResetOtherSessions() {
+    // Enabling a project hands HopVfs the variables to find that project's named connections with
+    // (ProjectsUtil.enableProject). In Hop Web that happens once per session, and it must not take
+    // the file system out from under the sessions already running. See issue #8215.
+    MultiMetadataProvider sessionA = mock(MultiMetadataProvider.class);
+    MultiMetadataProvider sessionB = mock(MultiMetadataProvider.class);
+
+    installSessionScopes();
+    bootstrapProcessManagerFrom(sessionA);
+
+    HopVfsNamespace namespaceA = HopVfsNamespaces.acquire(new Variables(), sessionA, "session A");
+    HopVfsNamespace namespaceB = HopVfsNamespaces.acquire(new Variables(), sessionB, "session B");
+    try {
+      DefaultFileSystemManager managerOfA = namespaceA.getFileSystemManager();
+
+      // Session B switches project: new variables, pointing at the metadata of the new project.
+      HopVfs.setBootstrapVariables(Variables.getADefaultVariableSpace());
+
+      assertSame(2, HopVfsNamespaces.size(), "Neither session should have lost its namespace");
+      assertSame(
+          managerOfA,
+          namespaceA.getFileSystemManager(),
+          "Session A was in the middle of something and must not have lost its file system");
+      assertTrue(
+          managerOfA.hasProvider("file"),
+          "The file system manager of session A must still be open");
+    } finally {
+      HopVfsNamespaces.release(sessionA);
+      HopVfsNamespaces.release(sessionB);
+    }
+  }
+
+  @Test
+  @DisplayName("A session with no namespace of its own still does not reset the shared manager")
+  void refreshWithoutANamespaceLeavesTheOthersAlone() {
+    // Saving a VFS connection from a session that has not opened a project yet: there is no
+    // namespace to re-read the connections for, and emptying the process wide manager instead
+    // would take the sessions that do have one down with it. See issue #8215.
+    MultiMetadataProvider sessionA = mock(MultiMetadataProvider.class);
+
+    installSessionScopes();
+    bootstrapProcessManagerFrom(sessionA);
+
+    HopVfsNamespace namespaceA = HopVfsNamespaces.acquire(new Variables(), sessionA, "session A");
+    try {
+      DefaultFileSystemManager managerOfA = namespaceA.getFileSystemManager();
+
+      HopVfs.refresh(new Variables());
+
+      assertSame(1, HopVfsNamespaces.size(), "Session A should still have its namespace");
+      assertSame(managerOfA, namespaceA.getFileSystemManager());
+      assertTrue(managerOfA.hasProvider("file"), "The manager of session A must still be open");
+    } finally {
+      HopVfsNamespaces.release(sessionA);
+    }
+  }
+
+  @Test
+  @DisplayName("An execution frees the resources of its own namespace, not of the shared manager")
+  void freeingResourcesStaysInsideTheCallersNamespace() {
+    // What Pipeline and Workflow do when they end. The file systems they are done with are the
+    // ones in their own namespace: the process wide manager belongs to whoever else is in the JVM.
+    MultiMetadataProvider processMetadata = mock(MultiMetadataProvider.class);
+    bootstrapProcessManagerFrom(processMetadata);
+
+    MultiMetadataProvider exportedMetadata = mock(MultiMetadataProvider.class);
+    HopVfsNamespace namespace =
+        HopVfsNamespaces.acquire(new Variables(), exportedMetadata, "exported pipeline");
+    try {
+      CountingProvider ofTheExport = new CountingProvider();
+      CountingProvider ofEveryoneElse = new CountingProvider();
+      namespace.getFileSystemManager().addProvider("exportdrop", ofTheExport);
+      HopVfs.getFileSystemManager().addProvider("shareddrop", ofEveryoneElse);
+
+      HopVfs.freeUnusedResources(variablesOf(exportedMetadata));
+
+      assertSame(
+          1, ofTheExport.timesFreed, "The export is done with the files of its own namespace");
+      assertSame(0, ofEveryoneElse.timesFreed, "Nobody else's file systems are its business");
+    } catch (Exception e) {
+      throw new AssertionError("Unable to register a provider", e);
+    } finally {
+      HopVfsNamespaces.release(exportedMetadata);
+    }
+  }
+
+  /** A provider that says whether the manager it sits on was asked to free its resources. */
+  private static class CountingProvider extends RamFileProvider {
+    private int timesFreed;
+
+    @Override
+    public void freeUnusedResources() {
+      timesFreed++;
+      super.freeUnusedResources();
+    }
+  }
+
+  @Test
+  @DisplayName("A scheme is looked for in the namespace of the caller, not on the shared manager")
+  void startsWithSchemeAsksTheCallersNamespace() {
+    // The name of a named VFS connection is a scheme, and the connections of an export - or of a
+    // Hop Web session - live in a namespace of their own. Anything deciding whether a filename
+    // carries a scheme has to ask the manager that filename will be resolved on.
+    MultiMetadataProvider processMetadata = mock(MultiMetadataProvider.class);
+    bootstrapProcessManagerFrom(processMetadata);
+
+    MultiMetadataProvider exportedMetadata = mock(MultiMetadataProvider.class);
+    HopVfsNamespace namespace =
+        HopVfsNamespaces.acquire(new Variables(), exportedMetadata, "exported pipeline");
+    try {
+      namespace.getFileSystemManager().addProvider("salesdrop", new RamFileProvider());
+
+      assertTrue(
+          HopVfs.startsWithScheme("salesdrop://in/orders.csv", variablesOf(exportedMetadata)),
+          "The connection of the export is a scheme its own namespace knows");
+      assertFalse(
+          HopVfs.startsWithScheme("salesdrop://in/orders.csv", new Variables()),
+          "Nobody else sees the connections of this export");
+    } catch (Exception e) {
+      throw new AssertionError("Unable to register a provider on the namespace", e);
+    } finally {
+      HopVfsNamespaces.release(exportedMetadata);
     }
   }
 

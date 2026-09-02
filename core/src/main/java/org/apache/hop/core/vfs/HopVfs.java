@@ -105,7 +105,7 @@ public class HopVfs {
     // them, so start over. Nothing registered yet means we can keep the manager as it is: phase 2
     // simply runs with these variables the next time around.
     //
-    if (namedProvidersRegistered) {
+    if (namedProvidersRegistered && !HopVfsNamespaces.isIsolated()) {
       reset();
     }
   }
@@ -748,7 +748,9 @@ public class HopVfs {
    */
   public static boolean startsWithScheme(String vfsFileName, IVariables variables) {
     bootstrapWith(variables);
-    return startsWithScheme(vfsFileName);
+    // The schemes that apply are the ones of the namespace these variables resolve files in: the
+    // named connections of an export, or of a Hop Web session, are not on the process manager.
+    return startsWithScheme(vfsFileName, getFileSystemManager(variables));
   }
 
   /**
@@ -759,8 +761,13 @@ public class HopVfs {
    * @return boolean
    */
   public static boolean startsWithScheme(String vfsFileName) {
-    DefaultFileSystemManager fsManager = getFileSystemManager();
+    // Nothing to go on but the thread: the namespace of the execution running on it, if any.
+    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    return startsWithScheme(
+        vfsFileName, namespace == null ? getFileSystemManager() : namespace.getFileSystemManager());
+  }
 
+  private static boolean startsWithScheme(String vfsFileName, DefaultFileSystemManager fsManager) {
     boolean found = false;
     String[] schemes = fsManager.getSchemes();
     for (String scheme : schemes) {
@@ -843,10 +850,24 @@ public class HopVfs {
   }
 
   /**
-   * Drop the file system manager so it's rebuilt, providers of the named VFS connections included,
-   * the next time it's used. The bootstrap variables are kept: use {@link
-   * #setBootstrapVariables(IVariables)} to change those.
+   * Let go of the file systems nobody is using any more in the namespace these variables resolve
+   * files in.
+   *
+   * <p>Use this rather than {@link #freeUnusedResources()} at the end of an execution: an execution
+   * carrying its own metadata resolved its files in a namespace of its own, and those are the file
+   * systems it is done with. The process wide manager belongs to whoever else is in this JVM.
+   *
+   * @param variables the variables of the execution that just ended
    */
+  public static void freeUnusedResources(IVariables variables) {
+    HopVfsNamespace namespace = HopVfsNamespaces.resolve(variables);
+    if (namespace != null) {
+      namespace.freeUnusedResources();
+      return;
+    }
+    freeUnusedResources();
+  }
+
   /**
    * Read the named VFS connections again for whoever these variables belong to, after one of them
    * was added or changed.
@@ -871,7 +892,13 @@ public class HopVfs {
           "Error re-reading the named VFS connections of this caller. They are unchanged.", e);
       return;
     }
-    // Nothing of their own to refresh: what they resolve files in is the process wide manager.
+    if (HopVfsNamespaces.isIsolated()) {
+      LogChannel.GENERAL.logDebug(
+          "No VFS namespace to re-read the named connections for. The process wide file system "
+              + "manager is left alone: other sessions are using it.");
+      return;
+    }
+    // What they resolve files in is the process wide manager.
     reset();
   }
 

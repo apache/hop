@@ -123,6 +123,14 @@ public class HopVfsNamespace implements AutoCloseable {
     return description;
   }
 
+  /**
+   * Close the communication links of the file systems in this namespace that nothing is using any
+   * more. What an execution does when it ends, for its own namespace and nobody else's.
+   */
+  public void freeUnusedResources() {
+    fileSystemManager.freeUnusedResources();
+  }
+
   int retain() {
     return ++useCount;
   }
