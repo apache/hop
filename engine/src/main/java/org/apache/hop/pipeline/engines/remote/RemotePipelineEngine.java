@@ -390,8 +390,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   clonedConfiguration,
                   CONFIGURATION_IN_EXPORT_FILENAME,
                   remotePipelineRunConfiguration.getNamedResourcesSourceFolder(),
-                  remotePipelineRunConfiguration.getNamedResourcesTargetFolder(),
-                  executionConfiguration.getVariablesMap());
+                  remotePipelineRunConfiguration.getNamedResourcesTargetFolder());
 
           // Send the zip file over to the hop server...
           //
