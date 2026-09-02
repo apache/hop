@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.HopGui;
 
 /** Groups lint results for canvas overlays and draws severity badges on pipeline/workflow icons. */
 public final class LintCanvasOverlayHelper {
@@ -159,6 +162,28 @@ public final class LintCanvasOverlayHelper {
     }
 
     return totalWidth;
+  }
+
+  /**
+   * The native zoom factor to draw the canvas overlays with, or {@code null} when there is no user
+   * interface to draw them in. The painter extension points also run on Hop Server, which renders
+   * pipeline and workflow SVG images without a UI: asking {@link PropsUi} for the zoom factor there
+   * loads the SWT natives and fails hard, with an UnsatisfiedLinkError when GTK is not installed.
+   */
+  public static Float overlayZoomFactor() {
+    try {
+      // peekInstance, not getInstance: the latter builds a HopGui, and building one creates an SWT
+      // Shell, which on a server fails outright instead of simply saying "no UI here".
+      if (HopGui.peekInstance() == null) {
+        return null;
+      }
+      return (float) PropsUi.getNativeZoomFactor();
+    } catch (Exception | Error e) {
+      // SWT throws SWTError, which extends Error directly rather than LinkageError, so catching
+      // Exception alone let it through, all the way up into the servlet rendering the image.
+      LogChannel.GENERAL.logDetailed("No user interface to draw the lint canvas overlay in: " + e);
+      return null;
+    }
   }
 
   public static boolean isEnabled() {

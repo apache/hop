@@ -24,7 +24,6 @@ import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
 
@@ -66,7 +65,11 @@ public class WorkflowLintTotalsPainterExtension implements IExtensionPoint<Workf
         return;
       }
 
-      float nativeZoom = (float) PropsUi.getNativeZoomFactor();
+      // No SWT user interface (Hop Server rendering an SVG image): skip the canvas overlay.
+      Float nativeZoom = LintCanvasOverlayHelper.overlayZoomFactor();
+      if (nativeZoom == null) {
+        return;
+      }
 
       gc.setTransform(0f, 0f, nativeZoom);
       int width =

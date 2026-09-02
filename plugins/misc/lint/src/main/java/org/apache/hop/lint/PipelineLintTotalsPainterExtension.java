@@ -26,7 +26,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
-import org.apache.hop.ui.core.PropsUi;
 
 /**
  * Draws the lint error/warning/info totals as a fixed overlay in the top-left of the pipeline
@@ -66,7 +65,11 @@ public class PipelineLintTotalsPainterExtension implements IExtensionPoint<Pipel
         return;
       }
 
-      float nativeZoom = (float) PropsUi.getNativeZoomFactor();
+      // No SWT user interface (Hop Server rendering an SVG image): skip the canvas overlay.
+      Float nativeZoom = LintCanvasOverlayHelper.overlayZoomFactor();
+      if (nativeZoom == null) {
+        return;
+      }
 
       // Draw in logical widget coordinates (scale = native zoom) so the overlay stays fixed in
       // the top-left regardless of canvas pan/zoom, and lines up with mouse event coordinates.
