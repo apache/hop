@@ -54,7 +54,7 @@ public class PreCommitLintExtension implements IExtensionPoint<HopGuiFileBeforeC
         return;
       }
 
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       if (hopGui == null) {
         log.logError("HopGui instance not available for pre-commit linting");
         return;

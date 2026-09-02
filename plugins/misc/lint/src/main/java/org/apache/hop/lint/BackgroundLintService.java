@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
@@ -46,29 +47,47 @@ public class BackgroundLintService {
   private static final ILogChannel log = LogChannel.GENERAL;
   private static final int DEFERRED_CHECK_DELAY_MS = 500;
 
-  private static BackgroundLintService instance;
+  /**
+   * Shared by every session: this is CPU bound file parsing, and a pool per Hop Web session would
+   * multiply the threads by the number of people logged in.
+   */
+  private static final ExecutorService executor =
+      Executors.newFixedThreadPool(
+          Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
+          r -> {
+            Thread t = new Thread(r, "HopLinter-Background");
+            t.setDaemon(true);
+            return t;
+          });
 
-  private final ExecutorService executor;
+  /** Used when there is no GUI to own this: the command line, and unit tests. */
+  private static BackgroundLintService fallback;
+
   private final LintCheckTracker tracker;
   private final Map<String, AtomicInteger> deferredGenerations = new ConcurrentHashMap<>();
 
   private BackgroundLintService() {
-    this.executor =
-        Executors.newFixedThreadPool(
-            Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
-            r -> {
-              Thread t = new Thread(r, "HopLinter-Background");
-              t.setDaemon(true);
-              return t;
-            });
     this.tracker = new LintCheckTracker();
   }
 
-  public static synchronized BackgroundLintService getInstance() {
-    if (instance == null) {
-      instance = new BackgroundLintService();
+  /**
+   * The service belonging to the GUI that asks for it.
+   *
+   * <p>Hop Web serves many people from one JVM, each with their own editors and their own findings,
+   * so what has already been linted and which editors are waiting for an answer is per session. The
+   * desktop has one HopGui and therefore one of these.
+   */
+  public static BackgroundLintService getInstance() {
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(BackgroundLintService.class, BackgroundLintService::new);
     }
-    return instance;
+    synchronized (BackgroundLintService.class) {
+      if (fallback == null) {
+        fallback = new BackgroundLintService();
+      }
+      return fallback;
+    }
   }
 
   public LintCheckTracker getTracker() {
@@ -95,7 +114,7 @@ public class BackgroundLintService {
       LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
       return;
     }
-    executor.submit(() -> lintFileInternal(filePath, graphId));
+    submit(() -> lintFileInternal(filePath, graphId));
   }
 
   public void scheduleGraphLint(HopGuiAbstractGraph graph, boolean force) {
@@ -125,7 +144,7 @@ public class BackgroundLintService {
     if (!isEnabled() || Utils.isEmpty(projectPath)) {
       return;
     }
-    executor.submit(
+    submit(
         () -> {
           try {
             HopLinter linter = new HopLinter();
@@ -184,14 +203,14 @@ public class BackgroundLintService {
       return;
     }
 
-    HopGui hopGuiForSnapshot = HopGui.getInstance();
+    HopGui hopGuiForSnapshot = HopGui.peekInstance();
     EditorSnapshot snapshot =
         snapshotOf(graph, hopGuiForSnapshot != null ? hopGuiForSnapshot.getVariables() : null);
 
-    executor.submit(
+    submit(
         () -> {
           try {
-            HopGui hopGui = HopGui.getInstance();
+            HopGui hopGui = HopGui.peekInstance();
             IHopMetadataProvider metadataProvider =
                 hopGui != null ? hopGui.getMetadataProvider() : null;
             IVariables variables = hopGui != null ? hopGui.getVariables() : null;
@@ -296,7 +315,7 @@ public class BackgroundLintService {
 
   private void lintFileInternal(String filePath, String graphId) {
     try {
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
       IVariables variables = hopGui != null ? hopGui.getVariables() : null;
 
@@ -331,8 +350,19 @@ public class BackgroundLintService {
     return linter.lintFile(filePath, metadataProvider, variables);
   }
 
-  public void shutdown() {
-    executor.shutdown();
+  /**
+   * Hand work to the pool without losing the session it belongs to.
+   *
+   * <p>Everything the work then reaches for - the HopGui of the person who asked, its metadata
+   * provider, the editors to report into - belongs to a RAP {@code UISession} in Hop Web, and a
+   * pooled thread has none of its own: the lookup fails with "Invalid thread access" and the lint
+   * dies before it starts. {@link BackgroundThreadFacade} carries the session of the thread that
+   * schedules the work over to the thread that runs it, and is a no-op on the desktop.
+   *
+   * <p>Call this from the UI thread: that is where the session is read.
+   */
+  private static void submit(Runnable work) {
+    executor.submit(BackgroundThreadFacade.bind(work));
   }
 
   private boolean includeMetadataInGuiLint() {

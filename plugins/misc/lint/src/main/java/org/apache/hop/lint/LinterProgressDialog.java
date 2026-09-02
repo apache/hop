@@ -144,7 +144,8 @@ public class LinterProgressDialog implements ProgressCallback {
   @Override
   public void updateProgress(String message, int completed, int total) {
     if (!dialog.isDisposed()) {
-      Display.getDefault()
+      dialog
+          .getDisplay()
           .asyncExec(
               () -> {
                 if (!dialog.isDisposed()) {
@@ -167,7 +168,8 @@ public class LinterProgressDialog implements ProgressCallback {
   public void setComplete(String message) {
     complete = true;
     if (!dialog.isDisposed()) {
-      Display.getDefault()
+      dialog
+          .getDisplay()
           .asyncExec(
               () -> {
                 if (!dialog.isDisposed()) {

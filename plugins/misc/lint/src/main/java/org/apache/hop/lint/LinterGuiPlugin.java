@@ -33,6 +33,7 @@ import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -81,7 +82,7 @@ public class LinterGuiPlugin {
   public static void lintProject() {
     // Add debug output at the very start
     LogChannel.GENERAL.logBasic("Lint Project menu item selected");
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
 
     try {
       // Null-safety check for HopGui
@@ -124,79 +125,72 @@ public class LinterGuiPlugin {
       final String finalProjectName = projectName != null ? projectName : "Unknown Project";
 
       // Run linter in background thread
-      Thread linterThread =
-          new Thread(
-              () -> {
-                try {
-                  long lintStartTime = System.currentTimeMillis();
-                  HopLinter linter = new HopLinter();
-                  IHopMetadataProvider metadataProvider = finalHopGui.getMetadataProvider();
+      BackgroundThreadFacade.start(
+          () -> {
+            try {
+              long lintStartTime = System.currentTimeMillis();
+              HopLinter linter = new HopLinter();
+              IHopMetadataProvider metadataProvider = finalHopGui.getMetadataProvider();
 
-                  List<LintResult> results =
-                      linter.run(
-                          finalProjectPath, metadataProvider, finalVariables, progressDialog);
-                  long lintEndTime = System.currentTimeMillis();
-                  long totalLintTime = lintEndTime - lintStartTime;
+              List<LintResult> results =
+                  linter.run(finalProjectPath, metadataProvider, finalVariables, progressDialog);
+              long lintEndTime = System.currentTimeMillis();
+              long totalLintTime = lintEndTime - lintStartTime;
 
-                  // Check if cancelled
-                  if (progressDialog.isCancelled()) {
-                    LogChannel.GENERAL.logBasic("Linting cancelled by user");
-                    return;
-                  }
+              // Check if cancelled
+              if (progressDialog.isCancelled()) {
+                LogChannel.GENERAL.logBasic("Linting cancelled by user");
+                return;
+              }
 
-                  // Generate rule summary
-                  Map<String, HopLinter.RuleSummary> ruleSummary =
-                      linter.generateRuleSummary(results);
+              // Generate rule summary
+              Map<String, HopLinter.RuleSummary> ruleSummary = linter.generateRuleSummary(results);
 
-                  // Process and display results on UI thread
-                  Display.getDefault()
-                      .asyncExec(
-                          () -> {
-                            try {
-                              // Update results manager for GUI integration
-                              LintResultsManager.getInstance().updateResults(results);
-                              LintProblemsBarManager.getInstance().refreshAllOpenEditors();
+              // Process and display results on UI thread
+              Display.getDefault()
+                  .asyncExec(
+                      () -> {
+                        try {
+                          // Update results manager for GUI integration
+                          LintResultsManager.getInstance().updateResults(results);
+                          LintProblemsBarManager.getInstance().refreshAllOpenEditors();
 
-                              LinterGuiPlugin plugin = new LinterGuiPlugin();
-                              plugin.displayResults(
-                                  finalHopGui,
-                                  results,
-                                  ruleSummary,
-                                  totalLintTime,
-                                  finalProjectName);
-                            } catch (Exception e) {
-                              LogChannel.GENERAL.logError(
-                                  "Error displaying results: " + e.getMessage(), e);
-                            }
-                          });
+                          LinterGuiPlugin plugin = new LinterGuiPlugin();
+                          plugin.displayResults(
+                              finalHopGui, results, ruleSummary, totalLintTime, finalProjectName);
+                        } catch (Exception e) {
+                          LogChannel.GENERAL.logError(
+                              "Error displaying results: " + e.getMessage(), e);
+                        }
+                      });
 
-                } catch (Exception e) {
-                  LogChannel.GENERAL.logError("Error in linter thread: " + e.getMessage(), e);
-                  Display.getDefault()
-                      .asyncExec(
-                          () -> {
-                            if (finalHopGui != null && finalHopGui.getShell() != null) {
-                              new ErrorDialog(
-                                  finalHopGui.getShell(),
-                                  "Linting Error",
-                                  "An error occurred while running the linter: " + e.getMessage(),
-                                  e);
-                            }
-                          });
-                } finally {
-                  // Ensure progress dialog closes
-                  Display.getDefault()
-                      .asyncExec(
-                          () -> {
-                            if (!progressDialog.isComplete()) {
-                              progressDialog.close();
-                            }
-                          });
-                }
-              });
+            } catch (Exception e) {
+              LogChannel.GENERAL.logError("Error in linter thread: " + e.getMessage(), e);
+              Display.getDefault()
+                  .asyncExec(
+                      () -> {
+                        if (finalHopGui != null && finalHopGui.getShell() != null) {
+                          new ErrorDialog(
+                              finalHopGui.getShell(),
+                              "Linting Error",
+                              "An error occurred while running the linter: " + e.getMessage(),
+                              e);
+                        }
+                      });
+            } finally {
+              // Ensure progress dialog closes
+              Display.getDefault()
+                  .asyncExec(
+                      () -> {
+                        if (!progressDialog.isComplete()) {
+                          progressDialog.close();
+                        }
+                      });
+            }
+          },
+          "HopLinter-Project");
 
-      // Start the thread and show progress dialog
-      linterThread.start();
+      // Show the progress dialog while the linter runs
       progressDialog.open();
 
     } catch (Exception e) {
@@ -278,7 +272,7 @@ public class LinterGuiPlugin {
       String projectName) {
     try {
       // Get project path from HopGui variables
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       IVariables variables = hopGui.getVariables();
       String projectPath = variables.getVariable("PROJECT_HOME");
 
@@ -434,7 +428,7 @@ public class LinterGuiPlugin {
       image = "lint-check.svg")
   public static void manageCustomRules() {
     try {
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       if (hopGui == null) {
         LogChannel.GENERAL.logError("HopGui instance not available");
         return;

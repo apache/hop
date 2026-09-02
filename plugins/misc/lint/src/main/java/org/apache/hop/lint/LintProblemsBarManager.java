@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.eclipse.swt.widgets.Display;
 
@@ -33,18 +34,33 @@ public class LintProblemsBarManager {
   private static final int EDITOR_WAIT_ATTEMPTS = 12;
 
   private static final int EDITOR_WAIT_INTERVAL_MS = 250;
-  private static LintProblemsBarManager instance;
+
+  /** Used when there is no GUI to own the editors: the command line, and unit tests. */
+  private static LintProblemsBarManager fallback;
 
   private final Map<String, HopGuiAbstractGraph> graphsById = new ConcurrentHashMap<>();
   private final Map<String, String> filePathByGraphId = new ConcurrentHashMap<>();
 
   private LintProblemsBarManager() {}
 
-  public static synchronized LintProblemsBarManager getInstance() {
-    if (instance == null) {
-      instance = new LintProblemsBarManager();
+  /**
+   * The editors of the GUI that asks for them.
+   *
+   * <p>This holds widgets, and in Hop Web the widgets of one session may not be touched from
+   * another: a shared map had {@link #refreshAllOpenEditors()} reaching into every session that
+   * happened to be logged in. The desktop has one HopGui and therefore one of these.
+   */
+  public static LintProblemsBarManager getInstance() {
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(LintProblemsBarManager.class, LintProblemsBarManager::new);
     }
-    return instance;
+    synchronized (LintProblemsBarManager.class) {
+      if (fallback == null) {
+        fallback = new LintProblemsBarManager();
+      }
+      return fallback;
+    }
   }
 
   public void attachToGraph(HopGuiAbstractGraph graph) {
@@ -123,8 +139,12 @@ public class LintProblemsBarManager {
     // This touches SWT widgets, so make sure it runs on the UI thread regardless of which
     // thread the caller is on (background lint threads call this too).
     if (Display.getCurrent() == null) {
-      Display display = Display.getDefault();
+      Display display = sessionDisplay();
       if (display == null || display.isDisposed()) {
+        log.logDetailed(
+            "Not syncing the Problems tab for "
+                + filePath
+                + ": this thread has no display to do it on");
         return;
       }
       display.asyncExec(() -> updateProblemsBar(filePath));
@@ -159,6 +179,25 @@ public class LintProblemsBarManager {
       return;
     }
     display.timerExec(EDITOR_WAIT_INTERVAL_MS, () -> updateProblemsBar(filePath, attempt + 1));
+  }
+
+  /**
+   * The display to get onto the UI thread with.
+   *
+   * <p>An editor we already know about answers first: {@code Display.getDefault()} only knows the
+   * session bound to the calling thread, which is nothing at all on a thread that was started
+   * without one - and in Hop Web the wrong session's display would be worse than none.
+   */
+  private Display sessionDisplay() {
+    for (HopGuiAbstractGraph graph : graphsById.values()) {
+      if (!graph.isDisposed()) {
+        Display display = graph.getDisplay();
+        if (display != null && !display.isDisposed()) {
+          return display;
+        }
+      }
+    }
+    return Display.getDefault();
   }
 
   public void refreshAllOpenEditors() {

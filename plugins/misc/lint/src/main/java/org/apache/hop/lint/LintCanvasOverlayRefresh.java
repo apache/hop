@@ -16,6 +16,9 @@
  */
 package org.apache.hop.lint;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
@@ -28,20 +31,25 @@ import org.eclipse.swt.widgets.Display;
  */
 public final class LintCanvasOverlayRefresh {
 
-  private static volatile boolean registered;
+  /**
+   * The results this listens to, one entry per set of findings we have subscribed to.
+   *
+   * <p>A single flag registered with the first session's results and left every later session
+   * without canvas overlays: Hop Web gives each of them findings of their own. Weakly held so a
+   * session that goes away takes its entry with it.
+   */
+  private static final Set<LintResultsManager> registered =
+      Collections.newSetFromMap(Collections.synchronizedMap(new WeakHashMap<>()));
 
   private LintCanvasOverlayRefresh() {}
 
   public static void ensureRegistered() {
-    if (registered) {
-      return;
-    }
+    LintResultsManager results = LintResultsManager.getInstance();
     synchronized (LintCanvasOverlayRefresh.class) {
-      if (registered) {
+      if (!registered.add(results)) {
         return;
       }
-      LintResultsManager.getInstance().addListener(LintCanvasOverlayRefresh::onResultsUpdated);
-      registered = true;
+      results.addListener(LintCanvasOverlayRefresh::onResultsUpdated);
     }
   }
 
@@ -50,7 +58,7 @@ public final class LintCanvasOverlayRefresh {
   }
 
   public static void redrawOpenGraphs() {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui == null) {
       return;
     }

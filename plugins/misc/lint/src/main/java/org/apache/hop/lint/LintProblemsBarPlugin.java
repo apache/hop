@@ -29,7 +29,7 @@ public class LintProblemsBarPlugin {
 
   public static void showLintResults() {
     try {
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       if (hopGui != null && hopGui.getShell() != null) {
         String filename = LintEditorGraphHelper.getActiveEditorFilename();
         if (filename != null) {

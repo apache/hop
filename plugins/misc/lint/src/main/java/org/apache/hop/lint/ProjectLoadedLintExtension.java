@@ -37,7 +37,7 @@ public class ProjectLoadedLintExtension implements IExtensionPoint<Object> {
     if (Utils.isEmpty(projectPath)) {
       return;
     }
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     BackgroundLintService.getInstance()
         .lintProjectAsync(
             projectPath, hopGui != null ? hopGui.getMetadataProvider() : null, variables);

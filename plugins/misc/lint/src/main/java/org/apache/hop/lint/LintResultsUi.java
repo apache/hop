@@ -66,7 +66,7 @@ public final class LintResultsUi {
   }
 
   public static void showResultsForFile(String filePath) {
-    HopGui hopGui = HopGui.getInstance();
+    HopGui hopGui = HopGui.peekInstance();
     if (hopGui == null || hopGui.getShell() == null) {
       return;
     }

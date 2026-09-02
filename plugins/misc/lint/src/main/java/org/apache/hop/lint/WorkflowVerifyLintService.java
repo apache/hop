@@ -46,7 +46,7 @@ public final class WorkflowVerifyLintService {
       delegate.addWorkflowCheck();
       graph.extraViewTabFolder.setSelection(delegate.getWorkflowCheckTab());
 
-      HopGui hopGui = HopGui.getInstance();
+      HopGui hopGui = HopGui.peekInstance();
       WorkflowMeta workflowMeta = graph.getWorkflowMeta();
       String fileName = LintPathUtils.normalizePath(workflowMeta.getFilename());
 
