@@ -114,7 +114,9 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   private String filterText = "";
   private SearchMatcher filterMatcher = new SearchMatcher("", false, false, false);
   private final Runnable applyFilterRunnable = this::rebuildTree;
+  final Runnable persistSqlTabsRunnable = () -> DatabaseSqlTabMemory.save(this);
   private final String eventListenerId;
+  volatile boolean restoringSqlTabs;
 
   public DatabaseWorkbench(Composite parent, IDatabaseWorkbenchHost host) {
     super(parent, SWT.NONE);
@@ -187,6 +189,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         e -> {
           IHopFileTypeHandler handler = getActiveFileTypeHandler();
           host.updateGui(handler);
+          schedulePersistSqlTabs();
         });
     new TabCloseHandler(this, tabFolder);
 
@@ -204,16 +207,30 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
             e -> host.asyncExec(this::reloadConnections),
             HopGuiEvents.MetadataChanged.name(),
             HopGuiEvents.MetadataCreated.name(),
-            HopGuiEvents.MetadataDeleted.name(),
+            HopGuiEvents.MetadataDeleted.name());
+    host.getHopGui()
+        .getEventsHandler()
+        .addEventListener(
+            eventListenerId + "-project",
+            e ->
+                host.asyncExec(
+                    () -> {
+                      closeSqlEditorTabs();
+                      reloadConnections();
+                      DatabaseSqlTabMemory.restore(this);
+                    }),
             HopGuiEvents.ProjectActivated.name());
 
     addDisposeListener(
         e -> {
+          DatabaseSqlTabMemory.saveNow(this);
           operationsPanel.cancelAll();
           host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId);
+          host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId + "-project");
         });
 
     reloadConnections();
+    DatabaseSqlTabMemory.restore(this);
   }
 
   public DatabaseSqlFileType getSqlFileType() {
@@ -722,6 +739,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       image = "ui/images/detach-panel.svg",
       separator = true)
   public void openFloatingWindow() {
+    DatabaseSqlTabMemory.saveNow(this);
     DatabaseWorkbenchViews.openDialog(host.getHopGui());
   }
 
@@ -731,6 +749,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       toolTip = "i18n::DatabasePerspective.Toolbar.Dock.Tooltip",
       image = "ui/images/dock-panel.svg")
   public void openInBottomDock() {
+    DatabaseSqlTabMemory.saveNow(this);
     DatabaseWorkbenchViews.openDock(host.getHopGui());
   }
 
@@ -775,6 +794,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     }
     tabFolder.setSelection(tabItem);
     host.updateGui(tab);
+    schedulePersistSqlTabs();
     return tab;
   }
 
@@ -828,6 +848,92 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       state.setDatabaseMeta(meta);
     }
     return state;
+  }
+
+  void schedulePersistSqlTabs() {
+    DatabaseSqlTabMemory.scheduleSave(this);
+  }
+
+  boolean hasSqlEditorTabs() {
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  boolean restoreSqlTab(DatabaseSqlTabMemory.Snapshot snapshot) {
+    DatabaseMeta meta = findConnection(snapshot.connection);
+    if (meta == null) {
+      return false;
+    }
+    if (!Utils.isEmpty(snapshot.filename) && !snapshot.dirty) {
+      openSqlFile(snapshot.filename, meta, null, false);
+      return true;
+    }
+    if (!Utils.isEmpty(snapshot.filename)) {
+      openSqlFile(snapshot.filename, meta, snapshot.sql, true);
+      return true;
+    }
+    DatabaseSqlEditorTab tab =
+        openSqlTab(
+            meta, Const.NVL(snapshot.sql, ""), null, Const.NVL(snapshot.sql, ""), snapshot.dirty);
+    if (!Utils.isEmpty(snapshot.name)) {
+      tab.setName(snapshot.name);
+    }
+    return true;
+  }
+
+  void selectSqlTabIndex(int index) {
+    int sqlIndex = 0;
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab) {
+        if (sqlIndex == index && item.getTabItem() != null && !item.getTabItem().isDisposed()) {
+          tabFolder.setSelection(item.getTabItem());
+          return;
+        }
+        sqlIndex++;
+      }
+    }
+  }
+
+  List<DatabaseSqlTabMemory.Snapshot> snapshotSqlTabs() {
+    List<DatabaseSqlTabMemory.Snapshot> snapshots = new ArrayList<>();
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab tab) {
+        snapshots.add(DatabaseSqlTabMemory.snapshotOf(tab));
+      }
+    }
+    return snapshots;
+  }
+
+  int selectedSqlTabIndex() {
+    CTabItem selected = tabFolder.getSelection();
+    int index = 0;
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab) {
+        if (item.getTabItem() == selected) {
+          return index;
+        }
+        index++;
+      }
+    }
+    return 0;
+  }
+
+  void closeSqlEditorTabs() {
+    restoringSqlTabs = true;
+    try {
+      List<TabItemHandler> copy = new ArrayList<>(items);
+      for (TabItemHandler item : copy) {
+        if (item.getTypeHandler() instanceof DatabaseSqlEditorTab) {
+          disposeTab(item);
+        }
+      }
+    } finally {
+      restoringSqlTabs = false;
+    }
   }
 
   void selectConnection(String name) {
@@ -930,6 +1036,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       item.getTabItem().dispose();
     }
     host.updateGui(getActiveFileTypeHandler());
+    schedulePersistSqlTabs();
   }
 
   @Override

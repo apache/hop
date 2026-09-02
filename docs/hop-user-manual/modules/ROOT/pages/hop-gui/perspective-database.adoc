@@ -66,7 +66,7 @@ The same workbench can run outside the perspective, like Search:
 * *Float* on the connection toolbar (or **Tools → Database window**) opens a non-modal window you can put on another monitor while you stay in Data orchestration.
 * *Dock* opens it as a tab in the bottom dock (next to the terminal and search results).
 
-Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`.
+Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`. SQL editor tabs (connection, file or buffer, unsaved edits) are remembered per project when you close the window or dock and when you restart Hop Gui. Query results are not stored.
 
 **SQL** on a table-output (or bulk-loader, lookup, update, …) transform dialog opens this floating window on the transform's connection: the schema/table tree refreshes in the background while you edit and run the generated SQL. The same happens from the database explorer (Open SQL, Generate DDL, Truncate).
 

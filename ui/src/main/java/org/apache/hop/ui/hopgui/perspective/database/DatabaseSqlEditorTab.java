@@ -122,6 +122,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
         e -> {
           setChanged();
           host.updateGui(this);
+          workbench.schedulePersistSqlTabs();
         });
     editor.getControl().setData(DATA_SQL_TAB, this);
     editor
@@ -491,6 +492,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
       clearChanged();
       host.updateGui(this);
       workbench.refreshTab(this);
+      workbench.schedulePersistSqlTabs();
     } catch (Exception e) {
       throw new HopException("Unable to save file '" + filename + "'", e);
     }
