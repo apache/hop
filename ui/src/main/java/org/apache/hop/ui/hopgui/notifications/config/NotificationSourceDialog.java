@@ -22,6 +22,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -48,7 +49,14 @@ public class NotificationSourceDialog {
   private Shell shell;
   private Shell parentShell;
   private NotificationSourceConfig sourceConfig;
-  private boolean cancelled = false;
+
+  /**
+   * Whether the dialog was closed without confirming. Only OK clears it: closing the window any
+   * other way - the title bar, Escape - leaves the edits unsaved, which is what closing a dialog
+   * means everywhere else.
+   */
+  private boolean cancelled = true;
+
   private PropsUi props = PropsUi.getInstance();
 
   // UI widgets
@@ -66,6 +74,12 @@ public class NotificationSourceDialog {
   private TextVar wPluginId;
   private TextVar wPollInterval;
   private TextVar wDaysToGoBack;
+  private TextVar wUsername;
+  private PasswordTextVar wPassword;
+  private TextVar wMinimumVersion;
+
+  /** Set while one GitHub field is updating another, so the two directions do not loop. */
+  private boolean syncingGithubFields;
 
   public NotificationSourceDialog(Shell parent, NotificationSourceConfig sourceConfig) {
     this.parentShell = parent;
@@ -246,8 +260,9 @@ public class NotificationSourceDialog {
     // Set initial type-specific fields
     updateTypeSpecificFields();
 
-    shell.pack();
-    shell.setSize(500, 400);
+    // Centres on the main window and remembers where it was put, the way every other Hop dialog
+    // behaves. Packing and sizing by hand left it wherever the window manager felt like.
+    BaseTransformDialog.setSize(shell, 500, 400, true);
 
     shell.open();
     while (!shell.isDisposed()) {
@@ -352,45 +367,17 @@ public class NotificationSourceDialog {
             new SelectionAdapter() {
               @Override
               public void widgetSelected(SelectionEvent e) {
-                String url = wGithubUrl.getText().trim();
-                if (!Utils.isEmpty(url)) {
-                  parseGitHubUrl(url);
-                }
-              }
-
-              private void parseGitHubUrl(String input) {
-                String owner = null;
-                String repo = null;
-
-                if (input.contains("github.com/")) {
-                  String[] parts = input.split("github.com/");
-                  if (parts.length > 1) {
-                    String path =
-                        parts[1].split("\\?")[0].split("#")[0]; // Remove query params and fragments
-                    String[] ownerRepo = path.split("/");
-                    if (ownerRepo.length >= 2) {
-                      owner = ownerRepo[0].trim();
-                      repo = ownerRepo[1].trim();
-                    }
-                  }
-                } else if (input.contains("/")) {
-                  String[] parts = input.split("/");
-                  if (parts.length >= 2) {
-                    owner = parts[0].trim();
-                    repo = parts[1].trim();
-                  }
-                }
-
-                if (owner != null && !owner.isEmpty() && repo != null && !repo.isEmpty()) {
-                  wGithubOwner.setText(owner);
-                  wGithubRepo.setText(repo);
-                } else {
+                // Editing the URL already keeps the other two fields in step; this stays for the
+                // paste-and-click habit, and to say so when the text is not a repository at all.
+                if (parseOwnerAndRepo(wGithubUrl.getText().trim()) == null) {
                   new ErrorDialog(
                       shell,
-                      "Error",
-                      "Could not parse GitHub URL. Please enter a URL like https://github.com/owner/repo or owner/repo",
+                      BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+                      BaseMessages.getString(PKG, "NotificationSourceDialog.Error.GithubUrl"),
                       new Exception());
+                  return;
                 }
+                syncOwnerAndRepoFromUrl();
               }
             });
 
@@ -455,6 +442,42 @@ public class NotificationSourceDialog {
         fdGithubIncludePrereleases.top = new FormAttachment(0, yPos);
         wGithubIncludePrereleases.setLayoutData(fdGithubIncludePrereleases);
         wGithubIncludePrereleases.setSelection(sourceConfig.isGithubIncludePrereleases());
+
+        yPos += 30;
+        Label wlMinimumVersion = new Label(wTypeSpecificComposite, SWT.RIGHT);
+        wlMinimumVersion.setText(
+            BaseMessages.getString(PKG, "NotificationSourceDialog.MinimumVersion"));
+        wlMinimumVersion.setToolTipText(
+            BaseMessages.getString(PKG, "NotificationSourceDialog.MinimumVersion.Tooltip"));
+        props.setLook(wlMinimumVersion);
+        FormData fdlMinimumVersion = new FormData();
+        fdlMinimumVersion.left = new FormAttachment(0, 0);
+        fdlMinimumVersion.right = new FormAttachment(middle, -margin);
+        fdlMinimumVersion.top = new FormAttachment(0, yPos);
+        wlMinimumVersion.setLayoutData(fdlMinimumVersion);
+
+        wMinimumVersion =
+            new TextVar(
+                HopGui.getInstance().getVariables(),
+                wTypeSpecificComposite,
+                SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        props.setLook(wMinimumVersion);
+        FormData fdMinimumVersion = new FormData();
+        fdMinimumVersion.left = new FormAttachment(middle, 0);
+        fdMinimumVersion.right = new FormAttachment(100, 0);
+        fdMinimumVersion.top = new FormAttachment(0, yPos);
+        wMinimumVersion.setLayoutData(fdMinimumVersion);
+        if (sourceConfig.getMinimumVersion() != null) {
+          wMinimumVersion.setText(sourceConfig.getMinimumVersion());
+        }
+
+        // The URL is what people reach for first, and editing it used to have no effect at all:
+        // the owner and repository fields are what gets saved, and they were only updated by the
+        // Parse button. Keep all three in step so that whichever one is edited is the one that
+        // counts. Attached here, after every field exists.
+        wGithubUrl.addModifyListener(e -> syncOwnerAndRepoFromUrl());
+        wGithubOwner.addModifyListener(e -> syncUrlFromOwnerAndRepo());
+        wGithubRepo.addModifyListener(e -> syncUrlFromOwnerAndRepo());
         break;
 
       case RSS_FEED:
@@ -569,14 +592,168 @@ public class NotificationSourceDialog {
       wDaysToGoBack.setText("0"); // 0 means use global default
     }
 
+    // Credentials, for a source that is private or rate limited. A plugin's provider authenticates
+    // itself, so it is not asked for them here.
+    if (selectedType != NotificationSourceConfig.SourceType.CUSTOM_PLUGIN) {
+      yPos += 30;
+      Label wlUsername = new Label(wTypeSpecificComposite, SWT.RIGHT);
+      wlUsername.setText(BaseMessages.getString(PKG, "NotificationSourceDialog.Username"));
+      wlUsername.setToolTipText(
+          BaseMessages.getString(PKG, "NotificationSourceDialog.Username.Tooltip"));
+      props.setLook(wlUsername);
+      FormData fdlUsername = new FormData();
+      fdlUsername.left = new FormAttachment(0, 0);
+      fdlUsername.right = new FormAttachment(middle, -margin);
+      fdlUsername.top = new FormAttachment(0, yPos);
+      wlUsername.setLayoutData(fdlUsername);
+
+      wUsername =
+          new TextVar(
+              HopGui.getInstance().getVariables(),
+              wTypeSpecificComposite,
+              SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      props.setLook(wUsername);
+      FormData fdUsername = new FormData();
+      fdUsername.left = new FormAttachment(middle, 0);
+      fdUsername.right = new FormAttachment(100, 0);
+      fdUsername.top = new FormAttachment(0, yPos);
+      wUsername.setLayoutData(fdUsername);
+      if (sourceConfig.getUsername() != null) {
+        wUsername.setText(sourceConfig.getUsername());
+      }
+
+      yPos += 30;
+      Label wlPassword = new Label(wTypeSpecificComposite, SWT.RIGHT);
+      wlPassword.setText(BaseMessages.getString(PKG, "NotificationSourceDialog.Password"));
+      wlPassword.setToolTipText(
+          BaseMessages.getString(PKG, "NotificationSourceDialog.Password.Tooltip"));
+      props.setLook(wlPassword);
+      FormData fdlPassword = new FormData();
+      fdlPassword.left = new FormAttachment(0, 0);
+      fdlPassword.right = new FormAttachment(middle, -margin);
+      fdlPassword.top = new FormAttachment(0, yPos);
+      wlPassword.setLayoutData(fdlPassword);
+
+      wPassword =
+          new PasswordTextVar(
+              HopGui.getInstance().getVariables(),
+              wTypeSpecificComposite,
+              SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      props.setLook(wPassword);
+      FormData fdPassword = new FormData();
+      fdPassword.left = new FormAttachment(middle, 0);
+      fdPassword.right = new FormAttachment(100, 0);
+      fdPassword.top = new FormAttachment(0, yPos);
+      wPassword.setLayoutData(fdPassword);
+      if (sourceConfig.getPassword() != null) {
+        wPassword.setText(sourceConfig.getPassword());
+      }
+    } else {
+      wUsername = null;
+      wPassword = null;
+    }
+    if (selectedType != NotificationSourceConfig.SourceType.GITHUB_RELEASES) {
+      wMinimumVersion = null;
+    }
+
     wTypeSpecificComposite.layout();
+  }
+
+  /**
+   * Update the owner and repository from the URL the user is editing.
+   *
+   * <p>A half-typed or unparseable URL leaves them alone rather than clearing them: the point is to
+   * follow the URL, not to punish someone mid-keystroke.
+   */
+  private void syncOwnerAndRepoFromUrl() {
+    if (syncingGithubFields || wGithubUrl == null || wGithubUrl.isDisposed()) {
+      return;
+    }
+    String[] ownerRepo = parseOwnerAndRepo(wGithubUrl.getText().trim());
+    if (ownerRepo == null) {
+      return;
+    }
+    syncingGithubFields = true;
+    try {
+      if (wGithubOwner != null && !wGithubOwner.isDisposed()) {
+        wGithubOwner.setText(ownerRepo[0]);
+      }
+      if (wGithubRepo != null && !wGithubRepo.isDisposed()) {
+        wGithubRepo.setText(ownerRepo[1]);
+      }
+    } finally {
+      syncingGithubFields = false;
+    }
+  }
+
+  /** Rebuild the URL when the owner or repository is edited directly. */
+  private void syncUrlFromOwnerAndRepo() {
+    if (syncingGithubFields
+        || wGithubUrl == null
+        || wGithubUrl.isDisposed()
+        || wGithubOwner == null
+        || wGithubOwner.isDisposed()
+        || wGithubRepo == null
+        || wGithubRepo.isDisposed()) {
+      return;
+    }
+    String owner = wGithubOwner.getText().trim();
+    String repo = wGithubRepo.getText().trim();
+    if (Utils.isEmpty(owner) || Utils.isEmpty(repo)) {
+      return;
+    }
+    syncingGithubFields = true;
+    try {
+      wGithubUrl.setText("https://github.com/" + owner + "/" + repo);
+    } finally {
+      syncingGithubFields = false;
+    }
+  }
+
+  /**
+   * Read a GitHub owner and repository out of a URL or an {@code owner/repo} pair.
+   *
+   * @param input The text to read
+   * @return The owner and the repository, or null when the text is not one of those
+   */
+  static String[] parseOwnerAndRepo(String input) {
+    if (Utils.isEmpty(input)) {
+      return null;
+    }
+    String path;
+    if (input.contains("github.com/")) {
+      String[] parts = input.split("github.com/");
+      if (parts.length < 2) {
+        return null;
+      }
+      path = parts[1];
+    } else if (input.contains("/")) {
+      path = input;
+    } else {
+      return null;
+    }
+    // Drop any query string or fragment before splitting the path.
+    path = path.split("\\?")[0].split("#")[0];
+    String[] segments = path.split("/");
+    if (segments.length < 2) {
+      return null;
+    }
+    String owner = segments[0].trim();
+    String repo = segments[1].trim();
+    if (owner.isEmpty() || repo.isEmpty()) {
+      return null;
+    }
+    return new String[] {owner, repo};
   }
 
   private boolean saveSource() {
     String name = wName.getText().trim();
     if (Utils.isEmpty(name)) {
       new ErrorDialog(
-          shell, "Error", "Please enter a name for the notification source", new Exception());
+          shell,
+          BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+          BaseMessages.getString(PKG, "NotificationSourceDialog.Error.NameRequired"),
+          new Exception());
       return false;
     }
 
@@ -598,8 +775,8 @@ public class NotificationSourceDialog {
             || wGithubRepo.isDisposed()) {
           new ErrorDialog(
               shell,
-              "Error",
-              "GitHub source fields are not initialized. Please select the type again.",
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.GithubNotInitialized"),
               new Exception());
           return false;
         }
@@ -621,8 +798,8 @@ public class NotificationSourceDialog {
         if (Utils.isEmpty(owner) || Utils.isEmpty(repo)) {
           new ErrorDialog(
               shell,
-              "Error",
-              "Please enter both owner and repository for GitHub source (or a GitHub URL)",
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.GithubRequired"),
               new Exception());
           return false;
         }
@@ -637,15 +814,18 @@ public class NotificationSourceDialog {
         if (wRssUrl == null || wRssUrl.isDisposed()) {
           new ErrorDialog(
               shell,
-              "Error",
-              "RSS feed field is not initialized. Please select the type again.",
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.RssNotInitialized"),
               new Exception());
           return false;
         }
         String url = wRssUrl.getText().trim();
         if (Utils.isEmpty(url)) {
           new ErrorDialog(
-              shell, "Error", "Please enter a feed URL for RSS source", new Exception());
+              shell,
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.RssRequired"),
+              new Exception());
           return false;
         }
         sourceConfig.setRssUrl(url);
@@ -655,15 +835,18 @@ public class NotificationSourceDialog {
         if (wPluginId == null || wPluginId.isDisposed()) {
           new ErrorDialog(
               shell,
-              "Error",
-              "Plugin ID field is not initialized. Please select the type again.",
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.PluginNotInitialized"),
               new Exception());
           return false;
         }
         String pluginId = wPluginId.getText().trim();
         if (Utils.isEmpty(pluginId)) {
           new ErrorDialog(
-              shell, "Error", "Please enter a plugin ID for custom plugin source", new Exception());
+              shell,
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.PluginRequired"),
+              new Exception());
           return false;
         }
         sourceConfig.setPluginId(pluginId);
@@ -683,12 +866,19 @@ public class NotificationSourceDialog {
           int minutes = Integer.parseInt(pollInterval);
           if (minutes <= 0) {
             new ErrorDialog(
-                shell, "Error", "Poll interval must be greater than 0", new Exception());
+                shell,
+                BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+                BaseMessages.getString(PKG, "NotificationSourceDialog.Error.PollIntervalPositive"),
+                new Exception());
             return false;
           }
           sourceConfig.setPollIntervalMinutes(pollInterval);
         } catch (NumberFormatException e) {
-          new ErrorDialog(shell, "Error", "Poll interval must be a valid number", e);
+          new ErrorDialog(
+              shell,
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.PollIntervalNumber"),
+              e);
           return false;
         }
       } else {
@@ -700,6 +890,19 @@ public class NotificationSourceDialog {
       }
     }
 
+    if (wMinimumVersion != null && !wMinimumVersion.isDisposed()) {
+      sourceConfig.setMinimumVersion(wMinimumVersion.getText().trim());
+    }
+
+    // Save credentials. Stored as written, so a variable stays a reference in the configuration
+    // file rather than being expanded into it.
+    if (wUsername != null && !wUsername.isDisposed()) {
+      sourceConfig.setUsername(wUsername.getText().trim());
+    }
+    if (wPassword != null && !wPassword.isDisposed()) {
+      sourceConfig.setPassword(wPassword.getText().trim());
+    }
+
     // Save days to go back
     if (wDaysToGoBack != null && !wDaysToGoBack.isDisposed()) {
       String daysToGoBack = wDaysToGoBack.getText().trim();
@@ -708,12 +911,19 @@ public class NotificationSourceDialog {
           int days = Integer.parseInt(daysToGoBack);
           if (days < 0) {
             new ErrorDialog(
-                shell, "Error", "Days to go back must be 0 or greater", new Exception());
+                shell,
+                BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+                BaseMessages.getString(PKG, "NotificationSourceDialog.Error.DaysNotNegative"),
+                new Exception());
             return false;
           }
           sourceConfig.setDaysToGoBack(daysToGoBack);
         } catch (NumberFormatException e) {
-          new ErrorDialog(shell, "Error", "Days to go back must be a valid number", e);
+          new ErrorDialog(
+              shell,
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.Title"),
+              BaseMessages.getString(PKG, "NotificationSourceDialog.Error.DaysNumber"),
+              e);
           return false;
         }
       } else {

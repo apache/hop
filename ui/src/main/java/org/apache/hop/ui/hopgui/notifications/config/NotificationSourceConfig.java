@@ -17,9 +17,13 @@
 
 package org.apache.hop.ui.hopgui.notifications.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
@@ -28,6 +32,9 @@ import org.apache.hop.i18n.BaseMessages;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotificationSourceConfig {
+
+  /** Used when Hop's own encoder has not been initialised, so a password is never stored bare. */
+  private static final ITwoWayPasswordEncoder FALLBACK = new HopTwoWayPasswordEncoder();
 
   public enum SourceType {
     GITHUB_RELEASES,
@@ -109,10 +116,12 @@ public class NotificationSourceConfig {
   }
 
   // Convenience methods for common properties
+  @JsonIgnore
   public String getProperty(String key) {
     return properties != null ? properties.get(key) : null;
   }
 
+  @JsonIgnore
   public void setProperty(String key, String value) {
     if (properties == null) {
       properties = new HashMap<>();
@@ -121,35 +130,43 @@ public class NotificationSourceConfig {
   }
 
   // Type-specific getters
+  @JsonIgnore
   public String getGithubOwner() {
     return getProperty("github.owner");
   }
 
+  @JsonIgnore
   public void setGithubOwner(String owner) {
     setProperty("github.owner", owner);
   }
 
+  @JsonIgnore
   public String getGithubRepo() {
     return getProperty("github.repo");
   }
 
+  @JsonIgnore
   public void setGithubRepo(String repo) {
     setProperty("github.repo", repo);
   }
 
+  @JsonIgnore
   public boolean isGithubIncludePrereleases() {
     String value = getProperty("github.includePrereleases");
     return value != null && value.equalsIgnoreCase("true");
   }
 
+  @JsonIgnore
   public void setGithubIncludePrereleases(boolean include) {
     setProperty("github.includePrereleases", String.valueOf(include));
   }
 
+  @JsonIgnore
   public String getRssUrl() {
     return getProperty("rss.url");
   }
 
+  @JsonIgnore
   public void setRssUrl(String url) {
     setProperty("rss.url", url);
   }
@@ -159,6 +176,7 @@ public class NotificationSourceConfig {
    * not set in properties (e.g. after JSON load from older config or manual edit), so providers can
    * be wired correctly.
    */
+  @JsonIgnore
   public String getPluginId() {
     String pluginId = getProperty("plugin.id");
     if (pluginId != null && !pluginId.isEmpty()) {
@@ -167,22 +185,163 @@ public class NotificationSourceConfig {
     return getId(); // Fallback: id and pluginId are the same for PluginHelper-created sources
   }
 
+  @JsonIgnore
   public void setPluginId(String pluginId) {
     setProperty("plugin.id", pluginId);
   }
 
+  /**
+   * The user name sent to the source, or null for anonymous access.
+   *
+   * <p>Held as written, so a variable or a variable resolver expression stays a reference in the
+   * configuration file and is only resolved when a request is made.
+   *
+   * @return The configured user name
+   */
+  @JsonIgnore
+  public String getUsername() {
+    return getProperty("auth.username");
+  }
+
+  @JsonIgnore
+  public void setUsername(String username) {
+    setProperty("auth.username", username);
+  }
+
+  /**
+   * The password or token sent to the source.
+   *
+   * <p>For GitHub this is a personal access token, which also lifts the rate limit: unauthenticated
+   * requests are counted per IP address and shared between everyone behind it, while authenticated
+   * ones are counted per token. Prefer a variable over a literal here, so the token does not end up
+   * in the configuration file.
+   *
+   * @return The configured password or token
+   */
+  @JsonIgnore
+  public String getPassword() {
+    String stored = getProperty("auth.password");
+    if (stored == null || stored.isEmpty()) {
+      return stored;
+    }
+    if (!stored.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX)) {
+      return stored; // A variable, or a value written before this was obfuscated.
+    }
+    return encoder()
+        .decode(stored.substring(Encr.PASSWORD_ENCRYPTED_PREFIX.length()).trim(), false);
+  }
+
+  @JsonIgnore
+  public void setPassword(String password) {
+    // Obfuscated on the way in, the way every other Hop password in a config file is, and left
+    // alone when it is a variable so the reference survives. Obfuscation is not encryption: a
+    // variable pointing at a real secret store is still the better answer for a private source.
+    if (password == null || password.isEmpty() || password.contains("${")) {
+      setProperty("auth.password", password);
+      return;
+    }
+    setProperty(
+        "auth.password", Encr.PASSWORD_ENCRYPTED_PREFIX + encoder().encode(password, false));
+  }
+
+  /**
+   * The password encoder, or a plain one when Hop's has not been initialised.
+   *
+   * <p>{@link Encr} is only wired up by a full client environment. Falling back keeps a source
+   * usable from a context that never called {@code Encr.init}, rather than failing on a field the
+   * user may not even have filled in.
+   *
+   * @return An encoder, never null
+   */
+  private static ITwoWayPasswordEncoder encoder() {
+    ITwoWayPasswordEncoder active = Encr.getEncoder();
+    return active == null ? FALLBACK : active;
+  }
+
+  /**
+   * @return Whether this source has credentials configured
+   */
+  @JsonIgnore
+  public boolean hasCredentials() {
+    String password = getPassword();
+    return password != null && !password.trim().isEmpty();
+  }
+
+  /**
+   * Only report releases newer than this, or null to report every release the source offers.
+   *
+   * <p>A release feed has no idea what you are running, so without a floor it reports a
+   * repository's whole history - Apache Hop alone has more than twenty releases going back years.
+   * The floor is what turns a feed into "tell me when there is something newer than what I have".
+   *
+   * @return The configured floor
+   */
+  @JsonIgnore
+  public String getMinimumVersion() {
+    return getProperty("version.minimum");
+  }
+
+  @JsonIgnore
+  public void setMinimumVersion(String minimumVersion) {
+    setProperty("version.minimum", minimumVersion);
+  }
+
+  /**
+   * The source seeded when nothing is configured: Apache Hop's own releases, floored at the version
+   * of Hop that is running, so a new installation hears about newer releases and not the back
+   * catalogue.
+   *
+   * @return A new source configuration
+   */
+  public static NotificationSourceConfig defaultHopReleasesSource() {
+    NotificationSourceConfig source = new NotificationSourceConfig();
+    source.setId("github-apache-hop");
+    source.setName("Apache Hop Releases");
+    source.setType(SourceType.GITHUB_RELEASES);
+    source.setEnabled(true);
+    source.setGithubOwner("apache");
+    source.setGithubRepo("hop");
+    source.setGithubIncludePrereleases(false);
+    source.setPollIntervalMinutes("60");
+    source.setColor("#FF5733");
+    source.setMinimumVersion(runningHopVersion());
+    return source;
+  }
+
+  /**
+   * The version of Hop that is running, as the jar manifest reports it.
+   *
+   * @return The version, or null when it cannot be determined (a development classpath has no
+   *     manifest, and a floor we cannot establish is better left unset than guessed)
+   */
+  static String runningHopVersion() {
+    try {
+      String[] versions = new org.apache.hop.core.HopVersionProvider().getVersion();
+      if (versions != null && versions.length > 0 && versions[0] != null) {
+        return versions[0].trim().isEmpty() ? null : versions[0].trim();
+      }
+    } catch (Exception e) {
+      // Fall through: no floor is better than a wrong one.
+    }
+    return null;
+  }
+
+  @JsonIgnore
   public String getPollIntervalMinutes() {
     return getProperty("poll.intervalMinutes");
   }
 
+  @JsonIgnore
   public void setPollIntervalMinutes(String minutes) {
     setProperty("poll.intervalMinutes", minutes);
   }
 
+  @JsonIgnore
   public String getDaysToGoBack() {
     return getProperty("daysToGoBack");
   }
 
+  @JsonIgnore
   public void setDaysToGoBack(String days) {
     setProperty("daysToGoBack", days);
   }
@@ -192,7 +351,14 @@ public class NotificationSourceConfig {
    *
    * @return Details string
    */
+  @JsonIgnore
   public String getDetailsDisplay() {
+    if (type == null) {
+      // A stored source that names no type: hand-edited configuration, or one written by a
+      // version that did not have this field. There is nothing to show for it, and the settings
+      // table has to be able to draw the row regardless.
+      return "";
+    }
     switch (type) {
       case GITHUB_RELEASES:
         String owner = getGithubOwner();

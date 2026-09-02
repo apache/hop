@@ -14,30 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hop.ui.hopgui.notifications;
 
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
 
-/** Toolbar item for notifications (bell icon) */
-@GuiPlugin
-public class NotificationToolbarItem {
+/** One NotificationBadgeManager for the process: a desktop Hop GUI serves a single user. */
+public class NotificationBadgeManagerImpl implements ISingletonProvider {
+  private static NotificationBadgeManager instance;
 
-  public static final String ID_NOTIFICATION_BELL = "toolbar-00010-notifications";
-
-  @GuiToolbarElement(
-      root = HopGui.ID_NOTIFICATION_TOOLBAR,
-      id = ID_NOTIFICATION_BELL,
-      type = GuiToolbarElementType.BUTTON,
-      toolTip = "i18n::NotificationToolbarItem.Tooltip",
-      image = "ui/images/notification-bell.svg")
-  public void showNotifications() {
-    NotificationPanel panel = NotificationPanel.getInstance();
-    if (panel != null) {
-      panel.toggle();
+  @Override
+  public Object getInstanceInternal() {
+    if (instance == null) {
+      instance = new NotificationBadgeManager();
     }
+    return instance;
+  }
+
+  @Override
+  public Object peekInstanceInternal() {
+    return instance;
   }
 }

@@ -23,23 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
-import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.IConfigOptions;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.notifications.NotificationProviderPlugins;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -62,11 +58,8 @@ import org.eclipse.swt.widgets.TableItem;
  * Configuration plugin for notification system settings. Allows users to configure multiple
  * notification sources (GitHub, RSS, custom plugins) in a table-based interface.
  */
-@ConfigPlugin(
-    id = "NotificationConfigPlugin",
-    description = "Configuration options for the notification system")
 @GuiPlugin(description = "Notifications") // Required for @GuiTab discovery
-public class NotificationConfigPlugin implements IConfigOptions {
+public class NotificationConfigPlugin {
 
   private static final Class<?> PKG = NotificationConfigPlugin.class;
   private static final String CONFIG_KEY_ENABLE_NOTIFICATIONS = "notification.system.enabled";
@@ -85,29 +78,6 @@ public class NotificationConfigPlugin implements IConfigOptions {
   private Button wShowReadNotifications;
   private List<NotificationSourceConfig> sources;
   private PropsUi props = PropsUi.getInstance();
-
-  /**
-   * Get instance with values loaded from HopConfig
-   *
-   * @return NotificationConfigPlugin instance
-   */
-  public static NotificationConfigPlugin getInstance() {
-    NotificationConfigPlugin instance = new NotificationConfigPlugin();
-    instance.loadSources();
-    return instance;
-  }
-
-  /**
-   * Get the list of notification sources (for use by NotificationPanel)
-   *
-   * @return List of notification source configurations
-   */
-  public List<NotificationSourceConfig> getSources() {
-    if (sources == null) {
-      loadSources();
-    }
-    return sources;
-  }
 
   @GuiTab(
       id = "10200-config-perspective-notifications-tab",
@@ -277,7 +247,10 @@ public class NotificationConfigPlugin implements IConfigOptions {
       // Set button text for color column
       columns[5].setButtonText(
           BaseMessages.getString(PKG, "NotificationConfigPlugin.Table.ChooseColor"));
-      columns[5].setToolTip("Click to choose a color for this notification source");
+      columns[5].setToolTip(BaseMessages.getString(PKG, "NotificationConfigPlugin.Color.Tooltip"));
+      // A button column has no inline text editor, and TableView sizes an auto-resizing column
+      // from exactly that. Leaving it on throws a NullPointerException on every cell edit.
+      columns[5].setAutoResize(false);
 
       wSourcesTable =
           new TableView(
@@ -420,18 +393,10 @@ public class NotificationConfigPlugin implements IConfigOptions {
 
     // If no sources are configured, create a default one
     if (sources.isEmpty()) {
-      NotificationSourceConfig defaultSource = new NotificationSourceConfig();
-      defaultSource.setId("github-apache-hop");
-      defaultSource.setName("Apache Hop Releases");
-      defaultSource.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES);
-      defaultSource.setEnabled(true);
-      defaultSource.setGithubOwner("apache");
-      defaultSource.setGithubRepo("hop");
-      defaultSource.setGithubIncludePrereleases(false);
-      defaultSource.setPollIntervalMinutes("60");
-      defaultSource.setColor("#FF5733"); // Default color
-      sources.add(defaultSource);
+      sources.add(NotificationSourceConfig.defaultHopReleasesSource());
     }
+
+    NotificationProviderPlugins.addDiscovered(sources);
   }
 
   private void loadSourcesIntoTable() {
@@ -449,7 +414,8 @@ public class NotificationConfigPlugin implements IConfigOptions {
       TableItem item = new TableItem(wSourcesTable.table, SWT.NONE);
       int col = 1;
       item.setText(col++, Const.NVL(source.getName(), ""));
-      item.setText(col++, Const.NVL(source.getType().getDisplayName(), ""));
+      item.setText(
+          col++, source.getType() == null ? "" : Const.NVL(source.getType().getDisplayName(), ""));
       item.setText(col++, source.isEnabled() ? yesLabel : noLabel);
       item.setText(col++, Const.NVL(source.getDetailsDisplay(), ""));
       String pollInterval = source.getPollIntervalMinutes();
@@ -524,7 +490,10 @@ public class NotificationConfigPlugin implements IConfigOptions {
       notifyConfigChanged();
     } catch (Exception e) {
       new ErrorDialog(
-          wSourcesTable.getShell(), "Error", "Error saving notification sources configuration", e);
+          wSourcesTable.getShell(),
+          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.Title"),
+          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.SaveSources"),
+          e);
     }
   }
 
@@ -537,7 +506,10 @@ public class NotificationConfigPlugin implements IConfigOptions {
       notifyConfigChanged();
     } catch (Exception e) {
       new ErrorDialog(
-          wSourcesTable.getShell(), "Error", "Error saving notification system enabled state", e);
+          wSourcesTable.getShell(),
+          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.Title"),
+          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.SaveEnabled"),
+          e);
     }
   }
 
@@ -573,7 +545,10 @@ public class NotificationConfigPlugin implements IConfigOptions {
       HopConfig.getInstance().saveToFile();
     } catch (Exception e) {
       new ErrorDialog(
-          wSourcesTable.getShell(), "Error", "Error saving global notification options", e);
+          wSourcesTable.getShell(),
+          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.Title"),
+          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.SaveOptions"),
+          e);
     }
   }
 
@@ -703,11 +678,13 @@ public class NotificationConfigPlugin implements IConfigOptions {
       // Extract from URL
       String[] parts = input.split("github.com/");
       if (parts.length > 1) {
-        String path = parts[1].split("/")[0] + "/" + parts[1].split("/")[1];
-        String[] ownerRepo = path.split("/");
+        // This runs on every keystroke in the cell, so it sees the URL half typed: after
+        // "github.com/apache" there is an owner and no repository yet. Nothing to read, and
+        // nothing worth complaining about either - the user is still typing.
+        String[] ownerRepo = parts[1].split("/");
         if (ownerRepo.length >= 2) {
           owner = ownerRepo[0];
-          repo = ownerRepo[1].replaceAll("/.*", ""); // Remove trailing path
+          repo = ownerRepo[1];
         }
       }
     } else if (input.contains("/")) {
@@ -759,13 +736,5 @@ public class NotificationConfigPlugin implements IConfigOptions {
       org.apache.hop.core.logging.LogChannel.GENERAL.logError(
           "Error reloading notification config values", e);
     }
-  }
-
-  @Override
-  public boolean handleOption(
-      ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
-      throws HopException {
-    // Options are handled via the GUI tab
-    return false;
   }
 }

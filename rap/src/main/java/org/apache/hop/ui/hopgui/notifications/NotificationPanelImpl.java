@@ -14,30 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hop.ui.hopgui.notifications;
 
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.SingletonUtil;
 
-/** Toolbar item for notifications (bell icon) */
-@GuiPlugin
-public class NotificationToolbarItem {
+/**
+ * One NotificationPanel per user session. Hop Web serves many users from one process, and this
+ * holds state that belongs to one of them.
+ */
+public class NotificationPanelImpl implements ISingletonProvider {
+  @Override
+  public Object getInstanceInternal() {
+    return SingletonUtil.getSessionInstance(NotificationPanel.class);
+  }
 
-  public static final String ID_NOTIFICATION_BELL = "toolbar-00010-notifications";
-
-  @GuiToolbarElement(
-      root = HopGui.ID_NOTIFICATION_TOOLBAR,
-      id = ID_NOTIFICATION_BELL,
-      type = GuiToolbarElementType.BUTTON,
-      toolTip = "i18n::NotificationToolbarItem.Tooltip",
-      image = "ui/images/notification-bell.svg")
-  public void showNotifications() {
-    NotificationPanel panel = NotificationPanel.getInstance();
-    if (panel != null) {
-      panel.toggle();
+  @Override
+  public Object peekInstanceInternal() {
+    try {
+      if (RWT.getUISession() == null) {
+        return null;
+      }
+      return SingletonUtil.getSessionInstance(NotificationPanel.class);
+    } catch (Exception e) {
+      return null;
     }
   }
 }

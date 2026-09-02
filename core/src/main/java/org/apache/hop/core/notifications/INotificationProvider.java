@@ -21,73 +21,49 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 
 /**
- * Interface for notification providers. Notification providers fetch notifications from various
- * sources (GitHub releases, RSS feeds, custom plugins, etc.) and make them available to the Hop GUI
- * notification system.
+ * Fetches notifications from one source - a release feed, a plugin catalog, a licence server - for
+ * the Hop GUI to show.
  *
- * <p><b>For Plugin Developers:</b>
- *
- * <p>Custom plugins can register their own notification providers using the {@link
- * org.apache.hop.ui.hopgui.notifications.NotificationPluginHelper} helper class. This is the
- * recommended approach as it automatically:
- *
- * <ul>
- *   <li>Checks if a notification source already exists for your plugin
- *   <li>Creates and configures a notification source if it doesn't exist
- *   <li>Registers your notification provider
- * </ul>
- *
- * <p><b>Example Implementation:</b>
+ * <p><b>For plugin developers:</b> annotate the implementation with {@link
+ * NotificationProviderPlugin} and the plugin registry finds it the way it finds every other Hop
+ * plugin. There is no registration call to make, and nothing to depend on beyond hop-core, so a
+ * provider can live in a plugin that has no user interface of its own.
  *
  * <pre>
+ * {@literal @}NotificationProviderPlugin(
+ *     id = "my-plugin-notifications",
+ *     name = "My Plugin",
+ *     description = "Tells you when a new version of My Plugin is published")
  * public class MyPluginNotificationProvider implements INotificationProvider {
- *   private String id = "my-plugin-notifications";
- *   private boolean enabled = true;
- *   private long pollInterval = 3600000; // 1 hour
  *
  *   {@literal @}Override
  *   public List&lt;Notification&gt; fetchNotifications() throws HopException {
- *     List&lt;Notification&gt; notifications = new ArrayList&lt;&gt;();
- *     // Fetch notifications from your plugin's source
- *     Notification notif = new Notification();
- *     notif.setId("my-notif-1");
- *     notif.setTitle("Plugin Update Available");
- *     notif.setMessage("Version 2.0 is now available!");
- *     notif.setSource("my-plugin");
- *     notif.setSourceId("my-plugin-notifications"); // Must match provider.getId()
- *     notif.setLink("https://example.com/plugin/download");
- *     notif.setTimestamp(new Date());
- *     notifications.add(notif);
- *     return notifications;
+ *     Notification notification = new Notification();
+ *     notification.setId("2.0");
+ *     notification.setTitle("My Plugin 2.0 is available");
+ *     notification.setMessage("You are running 1.9.");
+ *     notification.setLink("https://example.com/plugin");
+ *     notification.setTimestamp(new Date());
+ *     return List.of(notification);
  *   }
  *
- *   // ... implement other interface methods
+ *   // ... the remaining interface methods
  * }
  * </pre>
  *
- * <p>Then register it during plugin initialization:
+ * <p><b>Identifiers.</b> The id of a notification only has to be unique among this provider's own
+ * notifications: the service qualifies it with the source before storing it. It does have to be the
+ * <em>same on every fetch</em> for the same thing, because that is how an already-seen notification
+ * is recognised and how "read" is remembered. Derive it from something stable about the subject - a
+ * version, a release tag, a feed entry id - never from a clock or a counter.
  *
- * <pre>
- * {@literal @}GuiPlugin(description = "My Plugin")
- * public class MyPluginGuiPlugin {
- *   public MyPluginGuiPlugin() {
- *     INotificationProvider provider = new MyPluginNotificationProvider();
+ * <p><b>Failures.</b> Throw {@link HopException} when the source cannot be read. The service
+ * catches it per provider, so one unreachable source does not stop the others, and reports it to
+ * the user with a Retry button. Returning an empty list instead means the user is told nothing at
+ * all.
  *
- *     // Auto-register notification source and provider
- *     NotificationPluginHelper.registerPluginNotifications(
- *         "my-plugin-notifications",        // Plugin ID (must match provider.getId())
- *         "My Plugin Notifications",        // Display name
- *         provider,                         // Your provider instance
- *         60,                               // Poll interval in minutes (optional)
- *         "#FF5733"                         // Color hex code (optional)
- *     );
- *   }
- * }
- * </pre>
- *
- * <p><b>Performance Impact:</b> The registration process is very fast (&lt; 2ms per plugin) and has
- * negligible impact on startup time. The check for existing sources is O(n) where n is typically
- * &lt; 10, and all operations use in-memory data structures.
+ * <p><b>Threading.</b> {@link #fetchNotifications()} is called on a polling thread, never on the
+ * user interface thread, so it may block on network calls.
  */
 public interface INotificationProvider {
   /**

@@ -17,15 +17,17 @@
 
 package org.apache.hop.ui.hopgui.notifications.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.apache.hop.core.util.JsonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for NotificationSourceConfig JSON serialization/deserialization and getPluginId. */
 public class NotificationSourceConfigTest {
@@ -148,5 +150,70 @@ public class NotificationSourceConfigTest {
     assertEquals(2, restored.size());
     assertEquals("github-apache-hop", restored.get(0).getId());
     assertEquals("rss-1", restored.get(1).getId());
+  }
+
+  @Test
+  public void testCredentialsRoundTripThroughJson() throws Exception {
+    NotificationSourceConfig source = new NotificationSourceConfig();
+    source.setId("private-feed");
+    source.setName("Private feed");
+    source.setType(NotificationSourceConfig.SourceType.RSS_FEED);
+    source.setRssUrl("https://example.com/feed.atom");
+    source.setUsername("ci-bot");
+    source.setPassword("${MY_TOKEN}");
+
+    ObjectMapper mapper = JsonUtil.jsonMapper();
+    NotificationSourceConfig restored =
+        mapper.readValue(mapper.writeValueAsString(source), NotificationSourceConfig.class);
+
+    assertEquals("ci-bot", restored.getUsername());
+    // A variable is left as written, so the configuration file holds the reference not the secret.
+    assertEquals("${MY_TOKEN}", restored.getPassword());
+    assertTrue(restored.hasCredentials());
+  }
+
+  @Test
+  public void testLiteralTokenIsNotWrittenToConfigInClearText() throws Exception {
+    NotificationSourceConfig source = new NotificationSourceConfig();
+    source.setId("private-feed");
+    source.setType(NotificationSourceConfig.SourceType.RSS_FEED);
+    source.setPassword("ghp_a_real_looking_token");
+
+    ObjectMapper mapper = JsonUtil.jsonMapper();
+    String json = mapper.writeValueAsString(source);
+
+    assertFalse(json.contains("ghp_a_real_looking_token"), "token was written in clear text");
+
+    NotificationSourceConfig restored = mapper.readValue(json, NotificationSourceConfig.class);
+    assertEquals("ghp_a_real_looking_token", restored.getPassword());
+  }
+
+  @Test
+  public void testMinimumVersionRoundTrips() {
+    NotificationSourceConfig source = new NotificationSourceConfig();
+    source.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES);
+    source.setMinimumVersion("2.19.0");
+
+    assertEquals("2.19.0", source.getMinimumVersion());
+  }
+
+  @Test
+  public void testDefaultSourceIsFlooredAtTheRunningVersion() {
+    // Without a floor the Apache Hop source reports its whole back catalogue, more than twenty
+    // releases going back years, because Hop marks none of its "-rc" tags as pre-releases.
+    NotificationSourceConfig source = NotificationSourceConfig.defaultHopReleasesSource();
+
+    assertEquals("github-apache-hop", source.getId());
+    assertEquals("apache", source.getGithubOwner());
+    assertEquals("hop", source.getGithubRepo());
+    assertEquals(NotificationSourceConfig.runningHopVersion(), source.getMinimumVersion());
+  }
+
+  @Test
+  public void testSourceWithoutAPasswordHasNoCredentials() {
+    NotificationSourceConfig source = new NotificationSourceConfig();
+    source.setUsername("someone");
+
+    assertFalse(source.hasCredentials());
   }
 }

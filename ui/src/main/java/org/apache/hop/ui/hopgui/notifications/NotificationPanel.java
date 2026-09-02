@@ -20,33 +20,67 @@ package org.apache.hop.ui.hopgui.notifications;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.notifications.Notification;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /** Dropdown panel for displaying notifications */
 public class NotificationPanel implements INotificationListener {
   private static final Class<?> PKG = NotificationPanel.class;
-  private static NotificationPanel instance;
+
+  /** How many notifications the panel draws before it stops and says how many are left. */
+  private static final int MAX_RENDERED_NOTIFICATIONS = 100;
+
+  private static NotificationPanel fallback;
+
+  private static final ISingletonProvider PROVIDER = loadProvider();
+
+  private static ISingletonProvider loadProvider() {
+    try {
+      return (ISingletonProvider) ImplementationLoader.newInstance(NotificationPanel.class);
+    } catch (Throwable e) {
+      // hop-ui unit tests have no rcp/rap *Impl on the classpath. Anywhere else this is a
+      // misconfiguration worth shouting about: one instance would then be shared by every Hop Web
+      // session, which is the very thing the per-session provider exists to prevent.
+      LogChannel.GENERAL.logBasic(
+          "No NotificationPanelImpl found; falling back to a single instance for this process. "
+              + "In Hop Web that means every session shares one.");
+      return () -> {
+        synchronized (NotificationPanel.class) {
+          if (fallback == null) {
+            fallback = new NotificationPanel();
+          }
+          return fallback;
+        }
+      };
+    }
+  }
 
   private Shell shell;
   private Shell parentShell;
@@ -54,16 +88,21 @@ public class NotificationPanel implements INotificationListener {
   private Composite contentComposite;
   private boolean isVisible = false;
 
-  private NotificationPanel() {
+  /** The configured sources, refreshed each time the list is drawn, for the source colours. */
+  private java.util.List<org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig>
+      sourcesForRender = new java.util.ArrayList<>();
+
+  /** Use {@link #getInstance()}. Public so RWT can create one per user session in Hop Web. */
+  public NotificationPanel() {
     this.parentShell = HopGui.getInstance().getShell();
     NotificationService.getInstance().addNotificationListener(this);
   }
 
-  public static synchronized NotificationPanel getInstance() {
-    if (instance == null) {
-      instance = new NotificationPanel();
-    }
-    return instance;
+  /**
+   * @return The notification panel of this process, or of this user's session in Hop Web
+   */
+  public static NotificationPanel getInstance() {
+    return (NotificationPanel) PROVIDER.getInstanceInternal();
   }
 
   /** Toggle the panel visibility */
@@ -82,6 +121,9 @@ public class NotificationPanel implements INotificationListener {
       updateNotifications();
       shell.setVisible(true);
       shell.setFocus();
+      // Without this the panel stays "not visible" after the first open and close, which stops
+      // notificationsChanged() from refreshing it and leaves the bell unable to close it again.
+      isVisible = true;
       return;
     }
 
@@ -244,10 +286,10 @@ public class NotificationPanel implements INotificationListener {
           }
         });
 
-    // Listen to parent shell resize events to reposition panel
+    // The panel hangs off the bell in the main toolbar, so it has to follow the main window
+    // whenever that moves or is resized, not just when it is resized.
     if (parentShell != null && !parentShell.isDisposed()) {
-      parentShell.addListener(
-          SWT.Resize,
+      Listener repositionListener =
           e -> {
             if (shell != null && !shell.isDisposed() && isVisible) {
               Display.getCurrent()
@@ -258,7 +300,9 @@ public class NotificationPanel implements INotificationListener {
                         }
                       });
             }
-          });
+          };
+      parentShell.addListener(SWT.Resize, repositionListener);
+      parentShell.addListener(SWT.Move, repositionListener);
     }
 
     shell.setSize(400, 500);
@@ -307,6 +351,8 @@ public class NotificationPanel implements INotificationListener {
         NotificationService.getInstance().getProviderErrors();
     List<Notification> notifications =
         NotificationService.getInstance().getNotifications(!showReadNotifications, daysToGoBack);
+    // Read once per repaint: getSourceColor runs twice for every notification on screen.
+    sourcesForRender = org.apache.hop.ui.hopgui.notifications.config.NotificationSources.load();
 
     Control lastControl = null;
 
@@ -326,15 +372,32 @@ public class NotificationPanel implements INotificationListener {
       fdEmpty.top = new FormAttachment(0, 20);
       emptyLabel.setLayoutData(fdEmpty);
     } else if (!notifications.isEmpty()) {
-      for (Notification notification : notifications) {
+      // Every notification becomes a small stack of widgets. Beyond a screenful or two nobody
+      // scrolls anyway, and building hundreds of them is what makes opening the panel feel slow.
+      int shown = Math.min(notifications.size(), MAX_RENDERED_NOTIFICATIONS);
+      for (Notification notification : notifications.subList(0, shown)) {
         try {
           Composite notifComposite = createNotificationItem(notification, lastControl);
           lastControl = notifComposite;
         } catch (Exception e) {
           // Log error but continue with other notifications
-          org.apache.hop.core.logging.LogChannel.UI.logError(
-              "Error creating notification item: " + notification.getTitle(), e);
+          LogChannel.UI.logError("Error creating notification item: " + notification.getTitle(), e);
         }
+      }
+      if (notifications.size() > shown) {
+        Label moreLabel = new Label(contentComposite, SWT.CENTER | SWT.WRAP);
+        moreLabel.setText(
+            BaseMessages.getString(
+                PKG,
+                "NotificationPanel.MoreNotifications",
+                Integer.toString(notifications.size() - shown)));
+        PropsUi.setLook(moreLabel);
+        FormData fdMore = new FormData();
+        fdMore.left = new FormAttachment(0, 10);
+        fdMore.right = new FormAttachment(100, -10);
+        fdMore.top = new FormAttachment(lastControl, 10);
+        moreLabel.setLayoutData(fdMore);
+        lastControl = moreLabel;
       }
     } else if (lastControl != null && notifications.isEmpty()) {
       // Errors only, no notifications
@@ -394,9 +457,19 @@ public class NotificationPanel implements INotificationListener {
   private Composite createProviderErrorBanner(
       List<org.apache.hop.ui.hopgui.notifications.ProviderErrorInfo> errors, Control above) {
     Composite banner = new Composite(contentComposite, SWT.BORDER);
-    banner.setLayout(new FormLayout());
+    FormLayout bannerLayout = new FormLayout();
+    // The error text wraps to several lines; without a bottom margin the last one sits on the
+    // border, because nothing attaches the final label to the bottom of the banner.
+    bannerLayout.marginBottom = 10;
+    banner.setLayout(bannerLayout);
+    // Look first, then the banner's own colours: setLook applies the theme's foreground, which on
+    // a dark theme is near white and left this text unreadable on the light background. Both
+    // colours are set explicitly so the banner reads the same whichever theme is in use.
     PropsUi.setLook(banner);
-    banner.setBackground(GuiResource.getInstance().getColor(255, 248, 220)); // Light yellow / wheat
+    Color bannerBackground = GuiResource.getInstance().getColor(255, 248, 220); // Light yellow
+    Color bannerForeground = GuiResource.getInstance().getColor(60, 50, 20); // Dark brown
+    banner.setBackground(bannerBackground);
+    banner.setForeground(bannerForeground);
 
     FormData fdBanner = new FormData();
     fdBanner.left = new FormAttachment(0, 0);
@@ -406,8 +479,9 @@ public class NotificationPanel implements INotificationListener {
 
     Label headerLabel = new Label(banner, SWT.WRAP);
     headerLabel.setText(BaseMessages.getString(PKG, "NotificationPanel.ProviderErrors"));
-    headerLabel.setBackground(banner.getBackground());
     PropsUi.setLook(headerLabel);
+    headerLabel.setBackground(bannerBackground);
+    headerLabel.setForeground(bannerForeground);
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment(0, 10);
     fdHeader.right = new FormAttachment(100, -80);
@@ -426,8 +500,8 @@ public class NotificationPanel implements INotificationListener {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
+            // Fetches in the background; the panel refreshes through notificationsChanged().
             NotificationService.getInstance().retryNow();
-            updateNotifications();
           }
         });
 
@@ -438,8 +512,9 @@ public class NotificationPanel implements INotificationListener {
               PKG, "NotificationPanel.ProviderErrorItem", err.getProviderName(), err.getMessage());
       Label line = new Label(banner, SWT.WRAP);
       line.setText(text);
-      line.setBackground(banner.getBackground());
       PropsUi.setLook(line);
+      line.setBackground(bannerBackground);
+      line.setForeground(bannerForeground);
       FormData fdLine = new FormData();
       fdLine.left = new FormAttachment(0, 10);
       fdLine.right = new FormAttachment(100, -10);
@@ -490,7 +565,10 @@ public class NotificationPanel implements INotificationListener {
     updatePriorityBar(priorityBar, notification, guiResource);
 
     // Source color indicator (small colored square) - positioned on the left, after priority bar
-    Composite sourceIndicator = new Composite(composite, SWT.NONE);
+    // A Canvas, not a plain Composite: the border below is drawn in a paint listener, and RAP
+    // only offers one on Canvas. On a Composite this compiles against desktop SWT and fails in
+    // Hop Web with NoSuchMethodError, taking the whole notification list down with it.
+    Canvas sourceIndicator = new Canvas(composite, SWT.NONE);
     sourceIndicator.setLayout(null);
     sourceIndicator.setData("type", "sourceIndicator"); // Mark to exclude from click handling
     PropsUi.setLook(sourceIndicator);
@@ -636,12 +714,21 @@ public class NotificationPanel implements INotificationListener {
           // Force redraw to ensure visual changes are visible
           composite.redraw();
 
-          // Open link if available
-          if (updatedNotification.getLink() != null && !updatedNotification.getLink().isEmpty()) {
-            try {
-              EnvironmentUtils.getInstance().openUrl(updatedNotification.getLink());
-            } catch (Exception ex) {
-              // Silently ignore URL opening errors
+          // Open link if available. NotificationService drops links it will not open, but the
+          // link is handed to the operating system here, so it is checked again at the click.
+          String link = updatedNotification.getLink();
+          if (link != null && !link.isEmpty()) {
+            if (NotificationLinks.isSafe(link)) {
+              try {
+                EnvironmentUtils.getInstance().openUrl(link);
+              } catch (Exception ex) {
+                LogChannel.UI.logError("Error opening notification link " + link, ex);
+              }
+            } else {
+              LogChannel.UI.logBasic(
+                  "Refusing to open notification link "
+                      + link
+                      + ": only http and https are opened");
             }
           }
         };
@@ -750,20 +837,6 @@ public class NotificationPanel implements INotificationListener {
     }
   }
 
-  /** Recursively set cursor on composite and all its children */
-  private void setCursorRecursive(Control control, org.eclipse.swt.graphics.Cursor cursor) {
-    if (control == null || control.isDisposed()) {
-      return;
-    }
-    control.setCursor(cursor);
-    if (control instanceof Composite) {
-      Composite composite = (Composite) control;
-      for (Control child : composite.getChildren()) {
-        setCursorRecursive(child, cursor);
-      }
-    }
-  }
-
   /**
    * Get color for a notification source. This will be configurable via ConfigOption later. For now,
    * uses a simple hash-based color scheme.
@@ -773,35 +846,22 @@ public class NotificationPanel implements INotificationListener {
     // Try to get color from notification source configuration
     String sourceId = notification.getSourceId();
     if (sourceId != null && !sourceId.isEmpty()) {
-      try {
-        org.apache.hop.ui.hopgui.notifications.config.NotificationConfigPlugin configPlugin =
-            org.apache.hop.ui.hopgui.notifications.config.NotificationConfigPlugin.getInstance();
-        java.util.List<org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig>
-            sources = configPlugin.getSources();
-        if (sources != null) {
-          for (org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig source :
-              sources) {
-            if (sourceId.equals(source.getId())) {
-              String colorHex = source.getColor();
-              if (colorHex != null && !colorHex.isEmpty()) {
-                try {
-                  // Parse hex color (e.g., "#FF5733" or "FF5733")
-                  String hex = colorHex.startsWith("#") ? colorHex.substring(1) : colorHex;
-                  int colorValue = Integer.parseInt(hex, 16);
-                  int r = (colorValue >> 16) & 0xFF;
-                  int g = (colorValue >> 8) & 0xFF;
-                  int b = colorValue & 0xFF;
-                  return guiResource.getColor(r, g, b);
-                } catch (NumberFormatException e) {
-                  // Invalid hex color, fall through to hash-based color
-                }
-              }
-              break;
+      for (org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig source :
+          sourcesForRender) {
+        if (sourceId.equals(source.getId())) {
+          String colorHex = source.getColor();
+          if (colorHex != null && !colorHex.isEmpty()) {
+            try {
+              String hex = colorHex.startsWith("#") ? colorHex.substring(1) : colorHex;
+              int colorValue = Integer.parseInt(hex, 16);
+              return guiResource.getColor(
+                  (colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
+            } catch (NumberFormatException e) {
+              // Not a colour we can read; fall through to one derived from the source name.
             }
           }
+          break;
         }
-      } catch (Exception e) {
-        // If lookup fails, fall through to hash-based color
       }
     }
 
@@ -911,14 +971,24 @@ public class NotificationPanel implements INotificationListener {
 
   @Override
   public void notificationsChanged() {
-    if (shell != null && !shell.isDisposed()) {
-      Display.getCurrent()
+    Shell openShell = shell;
+    if (openShell == null || openShell.isDisposed()) {
+      return;
+    }
+    try {
+      // Providers are polled on a background thread, where Display.getCurrent() is null. Going
+      // through the shell's own display is what makes an open panel refresh when a poll brings
+      // something in; it is also the right display in Hop Web, where each session has one.
+      openShell
+          .getDisplay()
           .asyncExec(
               () -> {
                 if (shell != null && !shell.isDisposed() && isVisible) {
                   updateNotifications();
                 }
               });
+    } catch (SWTException e) {
+      // The shell went away between the check and the call; nothing left to refresh.
     }
   }
 
@@ -928,6 +998,5 @@ public class NotificationPanel implements INotificationListener {
       shell.dispose();
     }
     NotificationService.getInstance().removeNotificationListener(this);
-    instance = null;
   }
 }

@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.notifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.apache.hop.core.config.HopConfig;
@@ -26,9 +25,11 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.notifications.INotificationProvider;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig;
 import org.eclipse.swt.widgets.Display;
 
@@ -48,25 +49,6 @@ public class NotificationSystemInitializer implements IExtensionPoint<Object> {
     try {
       NotificationService service = NotificationService.getInstance();
 
-      // Register RSS/Atom feed providers
-      // DISABLED: Using GitHub API provider instead (better content and filtering)
-      // org.apache.hop.ui.hopgui.notifications.providers.RssNotificationProvider apacheHopFeed =
-      //     new org.apache.hop.ui.hopgui.notifications.providers.RssNotificationProvider(
-      //         "https://github.com/apache/hop/releases.atom",
-      //         "rss-apache-hop-releases",
-      //         "Apache Hop Releases");
-      // apacheHopFeed.setPollInterval(3600000); // 1 hour
-      // service.registerProvider(apacheHopFeed);
-
-      // Knowbi Putki releases feed - DISABLED: URL returns 404
-      // org.apache.hop.ui.hopgui.notifications.providers.RssNotificationProvider knowbiFeed =
-      //     new org.apache.hop.ui.hopgui.notifications.providers.RssNotificationProvider(
-      //         "https://github.com/knowbi/knowbi-putki/releases.atom",
-      //         "rss-knowbi-putki-releases",
-      //         "Knowbi Putki Releases");
-      // knowbiFeed.setPollInterval(3600000); // 1 hour
-      // service.registerProvider(knowbiFeed);
-
       // Load notification sources from config
       boolean notificationsEnabled =
           HopConfig.readOptionString("notification.system.enabled", "true")
@@ -83,17 +65,7 @@ public class NotificationSystemInitializer implements IExtensionPoint<Object> {
       if (sources.isEmpty()) {
         // If no sources configured, create a default one for backward compatibility
         log.logDetailed("No notification sources configured, creating default Apache Hop source");
-        NotificationSourceConfig defaultSource = new NotificationSourceConfig();
-        defaultSource.setId("github-apache-hop");
-        defaultSource.setName("Apache Hop Releases");
-        defaultSource.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES);
-        defaultSource.setEnabled(true);
-        defaultSource.setGithubOwner("apache");
-        defaultSource.setGithubRepo("hop");
-        defaultSource.setGithubIncludePrereleases(false);
-        defaultSource.setPollIntervalMinutes("60");
-        defaultSource.setColor("#FF5733"); // Default color
-        sources.add(defaultSource);
+        sources.add(NotificationSourceConfig.defaultHopReleasesSource());
 
         // Save the default source to config so it appears in the configuration UI
         try {
@@ -107,24 +79,26 @@ public class NotificationSystemInitializer implements IExtensionPoint<Object> {
         }
       }
 
-      // Register providers for each enabled source (shared logic with hot reload)
+      // Providers contributed by plugins, discovered from the registry. They need no entry in
+      // the configuration to work; a stored source only records what the user changed about one.
+      registerPluginProviders(service, sources, log);
+
+      // Sources the user configured: feeds and repositories.
       for (NotificationSourceConfig source : sources) {
+        if (source.getType() == NotificationSourceConfig.SourceType.CUSTOM_PLUGIN) {
+          // Contributed by a plugin, handled above.
+          continue;
+        }
         if (!source.isEnabled()) {
           log.logDetailed("Skipping disabled notification source: " + source.getName());
           continue;
         }
-
         try {
-          if (source.getType() == NotificationSourceConfig.SourceType.CUSTOM_PLUGIN) {
-            updateOrWarnCustomPluginProvider(service, source, log);
-          } else {
-            INotificationProvider provider =
-                NotificationProviderFactory.createProvider(source, log);
-            if (provider != null) {
-              provider.initialize();
-              service.registerProvider(provider);
-              log.logDetailed("Registered provider: " + source.getName());
-            }
+          INotificationProvider provider = NotificationProviderFactory.createProvider(source, log);
+          if (provider != null) {
+            provider.initialize();
+            service.registerProvider(provider);
+            log.logDetailed("Registered provider: " + source.getName());
           }
         } catch (Exception e) {
           log.logError(
@@ -133,11 +107,17 @@ public class NotificationSystemInitializer implements IExtensionPoint<Object> {
         }
       }
 
-      // Start the service (this will initialize providers and start polling)
-      service.start();
+      // Hop Web only delivers a background thread's asyncExec to the browser while a server push
+      // session is running; without one, a poll updates the widgets on the server and the user
+      // sees nothing until they click something. An unread indicator that only appears once you
+      // go looking is not an indicator. On the desktop this call does nothing.
+      ServerPushSessionFacade.start();
 
-      // Fetch initial notifications immediately
-      service.fetchFromProviders();
+      // Start the service. This initializes the providers and schedules polling, which also
+      // performs the first fetch shortly after startup. It is deliberately not fetched here:
+      // HopGuiStart runs on the UI thread, and talking to every configured source from it would
+      // block the GUI from opening for as long as the slowest one takes to answer.
+      service.start();
 
       // Initialize badge manager with a delay to ensure toolbar is ready
       Display.getCurrent()
@@ -165,52 +145,65 @@ public class NotificationSystemInitializer implements IExtensionPoint<Object> {
    * @return List of notification source configurations
    */
   private List<NotificationSourceConfig> loadNotificationSources() {
-    try {
-      String sourcesJson = HopConfig.readOptionString("notification.sources", null);
-      if (!Utils.isEmpty(sourcesJson)) {
-        ObjectMapper mapper = JsonUtil.jsonMapper();
-        return mapper.readValue(
-            sourcesJson, new TypeReference<List<NotificationSourceConfig>>() {});
-      }
-    } catch (Exception e) {
-      // If loading fails, return empty list
-    }
-    return new java.util.ArrayList<>();
+    return org.apache.hop.ui.hopgui.notifications.config.NotificationSources.load();
   }
 
   /**
-   * Handle CUSTOM_PLUGIN source: update existing provider if found, else log. Custom plugins
-   * register their providers at startup; we only update poll interval.
+   * Register the providers that plugins declare, applying whatever the user changed about them.
+   *
+   * <p>A plugin's provider is enabled with its own defaults until there is a stored source saying
+   * otherwise, so installing a plugin is all it takes and nothing is written to the configuration
+   * on the user's behalf. A stored source naming a plugin that is no longer installed is left
+   * alone: it costs nothing, and the plugin may come back.
+   *
+   * @param service The service to register with
+   * @param sources The configured sources, used as overrides
+   * @param log Where to report providers that fail to load
    */
-  private void updateOrWarnCustomPluginProvider(
-      NotificationService service, NotificationSourceConfig source, ILogChannel log) {
-    String pluginId = source.getPluginId();
-    if (pluginId == null || pluginId.isEmpty()) {
-      pluginId = source.getId();
+  private void registerPluginProviders(
+      NotificationService service, List<NotificationSourceConfig> sources, ILogChannel log) {
+    for (IPlugin plugin : NotificationProviderPlugins.plugins()) {
+      String pluginId = NotificationProviderPlugins.idOf(plugin);
+      if (pluginId == null) {
+        continue;
+      }
+      NotificationSourceConfig override = findSource(sources, pluginId);
+      if (override != null && !override.isEnabled()) {
+        log.logDetailed("Skipping disabled notification plugin: " + pluginId);
+        continue;
+      }
+      INotificationProvider provider = NotificationProviderPlugins.load(plugin, log);
+      if (provider == null) {
+        continue;
+      }
+      try {
+        if (override != null && !Utils.isEmpty(override.getPollIntervalMinutes())) {
+          provider.setPollInterval(parsePollIntervalMs(override.getPollIntervalMinutes()));
+        }
+        provider.initialize();
+        service.registerProvider(provider);
+        log.logDetailed("Registered notification provider from plugin: " + pluginId);
+      } catch (Exception e) {
+        log.logError("Error registering the notification provider of plugin " + pluginId, e);
+      }
     }
-    if (pluginId == null || pluginId.isEmpty()) {
-      log.logError("Custom plugin source '" + source.getName() + "' is missing plugin ID");
-      return;
+  }
+
+  /**
+   * Find the stored source for a plugin, by its plugin id or its own id.
+   *
+   * @param sources The configured sources
+   * @param pluginId The plugin to look for
+   * @return The source, or null when the plugin has never been configured
+   */
+  private NotificationSourceConfig findSource(
+      List<NotificationSourceConfig> sources, String pluginId) {
+    for (NotificationSourceConfig source : sources) {
+      if (pluginId.equals(source.getPluginId()) || pluginId.equals(source.getId())) {
+        return source;
+      }
     }
-    INotificationProvider existing = service.getProvider(pluginId);
-    if (existing != null) {
-      long pollIntervalMs = parsePollIntervalMs(source.getPollIntervalMinutes());
-      existing.setPollInterval(pollIntervalMs);
-      // Provider already registered; start() will schedule with updated interval
-      log.logDetailed(
-          "Updated poll interval for custom plugin provider '"
-              + pluginId
-              + "' to "
-              + (pollIntervalMs / 60000)
-              + " minutes");
-    } else {
-      log.logDetailed(
-          "Custom plugin provider '"
-              + pluginId
-              + "' not found. "
-              + "Plugins should register their INotificationProvider via "
-              + "NotificationService.getInstance().registerProvider() during initialization.");
-    }
+    return null;
   }
 
   private long parsePollIntervalMs(String value) {
