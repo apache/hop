@@ -458,7 +458,7 @@ public final class HopGuiSearchHelper {
 
   /** A match's user-visible identity within its object: where it is plus what matched. */
   private static String matchIdentity(ISearchResult result) {
-    return Const.NVL(result.getComponent(), "") + " " + Const.NVL(result.getMatchingString(), "");
+    return Const.NVL(result.getComponent(), "") + "\0" + Const.NVL(result.getMatchingString(), "");
   }
 
   /** Mutable per-object bucket used only while {@link #groupResults grouping}. */
