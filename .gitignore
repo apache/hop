@@ -45,6 +45,8 @@ docs/.pnp
 docs/.pnp.js
 tmp/images
 
+# Output folders written by the hop_server remote-execution tests (main-0007, main-0015)
+integration-tests/hop_server/output-*/
 integration-tests/mail/output/
 integration-tests/ftp/output/
 # Generated spreadsheet writer outputs (under files/ historically; now also under output/)

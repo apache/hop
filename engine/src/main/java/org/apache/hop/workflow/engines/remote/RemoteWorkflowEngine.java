@@ -530,8 +530,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
                   executionConfiguration,
                   CONFIGURATION_IN_EXPORT_FILENAME,
                   remoteWorkflowRunConfiguration.getNamedResourcesSourceFolder(),
-                  remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder(),
-                  executionConfiguration.getVariablesMap());
+                  remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder());
 
           // Send the zip file over to the hop server...
           String result =
