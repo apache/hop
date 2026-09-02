@@ -3158,7 +3158,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         // by default. Seed each default-expanded node once per session so the default holds until
         // the user changes it.
         boolean defaultExpanded = "C".equals(path[0]) || "UC".equals(path[0]);
-        if (defaultExpanded && treeStateSeeded.add(String.join(" ", path))) {
+        if (defaultExpanded && treeStateSeeded.add(String.join("\0", path))) {
           TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
         }
         item.setExpanded(TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
@@ -3177,7 +3177,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     String[] path = treeMemoryPath(item);
     if (path != null) {
       TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, expanded);
-      treeStateSeeded.add(String.join(" ", path));
+      treeStateSeeded.add(String.join("\0", path));
     }
   }
 
