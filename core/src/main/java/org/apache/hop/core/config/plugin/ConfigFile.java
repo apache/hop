@@ -42,6 +42,21 @@ public abstract class ConfigFile implements IConfigFile {
   public static final String HOP_VARIABLES_KEY = "variables";
   public static final String HOP_CONFIG_KEY = "config";
 
+  /**
+   * Held while the configuration is written, and by the callers that change what is written.
+   *
+   * <p>Hop Web serves many people from one JVM and they share this configuration: two of them
+   * closing a dialog at the same moment had both writing the file at once, which failed the save
+   * outright and reported it to whoever happened to be second. Shared by every configuration file
+   * because there are only a handful of them and they are written rarely.
+   *
+   * <p>It does not cover a caller that changes the map it got from {@link #getConfigMap()} without
+   * asking for it: {@link #getDescribedVariables()} is one, and it deliberately stays out because
+   * it runs for every log message. What it does cover is the writing itself, which is where the
+   * damage was.
+   */
+  protected static final Object CONFIG_LOCK = new Object();
+
   @Getter
   @Setter
   @JsonProperty("config")
@@ -81,10 +96,12 @@ public abstract class ConfigFile implements IConfigFile {
   }
 
   public void saveToFile() throws HopException {
-    try {
-      serializer.writeToFile(getConfigFilename(), configMap);
-    } catch (Exception e) {
-      throw new HopException("Error saving configuration file '" + getConfigFilename() + "'", e);
+    synchronized (CONFIG_LOCK) {
+      try {
+        serializer.writeToFile(getConfigFilename(), configMap);
+      } catch (Exception e) {
+        throw new HopException("Error saving configuration file '" + getConfigFilename() + "'", e);
+      }
     }
   }
 
