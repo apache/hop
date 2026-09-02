@@ -54,6 +54,7 @@ RUN apt-get update \
   curl \
   procps \
   git \
+  gnupg \
   python3-pip \
   openjdk-21-jre-headless \
   unzip \
