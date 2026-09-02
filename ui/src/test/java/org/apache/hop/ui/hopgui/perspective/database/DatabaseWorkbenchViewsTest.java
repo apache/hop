@@ -39,4 +39,9 @@ class DatabaseWorkbenchViewsTest {
     assertDoesNotThrow(() -> DatabaseWorkbenchViews.openDialog(null));
     assertDoesNotThrow(() -> DatabaseWorkbenchViews.openDock(null));
   }
+
+  @Test
+  void openSqlIsInertWithoutHopGui() {
+    assertDoesNotThrow(() -> DatabaseWorkbenchDialog.openSql(null, "SELECT 1"));
+  }
 }

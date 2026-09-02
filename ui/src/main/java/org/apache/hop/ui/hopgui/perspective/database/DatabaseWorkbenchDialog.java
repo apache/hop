@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.database;
 
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -45,6 +46,7 @@ public class DatabaseWorkbenchDialog {
   private final HopGui hopGui;
   private final PropsUi props;
   private Shell shell;
+  private DatabaseWorkbench workbench;
 
   DatabaseWorkbenchDialog(HopGui hopGui) {
     this.hopGui = hopGui;
@@ -53,17 +55,47 @@ public class DatabaseWorkbenchDialog {
 
   /** Open or focus the floating Database window for this Hop Gui session. */
   public static void open(HopGui hopGui) {
-    if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+    openOrCreate(hopGui);
+  }
+
+  /**
+   * Open the floating Database window on {@code databaseMeta}, connect and refresh the schema/table
+   * tree in the background, and put {@code sql} in an editor tab so it can be edited and executed.
+   *
+   * @param databaseMeta the connection the SQL is for; ignored when {@code null}
+   * @param sql suggested SQL (CREATE TABLE, SELECT, …); may be empty
+   */
+  public static void openSql(DatabaseMeta databaseMeta, String sql) {
+    if (databaseMeta == null) {
       return;
+    }
+    HopGui hopGui;
+    try {
+      hopGui = HopGui.getInstance();
+    } catch (Throwable e) {
+      return;
+    }
+    DatabaseWorkbenchDialog dialog = openOrCreate(hopGui);
+    if (dialog == null || dialog.workbench == null || dialog.workbench.isDisposed()) {
+      return;
+    }
+    dialog.activate();
+    dialog.workbench.openSuggestedSql(databaseMeta, sql);
+  }
+
+  static DatabaseWorkbenchDialog openOrCreate(HopGui hopGui) {
+    if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+      return null;
     }
     Object existing = hopGui.getShell().getData(SHELL_DATA_KEY);
     if (existing instanceof DatabaseWorkbenchDialog dialog && dialog.isOpen()) {
       dialog.activate();
-      return;
+      return dialog;
     }
     DatabaseWorkbenchDialog dialog = new DatabaseWorkbenchDialog(hopGui);
     hopGui.getShell().setData(SHELL_DATA_KEY, dialog);
     dialog.openShell();
+    return dialog;
   }
 
   boolean isOpen() {
@@ -91,7 +123,7 @@ public class DatabaseWorkbenchDialog {
 
     HopGuiDatabaseWorkbenchHost host =
         new HopGuiDatabaseWorkbenchHost(hopGui, this::isOpen, this::activate);
-    DatabaseWorkbench workbench = new DatabaseWorkbench(shell, host);
+    workbench = new DatabaseWorkbench(shell, host);
     workbench.setLayoutData(new FormDataBuilder().fullSize().result());
 
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();

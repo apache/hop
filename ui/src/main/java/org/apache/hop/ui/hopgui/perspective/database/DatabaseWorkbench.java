@@ -561,6 +561,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
                 state.setInformation(info);
                 state.setConnected(true);
                 rebuildTree();
+                selectConnection(meta.getName());
               });
         });
   }
@@ -799,6 +800,51 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
 
   public void openSqlFile(String filename, DatabaseMeta meta, String buffer, boolean dirty) {
     openSqlTab(meta, null, filename, buffer, dirty);
+  }
+
+  /**
+   * Select {@code meta} in the tree, start a background connect/refresh if needed, and open a SQL
+   * tab with {@code sql} immediately so the user can edit and run while schemas load.
+   */
+  public void openSuggestedSql(DatabaseMeta meta, String sql) {
+    if (meta == null || isDisposed()) {
+      return;
+    }
+    DatabaseConnectionState state = ensureConnection(meta);
+    selectConnection(meta.getName());
+    openSqlTab(meta, Const.NVL(sql, ""), null, Const.NVL(sql, ""), true);
+    if (!state.isConnected()) {
+      connect(state);
+    }
+  }
+
+  DatabaseConnectionState ensureConnection(DatabaseMeta meta) {
+    DatabaseConnectionState state = connections.get(meta.getName());
+    if (state == null) {
+      state = new DatabaseConnectionState(meta);
+      connections.put(meta.getName(), state);
+      rebuildTree();
+    } else {
+      state.setDatabaseMeta(meta);
+    }
+    return state;
+  }
+
+  void selectConnection(String name) {
+    if (tree == null || tree.isDisposed() || Utils.isEmpty(name)) {
+      return;
+    }
+    for (TreeItem item : tree.getItems()) {
+      Object data = item.getData();
+      if (data instanceof DatabaseTreeNode node
+          && node.getKind() == DatabaseTreeNode.Kind.CONNECTION
+          && name.equals(node.getConnectionName())) {
+        tree.setSelection(item);
+        tree.showItem(item);
+        updateToolbar();
+        return;
+      }
+    }
   }
 
   public List<String> connectionNames() {

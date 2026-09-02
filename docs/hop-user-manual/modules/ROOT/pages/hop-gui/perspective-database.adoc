@@ -68,6 +68,8 @@ The same workbench can run outside the perspective, like Search:
 
 Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`.
 
+**SQL** on a table-output (or bulk-loader, lookup, update, …) transform dialog opens this floating window on the transform's connection: the schema/table tree refreshes in the background while you edit and run the generated SQL. The same happens from the database explorer (Open SQL, Generate DDL, Truncate).
+
 == See also
 
 * xref:hop-gui/perspectives.adoc[Perspectives]
