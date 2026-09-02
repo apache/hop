@@ -61,6 +61,10 @@ When you are finished with your pipeline, save it.
 This can be done via the File menu, the icons or using CTLR s or Command s.
 For new pipelines a file browser is displayed to navigate towards the location you want to store the file.
 
+By default Hop warns if a transform references a relational database connection that is not in the project metadata. You can still save. Connection names that still contain a variable such as `'${CONNECTION}'` are skipped. Check *Don't run this check when saving* on the dialog, or turn the option off under xref:hop-gui/perspective-configuration.adoc[Configuration] → Plugins → File validation.
+
+image::hop-gui/validate-database-connections-on-save-warning-dialog.png[Database connections save warning,width="90%"]
+
 == Add Transform to your pipelines
 
 Click anywhere in the pipeline canvas, the area where you'll see the image below.

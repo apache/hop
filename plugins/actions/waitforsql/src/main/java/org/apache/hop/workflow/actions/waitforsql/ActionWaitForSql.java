@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -72,13 +73,19 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "custom_sql")
   private String customSql;
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
-  @HopMetadataProperty(key = "tablename")
+  @HopMetadataProperty(
+      key = "tablename",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
-  @HopMetadataProperty(key = "schemaname")
+  @HopMetadataProperty(
+      key = "schemaname",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** Maximum timeout in seconds */

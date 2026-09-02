@@ -39,6 +39,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -65,10 +66,14 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
 public class ActionMssqlBulkLoad extends ActionBase {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class;
 
-  @HopMetadataProperty(key = "schemaname")
+  @HopMetadataProperty(
+      key = "schemaname",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
-  @HopMetadataProperty(key = "tablename")
+  @HopMetadataProperty(
+      key = "tablename",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   @HopMetadataProperty(key = "filename")
@@ -140,7 +145,9 @@ public class ActionMssqlBulkLoad extends ActionBase {
   @HopMetadataProperty(key = "truncate")
   private boolean truncate;
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   public ActionMssqlBulkLoad(String n) {

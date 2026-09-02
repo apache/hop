@@ -580,6 +580,24 @@ public class StringUtil {
   }
 
   /**
+   * Whether {@code value} still contains a Hop variable delimiter after substitution. Used to skip
+   * design-time checks that cannot be decided when a name or URL still holds {@code ${...}}, {@code
+   * %%...%%}, {@code $[...]} or {@code #{...}}.
+   *
+   * @param value the string to inspect, may be null
+   * @return true when a variable token is still present
+   */
+  public static boolean containsVariableToken(String value) {
+    if (value == null) {
+      return false;
+    }
+    return value.contains(UNIX_OPEN)
+        || value.contains(WINDOWS_OPEN)
+        || value.contains(HEX_OPEN)
+        || value.contains(RESOLVER_OPEN);
+  }
+
+  /**
    * Calls the {@link String#toLowerCase()} method on the {@link String} returned by a call to
    * {@code obj.toString()}, guarding against {@link NullPointerException}s.
    *

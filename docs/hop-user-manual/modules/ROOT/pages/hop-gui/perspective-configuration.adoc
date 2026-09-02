@@ -138,6 +138,13 @@ image::hop-gui/configuration-perspective-open-help-pages-in.png[Open help pages 
 * xref:vfs/google-drive-vfs.adoc#_configuration[Google Drive] VFS configuration options.
 * xref:projects/index.adoc[Project] configuration options
 * Welcome Dialog: specify whether to show or hide the welcome dialog when Hop GUI starts.
+* **File validation**: when enabled (the default), saving a pipeline or workflow warns if a transform or action references a relational database connection that is not in the project metadata. You can still save. Connection names that still contain a variable such as `'${CONNECTION}'` after the current environment is applied are skipped, because the name cannot be decided at design time. The same check also runs when you Verify a pipeline or workflow. Hop does not try to open a JDBC connection as part of this check.
++
+image::hop-gui/configuration-perspective-file-validation-validate-database-connections-when-saving.png[Validate database connections when saving,width="90%"]
++
+The warning lists the missing connections. *Yes* saves anyway, *No* cancels the save. Check *Don't run this check when saving* to turn the option off; you can turn it back on here.
++
+image::hop-gui/validate-database-connections-on-save-warning-dialog.png[Database connections save warning,width="90%"]
 
 === System Variables
 

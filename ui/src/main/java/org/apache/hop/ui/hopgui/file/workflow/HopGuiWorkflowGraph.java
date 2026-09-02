@@ -98,6 +98,7 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelinePainter;
@@ -141,6 +142,7 @@ import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
+import org.apache.hop.ui.hopgui.file.shared.ReferencedConnectionSaveValidator;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
@@ -4671,6 +4673,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       if (StringUtils.isEmpty(workflowMeta.getFilename())) {
         throw new HopException("No filename: please specify a filename for this workflow");
+      }
+
+      IHopMetadataProvider saveMetadataProvider = workflowMeta.getMetadataProvider();
+      if (saveMetadataProvider == null) {
+        saveMetadataProvider = hopGui.getMetadataProvider();
+      }
+      if (!ReferencedConnectionSaveValidator.confirmSave(
+          hopShell(), workflowMeta, variables, saveMetadataProvider)) {
+        return;
       }
 
       // Keep track of save

@@ -30,6 +30,10 @@ Hop supports tens of relational databases out of the box. If your specific datab
 
 Check the list of xref:database/databases.adoc[databases] for more details.
 
+Transforms and actions store the *name* of a relational database connection. When you save or Verify a pipeline or workflow, Hop warns if that name is not in the project metadata. You can still save. If the name still contains a variable such as `'${CONNECTION}'` after the current environment is applied, the check is skipped because the name cannot be decided at design time. This does not open a JDBC connection; it only looks the name up in metadata. The warning dialog can turn the check off, or you can disable it under xref:hop-gui/perspective-configuration.adoc[Configuration] → Plugins → File validation.
+
+image::hop-gui/validate-database-connections-on-save-warning-dialog.png[Database connections save warning,width="90%"]
+
 
 == Related Plugins
 

@@ -42,6 +42,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -66,13 +67,17 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_SHORT = "    ";
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
-  @HopMetadataProperty(key = "schema")
+  @HopMetadataProperty(
+      key = "schema",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
-  @HopMetadataProperty(key = "table")
+  @HopMetadataProperty(key = "table", hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   @HopMetadataProperty(key = "truncate")
