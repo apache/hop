@@ -50,15 +50,19 @@ The transform uses https://github.com/google/libphonenumber[Google libphonenumbe
 |Transform name|Name of the transform.
 |Input field|The field holding the phone numbers from the input data.
 |Output field|Leave this field empty if you want to update the input field in stream. Otherwise a new field (string) will be added to the output data.
-|Country field|The field holding the country code from the input data. The country code is required to be in the ISO alpha-2.
-|DefaultCountry|The default country code to use if input data from country field is empty or invalid
+|Country field|The field holding the country code from the input data. The country code is required to be in the ISO alpha-2. Leading and trailing spaces are ignored, and matching is case-insensitive. Leave this empty to always use the default country.
+|DefaultCountry|The default country code to use if the country field is empty, missing, or contains an unsupported value.
 |Format|The format to be used to standardize the phone numbers. The available options are:
 * E164 (default)
 * INTERNATIONAL
 * NATIONAL
 * RFC3966
-|Number type|The result field indicates the type of a processed phone number, such as fixed line, mobile...
-|Is valid|The result field indicates whether a phone number is supposed to be valid
+|Number type|The result field indicates the type of a processed phone number, such as fixed line, mobile... Empty or unparseable numbers are set to `ERROR`.
+|Is valid|The result field indicates whether a phone number is supposed to be valid. Empty or unparseable numbers are `false`.
 |===
 
 TIP: If the original phone number already has an international area code, this transform will not normalize it to another country even if the international area code is different from the country input’s international area code.
+
+TIP: Output, number type, and is-valid field names may contain variables (for example `${OUTPUT_FIELD}`).
+
+TIP: If a number cannot be parsed, the original value is written to the output field, the number type is `ERROR`, and is-valid is `false`. Numbers that parse but are not valid (for example a too-short national number) are still formatted; use the is-valid field to filter them.
