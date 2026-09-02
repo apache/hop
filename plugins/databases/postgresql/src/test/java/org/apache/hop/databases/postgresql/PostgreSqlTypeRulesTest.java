@@ -71,8 +71,8 @@ class PostgreSqlTypeRulesTest {
     IValueMeta valueMeta = map(Types.NUMERIC, "numeric", 10, 2);
 
     assertTrue(valueMeta.isNumber());
-    // Hop length is the digits before the decimal, so it round-trips as NUMERIC(8+2, 2).
-    assertEquals(8, valueMeta.getLength());
+    // Hop length is the total number of significant digits, the same as the database precision.
+    assertEquals(10, valueMeta.getLength());
     assertEquals(2, valueMeta.getPrecision());
   }
 

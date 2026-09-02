@@ -19,6 +19,7 @@ package org.apache.hop.databases.mysql;
 
 import static org.apache.hop.junit.database.TypeRuleFixture.column;
 import static org.apache.hop.junit.database.TypeRuleFixture.meta;
+import static org.apache.hop.junit.database.TypeRuleFixture.numericColumn;
 import static org.apache.hop.junit.database.TypeRuleFixture.properties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -54,6 +55,46 @@ class MySqlTypeRulesTest {
         column(sqlType, typeName, precision, displaySize),
         false,
         false);
+  }
+
+  private IValueMeta mapNumeric(int sqlType, String typeName, int precision, int scale)
+      throws Exception {
+    return DatabaseTypeMapper.getValueMeta(
+        new Variables(),
+        meta(new MySqlDatabaseMeta()),
+        numericColumn(sqlType, typeName, precision, scale),
+        false,
+        false);
+  }
+
+  @Test
+  void aDoubleReportingMoreDecimalsThanDigitsHasNoUsableSize() throws Exception {
+    // MySQL reports (12,31) for a plain double: nobody declared that.
+    IValueMeta valueMeta = mapNumeric(Types.DOUBLE, "DOUBLE", 12, 31);
+
+    assertTrue(valueMeta.isNumber());
+    assertEquals(-1, valueMeta.getLength());
+    assertEquals(-1, valueMeta.getPrecision());
+  }
+
+  @Test
+  void aDoubleWithMoreDecimalsThanIntegerDigitsHasNoUsableSizeEither() throws Exception {
+    // (10,6) leaves four digits before the decimal and asks for six after it. The rule compares
+    // the scale against those four, not against the ten - so it still claims the column.
+    IValueMeta valueMeta = mapNumeric(Types.DOUBLE, "DOUBLE", 10, 6);
+
+    assertTrue(valueMeta.isNumber());
+    assertEquals(-1, valueMeta.getLength());
+    assertEquals(-1, valueMeta.getPrecision());
+  }
+
+  @Test
+  void aDoubleWithRoomForItsDecimalsKeepsItsSize() throws Exception {
+    IValueMeta valueMeta = mapNumeric(Types.DOUBLE, "DOUBLE", 10, 2);
+
+    assertTrue(valueMeta.isNumber());
+    assertEquals(10, valueMeta.getLength());
+    assertEquals(2, valueMeta.getPrecision());
   }
 
   @Test

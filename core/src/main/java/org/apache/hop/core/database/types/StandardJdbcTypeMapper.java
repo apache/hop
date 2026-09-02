@@ -271,12 +271,25 @@ public final class StandardJdbcTypeMapper {
   }
 
   /**
-   * The Hop length of a numeric column: the digits before the decimal.
+   * The Hop length of a numeric column: the total number of significant digits, the same thing the
+   * database reports as its precision.
    *
-   * <p>A database reports precision as the total number of significant digits, so the scale has to
-   * come off. A value at or beyond 126 means the database did not really say.
+   * <p>Every getFieldDefinition writes a scaled column as DECIMAL(length, precision), and the
+   * length a user types into a transform dialog means the same total. Taking the scale off here
+   * made the value read from a column incompatible with both. A value at or beyond 126 means the
+   * database did not really say.
    */
   public static int numericLength(DatabaseColumn column) {
+    int length = column.getPrecision();
+    return length >= 126 ? -1 : length;
+  }
+
+  /**
+   * The digits before the decimal: the reported precision with the scale taken off. Only a rule
+   * asking whether a declaration is possible at all needs this - the Hop length of the column is
+   * numericLength. The 126 marker is applied after the subtraction, as it always was.
+   */
+  public static int integerDigits(DatabaseColumn column) {
     int length = column.getPrecision();
     int scale = column.getScale();
     if (length > 0 && length > scale) {
