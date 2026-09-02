@@ -53,11 +53,20 @@ Each SQL tab is bound to one connection.
 * If you have a selection, that selection is executed (all statements in it).
 * If you do not, the statement is the blank-line-delimited block around the caret, then split on `;` as usual.
 * Results appear in a sash under the editor (one tab per query, plus a messages tab). Close hides the results panel; the next run shows it again.
-* Queries are capped at 1000 rows. Statement timeout follows `'${HOP_QUERY_PREVIEW_TIMEOUT}'` (seconds; `0` is the driver default).
+* Queries are capped at 1000 rows. That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` does not pull the whole table. Statement timeout (`'${HOP_QUERY_PREVIEW_TIMEOUT}'`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
 
 Long-running work (connect, listing, SQL, DDL, table info) is listed in the operations panel at the bottom of the right-hand side. Select a running row and *Kill* to cancel it (`Statement.cancel`).
 
 Open and save `.sql` files with the normal File menu. Explorer `.sql` files stay in the File explorer; use the database icon on the content-editor toolbar to open the buffer in this perspective (you pick the connection).
+
+== Floating window and bottom dock
+
+The same workbench can run outside the perspective, like Search:
+
+* *Float* on the connection toolbar (or **Tools → Database window**) opens a non-modal window you can put on another monitor while you stay in Data orchestration.
+* *Dock* opens it as a tab in the bottom dock (next to the terminal and search results).
+
+Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`.
 
 == See also
 

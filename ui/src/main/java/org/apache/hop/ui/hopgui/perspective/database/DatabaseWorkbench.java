@@ -85,6 +85,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   public static final String TOOLBAR_ITEM_DDL = "DatabaseWorkbench-Toolbar-10040-GenerateDdl";
   public static final String TOOLBAR_ITEM_PREVIEW = "DatabaseWorkbench-Toolbar-10050-Preview";
   public static final String TOOLBAR_ITEM_SHOW = "DatabaseWorkbench-Toolbar-10060-Show";
+  public static final String TOOLBAR_ITEM_FLOAT = "DatabaseWorkbench-Toolbar-20000-Float";
+  public static final String TOOLBAR_ITEM_DOCK = "DatabaseWorkbench-Toolbar-20010-Dock";
 
   public static final String CONTEXT_MENU_CONNECT = "DatabaseWorkbench-ContextMenu-10000-Connect";
   public static final String CONTEXT_MENU_DISCONNECT =
@@ -491,6 +493,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DDL, table);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PREVIEW, table);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_SHOW, table);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FLOAT, true);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DOCK, true);
 
     enableMenu(CONTEXT_MENU_CONNECT, hasConnection && !connected);
     enableMenu(CONTEXT_MENU_DISCONNECT, hasConnection && connected);
@@ -708,6 +712,25 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     openTableInfo(state.getDatabaseMeta(), node.getSchemaName(), node.getObjectName());
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_FLOAT,
+      toolTip = "i18n::DatabasePerspective.Toolbar.Float.Tooltip",
+      image = "ui/images/detach-panel.svg",
+      separator = true)
+  public void openFloatingWindow() {
+    DatabaseWorkbenchViews.openDialog(host.getHopGui());
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DOCK,
+      toolTip = "i18n::DatabasePerspective.Toolbar.Dock.Tooltip",
+      image = "ui/images/dock-panel.svg")
+  public void openInBottomDock() {
+    DatabaseWorkbenchViews.openDock(host.getHopGui());
   }
 
   public DatabaseSqlEditorTab openSqlTab(

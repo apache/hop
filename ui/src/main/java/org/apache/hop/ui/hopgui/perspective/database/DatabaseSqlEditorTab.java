@@ -355,6 +355,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
             if (timeout > 0) {
               db.setStatementQueryTimeoutSeconds(timeout);
             }
+            db.setQueryLimit(DEFAULT_ROW_LIMIT);
             db.connect();
             int nr = 0;
             for (SqlScriptStatement sql : statements) {

@@ -36,7 +36,7 @@ Here are the available perspectives:
 
 * image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File explorer]
 
-* image:icons/database.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database]
+* image:icons/database.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database] (also as a floating window or bottom-dock tab)
 
 * image:icons/plugin.svg[width="24px"] xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
 

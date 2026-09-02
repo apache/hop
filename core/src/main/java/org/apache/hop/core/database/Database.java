@@ -130,8 +130,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /**
    * When positive, applied to statements created in {@link #openQuery(String, IRowMeta, Object[],
-   * int, boolean)} via {@link Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC
-   * driver default (typically unlimited). Intended for short-lived GUI preview connections.
+   * int, boolean)} and {@link #execStatement(String, IRowMeta, Object[])} via {@link
+   * Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC driver default (typically
+   * unlimited). Intended for short-lived GUI preview connections.
    */
   private int statementQueryTimeoutSeconds;
 
@@ -270,8 +271,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /**
    * Sets the JDBC {@link Statement#setQueryTimeout(int)} (seconds) for statements opened by {@link
-   * #openQuery(String, IRowMeta, Object[], int, boolean)} until {@link #disconnect()}. Use {@code
-   * 0} to use the driver default.
+   * #openQuery(String, IRowMeta, Object[], int, boolean)} and {@link #execStatement(String,
+   * IRowMeta, Object[])} until {@link #disconnect()}. Use {@code 0} to use the driver default.
    *
    * @param seconds query timeout in whole seconds; values {@code < 0} are treated as {@code 0}
    */
@@ -1525,12 +1526,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (params != null) {
         PreparedStatement prepStmt = connection.prepareStatement(databaseMeta.stripCR(sql));
         setValues(params, data, prepStmt); // set the parameters!
+        applyStatementQueryTimeout(prepStmt);
         resultSet = prepStmt.execute();
         count = prepStmt.getUpdateCount();
         prepStmt.close();
       } else {
         String sqlStripped = databaseMeta.stripCR(sql);
         try (Statement stmt = connection.createStatement()) {
+          applyStatementQueryTimeout(stmt);
           resultSet = stmt.execute(sqlStripped);
           count = stmt.getUpdateCount();
         }
@@ -3694,9 +3697,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (monitor != null) {
       monitor.setTaskName("Opening query...");
     }
-    ResultSet rset = openQuery(sql, params, data, fetchMode, lazyConversion);
-
-    return getRows(rset, limit, monitor);
+    // openQuery honours setQueryLimit via Statement.setMaxRows. The limit argument used to only
+    // stop the client read loop, so drivers that buffer the result still fetched the whole table.
+    int previousLimit = rowlimit;
+    if (limit > 0) {
+      setQueryLimit(limit);
+    }
+    try {
+      ResultSet rset = openQuery(sql, params, data, fetchMode, lazyConversion);
+      return getRows(rset, limit, monitor);
+    } finally {
+      rowlimit = previousLimit;
+    }
   }
 
   /**
