@@ -235,8 +235,6 @@ public class HopGui
 
   public static final String ID_MAIN_MENU_VIEW_PARENT_ID = "25000-menu-view";
   public static final String ID_MAIN_MENU_VIEW_FULL_SCREEN = "25010-menu-view-full-screen";
-  public static final String ID_MAIN_MENU_VIEW_TERMINAL = "25010-menu-view-terminal";
-  public static final String ID_MAIN_MENU_VIEW_NEW_TERMINAL = "25020-menu-view-new-terminal";
 
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";

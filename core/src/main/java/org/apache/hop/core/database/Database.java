@@ -2281,34 +2281,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     // For now, we just try to get the field layout on the re-bound in the
     // exception block below.
     //
-    boolean maybeScanTable = false;
     try {
       if (databaseMeta.supportsPreparedStatementMetadataRetrieval()) {
-        // On with the regular program.
-        //
         fields = getQueryFieldsFromPreparedStatement(sql);
+      } else if (isDataServiceConnection()) {
+        // Data services return Hop type names on SOURCE_* columns. Standard JDBC getColumns()
+        // does not, so ordinary databases go straight to the fallback.
+        fields = getQueryFieldsFromDatabaseMetaData(sql);
       } else {
-        if (isDataServiceConnection()) {
-          fields = getQueryFieldsFromDatabaseMetaData(sql);
-        } else {
-          maybeScanTable = true;
-          fields = getQueryFieldsFromDatabaseMetaData();
-        }
-      }
-    } catch (Exception e) {
-      if (maybeScanTable) {
-        String fastFetchSql = sql.replaceAll("\\b((?i)WHERE)\\b(\\s)", "$1 1=2 AND$2");
-        if (fastFetchSql.length() > sql.length()) {
-          try {
-            fields = getQueryFieldsFallback(sql, param, inform, data);
-          } catch (HopDatabaseException ignore) {
-            // Do nothing
-          }
-        }
-      }
-      if (fields == null) {
         fields = getQueryFieldsFallback(sql, param, inform, data);
       }
+    } catch (Exception e) {
+      fields = getQueryFieldsFallback(sql, param, inform, data);
     }
 
     // Store in cache!!
@@ -2352,53 +2336,54 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private IRowMeta getQueryFieldsFromDatabaseMetaData(String sql) throws Exception {
 
-    ResultSet columns =
+    try (ResultSet columns =
         connection
             .getMetaData()
-            .getColumns("", "", StringUtils.isNotBlank(sql) ? sql : databaseMeta.getName(), "");
-    IRowMeta rowMeta = new RowMeta();
-    while (columns.next()) {
-      IValueMeta valueMeta = null;
-      String name = columns.getString("COLUMN_NAME");
-      String comments = columns.getString("REMARKS");
-      String type = columns.getString("SOURCE_DATA_TYPE");
-      int size = columns.getInt("COLUMN_SIZE");
-      valueMeta =
-          switch (type) {
-            case "Integer", "Long" -> new ValueMetaInteger();
-            case "BigDecimal", "BigNumber" -> new ValueMetaBigNumber();
-            case "Double", "Number" -> new ValueMetaNumber();
-            case "String" -> new ValueMetaString();
-            case "Date" -> new ValueMetaDate();
-            case "Boolean" -> new ValueMetaBoolean();
-            case "Binary" -> new ValueMetaBinary();
-            case "Timestamp" -> new ValueMetaTimestamp();
-            case "Internet Address" -> new ValueMetaInternetAddress();
-            default -> valueMeta;
-          };
-      if (valueMeta != null) {
-        valueMeta.setName(name);
-        valueMeta.setComments(comments);
-        valueMeta.setLength(size);
-        valueMeta.setOriginalColumnTypeName(type);
+            .getColumns("", "", StringUtils.isNotBlank(sql) ? sql : databaseMeta.getName(), "")) {
+      IRowMeta rowMeta = new RowMeta();
+      while (columns.next()) {
+        IValueMeta valueMeta = null;
+        String name = columns.getString("COLUMN_NAME");
+        String comments = columns.getString("REMARKS");
+        String type = columns.getString("SOURCE_DATA_TYPE");
+        int size = columns.getInt("COLUMN_SIZE");
+        valueMeta =
+            switch (type) {
+              case "Integer", "Long" -> new ValueMetaInteger();
+              case "BigDecimal", "BigNumber" -> new ValueMetaBigNumber();
+              case "Double", "Number" -> new ValueMetaNumber();
+              case "String" -> new ValueMetaString();
+              case "Date" -> new ValueMetaDate();
+              case "Boolean" -> new ValueMetaBoolean();
+              case "Binary" -> new ValueMetaBinary();
+              case "Timestamp" -> new ValueMetaTimestamp();
+              case "Internet Address" -> new ValueMetaInternetAddress();
+              default -> valueMeta;
+            };
+        if (valueMeta != null) {
+          valueMeta.setName(name);
+          valueMeta.setComments(comments);
+          valueMeta.setLength(size);
+          valueMeta.setOriginalColumnTypeName(type);
 
-        valueMeta.setConversionMask(columns.getString("SOURCE_MASK"));
-        valueMeta.setDecimalSymbol(columns.getString("SOURCE_DECIMAL_SYMBOL"));
-        valueMeta.setGroupingSymbol(columns.getString("SOURCE_GROUPING_SYMBOL"));
-        valueMeta.setCurrencySymbol(columns.getString("SOURCE_CURRENCY_SYMBOL"));
+          valueMeta.setConversionMask(columns.getString("SOURCE_MASK"));
+          valueMeta.setDecimalSymbol(columns.getString("SOURCE_DECIMAL_SYMBOL"));
+          valueMeta.setGroupingSymbol(columns.getString("SOURCE_GROUPING_SYMBOL"));
+          valueMeta.setCurrencySymbol(columns.getString("SOURCE_CURRENCY_SYMBOL"));
 
-        rowMeta.addValueMeta(valueMeta);
-      } else {
-        log.logBasic(
-            "Database.getQueryFields() IValueMeta mapping not resolved for the column " + name);
-        rowMeta = null;
-        break;
+          rowMeta.addValueMeta(valueMeta);
+        } else {
+          log.logBasic(
+              "Database.getQueryFields() IValueMeta mapping not resolved for the column " + name);
+          rowMeta = null;
+          break;
+        }
       }
-    }
-    if (rowMeta != null && !rowMeta.isEmpty()) {
-      return rowMeta;
-    } else {
-      throw new Exception("Error in Database.getQueryFields()");
+      if (rowMeta != null && !rowMeta.isEmpty()) {
+        return rowMeta;
+      } else {
+        throw new Exception("Error in Database.getQueryFields()");
+      }
     }
   }
 
@@ -3493,33 +3478,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       ParameterMetaData pmd = ps.getParameterMetaData();
       for (int i = 1; i <= pmd.getParameterCount(); i++) {
         String name = "par" + i;
-        int sqltype = pmd.getParameterType(i);
-        int length = pmd.getPrecision(i);
-        int precision = pmd.getScale(i);
-        IValueMeta val =
-            switch (sqltype) {
-              case java.sql.Types.CHAR, java.sql.Types.VARCHAR -> new ValueMetaString(name);
-              case java.sql.Types.BIGINT,
-                      java.sql.Types.INTEGER,
-                      java.sql.Types.NUMERIC,
-                      java.sql.Types.SMALLINT,
-                      java.sql.Types.TINYINT ->
-                  new ValueMetaInteger(name);
-              case java.sql.Types.DECIMAL,
-                      java.sql.Types.DOUBLE,
-                      java.sql.Types.FLOAT,
-                      java.sql.Types.REAL ->
-                  new ValueMetaNumber(name);
-              case java.sql.Types.DATE, java.sql.Types.TIME, java.sql.Types.TIMESTAMP ->
-                  new ValueMetaDate(name);
-              case java.sql.Types.BOOLEAN, java.sql.Types.BIT -> new ValueMetaBoolean(name);
-              default -> new ValueMetaNone(name);
-            };
-
-        if (val.isNumeric() && (length > 18 || precision > 18)) {
-          val = new ValueMetaBigNumber(name);
+        int sqlType = pmd.getParameterType(i);
+        int precision = pmd.getPrecision(i);
+        int scale = pmd.getScale(i);
+        DatabaseColumn column = DatabaseColumn.of(name, sqlType, null, precision, scale, precision);
+        IValueMeta val = DatabaseTypeMapper.getValueMeta(this, databaseMeta, column, false, false);
+        if (val == null) {
+          val = new ValueMetaNone(name);
         }
-
         par.addValueMeta(val);
       }
     } catch (AbstractMethodError | Exception e) {

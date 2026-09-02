@@ -72,6 +72,7 @@ public class GetQueryFieldsProgressDialog {
                 e, "Problem encountered determining query fields: " + e.toString());
           } finally {
             db.disconnect();
+            monitor.done();
           }
         };
 

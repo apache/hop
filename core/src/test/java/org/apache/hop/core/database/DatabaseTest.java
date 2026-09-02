@@ -43,6 +43,7 @@ import java.lang.reflect.Field;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -138,6 +139,29 @@ class DatabaseTest {
     assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
     assertEquals(columnType, iRowMeta.getValueMeta(0).getOriginalColumnTypeName());
     assertEquals(columnSize, iRowMeta.getValueMeta(0).getLength());
+  }
+
+  @Test
+  void getParameterMetaDataMapsNvarcharAndNumeric() throws Exception {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    ParameterMetaData parameterMetaData = mock(ParameterMetaData.class);
+    when(ps.getParameterMetaData()).thenReturn(parameterMetaData);
+    when(parameterMetaData.getParameterCount()).thenReturn(2);
+    when(parameterMetaData.getParameterType(1)).thenReturn(Types.NVARCHAR);
+    when(parameterMetaData.getPrecision(1)).thenReturn(20);
+    when(parameterMetaData.getScale(1)).thenReturn(0);
+    when(parameterMetaData.getParameterType(2)).thenReturn(Types.NUMERIC);
+    when(parameterMetaData.getPrecision(2)).thenReturn(18);
+    when(parameterMetaData.getScale(2)).thenReturn(4);
+
+    Database db = new Database(log, variables, meta);
+    IRowMeta rowMeta = db.getParameterMetaData(ps);
+
+    assertEquals(2, rowMeta.size());
+    assertTrue(rowMeta.getValueMeta(0).isString());
+    assertTrue(rowMeta.getValueMeta(1).isNumeric());
+    assertFalse(rowMeta.getValueMeta(1).isInteger());
+    assertEquals(4, rowMeta.getValueMeta(1).getPrecision());
   }
 
   /**

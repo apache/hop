@@ -11,7 +11,7 @@ STRING       len=      10 prec=   2 -        -> VARCHAR(10)
 STRING       len=      15 prec=   0 -        -> VARCHAR(15)
 STRING       len=      18 prec=   0 -        -> VARCHAR(18)
 STRING       len=      20 prec=   0 -        -> VARCHAR(20)
-STRING       len= 9999999 prec=   0 -        -> TEXT
+STRING       len= 9999999 prec=   0 -        -> VARCHAR(MAX)
 INTEGER      len=      -1 prec=  -1 -        -> INT
 INTEGER      len=       0 prec=   0 -        -> INT
 INTEGER      len=       4 prec=   0 -        -> INT
@@ -48,15 +48,15 @@ DATE         len=      15 prec=   0 -        -> DATETIME
 DATE         len=      18 prec=   0 -        -> DATETIME
 DATE         len=      20 prec=   0 -        -> DATETIME
 DATE         len= 9999999 prec=   0 -        -> DATETIME
-TIMESTAMP    len=      -1 prec=  -1 -        -> DATETIME
-TIMESTAMP    len=       0 prec=   0 -        -> DATETIME
-TIMESTAMP    len=       4 prec=   0 -        -> DATETIME
-TIMESTAMP    len=       9 prec=   0 -        -> DATETIME
-TIMESTAMP    len=      10 prec=   2 -        -> DATETIME
-TIMESTAMP    len=      15 prec=   0 -        -> DATETIME
-TIMESTAMP    len=      18 prec=   0 -        -> DATETIME
-TIMESTAMP    len=      20 prec=   0 -        -> DATETIME
-TIMESTAMP    len= 9999999 prec=   0 -        -> DATETIME
+TIMESTAMP    len=      -1 prec=  -1 -        -> DATETIME2
+TIMESTAMP    len=       0 prec=   0 -        -> DATETIME2
+TIMESTAMP    len=       4 prec=   0 -        -> DATETIME2
+TIMESTAMP    len=       9 prec=   0 -        -> DATETIME2
+TIMESTAMP    len=      10 prec=   2 -        -> DATETIME2
+TIMESTAMP    len=      15 prec=   0 -        -> DATETIME2
+TIMESTAMP    len=      18 prec=   0 -        -> DATETIME2
+TIMESTAMP    len=      20 prec=   0 -        -> DATETIME2
+TIMESTAMP    len= 9999999 prec=   0 -        -> DATETIME2
 BOOLEAN      len=      -1 prec=  -1 -        -> CHAR(1)
 BOOLEAN      len=       0 prec=   0 -        -> CHAR(1)
 BOOLEAN      len=       4 prec=   0 -        -> CHAR(1)
@@ -105,34 +105,34 @@ STRING       len=    3999 prec=   0 -        -> VARCHAR(3999)
 STRING       len=    4000 prec=   0 -        -> VARCHAR(4000)
 STRING       len=    4001 prec=   0 -        -> VARCHAR(4001)
 STRING       len=    7999 prec=   0 -        -> VARCHAR(7999)
-STRING       len=    8000 prec=   0 -        -> TEXT
-STRING       len=    8001 prec=   0 -        -> TEXT
-STRING       len=   21843 prec=   0 -        -> TEXT
-STRING       len=   21844 prec=   0 -        -> TEXT
-STRING       len=   32663 prec=   0 -        -> TEXT
-STRING       len=   32664 prec=   0 -        -> TEXT
-STRING       len=   32671 prec=   0 -        -> TEXT
-STRING       len=   32672 prec=   0 -        -> TEXT
-STRING       len=   32699 prec=   0 -        -> TEXT
-STRING       len=   32700 prec=   0 -        -> TEXT
-STRING       len=   32719 prec=   0 -        -> TEXT
-STRING       len=   32720 prec=   0 -        -> TEXT
-STRING       len=   32766 prec=   0 -        -> TEXT
-STRING       len=   32767 prec=   0 -        -> TEXT
-STRING       len=   32768 prec=   0 -        -> TEXT
-STRING       len=   65532 prec=   0 -        -> TEXT
-STRING       len=   65533 prec=   0 -        -> TEXT
-STRING       len=   65534 prec=   0 -        -> TEXT
-STRING       len=   65535 prec=   0 -        -> TEXT
-STRING       len=   65536 prec=   0 -        -> TEXT
-STRING       len= 1999999 prec=   0 -        -> TEXT
-STRING       len= 2000000 prec=   0 -        -> TEXT
-STRING       len= 2000001 prec=   0 -        -> TEXT
-STRING       len= 9999998 prec=   0 -        -> TEXT
-STRING       len= 9999999 prec=   0 -        -> TEXT
-STRING       len=10000000 prec=   0 -        -> TEXT
-STRING       len=16777215 prec=   0 -        -> TEXT
-STRING       len=16777216 prec=   0 -        -> TEXT
+STRING       len=    8000 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=    8001 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   21843 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   21844 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32663 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32664 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32671 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32672 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32699 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32700 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32719 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32720 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32766 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32767 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   32768 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   65532 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   65533 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   65534 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   65535 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=   65536 prec=   0 -        -> VARCHAR(MAX)
+STRING       len= 1999999 prec=   0 -        -> VARCHAR(MAX)
+STRING       len= 2000000 prec=   0 -        -> VARCHAR(MAX)
+STRING       len= 2000001 prec=   0 -        -> VARCHAR(MAX)
+STRING       len= 9999998 prec=   0 -        -> VARCHAR(MAX)
+STRING       len= 9999999 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=10000000 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=16777215 prec=   0 -        -> VARCHAR(MAX)
+STRING       len=16777216 prec=   0 -        -> VARCHAR(MAX)
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> BIGINT PRIMARY KEY
@@ -248,12 +248,12 @@ DATE         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DATETIME
 DATE         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME
 DATE         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME
 DATE         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME
-TIMESTAMP    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DATETIME
-TIMESTAMP    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME
-TIMESTAMP    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DATETIME
-TIMESTAMP    len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME
-TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME
-TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME
+TIMESTAMP    len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL DATETIME2
+TIMESTAMP    len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME2
+TIMESTAMP    len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL DATETIME2
+TIMESTAMP    len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME2
+TIMESTAMP    len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL DATETIME2
+TIMESTAMP    len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL DATETIME2
 BOOLEAN      len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL CHAR(1)
 BOOLEAN      len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL CHAR(1)
 BOOLEAN      len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL CHAR(1)

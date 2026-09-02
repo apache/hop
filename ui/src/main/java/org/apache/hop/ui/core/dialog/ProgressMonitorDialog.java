@@ -188,6 +188,10 @@ public class ProgressMonitorDialog {
     } catch (InterruptedException e) {
       interruptedException = e;
       Thread.currentThread().interrupt();
+    } finally {
+      // Callers that forget monitor.done() must not leave the modal dialog up forever.
+      // dispose() is idempotent, so callers that do call done() are unaffected.
+      dispose();
     }
   }
 
