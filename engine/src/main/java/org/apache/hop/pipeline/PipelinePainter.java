@@ -1241,14 +1241,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           gc.drawImage(svgFile, mx, my, 16, 16, magnification, 0);
           areaOwners.add(
               new AreaOwner(
-                  AreaType.ROW_DISTRIBUTION_ICON,
-                  mx,
-                  my,
-                  16,
-                  16,
-                  offset,
-                  fs,
-                  STRING_ROW_DISTRIBUTION));
+                  AreaType.ROW_DISTRIBUTION_ICON, mx, my, 16, 16, offset, fs, pipelineHop));
           mx += 16;
         }
 
@@ -1262,8 +1255,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         gc.drawImage(image, mx, my, magnification);
 
         areaOwners.add(
-            new AreaOwner(
-                AreaType.HOP_COPY_ICON, mx, my, 16, 16, offset, fs, STRING_HOP_TYPE_COPY));
+            new AreaOwner(AreaType.HOP_COPY_ICON, mx, my, 16, 16, offset, fs, pipelineHop));
         mx += 16;
       }
 

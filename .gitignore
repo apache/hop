@@ -2,6 +2,7 @@
 .classpath
 .settings
 .factorypath
+.agents
 build
 target
 release.properties

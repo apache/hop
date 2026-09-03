@@ -613,6 +613,7 @@ public class HopGuiPipelineTransformDelegate {
           transformMeta.setChanged(partitionBefore.hasChanged());
         }
         pipelineGraph.redraw();
+        pipelineGraph.updateGui();
       }
     } catch (Exception e) {
       new ErrorDialog(
