@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.janino.editor;
 
+import java.util.Collections;
 import java.util.List;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -26,9 +28,11 @@ import org.apache.hop.pipeline.transforms.janino.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
@@ -60,10 +64,11 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private Shell shell;
   private Tree tree;
   private SashForm sashForm;
-  private StyledTextComp expressionEditor;
+  private TextComposite expressionEditor;
   private String formula;
   private Browser message;
   private FunctionLib functionLib;
+  private List<FunctionDescription> extraEntries;
 
   private Button ok;
   private Button cancel;
@@ -83,8 +88,24 @@ public class FormulaEditor extends Dialog implements KeyListener {
   public FormulaEditor(
       IVariables variables, Shell parent, int style, String formula, List<String> inputFields)
       throws HopException {
+    this(variables, parent, style, formula, inputFields, Collections.emptyList());
+  }
+
+  /**
+   * @param extraEntries entries to show in the tree on top of the scanned functions, e.g. the
+   *     example conditions of the Java Filter
+   */
+  public FormulaEditor(
+      IVariables variables,
+      Shell parent,
+      int style,
+      String formula,
+      List<String> inputFields,
+      List<FunctionDescription> extraEntries)
+      throws HopException {
     super(parent, style);
     this.formula = formula;
+    this.extraEntries = extraEntries;
 
     // Run it in a new shell:
     //
@@ -229,12 +250,25 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
     // An expression editor on the right
     //
-    expressionEditor =
-        new StyledTextComp(
-            variables,
-            rightSash,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            TextComposite.STYLE_TYPE_FORMULA);
+    // The expression is Java, so it gets the Java highlighting. Hop Web runs on RWT, which has no
+    // StyledText: there the editor is the plain variant with the same style type.
+    //
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      expressionEditor =
+          new StyledTextComp(
+              variables,
+              rightSash,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              TextComposite.STYLE_TYPE_JAVA);
+    } else {
+      expressionEditor =
+          new JavaStyledTextComp(
+              variables,
+              rightSash,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      expressionEditor.addLineStyleListener();
+    }
+    PropsUi.setLook(expressionEditor, Props.WIDGET_STYLE_FIXED);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);
@@ -319,6 +353,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   public void readFunctions() throws HopException {
     functionLib = new FunctionLib();
+    if (extraEntries != null) {
+      functionLib.addFunctions(extraEntries);
+    }
     categories = functionLib.getFunctionCategories();
   }
 

@@ -36,6 +36,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
+import org.apache.hop.pipeline.transforms.janino.function.RowAccess;
+import org.apache.hop.pipeline.transforms.util.ExpressionValueTypes;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.codehaus.janino.ExpressionEvaluator;
 
@@ -151,9 +153,18 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
               // If so, add it to the indexes...
               argIndexes.add(i);
 
-              parameterTypes.add(valueMeta.getNativeDataTypeClass());
+              parameterTypes.add(ExpressionValueTypes.javaTypeOf(valueMeta));
               parameterNames.add(valueMeta.getName());
             }
+          }
+
+          // On top of the fields, every expression can read the row by field name. A field of the
+          // stream with the same name wins, the expression can then simply not use the helper.
+          //
+          if (data.outputRowMeta.indexOfValue(RowAccess.PARAMETER_NAME) < 0) {
+            parameterNames.add(RowAccess.PARAMETER_NAME);
+            parameterTypes.add(RowAccess.class);
+            data.rowAccess = new RowAccess();
           }
 
           JaninoMetaFunction function = meta.getFunctions().get(m);
@@ -205,11 +216,16 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
 
         // This method can only accept the specified number of values...
         //
-        Object[] argumentData = new Object[argumentIndexes.size()];
+        Object[] argumentData =
+            new Object[argumentIndexes.size() + (data.rowAccess == null ? 0 : 1)];
         for (int x = 0; x < argumentIndexes.size(); x++) {
           int index = argumentIndexes.get(x);
           IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta(index);
           argumentData[x] = outputValueMeta.convertToNormalStorageType(outputRowData[index]);
+        }
+        if (data.rowAccess != null) {
+          data.rowAccess.setRow(data.outputRowMeta, outputRowData);
+          argumentData[argumentData.length - 1] = data.rowAccess;
         }
 
         Object formulaResult = data.expressionEvaluators[i].evaluate(argumentData);
