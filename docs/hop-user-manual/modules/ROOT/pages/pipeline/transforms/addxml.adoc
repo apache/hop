@@ -56,6 +56,25 @@ This XML is added to the row in the form of a String field.
 This is often used to limit the size of the target XML.
 |===
 
+=== Namespaces
+
+Namespaces are declared like any other value: add a field in the Fields tab, mark it as an
+attribute and give it the element name of the declaration. Because the value comes from the row,
+different rows can use different namespace URIs.
+
+* To put the root element in a default namespace, use the element name `xmlns`. A root element
+`catalog` with a field `xmlns` holding `https://hop.apache.org` generates
+`<catalog xmlns="https://hop.apache.org">`. Child elements without a prefix are in that namespace
+too.
+* To bind the root element to a prefix, name the root XML element `prefix:element` and declare the
+matching `xmlns:prefix` field. A root element `cat:catalog` with a field `xmlns:cat` generates
+`<cat:catalog xmlns:cat="https://hop.apache.org">`. Unprefixed child elements are then *not* in
+that namespace; give them the prefix in their element name if they should be.
+* Any further declarations, e.g. `xmlns:xsi`, can be added as attribute fields in the same way.
+
+A prefixed root XML element without a matching `xmlns:prefix` field is an error: XML cannot use a
+prefix that is not bound to a namespace URI.
+
 === Fields Tab
 
 The Fields tab is where you configure the output fields and their formats.

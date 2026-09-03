@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.xml.addxml;
 
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -48,6 +49,11 @@ import org.w3c.dom.NodeList;
 public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
   private static final Class<?> PKG = AddXml.class;
 
+  /** Attribute name declaring a default namespace, and the prefix of a namespace declaration. */
+  private static final String XMLNS = "xmlns";
+
+  private static final String XMLNS_PREFIX = XMLNS + ":";
+
   private DOMImplementation domImplentation;
   private Transformer serializer;
 
@@ -76,9 +82,20 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
       processRowFirstCall();
     }
 
-    Document xmlDoc = getDomImplentation().createDocument(null, meta.getRootNode(), null);
+    // A default namespace can only be established when the document is created, so the value of
+    // the declaring field has to be read before the output fields are walked.
+    String documentNamespace = getDocumentNamespace(r);
+
+    Document xmlDoc =
+        getDomImplentation().createDocument(documentNamespace, meta.getRootNode(), null);
     Element root = xmlDoc.getDocumentElement();
     for (int i = 0; i < meta.getOutputFields().size(); i++) {
+      if (i == data.namespaceFieldIndex) {
+        // Already applied to the document element; emitting it again would duplicate the
+        // declaration.
+        continue;
+      }
+
       XmlField outputField = meta.getOutputFields().get(i);
       String fieldName = outputField.getFieldName();
 
@@ -112,12 +129,18 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
             }
           }
 
-          node.setAttribute(element, value);
+          if (XMLNS.equals(element) || element.startsWith(XMLNS_PREFIX)) {
+            // A namespace declaration only survives serialization when it is set as an attribute
+            // in the xmlns namespace; as a plain attribute the serializer discards its value.
+            node.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, element, value);
+          } else {
+            node.setAttribute(element, value);
+          }
 
         } else {
           /* encode as subnode */
           if (!element.equals(meta.getRootNode())) {
-            Element e = xmlDoc.createElement(element);
+            Element e = createElement(xmlDoc, documentNamespace, element);
             Node n = xmlDoc.createTextNode(value);
             e.appendChild(n);
             root.appendChild(e);
@@ -145,6 +168,39 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
     return true;
   }
 
+  /**
+   * Finds the output field declaring the namespace of the root node. An unprefixed root node is
+   * declared by a field named {@code xmlns}, a prefixed one by {@code xmlns:prefix}.
+   */
+  private void resolveNamespaceField() throws HopException {
+    data.namespaceFieldIndex = -1;
+
+    String rootNode = Const.NVL(meta.getRootNode(), "");
+    int colon = rootNode.indexOf(':');
+    String declaration = colon > 0 ? XMLNS_PREFIX + rootNode.substring(0, colon) : XMLNS;
+    data.rootNamespaceIsDefault = colon <= 0;
+
+    for (int i = 0; i < meta.getOutputFields().size(); i++) {
+      XmlField field = meta.getOutputFields().get(i);
+      String element = field.getElementName();
+      if (Utils.isEmpty(element)) {
+        element = field.getFieldName();
+      }
+      if (declaration.equals(element)) {
+        data.namespaceFieldIndex = i;
+        return;
+      }
+    }
+
+    if (colon > 0) {
+      // The DOM refuses a prefixed root node without a namespace URI. Say which field is missing
+      // rather than failing with a bare DOMException.
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "AddXML.Exception.MissingNamespaceDeclaration", rootNode, declaration));
+    }
+  }
+
   private void processRowFirstCall() throws HopException {
     data.outputRowMeta = getInputRowMeta().clone();
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
@@ -160,6 +216,38 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
             BaseMessages.getString(PKG, "AddXML.Exception.FieldNotFound", fieldsName));
       }
     }
+
+    resolveNamespaceField();
+  }
+
+  /**
+   * Reads the namespace URI for the root node from the current row. The declaring field is the one
+   * whose element name matches the root node's prefix: {@code xmlns} for an unprefixed root node,
+   * {@code xmlns:prefix} otherwise.
+   *
+   * @return the namespace URI, or null when the root node has no namespace
+   */
+  private String getDocumentNamespace(Object[] r) throws HopValueException {
+    if (data.namespaceFieldIndex < 0) {
+      return null;
+    }
+    XmlField field = meta.getOutputFields().get(data.namespaceFieldIndex);
+    int index = data.fieldIndexes[data.namespaceFieldIndex];
+    String namespace = formatField(getInputRowMeta().getValueMeta(index), r[index], field);
+    return Utils.isEmpty(namespace) ? null : namespace;
+  }
+
+  /**
+   * Creates a child element. When the root node declares a default namespace, unprefixed children
+   * are created in it so that the DOM matches what is serialized. Under a prefixed root node an
+   * unprefixed child is genuinely in no namespace, and names that already carry a prefix are
+   * created as-is: the declaration for that prefix is the user's own.
+   */
+  private Element createElement(Document doc, String documentNamespace, String name) {
+    if (documentNamespace == null || !data.rootNamespaceIsDefault || name.indexOf(':') >= 0) {
+      return doc.createElement(name);
+    }
+    return doc.createElementNS(documentNamespace, name);
   }
 
   private String formatField(IValueMeta valueMeta, Object valueData, XmlField field)
