@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -151,6 +152,16 @@ class XmlSnapshotUndoTest {
     byte[] first = undo.captureSnapshot(pipelineMeta, metadataProvider);
     byte[] second = undo.captureSnapshot(pipelineMeta, metadataProvider);
     assertTrue(XmlSnapshotUndo.sameXmlContent(first, second));
+  }
+
+  @Test
+  void sameXmlContentTreatsOmittedAndEmptyElementsAsEqual() throws Exception {
+    String omitted = XmlHandler.aroundTag("pipeline", "<transform><name>A</name></transform>");
+    String empty =
+        XmlHandler.aroundTag("pipeline", "<transform><name>A</name><message/></transform>");
+    assertTrue(
+        XmlSnapshotUndo.sameXmlContent(
+            XmlSnapshotUndo.compress(omitted), XmlSnapshotUndo.compress(empty)));
   }
 
   @Test

@@ -95,7 +95,7 @@ class XmlMetadataUtilTest {
     Node fieldsNode = XmlHandler.getSubNode(node, "fields");
     List<Node> fieldNodes = XmlHandler.getNodes(fieldsNode, "field");
     assertEquals(3, fieldNodes.size());
-    Node fieldNode = fieldNodes.get(0);
+    Node fieldNode = fieldNodes.getFirst();
     assertEquals("a", XmlHandler.getTagValue(fieldNode, "name"));
     assertEquals("String", XmlHandler.getTagValue(fieldNode, "type"));
     assertEquals("50", XmlHandler.getTagValue(fieldNode, "length"));
@@ -222,6 +222,21 @@ class XmlMetadataUtilTest {
   }
 
   @Test
+  void nullAndEmptyStringSerializeDifferentlyButCompareEqualForChangeDetection() throws Exception {
+    Field withNullFormat = new Field("a", "String", 50, -1, null, TestEnum.ONE);
+    Field withEmptyFormat = new Field("a", "String", 50, -1, "", TestEnum.ONE);
+
+    String nullXml = XmlMetadataUtil.serializeObjectToXml(withNullFormat);
+    String emptyXml = XmlMetadataUtil.serializeObjectToXml(withEmptyFormat);
+
+    assertFalse(nullXml.contains("<format"), "null is omitted from XML");
+    assertTrue(emptyXml.contains("<format"), "empty string is written as a tag");
+    assertTrue(
+        XmlHandler.sameContentIgnoringEmptyValues(nullXml, emptyXml),
+        "dialog OK that turns null into empty string is not a content change");
+  }
+
+  @Test
   void testListReferenceSerializationWithEmptyReference() throws Exception {
     String xml =
         """
@@ -239,7 +254,7 @@ class XmlMetadataUtilTest {
 
     assertEquals(1, withCopy.getSteps().size());
     assertEquals(1, withCopy.getHops().size());
-    assertEquals("S1", withCopy.getHops().get(0).getFrom().getName());
-    assertNull(withCopy.getHops().get(0).getTo());
+    assertEquals("S1", withCopy.getHops().getFirst().getFrom().getName());
+    assertNull(withCopy.getHops().getFirst().getTo());
   }
 }
