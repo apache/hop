@@ -64,6 +64,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -1593,6 +1594,9 @@ public class WorkflowMeta extends AbstractMeta
         if (action != null) {
           checkAction(remarks, monitor, variables, metadataProvider, actionMeta, action);
         }
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkAction(
+                actionMeta, variables, metadataProvider));
         // Progress bar...
         monitor.worked(worked++);
       }

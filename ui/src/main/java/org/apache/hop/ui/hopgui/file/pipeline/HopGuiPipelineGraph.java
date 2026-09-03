@@ -109,6 +109,7 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -200,6 +201,7 @@ import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 import org.apache.hop.ui.hopgui.file.shared.PipelineRowSamplerHelper;
+import org.apache.hop.ui.hopgui.file.shared.ReferencedConnectionSaveValidator;
 import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.hopgui.palette.GraphPaletteTree;
 import org.apache.hop.ui.hopgui.palette.IGraphPaletteHost;
@@ -5139,6 +5141,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       if (StringUtils.isEmpty(pipelineMeta.getFilename())) {
         throw new HopException("No filename: please specify a filename for this pipeline");
+      }
+
+      IHopMetadataProvider saveMetadataProvider = pipelineMeta.getMetadataProvider();
+      if (saveMetadataProvider == null) {
+        saveMetadataProvider = hopGui.getMetadataProvider();
+      }
+      if (!ReferencedConnectionSaveValidator.confirmSave(
+          hopShell(), pipelineMeta, variables, saveMetadataProvider)) {
+        return;
       }
 
       // Keep track of save

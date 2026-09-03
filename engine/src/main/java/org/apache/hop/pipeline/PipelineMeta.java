@@ -77,6 +77,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
 import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
@@ -2816,6 +2817,12 @@ public class PipelineMeta extends AbstractMeta
                     "PipelineMeta.CheckResult.TypeResultWarning.BufferDeadlockRisk.Description",
                     risk.formatMessage()),
                 risk.reconvergence()));
+      }
+
+      for (TransformMeta transformMeta : transformsToCheck) {
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkTransform(
+                transformMeta, variables, metadataProvider));
       }
 
       ExtensionPointHandler.callExtensionPoint(
