@@ -118,6 +118,21 @@ class ParquetOutputPartitionTest {
   }
 
   @Test
+  void partitionFolderStripsTrailingSeparators() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    ParquetOutput output = createTransform(meta, new ParquetOutputData());
+
+    meta.setFilenameBase("/tmp/sales/");
+    assertEquals("/tmp/sales/region=EU", output.partitionFolder("region=EU"));
+
+    meta.setFilenameBase("/tmp/sales\\");
+    assertEquals("/tmp/sales/region=EU", output.partitionFolder("region=EU"));
+
+    meta.setFilenameBase("/tmp/sales");
+    assertEquals("/tmp/sales/region=EU", output.partitionFolder("region=EU"));
+  }
+
+  @Test
   void partitionFieldsAreNotWrittenIntoTheFile() throws Exception {
     ParquetOutputMeta meta = partitionedMeta("region");
     ParquetOutputData data = new ParquetOutputData();

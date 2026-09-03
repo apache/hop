@@ -16,6 +16,8 @@
  */
 package org.apache.hop.parquet.transforms.output;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
@@ -23,6 +25,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
  * directory level in the Hive-style layout, and the field itself is not written into the Parquet
  * files.
  */
+@Getter
+@Setter
 public class ParquetPartitionField {
   @HopMetadataProperty(key = "name")
   private String name;
@@ -35,21 +39,5 @@ public class ParquetPartitionField {
 
   public ParquetPartitionField(ParquetPartitionField f) {
     this(f.name);
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName(String name) {
-    this.name = name;
   }
 }

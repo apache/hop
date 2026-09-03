@@ -549,9 +549,9 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   }
 
   /** The folder a partition's files go into: the base folder plus the partition path. */
-  private String partitionFolder(String partitionPath) {
+  String partitionFolder(String partitionPath) {
     String base = resolve(meta.getFilenameBase());
-    if (base.endsWith("/")) {
+    if (base.endsWith("/") || base.endsWith("\\")) {
       base = base.substring(0, base.length() - 1);
     }
     return base + "/" + toVfsPath(partitionPath);
