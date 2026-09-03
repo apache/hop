@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-calculator-jde-julian.csv",
+  "name": "golden-calculator-jde-julian",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy-MM-dd",
+      "field_name": "isoDate"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "julianIn"
+    },
+    {
+      "field_comment": "DATE_TO_JDE_JULIAN",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "julianOut"
+    },
+    {
+      "field_comment": "JDE_JULIAN_TO_DATE",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy-MM-dd",
+      "field_name": "isoOut"
+    }
+  ],
+  "folder_name": ""
+}
