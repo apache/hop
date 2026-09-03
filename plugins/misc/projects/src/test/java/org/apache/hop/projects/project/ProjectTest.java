@@ -30,6 +30,9 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -198,6 +201,37 @@ public class ProjectTest {
         parentHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME));
     assertEquals("child-proj", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
     assertEquals(childHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+  }
+
+  @Test
+  public void testProjectVariableResolvesEnvironmentConfigurationFilePath() throws Exception {
+    HopLogStore.init();
+    tempRoot = Files.createTempDirectory("hop-project-environment-variable");
+    Path projectHome = tempRoot.resolve("project");
+    Path configFolder = projectHome.resolve("config");
+    Files.createDirectories(configFolder);
+
+    Path environmentFile = configFolder.resolve("environment.json");
+    DescribedVariablesConfigFile configFile =
+        new DescribedVariablesConfigFile(environmentFile.toString());
+    configFile.setDescribedVariable(new DescribedVariable("ENVIRONMENT_VALUE", "loaded", ""));
+    configFile.saveToFile();
+
+    ProjectConfig projectConfig =
+        new ProjectConfig(
+            "project", projectHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    Project project = new Project();
+    project
+        .getDescribedVariables()
+        .add(
+            new DescribedVariable(
+                "CONFIG_HOME", "${" + ProjectsUtil.VARIABLE_PROJECT_HOME + "}/config", ""));
+
+    IVariables variables = new Variables();
+    project.modifyVariables(
+        variables, projectConfig, java.util.List.of("${CONFIG_HOME}/environment.json"), "dev");
+
+    assertEquals("loaded", variables.getVariable("ENVIRONMENT_VALUE"));
   }
 
   @Test
