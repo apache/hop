@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<!--
+  Example conditions offered by the Java Filter dialog.
+
+  Every expression in this file is compiled by JavaFilterConditionExamplesTest
+  against a stream with these fields, so anything added here has to be a valid
+  Java expression that returns a boolean:
+
+    name        String
+    group       String
+    id          Integer  (Long)
+    price       Number   (Double)
+    order_date  Date
+    active      Boolean
+
+  Fields are bound to the expression by name, so the examples use these names.
+  A condition that mentions no field at all (true, or one that only uses the
+  row helper) runs on any stream.
+-->
+
+<functions>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>equals a value</name>
+    <syntax>"Positive".equals(name)</syntax>
+    <description>Keeps the rows where a String field is exactly this value.</description>
+    <semantics>Written with the constant first so a null field value returns false instead of
+      throwing a NullPointerException.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>equals a value, ignoring case</name>
+    <syntax>"positive".equalsIgnoreCase(name)</syntax>
+    <description>Keeps the rows where a String field has this value in any case.</description>
+    <semantics>The constant comes first, a null field value returns false.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>contains a piece of text</name>
+    <syntax>name != null &amp;&amp; name.contains(" ")</syntax>
+    <description>Keeps the rows where a String field contains a piece of text, a space in this
+      example.</description>
+    <semantics>The null check comes first, the field is only touched when it has a value.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>starts with / ends with</name>
+    <syntax>name != null &amp;&amp; name.startsWith("A") &amp;&amp; name.endsWith("Z")</syntax>
+    <description>Keeps the rows where a String field starts and ends with a piece of
+      text.</description>
+    <semantics>Every String method of Java is available on a String field.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>matches a regular expression</name>
+    <syntax>name != null &amp;&amp; name.matches("[A-Z]{2}-[0-9]+")</syntax>
+    <description>Keeps the rows where a String field matches a regular expression.</description>
+    <semantics>matches() has to match the whole value, use find() semantics by surrounding the
+      pattern with .*</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>is empty or blank</name>
+    <syntax>name == null || name.trim().isEmpty()</syntax>
+    <description>Keeps the rows where a String field has no usable value.</description>
+    <semantics>Hop reads an empty String as null in a lot of places, so both are
+      checked.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Strings</category>
+    <name>is one of a list of values</name>
+    <syntax>java.util.Arrays.asList(new String[] {"A", "B", "C"}).contains(group)</syntax>
+    <description>Keeps the rows where a String field is one of a fixed list of values.</description>
+    <semantics>Use the fully qualified class name, the expression has no import
+      statements.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Numbers</category>
+    <name>compare an Integer field</name>
+    <syntax>id != null &amp;&amp; id.longValue() &gt; 100</syntax>
+    <description>Keeps the rows where an Integer field is larger than a value.</description>
+    <semantics>An Integer field arrives as a java.lang.Long. Check for null first, comparing a null
+      value throws a NullPointerException when it is unboxed.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Numbers</category>
+    <name>between two values</name>
+    <syntax>id != null &amp;&amp; id.longValue() &gt;= 2 &amp;&amp; id.longValue() &lt;= 5</syntax>
+    <description>Keeps the rows where a field is inside a range.</description>
+    <semantics>&amp;&amp; and || work like they do in Java, the first false stops the
+      evaluation.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Numbers</category>
+    <name>compare a Number field</name>
+    <syntax>price != null &amp;&amp; price.doubleValue() &gt; 9.99</syntax>
+    <description>Keeps the rows where a Number field is larger than a value.</description>
+    <semantics>A Number field arrives as a java.lang.Double.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Numbers</category>
+    <name>even or odd</name>
+    <syntax>id != null &amp;&amp; id.longValue() % 2 == 0</syntax>
+    <description>Keeps the rows with an even value, e.g. to split a stream in two.</description>
+    <semantics>All Java operators are available.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Dates</category>
+    <name>after a fixed date</name>
+    <syntax>order_date != null &amp;&amp; order_date.after(new java.util.GregorianCalendar(2024, 0, 1).getTime())</syntax>
+    <description>Keeps the rows where a Date field is after a given date.</description>
+    <semantics>A Date field arrives as a java.util.Date. Months start at 0 in
+      GregorianCalendar.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Dates</category>
+    <name>in the past</name>
+    <syntax>order_date != null &amp;&amp; order_date.before(new java.util.Date())</syntax>
+    <description>Keeps the rows where a Date field lies before the moment the row is
+      evaluated.</description>
+    <semantics>new java.util.Date() is evaluated for every row.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Booleans and null</category>
+    <name>a Boolean field is true</name>
+    <syntax>Boolean.TRUE.equals(active)</syntax>
+    <description>Keeps the rows where a Boolean field is true.</description>
+    <semantics>Writing it this way is null safe, active == Boolean.TRUE compares references and a
+      null value throws when it is unboxed.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Booleans and null</category>
+    <name>a field has no value</name>
+    <syntax>id == null</syntax>
+    <description>Keeps the rows where a field is null.</description>
+    <semantics>Fields arrive as objects, a null value is a null object.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Booleans and null</category>
+    <name>a field has a value, with a default</name>
+    <syntax>"A".equals(HopFunctions.nvl(group, "A"))</syntax>
+    <description>Treats an empty or null field as a default value.</description>
+    <semantics>HopFunctions.nvl() is available in the condition, like it is in the User Defined
+      Java Expression transform.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Fields not in every stream</category>
+    <name>the stream has this field</name>
+    <syntax>row.exists("department")</syntax>
+    <description>Keeps the rows of streams that have a field with this name.</description>
+    <semantics>row is always available and reads the row by field name. A field that is only used
+      through row.* is never referenced by the expression itself, so the condition also compiles
+      for streams that do not have it.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Fields not in every stream</category>
+    <name>filter on a field that is not in every stream</name>
+    <syntax>!row.exists("department") || "A".equals(row.getString("department"))</syntax>
+    <description>Filters on a field when the stream has it, and keeps every row when it does
+      not.</description>
+    <semantics>This is the pattern for pipelines that read a layout which is only known at runtime,
+      e.g. a Table Input transform reading select * from a table name in a variable.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Fields not in every stream</category>
+    <name>read a field by name</name>
+    <syntax>row.getInteger("id") != null &amp;&amp; row.getInteger("id").longValue() &gt; 100</syntax>
+    <description>Reads a field by name instead of by referring to it directly.</description>
+    <semantics>row.getString(), getInteger(), getNumber(), getBigNumber(), getDate() and
+      getBoolean() all return null when the stream has no field with that name.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Variables</category>
+    <name>compare with a variable</name>
+    <syntax>"${GROUP}".equals(group)</syntax>
+    <description>Compares a field with the value of a variable or parameter.</description>
+    <semantics>Variables are resolved before the expression is compiled, so they are used as text.
+      Keep the quotes around the variable, the expression sees its value.</semantics>
+  </function>
+
+  <function>
+    <category>Examples - Variables</category>
+    <name>the whole condition in a variable</name>
+    <syntax>${CONDITION}</syntax>
+    <description>Builds the condition itself at runtime.</description>
+    <semantics>Because variables are resolved before the expression is compiled, a variable can
+      hold the complete condition. A previous pipeline can set it to true for streams that need no
+      filtering at all.</semantics>
+  </function>
+
+</functions>

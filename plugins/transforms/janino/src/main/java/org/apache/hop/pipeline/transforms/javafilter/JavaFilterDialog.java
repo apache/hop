@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.javafilter;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -28,27 +29,23 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.editor.FormulaEditor;
+import org.apache.hop.pipeline.transforms.janino.function.ExpressionLibrary;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
@@ -57,13 +54,11 @@ public class JavaFilterDialog extends BaseTransformDialog {
 
   private CCombo wTrueTo;
   private CCombo wFalseTo;
-  private StyledTextComp wCondition;
-  private Button wEditor;
+  private TextComposite wCondition;
 
   private final JavaFilterMeta input;
 
   private final List<String> inputFields = new ArrayList<>();
-  private ColumnInfo[] colinf;
 
   public JavaFilterDialog(
       Shell parent, IVariables variables, JavaFilterMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -77,133 +72,108 @@ public class JavaFilterDialog extends BaseTransformDialog {
   public String open() {
     createShell(BaseMessages.getString(PKG, "JavaFilterDialog.DialogTitle"));
 
-    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(BaseMessages.getString(PKG, "JavaFilterDialog.Editor.Button"), e -> editorDialog())
+        .custom(BaseMessages.getString(PKG, "JavaFilterDialog.Test.Button"), e -> testCondition())
+        .cancel(e -> cancel())
+        .build();
 
-    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
-    PropsUi.setLook(scrolledComposite);
-    FormData fdScrolledComposite = new FormData();
-    fdScrolledComposite.left = new FormAttachment(0, 0);
-    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
-    fdScrolledComposite.right = new FormAttachment(100, 0);
-    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
-    scrolledComposite.setLayoutData(fdScrolledComposite);
-    scrolledComposite.setLayout(new FillLayout());
-
-    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
-    PropsUi.setLook(wContent);
-    FormLayout contentLayout = new FormLayout();
-    contentLayout.marginWidth = PropsUi.getFormMargin();
-    contentLayout.marginHeight = PropsUi.getFormMargin();
-    wContent.setLayout(contentLayout);
-
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    Group wSettingsGroup = new Group(wContent, SWT.SHADOW_NONE);
-    PropsUi.setLook(wSettingsGroup);
-    wSettingsGroup.setText(BaseMessages.getString(PKG, "JavaFIlterDialog.Settings.Label"));
-    FormLayout settingsLayout = new FormLayout();
-    settingsLayout.marginWidth = 10;
-    settingsLayout.marginHeight = 10;
-    wSettingsGroup.setLayout(settingsLayout);
+    Control lastControl = wSpacer;
+
+    // The transforms this one can send its rows to.
+    //
+    List<String> nextTransformNames = new ArrayList<>();
+    TransformMeta transformInfo = pipelineMeta.findTransform(transformName);
+    if (transformInfo != null) {
+      for (TransformMeta nextTransform : pipelineMeta.findNextTransforms(transformInfo)) {
+        nextTransformNames.add(nextTransform.getName());
+      }
+    }
 
     // Send 'True' data to...
-    Label wlTrueTo = new Label(wSettingsGroup, SWT.RIGHT);
+    //
+    Label wlTrueTo = new Label(shell, SWT.RIGHT);
     wlTrueTo.setText(BaseMessages.getString(PKG, "JavaFilterDialog.SendTrueTo.Label"));
     PropsUi.setLook(wlTrueTo);
     FormData fdlTrueTo = new FormData();
     fdlTrueTo.left = new FormAttachment(0, 0);
     fdlTrueTo.right = new FormAttachment(middle, -margin);
-    fdlTrueTo.top = new FormAttachment(0, margin);
+    fdlTrueTo.top = new FormAttachment(lastControl, margin);
     wlTrueTo.setLayoutData(fdlTrueTo);
-    wTrueTo = new CCombo(wSettingsGroup, SWT.BORDER);
+
+    wTrueTo = new CCombo(shell, SWT.BORDER);
     PropsUi.setLook(wTrueTo);
-
-    TransformMeta transforminfo = pipelineMeta.findTransform(transformName);
-    if (transforminfo != null) {
-      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transforminfo);
-      for (TransformMeta transformMeta : nextTransforms) {
-        wTrueTo.add(transformMeta.getName());
-      }
-    }
-
+    nextTransformNames.forEach(name -> wTrueTo.add(name));
     wTrueTo.addModifyListener(lsMod);
     FormData fdTrueTo = new FormData();
     fdTrueTo.left = new FormAttachment(middle, 0);
-    fdTrueTo.top = new FormAttachment(0, margin);
+    fdTrueTo.top = new FormAttachment(lastControl, margin);
     fdTrueTo.right = new FormAttachment(100, 0);
     wTrueTo.setLayoutData(fdTrueTo);
+    lastControl = wTrueTo;
 
     // Send 'False' data to...
-    Label wlFalseTo = new Label(wSettingsGroup, SWT.RIGHT);
+    //
+    Label wlFalseTo = new Label(shell, SWT.RIGHT);
     wlFalseTo.setText(BaseMessages.getString(PKG, "JavaFilterDialog.SendFalseTo.Label"));
     PropsUi.setLook(wlFalseTo);
     FormData fdlFalseTo = new FormData();
     fdlFalseTo.left = new FormAttachment(0, 0);
     fdlFalseTo.right = new FormAttachment(middle, -margin);
-    fdlFalseTo.top = new FormAttachment(wTrueTo, margin);
+    fdlFalseTo.top = new FormAttachment(lastControl, margin);
     wlFalseTo.setLayoutData(fdlFalseTo);
-    wFalseTo = new CCombo(wSettingsGroup, SWT.BORDER);
+
+    wFalseTo = new CCombo(shell, SWT.BORDER);
     PropsUi.setLook(wFalseTo);
-
-    transforminfo = pipelineMeta.findTransform(transformName);
-    if (transforminfo != null) {
-      List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transforminfo);
-      for (TransformMeta transformMeta : nextTransforms) {
-        wFalseTo.add(transformMeta.getName());
-      }
-    }
-
+    nextTransformNames.forEach(name -> wFalseTo.add(name));
     wFalseTo.addModifyListener(lsMod);
-    FormData fdFalseFrom = new FormData();
-    fdFalseFrom.top = new FormAttachment(wTrueTo, margin);
-    fdFalseFrom.left = new FormAttachment(middle, 0);
-    fdFalseFrom.right = new FormAttachment(100, 0);
-    wFalseTo.setLayoutData(fdFalseFrom);
+    FormData fdFalseTo = new FormData();
+    fdFalseTo.left = new FormAttachment(middle, 0);
+    fdFalseTo.top = new FormAttachment(lastControl, margin);
+    fdFalseTo.right = new FormAttachment(100, 0);
+    wFalseTo.setLayoutData(fdFalseTo);
+    lastControl = wFalseTo;
 
-    // Condition field
-    Label wlCondition = new Label(wSettingsGroup, SWT.RIGHT);
+    // The condition, it takes up the rest of the dialog.
+    //
+    Label wlCondition = new Label(shell, SWT.LEFT);
     wlCondition.setText(BaseMessages.getString(PKG, "JavaFIlterDialog.Condition.Label"));
     PropsUi.setLook(wlCondition);
     FormData fdlCondition = new FormData();
-    fdlCondition.top = new FormAttachment(wFalseTo, margin);
     fdlCondition.left = new FormAttachment(0, 0);
-    fdlCondition.right = new FormAttachment(middle, -margin);
+    fdlCondition.right = new FormAttachment(100, 0);
+    fdlCondition.top = new FormAttachment(lastControl, margin);
     wlCondition.setLayoutData(fdlCondition);
-    wCondition =
-        new StyledTextComp(
-            variables,
-            wSettingsGroup,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            TextComposite.STYLE_TYPE_JAVA);
-    PropsUi.setLook(wCondition);
+
+    // Hop Web runs on RWT, which has no StyledText: there the editor is the plain variant with the
+    // same style type, like every other code editor in Hop.
+    //
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      wCondition =
+          new StyledTextComp(
+              variables,
+              shell,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              TextComposite.STYLE_TYPE_JAVA);
+    } else {
+      wCondition =
+          new JavaStyledTextComp(
+              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      wCondition.addLineStyleListener();
+    }
+    wCondition.setToolTipText(BaseMessages.getString(PKG, "JavaFilterDialog.Condition.Tooltip"));
+    PropsUi.setLook(wCondition, Props.WIDGET_STYLE_FIXED);
+    wCondition.addModifyListener(lsMod);
     FormData fdCondition = new FormData();
-    fdCondition.top = new FormAttachment(wFalseTo, margin);
-    fdCondition.left = new FormAttachment(middle, 0);
+    fdCondition.left = new FormAttachment(0, 0);
     fdCondition.right = new FormAttachment(100, 0);
-    fdCondition.height = 200;
+    fdCondition.top = new FormAttachment(wlCondition, margin);
+    fdCondition.bottom = new FormAttachment(wOk, -margin);
     wCondition.setLayoutData(fdCondition);
-
-    wEditor = new Button(wSettingsGroup, SWT.PUSH | SWT.CENTER);
-    wEditor.setText(BaseMessages.getString(PKG, "JavaFilterDialog.Editor.Button"));
-    PropsUi.setLook(wEditor);
-    FormData fdEditor = new FormData();
-    fdEditor.top = new FormAttachment(wCondition, margin);
-    fdEditor.left = new FormAttachment(middle, 0);
-    wEditor.setLayoutData(fdEditor);
-
-    FormData fdSettingsGroup = new FormData();
-    fdSettingsGroup.left = new FormAttachment(0, margin);
-    fdSettingsGroup.top = new FormAttachment(0, margin);
-    fdSettingsGroup.right = new FormAttachment(100, -margin);
-    wSettingsGroup.setLayoutData(fdSettingsGroup);
-
-    wContent.pack();
-    Rectangle bounds = wContent.getBounds();
-    scrolledComposite.setContent(wContent);
-    scrolledComposite.setExpandHorizontal(true);
-    scrolledComposite.setExpandVertical(true);
-    scrolledComposite.setMinWidth(bounds.width);
-    scrolledComposite.setMinHeight(bounds.height);
 
     //
     // Search the fields in the background
@@ -225,9 +195,6 @@ public class JavaFilterDialog extends BaseTransformDialog {
           }
         };
     BackgroundThreadFacade.start(runnable);
-
-    // Add listeners
-    wEditor.addListener(SWT.Selection, e -> editorDialog());
 
     getData();
     input.setChanged(changed);
@@ -285,7 +252,8 @@ public class JavaFilterDialog extends BaseTransformDialog {
                 shell,
                 SWT.APPLICATION_MODAL | SWT.SHEET,
                 Const.NVL(wCondition.getText(), ""),
-                inputFields);
+                inputFields,
+                ExpressionLibrary.getFunctionsAndConditionExamples());
         String formula = libFormulaEditor.open();
         if (formula != null) {
           wCondition.setText(formula);
@@ -293,6 +261,36 @@ public class JavaFilterDialog extends BaseTransformDialog {
       }
     } catch (Exception ex) {
       new ErrorDialog(shell, "Error", "There was an unexpected error in the formula editor", ex);
+    }
+  }
+
+  /**
+   * Compiles the condition against the fields of the incoming stream and reports the outcome, so a
+   * condition that doesn't compile is found here instead of on the first row of a run.
+   */
+  private void testCondition() {
+    try {
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
+      JavaFilterCondition condition =
+          JavaFilterCondition.validate(rowMeta, variables.resolve(wCondition.getText()));
+
+      List<String> boundFields = condition.getBoundFieldNames();
+      String message =
+          boundFields.isEmpty()
+              ? BaseMessages.getString(PKG, "JavaFilterDialog.Test.Success.NoFields")
+              : BaseMessages.getString(
+                  PKG, "JavaFilterDialog.Test.Success.Fields", String.join(", ", boundFields));
+
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setText(BaseMessages.getString(PKG, "JavaFilterDialog.Test.Success.Title"));
+      mb.setMessage(message);
+      mb.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "JavaFilterDialog.Test.Failure.Title"),
+          BaseMessages.getString(PKG, "JavaFilterDialog.Test.Failure.Message"),
+          e);
     }
   }
 }

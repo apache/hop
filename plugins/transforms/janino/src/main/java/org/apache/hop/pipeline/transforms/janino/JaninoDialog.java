@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.editor.FormulaEditor;
+import org.apache.hop.pipeline.transforms.janino.function.ExpressionLibrary;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -201,7 +202,8 @@ public class JaninoDialog extends BaseTransformDialog {
                         shell,
                         SWT.APPLICATION_MODAL | SWT.SHEET,
                         Const.NVL(formula, ""),
-                        inputFields);
+                        inputFields,
+                        ExpressionLibrary.getFunctions());
                 formula = libFormulaEditor.open();
                 if (formula != null && !tv.isDisposed()) {
                   tv.setText(formula, e.x, e.y);

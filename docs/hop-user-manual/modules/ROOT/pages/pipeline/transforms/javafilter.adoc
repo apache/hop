@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Java Filter transform allows the stream to be filtered using a user defined Java expressions.
+:openvar: ${
+:closevar: }
 
 = image:transforms/icons/javafilter.svg[Java Filter transform Icon, role="image-doc-icon"] Java Filter
 
@@ -60,31 +62,199 @@ else
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
 |Destination transform for matching rows (optional)|The rows for which the written condition is evaluated to true are sent to this transform.
 |Destination transform for non-matching rows (optional)|The rows for which the written condition is evaluated to false are sent to this transform.
-|Condition (Java Expression)|Defines the Java condition on which to filter the data.
-See examples below.
+|Condition (Java expression)|The Java expression the rows are filtered with, with Java syntax highlighting.
+It has to return a boolean.
+See <<_writing_a_condition>> and <<_examples>>.
+
+A new transform starts with `true ? true : false`.
+It compiles and sends every row to the matching transform, replace it with a condition of your own, e.g. `"A".equals(department)` for a field of the stream, or `!row.exists("department") || "A".equals(row.getString("department"))` for a field that is not in every stream.
 |===
 
-=== Examples
+Two buttons at the bottom of the dialog help with the condition:
 
-These code samples applies to the Condition (Java Expression) field.
+* *Condition Editor* opens the expression in a larger, syntax highlighted editor with a tree next to it: the fields of the incoming stream, a reference of the operators and methods an expression can use (Operators, Text, Mathematical, Date & time, Logical, Conversion and the `row` helper) and a set of ready to use example conditions. Selecting an entry shows what it does and what it returns, double clicking one inserts it in the expression.
+* *Test condition* compiles the condition against the fields of the incoming stream and reports whether it is valid, along with the fields of the stream it uses. A condition that does not compile is reported here instead of on the first row of a pipeline run.
 
-Filters a string that contains white space
+== Writing a condition
+
+The condition is a single Java *expression*, not a block of statements: there is no `return`, and no semicolon at the end.
+It is compiled once, when the first row arrives, and evaluated for every row after that.
+
+Four things decide what you can write.
+
+=== The expression has to return a boolean
+
+The rows for which the expression is `true` go to the matching transform, the others to the non-matching transform.
+An expression that returns anything else stops the pipeline with an error on the first row, so use *Test condition* in the dialog to catch that up front.
+
+=== Fields are used by name
+
+A field of the incoming stream can be used by its name, as a normal Java variable:
 
 [source,java]
 ----
-field.contains(" ");
+"Positive".equals(status) && amount > 100
 ----
 
-Filters a string that is identical to a constant string
+A field is only handed to the expression when its name occurs in the condition, which is why a condition that does not mention a field also runs on streams that do not have that field.
+
+Comments are not part of that matching, and not part of the values either: `/* keep id > 100 */ true` uses no field at all.
+
+NOTE: field names are matched as plain text. A field named `id` is also recognised inside a word like `valid` or in the text `"identity"`, and a field whose name is not a valid Java identifier (a name with a space or a dash in it) can not be used in an expression. Read such fields with the `row` helper described in <<_fields_that_are_not_in_every_stream>>, or rename them in a Select Values transform first.
+
+=== A field arrives as an object of its Hop type
+
+[options="header"]
+|===
+|Hop type|Java type in the expression
+|String|`java.lang.String`
+|Integer|`java.lang.Long`
+|Number|`java.lang.Double`
+|BigNumber|`java.math.BigDecimal`
+|Date|`java.util.Date`
+|Timestamp|`java.sql.Timestamp`, which is a `java.util.Date`
+|Boolean|`java.lang.Boolean`
+|Binary|`byte[]`
+|Internet Address|`java.net.InetAddress`
+|JSON|`com.fasterxml.jackson.databind.JsonNode`
+|Serializable|`java.lang.Object`
+|===
+
+The type is the one the value type of the field declares for itself, so a type contributed by a plugin arrives as its own class as well, e.g. a UUID field as a `java.util.UUID`.
+A value type without a class of its own is passed as `java.lang.Object`, which is enough to check it for null or call the methods of `Object` on it.
+
+Because these are objects and not primitives, a null value is a `null` object.
+Comparing it with an operator unboxes it and throws a NullPointerException, so check for null first, or put the constant in front:
 
 [source,java]
 ----
-field.equals("Positive");
+amount != null && amount.longValue() > 100   // null safe
+"A".equals(group)                            // null safe, also when group is null
+group.equals("A")                            // throws when group is null
 ----
 
-Filters a boolean value
+There is no import statement in an expression, so classes other than the ones in `java.lang` are used with their full name, e.g. `new java.util.Date()`.
+The helper functions of the User Defined Java Expression transform are available as well, e.g. `HopFunctions.nvl(group, "A")`.
+
+=== Variables are resolved before the expression is compiled
+
+Variables and parameters in the condition are replaced by their value first, and the result is then compiled.
+That means a variable is used as *text*: keep the quotes around it when you compare it with a String field.
 
 [source,java]
 ----
-field == Boolean.TRUE
+"${GROUP}".equals(group)
 ----
+
+It also means the condition itself can be built at runtime: a condition that is nothing but `{openvar}CONDITION{closevar}` runs whatever expression that variable holds.
+Because the condition is compiled once, the variable is read once per pipeline execution.
+
+== Fields that are not in every stream
+
+A condition that mentions a field the stream does not have does not compile: the field can not be handed to the expression.
+This happens with pipelines that read a layout which is only known at runtime, e.g. a Table Input transform that runs `select * from {openvar}TABLE_NAME{closevar}` where not every table has the same columns.
+
+For these streams every expression also receives a helper named `row`, which reads the row by field name and never fails on a field that is not there:
+
+[options="header"]
+|===
+|Method|Returns
+|`row.exists("field")`|`true` when the stream has a field with this name
+|`row.isNull("field")`|`true` when the field is absent, or present with a null value
+|`row.getString("field")`|the value as a String, `null` when the field is absent
+|`row.getInteger("field")`|the value as a Long, `null` when the field is absent
+|`row.getNumber("field")`|the value as a Double, `null` when the field is absent
+|`row.getBigNumber("field")`|the value as a BigDecimal, `null` when the field is absent
+|`row.getDate("field")`|the value as a Date, `null` when the field is absent
+|`row.getBoolean("field")`|the value as a Boolean, `null` when the field is absent
+|===
+
+A Timestamp is read with `row.getDate()`, every other type with `row.getString()`.
+
+A field that is only used through `row` is not referenced by the expression itself, so the same condition runs on streams that have the field and on streams that do not:
+
+[source,java]
+----
+!row.exists("department") || "A".equals(row.getString("department"))
+----
+
+This also is the way to use a field whose name is not a valid Java identifier:
+
+[source,java]
+----
+"A".equals(row.getString("customer group"))
+----
+
+NOTE: when the stream itself contains a field named `row`, that field wins and the helper is not available. Rename the field to use `row.exists()` and friends.
+
+The same helper is available in the xref:pipeline/transforms/userdefinedjavaexpression.adoc[User Defined Java Expression] transform.
+
+== Examples
+
+These are the examples the condition editor offers, ready to insert.
+The editor also holds a reference of the operators and methods an expression can use, so it is the faster way to look something up while you write a condition.
+
+The examples assume a stream with the fields `name` (String), `group` (String), `id` (Integer), `price` (Number), `order_date` (Date) and `active` (Boolean).
+
+=== Strings
+
+[source,java]
+----
+"Positive".equals(name)                         // equals a value
+"positive".equalsIgnoreCase(name)               // equals a value, ignoring case
+name != null && name.contains(" ")              // contains a piece of text
+name != null && name.startsWith("A")            // starts with
+name != null && name.matches("[A-Z]{2}-[0-9]+") // matches a regular expression
+name == null || name.trim().isEmpty()           // is empty or blank
+java.util.Arrays.asList(new String[] {"A", "B", "C"}).contains(group) // is one of a list
+----
+
+=== Numbers
+
+[source,java]
+----
+id != null && id.longValue() > 100                        // larger than
+id != null && id.longValue() >= 2 && id.longValue() <= 5  // between two values
+price != null && price.doubleValue() > 9.99               // a Number field
+id != null && id.longValue() % 2 == 0                     // even rows, to split a stream in two
+----
+
+=== Dates and timestamps
+
+[source,java]
+----
+order_date != null && order_date.before(new java.util.Date())
+order_date != null && order_date.after(new java.util.GregorianCalendar(2024, 0, 1).getTime())
+----
+
+A Timestamp field is a `java.sql.Timestamp`, which is a `java.util.Date` as well, so the same comparisons work on it.
+
+=== Booleans and null
+
+[source,java]
+----
+Boolean.TRUE.equals(active)                  // a Boolean field is true, null safe
+id == null                                   // the field has no value
+"A".equals(HopFunctions.nvl(group, "A"))     // treat an empty or null field as a default
+----
+
+=== Variables
+
+[source,java]
+----
+"${GROUP}".equals(group)   // compare with the value of a variable or parameter
+${CONDITION}               // the whole condition comes from a variable
+----
+
+== Samples
+
+The samples project holds four pipelines for this transform, all of them in `transforms/`:
+
+[options="header"]
+|===
+|Sample|Shows
+|`javafilter-basic.hpl`|A condition on a field of the stream, with a matching and a non-matching transform.
+|`javafilter-row-object.hpl`|The same condition on a stream that has the field and on one that does not, with the `row` helper.
+|`javafilter-dynamic-condition.hpl`|A condition that comes from a variable, so it can be built at runtime.
+|`javafilter-field-types.hpl`|Filtering on a Timestamp, a JSON and a BigNumber field, each as its own Java class.
+|===

@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<!--
+  The operators and methods a Janino expression can use, shown in the expression
+  editor of the Java Filter and the User Defined Java Expression transform.
+
+  An expression is Java, so this is a reference of the basics rather than a fixed
+  set of functions: everything java.lang offers plus the methods of the type a
+  field arrives as. Classes outside java.lang are used with their full name, an
+  expression has no import statements. HopFunctions and the row helper are
+  documented from their annotations, they do not appear in this file.
+
+  Every syntax and every example here is compiled by ExpressionLibraryTest
+  against a stream with these fields, so anything added has to be a valid Java
+  expression:
+
+    field    String
+    number   Integer   (Long)
+    value    Number    (Double)
+    amount   BigNumber (BigDecimal)
+    date     Date
+    flag     Boolean
+    binary   Binary    (byte[])
+    stamp    Timestamp (java.sql.Timestamp)
+    doc      JSON      (JsonNode)
+    address  Internet Address (InetAddress)
+-->
+
+<functions>
+
+  <function>
+    <name>+ (addition)</name>
+    <category>Operators</category>
+    <description>Adds two numbers.</description>
+    <syntax>number + 1</syntax>
+    <returns>Number</returns>
+    <semantics>Integer fields are Long, Number fields are Double. Check for null first, an operator unboxes the value.</semantics>
+    <examples>
+      <example>
+        <expression>2 + 3</expression>
+        <result>5</result>
+        <level>1</level>
+        <comment>Adding two Integer values.</comment>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>- (subtraction)</name>
+    <category>Operators</category>
+    <description>Subtracts the second number from the first.</description>
+    <syntax>number - 1</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>5 - 3</expression>
+        <result>2</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>* (multiplication)</name>
+    <category>Operators</category>
+    <description>Multiplies two numbers.</description>
+    <syntax>value * 2</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>1.5 * 2</expression>
+        <result>3.0</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>/ (division)</name>
+    <category>Operators</category>
+    <description>Divides the first number by the second.</description>
+    <syntax>value / 2</syntax>
+    <returns>Number</returns>
+    <semantics>Two Integer values divide as whole numbers: 5 / 2 is 2. Make one of them a Number to get 2.5.</semantics>
+    <examples>
+      <example>
+        <expression>5 / 2</expression>
+        <result>2</result>
+        <level>1</level>
+        <comment>Integer division.</comment>
+      </example>
+      <example>
+        <expression>5.0 / 2</expression>
+        <result>2.5</result>
+        <level>1</level>
+        <comment>One Number operand.</comment>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>% (remainder)</name>
+    <category>Operators</category>
+    <description>The remainder of a division.</description>
+    <syntax>number % 2</syntax>
+    <returns>Number</returns>
+    <semantics>Useful to split a stream, e.g. keep the even rows with number % 2 == 0.</semantics>
+    <examples>
+      <example>
+        <expression>7 % 2</expression>
+        <result>1</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>+ (text concatenation)</name>
+    <category>Operators</category>
+    <description>Glues values together into a String.</description>
+    <syntax>field + " " + number</syntax>
+    <returns>String</returns>
+    <semantics>A null value becomes the text null, so check for null when that matters.</semantics>
+    <examples>
+      <example>
+        <expression>"a" + "b"</expression>
+        <result>"ab"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>== (equal)</name>
+    <category>Operators</category>
+    <description>Compares two values.</description>
+    <syntax>number == 100</syntax>
+    <returns>boolean</returns>
+    <semantics>For Strings, Dates and other objects use equals() instead: == compares references, not content.</semantics>
+    <examples>
+      <example>
+        <expression>2 == 2</expression>
+        <result>true</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>!= (not equal)</name>
+    <category>Operators</category>
+    <description>The opposite of ==.</description>
+    <syntax>number != 100</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>&gt; (greater than)</name>
+    <category>Operators</category>
+    <description>Compares two numbers or dates.</description>
+    <syntax>value &gt; 9.99</syntax>
+    <returns>boolean</returns>
+    <semantics>Comparing a null value throws a NullPointerException when it is unboxed, check for null first.</semantics>
+  </function>
+
+  <function>
+    <name>&lt; (less than)</name>
+    <category>Operators</category>
+    <description>Compares two numbers or dates.</description>
+    <syntax>value &lt; 9.99</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>&gt;= and &lt;= (at least, at most)</name>
+    <category>Operators</category>
+    <description>Compares two numbers, including the value itself.</description>
+    <syntax>number &gt;= 1 &amp;&amp; number &lt;= 10</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>&amp;&amp; (and)</name>
+    <category>Operators</category>
+    <description>True when both sides are true.</description>
+    <syntax>field != null &amp;&amp; field.length() &gt; 3</syntax>
+    <returns>boolean</returns>
+    <semantics>The right side is only evaluated when the left side is true, which is what makes a null check in front of a method call work.</semantics>
+  </function>
+
+  <function>
+    <name>|| (or)</name>
+    <category>Operators</category>
+    <description>True when one of both sides is true.</description>
+    <syntax>field == null || field.isEmpty()</syntax>
+    <returns>boolean</returns>
+    <semantics>The right side is only evaluated when the left side is false.</semantics>
+  </function>
+
+  <function>
+    <name>! (not)</name>
+    <category>Operators</category>
+    <description>Turns true into false and false into true.</description>
+    <syntax>!flag.booleanValue()</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>? : (if else)</name>
+    <category>Operators</category>
+    <description>Picks one of two values, the if-else of an expression.</description>
+    <syntax>number != null &amp;&amp; number.longValue() &gt; 100 ? true : false</syntax>
+    <returns>the type of the two values</returns>
+    <semantics>There is no if statement in an expression, this is how a choice is written.</semantics>
+    <examples>
+      <example>
+        <expression>2 &gt; 1 ? "yes" : "no"</expression>
+        <result>"yes"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>length()</name>
+    <category>Text</category>
+    <description>The number of characters of a String.</description>
+    <syntax>field.length()</syntax>
+    <returns>Integer</returns>
+    <examples>
+      <example>
+        <expression>"abc".length()</expression>
+        <result>3</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>isEmpty()</name>
+    <category>Text</category>
+    <description>Whether a String has no characters at all.</description>
+    <syntax>field.isEmpty()</syntax>
+    <returns>boolean</returns>
+    <semantics>A field that is empty in the stream often arrives as null, so combine it with a null check.</semantics>
+  </function>
+
+  <function>
+    <name>trim()</name>
+    <category>Text</category>
+    <description>The String without leading and trailing whitespace.</description>
+    <syntax>field.trim()</syntax>
+    <returns>String</returns>
+    <examples>
+      <example>
+        <expression>"  abc  ".trim()</expression>
+        <result>"abc"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>toUpperCase()</name>
+    <category>Text</category>
+    <description>The String in upper case.</description>
+    <syntax>field.toUpperCase()</syntax>
+    <returns>String</returns>
+    <examples>
+      <example>
+        <expression>"abc".toUpperCase()</expression>
+        <result>"ABC"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>toLowerCase()</name>
+    <category>Text</category>
+    <description>The String in lower case.</description>
+    <syntax>field.toLowerCase()</syntax>
+    <returns>String</returns>
+  </function>
+
+  <function>
+    <name>substring(from)</name>
+    <category>Text</category>
+    <description>The part of a String from a position to the end.</description>
+    <syntax>field.substring(3)</syntax>
+    <returns>String</returns>
+    <semantics>Positions start at 0. A position past the end of the String throws.</semantics>
+    <examples>
+      <example>
+        <expression>"abcdef".substring(3)</expression>
+        <result>"def"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>substring(from, to)</name>
+    <category>Text</category>
+    <description>The part of a String between two positions.</description>
+    <syntax>field.substring(0, 3)</syntax>
+    <returns>String</returns>
+    <semantics>The first position is included, the second is not.</semantics>
+    <examples>
+      <example>
+        <expression>"abcdef".substring(0, 3)</expression>
+        <result>"abc"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>indexOf()</name>
+    <category>Text</category>
+    <description>The position of a piece of text in a String.</description>
+    <syntax>field.indexOf("-")</syntax>
+    <returns>Integer</returns>
+    <semantics>Returns -1 when the text does not occur.</semantics>
+    <examples>
+      <example>
+        <expression>"a-b".indexOf("-")</expression>
+        <result>1</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>lastIndexOf()</name>
+    <category>Text</category>
+    <description>The position of the last occurrence of a piece of text.</description>
+    <syntax>field.lastIndexOf("-")</syntax>
+    <returns>Integer</returns>
+  </function>
+
+  <function>
+    <name>contains()</name>
+    <category>Text</category>
+    <description>Whether a String contains a piece of text.</description>
+    <syntax>field.contains("abc")</syntax>
+    <returns>boolean</returns>
+    <examples>
+      <example>
+        <expression>"abcdef".contains("cd")</expression>
+        <result>true</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>startsWith()</name>
+    <category>Text</category>
+    <description>Whether a String starts with a piece of text.</description>
+    <syntax>field.startsWith("A")</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>endsWith()</name>
+    <category>Text</category>
+    <description>Whether a String ends with a piece of text.</description>
+    <syntax>field.endsWith("Z")</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>equals()</name>
+    <category>Text</category>
+    <description>Whether two Strings have exactly the same content.</description>
+    <syntax>"abc".equals(field)</syntax>
+    <returns>boolean</returns>
+    <semantics>Write the constant first: it is null safe, field.equals("abc") throws when the field is null.</semantics>
+    <examples>
+      <example>
+        <expression>"abc".equals("abc")</expression>
+        <result>true</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>equalsIgnoreCase()</name>
+    <category>Text</category>
+    <description>Whether two Strings are the same, ignoring case.</description>
+    <syntax>"abc".equalsIgnoreCase(field)</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>compareTo()</name>
+    <category>Text</category>
+    <description>Compares two Strings alphabetically.</description>
+    <syntax>"abc".compareTo(field)</syntax>
+    <returns>Integer</returns>
+    <semantics>Negative when the first is smaller, 0 when they are equal, positive when it is larger.</semantics>
+  </function>
+
+  <function>
+    <name>replace()</name>
+    <category>Text</category>
+    <description>Replaces every occurrence of a piece of text.</description>
+    <syntax>field.replace("-", "")</syntax>
+    <returns>String</returns>
+    <examples>
+      <example>
+        <expression>"a-b-c".replace("-", "")</expression>
+        <result>"abc"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>replaceAll()</name>
+    <category>Text</category>
+    <description>Replaces everything that matches a regular expression.</description>
+    <syntax>field.replaceAll("[0-9]", "")</syntax>
+    <returns>String</returns>
+    <examples>
+      <example>
+        <expression>"a1b2".replaceAll("[0-9]", "")</expression>
+        <result>"ab"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>matches()</name>
+    <category>Text</category>
+    <description>Whether a String matches a regular expression.</description>
+    <syntax>field.matches("[A-Z]{2}-[0-9]+")</syntax>
+    <returns>boolean</returns>
+    <semantics>The pattern has to match the whole value, surround it with .* to match a part of it.</semantics>
+    <examples>
+      <example>
+        <expression>"AB-12".matches("[A-Z]{2}-[0-9]+")</expression>
+        <result>true</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>split()</name>
+    <category>Text</category>
+    <description>Cuts a String into pieces.</description>
+    <syntax>field.split(",")[0]</syntax>
+    <returns>String</returns>
+    <semantics>The result is an array, [0] is the first piece.</semantics>
+    <examples>
+      <example>
+        <expression>"a,b,c".split(",")[1]</expression>
+        <result>"b"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>String.valueOf()</name>
+    <category>Text</category>
+    <description>Turns any value into a String.</description>
+    <syntax>String.valueOf(number)</syntax>
+    <returns>String</returns>
+    <examples>
+      <example>
+        <expression>String.valueOf(2)</expression>
+        <result>"2"</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.abs()</name>
+    <category>Mathematical</category>
+    <description>The value without its sign.</description>
+    <syntax>Math.abs(value)</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>Math.abs(-2.5)</expression>
+        <result>2.5</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.round()</name>
+    <category>Mathematical</category>
+    <description>The nearest whole number.</description>
+    <syntax>Math.round(value)</syntax>
+    <returns>Integer</returns>
+    <examples>
+      <example>
+        <expression>Math.round(2.6)</expression>
+        <result>3</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.floor()</name>
+    <category>Mathematical</category>
+    <description>Rounds down to a whole number.</description>
+    <syntax>Math.floor(value)</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>Math.floor(2.6)</expression>
+        <result>2.0</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.ceil()</name>
+    <category>Mathematical</category>
+    <description>Rounds up to a whole number.</description>
+    <syntax>Math.ceil(value)</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>Math.ceil(2.1)</expression>
+        <result>3.0</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.max()</name>
+    <category>Mathematical</category>
+    <description>The largest of two numbers.</description>
+    <syntax>Math.max(value, 0)</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>Math.max(2, 3)</expression>
+        <result>3</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.min()</name>
+    <category>Mathematical</category>
+    <description>The smallest of two numbers.</description>
+    <syntax>Math.min(value, 100)</syntax>
+    <returns>Number</returns>
+  </function>
+
+  <function>
+    <name>Math.pow()</name>
+    <category>Mathematical</category>
+    <description>The first number to the power of the second.</description>
+    <syntax>Math.pow(value, 2)</syntax>
+    <returns>Number</returns>
+    <examples>
+      <example>
+        <expression>Math.pow(2, 3)</expression>
+        <result>8.0</result>
+        <level>1</level>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>Math.sqrt()</name>
+    <category>Mathematical</category>
+    <description>The square root of a number.</description>
+    <syntax>Math.sqrt(value)</syntax>
+    <returns>Number</returns>
+  </function>
+
+  <function>
+    <name>Math.random()</name>
+    <category>Mathematical</category>
+    <description>A random number between 0 and 1.</description>
+    <syntax>Math.random()</syntax>
+    <returns>Number</returns>
+    <semantics>Evaluated again for every row, e.g. to take a sample of a stream with Math.random() &lt; 0.1</semantics>
+  </function>
+
+  <function>
+    <name>longValue()</name>
+    <category>Mathematical</category>
+    <description>The Integer field as a plain number, to compare it.</description>
+    <syntax>number.longValue()</syntax>
+    <returns>Number</returns>
+    <semantics>An Integer field is a java.lang.Long, this is how it is compared without surprises.</semantics>
+  </function>
+
+  <function>
+    <name>doubleValue()</name>
+    <category>Mathematical</category>
+    <description>The Number field as a plain number, to compare it.</description>
+    <syntax>value.doubleValue()</syntax>
+    <returns>Number</returns>
+  </function>
+
+  <function>
+    <name>Long.parseLong()</name>
+    <category>Mathematical</category>
+    <description>Reads a whole number out of a String.</description>
+    <syntax>Long.parseLong(field)</syntax>
+    <returns>Integer</returns>
+    <semantics>Throws when the text is not a number, the row then ends up in the error handling of the transform.</semantics>
+  </function>
+
+  <function>
+    <name>Double.parseDouble()</name>
+    <category>Mathematical</category>
+    <description>Reads a decimal number out of a String.</description>
+    <syntax>Double.parseDouble(field)</syntax>
+    <returns>Number</returns>
+  </function>
+
+  <function>
+    <name>BigDecimal compareTo()</name>
+    <category>Mathematical</category>
+    <description>Compares two BigNumber values.</description>
+    <syntax>amount.compareTo(new java.math.BigDecimal("100"))</syntax>
+    <returns>Integer</returns>
+    <semantics>BigNumber values are compared with compareTo(), not with &gt; or &lt;.</semantics>
+  </function>
+
+  <function>
+    <name>BigDecimal add()</name>
+    <category>Mathematical</category>
+    <description>Adds to a BigNumber value.</description>
+    <syntax>amount.add(new java.math.BigDecimal("1"))</syntax>
+    <returns>BigNumber</returns>
+  </function>
+
+  <function>
+    <name>BigDecimal setScale()</name>
+    <category>Mathematical</category>
+    <description>Rounds a BigNumber to a number of decimals.</description>
+    <syntax>amount.setScale(2, java.math.RoundingMode.HALF_UP)</syntax>
+    <returns>BigNumber</returns>
+  </function>
+
+  <function>
+    <name>new Date()</name>
+    <category>Date &amp; time</category>
+    <description>The moment the row is evaluated.</description>
+    <syntax>new java.util.Date()</syntax>
+    <returns>Date</returns>
+    <semantics>The expression has no imports, so classes are used with their full name.</semantics>
+  </function>
+
+  <function>
+    <name>before()</name>
+    <category>Date &amp; time</category>
+    <description>Whether a date lies before another one.</description>
+    <syntax>date.before(new java.util.Date())</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>after()</name>
+    <category>Date &amp; time</category>
+    <description>Whether a date lies after another one.</description>
+    <syntax>date.after(new java.util.GregorianCalendar(2024, 0, 1).getTime())</syntax>
+    <returns>boolean</returns>
+    <semantics>Months start at 0 in GregorianCalendar: 0 is January.</semantics>
+  </function>
+
+  <function>
+    <name>getTime()</name>
+    <category>Date &amp; time</category>
+    <description>The date as a number of milliseconds since 1970.</description>
+    <syntax>date.getTime()</syntax>
+    <returns>Integer</returns>
+    <semantics>Subtract two of them to get the time between two dates.</semantics>
+  </function>
+
+  <function>
+    <name>days between two dates</name>
+    <category>Date &amp; time</category>
+    <description>The number of whole days between two dates.</description>
+    <syntax>(date.getTime() - new java.util.GregorianCalendar(2024, 0, 1).getTime().getTime()) / 86400000L</syntax>
+    <returns>Integer</returns>
+  </function>
+
+  <function>
+    <name>format a date</name>
+    <category>Date &amp; time</category>
+    <description>Turns a date into text.</description>
+    <syntax>new java.text.SimpleDateFormat("yyyy-MM-dd").format(date)</syntax>
+    <returns>String</returns>
+    <examples>
+      <example>
+        <expression>new java.text.SimpleDateFormat("yyyy").format(date)</expression>
+        <result>"2026"</result>
+        <level>1</level>
+        <comment>The year of the date.</comment>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>parse a date</name>
+    <category>Date &amp; time</category>
+    <description>Reads a date out of text.</description>
+    <syntax>new java.text.SimpleDateFormat("yyyy-MM-dd").parse(field)</syntax>
+    <returns>Date</returns>
+    <semantics>Throws when the text does not match the pattern.</semantics>
+  </function>
+
+  <function>
+    <name>== null</name>
+    <category>Logical</category>
+    <description>Whether a field has no value.</description>
+    <syntax>field == null</syntax>
+    <returns>boolean</returns>
+    <semantics>Fields arrive as objects, a field without a value is null.</semantics>
+  </function>
+
+  <function>
+    <name>!= null</name>
+    <category>Logical</category>
+    <description>Whether a field has a value.</description>
+    <syntax>field != null</syntax>
+    <returns>boolean</returns>
+  </function>
+
+  <function>
+    <name>Boolean.TRUE.equals()</name>
+    <category>Logical</category>
+    <description>Whether a Boolean field is true, also when it is null.</description>
+    <syntax>Boolean.TRUE.equals(flag)</syntax>
+    <returns>boolean</returns>
+    <semantics>Null safe: flag == Boolean.TRUE compares references and unboxing a null value throws.</semantics>
+  </function>
+
+  <function>
+    <name>Objects.equals()</name>
+    <category>Logical</category>
+    <description>Whether two values are equal, null included.</description>
+    <syntax>java.util.Objects.equals(field, "abc")</syntax>
+    <returns>boolean</returns>
+    <semantics>Returns true when both are null, and never throws.</semantics>
+  </function>
+
+  <function>
+    <name>toString()</name>
+    <category>Conversion</category>
+    <description>Any value as text.</description>
+    <syntax>number.toString()</syntax>
+    <returns>String</returns>
+    <semantics>Throws when the field is null, String.valueOf() does not.</semantics>
+  </function>
+
+  <function>
+    <name>Long.valueOf()</name>
+    <category>Conversion</category>
+    <description>Text as an Integer value.</description>
+    <syntax>Long.valueOf(field)</syntax>
+    <returns>Integer</returns>
+  </function>
+
+  <function>
+    <name>Double.valueOf()</name>
+    <category>Conversion</category>
+    <description>Text as a Number value.</description>
+    <syntax>Double.valueOf(field)</syntax>
+    <returns>Number</returns>
+  </function>
+
+  <function>
+    <name>new String(binary)</name>
+    <category>Conversion</category>
+    <description>A Binary field as text.</description>
+    <syntax>new String(binary, "UTF-8")</syntax>
+    <returns>String</returns>
+    <semantics>A Binary field arrives as a byte[].</semantics>
+  </function>
+
+  <function>
+    <name>a Timestamp field</name>
+    <category>Field types</category>
+    <description>Compares a Timestamp field with a moment in time.</description>
+    <syntax>stamp.before(new java.util.Date())</syntax>
+    <returns>boolean</returns>
+    <semantics>A Timestamp field is a java.sql.Timestamp, which is a java.util.Date as well, so
+      before(), after() and getTime() all work on it.</semantics>
+  </function>
+
+  <function>
+    <name>the nanoseconds of a Timestamp</name>
+    <category>Field types</category>
+    <description>The sub-second part of a Timestamp field.</description>
+    <syntax>stamp.getNanos()</syntax>
+    <returns>Integer</returns>
+    <semantics>This is what a Timestamp adds to a Date, a Date only goes down to milliseconds.</semantics>
+  </function>
+
+  <function>
+    <name>read a member of a JSON field</name>
+    <category>Field types</category>
+    <description>Reads a value out of a JSON field.</description>
+    <syntax>doc.get("name").asText()</syntax>
+    <returns>String</returns>
+    <semantics>A JSON field is a Jackson JsonNode. get() returns null when the member is not there,
+      so check with has() first when it is optional. asInt(), asLong(), asDouble() and asBoolean()
+      read the other types.</semantics>
+    <examples>
+      <example>
+        <expression>doc.get("id").asInt() &gt; 100</expression>
+        <result>true</result>
+        <level>1</level>
+        <comment>Filters on a number inside the document.</comment>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>a JSON field has a member</name>
+    <category>Field types</category>
+    <description>Whether a JSON field contains a member with this name.</description>
+    <syntax>doc.has("name")</syntax>
+    <returns>boolean</returns>
+    <semantics>The JSON equivalent of row.exists(): the document of one row can hold members another
+      one does not have.</semantics>
+  </function>
+
+  <function>
+    <name>walk into a JSON field</name>
+    <category>Field types</category>
+    <description>Reads a value deeper in a JSON field.</description>
+    <syntax>doc.path("address").path("city").asText()</syntax>
+    <returns>String</returns>
+    <semantics>path() never returns null, it gives back a missing node, so a chain of them is safe
+      on documents that do not have the whole structure.</semantics>
+  </function>
+
+  <function>
+    <name>an Internet Address field</name>
+    <category>Field types</category>
+    <description>The address of an Internet Address field as text.</description>
+    <syntax>address.getHostAddress()</syntax>
+    <returns>String</returns>
+    <semantics>An Internet Address field is a java.net.InetAddress, so isLoopbackAddress(),
+      isSiteLocalAddress() and the other methods of that class are available as well.</semantics>
+    <examples>
+      <example>
+        <expression>address.getHostAddress().startsWith("10.")</expression>
+        <result>true</result>
+        <level>1</level>
+        <comment>Filters on the network an address belongs to.</comment>
+      </example>
+    </examples>
+  </function>
+
+  <function>
+    <name>a Binary field as text</name>
+    <category>Field types</category>
+    <description>Reads a Binary field as text.</description>
+    <syntax>new String(binary, "UTF-8")</syntax>
+    <returns>String</returns>
+    <semantics>A Binary field arrives as a byte[]. binary.length is its size in bytes.</semantics>
+  </function>
+
+</functions>
