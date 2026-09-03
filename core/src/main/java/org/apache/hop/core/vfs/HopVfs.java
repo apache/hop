@@ -356,20 +356,94 @@ public class HopVfs {
    */
   public static FileObject getFileObject(String vfsFilename, IVariables variables)
       throws HopFileException {
-    return resolveWith(vfsFilename, getFileSystemManager(variables));
+    return resolveWith(vfsFilename, getFileSystemManager(variables), variables);
   }
 
   public static synchronized FileObject getFileObject(String vfsFilename) throws HopFileException {
     // Nothing to go on but the thread: the namespace of the execution running on it, if any.
     HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
     return resolveWith(
-        vfsFilename, namespace == null ? getFileSystemManager() : namespace.getFileSystemManager());
+        vfsFilename,
+        namespace == null ? getFileSystemManager() : namespace.getFileSystemManager(),
+        null);
   }
 
-  private static FileObject resolveWith(String vfsFilename, DefaultFileSystemManager fsManager)
+  /**
+   * Resolves paths that start with {@code ~} (tilde) to the user's home directory.
+   *
+   * <p>The tilde character is recognized only at the start of a path (e.g. {@code ~}, {@code
+   * ~/path}, {@code ~\path} on Windows, or prefixed with {@code file://~} or {@code file:~}). A
+   * tilde elsewhere in a path (e.g. {@code /tmp/~} or {@code foo~bar}) or a tilde followed by
+   * non-separator characters (e.g. {@code ~username} or {@code ~temp}) is not replaced.
+   *
+   * @param path the path to resolve
+   * @param variables optional variables to look up {@code user.home} from; if null or unset, falls
+   *     back to {@code System.getProperty("user.home")}
+   * @return the path with leading tilde expanded, or the original path if no tilde prefix applies
+   */
+  public static String resolveHomeDirectory(String path, IVariables variables) {
+    if (path == null || path.isEmpty()) {
+      return path;
+    }
+    String prefix = "";
+    String remaining = path;
+    if (remaining.startsWith("file://")) {
+      prefix = "file://";
+      remaining = remaining.substring("file://".length());
+    } else if (remaining.startsWith("file:")) {
+      prefix = "file:";
+      remaining = remaining.substring("file:".length());
+    }
+
+    if (remaining.equals("~") || remaining.startsWith("~/") || remaining.startsWith("~\\")) {
+      String userHome = null;
+      if (variables != null) {
+        userHome = variables.getVariable("user.home");
+      }
+      if (StringUtils.isEmpty(userHome)) {
+        userHome = System.getProperty("user.home");
+      }
+      if (userHome != null) {
+        // Strip trailing slash/backslash from userHome so appending remainder does not duplicate it
+        while (userHome.length() > 1 && (userHome.endsWith("/") || userHome.endsWith("\\"))) {
+          userHome = userHome.substring(0, userHome.length() - 1);
+        }
+        if (remaining.equals("~")) {
+          remaining = userHome;
+        } else {
+          remaining = userHome + remaining.substring(1);
+        }
+        if (!prefix.isEmpty()) {
+          if (prefix.equals("file://") && !remaining.startsWith("/")) {
+            return prefix + "/" + remaining;
+          }
+          return prefix + remaining;
+        }
+        return remaining;
+      }
+    }
+    return path;
+  }
+
+  /**
+   * Resolves paths that start with {@code ~} (tilde) to the user's home directory using {@code
+   * System.getProperty("user.home")}.
+   *
+   * @param path the path to resolve
+   * @return the path with leading tilde expanded, or the original path if no tilde prefix applies
+   * @see #resolveHomeDirectory(String, IVariables)
+   */
+  public static String resolveHomeDirectory(String path) {
+    return resolveHomeDirectory(path, null);
+  }
+
+  private static FileObject resolveWith(
+      String vfsFilename, DefaultFileSystemManager fsManager, IVariables variables)
       throws HopFileException {
 
     try {
+      vfsFilename = resolveHomeDirectory(vfsFilename, variables);
+
       // We have one problem with VFS: if the file is in a subdirectory of the current one:
       // somedir/somefile
       // In that case, VFS doesn't parse the file correctly.
@@ -785,6 +859,7 @@ public class HopVfs {
    * prepended. This recognises:
    *
    * <ul>
+   *   <li>Tilde paths pointing to user home ({@code ~}, {@code ~/path}, {@code ~\path})
    *   <li>VFS URIs with a scheme, e.g. {@code file:///...}, {@code s3://...}, {@code hdfs://...}
    *   <li>POSIX absolute paths ({@code /...})
    *   <li>Windows UNC paths ({@code \\host\share})
@@ -797,6 +872,16 @@ public class HopVfs {
   public static boolean isAbsolutePath(String filename) {
     if (filename == null || filename.isEmpty()) {
       return false;
+    }
+    String stripped = filename;
+    if (stripped.startsWith("file://")) {
+      stripped = stripped.substring("file://".length());
+    } else if (stripped.startsWith("file:")) {
+      stripped = stripped.substring("file:".length());
+    }
+    // A path starting with tilde (home directory): ~, ~/, ~\
+    if (stripped.equals("~") || stripped.startsWith("~/") || stripped.startsWith("~\\")) {
+      return true;
     }
     // A VFS URI with a scheme, e.g. file:///, s3://, hdfs://, ...
     if (filename.contains("://")) {

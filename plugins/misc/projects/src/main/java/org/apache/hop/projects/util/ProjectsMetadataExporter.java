@@ -163,11 +163,8 @@ public final class ProjectsMetadataExporter {
       resolved = Defaults.DEFAULT_AUTO_EXPORT_METADATA_FILENAME;
     }
 
-    // Absolute filesystem path or VFS scheme (e.g. file://, s3://)
-    if (resolved.startsWith("/")
-        || resolved.startsWith("\\")
-        || (resolved.length() > 2 && resolved.charAt(1) == ':')
-        || resolved.contains("://")) {
+    // Absolute filesystem path, tilde home path, or VFS scheme (e.g. file://, s3://)
+    if (HopVfs.isAbsolutePath(resolved)) {
       return resolved;
     }
 
