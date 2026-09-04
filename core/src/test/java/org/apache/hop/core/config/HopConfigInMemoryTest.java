@@ -38,6 +38,7 @@ class HopConfigInMemoryTest {
   void tearDown() {
     System.clearProperty(Const.HOP_CONFIG_IN_MEMORY);
     HopConfig.setInMemoryMode(false);
+    HopConfig.getInstance().getConfigMap().remove("ephemeral_option");
   }
 
   @Test

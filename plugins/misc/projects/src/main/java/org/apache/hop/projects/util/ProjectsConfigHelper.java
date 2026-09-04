@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +61,7 @@ public class ProjectsConfigHelper {
    * Project names registered in this process via {@code --project-locations}. Used so a subcommand
    * mixin (for example hop-run) can enable a project that was registered on the root command.
    */
-  private static final List<String> sessionRegisteredProjects = new ArrayList<>();
+  private static final List<String> sessionRegisteredProjects = new CopyOnWriteArrayList<>();
 
   /** Private constructor to prevent instantiation. */
   private ProjectsConfigHelper() {}
@@ -198,7 +199,7 @@ public class ProjectsConfigHelper {
                 : detectConfigFilename(normalizedHome, variables);
 
         ProjectConfig pc = new ProjectConfig(projectName, normalizedHome, configFile);
-        if (ProjectConfig.isArchiveUri(normalizedHome) || HopConfig.isInMemoryMode()) {
+        if (ProjectConfig.isArchiveUri(normalizedHome)) {
           pc.setReadOnly(true);
         }
 
@@ -306,7 +307,7 @@ public class ProjectsConfigHelper {
                       ? detectedConfig
                       : ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
               ProjectConfig pc = new ProjectConfig(name, child.getName().getURI(), configFilename);
-              if (ProjectConfig.isArchiveUri(homeUri) || HopConfig.isInMemoryMode()) {
+              if (ProjectConfig.isArchiveUri(homeUri)) {
                 pc.setReadOnly(true);
               }
               config.addProjectConfig(pc);
@@ -342,7 +343,7 @@ public class ProjectsConfigHelper {
                 ? detectedConfig
                 : ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
         ProjectConfig pc = new ProjectConfig(name, homeUri, configFilename);
-        if (ProjectConfig.isArchiveUri(homeUri) || HopConfig.isInMemoryMode()) {
+        if (ProjectConfig.isArchiveUri(homeUri)) {
           pc.setReadOnly(true);
         }
         config.addProjectConfig(pc);

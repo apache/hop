@@ -27,7 +27,8 @@ The main goal is to have a single wrapper script to make maintenance easier for 
 
 == Usage
 
-To see the usage of the `hop` tool, you can simply use the `help` command to see which commands are available:
+To see the usage of the `hop` tool, you can simply use the `help` command to see which commands are available.
+The command list depends on the plugins in your installation; the sample below shows the common options and a typical set of commands.
 
 [source,bash]
 ----

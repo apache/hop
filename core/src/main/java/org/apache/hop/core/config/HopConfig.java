@@ -73,6 +73,8 @@ public class HopConfig extends ConfigFile {
     super.setInMemory(inMemory);
     if (inMemory) {
       setSerializer(new ConfigNoFileSerializer());
+    } else {
+      setSerializer(new ConfigFileSerializer());
     }
   }
 

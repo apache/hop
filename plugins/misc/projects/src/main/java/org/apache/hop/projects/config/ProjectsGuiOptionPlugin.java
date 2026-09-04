@@ -32,8 +32,8 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
     category = ConfigPlugin.CATEGORY_GUI)
 public class ProjectsGuiOptionPlugin extends ProjectsOptionPlugin implements IConfigOptions {
 
-  @Getter private static String requestedProjectName;
-  @Getter private static String requestedEnvironmentName;
+  @Getter private static volatile String requestedProjectName;
+  @Getter private static volatile String requestedEnvironmentName;
 
   /** Clears remembered GUI startup project and environment (for tests). */
   public static void clearRequested() {
@@ -45,7 +45,9 @@ public class ProjectsGuiOptionPlugin extends ProjectsOptionPlugin implements ICo
   public boolean handleOption(
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
       throws HopException {
-    boolean result = super.handleOption(log, hasHopMetadataProvider, variables);
+    // Do not pass the GUI command as metadata holder. configure() would enable the default
+    // project and write an "open" audit event before last-used restoration in HopGuiStart.
+    boolean result = super.handleOption(log, null, variables);
     // Picocli consumes -j/-e on the gui subcommand, so remember them for HopGuiStartProjectLoad.
     if (StringUtils.isNotEmpty(getProjectName())) {
       requestedProjectName = getProjectName();
