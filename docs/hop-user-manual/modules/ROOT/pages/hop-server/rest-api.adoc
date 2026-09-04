@@ -397,7 +397,6 @@ with XML payload (example):
     <description/>
     <extended_description/>
     <pipeline_version/>
-    <pipeline_type>Normal</pipeline_type>
     <parameters>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>

@@ -56,7 +56,6 @@ class SparkParallelFileContextTest {
   void sparkParallelFileContextSetsBeamContextAndOverridesId() throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("writer");
-    pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     TransformMeta dummyTm = new TransformMeta("writer", new DummyMeta());
     dummyTm.setTransformPluginId("Dummy");
     pipelineMeta.addTransform(dummyTm);
@@ -65,6 +64,7 @@ class SparkParallelFileContextTest {
     LocalPipelineEngine pipeline =
         new LocalPipelineEngine(
             pipelineMeta, variables, new LoggingObject("spark-file-context-test"));
+    pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     pipeline.prepareExecution();
 
     // Simulate init having set UUID-based Internal.Transform.ID

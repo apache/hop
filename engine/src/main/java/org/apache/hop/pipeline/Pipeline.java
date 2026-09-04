@@ -195,6 +195,19 @@ public abstract class Pipeline
   /** The pipeline metadata to execute. */
   protected PipelineMeta pipelineMeta;
 
+  /**
+   * The way this engine drives the transforms. {@link PipelineMeta.PipelineType#Normal} gives every
+   * transform its own thread and blocking row sets; {@link
+   * PipelineMeta.PipelineType#SingleThreaded} leaves the transforms to be driven one iteration at a
+   * time by a {@link SingleThreadedPipelineExecutor}.
+   *
+   * <p>This belongs to the engine, never to the pipeline metadata: the same pipeline can be run
+   * either way and nothing about the run may be written back into the design-time metadata.
+   * Transforms that embed a sub-pipeline (Simple Mapping, Kafka Consumer, the Beam and Spark
+   * workers) set this on the child engine they create.
+   */
+  @Getter @Setter private PipelineMeta.PipelineType pipelineType = PipelineMeta.PipelineType.Normal;
+
   /** The MetaStore to use */
   protected IHopMetadataProvider metadataProvider;
 
@@ -842,7 +855,7 @@ public abstract class Pipeline
         if (dispatchType != TYPE_DISP_N_M) {
           for (int c = 0; c < nrCopies; c++) {
             IRowSet rowSet;
-            switch (pipelineMeta.getPipelineType()) {
+            switch (getPipelineType()) {
               case Normal:
                 // This is a temporary patch until the batching rowset has proven
                 // to be working in all situations.
@@ -867,8 +880,7 @@ public abstract class Pipeline
                 break;
 
               default:
-                throw new HopException(
-                    "Unhandled pipeline type: " + pipelineMeta.getPipelineType());
+                throw new HopException("Unhandled pipeline type: " + getPipelineType());
             }
 
             switch (dispatchType) {
@@ -1478,7 +1490,7 @@ public abstract class Pipeline
 
     setRunning(true);
 
-    switch (pipelineMeta.getPipelineType()) {
+    switch (getPipelineType()) {
       case Normal:
 
         // Now start all the threads...
@@ -2234,11 +2246,10 @@ public abstract class Pipeline
 
     // We are going to add an extra IRowSet to this iTransform.
     IRowSet rowSet =
-        switch (pipelineMeta.getPipelineType()) {
+        switch (getPipelineType()) {
           case Normal -> new BlockingRowSet(rowSetSize);
           case SingleThreaded -> new QueueRowSet();
-          default ->
-              throw new HopException("Unhandled pipeline type: " + pipelineMeta.getPipelineType());
+          default -> throw new HopException("Unhandled pipeline type: " + getPipelineType());
         };
 
     // Add this rowset to the list of active rowsets for the selected transform

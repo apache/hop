@@ -42,10 +42,6 @@ public class PipelineMetaInfo extends AbstractMetaInfo {
   @HopMetadataProperty(key = "transform_performance_capturing_size_limit")
   protected String transformPerformanceCapturingSizeLimit;
 
-  /** The pipeline type. */
-  @HopMetadataProperty(key = "pipeline_type", storeWithCode = true)
-  protected PipelineMeta.PipelineType pipelineType;
-
   /** The status of the pipeline. */
   @HopMetadataProperty(key = "pipeline_status")
   protected int pipelineStatus;
@@ -58,6 +54,5 @@ public class PipelineMetaInfo extends AbstractMetaInfo {
     this.capturingTransformPerformanceSnapShots = false;
     this.transformPerformanceCapturingDelay = 1000; // every 1 seconds
     this.transformPerformanceCapturingSizeLimit = "100"; // maximum 100 data points
-    this.pipelineType = PipelineMeta.PipelineType.Normal;
   }
 }

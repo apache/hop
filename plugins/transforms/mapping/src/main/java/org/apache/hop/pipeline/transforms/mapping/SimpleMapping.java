@@ -120,15 +120,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
   }
 
   public void prepareMappingExecution() throws HopException {
-    boolean singleThreaded =
-        data.isBeamContext()
-            || (getPipeline() != null
-                && getPipeline().getPipelineMeta() != null
-                && getPipeline().getPipelineMeta().getPipelineType()
-                    == PipelineMeta.PipelineType.SingleThreaded);
-    if (singleThreaded) {
-      data.mappingPipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
-    }
     SimpleMappingData simpleMappingData = getData();
     // Resolve pipeline full name in case variables are used and pipeline meta is not initialized in
     // advance
@@ -166,6 +157,10 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
                   runConfigName,
                   metadataProvider,
                   simpleMappingData.mappingPipelineMeta);
+    }
+
+    if (isSingleThreaded()) {
+      simpleMappingData.mappingPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     }
 
     // Copy the parameters over...
@@ -242,6 +237,16 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     getPipeline().addActiveSubPipeline(getTransformName(), simpleMappingData.mappingPipeline);
   }
 
+  /**
+   * Are we running in a context where the sub-pipeline has to be driven row by row from this
+   * transform instead of by threads of its own?
+   */
+  private boolean isSingleThreaded() {
+    return data.isBeamContext()
+        || (getPipeline() != null
+            && getPipeline().getPipelineType() == PipelineMeta.PipelineType.SingleThreaded);
+  }
+
   public static List<MappingInput> findMappingInputs(Pipeline mappingPipeline) {
     return MappingTransforms.findMappingInputs(mappingPipeline);
   }
@@ -272,13 +277,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
           // We don't want to process one-row batches in a parallel engine where we need to wait for
           // the threads to finish.
           //
-          boolean singleThreaded =
-              data.isBeamContext()
-                  || (getPipeline() != null
-                      && getPipeline().getPipelineMeta() != null
-                      && getPipeline().getPipelineMeta().getPipelineType()
-                          == PipelineMeta.PipelineType.SingleThreaded);
-          if (singleThreaded) {
+          if (isSingleThreaded()) {
             data.executor = new SingleThreadedPipelineExecutor(data.mappingPipeline);
           }
 

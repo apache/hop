@@ -376,7 +376,6 @@ public class TransformBatchTransform extends TransformTransform {
           //
           pipelineMeta = new PipelineMeta();
           pipelineMeta.setName(transformName);
-          pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
           pipelineMeta.setMetadataProvider(metadataProvider);
 
           // When the first row ends up in the buffer we start the timer.
@@ -493,6 +492,7 @@ public class TransformBatchTransform extends TransformTransform {
           pipeline =
               new LocalPipelineEngine(
                   pipelineMeta, variables, new LoggingObject("apache-beam-transform"));
+          pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
           pipeline.setLogLevel(
               context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
