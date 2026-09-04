@@ -195,13 +195,19 @@ The Hop options, available from both the workflow and pipeline editors, offer a 
 For pipelines, the dialog offers the following options:
 
 * Basic
-** **disable/enable hop**: enable the current hop (if disabled) or disable the current hop (if enabled). This option will only show the applicable options (e.g. 'enable hop' won't be shown for active hops and vice versa)
-** **delete hop**: delete the current hop
+** **disable/enable hop**: enable the current hop (if disabled) or disable the current hop (if enabled). This option will only show the applicable option (e.g. 'enable hop' won't be shown for active hops and vice versa).
+** **delete hop**: delete the current hop.
+** **Insert transform**: split the hop and insert a new transform.
 * Bulk
-** **Enable downstream hops**: enable the current hop, and all hops that follow later in the workflow (or pipeline).
-** **Disable downstream hops**: disable the current hop and all hops that follow later in the current workflow (or pipeline).
+** **Enable downstream hops**: enable the current hop and all hops that follow downstream in the pipeline.
+** **Disable downstream hops**: disable the current hop and all hops that follow downstream in the pipeline.
+** **Enable hops between selection**: enable all hops between selected transforms.
+** **Disable hops between selection**: disable all hops between selected transforms.
+* Data routing
+** **Distribute rows / Copy rows**: toggle whether the source transform distributes or copies rows to subsequent transforms. If the source transform is currently copying rows, **Distribute rows** is shown; if it is distributing rows, **Copy rows** is shown.
+** **Set partitioning / Remove partitioning**: configure or remove data partitioning on the target transform. If the target transform does not yet have partitioning configured, **Set partitioning** opens the partitioning dialog; if partitioning is already configured, **Remove partitioning** clears it.
 
-image:hop-gui/popup-hop-pipeline.png[Hop Gui Popup Dialog - Pipeline Hop Options, width="65%"]
+image:hop-gui/pipeline-hop-context-dialog-data-routing.png[Hop Gui Popup Dialog - Pipeline Hop Options, width="65%"]
 
 When working in a workflow, the hops popup dialog has all the options as the pipeline hop dialog, with one additional category:
 

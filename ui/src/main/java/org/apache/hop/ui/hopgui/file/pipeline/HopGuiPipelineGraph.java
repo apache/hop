@@ -134,6 +134,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
@@ -174,6 +175,7 @@ import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
@@ -316,6 +318,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "pipeline-graph-hop-10010-hop-enable";
   public static final String ACTION_ID_PIPELINE_GRAPH_HOP_DISABLE =
       "pipeline-graph-hop-10015-hop-disable";
+  public static final String ACTION_ID_PIPELINE_GRAPH_HOP_ROWS_DISTRIBUTE =
+      "pipeline-graph-hop-10600-rows-distribute";
+  public static final String ACTION_ID_PIPELINE_GRAPH_HOP_ROWS_COPY =
+      "pipeline-graph-hop-10650-rows-copy";
+  public static final String ACTION_ID_PIPELINE_GRAPH_HOP_SET_PARTITIONING =
+      "pipeline-graph-hop-10700-set-partitioning";
+  public static final String ACTION_ID_PIPELINE_GRAPH_HOP_REMOVE_PARTITIONING =
+      "pipeline-graph-hop-10710-remove-partitioning";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_COPY =
       "pipeline-graph-transform-10650-rows-copy";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE =
@@ -932,6 +942,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
 
         case HOP_COPY_ICON:
+        case ROW_DISTRIBUTION_ICON:
+          clickedPipelineHop =
+              areaOwner.getOwner() instanceof PipelineHopMeta
+                  ? (PipelineHopMeta) areaOwner.getOwner()
+                  : findPipelineHop(real.x, real.y);
           done = true;
           break;
 
@@ -3539,9 +3554,27 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
       categoryOrder = "2")
   public void setDistributes(HopGuiPipelineTransformContext context) {
-    context.getTransformMeta().setDistributes(true);
-    context.getTransformMeta().setRowDistribution(null);
+    TransformMeta transformMeta = context.getTransformMeta();
+    TransformMeta before = (TransformMeta) transformMeta.clone();
+    transformMeta.setDistributes(true);
+    transformMeta.setRowDistribution(null);
+    transformMeta.setChanged();
+    TransformMeta after = (TransformMeta) transformMeta.clone();
+    PipelineMeta meta =
+        context.getPipelineMeta() != null ? context.getPipelineMeta() : pipelineMeta;
+    if (meta != null) {
+      meta.setChanged();
+      HopGuiUndoDelegate undo = getUndoDelegate();
+      if (undo != null) {
+        undo.addUndoChange(
+            meta,
+            new TransformMeta[] {before},
+            new TransformMeta[] {after},
+            new int[] {meta.indexOfTransform(transformMeta)});
+      }
+    }
     redraw();
+    updateGui();
   }
 
   @GuiContextAction(
@@ -3554,9 +3587,27 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
       categoryOrder = "2")
   public void setCopies(HopGuiPipelineTransformContext context) {
-    context.getTransformMeta().setDistributes(false);
-    context.getTransformMeta().setRowDistribution(null);
+    TransformMeta transformMeta = context.getTransformMeta();
+    TransformMeta before = (TransformMeta) transformMeta.clone();
+    transformMeta.setDistributes(false);
+    transformMeta.setRowDistribution(null);
+    transformMeta.setChanged();
+    TransformMeta after = (TransformMeta) transformMeta.clone();
+    PipelineMeta meta =
+        context.getPipelineMeta() != null ? context.getPipelineMeta() : pipelineMeta;
+    if (meta != null) {
+      meta.setChanged();
+      HopGuiUndoDelegate undo = getUndoDelegate();
+      if (undo != null) {
+        undo.addUndoChange(
+            meta,
+            new TransformMeta[] {before},
+            new TransformMeta[] {after},
+            new int[] {meta.indexOfTransform(transformMeta)});
+      }
+    }
     redraw();
+    updateGui();
   }
 
   /**
@@ -3758,14 +3809,33 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    */
   @GuiContextActionFilter(parentId = HopGuiPipelineHopContext.CONTEXT_ID)
   public boolean filterHopActions(String contextActionId, HopGuiPipelineHopContext context) {
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_HOP_ENABLE)) {
-      return !context.getHopMeta().isEnabled();
+    PipelineHopMeta hop = context.getHopMeta();
+    if (hop == null) {
+      return false;
     }
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_HOP_DISABLE)) {
-      return context.getHopMeta().isEnabled();
+    switch (contextActionId) {
+      case ACTION_ID_PIPELINE_GRAPH_HOP_ENABLE -> {
+        return !hop.isEnabled();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_HOP_DISABLE -> {
+        return hop.isEnabled();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_HOP_ROWS_DISTRIBUTE -> {
+        return hop.getFromTransform() != null && !hop.getFromTransform().isDistributes();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_HOP_ROWS_COPY -> {
+        return hop.getFromTransform() != null && hop.getFromTransform().isDistributes();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_HOP_SET_PARTITIONING -> {
+        return hop.getToTransform() != null && !hop.getToTransform().isPartitioned();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_HOP_REMOVE_PARTITIONING -> {
+        return hop.getToTransform() != null && hop.getToTransform().isPartitioned();
+      }
+      default -> {
+        return true;
+      }
     }
-
-    return true;
   }
 
   /**
@@ -4058,6 +4128,132 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (selectedAction != null) {
       IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
       actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+    }
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_HOP_ROWS_DISTRIBUTE,
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.DistributeRows.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.DistributeRows.Tooltip",
+      image = "ui/images/distribute.svg",
+      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
+      categoryOrder = "2")
+  public void setHopDistributes(HopGuiPipelineHopContext context) {
+    PipelineHopMeta hop = context.getHopMeta();
+    if (hop != null && hop.getFromTransform() != null) {
+      TransformMeta from = hop.getFromTransform();
+      TransformMeta before = (TransformMeta) from.clone();
+      from.setDistributes(true);
+      from.setRowDistribution(null);
+      from.setChanged();
+      TransformMeta after = (TransformMeta) from.clone();
+      PipelineMeta meta =
+          context.getPipelineMeta() != null ? context.getPipelineMeta() : pipelineMeta;
+      if (meta != null) {
+        meta.setChanged();
+        HopGuiUndoDelegate undo = getUndoDelegate();
+        if (undo != null) {
+          undo.addUndoChange(
+              meta,
+              new TransformMeta[] {before},
+              new TransformMeta[] {after},
+              new int[] {meta.indexOfTransform(from)});
+        }
+      }
+      redraw();
+      updateGui();
+    }
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_HOP_ROWS_COPY,
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.CopyRows.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.CopyRows.Tooltip",
+      image = "ui/images/copy-rows.svg",
+      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
+      categoryOrder = "2")
+  public void setHopCopies(HopGuiPipelineHopContext context) {
+    PipelineHopMeta hop = context.getHopMeta();
+    if (hop != null && hop.getFromTransform() != null) {
+      TransformMeta from = hop.getFromTransform();
+      TransformMeta before = (TransformMeta) from.clone();
+      from.setDistributes(false);
+      from.setRowDistribution(null);
+      from.setChanged();
+      TransformMeta after = (TransformMeta) from.clone();
+      PipelineMeta meta =
+          context.getPipelineMeta() != null ? context.getPipelineMeta() : pipelineMeta;
+      if (meta != null) {
+        meta.setChanged();
+        HopGuiUndoDelegate undo = getUndoDelegate();
+        if (undo != null) {
+          undo.addUndoChange(
+              meta,
+              new TransformMeta[] {before},
+              new TransformMeta[] {after},
+              new int[] {meta.indexOfTransform(from)});
+        }
+      }
+      redraw();
+      updateGui();
+    }
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_HOP_SET_PARTITIONING,
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.SetPartitioning.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.SetPartitioning.Tooltip",
+      image = "ui/images/partition_schema.svg",
+      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
+      categoryOrder = "2")
+  public void setHopPartitioning(HopGuiPipelineHopContext context) {
+    PipelineHopMeta hop = context.getHopMeta();
+    if (hop != null && hop.getToTransform() != null) {
+      PipelineMeta meta =
+          context.getPipelineMeta() != null ? context.getPipelineMeta() : pipelineMeta;
+      pipelineTransformDelegate.editTransformPartitioning(meta, hop.getToTransform());
+    }
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_HOP_REMOVE_PARTITIONING,
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.RemovePartitioning.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.RemovePartitioning.Tooltip",
+      image = "ui/images/partition_schema.svg",
+      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
+      categoryOrder = "2")
+  public void removeHopPartitioning(HopGuiPipelineHopContext context) {
+    PipelineHopMeta hop = context.getHopMeta();
+    if (hop != null && hop.getToTransform() != null) {
+      TransformMeta to = hop.getToTransform();
+      TransformMeta before = (TransformMeta) to.clone();
+      to.setTransformPartitioningMeta(new TransformPartitioningMeta());
+      to.setTargetTransformPartitioningMeta(null);
+      to.setChanged();
+      TransformMeta after = (TransformMeta) to.clone();
+      PipelineMeta meta =
+          context.getPipelineMeta() != null ? context.getPipelineMeta() : pipelineMeta;
+      if (meta != null) {
+        meta.setChanged();
+        HopGuiUndoDelegate undo = getUndoDelegate();
+        if (undo != null) {
+          undo.addUndoChange(
+              meta,
+              new TransformMeta[] {before},
+              new TransformMeta[] {after},
+              new int[] {meta.indexOfTransform(to)});
+        }
+      }
+      redraw();
+      updateGui();
     }
   }
 
@@ -6574,6 +6770,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
+  }
+
+  protected HopGuiUndoDelegate undoDelegate;
+
+  public HopGuiUndoDelegate getUndoDelegate() {
+    if (undoDelegate != null) {
+      return undoDelegate;
+    }
+    return hopGui != null ? hopGui.undoDelegate : null;
+  }
+
+  public void setUndoDelegate(HopGuiUndoDelegate undoDelegate) {
+    this.undoDelegate = undoDelegate;
   }
 
   @Override

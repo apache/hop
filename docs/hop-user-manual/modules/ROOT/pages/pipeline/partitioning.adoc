@@ -88,6 +88,8 @@ The names used for the partitions can be anything you like.
 . Next, apply the partition schema to the Group By transform.
 By applying a partition schema to a transform, a matching set of transform copies is started automatically (for example, if applying a partition schema with three partitions, three transform copies are launched).
 
+TIP: You can also set or remove partitioning directly on any hop pointing to the target transform by clicking the hop and selecting **Set partitioning** (or **Remove partitioning**) under the **Data routing** category in the xref:hop-gui/hop-gui-popup-dialog.adoc#_hop_options[hop context dialog].
+
 Step Two: select the partitioning method:
 
 * Establish the partitioning method for the transform, which defines the rule for row distribution across the copies.
