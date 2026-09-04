@@ -46,12 +46,14 @@ import org.apache.hop.pipeline.transforms.calculator.calculations.date.AddMonths
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.AddSeconds;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.AddTimeToDate;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.DateDiff;
+import org.apache.hop.pipeline.transforms.calculator.calculations.date.DateToJdeJulian;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.DateWorkingDiff;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.DayOfMonth;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.DayOfWeek;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.DayOfYear;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.FirstDayOfMonth;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.HourOfDay;
+import org.apache.hop.pipeline.transforms.calculator.calculations.date.JdeJulianToDate;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.LastDayOfMonth;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.MinuteOfHour;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.MonthOfDate;
@@ -210,6 +212,8 @@ public enum CalculationType implements IEnumHasCodeAndDescription {
   BASE64_DECODE(new Base64Decode()),
   FIRST_DAY_OF_MONTH(new FirstDayOfMonth()),
   LAST_DAY_OF_MONTH(new LastDayOfMonth()),
+  DATE_TO_JDE_JULIAN(new DateToJdeJulian()),
+  JDE_JULIAN_TO_DATE(new JdeJulianToDate()),
   URL_ENCODE(new UrlEncode()),
   URL_DECODE(new UrlDecode());
 

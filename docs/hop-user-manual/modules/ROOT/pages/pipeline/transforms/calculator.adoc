@@ -203,6 +203,13 @@ TIP: Only integer values for B are supported. If you need non-integer calculatio
 |Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string. Supports both padded or non-padded input.
 |First day of month (A) date|FIRST_DAY_OF_MONTH|Set the day of field (A) to 1.
 |Last day of month (A) date|LAST_DAY_OF_MONTH|Set the day of field (A) to the last day of the given month.
+|Date A to JDE Julian (CYYDDD)|DATE_TO_JDE_JULIAN a|Convert date A to a JD Edwards Julian date stored as CYYDDD. +
+
+C is the century relative to 1900 (0 = 1900-1999, 1 = 2000-2099), YY is the two-digit year, and DDD is the day of the year (001-366). +
+January 1, 1995 becomes `95001`. January 1, 2009 becomes `109001`. Years before 1900 are not supported.
+|JDE Julian A (CYYDDD) to Date|JDE_JULIAN_TO_DATE a|Convert a JD Edwards Julian date in field A to a Date. +
+
+Field A can be an Integer, Number or String in CYYDDD format. Five-digit values such as `95001` are treated as 1 January 1995.
 |Encode a URL|URL_ENCODE|Encode a URL to have browser/webservice save url calls.
 |Decode a URL|URL_DECODE|Decode a URL.
 |===
