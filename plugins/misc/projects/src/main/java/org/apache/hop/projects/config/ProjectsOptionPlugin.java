@@ -18,7 +18,10 @@
 package org.apache.hop.projects.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -28,9 +31,12 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.ProjectsConfigHelper;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
+@Getter
+@Setter
 public class ProjectsOptionPlugin implements IConfigOptions {
 
   @CommandLine.Option(
@@ -43,6 +49,31 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       description = "The name of the project to use")
   private String projectOption = null;
 
+  @CommandLine.Option(
+      names = {"-pl", "--project-locations"},
+      description = "Comma-separated list of project locations (name=location or archive files)",
+      split = ",")
+  protected String[] projectLocations = null;
+
+  @CommandLine.Option(
+      names = {"--environments"},
+      description =
+          "Comma-separated list of environment definitions (name=[project:]configFile1;configFile2)",
+      split = ",")
+  protected String[] environments = null;
+
+  @CommandLine.Option(
+      names = {"--environment-conf-files", "--environment-config-files"},
+      description =
+          "Comma-separated list of configuration files to apply to the project or environment",
+      split = ",")
+  protected String[] environmentConfigFiles = null;
+
+  @CommandLine.Option(
+      names = {"-im", "--in-memory"},
+      description = "Keep configuration in memory without persisting to hop-config.json")
+  protected boolean inMemory = false;
+
   protected String projectName;
   protected String environmentName;
 
@@ -51,9 +82,49 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
       throws HopException {
 
+    if (inMemory
+        || projectLocations != null
+        || environments != null
+        || environmentConfigFiles != null) {
+      ProjectsConfigHelper.enableInMemoryMode(log);
+    }
+
+    List<String> registeredProjects = new ArrayList<>();
+    if (projectLocations != null && projectLocations.length > 0) {
+      registeredProjects =
+          ProjectsConfigHelper.addProjectLocations(log, variables, projectLocations);
+    }
+
+    if (environments != null && environments.length > 0) {
+      ProjectsConfigHelper.addEnvironments(log, variables, environments, registeredProjects);
+    }
+
     projectName = projectOption;
     environmentName = environmentOption;
-    return configure(log, variables, hasHopMetadataProvider, projectName, environmentName);
+
+    if (StringUtils.isEmpty(projectName) && StringUtils.isEmpty(environmentName)) {
+      projectName =
+          ProjectsConfigHelper.determineActiveProject(
+              projectName, environmentName, registeredProjects, variables);
+    }
+
+    if (hasHopMetadataProvider == null
+        && StringUtils.isEmpty(projectName)
+        && StringUtils.isEmpty(environmentName)) {
+      return false;
+    }
+
+    List<String> extraConfigFiles = new ArrayList<>();
+    if (environmentConfigFiles != null) {
+      for (String cf : environmentConfigFiles) {
+        if (StringUtils.isNotEmpty(cf)) {
+          extraConfigFiles.add(cf.trim());
+        }
+      }
+    }
+
+    return configure(
+        log, variables, hasHopMetadataProvider, projectName, environmentName, extraConfigFiles);
   }
 
   public static final boolean configure(
@@ -62,6 +133,23 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       IHasHopMetadataProvider hasHopMetadataProvider,
       String projectName,
       String environmentName)
+      throws HopException {
+    return configure(
+        log,
+        variables,
+        hasHopMetadataProvider,
+        projectName,
+        environmentName,
+        Collections.emptyList());
+  }
+
+  public static final boolean configure(
+      ILogChannel log,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider,
+      String projectName,
+      String environmentName,
+      List<String> extraConfigFiles)
       throws HopException {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig;
@@ -139,6 +227,10 @@ public class ProjectsOptionPlugin implements IConfigOptions {
     } else {
       log.logDebug("No project or environment referenced.");
       return false;
+    }
+
+    if (extraConfigFiles != null && !extraConfigFiles.isEmpty()) {
+      configurationFiles.addAll(extraConfigFiles);
     }
 
     try {

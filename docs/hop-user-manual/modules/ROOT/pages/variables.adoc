@@ -322,6 +322,7 @@ Additionally, the following environment variables can help you to add even more 
 |===
 |Variable|Default|Description
 |HOP_AUTO_CREATE_CONFIG|N|Set this variable to 'Y' to automatically create config file when it's missing.
+|HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `{openvar}HOP_CONFIG_IN_MEMORY{closevar}` equivalent on the command line is `-im` / `--in-memory`.
 |HOP_METADATA_FOLDER|-|The system environment variable pointing to the alternative location for the Hop metadata folder
 |HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
 |HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.

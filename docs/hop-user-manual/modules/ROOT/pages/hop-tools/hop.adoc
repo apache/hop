@@ -32,15 +32,29 @@ To see the usage of the `hop` tool, you can simply use the `help` command to see
 [source,bash]
 ----
 $ ./hop help
-Usage: hop [-hV] [-s=<systemProperties>[,<systemProperties>...]]... [COMMAND]
-  -h, --help      Show this help message and exit.
+Usage: hop [-hV] [--dev-debug] [--dev-debug-wait] [-im]
+           [-e=<environmentOption>] [-j=<projectOption>]
+           [--environment-conf-files=<environmentConfigFiles>[,
+           <environmentConfigFiles>...]]... [--environments=<environments>[,
+           <environments>...]]... [-pl=<projectLocations>[,
+           <projectLocations>...]]... [-s=<systemProperties>[,
+           <systemProperties>...]]... [COMMAND]
+  -e, --environment=<environmentOption>
+                         The name of the lifecycle environment to use
+  -h, --help             Show this help message and exit.
+      -im, --in-memory   Keep configuration in memory without persisting to
+                           hop-config.json
+  -j, --project=<projectOption>
+                         The name of the project to use
+      -pl, --project-locations=<projectLocations>[,<projectLocations>...]
+                         Comma-separated list of project locations
+                           (name=location or archive files)
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
-                  A comma separated list of KEY=VALUE pairs
-  -V, --version   Print version information and exit.
+                         A comma separated list of KEY=VALUE pairs
+  -V, --version          Print version information and exit.
 Commands:
   help     Display help information about the specified command.
   conf     Configure Hop
-  doc      Generate documentation
   encrypt  Encrypt secrets
   gui      The Hop GUI
   import   Import metadata
@@ -56,11 +70,25 @@ Commands:
 
 [options="header"]
 |===
-|Option|Description
-|-s|One or more system parameters.  These will be set prior to execution of a given command.
-|-h|Displays this help message and quits
-|-V|Show the current Hop version
+|Short|Extended|Description
+|`-e`|`--environment`|The name of the lifecycle environment to enable before the subcommand runs.
+|`-h`|`--help`|Displays this help message and quits.
+|`-im`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`. Implied by `--project-locations` and `--environments`.
+|`-j`|`--project`|The name of the project to enable before the subcommand runs.
+|`-pl`|`--project-locations`|Comma-separated project locations to register for this process only (`name=/path`, a zip/jar, or a bare folder). See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json].
+||`--environments`|Comma-separated environment definitions (`name=[project:]file1;file2`) registered in memory for this process.
+||`--environment-conf-files` / `--environment-config-files`|Extra environment configuration files to apply to the enabled project or environment.
+|`-s`|`--system-properties`|A comma separated list of KEY=VALUE pairs, set before Hop starts.
+|`-V`|`--version`|Show the current Hop version.
 |===
+
+Root options such as `--project-locations` are processed before the subcommand (`run`, `gui`, `search`, ...), so the project is already registered when the command runs:
+
+[source,bash]
+----
+hop --project-locations my-project=/data/my-project run -f pipeline.hpl -r local
+hop --project-locations my-project=/data/my-project gui -j my-project -f pipeline.hpl
+----
 
 == Setup
 
