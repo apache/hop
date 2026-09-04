@@ -40,6 +40,13 @@ import org.mockito.stubbing.Answer;
 class ValueMetaTimestampTest {
 
   @Test
+  void timestampParseMaskUsesTheTimestampPattern() {
+    assertEquals("yyyy/MM/dd HH:mm:ss.SSSSSSSSS", ValueMetaBase.DEFAULT_TIMESTAMP_PARSE_MASK);
+    assertEquals(
+        ValueMetaBase.DEFAULT_TIMESTAMP_FORMAT_MASK, ValueMetaBase.DEFAULT_TIMESTAMP_PARSE_MASK);
+  }
+
+  @Test
   void testSetPreparedStatementValue() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();
     PreparedStatement ps = mock(PreparedStatement.class);

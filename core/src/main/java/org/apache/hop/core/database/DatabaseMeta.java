@@ -1096,13 +1096,13 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   private String quoteSchema(String schemaName) {
-    if (supportsCatalogs()) {
-      int separatorIndex = schemaName.indexOf('.');
-      if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
-        String catalogName = schemaName.substring(0, separatorIndex);
-        String schemaPart = schemaName.substring(separatorIndex + 1);
-        return quoteField(catalogName) + "." + quoteField(schemaPart);
-      }
+    // A composite "catalog.schema" is split whenever the caller passed one. supportsCatalogs()
+    // is a browsing flag and must not collapse an explicit catalog prefix into one identifier.
+    int separatorIndex = schemaName.indexOf('.');
+    if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
+      String catalogName = schemaName.substring(0, separatorIndex);
+      String schemaPart = schemaName.substring(separatorIndex + 1);
+      return quoteField(catalogName) + "." + quoteField(schemaPart);
     }
     return quoteField(schemaName);
   }

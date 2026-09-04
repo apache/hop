@@ -234,7 +234,8 @@ What survives when no rule claims a column is `StandardJdbcTypeMapper`, which do
 
 It exposes a few helpers that rules can use so that a condition does not have to restate arithmetic the mapping already does:
 
-* `numericLength(column)` — digits before the decimal, after the scale has been taken off
+* `numericLength(column)` — digits before the decimal, after the scale has been taken off. Dialect rules use this to test whether a declaration is possible at all.
+* `totalDigits(column)` — the total number of significant digits (JDBC precision). This is what Hop stores as Number/BigNumber length and what `DECIMAL(length, precision)` writers emit.
 * `numericScale(column)` — digits after the decimal
 * `displaySizeIsTwiceThePrecision(databaseMeta, column)` — the `CHAR(X) FOR BIT DATA` shape
 

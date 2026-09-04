@@ -761,17 +761,17 @@ public class PostgreSqlDatabaseMetaTest {
             "FOO", new ValueMetaNumber("BAR", 5, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(13, 3)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(10, 3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(13, 3)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(10, 3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(25, 4)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(21, 4)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 21, 4), "", false, "", false));
 
@@ -801,7 +801,7 @@ public class PostgreSqlDatabaseMetaTest {
             false)); // Bug here - invalid SQL
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(29, 7)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(22, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 7), "", false, "", false));
     assertEquals(
@@ -809,7 +809,7 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(12, 7)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(5, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     // An ALTER TABLE spells a column the way a CREATE TABLE does: through the dialect's type

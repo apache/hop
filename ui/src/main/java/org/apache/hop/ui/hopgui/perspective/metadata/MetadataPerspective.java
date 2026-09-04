@@ -2542,11 +2542,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           if (!typeFolder.isFolder() || knownKeys.contains(key)) {
             continue;
           }
+          List<FileObject> jsonFiles = HopVfs.findFiles(typeFolder, "json", false);
+          if (jsonFiles.isEmpty()) {
+            continue;
+          }
           String reason =
               BaseMessages.getString(PKG, "MetadataPerspective.Unknown.NoPluginForType", key);
           UnknownTypeModel unknownType =
               unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
-          for (FileObject jsonFile : HopVfs.findFiles(typeFolder, "json", false)) {
+          for (FileObject jsonFile : jsonFiles) {
             String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
             // The same element can live in a parent project as well: like anywhere else the first
             // provider which has it wins, so we don't list it twice.
