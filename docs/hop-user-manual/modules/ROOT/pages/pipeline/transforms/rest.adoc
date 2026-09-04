@@ -19,12 +19,10 @@ under the License.
 :openvar: ${
 :closevar: }
 :description: The REST Client transform enables you to consume RESTful services.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/rest.svg[REST Client transform Icon, role="image-doc-icon"] REST Client
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 include::../../snippets/pipeline/needs-input.adoc[]
@@ -40,20 +38,6 @@ When pagination is enabled on this transform and the selected xref:metadata-type
 
 == Example
 The REST client Transform returns a "result" field (can change the name), and the field is often used in the next transform. For example, it can be read in by a JSON input transform that extracts the fields specified on the Fields tab.
-
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 

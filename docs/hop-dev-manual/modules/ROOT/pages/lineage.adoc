@@ -55,7 +55,7 @@ The public API lives under the Java package `org.apache.hop.lineage` in the `hop
 | `LineageSinkPlugin`, `LineageSinkPluginType` — Plugin type registered in `HopEnvironment`.
 
 |`org.apache.hop.lineage.xp`
-| Extension points that call `LineageHub.flushQuietly()` on pipeline/workflow/server lifecycle (see <<lineage-flush>>).
+| Extension points that call `LineageHub.flushQuietly()` on pipeline/workflow/server lifecycle (see <<lineage-lifecycle>>).
 |===
 
 [#lineage-relational]

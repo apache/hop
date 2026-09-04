@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Row Normaliser transform converts the columns of an input stream into rows.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/normaliser.svg[Row Normaliser transform Icon, role="image-doc-icon"] Row Normaliser
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Row Normaliser transform converts the columns of an input stream into rows.
@@ -30,19 +28,6 @@ The Row Normaliser transform converts the columns of an input stream into rows.
 You can use this transform to normalize repeating groups of columns.
 
 *Important*: When combining multiple columns with different meta types (e.g., String and Integer) into a new field, no automatic type conversion is performed. Instead the first meta type is set. This lack of conversion may lead to issues with subsequent transformations on the resulting data rows. It is strongly advised to ensure that the data types of values being put into the same field are aligned before normalization.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 

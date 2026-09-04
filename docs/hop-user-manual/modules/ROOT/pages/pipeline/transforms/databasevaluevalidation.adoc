@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Database value validation transform checks incoming values against a target table so you can see which rows, columns and values would fail an insert.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/databasevaluevalidation.svg[Database value validation transform Icon, role="image-doc-icon"] Database value validation
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Database value validation transform checks incoming rows against a target table *before* you write them.
@@ -32,19 +30,6 @@ Relational inserts often fail on one column of one row among millions, with a da
 Typical use: Source -> Database value validation -> xref:pipeline/transforms/tableoutput.adoc[Table Output] / xref:pipeline/transforms/insertupdate.adoc[Insert / Update] / xref:pipeline/transforms/postgresbulkloader.adoc[PostgreSQL bulk loader], with an error hop from the validator to a text file or reject table.
 
 This is complementary to xref:pipeline/transforms/validator.adoc[Data Validator], which uses hand-authored rules. Database value validation keeps the rules in sync with the live table.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

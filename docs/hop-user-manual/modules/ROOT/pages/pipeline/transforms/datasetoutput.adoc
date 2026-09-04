@@ -17,31 +17,16 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Data set output transform writes rows to a data set in the metadata
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/datasetoutput.svg[Data set output transform Icon, role="image-doc-icon"] Data set output
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Data set output transform writes incoming rows to a xref:metadata-types/data-set.adoc[data set].
 Use it to generate or regenerate unit-test input and golden data sets from a pipeline, including headless `hop-run` executions, without hard-coding the CSV path in a Text file output transform.
 
 Rows are passed through unchanged so you can keep using the stream after the write.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

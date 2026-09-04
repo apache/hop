@@ -17,13 +17,11 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add Sequence transform adds a sequence to the Hop stream.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/addsequence.svg[Add Sequence Icon, role="image-doc-icon"] Add Sequence
 
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Add Sequence transform adds a sequence to the Hop stream. A sequence is an ever-changing integer value with a specific start and increment value.
@@ -32,18 +30,6 @@ You can either use a database sequence (if supported, e.g. Oracle, PostgreSQL) t
 
 Hop-generated sequence values are unique when used in the same pipeline, and return to the same starting value each time you run the pipeline. Hop sequences are unique only when used in the same pipeline.
 Also, they are not stored, so the values start back at the same value every time the pipeline is launched.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Spark lake table output writes Delta Lake or Apache Iceberg tables on the native Spark pipeline engine with ACID commit semantics.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=yes, Beam Spark=yes, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/spark-lake-table-output.svg[Spark lake table output transform Icon, role="image-doc-icon"] Spark lake table output
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 *Spark lake table output* writes the incoming Spark `Dataset` to a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table using table-format commit semantics on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
@@ -30,21 +28,6 @@ under the License.
 Unlike *Spark file output* (classic file formats), the **default save mode is ErrorIfExists** so ACID tables are not overwritten by accident.
 
 This transform is **native Spark only**. Connectors ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:cross.svg[Not Supported, 24]
-!Single Threaded! image:cross.svg[Not Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-
-NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam Spark).
-|===
 
 == Options
 

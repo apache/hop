@@ -21,30 +21,15 @@ under the License.
 :openvar: ${
 :openvar2: {
 :closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/neo4j_cypher.svg[Neo4j Cypher transform Icon, role="image-doc-icon"] Neo4j Cypher
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Neo4j Cypher transform allows you to execute any Cypher through the Neo4j Bolt protocol using the Java driver.
 
 Both reading, writing or both are supported. You can also call procedures and get the output.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Notable options
 

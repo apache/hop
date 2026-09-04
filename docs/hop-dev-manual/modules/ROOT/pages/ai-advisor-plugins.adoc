@@ -30,7 +30,7 @@ You add those by shipping two things in *your* plugin:
 Hop never enumerates locations.
 A location is a string you invent.
 
-The user-facing workbench is documented in xref:manual::hop-gui/perspective-ai-advisor.adoc[AI Assistant].
+The user-facing workbench is documented in xref:{page-component-version}@manual::hop-gui/perspective-ai-advisor.adoc[AI Assistant].
 This page is the plugin contract.
 
 == Mental model
