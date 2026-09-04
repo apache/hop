@@ -68,6 +68,12 @@ class HopVfsTest {
     // VFS URIs with a scheme
     assertTrue(HopVfs.isAbsolutePath("file:///home/me/test.hpl"));
     assertTrue(HopVfs.isAbsolutePath("s3://bucket/test.hpl"));
+    // Tilde home directory paths (POSIX, Windows backslash, bare ~, file://~)
+    assertTrue(HopVfs.isAbsolutePath("~"));
+    assertTrue(HopVfs.isAbsolutePath("~/test.hpl"));
+    assertTrue(HopVfs.isAbsolutePath("~\\test.hpl"));
+    assertTrue(HopVfs.isAbsolutePath("file://~/test.hpl"));
+    assertTrue(HopVfs.isAbsolutePath("file:~/test.hpl"));
   }
 
   @Test
@@ -79,6 +85,8 @@ class HopVfsTest {
     assertFalse(HopVfs.isAbsolutePath("sub/test.hpl"));
     // Windows drive-relative (no separator after the colon) is NOT an absolute path
     assertFalse(HopVfs.isAbsolutePath("C:test.hpl"));
+    // Tilde followed by non-separator is not a home path
+    assertFalse(HopVfs.isAbsolutePath("~test.hpl"));
   }
 
   @Test
@@ -142,5 +150,67 @@ class HopVfsTest {
                 }
               });
     }
+  }
+
+  @Test
+  void testResolveHomeDirectory() {
+    String userHome = System.getProperty("user.home");
+    while (userHome.length() > 1 && (userHome.endsWith("/") || userHome.endsWith("\\"))) {
+      userHome = userHome.substring(0, userHome.length() - 1);
+    }
+
+    // Bare ~
+    assertEquals(userHome, HopVfs.resolveHomeDirectory("~"));
+
+    // POSIX path
+    assertEquals(userHome + "/project/file.txt", HopVfs.resolveHomeDirectory("~/project/file.txt"));
+
+    // Windows backslash path
+    assertEquals(
+        userHome + "\\project\\file.txt", HopVfs.resolveHomeDirectory("~\\project\\file.txt"));
+
+    // file:// and file: prefixes
+    String filePrefixExpected =
+        "file://" + (userHome.startsWith("/") ? "" : "/") + userHome + "/project/file.txt";
+    assertEquals(filePrefixExpected, HopVfs.resolveHomeDirectory("file://~/project/file.txt"));
+    assertEquals(
+        "file:" + userHome + "/project/file.txt",
+        HopVfs.resolveHomeDirectory("file:~/project/file.txt"));
+
+    // Tilde not at the start should NOT be replaced
+    assertEquals("/opt/hop/~", HopVfs.resolveHomeDirectory("/opt/hop/~"));
+    assertEquals("/opt/hop/~/test", HopVfs.resolveHomeDirectory("/opt/hop/~/test"));
+    assertEquals("foo~bar", HopVfs.resolveHomeDirectory("foo~bar"));
+    assertEquals("s3://bucket/~/key", HopVfs.resolveHomeDirectory("s3://bucket/~/key"));
+
+    // Tilde followed by non-separator characters should NOT be replaced
+    assertEquals("~otheruser/dir", HopVfs.resolveHomeDirectory("~otheruser/dir"));
+    assertEquals("~temp", HopVfs.resolveHomeDirectory("~temp"));
+
+    // Null and empty
+    assertEquals(null, HopVfs.resolveHomeDirectory(null));
+    assertEquals("", HopVfs.resolveHomeDirectory(""));
+
+    // Custom variable override
+    Variables vars = new Variables();
+    vars.setVariable("user.home", "/custom/home");
+    assertEquals("/custom/home", HopVfs.resolveHomeDirectory("~", vars));
+    assertEquals("/custom/home/sub/file.csv", HopVfs.resolveHomeDirectory("~/sub/file.csv", vars));
+    assertEquals(
+        "/custom/home\\sub\\file.csv", HopVfs.resolveHomeDirectory("~\\sub\\file.csv", vars));
+  }
+
+  @Test
+  void testGetFileObjectWithTilde() throws Exception {
+    String userHome = System.getProperty("user.home");
+    FileObject homeObj = HopVfs.getFileObject("~");
+    assertNotNull(homeObj);
+    assertEquals(HopVfs.getFileObject(userHome).getName().getURI(), homeObj.getName().getURI());
+
+    FileObject childObj = HopVfs.getFileObject("~/test-file-hop.txt");
+    assertNotNull(childObj);
+    assertEquals(
+        HopVfs.getFileObject(userHome + "/test-file-hop.txt").getName().getURI(),
+        childObj.getName().getURI());
   }
 }

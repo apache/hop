@@ -56,6 +56,16 @@ ${ENVIRONMENT_HOME}/input/source-file.txt
 // CTRL-space snippet
 include::snippets/variables/control-space.adoc[]
 
+== User home directory shortcut (~)
+
+In file and folder paths, Hop automatically expands a leading tilde character (`~`) to the current user's home directory (`${user.home}`). This works across all operating systems (Linux, macOS, and Windows with both `\` and `/`):
+
+* `~` resolves to `${user.home}`
+* `~/projects/my-project` resolves to `${user.home}/projects/my-project`
+* `~\projects\my-project` resolves to `${user.home}\projects\my-project`
+
+NOTE: The tilde character is only expanded at the beginning of a path (e.g. `~`, `~/...`, `~\...`). A tilde anywhere else in a string (e.g. `folder/~` or `foo~bar`) or followed by non-separator characters (e.g. `~user`) is treated as a literal character.
+
 == Hexadecimal values
 
 In rare cases you might have a need to enter non-character values as separators in 'binary' text files with for example a zero byte as a separator.

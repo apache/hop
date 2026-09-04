@@ -88,6 +88,14 @@ a|URI Format
 Where `absolute-path` is a valid absolute file name for the local platform.
 UNC paths are accepted by Apache VFS, but are not reliably supported in Hop — see <<windows-unc-paths, Windows UNC paths>>.
 
+Hop supports using the tilde character (`~`) at the start of a local file path to represent the current user's home directory (`${user.home}`). This works across all operating systems, including Windows (with both `\` and `/`), macOS, and Linux.
+
+* Bare tilde: `~` resolves to `${user.home}` (e.g. `/home/someuser` or `C:\Users\someuser`).
+* With path separators: `~/somedir` or `~\somedir` resolves to `${user.home}/somedir` or `${user.home}\somedir`.
+* With `file:` scheme: `file://~/somedir` or `file:~/somedir`.
+
+NOTE: The tilde character is only expanded when it is at the **start** of a path. A tilde appearing anywhere else in a path (such as `/opt/hop/~` or `my~file.txt`) or followed by non-separator characters (such as `~otheruser` or `~temp`) is treated literally and is not expanded.
+
 Examples
 
 * `+file:///home/someuser/somedir+`
@@ -96,6 +104,9 @@ Examples
 * `+/home/someuser/somedir+`
 * `+c:\program files\some dir+`
 * `+c:/program files/some dir+`
+* `+~/somedir+`
+* `+~\somedir+`
+* `+file://~/somedir+`
 
 
 //
