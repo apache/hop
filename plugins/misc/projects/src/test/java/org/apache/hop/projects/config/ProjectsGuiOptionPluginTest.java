@@ -27,6 +27,8 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.projects.util.ProjectsConfigHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,6 +58,15 @@ class ProjectsGuiOptionPluginTest {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     config.removeProjectConfig("gui-proj");
     HopConfig.setInMemoryMode(false);
+  }
+
+  @Test
+  void handleOptionWithoutProjectDoesNotRememberDefault() throws Exception {
+    ProjectsGuiOptionPlugin plugin = new ProjectsGuiOptionPlugin();
+    plugin.handleOption(LogChannel.GENERAL, new MetadataHolder(), new Variables());
+
+    assertNull(ProjectsGuiOptionPlugin.getRequestedProjectName());
+    assertNull(ProjectsGuiOptionPlugin.getRequestedEnvironmentName());
   }
 
   @Test
@@ -121,6 +132,20 @@ class ProjectsGuiOptionPluginTest {
       assertEquals("gui-prod", ProjectsGuiOptionPlugin.getRequestedEnvironmentName());
     } finally {
       ProjectsConfigSingleton.getConfig().removeEnvironment("gui-prod");
+    }
+  }
+
+  private static final class MetadataHolder implements IHasHopMetadataProvider {
+    private MultiMetadataProvider provider;
+
+    @Override
+    public MultiMetadataProvider getMetadataProvider() {
+      return provider;
+    }
+
+    @Override
+    public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
+      this.provider = metadataProvider;
     }
   }
 }

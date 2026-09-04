@@ -28,9 +28,4 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
     id = "ProjectsRootOptionPlugin",
     description = "Root CLI project and environment options",
     category = ConfigPlugin.CATEGORY_ROOT)
-public class ProjectsRootOptionPlugin extends ProjectsOptionPlugin implements IConfigOptions {
-
-  public ProjectsRootOptionPlugin() {
-    super();
-  }
-}
+public class ProjectsRootOptionPlugin extends ProjectsOptionPlugin implements IConfigOptions {}

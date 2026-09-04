@@ -18,6 +18,7 @@
 package org.apache.hop.projects.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -187,6 +188,8 @@ public class ProjectsConfigHelperTest {
     ProjectConfig edwPc = config.findProjectConfig("edw");
     assertNotNull(edwPc);
     assertEquals("hop-project.config", edwPc.getConfigFilename());
+    assertFalse(sharedPc.isReadOnly());
+    assertFalse(edwPc.isReadOnly());
 
     // Verify leaf project resolution correctly identifies edw (child) as leaf
     String leaf = ProjectsConfigHelper.findLeafProject(registered, config, variables);
