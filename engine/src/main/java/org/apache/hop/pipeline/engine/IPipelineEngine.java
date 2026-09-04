@@ -81,6 +81,22 @@ public interface IPipelineEngine<T extends PipelineMeta>
   PipelineEngineCapabilities getEngineCapabilities();
 
   /**
+   * The way in which this engine drives the transforms of the pipeline. Engines that give every
+   * transform its own thread report {@link PipelineMeta.PipelineType#Normal}; engines whose
+   * transforms are driven one iteration at a time from a single thread report {@link
+   * PipelineMeta.PipelineType#SingleThreaded}.
+   *
+   * <p>This is a property of the engine, not of the pipeline: the same pipeline runs under either
+   * type and an engine must never write its choice back into the pipeline metadata.
+   *
+   * @return The execution model of this engine, {@link PipelineMeta.PipelineType#Normal} by
+   *     default.
+   */
+  default PipelineMeta.PipelineType getPipelineType() {
+    return PipelineMeta.PipelineType.Normal;
+  }
+
+  /**
    * Engine's compatibility verdict for a transform plugin. Default is UNKNOWN ("no opinion, fall
    * back to annotation"). Engines override to surface SUPPORTED / UNSUPPORTED authoritatively.
    */

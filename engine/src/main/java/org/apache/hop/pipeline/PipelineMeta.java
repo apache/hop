@@ -3345,24 +3345,6 @@ public class PipelineMeta extends AbstractMeta
     previousTransformCache.clear();
   }
 
-  /**
-   * Gets the pipeline type.
-   *
-   * @return the pipelineType
-   */
-  public PipelineType getPipelineType() {
-    return info.getPipelineType();
-  }
-
-  /**
-   * Sets the pipeline type.
-   *
-   * @param pipelineType the pipelineType to set
-   */
-  public void setPipelineType(PipelineType pipelineType) {
-    this.info.setPipelineType(pipelineType);
-  }
-
   public void addTransformChangeListener(ITransformMetaChangeListener listener) {
     transformChangeListeners.add(listener);
   }
@@ -3437,8 +3419,14 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * The PipelineType enum describes the various types of pipelines in terms of execution, including
-   * Normal, Serial Single-Threaded, and Single-Threaded.
+   * Describes how an engine drives the transforms of a pipeline. This is a property of the engine
+   * that executes the pipeline, not of the pipeline itself: the very same pipeline runs under
+   * either type, so it is never stored in the .hpl file. See {@link
+   * org.apache.hop.pipeline.engine.IPipelineEngine#getPipelineType()}.
+   *
+   * <p>Transforms use it in {@link
+   * org.apache.hop.pipeline.transform.BaseTransformMeta#getSupportedPipelineTypes()} to declare
+   * which of these execution models they can cope with.
    */
   @SuppressWarnings("java:S115")
   @Getter

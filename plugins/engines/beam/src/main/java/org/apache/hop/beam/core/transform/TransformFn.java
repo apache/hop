@@ -226,7 +226,6 @@ public class TransformFn extends TransformBaseFn {
     //
     pipelineMeta = new PipelineMeta();
     pipelineMeta.setName(transformName);
-    pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     pipelineMeta.setMetadataProvider(metadataProvider);
 
     // Input row metadata...
@@ -346,6 +345,7 @@ public class TransformFn extends TransformBaseFn {
       parentLoggingObject = new LoggingObject("apache-beam-transform");
     }
     pipeline = new LocalPipelineEngine(pipelineMeta, variables, parentLoggingObject);
+    pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     pipeline.setLogLevel(
         context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
     pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
