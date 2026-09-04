@@ -69,6 +69,11 @@ public class ParquetOutputDialog extends BaseTransformDialog {
   private TextVar wDataPageSize;
   private TextVar wDictionaryPageSize;
   private TableView wFields;
+  private TableView wPartitionFields;
+  private Combo wWriteMode;
+  private TextVar wMaxOpenPartitions;
+  private Label wlWriteMode;
+  private Label wlMaxOpenPartitions;
 
   private String returnValue;
 
@@ -424,6 +429,87 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     wDictionaryPageSize.setLayoutData(fdDictionaryPageSize);
     lastControl = wDictionaryPageSize;
 
+    Label wlPartitionFields = new Label(shell, SWT.LEFT);
+    wlPartitionFields.setText(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.PartitionFields.Label"));
+    PropsUi.setLook(wlPartitionFields);
+    FormData fdlPartitionFields = new FormData();
+    fdlPartitionFields.left = new FormAttachment(0, 0);
+    fdlPartitionFields.right = new FormAttachment(100, 0);
+    fdlPartitionFields.top = new FormAttachment(lastControl, margin);
+    wlPartitionFields.setLayoutData(fdlPartitionFields);
+
+    ColumnInfo[] partitionColumns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ParquetOutputDialog.PartitionFieldsColumn.Field.Label"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[0]),
+        };
+    wPartitionFields =
+        new TableView(
+            variables,
+            shell,
+            SWT.BORDER,
+            partitionColumns,
+            input.getPartitionFields().size(),
+            false,
+            null,
+            props);
+    PropsUi.setLook(wPartitionFields);
+    FormData fdPartitionFields = new FormData();
+    fdPartitionFields.left = new FormAttachment(0, 0);
+    fdPartitionFields.top = new FormAttachment(wlPartitionFields, margin);
+    fdPartitionFields.right = new FormAttachment(100, 0);
+    fdPartitionFields.height = (int) (100 * props.getZoomFactor());
+    wPartitionFields.setLayoutData(fdPartitionFields);
+    wPartitionFields.addModifyListener(e -> enableFields());
+    lastControl = wPartitionFields;
+
+    wlWriteMode = new Label(shell, SWT.RIGHT);
+    wlWriteMode.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.WriteMode.Label"));
+    wlWriteMode.setToolTipText(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.WriteMode.ToolTip"));
+    PropsUi.setLook(wlWriteMode);
+    FormData fdlWriteMode = new FormData();
+    fdlWriteMode.left = new FormAttachment(0, 0);
+    fdlWriteMode.right = new FormAttachment(middle, -margin);
+    fdlWriteMode.top = new FormAttachment(lastControl, margin);
+    wlWriteMode.setLayoutData(fdlWriteMode);
+    wWriteMode = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+    wWriteMode.setItems(ParquetWriteMode.getDescriptions());
+    wWriteMode.setToolTipText(BaseMessages.getString(PKG, "ParquetOutputDialog.WriteMode.ToolTip"));
+    PropsUi.setLook(wWriteMode);
+    FormData fdWriteMode = new FormData();
+    fdWriteMode.left = new FormAttachment(middle, 0);
+    fdWriteMode.top = new FormAttachment(wlWriteMode, 0, SWT.CENTER);
+    fdWriteMode.right = new FormAttachment(100, 0);
+    wWriteMode.setLayoutData(fdWriteMode);
+    lastControl = wWriteMode;
+
+    wlMaxOpenPartitions = new Label(shell, SWT.RIGHT);
+    wlMaxOpenPartitions.setText(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.MaxOpenPartitions.Label"));
+    wlMaxOpenPartitions.setToolTipText(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.MaxOpenPartitions.ToolTip"));
+    PropsUi.setLook(wlMaxOpenPartitions);
+    FormData fdlMaxOpenPartitions = new FormData();
+    fdlMaxOpenPartitions.left = new FormAttachment(0, 0);
+    fdlMaxOpenPartitions.right = new FormAttachment(middle, -margin);
+    fdlMaxOpenPartitions.top = new FormAttachment(lastControl, margin);
+    wlMaxOpenPartitions.setLayoutData(fdlMaxOpenPartitions);
+    wMaxOpenPartitions = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxOpenPartitions.enableExpandedInteger();
+    wMaxOpenPartitions.setToolTipText(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.MaxOpenPartitions.ToolTip"));
+    PropsUi.setLook(wMaxOpenPartitions);
+    FormData fdMaxOpenPartitions = new FormData();
+    fdMaxOpenPartitions.left = new FormAttachment(middle, 0);
+    fdMaxOpenPartitions.top = new FormAttachment(wlMaxOpenPartitions, 0, SWT.CENTER);
+    fdMaxOpenPartitions.right = new FormAttachment(100, 0);
+    wMaxOpenPartitions.setLayoutData(fdMaxOpenPartitions);
+    lastControl = wMaxOpenPartitions;
+
     Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
@@ -468,6 +554,13 @@ public class ParquetOutputDialog extends BaseTransformDialog {
 
     wlFilenameSplitSize.setEnabled(wFilenameIncludeSplitNr.getSelection());
     wFilenameSplitSize.setEnabled(wFilenameIncludeSplitNr.getSelection());
+
+    // The write mode and the open-partition limit only mean something while partitioning.
+    boolean partitioning = !wPartitionFields.getNonEmptyItems().isEmpty();
+    wlWriteMode.setEnabled(partitioning);
+    wWriteMode.setEnabled(partitioning);
+    wlMaxOpenPartitions.setEnabled(partitioning);
+    wMaxOpenPartitions.setEnabled(partitioning);
   }
 
   private void getFields() {
@@ -486,6 +579,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     try {
       IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
       wFields.getColumns()[0].setComboValues(fields.getFieldNames());
+      wPartitionFields.getColumns()[0].setComboValues(fields.getFieldNames());
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting source fields", e);
     }
@@ -512,6 +606,19 @@ public class ParquetOutputDialog extends BaseTransformDialog {
       item.setText(2, Const.NVL(field.getTargetFieldName(), ""));
     }
     wFields.optimizeTableView();
+
+    for (int i = 0; i < input.getPartitionFields().size(); i++) {
+      ParquetPartitionField field = input.getPartitionFields().get(i);
+      TableItem item = wPartitionFields.table.getItem(i);
+      item.setText(1, Const.NVL(field.getName(), ""));
+    }
+    wPartitionFields.optimizeTableView();
+    wWriteMode.setText(
+        input.getWriteMode() == null
+            ? ParquetWriteMode.Append.getDescription()
+            : input.getWriteMode().getDescription());
+    wMaxOpenPartitions.setText(Const.NVL(input.getMaxOpenPartitions(), ""));
+
     enableFields();
   }
 
@@ -546,6 +653,12 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     for (TableItem item : wFields.getNonEmptyItems()) {
       input.getFields().add(new ParquetField(item.getText(1), item.getText(2)));
     }
+    input.getPartitionFields().clear();
+    for (TableItem item : wPartitionFields.getNonEmptyItems()) {
+      input.getPartitionFields().add(new ParquetPartitionField(item.getText(1)));
+    }
+    input.setWriteMode(ParquetWriteMode.getModeFromDescription(wWriteMode.getText()));
+    input.setMaxOpenPartitions(wMaxOpenPartitions.getText());
     input.setChanged();
     dispose();
   }

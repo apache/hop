@@ -92,6 +92,15 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<ParquetField> fields;
 
+  @HopMetadataProperty(groupKey = "partition_fields", key = "partition_field")
+  private List<ParquetPartitionField> partitionFields;
+
+  @HopMetadataProperty(key = "write_mode", storeWithCode = true)
+  private ParquetWriteMode writeMode;
+
+  @HopMetadataProperty(key = "max_open_partitions")
+  private String maxOpenPartitions;
+
   public ParquetOutputMeta() {
     filenameDateTimeFormat = "yyyyMMdd-HHmmss";
     compressionCodec = CompressionCodecName.UNCOMPRESSED;
@@ -100,6 +109,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     dataPageSize = Integer.toString(8192);
     dictionaryPageSize = Integer.toString(ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE);
     fields = new ArrayList<>();
+    partitionFields = new ArrayList<>();
+    writeMode = ParquetWriteMode.Append;
+    maxOpenPartitions = "10";
     filenameIncludingCopyNr = true;
     filenameIncludingSplitNr = true;
     filenameCreatingParentFolders = true;
@@ -125,6 +137,14 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     this.dataPageSize = m.dataPageSize;
     this.dictionaryPageSize = m.dictionaryPageSize;
     this.fields = m.fields;
+    this.partitionFields = new ArrayList<>();
+    if (m.partitionFields != null) {
+      for (ParquetPartitionField f : m.partitionFields) {
+        this.partitionFields.add(new ParquetPartitionField(f));
+      }
+    }
+    this.writeMode = m.writeMode;
+    this.maxOpenPartitions = m.maxOpenPartitions;
   }
 
   /**
@@ -397,5 +417,71 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
    */
   public void setFields(List<ParquetField> fields) {
     this.fields = fields;
+  }
+
+  /**
+   * Gets partitionFields
+   *
+   * @return value of partitionFields
+   */
+  public List<ParquetPartitionField> getPartitionFields() {
+    return partitionFields;
+  }
+
+  /**
+   * @param partitionFields The partitionFields to set
+   */
+  public void setPartitionFields(List<ParquetPartitionField> partitionFields) {
+    this.partitionFields = partitionFields;
+  }
+
+  /**
+   * Whether the transform partitions its output. Only then do the write mode and the maximum number
+   * of open partitions have any effect.
+   *
+   * @return true if at least one partition field is configured
+   */
+  public boolean isPartitioning() {
+    if (partitionFields == null) {
+      return false;
+    }
+    for (ParquetPartitionField field : partitionFields) {
+      if (field.getName() != null && !field.getName().trim().isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Gets writeMode
+   *
+   * @return value of writeMode
+   */
+  public ParquetWriteMode getWriteMode() {
+    return writeMode;
+  }
+
+  /**
+   * @param writeMode The writeMode to set
+   */
+  public void setWriteMode(ParquetWriteMode writeMode) {
+    this.writeMode = writeMode;
+  }
+
+  /**
+   * Gets maxOpenPartitions
+   *
+   * @return value of maxOpenPartitions
+   */
+  public String getMaxOpenPartitions() {
+    return maxOpenPartitions;
+  }
+
+  /**
+   * @param maxOpenPartitions The maxOpenPartitions to set
+   */
+  public void setMaxOpenPartitions(String maxOpenPartitions) {
+    this.maxOpenPartitions = maxOpenPartitions;
   }
 }
