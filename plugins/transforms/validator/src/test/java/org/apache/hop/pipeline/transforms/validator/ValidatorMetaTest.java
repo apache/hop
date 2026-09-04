@@ -94,7 +94,7 @@ class ValidatorMetaTest {
     validation.setNullAllowed(false);
     meta.getValidations().add(validation);
 
-    ValidatorMeta clone = meta.clone();
+    ValidatorMeta clone = (ValidatorMeta) meta.clone();
     assertNotSame(meta, clone);
     assertNotSame(meta.getValidations(), clone.getValidations());
     assertNotSame(meta.getValidations().getFirst(), clone.getValidations().getFirst());

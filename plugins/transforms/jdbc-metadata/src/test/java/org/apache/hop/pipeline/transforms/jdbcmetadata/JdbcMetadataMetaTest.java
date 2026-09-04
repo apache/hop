@@ -19,12 +19,16 @@ package org.apache.hop.pipeline.transforms.jdbcmetadata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
@@ -121,6 +125,29 @@ class JdbcMetadataMetaTest {
 
     assertNotNull(copy.getArguments());
     assertTrue(copy.getArguments().isEmpty());
+  }
+
+  /**
+   * Issue #3861: the method name is only filled in by setDefault(), which the GUI calls but loading
+   * a pipeline does not. A file without it left the method descriptor null and getFields() threw a
+   * raw NullPointerException while the pipeline was being prepared.
+   */
+  @Test
+  void getFieldsWithoutMethodNameReportsTheMisconfiguration() {
+    JdbcMetadataMeta meta = new JdbcMetadataMeta();
+
+    HopTransformException e =
+        assertThrows(
+            HopTransformException.class,
+            () ->
+                meta.getFields(new RowMeta(), "jdbc metadata", null, null, new Variables(), null));
+    assertTrue(e.getMessage().contains("jdbc metadata"), e.getMessage());
+  }
+
+  /** The output field list is allocated up front, so a file without one is still usable. */
+  @Test
+  void outputFieldsAreNeverNull() {
+    assertNotNull(new JdbcMetadataMeta().getOutputFields());
   }
 
   private static JdbcMetadataMeta serializeAndDeserialize(JdbcMetadataMeta source)

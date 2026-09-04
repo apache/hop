@@ -1,0 +1,158 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The plugin types for hooking into what Hop does while it runs: extension points, logging, execution information, data samplers, lineage sinks and server servlets.
+[[PluginTypes-ExecutionObservability]]
+= Execution and observability
+
+The shared mechanics — discovery, annotation attributes, classloading, how a plugin gets into the distribution — are on the xref:plugin-types/index.adoc[plugin types overview].
+
+== Extension point
+
+An extension point is a hook: Hop announces that something happened, and every plugin listening for that announcement gets called.
+There are about a hundred named points, from `HopGuiStart` through `PipelinePrepareExecution` and `TransformBeforeStart` to `PipelineCompleted`, and the Hop codebase itself uses them heavily.
+
+Annotation:: `@ExtensionPoint`
+Implement:: `IExtensionPoint<T>`
+Plugin type:: `ExtensionPointPluginType`, id `EXTENSION_POINT`
+Examples:: over a hundred in the codebase; `engine/src/main/java/org/apache/hop/lineage/xp` is a compact set
+
+[source,java]
+----
+@ExtensionPoint(
+    id = "LineageHubPipelineCompletedXp",
+    extensionPointId = "PipelineCompleted",
+    description = "Emits lineage at pipeline completion")
+public class LineageHubPipelineCompletedXp
+    implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline) { ... }
+}
+----
+
+Two ids, and they are not the same thing:
+
+`id`:: the plugin's own id, unique among extension points.
+`extensionPointId`:: *which* hook to listen to. The names are the constants of the `HopExtensionPoint` enum in `org.apache.hop.core.extension`, which is also the list of what is available. Anything can fire an extension point, so a plugin may define and announce its own.
+
+The generic parameter is the object Hop hands over, and it decides where your plugin will and will not work:
+
+[IMPORTANT]
+====
+Bind to the interface, not the implementation.
+An extension point declared as `IExtensionPoint<Pipeline>` or `IExtensionPoint<Workflow>` works on the local engine and throws a `ClassCastException` on remote and Beam engines, where the object is a different implementation of `IPipelineEngine` / `IWorkflowEngine`.
+The failure only shows up on the engine you were not testing on.
+====
+
+Extension points run inline, on the thread that fired them.
+Anything slow belongs on a queue, not in `callExtensionPoint`.
+
+== Logging
+
+A logging plugin participates in the lifecycle of the logging subsystem.
+It is initialised very early — `HopClientEnvironment.init()` loads logging plugins immediately after the registry is filled, before anything else — which is what makes it the right place to attach an external logging framework or a log store.
+
+Annotation:: `@LoggingPlugin`
+Implement:: `ILoggingPlugin`
+Plugin type:: `LoggingPluginType`, id `LOGGING`
+
+The interface is just `init()` and `dispose()`; everything else is done by registering your own listeners with Hop's logging registry from `init()`.
+
+There are no implementations in the distribution today, so there is no in-tree example to copy.
+For routing log lines somewhere else, an extension point on the logging-related hooks, or an execution information location, is usually the easier route.
+
+== Execution information location
+
+An execution information location is where Hop stores what happened during a run: the execution itself, its state, its logging text, its metrics, and any sampled data.
+This is what the Hop GUI execution perspective and Hop Server read back.
+
+Annotation:: `@ExecutionInfoLocationPlugin`
+Implement:: `IExecutionInfoLocation`
+Plugin type:: `ExecutionInfoLocationPluginType`, id `EXECUTION_INFO_LOCATIONS`
+Examples:: `engine/src/main/java/org/apache/hop/execution/local` (files), `.../remote` (another Hop Server), `.../caching`, `plugins/misc/execution-database` (a relational database)
+
+The interface has two halves.
+The writing half — `registerExecution`, `updateExecutionState`, `registerData` — is called by the engines while a pipeline or workflow runs.
+The reading half — `getExecution`, `getExecutionState`, `findExecutions`, `findChildIds`, `getExecutionData` — is called by the UI and the server.
+Implement both, including the parent/child lookups, or drill-down in the execution perspective will not work.
+
+The settings live in an `Execution Information Location` metadata object, so the plugin's fields carry `@HopMetadataProperty` and `@GuiWidgetElement` annotations, exactly like a variable resolver.
+
+Locations are written to on every state update of every component.
+Buffering is normal — `unBuffer(executionId)` and `clearCaches()` exist for that reason — and the caching implementations in the engine are the examples to follow.
+
+== Execution data sampler
+
+A sampler decides which rows are captured while a pipeline runs, so they can be shown afterwards.
+The built-ins are first rows, last rows, random rows and basic data profiling.
+
+Annotation:: `@ExecutionDataSamplerPlugin`
+Implement:: `IExecutionDataSampler<Store>`
+Plugin type:: `ExecutionDataSamplerPluginType`, id `EXECUTION_DATA_SAMPLER_LOCATIONS`
+Examples:: `engine/src/main/java/org/apache/hop/execution/sampler/plugins`
+
+Two methods do the work:
+
+`createSamplerStore(ExecutionDataSamplerMeta)`:: creates the store this sampler accumulates into, one per transform copy and stream
+`sampleRow(store, streamType, rowMeta, row)`:: called for every row on that stream
+
+[WARNING]
+====
+`sampleRow` is on the hot path: it runs for every row of every sampled transform.
+Keep it allocation-free and cheap, and put the analysis in the store rather than in the sampling.
+====
+
+Samplers are selected in the pipeline run configuration, and their stores are written to the execution information location.
+
+== Lineage sink
+
+A lineage sink is where Hop's lineage events are delivered — a catalogue, a broker, a file.
+Hop ships an OpenLineage sink.
+
+Annotation:: `@LineageSinkPlugin`
+Implement:: `ILineageSink`
+Plugin type:: `LineageSinkPluginType`, id `LINEAGE_SINKS`
+Example:: `plugins/tech/openlineage`
+Details:: xref:lineage.adoc[Lineage observation hub]
+
+`accept(List<LineageEvent>)` receives batches from the lineage hub, with optional `init(...)` and `shutdown()` around it.
+The hub dispatches asynchronously, so a slow sink slows down lineage delivery, not the pipeline.
+
+== Hop Server servlet
+
+A server plugin is an HTTP endpoint on Hop Server.
+Everything the server exposes — status, execution, sniffing, the export of pipelines — is one of these.
+
+Annotation:: `@HopServerServlet`
+Implement:: `IHopServerPlugin`, in practice by extending `BaseHttpServlet` or `BaseHopServerPlugin`
+Plugin type:: `HopServerPluginType`, id `HOP_SERVER_SERVLET`
+Examples:: `engine/src/main/java/org/apache/hop/www`
+
+[source,java]
+----
+@HopServerServlet(id = "pipelineStatus", name = "Get the status of a pipeline")
+public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin { ... }
+----
+
+`getContextPath()` is the path the servlet is mounted on, and `setup(PipelineMap, WorkflowMap)` hands over the server's registries of running pipelines and workflows.
+
+[WARNING]
+====
+A servlet plugin is an addition to the attack surface of Hop Server.
+Authentication is handled by the server, not by the servlet, but everything else — what the endpoint exposes, what it accepts, and what it does with it — is on the plugin.
+See link:https://github.com/apache/hop/blob/main/SECURITY.md[SECURITY.md] and the threat model it links before adding one.
+====

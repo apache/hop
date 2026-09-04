@@ -120,11 +120,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
   }
 
   @Override
-  public Object clone() {
-    return new DynamicSqlRowMeta(this);
-  }
-
-  @Override
   public void setDefault() {
     this.connection = null;
     this.databaseMeta = null;

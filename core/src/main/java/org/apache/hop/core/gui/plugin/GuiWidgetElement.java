@@ -144,4 +144,23 @@ public @interface GuiWidgetElement {
    * @return
    */
   Class<? extends IHopMetadata> metadata() default IHopMetadata.class;
+
+  /**
+   * Layout bucket inside the {@link #parentId()} tree. Empty (the default) keeps the widget on the
+   * flat form. When any sibling has a group, widgets are shown in that container ({@link
+   * #groupType()}).
+   */
+  String group() default "";
+
+  /** Sort key for the group among other groups. Compared as a string, same as {@link #order()}. */
+  String groupOrder() default "";
+
+  /** Optional image filename for the group (tab icon, list item, …). */
+  String groupImage() default "";
+
+  /**
+   * How groups on this {@link #parentId()} are shown. Repeat on every field; the first non-{@link
+   * GuiWidgetGroupType#NONE} value wins. Mixed types log a warning and fall back to tabs.
+   */
+  GuiWidgetGroupType groupType() default GuiWidgetGroupType.NONE;
 }

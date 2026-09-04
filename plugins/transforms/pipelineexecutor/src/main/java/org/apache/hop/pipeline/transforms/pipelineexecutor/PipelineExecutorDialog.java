@@ -44,6 +44,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -88,8 +89,10 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   private Label wlPath;
   private TextVar wPath;
 
-  protected Label wlRunConfiguration;
-  protected ComboVar wRunConfiguration;
+  protected MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
+
+  private Label wlWaitTimeout;
+  private TextVar wWaitTimeout;
 
   private Button wbPipelineNameInField;
 
@@ -240,24 +243,39 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
         });
     /* End */
 
-    wlRunConfiguration = new Label(shell, SWT.RIGHT);
-    wlRunConfiguration.setText(
-        BaseMessages.getString(PKG, "PipelineExecutorDialog.RunConfiguration.Label"));
-    PropsUi.setLook(wlRunConfiguration);
-    FormData fdlRunConfiguration = new FormData();
-    fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(wPipelineNameField, margin);
-    fdlRunConfiguration.right = new FormAttachment(middle, -margin);
-    wlRunConfiguration.setLayoutData(fdlRunConfiguration);
-
-    wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wlRunConfiguration);
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            PipelineRunConfiguration.class,
+            shell,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "PipelineExecutorDialog.RunConfiguration.Label"),
+            BaseMessages.getString(PKG, "PipelineExecutorDialog.RunConfiguration.Tooltip"));
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment(middle, 0);
-    fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
+    fdRunConfiguration.left = new FormAttachment(0, 0);
+    fdRunConfiguration.top = new FormAttachment(wPipelineNameField, margin);
     fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
-    PropsUi.setLook(wRunConfiguration);
+
+    wlWaitTimeout = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlWaitTimeout);
+    wlWaitTimeout.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.WaitTimeout.Label"));
+    FormData fdlWaitTimeout = new FormData();
+    fdlWaitTimeout.left = new FormAttachment(0, 0);
+    fdlWaitTimeout.top = new FormAttachment(wRunConfiguration, margin);
+    fdlWaitTimeout.right = new FormAttachment(middle, -margin);
+    wlWaitTimeout.setLayoutData(fdlWaitTimeout);
+
+    wWaitTimeout = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWaitTimeout);
+    wWaitTimeout.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.WaitTimeout.Tooltip"));
+    FormData fdWaitTimeout = new FormData();
+    fdWaitTimeout.left = new FormAttachment(middle, 0);
+    fdWaitTimeout.top = new FormAttachment(wlWaitTimeout, 0, SWT.CENTER);
+    fdWaitTimeout.right = new FormAttachment(100, 0);
+    wWaitTimeout.setLayoutData(fdWaitTimeout);
 
     //
     // Add a tab folder for the parameters and various input and output
@@ -269,7 +287,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
+    fdTabFolder.top = new FormAttachment(wWaitTimeout, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -407,6 +425,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting pipeline run configurations", e);
     }
+
+    wWaitTimeout.setText(Const.NVL(pipelineExecutorMeta.getWaitTimeout(), ""));
 
     //  throw in a separate thread.
     //
@@ -600,8 +620,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     // Add a checkbox: inherit all variables...
     //
     wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(
-        BaseMessages.getString(PKG, "PipelineExecutorDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
     PropsUi.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.top = new FormAttachment(wPipelineExecutorParameters, 15);
@@ -1188,6 +1209,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     pipelineExecutorMeta.setFilenameInField(wbPipelineNameInField.getSelection());
     pipelineExecutorMeta.setFilenameField(wPipelineNameField.getText());
     pipelineExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
+    pipelineExecutorMeta.setWaitTimeout(wWaitTimeout.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

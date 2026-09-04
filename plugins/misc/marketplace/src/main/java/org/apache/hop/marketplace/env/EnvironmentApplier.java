@@ -39,7 +39,7 @@ import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.marketplace.resolve.MavenRepositoryClient;
 
-/** Applies or validates a {@link HopEnvironmentSpec} against a Hop installation. */
+/** Applies or validates a {@link HopInstallSpec} against a Hop installation. */
 public class EnvironmentApplier {
 
   private final ILogChannel log;
@@ -52,11 +52,11 @@ public class EnvironmentApplier {
     this.baseConfig = baseConfig;
   }
 
-  public EnvironmentDrift validate(HopEnvironmentSpec env) throws HopException {
+  public EnvironmentDrift validate(HopInstallSpec env) throws HopException {
     EnvironmentDrift drift = new EnvironmentDrift();
     String defaultVersion = resolveEnvVersion(env);
 
-    for (HopEnvironmentSpec.PluginRef ref : nullSafe(env.getPlugins())) {
+    for (HopInstallSpec.PluginRef ref : nullSafe(env.getPlugins())) {
       if (StringUtils.isBlank(ref.getArtifactId())) {
         continue;
       }
@@ -78,7 +78,7 @@ public class EnvironmentApplier {
       }
     }
 
-    for (HopEnvironmentSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
+    for (HopInstallSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
       if (StringUtils.isAnyBlank(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())) {
         continue;
       }
@@ -99,9 +99,9 @@ public class EnvironmentApplier {
   }
 
   /**
-   * Install missing plugins/deps; optionally prune marketplace plugins not listed in the env file.
+   * Install missing plugins/deps; optionally prune marketplace plugins not listed in the spec file.
    */
-  public void apply(HopEnvironmentSpec env, boolean prune) throws HopException {
+  public void apply(HopInstallSpec env, boolean prune) throws HopException {
     apply(env, prune, IInstallListener.NONE);
   }
 
@@ -109,7 +109,7 @@ public class EnvironmentApplier {
    * @param listener receives per-artifact and byte-level progress across the whole batch, and can
    *     cancel between chunks. Pass {@link IInstallListener#NONE} for headless callers.
    */
-  public void apply(HopEnvironmentSpec env, boolean prune, IInstallListener listener)
+  public void apply(HopInstallSpec env, boolean prune, IInstallListener listener)
       throws HopException {
     IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
     MarketplaceConfig config = configFromEnv(env);
@@ -124,13 +124,13 @@ public class EnvironmentApplier {
     int itemIndex = 0;
 
     Set<String> desiredArtifacts = new HashSet<>();
-    for (HopEnvironmentSpec.PluginRef ref : nullSafe(env.getPlugins())) {
+    for (HopInstallSpec.PluginRef ref : nullSafe(env.getPlugins())) {
       if (StringUtils.isBlank(ref.getArtifactId())) {
         itemIndex++;
         continue;
       }
       if (progress.isCancelled()) {
-        throw new HopException("Applying the environment was cancelled");
+        throw new HopException("Applying the install spec was cancelled");
       }
       progress.item(ref.getArtifactId(), itemIndex++, totalItems);
       desiredArtifacts.add(ref.getArtifactId());
@@ -147,20 +147,20 @@ public class EnvironmentApplier {
       boolean needsInstall = (!onDisk && receipt == null) || versionMismatch;
       if (needsInstall) {
         MavenCoordinates coords = new MavenCoordinates(groupId, ref.getArtifactId(), version);
-        log.logBasic("Applying environment: installing " + coords.gav());
+        log.logBasic("Applying install spec: installing " + coords.gav());
         installer.install(coords, true, null, null, progress);
       } else {
-        log.logBasic("Applying environment: " + ref.getArtifactId() + " already satisfied");
+        log.logBasic("Applying install spec: " + ref.getArtifactId() + " already satisfied");
       }
     }
 
-    for (HopEnvironmentSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
+    for (HopInstallSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
       if (StringUtils.isAnyBlank(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())) {
         itemIndex++;
         continue;
       }
       if (progress.isCancelled()) {
-        throw new HopException("Applying the environment was cancelled");
+        throw new HopException("Applying the install spec was cancelled");
       }
       progress.item(dep.getArtifactId(), itemIndex++, totalItems);
       String target = StringUtils.defaultIfBlank(dep.getTarget(), "lib/jdbc");
@@ -211,7 +211,7 @@ public class EnvironmentApplier {
         String name = file.getFileName().toString();
         String artifactId = name.substring(0, name.length() - ".json".length());
         if (!desiredArtifacts.contains(artifactId)) {
-          log.logBasic("Pruning marketplace plugin not in env file: " + artifactId);
+          log.logBasic("Pruning marketplace plugin not in install spec: " + artifactId);
           uninstaller.uninstall(artifactId);
         }
       }
@@ -220,7 +220,7 @@ public class EnvironmentApplier {
     }
   }
 
-  private MarketplaceConfig configFromEnv(HopEnvironmentSpec env) {
+  private MarketplaceConfig configFromEnv(HopInstallSpec env) {
     MarketplaceConfig config = new MarketplaceConfig();
     config.setEnabled(baseConfig.isEnabled());
     config.setGroupId(baseConfig.getGroupId());
@@ -232,11 +232,11 @@ public class EnvironmentApplier {
     MarketplaceRepository baseRepo = baseConfig.primaryRepository();
     if (env.getRepositories() != null && !env.getRepositories().isEmpty()) {
       boolean first = true;
-      for (HopEnvironmentSpec.RepositoryRef ref : env.getRepositories()) {
+      for (HopInstallSpec.RepositoryRef ref : env.getRepositories()) {
         if (StringUtils.isNotBlank(ref.getUrl())) {
           MarketplaceRepository repo =
               new MarketplaceRepository(
-                  StringUtils.defaultIfBlank(ref.getId(), "env"),
+                  StringUtils.defaultIfBlank(ref.getId(), "spec"),
                   ref.getUrl(),
                   StringUtils.isNotBlank(ref.getUsername())
                       ? ref.getUsername()
@@ -261,7 +261,7 @@ public class EnvironmentApplier {
     return config;
   }
 
-  private String resolveEnvVersion(HopEnvironmentSpec env) {
+  private String resolveEnvVersion(HopInstallSpec env) {
     if (StringUtils.isNotBlank(env.getHopVersion())) {
       return env.getHopVersion();
     }

@@ -1,0 +1,75 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Hop's logging model, and how to get a debugger attached to the GUI, the server or a running pipeline.
+[[Architecture-LoggingDebugging]]
+= Logging and debugging
+
+== Logging
+
+Everything that logs owns an `ILogChannel`, and channels form a parent/child tree that mirrors the execution: pipeline, transform, the database connection inside it.
+That parentage is what lets Hop show the log of one transform separately from the pipeline it ran in.
+
+Seven levels, from `LogLevel`:
+
+`NOTHING`, `ERROR`, `MINIMAL`, `BASIC`, `DETAILED`, `DEBUG`, `ROWLEVEL`
+
+The level is set per run, and a channel logs only what its level allows.
+`ROWLEVEL` logs per row and is a debugging tool, not something to leave on.
+
+=== Where the log lines end up
+
+`HopLogStore` is the central store every channel appends to.
+It is initialized by `HopEnvironment.init()`, so nothing is captured before that call.
+
+Every runtime object — `IPipelineEngine`, `IWorkflowEngine`, a transform, a database connection — owns a log channel id, and that id is the key into the store.
+The parent/child relations between those channels live in `LoggingRegistry.getInstance()`.
+
+To read back what an object logged, ask the store's appender for that channel's buffer:
+
+[source,java]
+----
+String logText =
+    HopLogStore.getInstance().getAppender().getBuffer(pipeline.getLogChannelId(), true);
+----
+
+The second argument clears the buffer as it is read.
+This is the same path a `logBasic()` call from a xref:manual::pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class] takes: the transform's own channel, the same store.
+
+== Attaching a debugger
+
+The launcher scripts in the distribution read `HOP_OPTIONS`, and each ships with a commented-out JDWP line:
+
+[source,bash]
+----
+HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5009"
+----
+
+Uncomment it, or export `HOP_OPTIONS` yourself, and attach a remote debugger to that port.
+This works for `hop-gui`, `hop-run`, `hop-server` and the rest of the scripts.
+
+For running Hop straight from the IDE instead, see xref:setup-dev-environment.adoc[Setting up your development environment].
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Choosing a log level for a message, and the cost of logging on a per-row path — see xref:architecture/performance.adoc[Performance on the row hot path].
+* How log lines reach the GUI, the execution information location and the server, and why a message can appear in one and not another.
+* Debugging inside a container, and debugging a pipeline running on a remote Hop Server.
+* Getting a thread dump out of a stuck pipeline and reading it: which threads are transforms, which are row sets.
+* What to capture when reporting a bug so it can be reproduced.
+====

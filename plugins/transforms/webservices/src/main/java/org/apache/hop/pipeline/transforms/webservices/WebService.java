@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLInputFactory;
@@ -565,7 +564,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     CloseableHttpClient httpClient = clientBuilder.build();
 
     if (StringUtils.isNotBlank(login)) {
-      HttpHost target = HttpHost.create(URI.create(serviceUrl));
+      HttpHost target = HttpClientManager.createHttpHost(URI.create(serviceUrl));
       AuthCache authCache = new BasicAuthCache();
       BasicScheme basicAuth = new BasicScheme();
       char[] passwordChars = password != null ? password.toCharArray() : new char[0];
@@ -906,9 +905,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
     // TODO Very empirical : see if we can do something better here
     try {
-      XMLInputFactory vFactory = XMLInputFactory.newInstance();
-      vFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      vFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+      XMLInputFactory vFactory = XmlParserFactoryProducer.createSecureXmlInputFactory();
       XMLStreamReader vReader = vFactory.createXMLStreamReader(stringReader);
 
       Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());

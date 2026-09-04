@@ -16,6 +16,8 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:openvar: ${
+:closevar: }
 :description: The OData input transform retrieves data from OData V2 and V4 service endpoints.
 
 = image:transforms/icons/odata.svg[OData input transform Icon, role="image-doc-icon"] OData input
@@ -27,7 +29,9 @@ under the License.
 
 The OData input transform enables you to query OData (Open Data Protocol) services. OData is an OASIS standard that defines a set of best practices for building and consuming RESTful APIs. For more information, visit the official link:https://www.odata.org/[OData Documentation].
 
-This transform performs GET requests against OData Entity Sets, maps JSON properties to Apache Hop rows, and automatically handles relative pagination using standard `@odata.nextLink` (OData V4) and `__next` (OData V2) metadata attributes.
+This transform is an input transform: it issues GET requests against an Entity Set and streams each entity as a Hop row. JSON properties are mapped with an *OData Path*. Pagination follows `@odata.nextLink` (OData V4) and `__next` (OData V2), including relative next-link URLs.
+
+The Connection, Query, and Fields values all accept Hop variables (`{openvar}VARIABLE{closevar}`).
 
 |
 == Supported Engines
@@ -52,33 +56,36 @@ image::transforms/odata-input-connection-tab.png[OData input Connection Tab, ali
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace.
-|OData Service Root URL|The base URL of the OData service (e.g., `https://services.odata.org/V4/TripPinServiceRW/`).
+|OData Service Root URL|The base URL of the OData service, without the entity set name (e.g., `https://services.odata.org/V4/Northwind/Northwind.svc`). A trailing slash is optional.
 |Authentication Type|The authentication type to use:
+
 * `No Authentication`: Anonymous connection.
-* `Basic Authentication`: Use standard Username/Password credentials.
-* `Bearer Token`: Use a Bearer token in the `Authorization` header.
+* `Basic Authentication (Username / Password)`: HTTP Basic credentials.
+* `Bearer Token (Authorization Header)`: Sends `Authorization: Bearer <token>`.
 |Username (Basic Auth)|The username for Basic authentication.
 |Password (Basic Auth)|The password for Basic authentication.
-|Token (Bearer / OAuth2)|The bearer token value.
-|OData Entity Set|The OData entity set to query (e.g., `People` or `Airports`).
-|Get Entity Sets|Retrieves and displays a drop-down list of available entity sets from the service endpoint.
+|Token (Bearer / OAuth2)|The bearer token value (without the `Bearer ` prefix).
+|OData Entity Set|The OData entity set to query (e.g., `Products` or `Customers`).
+|Get Entity Sets|Calls the service root URL and fills the Entity Set drop-down from the catalog (`value[].name` in V4; `d.EntitySets` or similar in V2).
 |===
 
 == Query Options
 
-The OData Query tab allows you to configure filtering, ordering, and field selection properties.
+The OData Query tab appends standard OData system query options to the first request URL.
 
 image::transforms/odata-input-query-tab.png[OData input Query Tab, align="center"]
 
 [options="header"]
 |===
 |Option|Description
-|$select|A comma-separated list of properties to select (e.g., `UserName,FirstName,LastName`).
-|$filter|An OData expression to filter matching entities (e.g., `Gender eq 'Male'`).
-|$orderby|Specifies the sorting order of the results (e.g., `LastName asc, FirstName desc`).
-|$top|Limits the number of entities returned on each page request (e.g., `50`).
-|$skip|Specifies the number of entities to skip from the beginning of the list.
+|$select|A comma-separated list of properties to select (e.g., `ProductID,ProductName`).
+|$filter|An OData expression to filter matching entities (e.g., `ProductID le 3` or `Discontinued eq false`).
+|$orderby|Specifies the sorting order of the results (e.g., `ProductName asc`).
+|$top|Limits how many entities the *first* request asks for (e.g., `50`). Later pages still follow the service `nextLink` if one is returned.
+|$skip|Specifies the number of entities to skip from the beginning of the list on the first request.
 |===
+
+NOTE: There is no dedicated `$expand`, `$count`, or `$search` field. Complex nested collections are not exploded into extra rows.
 
 == Fields Mapping
 
@@ -89,19 +96,37 @@ image::transforms/odata-input-fields-tab.png[OData input Fields Tab, align="cent
 [options="header"]
 |===
 |Option|Description
-|Name in Hop|The name of the field as it will be produced in the Apache Hop pipeline.
-|OData Path|The JSON property path of the field within the entity JSON object (e.g., `UserName`, `AddressInfo/0/City/Name` for nested structures).
-|Type|The Hop data type (String, Integer, Number, Date, Boolean, BigNumber).
-|Format|Optional parsing format for date or numeric fields.
+|Name in Hop|The name of the field as it will be produced in the Apache Hop pipeline. Variables in the name are resolved at runtime.
+|OData Path|Slash-separated JSON object path within one entity (e.g., `ProductName`, or `Address/City` for a nested object). Array indexes such as `AddressInfo/0/City` are *not* supported.
+|Type|The Hop data type: String, Integer, Number, Date, Boolean, or BigNumber. Integer is read as a Long and Number as a Double. Other types, including BigNumber, are read as text.
+|Format|Optional conversion mask for date or numeric fields.
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
-|Get Fields|Connects to the `$metadata` endpoint of the OData service and automatically populates the fields list based on the selected Entity Set's schema properties.
+|Get Fields|Calls the service `$metadata` endpoint and populates the table from the selected Entity Set's CSDL `Property` elements (not navigation properties). Edm integers map to Integer, decimals/doubles to Number, booleans to Boolean, and date/time types to Date.
 |===
+
+[NOTE]
+====
+OData date/time values that fail to parse are emitted as `null` and do not abort the pipeline. If you need the original timestamp, map the property as *String*.
+====
+
+== Behaviour
+
+* Requests use `Accept: application/json`. Atom/XML payloads are not parsed as rows.
+* OData V4 responses use a `value` array. OData V2 uses `d.results`, a `d` array, or a single `d` object.
+* When a page includes `@odata.nextLink` or `__next`, the transform keeps fetching until the service stops paging. Relative next-link URLs are resolved against the previous request.
+* A non-200 HTTP status fails the transform.
+* *Get Entity Sets* and *Get Fields* can be used more than once in the same Hop Gui session.
 
 == Example
 
-To query a public OData service:
-1. Set the **Service Root URL** to `https://services.odata.org/V4/TripPinServiceRW/`.
-2. Set the **Entity Set** to `People`.
-3. Go to the **Fields** tab and click **Get Fields** to pull all metadata fields (`UserName`, `FirstName`, `LastName`, etc.).
-4. (Optional) In the **OData Query** tab, add a `$filter` such as `FirstName eq 'John'` or a `$select` of `UserName,Emails`.
-5. Run the pipeline to stream entities into downstream transforms.
+To query the public Northwind OData V4 service:
+
+. Set the *Service Root URL* to `https://services.odata.org/V4/Northwind/Northwind.svc`.
+. Click *Get Entity Sets* and choose `Products`, or type `Products`.
+. Open the *Fields* tab and click *Get Fields*, or add `ProductID` (Integer) and `ProductName` (String) yourself.
+. Optionally, on *OData Query*, set `$select` to `ProductID,ProductName`, `$filter` to `ProductID le 3`, `$orderby` to `ProductID`, and `$top` to `3`.
+. Preview or run the pipeline. The first three products are Chai, Chang, and Aniseed Syrup.
+
+Sample pipeline (Samples project):
+
+link:https://github.com/apache/hop/blob/main/plugins/transforms/odata/src/main/samples/transforms/odata-input-northwind.hpl[odata-input-northwind.hpl]

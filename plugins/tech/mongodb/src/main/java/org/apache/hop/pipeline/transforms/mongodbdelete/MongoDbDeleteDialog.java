@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.bson.Document;
 import org.eclipse.swt.SWT;
@@ -341,7 +342,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     // get fields but
     wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);

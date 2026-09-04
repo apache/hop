@@ -17,15 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.janino.editor;
 
+import java.util.Collections;
 import java.util.List;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
@@ -51,13 +58,17 @@ import org.eclipse.swt.widgets.TreeItem;
 public class FormulaEditor extends Dialog implements KeyListener {
   public static final Class<?> PKG = JaninoMeta.class;
 
+  private static final int DEFAULT_WIDTH = 900;
+  private static final int DEFAULT_HEIGHT = 700;
+
   private Shell shell;
   private Tree tree;
   private SashForm sashForm;
-  private StyledTextComp expressionEditor;
+  private TextComposite expressionEditor;
   private String formula;
   private Browser message;
   private FunctionLib functionLib;
+  private List<FunctionDescription> extraEntries;
 
   private Button ok;
   private Button cancel;
@@ -77,8 +88,24 @@ public class FormulaEditor extends Dialog implements KeyListener {
   public FormulaEditor(
       IVariables variables, Shell parent, int style, String formula, List<String> inputFields)
       throws HopException {
+    this(variables, parent, style, formula, inputFields, Collections.emptyList());
+  }
+
+  /**
+   * @param extraEntries entries to show in the tree on top of the scanned functions, e.g. the
+   *     example conditions of the Java Filter
+   */
+  public FormulaEditor(
+      IVariables variables,
+      Shell parent,
+      int style,
+      String formula,
+      List<String> inputFields,
+      List<FunctionDescription> extraEntries)
+      throws HopException {
     super(parent, style);
     this.formula = formula;
+    this.extraEntries = extraEntries;
 
     // Run it in a new shell:
     //
@@ -91,6 +118,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     formLayout.marginWidth = 5;
     formLayout.marginHeight = 5;
     shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "FormulaEditor.Shell.Title"));
 
     // At the bottom we have a few buttons...
     //
@@ -222,12 +250,25 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
     // An expression editor on the right
     //
-    expressionEditor =
-        new StyledTextComp(
-            variables,
-            rightSash,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            TextComposite.STYLE_TYPE_FORMULA);
+    // The expression is Java, so it gets the Java highlighting. Hop Web runs on RWT, which has no
+    // StyledText: there the editor is the plain variant with the same style type.
+    //
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      expressionEditor =
+          new StyledTextComp(
+              variables,
+              rightSash,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              TextComposite.STYLE_TYPE_JAVA);
+    } else {
+      expressionEditor =
+          new JavaStyledTextComp(
+              variables,
+              rightSash,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      expressionEditor.addLineStyleListener();
+    }
+    PropsUi.setLook(expressionEditor, Props.WIDGET_STYLE_FIXED);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);
@@ -242,7 +283,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     fdMessage.bottom = new FormAttachment(0, 100);
     message.setLayoutData(fdMessage);
 
-    rightSash.setWeights(new int[] {10, 80});
+    rightSash.setWeights(new int[] {40, 60});
     sashForm.setWeights(new int[] {15, 85});
 
     red = new Color(shell.getDisplay(), 255, 0, 0);
@@ -266,7 +307,11 @@ public class FormulaEditor extends Dialog implements KeyListener {
   }
 
   public String open() {
-    shell.layout();
+    // The default size only applies the first time: setSize() restores the geometry saved when the
+    // dialog was last closed, and no minimum is imposed on it so a smaller size the user picked is
+    // honoured as well.
+    shell.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    BaseTransformDialog.setSize(shell, -1, -1);
     shell.open();
 
     // Detect X or ALT-F4 or something that kills this window...
@@ -288,16 +333,29 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   public void ok() {
     formula = expressionEditor.getText();
-    shell.dispose();
+    dispose();
   }
 
   public void cancel() {
     formula = null;
+    dispose();
+  }
+
+  /** Remember the geometry chosen by the user so the next opening restores it. */
+  private void dispose() {
+    WindowProperty winprop = new WindowProperty(shell);
+    PropsUi props = PropsUi.getInstance();
+    props.setSessionScreen(winprop);
+    props.setScreen(winprop);
+
     shell.dispose();
   }
 
   public void readFunctions() throws HopException {
     functionLib = new FunctionLib();
+    if (extraEntries != null) {
+      functionLib.addFunctions(extraEntries);
+    }
     categories = functionLib.getFunctionCategories();
   }
 

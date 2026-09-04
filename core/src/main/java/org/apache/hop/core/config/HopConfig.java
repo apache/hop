@@ -59,23 +59,27 @@ public class HopConfig extends ConfigFile {
     return instance;
   }
 
-  public synchronized void saveOption(String optionKey, Object optionValue) {
-    try {
-      HopConfig hopConfig = getInstance();
-      hopConfig.configMap.put(optionKey, optionValue);
-      saveToFile();
-    } catch (Exception e) {
-      throw new HopRuntimeException("Error saving configuration option '" + optionKey + "'", e);
+  public void saveOption(String optionKey, Object optionValue) {
+    synchronized (CONFIG_LOCK) {
+      try {
+        HopConfig hopConfig = getInstance();
+        hopConfig.configMap.put(optionKey, optionValue);
+        saveToFile();
+      } catch (Exception e) {
+        throw new HopRuntimeException("Error saving configuration option '" + optionKey + "'", e);
+      }
     }
   }
 
-  public static synchronized void saveOptions(Map<String, Object> extraOptions) {
-    try {
-      HopConfig hopConfig = getInstance();
-      hopConfig.configMap.putAll(extraOptions);
-      hopConfig.saveToFile();
-    } catch (Exception e) {
-      throw new HopRuntimeException("Error saving configuration options", e);
+  public static void saveOptions(Map<String, Object> extraOptions) {
+    synchronized (CONFIG_LOCK) {
+      try {
+        HopConfig hopConfig = getInstance();
+        hopConfig.configMap.putAll(extraOptions);
+        hopConfig.saveToFile();
+      } catch (Exception e) {
+        throw new HopRuntimeException("Error saving configuration options", e);
+      }
     }
   }
 
@@ -142,26 +146,35 @@ public class HopConfig extends ConfigFile {
     }
   }
 
+  /**
+   * The GUI properties, which are a map inside the map that gets written to file.
+   *
+   * <p>Callers change the map they get back, so handing it out and writing the configuration have
+   * to take turns: a change landing halfway through serialising it left Jackson iterating a map
+   * that had moved under it.
+   */
   public static Map<String, String> readGuiProperties() {
-    try {
-      Object propertiesObject = getInstance().configMap.get(HOP_GUI_PROPERTIES_KEY);
-      if (propertiesObject == null) {
-        Map<String, String> map = new HashMap<>();
-        getInstance().configMap.put(HOP_GUI_PROPERTIES_KEY, map);
-        return map;
-      } else if (propertiesObject instanceof Map) {
-        @SuppressWarnings("unchecked")
-        Map<String, String> propertiesMap = (Map<String, String>) propertiesObject;
-        return propertiesMap;
-      } else {
-        // If the object is not a Map, create a new one and log a warning
-        System.err.println("Warning: GUI properties object is not a Map, creating new one");
-        Map<String, String> map = new HashMap<>();
-        getInstance().configMap.put(HOP_GUI_PROPERTIES_KEY, map);
-        return map;
+    synchronized (CONFIG_LOCK) {
+      try {
+        Object propertiesObject = getInstance().configMap.get(HOP_GUI_PROPERTIES_KEY);
+        if (propertiesObject == null) {
+          Map<String, String> map = new HashMap<>();
+          getInstance().configMap.put(HOP_GUI_PROPERTIES_KEY, map);
+          return map;
+        } else if (propertiesObject instanceof Map) {
+          @SuppressWarnings("unchecked")
+          Map<String, String> propertiesMap = (Map<String, String>) propertiesObject;
+          return propertiesMap;
+        } else {
+          // If the object is not a Map, create a new one and log a warning
+          System.err.println("Warning: GUI properties object is not a Map, creating new one");
+          Map<String, String> map = new HashMap<>();
+          getInstance().configMap.put(HOP_GUI_PROPERTIES_KEY, map);
+          return map;
+        }
+      } catch (Exception e) {
+        throw new HopRuntimeException("Error getting GUI properties from the Hop configuration", e);
       }
-    } catch (Exception e) {
-      throw new HopRuntimeException("Error getting GUI properties from the Hop configuration", e);
     }
   }
 
@@ -192,15 +205,21 @@ public class HopConfig extends ConfigFile {
   }
 
   public static void setGuiProperty(String key, String value) {
-    readGuiProperties().put(key, value);
+    synchronized (CONFIG_LOCK) {
+      readGuiProperties().put(key, value);
+    }
   }
 
   public static String getGuiProperty(String key) {
-    return readGuiProperties().get(key);
+    synchronized (CONFIG_LOCK) {
+      return readGuiProperties().get(key);
+    }
   }
 
   public static void setGuiProperties(Map<String, String> map) {
-    readGuiProperties().putAll(map);
+    synchronized (CONFIG_LOCK) {
+      readGuiProperties().putAll(map);
+    }
   }
 
   public void reload() {

@@ -96,7 +96,7 @@ docker run -d --name hop-server \
 `git pull` on the host updates the files the container sees.
 Restart the container after you change environment JSON or `hop-server.xml`.
 
-The xref:tech-manual::docker-container.adoc#_custom_entrypoint_extension_shell_script[custom entrypoint] example on the Docker page shows how to `git clone` (or `git pull`) inside the container at start if the host itself should not hold the clone.
+The xref:docker-container.adoc#_custom_entrypoint_extension_shell_script[custom entrypoint] example on the Docker page shows how to `git clone` (or `git pull`) inside the container at start if the host itself should not hold the clone.
 
 == Updating
 

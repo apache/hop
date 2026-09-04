@@ -74,7 +74,7 @@ public class DataGridDialog extends BaseTransformDialog {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
 
-    dataGridMeta = input.clone();
+    dataGridMeta = (DataGridMeta) input.clone();
   }
 
   @Override
@@ -264,13 +264,16 @@ public class DataGridDialog extends BaseTransformDialog {
     List<DataGridDataMeta> lines = dataGridMeta.getDataLines();
     wData = new TableView(variables, wDataComp, SWT.NONE, columns, lines.size(), lsMod, props);
     wData.setSortable(false);
+    // The data tab holds data rows: draw long / multi-line values shortened, the cell keeps the
+    // full value.
+    wData.setShortenDisplayedValues(true);
 
     for (int i = 0; i < lines.size(); i++) {
       DataGridDataMeta line = lines.get(i);
       TableItem item = wData.table.getItem(i);
 
       for (int f = 0; f < line.getDatalines().size(); f++) {
-        item.setText(f + 1, Const.NVL(line.getDatalines().get(f), ""));
+        wData.setCellValue(item, f + 1, Const.NVL(line.getDatalines().get(f), ""));
       }
     }
 
@@ -412,7 +415,8 @@ public class DataGridDialog extends BaseTransformDialog {
       DataGridDataMeta line = new DataGridDataMeta();
       TableItem item = wData.table.getItem(i);
       for (int f = 0; f < nrFields; f++) {
-        line.getDatalines().add(item.getText(f + 1));
+        // The cell is drawn shortened; the value itself comes back out of the grid.
+        line.getDatalines().add(TableView.getCellValue(item, f + 1));
       }
       data.add(line);
     }

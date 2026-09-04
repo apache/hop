@@ -1,0 +1,179 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+
+# Check that every marketplace plugin still works when a user installs it.
+#
+# Two failure modes, neither of which any other job here can see:
+#
+#   * a plugin zip that ships its dependencies but no plugin jar — an assembly
+#     <include> that matches no artifact produces exactly this, silently;
+#   * a plugin whose own classes reference a package that is on no classpath once
+#     installed, because a dependency was mis-scoped or dropped by a wildcard
+#     <exclusion> and so landed neither in the plugin's lib/ nor in lib/core.
+#
+# Both only fail in a user's install. Issue #8036 (hop-tech-parquet) was the second
+# kind: it worked only because another plugin happened to put the same Hadoop jars
+# in lib/core, and broke when that plugin left the default client.
+#
+# This job builds nothing. It downloads the published client and plugin zips and
+# checks those, which is why it costs about three minutes instead of a full
+# assembly build. The consequence is that it runs after a merge, not on a PR: a
+# pull request does not produce plugin zips (pr_build_code.yml passes
+# -Dassemblies=false -Dmodule.zips=false), so there is nothing for it to look at
+# until the nightly deploy publishes new snapshots.
+#
+# The client zip is the baseline, deliberately, and the container image is not. The
+# image is built from a client that has already had install-wave1-plugins.sh run
+# over it, so every plugin is present and each one can borrow the others' jars —
+# which is precisely how this class of bug hides.
+name: Marketplace plugin classpath
+
+on:
+  schedule:
+    # Snapshots are published by the "Hop Orchestration Platform" job, which deploys
+    # on merge rather than on a schedule — three to five times on a normal weekday.
+    # (The daily IT job runs `clean install` and publishes nothing, so its schedule
+    # is not what this job should track.) The fetch always resolves the newest
+    # snapshot from maven-metadata.xml, so a run is never stale relative to main; it
+    # is only ever as old as the last merge. Two slots keep the worst-case delay at
+    # about twelve hours: midday catches the European morning's merges, late evening
+    # catches the rest of the day.
+    - cron: '0 12,22 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to check (default: this branch''s project version, e.g. 2.20.0-SNAPSHOT). A release like 2.19.0 checks what users actually downloaded.'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: marketplace-classpath-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check marketplace plugin zips
+    runs-on: ubuntu-latest
+    env:
+      # The nightly integration-test run's test report. "lastCompletedBuild" keeps the
+      # links current without plumbing build numbers between two CI systems. The API
+      # hangs off this root, while the human-readable per-suite pages sit one level
+      # down under "(root)" — that segment is required for the pages and must not be
+      # used for the API.
+      IT_REPORT_ROOT: 'https://ci-builds.apache.org/job/Hop/job/Hop-integration-tests/lastCompletedBuild/testReport'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # jdeps is a JDK tool: a JRE does not have it.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Resolve version
+        id: version
+        run: |
+          set -euo pipefail
+          version='${{ github.event.inputs.version }}'
+          if [ -z "$version" ]; then
+            # -N keeps this to the root pom rather than loading the whole reactor.
+            version=$(mvn -N -q -DforceStdout help:evaluate -Dexpression=project.version)
+          fi
+          [ -n "$version" ] || { echo "could not determine the project version"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "checking $version"
+
+      # Releases come from the ASF dist archive, snapshots from the snapshot
+      # repository. The plugin list is read from the client's own
+      # full-client-env.yaml, so the list and the baseline are always the same
+      # build.
+      - name: Download client and marketplace plugin zips
+        run: |
+          ./tools/fetch-apache-marketplace.sh \
+            --version '${{ steps.version.outputs.version }}' \
+            --dest "$RUNNER_TEMP/marketplace"
+
+      # A renamed integration-test project silently turns a report link into a 404,
+      # which reads as "covered" when it is not. Warn rather than fail: Jenkins being
+      # unreachable says nothing about the plugin zips this job is here to check.
+      # Derived from optional-plugins.yaml and the integration-tests/ directories, so
+      # a new plugin whose IT project follows the naming convention is picked up
+      # without editing anything.
+      - name: Pair plugins with their integration-test projects
+        run: |
+          ./tools/marketplace-it-suites.sh | tee "$RUNNER_TEMP/it-suites.txt"
+
+      - name: Verify the integration-test suite names still exist
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          suites=$(curl -fsSL --max-time 60 \
+            "$IT_REPORT_ROOT/api/json?tree=suites\[name\]" | tr ',' '\n' |
+            sed -n 's/.*"name":"\([^"]*\)".*/\1/p' | sort -u)
+          if [ -z "$suites" ]; then
+            echo "::warning::could not read the Jenkins test report; skipping the link check"
+            exit 0
+          fi
+          missing=0
+          while read -r plugin suite; do
+            case "$plugin" in ''|\#*) continue ;; esac
+            if ! printf '%s\n' "$suites" | grep -qxF "$suite"; then
+              echo "::warning::$plugin maps to integration-test suite '$suite', which is not in the latest run"
+              missing=$((missing + 1))
+            fi
+          done < "$RUNNER_TEMP/it-suites.txt"
+          echo "$missing stale mapping(s)"
+
+      - name: Check
+        run: |
+          ./tools/check-plugin-classpath.sh \
+            --client "$RUNNER_TEMP/marketplace/client.zip" \
+            --plugins "$RUNNER_TEMP/marketplace/plugins.txt" \
+            --label '${{ steps.version.outputs.version }}' \
+            --junit reports/marketplace-classpath.xml \
+            --report reports/summary.md \
+            --it-suites "$RUNNER_TEMP/it-suites.txt" \
+            --it-base "$IT_REPORT_ROOT/(root)"
+
+      # Rendered on the run's summary page, so the per-plugin status is the first
+      # thing a reader sees rather than something buried in the log.
+      - name: Publish summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      # Proves the check can still fail. Without this a packaging change that makes
+      # every plugin unanalysable would show up as a green run.
+      - name: Self test
+        run: |
+          ./tools/check-plugin-classpath.sh \
+            --client "$RUNNER_TEMP/marketplace/client.zip" \
+            --plugins "$RUNNER_TEMP/marketplace/plugins.txt" \
+            --label '${{ steps.version.outputs.version }}' \
+            --self-test
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marketplace-classpath-report
+          path: reports/
+          if-no-files-found: ignore

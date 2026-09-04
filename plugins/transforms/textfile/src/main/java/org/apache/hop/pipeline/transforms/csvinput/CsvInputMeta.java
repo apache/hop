@@ -201,32 +201,6 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     this.bufferSize = "50000";
   }
 
-  public CsvInputMeta(CsvInputMeta m) {
-    this();
-    this.addResult = m.addResult;
-    this.bufferSize = m.bufferSize;
-    this.delimiter = m.delimiter;
-    this.enclosure = m.enclosure;
-    this.encoding = m.encoding;
-    this.filename = m.filename;
-    this.filenameField = m.filenameField;
-    this.headerPresent = m.headerPresent;
-    this.ignoreFields = m.ignoreFields;
-    this.includingFilename = m.includingFilename;
-    this.lazyConversionActive = m.lazyConversionActive;
-    this.newlinePossibleInFields = m.newlinePossibleInFields;
-    this.rowNumField = m.rowNumField;
-    this.runningInParallel = m.runningInParallel;
-    this.schemaDefinition = m.schemaDefinition;
-    this.namingScheme = m.namingScheme;
-    m.inputFields.forEach(field -> this.inputFields.add(new CsvInputField(field)));
-  }
-
-  @Override
-  public CsvInputMeta clone() {
-    return new CsvInputMeta(this);
-  }
-
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -338,6 +312,15 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     } catch (Exception e) {
       throw new HopTransformException(e);
     }
+  }
+
+  /**
+   * {@link org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta} declares a covariant
+   * clone(), so this override is required even though it only delegates.
+   */
+  @Override
+  public CsvInputMeta clone() {
+    return (CsvInputMeta) super.clone();
   }
 
   @Override

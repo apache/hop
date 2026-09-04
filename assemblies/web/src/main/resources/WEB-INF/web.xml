@@ -51,6 +51,17 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!-- RBAC for the embedded Hop Server API. Runs after the auth filters so the principal is set.
+         No-op in mode NONE; enforces endpoint permissions in EXTERNAL / BASIC / OAUTH2. -->
+    <filter>
+        <filter-name>HopServerAuthorization</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopServerAuthorizationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HopServerAuthorization</filter-name>
+        <url-pattern>/hop/*</url-pattern>
+    </filter-mapping>
+
     <servlet>
         <servlet-name>HopGui</servlet-name>
         <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
@@ -81,6 +92,21 @@
     <servlet-mapping>
         <servlet-name>Server</servlet-name>
         <url-pattern>/hop/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- The JSON API. Mapped on a longer prefix than the Server servlet above, so it wins. -->
+    <servlet>
+        <servlet-name>HopApi</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>jakarta.ws.rs.Application</param-name>
+            <param-value>org.apache.hop.www.api.HopApiApplication</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HopApi</servlet-name>
+        <url-pattern>/hop/api/v1/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

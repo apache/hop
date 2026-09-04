@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
@@ -195,7 +194,7 @@ public class GitPerspective implements IHopPerspective {
 
   public static final String OPTION_SHOW_ALL_REF = "Git.ShowAllRef";
 
-  @Getter private static GitPerspective instance;
+  private static GitPerspective instance;
 
   private HopGui hopGui;
   private SashForm wSashForm;
@@ -227,6 +226,18 @@ public class GitPerspective implements IHopPerspective {
 
   public GitPerspective() {
     instance = this;
+  }
+
+  public static GitPerspective getInstance() {
+    try {
+      GitPerspective fromGui = HopGui.findSessionPerspective(GitPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   @Override
@@ -392,12 +403,24 @@ public class GitPerspective implements IHopPerspective {
           boolean isRemotes = ref.getName().startsWith(Constants.R_REMOTES);
           boolean isTags = ref.getName().startsWith(Constants.R_TAGS);
 
+          // The default branch of the remote is off limits, renaming or deleting it breaks the
+          // repository for everyone. The remote is the one enforcing this, we only keep the
+          // obvious mistake out of reach.
+          //
+          boolean isProtectedRemote =
+              isRemotes && GitGuiPlugin.getInstance().getGit().isRemoteHead(ref.getName());
+
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_CHECKOUT, !isCurrentBranch);
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PUSH, isHeads || isTags);
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PULL, isHeads);
-          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_RENAME, isHeads);
           setMenuItemEnabled(
-              refMenuWidgets, REF_CONTEXT_MENU_DELETE, !isCurrentBranch && (isHeads || isTags));
+              refMenuWidgets,
+              REF_CONTEXT_MENU_RENAME,
+              isHeads || (isRemotes && !isProtectedRemote));
+          setMenuItemEnabled(
+              refMenuWidgets,
+              REF_CONTEXT_MENU_DELETE,
+              !isCurrentBranch && (isHeads || isTags || (isRemotes && !isProtectedRemote)));
 
           MenuItem menuItem = refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_CREATE_BRANCH);
           if (menuItem != null) {
@@ -467,6 +490,11 @@ public class GitPerspective implements IHopPerspective {
                 fileMenuWidgets,
                 FILE_CONTEXT_MENU_SHOW_GRAPH_DIFF,
                 FileTypeUtils.isHopFileType(path));
+            // Reverting a file puts back the version of the commit's parent, which a root commit
+            // does not have and a merge commit has more than one of
+            setMenuItemEnabled(
+                fileMenuWidgets, FILE_CONTEXT_MENU_REVERT, commit.getParentCount() == 1);
+            setMenuItemEnabled(fileMenuWidgets, FILE_CONTEXT_MENU_CHERRY_PICK, true);
           } else {
             event.doit = false;
           }
@@ -842,25 +870,69 @@ public class GitPerspective implements IHopPerspective {
     RevCommit commit = getSelectedCommit();
     String path = getSelectedFile();
 
-    if (path == null || commit == null) {
+    if (path == null || commit == null || commit.getParentCount() != 1) {
+      return;
+    }
+
+    UIGit git = GitGuiPlugin.getInstance().getGit();
+    String commitId = commit.getId().name();
+
+    // Undo what the commit did to the file: put back the version of its parent
+    //
+    String parentCommitId = git.getParentCommitId(commitId);
+    if (parentCommitId == null) {
+      return;
+    }
+
+    if (!confirmFileAction(
+        "GitPerspective.Dialog.RevertFile.Header",
+        "GitPerspective.Dialog.RevertFileConfirmation.Message",
+        path,
+        git.getShortenedName(commitId))) {
       return;
     }
 
     try {
-      Git git = GitGuiPlugin.getInstance().getGit().getGit();
-      String commitId = commit.getId().name();
+      git.restorePathFromCommit(path, parentCommitId);
 
-      git.checkout().setStartPoint(commitId).addPath(path).call();
-
-      git.commit().setMessage("Revert " + path + " to version from " + commitId).call();
+      commitFileAction(
+          git,
+          path,
+          BaseMessages.getString(
+              PKG,
+              "GitPerspective.RevertFile.CommitMessage",
+              path,
+              git.getShortenedName(commitId)));
 
       refresh(true);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFile.Header"),
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.RevertFile.Header"),
           BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFileError.Message"),
           e);
+    }
+  }
+
+  /** Ask before a file action rewrites a file and commits it. */
+  private boolean confirmFileAction(String headerKey, String messageKey, String path, String name) {
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    dialog.setText(BaseMessages.getString(PKG, headerKey));
+    dialog.setMessage(BaseMessages.getString(PKG, messageKey, path, name));
+    return dialog.open() == SWT.YES;
+  }
+
+  /**
+   * Commit a single file, and say so when the file already held the content it was going to be
+   * given: git has nothing to commit then.
+   */
+  private void commitFileAction(UIGit git, String path, String message) throws HopException {
+    if (!git.commitPath(path, git.getAuthorName(VCS.WORKINGTREE), message)) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "GitPerspective.Dialog.FileUnchanged.Header"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.FileUnchanged.Message", path));
+      box.open();
     }
   }
 
@@ -933,26 +1005,42 @@ public class GitPerspective implements IHopPerspective {
     RevCommit commit = getSelectedCommit();
     String path = getSelectedFile();
 
-    if (commit != null && path != null) {
-      try {
-        Git git = GitGuiPlugin.getInstance().getGit().getGit();
+    if (commit == null || path == null) {
+      return;
+    }
 
-        String commitId = commit.getId().name();
+    UIGit git = GitGuiPlugin.getInstance().getGit();
+    String commitId = commit.getId().name();
 
-        git.checkout().setStartPoint(commitId).addPath(path).call();
+    if (!confirmFileAction(
+        "GitPerspective.Dialog.CherryPickFile.Header",
+        "GitPerspective.Dialog.CherryPickFileConfirmation.Message",
+        path,
+        git.getShortenedName(commitId))) {
+      return;
+    }
 
-        git.add().addFilepattern(path).call();
+    try {
+      // Take the file the way the commit left it
+      //
+      git.restorePathFromCommit(path, commitId);
 
-        git.commit().setMessage("Cherry-pick " + path + " from commit " + commitId).call();
+      commitFileAction(
+          git,
+          path,
+          BaseMessages.getString(
+              PKG,
+              "GitPerspective.CherryPickFile.CommitMessage",
+              path,
+              git.getShortenedName(commitId)));
 
-        refresh(true);
-      } catch (Exception e) {
-        new ErrorDialog(
-            getShell(),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommit.Header"),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommitError.Message"),
-            e);
-      }
+      refresh(true);
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.CherryPickFile.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommitError.Message"),
+          e);
     }
   }
 
@@ -1221,6 +1309,15 @@ public class GitPerspective implements IHopPerspective {
   public void renameReference() {
     Ref ref = this.getSelectedReference();
     if (ref != null) {
+      boolean isRemote = ref.getName().startsWith(Constants.R_REMOTES);
+      if (!isRemote && !ref.getName().startsWith(Constants.R_HEADS)) {
+        // Only branches can be renamed
+        return;
+      }
+      if (isRemote && GitGuiPlugin.getInstance().getGit().isRemoteHead(ref.getName())) {
+        return;
+      }
+
       UIGit git = GitGuiPlugin.getInstance().getGit();
       String oldName = git.getShortenedName(ref.getName());
 
@@ -1235,7 +1332,9 @@ public class GitPerspective implements IHopPerspective {
               case SWT.CR, SWT.KEYPAD_CR:
                 String newName = text.getText().trim();
                 if (!Utils.isEmpty(newName) && !newName.equals(oldName)) {
-                  if (git.renameBranch(oldName, newName)) {
+                  if (isRemote) {
+                    renameRemoteBranch(ref, oldName, newName);
+                  } else if (git.renameBranch(oldName, newName)) {
 
                     // If we rename the active branch
                     if (newName.equals(git.getBranch())) {
@@ -1276,6 +1375,8 @@ public class GitPerspective implements IHopPerspective {
     if (ref != null) {
       if (ref.getName().startsWith(Constants.R_HEADS)) {
         deleteBranch(ref);
+      } else if (ref.getName().startsWith(Constants.R_REMOTES)) {
+        deleteRemoteBranch(ref);
       } else if (ref.getName().startsWith(Constants.R_TAGS)) {
         deleteTag(ref);
       }
@@ -1306,6 +1407,116 @@ public class GitPerspective implements IHopPerspective {
         refresh(false);
       }
     }
+  }
+
+  /**
+   * Delete a branch on the remote. The branch is gone for everyone once this is pushed, so ask
+   * first and name the remote in the question.
+   */
+  protected void deleteRemoteBranch(Ref ref) {
+    if (ref == null) {
+      return;
+    }
+    UIGit git = GitGuiPlugin.getInstance().getGit();
+    String name = git.getShortenedName(ref.getName());
+
+    // The default branch of the remote is protected against an accidental delete
+    if (git.isRemoteHead(ref.getName())) {
+      return;
+    }
+
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    dialog.setText(
+        BaseMessages.getString(
+            PKG, "GitGuiPlugin.Dialog.Branch.DeleteRemoteBranchConfirmation.Header"));
+    dialog.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "GitGuiPlugin.Dialog.Branch.DeleteRemoteBranchConfirmation.Message",
+            getBranchOnRemote(name),
+            getRemoteName(name)));
+
+    if (dialog.open() == SWT.YES) {
+      try {
+        git.deleteRemoteBranch(ref.getName());
+      } catch (Exception e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            e);
+      }
+
+      // Refresh refs and commit history
+      refresh(false);
+    }
+  }
+
+  /**
+   * Rename a branch on the remote. Git can't rename over the wire: the branch is pushed under its
+   * new name and the old one is deleted, so ask before doing it.
+   *
+   * @param ref the remote tracking ref of the branch
+   * @param oldName the current name including the remote, e.g. origin/feature
+   * @param newName the new name as typed by the user, with or without the remote prefix
+   */
+  private void renameRemoteBranch(Ref ref, String oldName, String newName) {
+    UIGit git = GitGuiPlugin.getInstance().getGit();
+
+    // The tree shows remote branches with their remote in front of them. Accept a new name with
+    // or without it, the branch is renamed on the same remote either way.
+    //
+    String remote = getRemoteName(oldName);
+    String newBranchName = newName.startsWith(remote + "/") ? getBranchOnRemote(newName) : newName;
+
+    if (Utils.isEmpty(newBranchName)
+        || !Repository.isValidRefName(Constants.R_HEADS + newBranchName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.InvalidName.Header"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.InvalidName.Message", newName));
+      box.open();
+      return;
+    }
+
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    dialog.setText(
+        BaseMessages.getString(
+            PKG, "GitGuiPlugin.Dialog.Branch.RenameRemoteBranchConfirmation.Header"));
+    dialog.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "GitGuiPlugin.Dialog.Branch.RenameRemoteBranchConfirmation.Message",
+            getBranchOnRemote(oldName),
+            newBranchName,
+            remote));
+
+    if (dialog.open() == SWT.YES) {
+      try {
+        git.renameRemoteBranch(ref.getName(), newBranchName);
+      } catch (Exception e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            e);
+      }
+
+      // Refresh refs and commit history
+      refresh(false);
+    }
+  }
+
+  /** The remote in a shortened remote branch name: origin/feature/hop gives origin. */
+  private static String getRemoteName(String shortenedName) {
+    int slashIndex = shortenedName.indexOf('/');
+    return slashIndex < 0 ? shortenedName : shortenedName.substring(0, slashIndex);
+  }
+
+  /** The branch name in a shortened remote branch name: origin/feature/hop gives feature/hop. */
+  private static String getBranchOnRemote(String shortenedName) {
+    int slashIndex = shortenedName.indexOf('/');
+    return slashIndex < 0 ? shortenedName : shortenedName.substring(slashIndex + 1);
   }
 
   protected void deleteTag(Ref ref) {
@@ -1512,12 +1723,14 @@ public class GitPerspective implements IHopPerspective {
     boolean isGitEnabled = git != null;
     boolean isCommitSelected = false;
     boolean isCommitInCurrentBranch = false;
+    boolean hasSingleParent = false;
 
     if (isGitEnabled) {
       RevCommit commit = getSelectedCommit();
       if (commit != null) {
         isCommitSelected = true;
         isCommitInCurrentBranch = isCommitInCurrentBranch(commit);
+        hasSingleParent = commit.getParentCount() == 1;
       }
     }
 
@@ -1537,7 +1750,10 @@ public class GitPerspective implements IHopPerspective {
     fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_SHOW_TEXT_DIFF, isFileSelected);
     fileToolBarWidgets.enableToolbarItem(
         TOOLBAR_ITEM_FILE_SHOW_GRAPH_DIFF, FileTypeUtils.isHopFileType(selectFile));
-    fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_REVERT, isFileSelected);
+    // Reverting a file puts back the version of the commit's parent, which a root commit does not
+    // have and a merge commit has more than one of
+    fileToolBarWidgets.enableToolbarItem(
+        TOOLBAR_ITEM_FILE_REVERT, isFileSelected && hasSingleParent);
     fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_CHERRY_PICK, isFileSelected);
   }
 

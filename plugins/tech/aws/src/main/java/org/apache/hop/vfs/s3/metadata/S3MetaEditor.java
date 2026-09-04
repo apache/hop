@@ -578,6 +578,6 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
   @Override
   public void save() throws HopException {
     super.save();
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
   }
 }

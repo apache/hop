@@ -1,0 +1,380 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[LintRules]]
+:imagesdir: ../assets/images
+:description: How Hop lint rules are written, which rules ship with Hop, and how a project switches them on, retunes them or adds its own.
+
+= Lint rules
+
+== Anatomy of a rule
+
+A rule names a *target*, a *field* on that target, and a *condition* the field has to satisfy.
+
+[source,yaml]
+----
+rules:
+  DB-001:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: DATABASE_CONNECTION
+    targetField: password
+    condition: NO_HARDCODED
+    name: "Hardcoded Database Password"
+    description: "Database connections must take the password from a variable"
+----
+
+The key (`DB-001`) is the rule id. Ids share one namespace across every installed rule pack, so a pack that is not Hop's own should prefix its ids.
+
+== Targets
+
+[cols="1,3", options="header"]
+|===
+|Target |Applies to
+
+|`PIPELINE`
+|The pipeline as a whole
+
+|`WORKFLOW`
+|The workflow as a whole
+
+|`TRANSFORM`
+|Every transform in a pipeline
+
+|`ACTION`
+|Every action in a workflow
+
+|`HOP`
+|Every hop between transforms or actions
+
+|`DATABASE_CONNECTION`
+|Relational database connections
+
+|`METADATA`
+|Any registered metadata type
+|===
+
+`METADATA` reaches run configurations, servers, REST connections, variable resolvers and anything a plugin registers, because types are resolved through the plugin registry rather than a fixed list.
+Scope such a rule with `appliesTo`, naming the metadata key — the folder name under `metadata/`:
+
+[source,yaml]
+----
+  ACME-SRV-001:
+    target: METADATA
+    appliesTo: [server]
+    targetField: password
+    condition: NO_HARDCODED
+    severity: ERROR
+    name: "Hop Server Password Not From a Variable"
+----
+
+`hop lint --list-metadata-types` prints the keys this installation has registered.
+
+== Conditions
+
+[cols="1,3", options="header"]
+|===
+|Condition |Passes when the field
+
+|`NOT_EMPTY`, `NOT_NULL`
+|has a value
+
+|`NOT_EMPTY_COLLECTION`
+|is a collection with at least one entry
+
+|`NO_HARDCODED`
+|is empty, or is a variable reference rather than a literal value
+
+|`MAX_VALUE`, `MIN_VALUE`, `EXACT_VALUE`
+|compares as required against `conditionValue`
+
+|`MAX_COLLECTION_SIZE`, `MIN_COLLECTION_SIZE`
+|is a collection of an acceptable size
+
+|`MATCHES_PATTERN`, `NOT_MATCHES_PATTERN`
+|does or does not match the regular expression in `conditionValue`
+
+|`CONTAINS`, `NOT_CONTAINS`, `STARTS_WITH`, `ENDS_WITH`
+|does or does not contain the text in `conditionValue`
+
+|`MUST_BE_TRUE`, `MUST_BE_FALSE`
+|is a boolean with the required value
+|===
+
+== Fields
+
+`targetField` is the name of a property on the target. Besides the properties Hop exposes, the linter computes a few of its own:
+
+[cols="1,3", options="header"]
+|===
+|Field |Meaning
+
+|`transformCount`, `actionCount`, `hopCount`
+|How many of each the file contains
+
+|`hasDisabledHops`
+|The file has at least one disabled hop
+
+|`hasOrphanedTransforms`, `hasOrphanedActions`
+|Something on the canvas is not connected to anything
+
+|`noteCount`, `hasNotes`
+|How many notes the canvas carries, and whether it carries any
+
+|`isReferenced`
+|Whether any other file in the project calls this pipeline or workflow. Only a project lint can answer this, see <<project-rules>>
+
+|`hasDefaultName`
+|The transform or action still carries its auto-generated name
+
+|`isDummy`
+|The transform is a Dummy
+
+|`isBlockingTransform`
+|The transform blocks until all rows have arrived
+|===
+
+Nested properties are reached with a dotted path:
+
+[source,yaml]
+----
+    targetField: fileSettings.fileName
+----
+
+Field names are resolved against the name Hop stores the property under, which is the name you see
+in the `.hpl` or `.hwf` file and in the metadata JSON.
+Rather than guessing, ask:
+
+[source,bash]
+----
+hop lint --list-fields TableInput
+----
+
+which prints every name a rule can use for that transform or action, with its type.
+
+== Checking more than one thing
+
+A rule which names a single `targetField` and `condition` reports whenever that one thing is wrong.
+Some problems are only worth reporting when several things are wrong together, and for those a rule takes an `allOf:` or an `anyOf:` block instead:
+
+[source,yaml]
+----
+  SQL-002:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: TRANSFORM
+    appliesTo:
+      - TableInput
+    allOf:
+      - targetField: sql
+        condition: MATCHES_PATTERN
+        conditionValue: "(?is).*\\bselect\\s+\\*.*"
+      - targetField: rowLimit
+        condition: NOT_EMPTY
+    name: "Unbounded SELECT *"
+    description: "A Table Input that selects every column and sets no row limit"
+----
+
+`allOf` reports only when *every* clause is broken, `anyOf` when *at least one* is.
+Each clause names its own field, condition and value, and the finding says which clauses were broken and what the values actually were.
+
+A rule with neither block behaves exactly as before, so nothing that was written against the single-condition form needs changing.
+
+[NOTE]
+====
+The rule manager in Hop Gui edits one condition, so it shows a composed rule's clauses but leaves them alone: name, severity and enabled can be changed there, the clauses are edited in `hop-lint.yml`.
+====
+
+== Narrowing a rule to one kind of transform
+
+A rule aimed at `TRANSFORM` runs against every transform in the pipeline.
+`appliesTo` restricts it to the plugin ids where the field means anything:
+
+[source,yaml]
+----
+  SQL-001:
+    type: custom
+    target: TRANSFORM
+    appliesTo:
+      - TableInput
+    targetField: sql
+    condition: NOT_MATCHES_PATTERN
+    conditionValue: "(?is).*\\bselect\\s+\\*.*"
+    name: "SELECT * in Table Input"
+----
+
+A scoped rule naming a field the transform does not have is reported as a configuration error rather than passing quietly, so that a typo in a field name is visible instead of looking like a clean result.
+
+== The rules Hop ships
+
+Hop's core rule pack is deliberately small. A rule is enabled by default only when a violation is defensible as a defect in any project, whatever the house style.
+
+[cols="1,1,3", options="header"]
+|===
+|Rule |Severity |Reports
+
+|`DB-001`
+|ERROR
+|A database connection with a hardcoded password
+
+|`SEC-002`
+|ERROR
+|A hardcoded secret on a transform
+
+|`SEC-003`
+|ERROR
+|A hardcoded secret on an action
+
+|`TRANS-002`
+|WARNING
+|A transform nothing is connected to
+
+|`WORKFLOW-002`
+|WARNING
+|An action nothing is connected to
+
+|`NAMING-004`
+|WARNING
+|A transform still carrying its auto-generated name
+|===
+
+A further set ships *disabled*, as worked examples of the format. Switch one on by id in your project's `hop-lint.yml`.
+
+[cols="1,3", options="header"]
+|===
+|Rule |Reports
+
+|`DOC-001`
+|A pipeline without a description
+
+|`DOC-002`
+|A workflow without a description
+
+|`DOC-003`
+|A pipeline with no notes on the canvas
+
+|`DOC-004`
+|A workflow with no notes on the canvas
+
+|`STRUCT-001`
+|A pipeline with more transforms than the configured ceiling
+
+|`STRUCT-002`
+|A workflow with more actions than the configured ceiling
+
+|`STRUCT-003`
+|A file containing disabled hops
+
+|`BEST-003`
+|A Dummy transform left in a pipeline
+
+|`NAMING-001`
+|A pipeline whose file name breaks the configured naming convention
+
+|`NAMING-002`
+|A workflow whose file name breaks the configured naming convention
+
+|`PERF-003`
+|A transform running more copies than the configured ceiling
+
+|`SQL-002`
+|A Table Input that selects every column and sets no row limit. The worked example of a multi-clause rule
+
+|`STRUCT-004`
+|A pipeline nothing in the project calls
+
+|`STRUCT-005`
+|A workflow nothing in the project calls
+|===
+
+[[project-rules]]
+=== Rules which need the whole project
+
+Most rules read one file. A few — those using `isReferenced` — answer a question the file cannot answer about itself: whether anything else in the project calls it.
+
+These are evaluated only when the linter is given a folder, because only then is there a project to look at.
+`hop lint <one file>` and the editor's lint-on-save skip them rather than guess; a rule that reported "nothing calls this" from a single file would be wrong every time.
+
+References are followed through the same mechanism Hop itself uses to export a project's resources, so a pipeline called from a third-party transform or action is seen without the linter knowing anything about that plugin.
+Where a reference is written through a variable the linter cannot resolve, the file name alone is matched.
+That can miss a dead file which happens to share a name with a live one, which is the safer way to be wrong: a linter that calls live code dead is one people switch off.
+
+`hop lint --list-rules` prints the effective set, with the pack each rule came from.
+
+== Configuring a project
+
+Put a `hop-lint.yml` in the project root. It holds overrides and project-local rules only, not a copy of the rule packs:
+
+[source,yaml]
+----
+rules:
+  # Switch on a rule the core pack ships disabled
+  DOC-001:
+    enabled: true
+    severity: ERROR
+
+  # Retune a threshold
+  STRUCT-001:
+    enabled: true
+    conditionValue: "30"
+
+  # A rule that exists only in this project
+  LOCAL-001:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: PIPELINE
+    targetField: description
+    condition: NOT_EMPTY
+    name: "Pipeline Description Required"
+----
+
+*Tools -> Lint -> Manage Custom Rules* writes this file for you.
+
+A parse error in `hop-lint.yml` is reported rather than ignored, so that a typo cannot leave you linting with the defaults while believing otherwise.
+
+== Excluding files, and accepting findings
+
+The same file decides what is out of scope.
+`exclude` keeps files out of the run entirely. `suppress` accepts a specific finding on the record, which is preferable to switching a rule off everywhere, because the decision stays visible and reviewable:
+
+[source,yaml]
+----
+exclude:
+  - "generated/**"
+  - "tests/**"
+
+suppress:
+  - rule: ACME-ENV-001
+    path: "legacy/**"
+    reason: "Legacy connections are pinned until the 2026 migration"
+  - rule: TRANS-002
+    source: "Reserved for phase 2"
+    reason: "Placeholder kept deliberately, agreed with the data team"
+----
+
+`path` and `source` narrow a suppression; leaving one out matches anything.
+A suppression has to name a rule and give a reason: without a rule it would silence everything, and without a reason nobody can review the decision later.
+Entries missing either are refused and logged rather than applied.
+
+Exclusions and suppressions apply in Hop Gui as well as on the command line.
+
+== How the effective rule set is built
+
+Rules are resolved by merging every installed rule pack in priority order, and then applying the project's `hop-lint.yml` on top.
+`hop lint --list-rules` prints the result.

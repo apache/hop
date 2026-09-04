@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -231,7 +231,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   private static final int FILTER_DEBOUNCE_MS = 250;
 
-  @Getter private static MetadataPerspective instance;
+  private static MetadataPerspective instance;
 
   private HopGui hopGui;
   private SashForm sash;
@@ -276,6 +276,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     instance = this;
 
     this.metadataFileType = new MetadataFileType();
+  }
+
+  public static MetadataPerspective getInstance() {
+    try {
+      MetadataPerspective fromGui = HopGui.findSessionPerspective(MetadataPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   /**
@@ -2165,8 +2177,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    */
   private static String toDisplayPath(String path, String projectHome) {
     if (!Utils.isEmpty(projectHome) && path.startsWith(projectHome)) {
-      String rel = path.substring(projectHome.length());
-      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
+      String rel = path.substring(projectHome.length()).replace(File.separatorChar, '/');
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : '/' + rel);
     }
     return path;
   }
@@ -3150,7 +3162,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         // by default. Seed each default-expanded node once per session so the default holds until
         // the user changes it.
         boolean defaultExpanded = "C".equals(path[0]) || "UC".equals(path[0]);
-        if (defaultExpanded && treeStateSeeded.add(String.join(" ", path))) {
+        if (defaultExpanded && treeStateSeeded.add(String.join("\0", path))) {
           TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
         }
         item.setExpanded(TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
@@ -3169,7 +3181,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     String[] path = treeMemoryPath(item);
     if (path != null) {
       TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, expanded);
-      treeStateSeeded.add(String.join(" ", path));
+      treeStateSeeded.add(String.join("\0", path));
     }
   }
 

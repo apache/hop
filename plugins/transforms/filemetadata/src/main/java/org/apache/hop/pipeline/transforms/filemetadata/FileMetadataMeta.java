@@ -71,15 +71,6 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     this.enclosureCandidates = new ArrayList<>();
   }
 
-  public FileMetadataMeta(FileMetadataMeta m) {
-    this();
-    this.fileName = m.fileName;
-    this.limitRows = m.limitRows;
-    this.defaultCharset = m.defaultCharset;
-    m.delimiterCandidates.forEach(c -> this.delimiterCandidates.add(new FMCandidate(c)));
-    m.enclosureCandidates.forEach(c -> this.enclosureCandidates.add(new FMCandidate(c)));
-  }
-
   /**
    * This method is called every time a new transform is created and should allocate/set the
    * transform configuration to sensible defaults. The values set here will be used by Spoon when a
@@ -100,18 +91,6 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     enclosureCandidates.clear();
     enclosureCandidates.add(new FMCandidate("\""));
     enclosureCandidates.add(new FMCandidate("'"));
-  }
-
-  /**
-   * This method is used when a transform is duplicated. It needs to return a deep copy of this
-   * object. Be sure to create proper deep copies if the transform configuration is stored in
-   * modifiable objects.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public FileMetadataMeta clone() {
-    return new FileMetadataMeta(this);
   }
 
   @Override

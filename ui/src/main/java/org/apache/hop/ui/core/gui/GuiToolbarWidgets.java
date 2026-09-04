@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.svg.SvgLabelFacade;
 import org.apache.hop.ui.core.widget.svg.SvgLabelListener;
+import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -265,6 +266,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         break;
       case TEXT:
         addWebToolbarText(toolbarItem, parent);
+        addWebToolbarGap(parent);
+        break;
       default:
         break;
     }
@@ -308,7 +311,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
     label.pack();
-    widgetsMap.put(toolbarItem.getId(), label);
+    register(toolbarItem, label);
     Listener listener = getListener(toolbarItem);
     label.addListener(SWT.MouseUp, listener);
   }
@@ -330,7 +333,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     Listener listener = getListener(toolbarItem);
     combo.addListener(SWT.Selection, listener);
     combo.addListener(SWT.DefaultSelection, listener);
-    widgetsMap.put(toolbarItem.getId(), combo);
+    register(toolbarItem, combo);
   }
 
   private void addWebToolbarText(GuiToolbarItem toolbarItem, Composite parent) {
@@ -351,7 +354,13 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     text.addListener(SWT.Selection, listener);
     text.addListener(SWT.DefaultSelection, listener);
     addTextEnterKeyListener(text, listener);
-    widgetsMap.put(toolbarItem.getId(), text);
+    register(toolbarItem, text);
+  }
+
+  private void addWebToolbarGap(Composite parent) {
+    Label spacer = new Label(parent, SWT.NONE);
+    PropsUi.setLook(spacer, Props.WIDGET_STYLE_TOOLBAR);
+    spacer.setLayoutData(new RowData(PropsUi.getMargin() * 2, 1));
   }
 
   /**
@@ -392,7 +401,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         new RowData(checkbox.getSize().x + toolbarItem.getExtraWidth(), SWT.DEFAULT));
     Listener listener = getListener(toolbarItem);
     checkbox.addListener(SWT.Selection, listener);
-    widgetsMap.put(toolbarItem.getId(), checkbox);
+    register(toolbarItem, checkbox);
   }
 
   private void addWebToolbarButtonToComposite(GuiToolbarItem toolbarItem, Composite parent) {
@@ -454,7 +463,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     composite.pack();
     composite.setLayoutData(new RowData(composite.getSize().x, composite.getSize().y));
 
-    widgetsMap.put(toolbarItem.getId(), composite);
+    register(toolbarItem, composite);
     textLabelMap.put(toolbarItem.getId(), textLabel);
 
     setToolItemKeyboardShortcutForComposite(composite, toolbarItem);
@@ -488,7 +497,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     labelSeparator.setWidth(label.getSize().x);
     labelSeparator.setControl(label);
     toolItemMap.put(toolbarItem.getId(), labelSeparator);
-    widgetsMap.put(toolbarItem.getId(), label);
+    register(toolbarItem, label);
     Listener listener = getListener(toolbarItem);
     label.addListener(SWT.MouseUp, listener);
   }
@@ -515,15 +524,25 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     combo.addListener(SWT.Selection, listener);
     combo.addListener(SWT.DefaultSelection, listener);
     toolItemMap.put(toolbarItem.getId(), comboSeparator);
-    widgetsMap.put(toolbarItem.getId(), combo);
+    register(toolbarItem, combo);
     PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
   }
 
   private void addToolbarText(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem textSeparator = new ToolItem(toolBar, SWT.SEPARATOR | SWT.BOTTOM);
+    int gap = PropsUi.getMargin() * 2;
+
+    Composite wrapper = new Composite(toolBar, SWT.NONE);
+    GridLayout layout = new GridLayout(1, false);
+    layout.marginWidth = 0;
+    layout.marginHeight = 0;
+    layout.marginRight = gap;
+    wrapper.setLayout(layout);
+    PropsUi.setLook(wrapper, Props.WIDGET_STYLE_TOOLBAR);
+
     Text text =
         new Text(
-            toolBar,
+            wrapper,
             SWT.SINGLE
                 | SWT.BORDER
                 | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT)
@@ -531,10 +550,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     text.setText(Const.NVL(toolbarItem.getDefaultText(), ""));
     text.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
-    text.pack();
-    // extra room for widget decorations
-    textSeparator.setWidth(200 + toolbarItem.getExtraWidth());
-    textSeparator.setControl(text);
+    text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
     Listener listener = getListener(toolbarItem);
     text.addListener(SWT.Selection, listener);
@@ -543,9 +559,13 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     // SEPARATOR. Explicit CR / KEYPAD_CR ensures Enter applies the filter (e.g. Execution
     // perspective).
     addTextEnterKeyListener(text, listener);
+
+    // Extra width is the input size; gap keeps the next item (often Highlight) from sitting flush
+    // against the field. widgetsMap still stores the Text so callers can read it directly.
+    textSeparator.setWidth(200 + toolbarItem.getExtraWidth() + gap);
+    textSeparator.setControl(wrapper);
     toolItemMap.put(toolbarItem.getId(), textSeparator);
-    widgetsMap.put(toolbarItem.getId(), text);
-    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
+    register(toolbarItem, text);
   }
 
   private void addToolbarCheckbox(GuiToolbarItem toolbarItem, ToolBar toolBar) {
@@ -562,7 +582,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     Listener listener = getListener(toolbarItem);
     checkbox.addListener(SWT.Selection, listener);
     toolItemMap.put(toolbarItem.getId(), checkboxSeparator);
-    widgetsMap.put(toolbarItem.getId(), checkbox);
+    register(toolbarItem, checkbox);
   }
 
   private void addToolbarButton(GuiToolbarItem toolbarItem, ToolBar toolBar) {
@@ -579,7 +599,21 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     item.addListener(SWT.Selection, listener);
     toolItemMap.put(toolbarItem.getId(), item);
     widgetsMap.put(toolbarItem.getId(), item.getParent());
+    TestIdFacade.set(item, toolbarItem.getId());
     setToolItemKeyboardShortcut(item, toolbarItem);
+  }
+
+  /**
+   * Remembers the widget that carries a toolbar item, and gives it the item's id in the browser.
+   *
+   * <p>The id is the one from the {@code GuiToolbarElement} annotation, which already names the
+   * toolbar it belongs to, so a test asks for the entry it means rather than for an icon at a
+   * position. It is not unique on its own: a graph toolbar exists once per open tab, so a caller
+   * outside takes the visible match.
+   */
+  private void register(GuiToolbarItem toolbarItem, Control widget) {
+    widgetsMap.put(toolbarItem.getId(), widget);
+    TestIdFacade.set(widget, toolbarItem.getId());
   }
 
   private String findImageFilename(GuiToolbarItem toolbarItem) {
@@ -693,7 +727,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     item.setWidth(composite.getSize().x);
     item.setControl(composite);
 
-    widgetsMap.put(toolbarItem.getId(), composite);
+    register(toolbarItem, composite);
     textLabelMap.put(toolbarItem.getId(), textLabel);
     toolItemMap.put(toolbarItem.getId(), item);
   }

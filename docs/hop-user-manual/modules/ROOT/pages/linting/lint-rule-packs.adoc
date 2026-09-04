@@ -1,0 +1,117 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[LintRulePacks]]
+:imagesdir: ../assets/images
+:description: Lint rule packs bundle a set of lint rules so they can be installed, shared and version controlled independently of Apache Hop.
+
+= Lint rule packs
+
+== Introduction
+
+A rule pack is a set of lint rules that ships and installs on its own.
+Packs exist so that policy can live outside Apache Hop: a company can hold its house style in a pack, a community can share a pack of best practices, and neither has to get their rules accepted into Hop itself to use them.
+
+Hop's own rules are a pack like any other, with the id `hop-core`.
+
+Writing a pack needs no Java. A pack is a folder and a YAML file, which is the whole extension mechanism — there is no Java API for individual rules.
+
+== Writing a pack
+
+Create a folder under `plugins/misc/` in your Hop installation, containing a `hop-lint-pack.yml`:
+
+[source,yaml]
+----
+pack:
+  id: acme
+  name: ACME Standard Lint Rules
+  owner: VENDOR
+  priority: 200
+
+rules:
+  ACME-001:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: DATABASE_CONNECTION
+    targetField: hostname
+    condition: NO_HARDCODED
+    name: "Hardcoded Database Hostname"
+----
+
+The rules themselves are written exactly as described in xref:linting/lint-rules.adoc[Lint rules].
+
+[cols="1,3", options="header"]
+|===
+|Key |Meaning
+
+|`id`
+|Identifies the pack. Appears in `hop lint --list-rules` next to each rule.
+
+|`name`
+|Display name, shown in Hop Gui.
+
+|`owner`
+|`APACHE`, `VENDOR` or `PROJECT`. Shown in Hop Gui so it is clear where a rule came from.
+
+|`priority`
+|Resolution order. Higher priority wins when packs are merged. Hop's core pack is `100`.
+
+|`overrides`
+|Rule ids from another pack that this pack deliberately replaces.
+|===
+
+== Rule ids and collisions
+
+Rule ids share one namespace across every installed pack, so prefix yours.
+
+Taking over another pack's rule id is refused unless the pack declares it:
+
+[source,yaml]
+----
+pack:
+  id: acme
+  priority: 200
+  overrides:
+    - DB-001        # deliberately replaces the core rule of that name
+----
+
+Without the declaration the incumbent rule stays and the collision is logged.
+The reason is that a pack could otherwise stand in for Hop's hardcoded-password rule with something weaker, and nothing would show that it had happened.
+
+== Installing a pack
+
+Copy the pack folder into `plugins/misc/` in your Hop installation and restart Hop Gui.
+The Hop log reports how many packs were discovered.
+
+Because a pack is a folder of text, it version controls and distributes like any other project: a git repository holding a `hop-lint-pack.yml` is a complete, shareable rule pack.
+
+== Overriding a pack's rules in a project
+
+A project never edits an installed pack. It overrides the rules it disagrees with in its own `hop-lint.yml`, which is applied last, on top of every pack:
+
+[source,yaml]
+----
+rules:
+  ACME-001:
+    severity: WARNING
+----
+
+This keeps the pack upgradeable: the project's decisions live with the project, and the pack can be replaced with a newer version without losing them.
+
+The rule manager in Hop Gui writes these overrides for you.
+Editing a pack rule there never changes the pack: a change to its severity, threshold or enabled state is written to `hop-lint.yml` as an override, and a change to what the rule actually looks at is written there as a complete rule which replaces the pack rule of that id.
+Pack rules cannot be deleted, only switched off.

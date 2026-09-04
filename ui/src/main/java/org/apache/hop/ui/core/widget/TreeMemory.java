@@ -19,9 +19,12 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.ui.core.ConstUi;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -32,19 +35,28 @@ import org.eclipse.swt.widgets.TreeItem;
 public class TreeMemory {
   private static TreeMemory treeMemory;
 
+  private static final Map<Display, TreeMemory> BY_DISPLAY = new ConcurrentHashMap<>();
+
   private Map<TreeMemoryEntry, Boolean> map;
 
   public static final TreeMemory getInstance() {
+    Display display = Display.getCurrent();
+    if (display != null && !display.isDisposed()) {
+      return BY_DISPLAY.computeIfAbsent(
+          display,
+          d -> {
+            d.addListener(SWT.Dispose, e -> BY_DISPLAY.remove(d));
+            return new TreeMemory();
+          });
+    }
     if (treeMemory != null) {
       return treeMemory;
     }
-
     treeMemory = new TreeMemory();
-
     return treeMemory;
   }
 
-  private TreeMemory() {
+  TreeMemory() {
     map = new Hashtable<>(100);
   }
 

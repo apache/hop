@@ -160,6 +160,8 @@ public final class ShowRowsDialog {
             null,
             PropsUi.getInstance());
     view.setShowingBlueNullValues(true);
+    // Data rows, not configuration: draw long / multi-line values shortened.
+    view.setShortenDisplayedValues(true);
     // Column sorting is enabled: items carry their full values, so a sort reorders complete rows.
     view.setSortable(true);
 
@@ -226,9 +228,9 @@ public final class ShowRowsDialog {
       }
 
       if (displayValue != null) {
-        // Store the full value: the grid shortens long / multi-line text at paint time, so what is
-        // copied, exported or read back out of the table stays complete.
-        item.setText(column + 1, displayValue);
+        // The cell holds the shortened, single-line text while the grid keeps the full value
+        // aside, so what is copied, expanded or read back out of the table stays complete.
+        tableView.setCellValue(item, column + 1, displayValue);
         item.setForeground(column + 1, GuiResource.getInstance().getColorBlack());
       } else {
         item.setText(column + 1, "<null>");

@@ -116,8 +116,8 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
       data.stt = true;
       data.sttMaxWaitTime = Const.toLong(resolve(meta.getBatchMaxWaitTime()), -1L);
       data.sttPipelineMeta = AzureListenerMeta.loadBatchPipelineMeta(meta, metadataProvider, this);
-      data.sttPipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       data.sttPipeline = new LocalPipelineEngine(data.sttPipelineMeta, this, this);
+      data.sttPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       data.sttPipeline.setParent(getPipeline());
       data.sttPipeline.setParentPipeline(getPipeline());
 

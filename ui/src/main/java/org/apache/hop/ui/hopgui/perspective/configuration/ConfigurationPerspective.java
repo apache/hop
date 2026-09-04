@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -111,10 +110,23 @@ public class ConfigurationPerspective implements IHopPerspective {
   private SearchMatcher searchMatcher = new SearchMatcher("", false, false, true);
   private Color highlightColor; // Custom neutral highlight color
   private Text searchBox;
-  @Getter private static ConfigurationPerspective instance;
+  private static ConfigurationPerspective instance;
 
   public ConfigurationPerspective() {
     instance = this;
+  }
+
+  public static ConfigurationPerspective getInstance() {
+    try {
+      ConfigurationPerspective fromGui =
+          HopGui.findSessionPerspective(ConfigurationPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   @Override

@@ -29,6 +29,8 @@ The Redshift Bulk Loader transform loads data from Apache Hop to AWS Redshift us
 
 TIP: make sure your target Redshift table has a layout that is compatible with Parquet data types, e.g. use `int8` instead of `int4` data types.
 
+TIP: binary stream fields are written as lowercase hex (no `\x` prefix), which is what Redshift `COPY` expects for `VARBYTE`.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -54,7 +56,9 @@ IMPORTANT: The Redshift Bulk Loader is linked to the database type. It will fetc
 |Connection|Name of the database connection on which the target table resides.
 |Target schema|The name of the target schema to write data to.
 |Target table|The name of the target table to write data to.
-|AWS Authentication a|choose which authentication method to use with the `COPY` command. Supported options are `AWS Credentials` and `IAM Role`. +
+|AWS Authentication a|choose which authentication method to use with the `COPY` command. Supported options are `Inherit from connection`, `Credentials` and `IAM Role`. +
+
+* `Inherit from connection` takes the AWS credentials from the Redshift connection selected above, so they only have to be configured in one place. The connection must use one of its IAM authentication options; one that signs in with a database user and password has no AWS credentials to lend. A connection pointing at a named profile or at the AWS default credentials chain is resolved when the pipeline runs, and a session token is passed along when the resulting credentials are temporary.
 
 * check the https://docs.aws.amazon.com/redshift/latest/dg/copy-usage_notes-access-permissions.html#copy-usage_notes-access-key-based[Key-based access control] for more information on the `Credentials` option.
 * check the https://docs.aws.amazon.com/redshift/latest/dg/copy-usage_notes-access-permissions.html#copy-usage_notes-access-role-based[IAM Role] docs for more information on the `IAM Role` option.
@@ -77,6 +81,43 @@ IMPORTANT: The Redshift Bulk Loader is linked to the database type. It will fetc
 |Load from existing file|do not stream the contents of the current pipeline, but perform the `COPY` load from a pre-existing file in S3. Suppoorted formats are `CSV` (comma delimited) and `Parquet`.
 |Copy into Redshift from existing file|path to the file in S3 to `COPY` load the data from.
 |===
+
+== The staging file
+
+When *Stream to S3 CSV* is enabled the transform writes the CSV named under
+*Copy into Redshift from file name/path* itself, and creates the folder it goes in when that does
+not exist yet. This matters on S3, where a prefix only exists for as long as an object sits under
+it: a brand new path would otherwise be refused before a single row was written.
+
+== JSON and SUPER columns
+
+A JSON field is written to the CSV file enclosed and escaped, the same as any text that could
+otherwise break the row -- JSON is full of commas and quotes, and Apache Hop pretty prints it
+across several lines by default.
+
+`COPY` parses the field into a real `SUPER` object, so `JSON_TYPEOF(payload)` returns `object`
+once the value has loaded.
+
+Two things surprise people when reading it back:
+
+* `payload::varchar` on a `SUPER` **object** is `NULL`. Use `JSON_SERIALIZE(payload)` to get the
+  JSON text.
+* Redshift folds unquoted `SUPER` attribute names to lower case unless
+  `enable_case_sensitive_super_attribute` is on, so `payload.myField` does not match a camelCase
+  key -- and quoting the attribute does not help while that setting is off.
+
+Addressing the value as text sidesteps both:
+
+[source,sql]
+----
+SELECT JSON_EXTRACT_PATH_TEXT(JSON_SERIALIZE(payload), 'myField') FROM my_table;
+----
+
+== Dates and timestamps
+
+Date and timestamp fields are written to the CSV file as ISO 8601 with milliseconds, `yyyy-MM-dd HH:mm:ss.SSS`, and the `COPY` statement declares `DATEFORMAT AS 'auto'` and `TIMEFORMAT AS 'auto'` to read them back. `auto` is used because the explicit `TIMEFORMAT` patterns have no token for fractional seconds.
+
+An Apache Hop `Date` carries a time of day just as a `Timestamp` does, so both are written whole and the target column decides what to keep: a `TIMESTAMP` column keeps the time, a `DATE` column truncates it.
 
 == Database fields
 

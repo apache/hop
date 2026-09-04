@@ -194,9 +194,7 @@ public class ActionTableExistsDialog extends ActionDialog {
       try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
-
         if (null != schemas && schemas.length > 0) {
-          schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   shell,
@@ -204,11 +202,10 @@ public class ActionTableExistsDialog extends ActionDialog {
                   BaseMessages.getString(
                       PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
                   BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
-          String d = dialog.open();
-          if (d != null) {
-            wSchemaname.setText(Const.NVL(d.toString(), ""));
+          String name = dialog.open();
+          if (name != null) {
+            wSchemaname.setText(name);
           }
-
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setMessage(

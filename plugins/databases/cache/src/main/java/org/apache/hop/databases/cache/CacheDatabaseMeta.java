@@ -22,6 +22,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -30,9 +31,16 @@ import org.apache.hop.core.row.IValueMeta;
     type = "CACHE",
     typeDescription = "InterSystems Cache",
     image = "intersystems.svg",
-    documentationUrl = "/database/databases/cache.html")
+    documentationUrl = "/database/databases/cache.html",
+    classLoaderGroup = "cache-db")
 @GuiPlugin(id = "GUI-CacheDatabaseMeta")
 public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** Cache limits rows with TOP, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
@@ -94,7 +102,7 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN ( "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false)
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN)
         + " ) ";
   }
 
@@ -132,7 +140,8 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

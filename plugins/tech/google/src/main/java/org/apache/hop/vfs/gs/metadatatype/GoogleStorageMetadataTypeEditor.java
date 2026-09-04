@@ -192,6 +192,6 @@ public class GoogleStorageMetadataTypeEditor extends MetadataEditor<GoogleStorag
   @Override
   public void save() throws HopException {
     super.save();
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
   }
 }

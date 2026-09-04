@@ -21,6 +21,8 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.validation.SchemaFactory;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.EnvUtil;
@@ -28,6 +30,14 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 public class XmlParserFactoryProducer {
+
+  /**
+   * Value for {@link XMLConstants#ACCESS_EXTERNAL_SCHEMA} that keeps schema resolution on the local
+   * file system. {@code xs:include} and {@code xs:import} of a local schema document still resolve,
+   * while a fetch over http, https or ftp is refused.
+   */
+  private static final String LOCAL_FILE_ACCESS_ONLY = "file";
+
   private XmlParserFactoryProducer() {
     // Static class
   }
@@ -106,6 +116,54 @@ public class XmlParserFactoryProducer {
     factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
+    return factory;
+  }
+
+  /**
+   * Creates an instance of {@link SchemaFactory} class with enabled {@link
+   * XMLConstants#FEATURE_SECURE_PROCESSING} property, external DTD access denied and external
+   * schema access restricted to the local file system.
+   *
+   * <p>Hardening the factory matters separately from hardening the {@link
+   * javax.xml.validation.Validator} it produces: the factory is what resolves the schema document
+   * itself, so without these restrictions a schema is free to pull in a DTD or another schema over
+   * the network before any validation begins.
+   *
+   * @param schemaLanguage the schema language URI, e.g. {@link XMLConstants#W3C_XML_SCHEMA_NS_URI}
+   * @throws SAXNotRecognizedException When the underlying parser does not recognize the property
+   *     name.
+   * @throws SAXNotSupportedException When the underlying parser recognizes the property name but
+   *     doesn't support the property.
+   */
+  public static SchemaFactory createSecureSchemaFactory(String schemaLanguage)
+      throws SAXNotRecognizedException, SAXNotSupportedException {
+    SchemaFactory factory = SchemaFactory.newInstance(schemaLanguage);
+    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, LOCAL_FILE_ACCESS_ONLY);
+
+    return factory;
+  }
+
+  /**
+   * Creates an instance of {@link XMLInputFactory} with DTD processing and external entity
+   * resolution disabled to protect against XML External Entity (XXE) attacks and XML entity
+   * expansion bombs.
+   *
+   * <p>{@link XMLConstants#ACCESS_EXTERNAL_DTD} and {@link XMLConstants#ACCESS_EXTERNAL_SCHEMA} are
+   * set when the StAX provider recognizes them. Woodstox (the factory on Hop's runtime classpath)
+   * does not, so those two calls are best-effort.
+   */
+  public static XMLInputFactory createSecureXmlInputFactory() {
+    XMLInputFactory factory = XMLInputFactory.newInstance();
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    try {
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    } catch (IllegalArgumentException e) {
+      // Property not supported by this StAX provider
+    }
     return factory;
   }
 }

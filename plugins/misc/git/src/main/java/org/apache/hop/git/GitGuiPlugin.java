@@ -54,6 +54,7 @@ import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.util.FileTypeUtils;
+import org.apache.hop.git.util.PreCommitCheck;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -64,6 +65,7 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileBeforeCommitExtension;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
@@ -123,19 +125,25 @@ public class GitGuiPlugin
   public static final String CONST_GIT = "git: ";
   public static final String CONST_S_S_S = "%s (%s -> %s)";
 
-  private static GitGuiPlugin instance;
-
-  private static UIGit git;
+  private UIGit git;
 
   @Getter private Map<String, UIFile> changedFiles;
 
   @Getter private Map<String, String> ignoredFiles;
 
+  private static GitGuiPlugin fallback;
+
   public static GitGuiPlugin getInstance() {
-    if (instance == null) {
-      instance = new GitGuiPlugin();
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(GitGuiPlugin.class, GitGuiPlugin::new);
     }
-    return instance;
+    synchronized (GitGuiPlugin.class) {
+      if (fallback == null) {
+        fallback = new GitGuiPlugin();
+      }
+      return fallback;
+    }
   }
 
   public GitGuiPlugin() {
@@ -235,10 +243,12 @@ public class GitGuiPlugin
             // Now stage/add the selected files and commit...
             //
             int[] selectedNrs = selectionDialog.getSelectionIndeces();
+            List<String> committedFiles = new ArrayList<>();
             for (int selectedNr : selectedNrs) {
               // If the file is gone, git.rm(), otherwise add()
               //
               String file = files[selectedNr];
+              committedFiles.add(file);
               if (fileExists(file)) {
                 git.add(file);
               } else {
@@ -246,13 +256,26 @@ public class GitGuiPlugin
               }
             }
 
-            // Standard author by default
+            // Let optional plugins refuse the commit, the way git's pre-commit hook can.
+            // The files stay staged when they do, again as git behaves.
             //
-            String authorName = git.getAuthorName(VCS.WORKINGTREE);
+            HopGuiFileBeforeCommitExtension preCommit =
+                PreCommitCheck.check(
+                    HopGui.getInstance().getLog(),
+                    HopGui.getInstance().getVariables(),
+                    git.getDirectory(),
+                    committedFiles);
+            if (preCommit.isCancelled()) {
+              showCommitRefused(preCommit.getCancelReason());
+            } else {
+              // Standard author by default
+              //
+              String authorName = git.getAuthorName(VCS.WORKINGTREE);
 
-            // Commit...
-            //
-            git.commit(authorName, message);
+              // Commit...
+              //
+              git.commit(authorName, message);
+            }
           }
         }
       }
@@ -268,6 +291,18 @@ public class GitGuiPlugin
           BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Message"),
           e);
     }
+  }
+
+  /** Tell the user a pre-commit listener refused the commit, and why. */
+  private void showCommitRefused(String reason) {
+    MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitRefused.Header"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "GitGuiPlugin.Dialog.CommitRefused.Message",
+            Const.NVL(reason, BaseMessages.getString(PKG, "GitGuiPlugin.CommitRefused.NoReason"))));
+    box.open();
   }
 
   @GuiMenuElement(

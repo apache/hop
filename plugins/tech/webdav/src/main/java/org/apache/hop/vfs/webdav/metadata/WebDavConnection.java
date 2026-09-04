@@ -41,7 +41,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     image = "ui/images/authentication.svg",
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/webdav-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.VFS_WEBDAV_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.VFS_WEBDAV_CONNECTION,
+    classLoaderGroup = "vfs-webdav")
 public class WebDavConnection extends HopMetadataBase implements Serializable, IHopMetadata {
 
   @HopMetadataProperty private String description;

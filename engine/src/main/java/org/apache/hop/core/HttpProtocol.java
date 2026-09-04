@@ -81,7 +81,7 @@ public class HttpProtocol {
           HttpClientManager.getInstance().createBuilder();
       clientBuilder.setCredentials(username, password);
       httpClient = clientBuilder.build();
-      HttpHost origin = HttpHost.create(URI.create(urlAsString));
+      HttpHost origin = HttpClientManager.createHttpHost(URI.create(urlAsString));
       HttpClientContext preemptive =
           HttpClientUtil.createPreemptiveBasicAuthentication(
               origin.getHostName(), origin.getPort(), username, password, origin.getSchemeName());

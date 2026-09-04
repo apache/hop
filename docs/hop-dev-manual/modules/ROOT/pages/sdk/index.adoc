@@ -14,6 +14,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-= Index Page
+:description: Driving Hop from your own Java code: initializing the API, loading metadata, and running pipelines and workflows.
+[[Sdk-Index]]
+= SDK
 
-* xref:sdk/hop-sdk.adoc[The Hop SDK]
+Hop is a set of Java libraries before it is a GUI or a command line tool, so a pipeline or workflow can be executed from your own application.
+
+* xref:sdk/hop-sdk.adoc[The Hop SDK] — initializing the API, plugin folders, metadata providers, variables, and running pipelines and workflows.
+
+Related:
+
+* xref:manual::hop-server/json-api.adoc[The Hop Server JSON API] — the same capability over HTTP, when embedding the libraries is not an option.
+* xref:architecture/execution-model.adoc[How a pipeline and a workflow run] — what the SDK is driving underneath.

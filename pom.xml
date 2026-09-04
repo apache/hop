@@ -107,6 +107,7 @@
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <grpc.version>1.83.1</grpc.version>
+        <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jandex.version>3.6.0</jandex.version>
@@ -147,6 +148,7 @@
             --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED
             --add-exports java.base/sun.nio.ch=ALL-UNNAMED</maven-surefire-plugin.argLine>
         <maven-surefire-plugin.forkCount>1</maven-surefire-plugin.forkCount>
+        <maven-surefire-plugin.forkedProcessTimeoutInSeconds>0</maven-surefire-plugin.forkedProcessTimeoutInSeconds>
         <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
         <maven-surefire-plugin.testFailureIgnore>false</maven-surefire-plugin.testFailureIgnore>
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
@@ -400,6 +402,7 @@
                                 -DHOP_AUDIT_FOLDER=${project.build.directory}/audit
                                 ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
+                            <forkedProcessTimeoutInSeconds>${maven-surefire-plugin.forkedProcessTimeoutInSeconds}</forkedProcessTimeoutInSeconds>
                             <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
                             <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
                             <groups>${ui.test.includedGroups}</groups>
@@ -633,7 +636,6 @@
                 <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
-                <module>rest</module>
                 <module>ui</module>
             </modules>
         </profile>
@@ -647,6 +649,20 @@
             </activation>
             <modules>
                 <module>assemblies</module>
+            </modules>
+        </profile>
+        <!-- Selenium tests that drive Hop Web in a container. Opt-in: they need Docker
+             and take minutes, so they stay out of the normal build. Run them with
+             mvn -Pwebtest -pl web-tests test -->
+        <profile>
+            <id>webtest</id>
+            <activation>
+                <property>
+                    <name>webtest</name>
+                </property>
+            </activation>
+            <modules>
+                <module>web-tests</module>
             </modules>
         </profile>
         <profile>
@@ -769,11 +785,23 @@
                 </dependencies>
             </dependencyManagement>
         </profile>
+        <!-- uitest: run ONLY @Tag("uitest") classes (needs a display).
+             skip-uitest: exclude them from the reactor run.
+             Default (neither): include them whenever a display is available.
+             On a desktop wrap Maven with tools/with-isolated-display.sh so the
+             shells do not steal the interactive session. -->
         <profile>
             <id>uitest</id>
             <properties>
+                <maven-surefire-plugin.forkedProcessTimeoutInSeconds>1200</maven-surefire-plugin.forkedProcessTimeoutInSeconds>
                 <ui.test.excludedGroups></ui.test.excludedGroups>
                 <ui.test.includedGroups>uitest</ui.test.includedGroups>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-uitest</id>
+            <properties>
+                <ui.test.excludedGroups>uitest</ui.test.excludedGroups>
             </properties>
         </profile>
         <profile>
@@ -859,7 +887,7 @@
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
                             <!-- Comma-separated Ant patterns (single excludes element). -->
-                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,hop-rest/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
+                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>

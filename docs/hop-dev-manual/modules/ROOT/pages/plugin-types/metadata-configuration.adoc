@@ -1,0 +1,163 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The plugin types behind metadata objects, the hop command line, variable resolution, password encoding and authentication.
+[[PluginTypes-MetadataConfiguration]]
+= Metadata and configuration
+
+The shared mechanics — discovery, annotation attributes, classloading, how a plugin gets into the distribution — are on the xref:plugin-types/index.adoc[plugin types overview].
+
+== Metadata
+
+A metadata plugin adds a new kind of object to the Metadata perspective: relational database connections, run configurations, VFS connections, servers, partition schemas and around forty others are all metadata objects.
+This is usually the plugin type you want when a plugin needs configuration that is shared between pipelines rather than living inside one.
+
+Annotation:: `@HopMetadata`
+Implement:: `IHopMetadata`, in practice by extending `HopMetadataBase`
+Plugin type:: `MetadataPluginType`, id `METADATA`
+Details:: xref:metadata-plugins.adoc[Metadata plugins] and xref:metadata-serialization.adoc[Metadata serialization]
+
+Any plain Java object will do.
+Annotate the class with `@HopMetadata`, the fields with `@HopMetadataProperty`, and serialisation to JSON is handled for you.
+
+`key`::
+The serialisation key, which also becomes the folder name under `metadata/` in a project.
+Permanent, like any plugin id.
+
+`name`, `description`, `image`, `category`::
+How the type appears in the Metadata perspective.
+
+`hopMetadataPropertyType`::
+Ties the type into metadata injection and the "used by" bookkeeping.
+
+`supportsGlobalReplace`::
+Whether a global find-and-replace may rewrite references to objects of this type.
+
+An editor class extending `MetadataEditor` gives it a GUI.
+
+[NOTE]
+====
+Metadata classes and the code using them must share a `classLoaderGroup` when they live in different plugins, otherwise a metadata object loaded by one classloader will not cast to the class the other one knows.
+====
+
+== Configuration options
+
+A configuration plugin adds options to an *existing* Hop command line tool, and — with one extra annotation — a tab in the GUI options dialog.
+The `projects` plugin uses this to add project options to `hop run`, and the search settings use it to add a Search tab to the options.
+
+Annotation:: `@ConfigPlugin`
+Implement:: `IConfigOptions`
+Plugin type:: `ConfigPluginType`, id `CONFIG`
+Examples:: `plugins/misc/projects`, `ui/src/main/java/org/apache/hop/ui/hopgui/search/config/SearchConfigPlugin.java`
+
+The `category` decides which tool picks the options up.
+Each tool mixes in only the plugins of its own category:
+
+|===
+|Category |Tool
+
+|`CATEGORY_CONFIG` |`hop conf`
+|`CATEGORY_RUN` |`hop run`
+|`CATEGORY_SEARCH` |`hop search`
+|`CATEGORY_IMPORT` |`hop import`
+|`CATEGORY_SERVER` |`hop server`
+|`CATEGORY_DOC` |the documentation builder
+|`CATEGORY_PYTHON` |the Python command
+|===
+
+The options themselves are picocli `@CommandLine.Option` fields on the class; the plugin is added to the command as a mixin.
+`handleOption(...)` is then called and returns true when it handled something and the tool should not continue with its default behaviour.
+
+Add `@GuiPlugin` and `@GuiWidgetElement` annotations to the same fields and the same options become a tab in the Hop GUI options dialog.
+That path requires a static `getInstance()` method on the class, because the dialog needs the singleton holding the current values.
+
+== Hop command
+
+Where a configuration plugin extends an existing command, a `@HopCommand` plugin adds a whole new `hop` sub-command — this is how `hop run`, `hop conf`, `hop server`, `hop encrypt`, `hop search`, `hop doc` and `hop marketplace` are all built.
+
+Annotation:: `@HopCommand`
+Implement:: `IHopCommand`, plus `Runnable` and picocli's `@Command`
+Plugin type:: `HopCommandPluginType`, id `HOP_COMMAND`
+Examples:: `engine/src/main/java/org/apache/hop/encryption/HopCommandEncrypt.java`, `engine/src/main/java/org/apache/hop/run/HopCommandRun.java`
+
+The `id` is the word the user types.
+`initialize(CommandLine, IVariables, MultiMetadataProvider)` hands you the command line and the environment; `run()` does the work.
+
+== Import
+
+An import plugin converts a project from another tool into a Hop project, and shows up in `hop import` and in the GUI import wizard.
+Hop ships one, for Kettle/PDI.
+
+Annotation:: `@ImportPlugin`
+Implement:: `IHopImport`, in practice by extending `HopImportBase`
+Plugin type:: `ImportPluginType`, id `IMPORT`
+Example:: `plugins/misc/import`
+
+The interface is broad because importing is: it covers the input and output folders, the property and shared-object files of the source tool, the target project and environment to create, and an import report.
+
+== Variable resolver
+
+A variable resolver fetches a value from somewhere else when a variable is dereferenced — a secret manager, a key vault, or another pipeline.
+It is what makes `#{secret/path}` work without a password ever being written into a file.
+
+Annotation:: `@VariableResolverPlugin`
+Implement:: `IVariableResolver`
+Plugin type:: `VariableResolverPluginType`, id `VARIABLERESOLVERPLUGIN`
+Examples:: `plugins/tech/azure` (Key Vault), `plugins/tech/google` (Secret Manager), `plugins/tech/aws`, `plugins/resolvers/pipeline`, `plugins/misc/passwords`
+
+The interface is two methods that matter: `init()` and `resolve(String secretPath, IVariables variables)`.
+
+The settings are held in a `Variable Resolver` metadata object, so the resolver's fields carry both `@HopMetadataProperty` (to be saved) and `@GuiWidgetElement` with `parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID` (to be edited).
+
+[NOTE]
+====
+Resolution goes through the metadata provider of the running pipeline or workflow, not a process-wide one.
+A resolver that reaches for a global metadata provider will miss the metadata of an exported run on a Hop Server.
+====
+
+== Two-way password encoder
+
+This decides how passwords are obfuscated or encrypted in metadata files.
+Hop ships the default `Hop` obfuscation, and the `passwords` plugin adds AES variants.
+
+Annotation:: `@TwoWayPasswordEncoderPlugin`
+Implement:: `ITwoWayPasswordEncoder`
+Plugin type:: `TwoWayPasswordEncoderPluginType`, id `TWOWAYPASSWORDENCODERPLUGIN`
+Examples:: `core/src/main/java/org/apache/hop/core/encryption/HopTwoWayPasswordEncoder.java`, `plugins/misc/passwords`
+
+`encode(...)`, `decode(...)` and `getPrefixes()`: the prefixes (`Encrypted `, `AES `, …) are how Hop recognises which encoder produced a stored value, so an encoder must claim a prefix nothing else uses.
+
+Only one encoder is active per process.
+It is selected by the `HOP_PASSWORD_ENCODER_PLUGIN` variable or system property and defaults to `Hop`; `HopClientEnvironment.init()` reads it and calls `Encr.init(...)`.
+
+[WARNING]
+====
+Obfuscation is not encryption.
+The default encoder keeps passwords out of plain sight in files; it does not protect them from someone who has the files.
+See xref:manual::password/passwords.adoc[the password documentation] for what the guarantees actually are.
+====
+
+== Authentication provider and consumer
+
+Two related plugin types describing credentials rather than connections: a *provider* is a kind of credential (username/password, Kerberos), a *consumer* is something that can use one.
+
+Annotations:: `@AuthenticationProviderPlugin` and `@AuthenticationConsumerPlugin`
+Implement:: `IAuthenticationProviderType` and `IAuthenticationConsumerType`
+Plugin types:: `AuthenticationProviderPluginType` (id `AUTHENTICATION_PROVIDER`) and `AuthenticationConsumerPluginType` (id `AUTHENTICATION_CONSUMER`)
+Examples:: `engine/src/main/java/org/apache/hop/core/auth`
+
+Both are small: a display name, and for the consumer the class that performs the authentication.
+Hop ships two providers and no consumers, so this pair is best treated as a low-traffic extension point — most plugins that need credentials use a metadata object instead.

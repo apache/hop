@@ -64,11 +64,6 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public RunPipelineTests clone() {
-    return (RunPipelineTests) super.clone();
-  }
-
-  @Override
   public Result execute(Result prevResult, int nr) throws HopException {
 
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =

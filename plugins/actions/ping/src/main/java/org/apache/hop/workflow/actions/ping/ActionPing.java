@@ -101,12 +101,6 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionPing je = (ActionPing) super.clone();
-    return je;
-  }
-
   public String getRealNbrPackets() {
     return resolve(getNbrPackets());
   }

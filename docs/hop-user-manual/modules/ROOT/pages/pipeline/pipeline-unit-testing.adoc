@@ -88,6 +88,9 @@ image::pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets,wid
 
 TIP: creating data sets is also possible from the 'New' context menu or metadata perspective.
 
+You can also generate or regenerate a data set from a pipeline with the xref:pipeline/transforms/datasetoutput.adoc[Data set output] transform.
+That is useful in automated or headless (`hop-run`) runs, where the canvas *Write rows to data set* action is not available.
+
 === Create and add data sets
 
 Consider the following basic pipeline below.

@@ -20,7 +20,10 @@ package org.apache.hop.pipeline.transforms.xml.getxmldata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -49,6 +52,7 @@ import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Test class for the "Get XML Data" transform. */
 @ExtendWith(RestoreHopEnvironmentExtension.class)
@@ -568,5 +572,79 @@ class GetXMLDataTest {
         null,
         errorCollector.getRowsError().getFirst().getData()[0],
         "error row keeps the offending input value");
+  }
+
+  /**
+   * The same guarantee has to hold when the XML comes from a file rather than a field. A file that
+   * cannot be parsed must be diverted to the error stream and the remaining files still read,
+   * instead of the transform calling stopAll() and taking the whole pipeline down with it.
+   * Regression test for #8000.
+   */
+  @Test
+  void testErrorHandlingContinuesOnBadXmlFile(@TempDir Path tempDir) throws Exception {
+    // Read in name order: a good file, an unparseable one, then another good file.
+    Files.writeString(tempDir.resolve("1-good.xml"), getXML1());
+    Files.writeString(tempDir.resolve("2-bad.xml"), "<Level1><Level2><Props>");
+    Files.writeString(tempDir.resolve("3-good.xml"), getXML2());
+
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("getxmldata-file-errorhandling");
+
+    PluginRegistry registry = PluginRegistry.getInstance();
+
+    // Get XML Data, reading every .xml in the temporary folder
+    String getXMLDataName = "get xml data transform";
+    GetXmlDataMeta gxdm = new GetXmlDataMeta();
+    gxdm.setEncoding(Const.UTF_8);
+    gxdm.setAFile(false);
+    gxdm.setInFields(false);
+    gxdm.setLoopXPath("Level1/Level2/Props");
+    gxdm.setInputFields(java.util.Arrays.asList(createXmlDataFields()));
+    gxdm.setFilesList(
+        Collections.singletonList(
+            new GetXmlFileItem(tempDir.toString(), ".*\\.xml$", "", "N", "N")));
+    String getXMLDataPid = registry.getPluginId(TransformPluginType.class, gxdm);
+    TransformMeta getXMLDataTransform = new TransformMeta(getXMLDataPid, getXMLDataName, gxdm);
+    pipelineMeta.addTransform(getXMLDataTransform);
+
+    // Main output
+    String dummyMainName = "dummy main";
+    DummyMeta dmMain = new DummyMeta();
+    String dummyMainPid = registry.getPluginId(TransformPluginType.class, dmMain);
+    TransformMeta dummyMain = new TransformMeta(dummyMainPid, dummyMainName, dmMain);
+    pipelineMeta.addTransform(dummyMain);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(getXMLDataTransform, dummyMain));
+
+    // Error output
+    String dummyErrorName = "dummy error";
+    DummyMeta dmError = new DummyMeta();
+    String dummyErrorPid = registry.getPluginId(TransformPluginType.class, dmError);
+    TransformMeta dummyError = new TransformMeta(dummyErrorPid, dummyErrorName, dmError);
+    pipelineMeta.addTransform(dummyError);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(getXMLDataTransform, dummyError));
+
+    TransformErrorMeta errorMeta = new TransformErrorMeta(getXMLDataTransform, dummyError);
+    errorMeta.setEnabled(true);
+    getXMLDataTransform.setTransformErrorMeta(errorMeta);
+
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.prepareExecution();
+
+    RowTransformCollector errorCollector = new RowTransformCollector();
+    pipeline.getTransform(getXMLDataName, 0).addRowListener(errorCollector);
+    RowTransformCollector mainCollector = new RowTransformCollector();
+    pipeline.getTransform(dummyMainName, 0).addRowListener(mainCollector);
+
+    pipeline.startThreads();
+    pipeline.waitUntilFinished();
+
+    // Without the fix the transform calls stopAll() and the pipeline reports an error.
+    assertEquals(0, pipeline.getResult().getNrErrors(), "transform should not report errors");
+
+    // Both readable files are still read: 2 rows from the first, 1 from the third.
+    assertEquals(3, mainCollector.getRowsWritten().size(), "good files are still read");
+
+    // The unreadable file produces exactly one error row.
+    assertEquals(1, errorCollector.getRowsError().size(), "bad file goes to error handling");
   }
 }

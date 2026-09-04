@@ -20,8 +20,10 @@ package org.apache.hop.workflow.actions.workflow;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -39,10 +41,12 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -174,6 +178,13 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "wait_until_finished")
   private boolean waitingToFinish = true;
+
+  /**
+   * Maximum time to wait for the workflow to complete, in milliseconds. Empty or 0 means wait
+   * indefinitely. Only used when {@link #waitingToFinish} is true.
+   */
+  @HopMetadataProperty(key = "wait_timeout")
+  private String waitTimeout;
 
   @HopMetadataProperty(key = "parameters")
   private ParameterDefinition parameterDefinition;
@@ -458,35 +469,44 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow.copyParametersFromDefinitions(workflowMeta);
         workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
 
-        // Set the parameters calculated above on this instance.
+        // Set the parameters calculated above on this instance. A sub-workflow resolves its
+        // parameters exactly like a sub-pipeline does, see SubExecutionParameters.
         //
         workflow.clearParameterValues();
-        String[] parameterNames = workflow.listParameters();
-        for (String parameterName : parameterNames) {
-          // Grab the parameter value set in the action
-          //
-          String thisValue = namedParam.getParameterValue(parameterName);
-          if (!Utils.isEmpty(thisValue)) {
-            // Set the value as specified by the user in the action
-            //
-            workflow.setParameterValue(parameterName, thisValue);
-          } else {
-            // See if the parameter had a value set in the parent workflow...
-            // This value should pass down to the sub-workflow if that's what we
-            // opted to do.
-            //
-            if (parameterDefinition.isPassingAllParameters()) {
-              // Only formal parent parameter values are passed here. Env/project protection for
-              // parameters with non-empty defaults is handled in NamedParameters.activateParameters
-              // (prefer existing variable over a non-empty default such as HOSTNAME=localhost).
-              String parentValue = parentWorkflow.getParameterValue(parameterName);
-              if (!Utils.isEmpty(parentValue)) {
-                workflow.setParameterValue(parameterName, parentValue);
-              }
-            }
+
+        // A name the Parameters tab lists is passed on even when its value is empty, so the
+        // child falls back to its own default instead of to whatever the parent happens to hold.
+        // A value that only came from "copy results to parameters" is passed on when it carries
+        // something.
+        //
+        Set<String> namesFromTab = new HashSet<>();
+        for (Parameter parameter : parameterDefinition.getParameters()) {
+          if (!Utils.isEmpty(parameter.getName())
+              && !(Utils.isEmpty(Const.trim(parameter.getField()))
+                  && Utils.isEmpty(Const.trim(parameter.getValue())))) {
+            namesFromTab.add(parameter.getName());
           }
         }
-        workflow.activateParameters(workflow);
+        List<String> passedNames = new ArrayList<>();
+        List<String> passedValues = new ArrayList<>();
+        for (String parameterName : namedParam.listParameters()) {
+          String value = namedParam.getParameterValue(parameterName);
+          if (Utils.isEmpty(value) && !namesFromTab.contains(parameterName)) {
+            continue;
+          }
+          passedNames.add(parameterName);
+          passedValues.add(Const.NVL(value, ""));
+        }
+
+        SubExecutionParameters.activate(
+            workflow,
+            workflow,
+            parentWorkflow,
+            workflow.listParameters(),
+            passedNames.toArray(new String[0]),
+            passedValues.toArray(new String[0]),
+            parameterDefinition.isPassingAllParameters(),
+            false);
 
         // Set the source rows we calculated above...
         //
@@ -513,20 +533,20 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflowRunnerThread.start();
 
         if (isWaitingToFinish()) {
-          // Keep running until we're done.
-          //
-          while (!runner.isFinished() && !parentWorkflow.isStopped()) {
-            try {
-              Thread.sleep(0, 1);
-            } catch (InterruptedException e) {
-              // Ignore
-            }
-          }
+          long timeoutMs = ExecutionWait.parseTimeoutMs(this, waitTimeout);
+          boolean finishedInTime =
+              ExecutionWait.waitFor(
+                  runner::isFinished, () -> parentWorkflow.isStopped(), timeoutMs);
 
-          // if the parent-workflow was stopped, stop the sub-workflow too...
-          if (parentWorkflow.isStopped()) {
+          // Stop the sub-workflow when the parent was stopped or the wait timed out.
+          if (!finishedInTime || parentWorkflow.isStopped()) {
+            if (!finishedInTime) {
+              logError(
+                  BaseMessages.getString(
+                      PKG, "ActionWorkflow.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
+            }
             workflow.stopExecution();
-            runner.waitUntilFinished(); // Wait until finished!
+            runner.waitUntilFinished();
           }
 
           oneResult = runner.getResult();
@@ -543,6 +563,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
           //
           if (oneResult.isResult() == false) {
             result.setNrErrors(result.getNrErrors() + 1);
+          }
+          if (!finishedInTime && result.getNrErrors() == 0) {
+            result.setNrErrors(1);
           }
         }
 
@@ -844,6 +867,14 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
    */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
+  }
+
+  public String getWaitTimeout() {
+    return waitTimeout;
+  }
+
+  public void setWaitTimeout(String waitTimeout) {
+    this.waitTimeout = waitTimeout;
   }
 
   public IWorkflowEngine<WorkflowMeta> getWorkflow() {

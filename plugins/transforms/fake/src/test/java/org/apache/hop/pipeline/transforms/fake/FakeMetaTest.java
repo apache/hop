@@ -68,7 +68,7 @@ class FakeMetaTest {
     args.add(new FakeArgument("int", "18"));
     meta.getFields().add(new FakeField("age", "number", "numberBetween", args));
 
-    FakeMeta clone = meta.clone();
+    FakeMeta clone = (FakeMeta) meta.clone();
     assertEquals("fr", clone.getLocale());
     assertEquals(1, clone.getFields().size());
 

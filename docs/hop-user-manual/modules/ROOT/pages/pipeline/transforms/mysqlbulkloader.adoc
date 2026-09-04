@@ -28,6 +28,8 @@ under the License.
 The MySQL bulk loader transform uses the copy command to load data as opposed to sending individual insert statements.
 
 It will create a local file which will then be loaded using the `LOAD DATA` command. More information https://dev.mysql.com/doc/refman/9.2/en/load-data.html[here]
+
+TIP: binary stream fields are written as lowercase hex and restored with `SET col = UNHEX(@col)` so a `BLOB`/`VARBINARY` column receives the original bytes. Null binary values are written as `\N`.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

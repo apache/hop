@@ -69,6 +69,7 @@ For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/proje
 One row is passed to the workflow at every execution.
 For example, you can execute a workflow for each file found in a directory.|false
 |Wait for the remote workflow to finish?|Enable to block until the workflow on the Hop Server has finished|true
+|Stop after (milliseconds)|Maximum time to wait for the workflow to complete. Empty or 0 means wait indefinitely. When the time is reached the workflow is stopped and this action fails. Only used when wait-to-finish is enabled. The value may contain a variable.|empty (no limit)
 |===
 
 === Logging Settings Tab
@@ -104,12 +105,14 @@ See also the logging window in Logging.
 Specify which parameters will be passed to the sub-workflow.
 
 See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how parameters relate to fields and variables.
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
+
 
 [options="header",cols="1,3", width="90%"]
 |===
 |Option|Description
 |Copy results to parameter|results from previous workflows or pipelines are passed down to this workflows action's parameters
-|Pass parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.
+|Pass parent values to matching parameters|Seed a parameter the sub-workflow declares, but that is not listed above, from this workflow's value of the same name. With the option off the sub-workflow keeps its own default. Variables are inherited by the sub-workflow either way.
 |Parameters|Specify the parameter names that will be passed to the workflow.
 |Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
 |Value

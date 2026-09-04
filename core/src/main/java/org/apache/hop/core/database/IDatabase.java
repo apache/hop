@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.hop.core.database.types.DatabaseColumn;
+import org.apache.hop.core.database.validation.ColumnValueConstraints;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -238,6 +240,22 @@ public interface IDatabase extends Cloneable {
    * @return the clause after a select statement to limit the number of rows
    */
   String getLimitClause(int nrRows);
+
+  /**
+   * The clause that limits the number of rows when the database puts it directly after SELECT,
+   * rather than at the end of the statement.
+   *
+   * <p>SQL Server and Sybase IQ write {@code SELECT TOP 10 * FROM t}, where PostgreSQL writes
+   * {@code SELECT * FROM t LIMIT 10}. A database uses one form or the other, so a dialect overrides
+   * this or {@link #getLimitClause(int)}, not both.
+   *
+   * @param nrRows the number of rows to limit the result to
+   * @return the clause to place after SELECT, with a leading space, or an empty string when this
+   *     database limits rows at the end of the statement instead
+   */
+  default String getLimitClausePrefix(int nrRows) {
+    return "";
+  }
 
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given
@@ -657,7 +675,18 @@ public interface IDatabase extends Cloneable {
   /**
    * @return true if the database JDBC driver supports getBlob on the resultset. If not we must use
    *     getBytes() to get the data.
+   * @deprecated The getter a binary column needs is decided by the JDBC type the driver reports for
+   *     that column, not by the connection: BLOB maps to {@code java.sql.Blob} and BINARY,
+   *     VARBINARY and LONGVARBINARY map to {@code byte[]}. A flag answered once per connection
+   *     could not tell those apart, so it fetched VARBINARY columns as Blobs and drivers that
+   *     follow the specification refused (issue #8207). It is no longer consulted anywhere: every
+   *     dialect that answered it did so to work around that defect, DB2 included, whose stated
+   *     reason turned out to be a misreading of it — a current DB2 driver serves a real BLOB column
+   *     through {@code getBlob()} without complaint. A driver that genuinely cannot says so with a
+   *     value binding for {@link org.apache.hop.core.row.IValueMeta#TYPE_BINARY} in its own {@link
+   *     #getTypeRules()}. No dialect Hop ships needs one. This method will be removed.
    */
+  @Deprecated(since = "2.20")
   boolean isSupportsGetBlob();
 
   /**
@@ -749,6 +778,12 @@ public interface IDatabase extends Cloneable {
   boolean isRequiringTransactionsOnQueries();
 
   /** Handles the special case of Oracle where NUMBER(38) is interpreted as Integer or BigNumber */
+  /**
+   * @deprecated An Oracle-specific option that has no business on the interface every dialect *
+   *     implements. Oracle now expresses it through its own {@link #getTypeRules()}; this accessor
+   *     * remains so that existing dialects and callers keep working.
+   */
+  @Deprecated(since = "2.20")
   boolean isStrictBigNumberInterpretation();
 
   /**
@@ -918,75 +953,189 @@ public interface IDatabase extends Cloneable {
   List<SqlScriptStatement> getSqlScriptStatements(String sqlScript);
 
   /**
+   * What the driver said about the server this connection reached, or null when nobody has asked it
+   * yet. See {@link org.apache.hop.core.database.types.ServerInfo}.
+   */
+  default org.apache.hop.core.database.types.ServerInfo getServerInfo() {
+    return null;
+  }
+
+  /** Hands the dialect what the driver said about the server. */
+  default void setServerInfo(org.apache.hop.core.database.types.ServerInfo serverInfo) {
+    // A dialect that does not keep it simply never overrules a declared type.
+  }
+
+  /**
+   * Whether this server has the column type this dialect just named.
+   *
+   * <p>Only a dialect can answer this, because only it knows which version of its database grew
+   * which type, and how to tell: {@code DatabaseMetaData.getTypeInfo()} looks like the answer but
+   * several drivers compile that list in rather than asking the server. So the default is yes, and
+   * a dialect with a version dependent type says otherwise by overriding this.
+   *
+   * <p>A no means the column is written as text instead; see {@link
+   * org.apache.hop.core.database.types.ColumnTypeFallback}.
+   *
+   * @param columnType the type name, without any size after it, upper case
+   */
+  default boolean isColumnTypeAvailable(String columnType) {
+    return true;
+  }
+
+  /**
+   * The column type rules this dialect contributes, most specific first.
+   *
+   * <p>Rules are inherited through the class hierarchy in the ordinary Java way, so a dialect that
+   * extends another starts from its rules and can prepend its own. This is the replacement for the
+   * {@code isXVariant()} methods below: instead of core asking "is this Postgres-like?" and
+   * switching on the answer, the dialect states what it does.
+   *
+   * @return the rules, empty by default
+   */
+  default java.util.List<org.apache.hop.core.database.types.IDatabaseTypeRule> getTypeRules() {
+    return java.util.List.of();
+  }
+
+  /**
    * @return true if the database is a MySQL variant, like MySQL 5.1, InfiniDB, InfoBright, and so
    *     on.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isMySqlVariant();
 
   /**
    * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift, and so
    *     on.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isPostgresVariant();
 
   /**
    * @return true if the database is a Sybase variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isSybaseVariant();
 
   /**
    * @return true if the database is a SybaseIQ variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isSybaseIQVariant();
 
   /**
    * @return true if the database is a neoview variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isNeoviewVariant();
 
   /**
    * @return true if the database is a DuckDB variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isDuckDbVariant();
 
   /**
    * @return true if the database is a DuckDB variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isExasolVariant();
 
   /**
    * @return true if the database is an Informix variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isInformixVariant();
 
   /**
    * @return true if the database is a MS SQL Server (native) variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isMsSqlServerNativeVariant();
 
   /**
    * @return true if the database is a MS SQL Server variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isMsSqlServerVariant();
 
   /**
    * @return true if the database is an Oracle variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isOracleVariant();
 
   /**
    * @return true if the database is a Netezza variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isNetezzaVariant();
 
   /**
    * @return true if the database is a SQLite variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isSqliteVariant();
 
   /**
    * @return true if the database is a Terradata variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isTeradataVariant();
 
   /**
@@ -1272,4 +1421,22 @@ public interface IDatabase extends Cloneable {
   String getSshTunnelPassphrase();
 
   void setSshTunnelPassphrase(String passphrase);
+
+  /**
+   * Character set of this database, used to validate that stream strings can be stored. The default
+   * is UTF-8; dialects that keep an encoding at the database level (PostgreSQL {@code
+   * server_encoding}, MySQL {@code character_set_database}) override this.
+   */
+  default String getDatabaseCharacterSet(Database database) throws HopDatabaseException {
+    return "UTF-8";
+  }
+
+  /**
+   * Fill in dialect-specific column constraints (NUL policy, character vs byte length, integer
+   * ranges, UUID/JSON flags). The default uses JDBC SQL types from {@code column}.
+   */
+  default void enrichColumnValueConstraints(
+      ColumnValueConstraints spec, DatabaseColumn column, String characterSet) {
+    ColumnValueConstraints.enrichFromJdbc(spec, column);
+  }
 }

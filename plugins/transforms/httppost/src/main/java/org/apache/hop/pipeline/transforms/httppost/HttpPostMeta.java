@@ -128,13 +128,6 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   }
 
   @Override
-  public Object clone() {
-    HttpPostMeta retval = (HttpPostMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     encoding = Const.UTF_8;
     contentType = DEFAULT_CONTENT_TYPE;

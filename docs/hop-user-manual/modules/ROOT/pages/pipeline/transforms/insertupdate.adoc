@@ -31,6 +31,8 @@ If it can be found and the fields to update are the same, nothing is done.
 
 If they are not all the same, the row in the table is updated.
 
+To find which values the database would reject before writing, put xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation] in front of this transform.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

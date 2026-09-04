@@ -77,6 +77,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
 import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
@@ -432,9 +433,35 @@ public class PipelineMeta extends AbstractMeta
       removeMissingPipeline(missingTransform);
     }
 
+    // Nothing may keep pointing at a transform that is no longer in the pipeline: a hop or an
+    // error handling entry that outlives its transform is written back to the file as a reference
+    // to a transform that isn't there.
+    //
+    removeReferencesTo(removeTransform);
+
     changedTransforms = true;
     setChanged();
     clearCaches();
+  }
+
+  /** Drops the hops attached to a transform and the error handling aimed at it. */
+  private void removeReferencesTo(TransformMeta removedTransform) {
+    for (int h = hops.size() - 1; h >= 0; h--) {
+      PipelineHopMeta hop = hops.get(h);
+      if (removedTransform.equals(hop.getFromTransform())
+          || removedTransform.equals(hop.getToTransform())) {
+        hops.remove(h);
+        changedHops = true;
+      }
+    }
+
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta != null && removedTransform.equals(errorMeta.getTargetTransform())) {
+        // The error rows have nowhere to go anymore, so the whole entry goes with the target.
+        transformMeta.setTransformErrorMeta(null);
+      }
+    }
   }
 
   /**
@@ -1622,6 +1649,23 @@ public class PipelineMeta extends AbstractMeta
     clearChanged();
   }
 
+  /**
+   * Replace this pipeline's persisted content from a snapshot XML node. Used by GUI undo/redo.
+   *
+   * <p>Does not fire {@code PipelineMetaLoaded} (undo is not a file open) and does not call {@link
+   * #clearChanged()} — the caller decides the dirty flag.
+   */
+  public void restoreContentFromXml(
+      Node pipelineNode, String filename, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    this.metadataProvider = metadataProvider;
+    clear();
+    setFilename(filename);
+    XmlMetadataUtil.deSerializeFromXml(
+        null, null, pipelineNode, PipelineMeta.class, this, metadataProvider);
+    lookupReferencesAfterLoading();
+  }
+
   private void deSerializeXml(
       Node pipelineNode,
       String filename,
@@ -1675,7 +1719,47 @@ public class PipelineMeta extends AbstractMeta
         addMissingPipeline(missing);
       }
     }
+    dropReferencesToTransformsNotInTheFile();
     syncTransformErrorHandlingWithHops();
+  }
+
+  /**
+   * A hop or an error handling entry naming a transform that the file does not contain - a name
+   * left behind by a rename or by a transform that was deleted elsewhere - is resolved to null
+   * while de-serializing. Half of a hop is of no use to anyone: it is not drawn, it is not
+   * executed, and saving the pipeline again writes it back with one end missing. So it is dropped
+   * here, and the user is told about it.
+   */
+  private void dropReferencesToTransformsNotInTheFile() {
+    for (int i = hops.size() - 1; i >= 0; i--) {
+      PipelineHopMeta hop = hops.get(i);
+      TransformMeta from = hop.getFromTransform();
+      TransformMeta to = hop.getToTransform();
+      if (from == null || to == null) {
+        hops.remove(i);
+        changedHops = true;
+        TransformMeta known = from == null ? to : from;
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "PipelineMeta.Log.RemovedHopToUnknownTransform",
+                known == null ? "?" : known.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
+
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta != null && errorMeta.getTargetTransform() == null) {
+        transformMeta.setTransformErrorMeta(null);
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "PipelineMeta.Log.RemovedErrorHandlingToUnknownTransform",
+                transformMeta.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
   }
 
   /**
@@ -2736,6 +2820,12 @@ public class PipelineMeta extends AbstractMeta
                 risk.reconvergence()));
       }
 
+      for (TransformMeta transformMeta : transformsToCheck) {
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkTransform(
+                transformMeta, variables, metadataProvider));
+      }
+
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL,
           variables,
@@ -3256,24 +3346,6 @@ public class PipelineMeta extends AbstractMeta
     previousTransformCache.clear();
   }
 
-  /**
-   * Gets the pipeline type.
-   *
-   * @return the pipelineType
-   */
-  public PipelineType getPipelineType() {
-    return info.getPipelineType();
-  }
-
-  /**
-   * Sets the pipeline type.
-   *
-   * @param pipelineType the pipelineType to set
-   */
-  public void setPipelineType(PipelineType pipelineType) {
-    this.info.setPipelineType(pipelineType);
-  }
-
   public void addTransformChangeListener(ITransformMetaChangeListener listener) {
     transformChangeListeners.add(listener);
   }
@@ -3348,8 +3420,14 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * The PipelineType enum describes the various types of pipelines in terms of execution, including
-   * Normal, Serial Single-Threaded, and Single-Threaded.
+   * Describes how an engine drives the transforms of a pipeline. This is a property of the engine
+   * that executes the pipeline, not of the pipeline itself: the very same pipeline runs under
+   * either type, so it is never stored in the .hpl file. See {@link
+   * org.apache.hop.pipeline.engine.IPipelineEngine#getPipelineType()}.
+   *
+   * <p>Transforms use it in {@link
+   * org.apache.hop.pipeline.transform.BaseTransformMeta#getSupportedPipelineTypes()} to declare
+   * which of these execution models they can cope with.
    */
   @SuppressWarnings("java:S115")
   @Getter
@@ -3556,6 +3634,42 @@ public class PipelineMeta extends AbstractMeta
   @Override
   public String getModifiedUser() {
     return info.getModifiedUser();
+  }
+
+  /**
+   * Gets the version of Hop that created the pipeline.
+   *
+   * @return the Hop version that created the pipeline, or null when it isn't known.
+   */
+  public String getCreatedHopVersion() {
+    return info.getCreatedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that created the pipeline.
+   *
+   * @param createdHopVersion The Hop version to set.
+   */
+  public void setCreatedHopVersion(String createdHopVersion) {
+    info.setCreatedHopVersion(createdHopVersion);
+  }
+
+  /**
+   * Gets the version of Hop that last saved the pipeline.
+   *
+   * @return the Hop version that last saved the pipeline, or null when it isn't known.
+   */
+  public String getModifiedHopVersion() {
+    return info.getModifiedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that last saved the pipeline.
+   *
+   * @param modifiedHopVersion The Hop version to set.
+   */
+  public void setModifiedHopVersion(String modifiedHopVersion) {
+    info.setModifiedHopVersion(modifiedHopVersion);
   }
 
   @Override

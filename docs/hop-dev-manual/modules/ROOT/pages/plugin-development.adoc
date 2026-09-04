@@ -35,17 +35,28 @@ PluginRegistry.getInstance()
 
 == Plugin types
 
-Plugins allow you to extend Hop functionality in over 20 different areas.
-Each of these plugin types are represented by a class which implements ```IPluginType<T extends Annotation>``` For your convenience you can extend a class called ```BasePluginType<T extends Annotation>```.
-The responsibility of these classes is to register plugins of the given type in the Hop Plugin Registry.
-It looks for these plugins in various ways:
+Plugins extend Hop in just over thirty different areas.
+Each of these areas is a *plugin type*: a class implementing `IPluginType<T extends Annotation>`, usually by extending `BasePluginType<T>`, whose job is to find plugins of its kind and register them.
 
-1. It reads an XML file if the plugin classes to load are in the classpath.
-This technique is used for the core plugins and a number of GUI plugins.
-You can find them in ```core/src/resources```, ```engine/src/resources``` and ```ui/src/resources```.  The location of the file is defined using the ```getXmlPluginFile()``` method.
+For the catalogue of what those thirty types are, what each one does, and what you need to write one, see xref:plugin-types/index.adoc[Plugin types].
 
-2. It scans the ```plugins/``` subfolders and scans the jar files on the lookout for classes that have the annotation and interface specified in the plugin type.
-It then loads these classes and adds them to the plugin registry.
+A plugin type declares the annotation that marks a plugin and the interface that plugin has to implement:
+
+[source,java]
+----
+@PluginMainClassType(ITransformMeta.class)
+@PluginAnnotationType(Transform.class)
+public class TransformPluginType extends BasePluginType<Transform> { ... }
+----
+
+Discovery is annotation-driven and works in two passes, both reading a https://smallrye.io/jandex/[Jandex] annotation index (`META-INF/jandex.idx`) from the jars:
+
+1. Jars on the classpath, for the plugins built into `hop-core`, `hop-engine` and `hop-ui`.
+2. Jars under the plugin folders — `plugins/` by default, configurable with `HOP_PLUGIN_BASE_FOLDERS`.
+Each of those gets its own classloader, covering the plugin jar plus the jars in its `lib/` folder.
+
+A jar without a Jandex index contains no plugins as far as Hop is concerned.
+The Hop root pom binds the `jandex-maven-plugin` for every module; a plugin built outside the Hop repository has to add it, see xref:porting-kettle-plugins.adoc[Porting Kettle plugins].
 
 == Plugins
 
@@ -72,7 +83,7 @@ A plugin can have more than 1 ID to make it possible to merge multiple plugins i
 
 |keywords|String[]|Optional|The keywords which represent this plugin to make it easier to find it in the UI
 
-|nativePlugin|boolean|false|Indicates if the plugin can be found in the classpath (using XML or API) or in a plugin classpath
+|nativePlugin|boolean|false|Indicates if the plugin was found on the classpath (native) or in one of the plugin folders
 
 |===
 
@@ -81,38 +92,62 @@ The information in the IPlugin objects is copied from the plugin annotations on 
 
 == Where are the Hop plugins?
 
-In Hop all optional plugins are in the https://github.com/apache/hop/tree/master/plugins[hop/plugins] folder which contains the plugin categories:
+In Hop all optional plugins are in the https://github.com/apache/hop/tree/main/plugins[hop/plugins] folder, grouped by what they are:
 
-- database: relational database plugins
-- actions: workflow actions
-- engines: pipeline and workflow engines
-- transforms: pipeline transforms
-- vfs: Virtual Files System plugins
-- misc: miscellaneous plugins.
-Pick this category only when other plugin types don't fit.
+- `transforms`: pipeline transforms
+- `actions`: workflow actions
+- `databases`: relational database dialects
+- `engines`: pipeline and workflow engines
+- `tech`: everything belonging to one technology (Azure, Google, AWS, FTP, SFTP, Arrow, ...), often several plugin types in one module
+- `vfs`: Virtual File System plugins that are not part of a `tech` module
+- `valuetypes`: value types
+- `resolvers`: variable resolvers
+- `misc`: miscellaneous plugins.
+Pick this category only when the other ones don't fit.
 
-=== Actions
+== Steps to add a new plugin
 
-== Steps to add new plugin
+Once you have identified the plugin type you need — see xref:plugin-types/index.adoc[Plugin types] — and the folder it belongs in, adding it is three edits and two new files.
 
-=== Create skeleton
+=== Create the module
 
-Once you identified the category, create the plugin as a new maven sub module by carefully mentioning parent in your plugin pom file and adding new module in the parent project.
-This ensures adding the new plugin into maven build cycle.
+Create the plugin as a new Maven sub-module with the category pom as its parent, and add it to that pom's `<modules>`.
 
-You can duplicate the reference plugin mentioned above as a starting point.
-When duplicating take time to modify the documentation and remove irrelevant to get the skeleton.
+The category parent already gives you everything a plugin needs: `hop-core`, `hop-engine`, `hop-ui` and SWT as `provided` dependencies, the Jandex index, the shared archive resources, and the SWTBot UI test stack on the test classpath.
+A plugin pom is usually no more than a parent, an artifactId, a name, and whatever extra dependencies the plugin itself needs.
 
-THOUGHT: Can we create maven archetype?
-Contribution welcome.
+Duplicating a comparable existing plugin is the fastest way to start.
+When you do, take the time to strip out what does not apply and to rewrite the documentation.
 
-=== Add to assemblies
+=== Package it as a plugin zip
 
-To add the plugins into final artifacts, you need to add it to hop/assemblies/plugins directory under right category as a maven sub module by carefully mentioning parent in your plugin pom file and adding new module in the parent project.
-This ensures adding the new plugin into maven build cycle.
+Add two files to the module:
 
-Define src/assembly/assembly.xml with necessary dependent jars required for the plugin to function.
-Review the jars which end up going into the plugin zip.
-If any jar which is already present in hop/lib directory, exclude it.
-This is done to keep the target hop artifact size as small as possible.
+`src/assembly/assembly.xml`::
+Its presence activates the assembly profile that turns the module into a plugin zip — there is no extra pom configuration.
+Copy one from a comparable plugin: it names the zip, ships `version.xml`, and includes the shared component `assemblies/shared/hop-plugin-libs.xml`.
 
+`src/main/resources/version.xml`::
+A one-line file containing `${project.version}`.
+
+The shared component routes artifacts by Maven scope: the plugin jar and its runtime dependencies go into the plugin's own folder and its `lib/`, non-Hop `provided` dependencies go to the shared `lib/core`, and JDBC drivers go to `lib/jdbc`.
+
+Review what ends up in the zip.
+Anything already shipped in `lib/core` must be excluded — the plugin classloader sees the parent's copy, so a second copy is at best dead weight and at worst a version conflict.
+
+=== Add it to the distribution
+
+Add a dependency on the module, with `<type>zip</type>`, to `assemblies/plugins/pom.xml`.
+That is what actually puts the plugin in the client, server and web distributions.
+
+=== Documentation and samples
+
+Two things that are easy to forget and are expected of a plugin in the Hop repository:
+
+* A page under `docs/hop-user-manual`, referenced from the plugin's `documentationUrl` attribute.
+* A sample pipeline or workflow, see xref:plugin-samples.adoc[Plugin samples].
+
+=== Plugins outside the Hop repository
+
+A plugin whose dependencies are not https://www.apache.org/legal/resolved.html[Apache category A] cannot ship with Hop.
+It follows the same shape but builds and releases on its own — see xref:start-your-own-plugin.adoc[Creating your own plugin] and xref:marketplace-publish-plugin.adoc[Publishing a plugin to Nexus].

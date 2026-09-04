@@ -668,6 +668,6 @@ public class FtpConnectionEditor extends MetadataEditor<FtpConnection> {
     // The name of a connection is a VFS scheme: re-register the providers so the new or changed
     // connection is picked up right away.
     //
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
   }
 }

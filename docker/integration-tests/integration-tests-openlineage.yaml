@@ -45,6 +45,15 @@ services:
   # "Warehouse" Postgres that the test pipelines read from and write to. Its host:port
   # ("postgres":5432) is what the warehouse dataset namespace is keyed on
   # (postgres://postgres:5432), so it must match run-tests.sh's POSTGRES_HOST default.
+  #
+  # The schema is created by the workflows themselves (a "Create warehouse tables" SQL action),
+  # not by a /docker-entrypoint-initdb.d script. Every project compose file in this directory
+  # shares one compose project name, so "postgres" is the same container and the same data volume
+  # for all of them, and nothing is torn down between projects. An init script therefore runs only
+  # for whichever project happens to start Postgres first - after that the data dir is no longer
+  # empty and the script is skipped, leaving these tests to read whatever the previous project
+  # left behind (integration-tests/dbt drops and recreates public.orders_source with its own
+  # columns).
   postgres:
     image: postgres:14
     environment:
@@ -57,9 +66,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    volumes:
-      # Seeds public.orders_source and creates public.orders_target on first init.
-      - ./openlineage-warehouse-startup.sql:/docker-entrypoint-initdb.d/01-warehouse.sql:ro
 
   marquez-db:
     image: postgres:14

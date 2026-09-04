@@ -59,12 +59,6 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
   }
 
   @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,

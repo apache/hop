@@ -39,7 +39,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     image = "minio.svg",
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/minio-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.VFS_MINIO_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.VFS_MINIO_CONNECTION,
+    classLoaderGroup = "vfs-minio")
 public class MinioMeta extends HopMetadataBase implements Serializable, IHopMetadata {
   private static final String WIDGET_ID_MINIO_DESCRIPTION = "10000-minio-description";
   private static final String WIDGET_ID_MINIO_ACCESS_KEY = "10050-minio-access-key";

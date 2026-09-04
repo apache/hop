@@ -30,6 +30,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.server.loadbalance.ILoadBalancingRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -40,6 +41,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.server.loadbalance.LoadBalancingRunConfigurationWidgets;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -76,6 +78,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   private Composite wPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
+  private LoadBalancingRunConfigurationWidgets loadBalancingWidgets;
 
   private Map<String, IWorkflowEngineRunConfiguration> metaMap;
 
@@ -267,11 +270,20 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     for (Control child : wPluginSpecificComp.getChildren()) {
       child.dispose();
     }
+    guiCompositeWidgets = null;
+    loadBalancingWidgets = null;
 
     // Now add the run configuration plugin specific widgets
     //
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
+      if (workingConfiguration.getEngineRunConfiguration()
+          instanceof ILoadBalancingRunConfiguration) {
+        loadBalancingWidgets =
+            new LoadBalancingRunConfigurationWidgets(
+                manager.getVariables(), manager.getMetadataProvider());
+        loadBalancingWidgets.registerServersGroup(guiCompositeWidgets, e -> setChanged());
+      }
       guiCompositeWidgets.createCompositeWidgets(
           workingConfiguration.getEngineRunConfiguration(),
           null,
@@ -340,6 +352,9 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
   public void refreshOnDialogActivate() {
     try {
       wExecutionInfoLocation.fillItems();
+      if (loadBalancingWidgets != null) {
+        loadBalancingWidgets.refreshServerNames();
+      }
     } catch (Exception e) {
       LogChannel.UI.logError("Error refreshing execution information locations", e);
     }
@@ -362,10 +377,17 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
           Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));
-      guiCompositeWidgets.setWidgetsContents(
-          workingConfiguration.getEngineRunConfiguration(),
-          wPluginSpecificComp,
-          WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      if (guiCompositeWidgets != null) {
+        guiCompositeWidgets.setWidgetsContents(
+            workingConfiguration.getEngineRunConfiguration(),
+            wPluginSpecificComp,
+            WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      }
+      if (loadBalancingWidgets != null
+          && workingConfiguration.getEngineRunConfiguration()
+              instanceof ILoadBalancingRunConfiguration loadBalancing) {
+        loadBalancingWidgets.setServers(loadBalancing);
+      }
     } else {
       wPluginType.setText("");
     }
@@ -386,6 +408,11 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
         && !guiCompositeWidgets.getWidgetsMap().isEmpty()) {
       guiCompositeWidgets.getWidgetsContents(
           meta.getEngineRunConfiguration(), WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
+    if (loadBalancingWidgets != null
+        && meta.getEngineRunConfiguration()
+            instanceof ILoadBalancingRunConfiguration loadBalancing) {
+      loadBalancingWidgets.getServers(loadBalancing);
     }
   }
 

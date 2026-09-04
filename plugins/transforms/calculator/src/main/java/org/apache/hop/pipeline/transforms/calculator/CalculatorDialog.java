@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -68,7 +69,7 @@ public class CalculatorDialog extends BaseTransformDialog {
 
     // The order here is important... currentMeta is looked at for changes
     currentMeta = transformMeta;
-    originalMeta = transformMeta.clone();
+    originalMeta = (CalculatorMeta) transformMeta.clone();
   }
 
   @Override
@@ -228,7 +229,7 @@ public class CalculatorDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     wFields.addModifyListener(
         arg0 ->

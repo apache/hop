@@ -25,10 +25,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.server.HopServerMeta;
-import org.apache.hop.www.HopServerPipelineStatus;
-import org.apache.hop.www.HopServerStatus;
-import org.apache.hop.www.HopServerWorkflowStatus;
-import org.apache.hop.www.RemoteHopServer;
+import org.apache.hop.server.loadbalance.HopServerProbe;
+import org.apache.hop.server.loadbalance.ServerHealthSnapshot;
 
 public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServerStatusData> {
   public GetServerStatus(
@@ -68,57 +66,23 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
     if (serverMeta == null) {
       throw new HopException("Hop server '" + serverName + "' couldn't be found");
     }
-    RemoteHopServer server = new RemoteHopServer(serverMeta);
-
-    String errorMessage;
-    String statusDescription = null;
-    Double serverLoad = null;
-    Long memoryFree = null;
-    Long memoryTotal = null;
-    Long cpuCores = null;
-    Long cpuProcessTime = null;
-    String osName = null;
-    String osVersion = null;
-    String osArchitecture = null;
-    Long activePipelines = null;
-    Long activeWorkflows = null;
-    Boolean available = null;
-    Long responseNs = null;
-    long startTime = System.nanoTime();
-    long endTime;
-
-    try {
-      errorMessage = null;
-      HopServerStatus status = server.requestServerStatus(this);
-      statusDescription = status.getStatusDescription();
-      serverLoad = status.getLoadAvg();
-      memoryFree = status.getMemoryFree();
-      memoryTotal = status.getMemoryTotal();
-      cpuCores = (long) status.getCpuCores();
-      cpuProcessTime = status.getCpuProcessTime();
-      osName = status.getOsName();
-      osVersion = status.getOsVersion();
-      osArchitecture = status.getOsArchitecture();
-      activePipelines = 0L;
-      for (HopServerPipelineStatus pipelineStatus : status.getPipelineStatusList()) {
-        if (pipelineStatus.isRunning()) {
-          activePipelines++;
-        }
-      }
-      activeWorkflows = 0L;
-      for (HopServerWorkflowStatus workflowStatus : status.getWorkflowStatusList()) {
-        if (workflowStatus.isRunning()) {
-          activeWorkflows++;
-        }
-      }
-
-      available = true;
-    } catch (Exception e) {
-      errorMessage = "Error querying Hop server : " + e.getMessage();
-    } finally {
-      endTime = System.nanoTime();
-    }
-    responseNs = endTime - startTime;
+    ServerHealthSnapshot snapshot = HopServerProbe.probe(serverMeta, this, true, 0);
+    String errorMessage = snapshot.getErrorMessage();
+    String statusDescription = snapshot.getStatusDescription();
+    Double serverLoad = snapshot.getLoadAvg();
+    Long memoryFree = snapshot.getMemoryFree();
+    Long memoryTotal = snapshot.getMemoryTotal();
+    Long cpuCores = snapshot.getCpuCores() == null ? null : snapshot.getCpuCores().longValue();
+    Long cpuProcessTime = snapshot.getCpuProcessTime();
+    String osName = snapshot.getOsName();
+    String osVersion = snapshot.getOsVersion();
+    String osArchitecture = snapshot.getOsArchitecture();
+    Long activePipelines = snapshot.isAvailable() ? (long) snapshot.getRunningPipelines() : null;
+    Long finishedPipelines = snapshot.isAvailable() ? (long) snapshot.getFinishedPipelines() : null;
+    Long activeWorkflows = snapshot.isAvailable() ? (long) snapshot.getRunningWorkflows() : null;
+    Long finishedWorkflows = snapshot.isAvailable() ? (long) snapshot.getFinishedWorkflows() : null;
+    Boolean available = snapshot.isAvailable() ? Boolean.TRUE : null;
+    Long responseNs = snapshot.getResponseNs();
 
     // Add the fields to the output row
     //
@@ -157,8 +121,14 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
     if (StringUtils.isNotEmpty(meta.getActivePipelinesField())) {
       outputRow[outIndex++] = activePipelines;
     }
+    if (StringUtils.isNotEmpty(meta.getFinishedPipelinesField())) {
+      outputRow[outIndex++] = finishedPipelines;
+    }
     if (StringUtils.isNotEmpty(meta.getActiveWorkflowsField())) {
       outputRow[outIndex++] = activeWorkflows;
+    }
+    if (StringUtils.isNotEmpty(meta.getFinishedWorkflowsField())) {
+      outputRow[outIndex++] = finishedWorkflows;
     }
     if (StringUtils.isNotEmpty(meta.getAvailableField())) {
       outputRow[outIndex++] = available;

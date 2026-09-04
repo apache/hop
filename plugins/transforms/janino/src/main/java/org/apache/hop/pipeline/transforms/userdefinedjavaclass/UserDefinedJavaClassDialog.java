@@ -65,6 +65,7 @@ import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -493,7 +494,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     addRenameToTreeScriptItems();
     input.setChanged(changed);
@@ -1536,10 +1537,19 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private void populateFieldsTree() {
+    // Looking the fields up takes a while, and the dialog may well be gone by now.
+    if (shell.isDisposed()) {
+      return;
+    }
     shell
         .getDisplay()
         .syncExec(
             () -> {
+              if (itemInput.isDisposed()) {
+                // Closed while we were waiting our turn on the UI thread. syncExec hands what
+                // this throws back to the lookup thread, where nothing catches it.
+                return;
+              }
               itemInput.removeAll();
               itemInfo.removeAll();
               itemOutput.removeAll();

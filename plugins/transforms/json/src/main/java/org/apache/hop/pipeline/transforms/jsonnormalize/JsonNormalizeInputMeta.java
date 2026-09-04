@@ -240,38 +240,6 @@ public class JsonNormalizeInputMeta
     ignoreMissingField = true;
   }
 
-  public JsonNormalizeInputMeta(JsonNormalizeInputMeta m) {
-    this();
-    this.addResultFile = m.addResultFile;
-    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    this.filenameField = m.filenameField;
-    this.includeFilename = m.includeFilename;
-    this.includeRowNumber = m.includeRowNumber;
-    this.inFields = m.inFields;
-    this.sourceAFile = m.sourceAFile;
-    this.ignoringEmptyFile = m.ignoringEmptyFile;
-    this.readUrl = m.readUrl;
-    this.removeSourceField = m.removeSourceField;
-    this.rowLimit = m.rowLimit;
-    this.rowNumberField = m.rowNumberField;
-    this.valueField = m.valueField;
-    this.recordPath = m.recordPath;
-    this.fieldSeparator = m.fieldSeparator;
-    this.maxFlattenDepth = m.maxFlattenDepth;
-    this.arrayHandling = m.arrayHandling;
-    this.beyondDepthBehavior = m.beyondDepthBehavior;
-    this.ignoreMissingField = m.ignoreMissingField;
-    this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
-    this.fileInput = new BaseFileInput(m.fileInput);
-    m.inputFields.forEach(f -> inputFields.add(new JsonInputField(f)));
-    syncFieldSourceFlags();
-  }
-
-  @Override
-  public JsonNormalizeInputMeta clone() {
-    return new JsonNormalizeInputMeta(this);
-  }
-
   public String getShortFileNameField() {
     return additionalOutputFields.getShortFilenameField();
   }

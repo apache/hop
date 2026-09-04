@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.server.loadbalance.ILoadBalancingRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -49,6 +50,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.server.loadbalance.LoadBalancingRunConfigurationWidgets;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -88,6 +90,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Composite wPluginSpecificComp;
   private ScrolledComposite wsPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
+  private LoadBalancingRunConfigurationWidgets loadBalancingWidgets;
 
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
   private TableView wVariables;
@@ -429,9 +432,18 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     for (Control child : wPluginSpecificComp.getChildren()) {
       child.dispose();
     }
+    guiCompositeWidgets = null;
+    loadBalancingWidgets = null;
 
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
+      if (workingConfiguration.getEngineRunConfiguration()
+          instanceof ILoadBalancingRunConfiguration) {
+        loadBalancingWidgets =
+            new LoadBalancingRunConfigurationWidgets(
+                manager.getVariables(), manager.getMetadataProvider());
+        loadBalancingWidgets.registerServersGroup(guiCompositeWidgets, e -> setChanged());
+      }
       guiCompositeWidgets.createCompositeWidgets(
           workingConfiguration.getEngineRunConfiguration(),
           null,
@@ -537,6 +549,9 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     try {
       wExecutionInfoLocation.fillItems();
       wProfile.fillItems();
+      if (loadBalancingWidgets != null) {
+        loadBalancingWidgets.refreshServerNames();
+      }
     } catch (Exception e) {
       LogChannel.UI.logError("Error refreshing execution metadata lists", e);
     }
@@ -572,6 +587,11 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      }
+      if (loadBalancingWidgets != null
+          && workingConfiguration.getEngineRunConfiguration()
+              instanceof ILoadBalancingRunConfiguration loadBalancing) {
+        loadBalancingWidgets.setServers(loadBalancing);
       }
     } else {
       if (!wPluginType.getText().isEmpty()) {
@@ -614,6 +634,11 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
         && !guiCompositeWidgets.getWidgetsMap().isEmpty()) {
       guiCompositeWidgets.getWidgetsContents(
           meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
+    if (loadBalancingWidgets != null
+        && meta.getEngineRunConfiguration()
+            instanceof ILoadBalancingRunConfiguration loadBalancing) {
+      loadBalancingWidgets.getServers(loadBalancing);
     }
 
     meta.setExecutionDataProfileName(wProfile.getText());

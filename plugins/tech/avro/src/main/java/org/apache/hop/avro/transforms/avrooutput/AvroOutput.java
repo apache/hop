@@ -342,11 +342,11 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     GenericRecord row = getRecord(r, null, data.avroSchema);
 
     try {
-      if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
+      if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE].equals(
+          meta.getOutputType())) {
         data.dataFileWriter.append(row);
-      } else if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
+      } else if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD].equals(
+          meta.getOutputType())) {
         data.datumWriter.write(row, data.binaryEncoder);
         data.binaryEncoder.flush();
         data.byteArrayOutputStream.flush();
@@ -354,8 +354,8 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
             r, data.outputRowMeta.size() - 1, data.byteArrayOutputStream.toByteArray());
         data.byteArrayOutputStream.close();
         data.byteArrayOutputStream.reset();
-      } else if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD])) {
+      } else if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD].equals(
+          meta.getOutputType())) {
         data.datumWriter.write(row, data.jsonEncoder);
         data.jsonEncoder.flush();
         data.byteArrayOutputStream.flush();
@@ -399,13 +399,13 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       }
       data.datumWriter = new GenericDatumWriter<>(data.avroSchema);
 
-      if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
+      if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD].equals(
+          meta.getOutputType())) {
         data.encoderFactory = new EncoderFactory();
         data.byteArrayOutputStream = new ByteArrayOutputStream();
         data.binaryEncoder = data.encoderFactory.binaryEncoder(data.byteArrayOutputStream, null);
-      } else if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
+      } else if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE].equals(
+          meta.getOutputType())) {
         data.dataFileWriter = new DataFileWriter<>(data.datumWriter);
         if (!Utils.isEmpty(meta.getCompressionType())
             && !meta.getCompressionType().equalsIgnoreCase("none")) {
@@ -414,8 +414,8 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
         openNewFile(meta.getFileName());
         data.dataFileWriter.create(data.avroSchema, data.writer);
-      } else if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD])) {
+      } else if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD].equals(
+          meta.getOutputType())) {
         data.encoderFactory = new EncoderFactory();
         data.byteArrayOutputStream = new ByteArrayOutputStream();
         data.jsonEncoder =
@@ -429,8 +429,8 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
   }
 
   private void closeOutput() throws HopException {
-    if (meta.getOutputType()
-        .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
+    if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD].equals(
+        meta.getOutputType())) {
       try {
         data.binaryEncoder = null;
         data.jsonEncoder = null;
@@ -441,8 +441,8 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       } catch (Exception ex) {
         throw new HopException("Error cleaning up transform", ex);
       }
-    } else if (meta.getOutputType()
-        .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
+    } else if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE].equals(
+        meta.getOutputType())) {
       closeFile();
     }
     data.datumWriter = null;

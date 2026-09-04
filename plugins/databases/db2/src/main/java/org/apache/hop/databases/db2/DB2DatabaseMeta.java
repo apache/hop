@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -31,9 +32,16 @@ import org.apache.hop.core.row.IValueMeta;
     type = "DB2",
     typeDescription = "DB2",
     image = "db2.svg",
-    documentationUrl = "/database/databases/db2.html")
+    documentationUrl = "/database/databases/db2.html",
+    classLoaderGroup = "db2-db")
 @GuiPlugin(id = "GUI-DB2DatabaseMeta")
 public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** DB2 limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " FETCH FIRST " + nrRows + " ROWS ONLY";
+  }
 
   private static final String ALTER_TABLE = "ALTER TABLE ";
 
@@ -113,7 +121,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -153,7 +161,8 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         ALTER_TABLE
             + tableName
             + " ADD COLUMN "
-            + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+            + getColumnDefinition(
+                v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
     return retval;
   }
 
@@ -737,15 +746,6 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isSupportsBatchUpdates() {
     return true;
-  }
-
-  /**
-   * @return false because the DB2 JDBC driver doesn't support getBlob on the resultset. We must use
-   *     getBytes() to get the data.
-   */
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
   }
 
   /**

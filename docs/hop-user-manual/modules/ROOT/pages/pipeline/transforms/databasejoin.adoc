@@ -16,7 +16,9 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Database Join transform allows you to run a query against a database using data from your pipelines fields as parameters..
+:description: The Database Join transform allows you to run a query against a database using data from your pipelines fields as parameters.
+:openvar: ${
+:closevar: }
 
 = image:transforms/icons/dbjoin.svg[Database Join transform Icon, role="image-doc-icon"] Database Join
 
@@ -69,6 +71,17 @@ image::transforms/databasejoin/databasejoin-grid.png[]
 When the transform runs, the (?) placeholder defined in the SQL query will be replaced with the incoming productnr field value from the source hop.
 To define and use multiple parameters, list the fields in order you want them to be replaced in the SQL statement.
 
+=== Load SQL from a file
+
+You can keep the query in the SQL editor, or load it from an external `.sql` file with *Load SQL from file*.
+Use a VFS path; variables in the path (for example `{openvar}PROJECT_HOME{closevar}/sql/lookup_records.sql`) are resolved.
+The file is read once when the transform initializes, not once per incoming row.
+When a path is set, the SQL editor shows a read-only preview of the file contents.
+Question marks (`?`) in the file still bind to the *Parameters* table in the same order as for inline SQL.
+Leave the path empty to edit the query in the dialog (the previous default).
+
+Enable *Replace variables* to substitute Hop variables in the SQL (inline or loaded from the file) before the statement is prepared.
+
 == Options
 
 [options="header"]
@@ -85,7 +98,9 @@ If you can't use the cache, consider launching several copies of the simultaneou
 A simultaneous launch keeps the database busy through different connections.
 See Launching several copies of a transform.
 |Cache size in rows|The size of the cache (number of rows), 0 means cache everything.
-|SQL|SQL query to form the join; use question marks as parameter placeholders
+|SQL|SQL query to form the join; use question marks (`?`) as parameter placeholders. When *Load SQL from file* is set, this editor is a read-only preview of the file.
+|Load SQL from file|Optional VFS path to a `.sql` file (variables in the path are resolved). When set, the query is loaded from this file at transform initialization and the SQL editor is read-only. Parameter placeholders in the file still bind to the *Parameters* table. Leave empty to use the SQL editor.
+|Replace variables|Substitute Hop variables (for example `{openvar}schema{closevar}`) in the SQL before the statement is prepared. Applies to inline SQL and to SQL loaded from a file.
 |Number of rows to return|Zero (0) returns all rows; any other number limits the number of rows returned.
 |Outer join?|Enable to always return a result, even if the query did not return a result
 |Parameters table|Specify the fields containing parameters.

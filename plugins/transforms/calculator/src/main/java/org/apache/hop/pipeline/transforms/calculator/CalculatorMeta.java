@@ -69,18 +69,6 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
   }
 
   @Override
-  public CalculatorMeta clone() {
-    CalculatorMeta meta = new CalculatorMeta();
-    meta.setFailIfNoFile(isFailIfNoFile());
-
-    for (CalculatorMetaFunction function : functions) {
-      meta.getFunctions().add(new CalculatorMetaFunction(function));
-    }
-
-    return meta;
-  }
-
-  @Override
   public void getFields(
       IRowMeta row,
       String origin,

@@ -30,14 +30,18 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ToolBar;
 
 public abstract class WidgetUtils {
+  private static final String TOP_RIGHT_ALIGNING = "hop.alignTopRight";
+
   private WidgetUtils() {}
 
   public static void setFormLayout(Composite composite, int margin) {
@@ -135,5 +139,70 @@ public abstract class WidgetUtils {
 
   public static FormData secondColumn(Control top) {
     return new FormDataBuilder().top(top, ConstUi.MEDIUM_MARGIN).right().left(53, 0).result();
+  }
+
+  /**
+   * Create a flat toolbar for {@link CTabFolder#setTopRight(Control, int)} that stays vertically
+   * centered in the tab header.
+   *
+   * <p>{@code CTabFolder} only centers top-right controls when tab height is left at the default.
+   * Hop sets a fixed height ({@code setTabHeight(28)}), and in that mode the folder pins the
+   * control to {@code y = 1}. This method listens for that layout and moves the toolbar to the
+   * vertical center of the tab strip.
+   *
+   * @param tabFolder the folder that hosts the toolbar
+   * @return the toolbar to add items to; call {@link CTabFolder#setTabHeight(int)} after adding
+   *     items so the header is at least as tall as the toolbar
+   */
+  public static ToolBar createCenteredTopRightToolBar(CTabFolder tabFolder) {
+    ToolBar toolBar = new ToolBar(tabFolder, SWT.FLAT);
+    PropsUi.setLook(toolBar);
+    toolBar.setBackground(tabFolder.getBackground());
+    tabFolder.setTopRight(toolBar, SWT.RIGHT);
+
+    Listener align = e -> alignTopRightInTabHeader(tabFolder, toolBar);
+    tabFolder.addListener(SWT.Resize, align);
+    toolBar.addListener(SWT.Move, align);
+    return toolBar;
+  }
+
+  private static void alignTopRightInTabHeader(CTabFolder tabFolder, Control control) {
+    if (tabFolder.isDisposed() || control.isDisposed()) {
+      return;
+    }
+    if (Boolean.TRUE.equals(control.getData(TOP_RIGHT_ALIGNING))) {
+      return;
+    }
+
+    Rectangle bounds = control.getBounds();
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      return;
+    }
+
+    int headerY = 0;
+    int headerHeight = tabFolder.getTabHeight();
+    if (tabFolder.getItemCount() > 0) {
+      Rectangle tab = tabFolder.getItem(0).getBounds();
+      if (tab.height > 0) {
+        headerY = tab.y;
+        headerHeight = tab.height;
+      }
+    }
+
+    // Windows ToolBar preferred height includes empty space below the 16px icons. Center on
+    // the icon row so the buttons line up with the tab text instead of sitting on the top edge.
+    int iconHeight = (int) Math.round(ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor()) + 4;
+    int contentHeight = Math.min(bounds.height, iconHeight);
+    int y = headerY + Math.max(0, (headerHeight - contentHeight) / 2);
+    if (bounds.y == y) {
+      return;
+    }
+
+    control.setData(TOP_RIGHT_ALIGNING, Boolean.TRUE);
+    try {
+      control.setLocation(bounds.x, y);
+    } finally {
+      control.setData(TOP_RIGHT_ALIGNING, Boolean.FALSE);
+    }
   }
 }

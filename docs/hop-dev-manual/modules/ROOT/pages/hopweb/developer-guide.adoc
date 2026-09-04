@@ -114,6 +114,11 @@ The main configuration of Hop is done through a single configuration file called
 It is possible to set pass this standard Hop environment variable `HOP_CONFIG_FOLDER` to the docker container.
 You can point it to a mounted volume for example:
 
-`docker run -p 8080:8080 -v /host/path/to/config:/config -e HOP_CONFIG_FOLDER=/config hop-web`
+`docker run -p 8080:8080 -v /host/path/to/config:/hop/config -e HOP_CONFIG_FOLDER=/hop/config hop-web`
+
+Prefer a dedicated path such as `/hop/config` rather than `/config`.
+The Hop Web image uses `/config` for an optional Tomcat `tomcat-users.xml` / `web.xml` overlay.
 
 In the same way you can set the standard variable `HOP_AUDIT_FOLDER` to store GUI auditing and logging information.
+
+For the operator-facing volume layout, Compose example, and upgrade procedure, see xref:manual::hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].

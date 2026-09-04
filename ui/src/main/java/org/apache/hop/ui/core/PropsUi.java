@@ -35,6 +35,8 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -64,7 +66,7 @@ import org.eclipse.swt.widgets.Widget;
 public class PropsUi extends Props {
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
-  private static double nativeZoomFactor;
+  private double nativeZoomFactor;
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
@@ -114,10 +116,37 @@ public class PropsUi extends Props {
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME = "MetricsPanel.ShowDataVolume";
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME_IN = "MetricsPanel.ShowDataVolumeIn";
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME_OUT = "MetricsPanel.ShowDataVolumeOut";
+  private static final String METRICS_PANEL_DYNAMIC_COLUMN_RESIZE =
+      "MetricsPanel.DynamicColumnResize";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
-  private static PropsUi instance;
+
+  /**
+   * Hop Web session override for dark mode so one user on /ui-dark does not rewrite hop-config for
+   * every other session.
+   */
+  private Boolean darkModeOverride;
+
+  private static PropsUi fallback;
+
+  private static final ISingletonProvider PROVIDER = loadProvider();
+
+  private static ISingletonProvider loadProvider() {
+    try {
+      return (ISingletonProvider) ImplementationLoader.newInstance(PropsUi.class);
+    } catch (Throwable e) {
+      // hop-ui unit tests have no rcp/rap *Impl on the classpath.
+      return () -> {
+        synchronized (PropsUi.class) {
+          if (fallback == null) {
+            fallback = new PropsUi();
+          }
+          return fallback;
+        }
+      };
+    }
+  }
 
   /**
    * Session-only window position storage for dialogs. This map is kept in memory only and is
@@ -127,13 +156,10 @@ public class PropsUi extends Props {
   private final Map<String, WindowProperty> sessionWindowProperties = new HashMap<>();
 
   public static PropsUi getInstance() {
-    if (instance == null) {
-      instance = new PropsUi();
-    }
-    return instance;
+    return (PropsUi) PROVIDER.getInstanceInternal();
   }
 
-  private PropsUi() {
+  public PropsUi() {
     super();
 
     // If the zoom factor is set with variable HOP_GUI_ZOOM_FACTOR we set this first.
@@ -221,12 +247,7 @@ public class PropsUi extends Props {
     }
 
     if (display != null) {
-      FontData fontData = getDefaultFont();
-      setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
-      setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
-      setProperty(STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle());
-
-      fontData = getFixedFont();
+      FontData fontData = getFixedFont();
       setProperty(STRING_FONT_FIXED_NAME, fontData.getName());
       setProperty(STRING_FONT_FIXED_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_FIXED_STYLE, "" + fontData.getStyle());
@@ -235,11 +256,6 @@ public class PropsUi extends Props {
       setProperty(STRING_FONT_GRAPH_NAME, fontData.getName());
       setProperty(STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle());
-
-      fontData = getNoteFont();
-      setProperty(STRING_FONT_NOTE_NAME, fontData.getName());
-      setProperty(STRING_FONT_NOTE_SIZE, "" + fontData.getHeight());
-      setProperty(STRING_FONT_NOTE_STYLE, "" + fontData.getStyle());
 
       setProperty(STRING_ICON_SIZE, "" + getIconSize());
       setProperty(STRING_LINE_WIDTH, "" + getLineWidth());
@@ -276,20 +292,11 @@ public class PropsUi extends Props {
     return new FontData(name, size, style);
   }
 
+  /**
+   * Default UI font. Always the OS system font; leftover FontDefault* hop-config keys are ignored.
+   */
   public FontData getDefaultFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty(STRING_FONT_DEFAULT_NAME, def.getName());
-    int size = Const.toInt(getProperty(STRING_FONT_DEFAULT_SIZE), def.getHeight());
-    int style = Const.toInt(getProperty(STRING_FONT_DEFAULT_STYLE), def.getStyle());
-
-    return new FontData(name, size, style);
-  }
-
-  public void setDefaultFont(FontData fd) {
-    setProperty(STRING_FONT_DEFAULT_NAME, fd.getName());
-    setProperty(STRING_FONT_DEFAULT_SIZE, "" + fd.getHeight());
-    setProperty(STRING_FONT_DEFAULT_STYLE, "" + fd.getStyle());
+    return getDefaultFontData();
   }
 
   public void setGraphFont(FontData fd) {
@@ -308,20 +315,12 @@ public class PropsUi extends Props {
     return new FontData(name, size, style);
   }
 
-  public void setNoteFont(FontData fd) {
-    setProperty(STRING_FONT_NOTE_NAME, fd.getName());
-    setProperty(STRING_FONT_NOTE_SIZE, "" + fd.getHeight());
-    setProperty(STRING_FONT_NOTE_STYLE, "" + fd.getStyle());
-  }
-
+  /**
+   * Fallback font for notes that do not set their own. Same as {@link #getGraphFont()}; leftover
+   * FontNote* hop-config keys are ignored.
+   */
   public FontData getNoteFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty(STRING_FONT_NOTE_NAME, def.getName());
-    int size = Const.toInt(getProperty(STRING_FONT_NOTE_SIZE), def.getHeight());
-    int style = Const.toInt(getProperty(STRING_FONT_NOTE_STYLE), def.getStyle());
-
-    return new FontData(name, size, style);
+    return getGraphFont();
   }
 
   public void setIconSize(int size) {
@@ -741,6 +740,18 @@ public class PropsUi extends Props {
 
   public void setMetricsPanelShowDataVolumeOut(boolean show) {
     setProperty(METRICS_PANEL_SHOW_DATA_VOLUME_OUT, show ? YES : NO);
+  }
+
+  /**
+   * When true (default), auto-sized metrics columns grow during execution as values get wider. When
+   * false, widths stay where they were after the last pack or user drag.
+   */
+  public boolean isMetricsPanelDynamicColumnResize() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, YES));
+  }
+
+  public void setMetricsPanelDynamicColumnResize(boolean dynamic) {
+    setProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, dynamic ? YES : NO);
   }
 
   public static void setLook(Widget widget) {
@@ -1177,10 +1188,17 @@ public class PropsUi extends Props {
   }
 
   public boolean isDarkMode() {
+    if (darkModeOverride != null) {
+      return darkModeOverride;
+    }
     return YES.equalsIgnoreCase(getProperty(DARK_MODE, NO));
   }
 
   public void setDarkMode(boolean darkMode) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      darkModeOverride = darkMode;
+      return;
+    }
     setProperty(DARK_MODE, darkMode ? YES : NO);
   }
 
@@ -1393,14 +1411,14 @@ public class PropsUi extends Props {
    * @return value of nativeZoomFactor
    */
   public static double getNativeZoomFactor() {
-    return nativeZoomFactor;
+    return getInstance().nativeZoomFactor;
   }
 
   /**
    * @param nativeZoomFactor The nativeZoomFactor to set
    */
   public static void setNativeZoomFactor(double nativeZoomFactor) {
-    PropsUi.nativeZoomFactor = nativeZoomFactor;
+    getInstance().nativeZoomFactor = nativeZoomFactor;
   }
 
   private void populateContrastingColors() {

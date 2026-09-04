@@ -97,12 +97,6 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
   }
 
   @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     emptyRules();
     setFallBackValue("unknown");

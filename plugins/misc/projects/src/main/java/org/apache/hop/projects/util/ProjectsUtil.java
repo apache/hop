@@ -41,6 +41,7 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
+import org.apache.hop.projects.project.ParentProjectFolderSynchronizer;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -142,6 +143,16 @@ public class ProjectsUtil {
     // We store the project in the namespace singleton (used mainly in the GUI)
     //
     HopNamespace.setNamespace(projectName);
+
+    // Copy configured parent-project folders into this project home. Do not abort enabling the
+    // project when a template folder is missing or a file cannot be copied.
+    //
+    try {
+      ParentProjectFolderSynchronizer.synchronize(log, project, projectConfig, variables);
+    } catch (Exception e) {
+      log.logError(
+          "Error synchronizing parent project folders for project '" + projectName + "'", e);
+    }
 
     // Save some history concerning the usage of the project
     // but only in case Hop was started by HopGui because that is the only case

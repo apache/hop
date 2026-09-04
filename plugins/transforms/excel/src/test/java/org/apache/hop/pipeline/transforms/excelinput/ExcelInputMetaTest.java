@@ -59,7 +59,7 @@ class ExcelInputMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/excel-input-transform.xml", ExcelInputMeta.class);
 
-    ExcelInputMeta clone = meta.clone();
+    ExcelInputMeta clone = (ExcelInputMeta) meta.clone();
 
     assertEquals(meta.getFiles().size(), clone.getFiles().size());
   }

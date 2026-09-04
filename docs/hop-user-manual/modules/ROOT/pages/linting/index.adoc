@@ -1,0 +1,118 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[Linting]]
+:imagesdir: ../assets/images
+:description: The Hop linter checks pipelines, workflows and metadata against a set of rules, in Hop Gui while you work and on the command line in CI.
+
+= Linting
+
+== Introduction
+
+The linter performs static analysis on a Hop project: it reads pipelines (`.hpl`), workflows (`.hwf`) and metadata, and reports where they break a rule.
+It never runs a pipeline and never connects to a database, so it is safe to run on any project at any time, including in a build.
+
+A linter answers questions a review would otherwise have to catch by eye:
+
+* Is a password hardcoded in a connection instead of coming from a variable?
+* Are there transforms on the canvas that nothing is connected to?
+* Are transforms still carrying their auto-generated names?
+
+Apache Hop ships a small set of rules that are enabled by default.
+Everything beyond those — naming conventions, size ceilings, mandatory descriptions — is a matter of house style, so those rules ship disabled or come from a xref:linting/lint-rule-packs.adoc[rule pack] you install or write yourself.
+
+See xref:linting/lint-rules.adoc[Lint rules] for the rules themselves and how to configure them, and xref:hop-tools/hop-lint.adoc[hop lint] for the command line.
+
+== Installing
+
+The linter is not part of the standard Hop client.
+Install it from the xref:hop-tools/hop-marketplace.adoc[marketplace], where it is listed as *Lint* under Miscellaneous, and restart Hop Gui so the plugin registry picks it up.
+
+From the command line:
+
+[source,bash]
+----
+hop marketplace install hop-misc-lint
+----
+
+== Linting in Hop Gui
+
+[cols="1,3", options="header"]
+|===
+|Where |What it does
+
+|*Tools -> Lint -> Lint Project*
+|Lints every pipeline, workflow and metadata file in the current project
+
+|*Tools -> Lint -> Manage Custom Rules*
+|Shows the effective rule set and edits the rules for this project
+
+|*Tools -> Lint -> Show Lint Results*
+|Opens a window with the findings for the whole project
+
+|Explorer perspective, right-click
+|Lints a single file or a folder
+
+|Pipeline and workflow editor, *Problems* tab
+|Lists the findings for the file being edited, next to Hop's own checks
+
+|Pipeline and workflow canvas
+|Draws a severity badge on each transform or action with findings, and a totals overlay in the top left corner
+
+|*Verify*
+|Adds the lint findings to the Problems tab alongside Hop's own checks
+|===
+
+Files are linted again when you open them, when you save them, and shortly after you stop editing.
+
+Findings for a file that is open are shown in that editor's *Problems* tab, which fills as soon as the file has been linted.
+Clicking the totals overlay on the canvas brings that tab to the front.
+The separate window is used for the cases a Problems tab cannot serve: a whole project or folder, and files which are not open.
+
+Clicking a badge on the canvas, or a row in the results, jumps to the transform or action the finding is about.
+
+== Severities
+
+[cols="1,3", options="header"]
+|===
+|Severity |Meaning
+
+|`ERROR`
+|A defect. In CI this fails the build by default.
+
+|`WARNING`
+|Worth fixing, but does not fail the build unless you ask it to.
+
+|`INFO`
+|Informational.
+|===
+
+A rule's severity is part of the rule, and a project can override it.
+
+== Configuration
+
+Linter behaviour is configured under *Configuration -> Linter* in Hop Gui, and stored in `hop-config.json`.
+The linter can be switched off entirely there, and each of its parts — linting while you edit, the problems bar, the canvas overlays, the checks added to *Verify*, and blocking git commits — can be switched off individually.
+
+Blocking git commits is *off by default*. Nothing about committing changes until you switch it on, and see xref:hop-tools/hop-lint.adoc[hop lint] for which git operations it applies to.
+
+Which *rules* apply is a separate matter, and belongs to the project rather than to the installation: see xref:linting/lint-rules.adoc[Lint rules].
+
+== Adopting the linter on an existing project
+
+Pointed at a project that has been running for years, the linter will report a great deal at once.
+Rather than triaging all of it, record today's findings as a baseline and let the build fail only on what gets added from then on.
+See xref:hop-tools/hop-lint.adoc#baseline[the baseline section] of the `hop lint` documentation.

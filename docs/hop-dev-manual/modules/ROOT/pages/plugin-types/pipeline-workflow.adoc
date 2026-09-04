@@ -1,0 +1,206 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The plugin types that make up pipelines and workflows: transforms, actions, the engines that run them, partitioners and row distribution.
+[[PluginTypes-PipelineWorkflow]]
+= Pipelines and workflows
+
+These are the plugin types most people come for.
+The shared mechanics — discovery, annotation attributes, classloading, how a plugin gets into the distribution — are on the xref:plugin-types/index.adoc[plugin types overview].
+
+== Transform
+
+A transform is the unit of work in a pipeline: it reads rows, produces rows, or both.
+With around 250 of them in the distribution, this is the plugin type with the most examples to copy from.
+
+Annotation:: `@Transform` on the meta class
+Implement:: `ITransformMeta`, in practice by extending `BaseTransformMeta<Main, Data>`
+Plugin type:: `TransformPluginType`, id `TRANSFORM`
+Examples:: everything under `plugins/transforms`. `detectemptystream` is about as small as they get, `coalesce` is a good modern one with fields.
+
+=== The four classes
+
+A transform is a set of four classes with a fixed naming convention.
+Take `Foo` as the name:
+
+`FooMeta`::
+Extends `BaseTransformMeta<Foo, FooData>` and carries the `@Transform` annotation.
+This is the *design-time* object: it holds the settings, serialises them, validates them, and tells the pipeline what the output row looks like.
+One instance per transform in the pipeline, shared by all copies.
+
+`Foo`::
+Extends `BaseTransform<FooMeta, FooData>` and implements `ITransform`.
+This is the *runtime* object, one instance per running copy.
+
+`FooData`::
+Implements `ITransformData`, usually by extending `BaseTransformData`.
+Everything mutable that a running copy needs.
+It is separate from the transform for a reason: with multiple copies, the meta is shared and the data is not.
+
+`FooDialog`::
+Implements `ITransformDialog`, usually by extending `BaseTransformDialog`.
+The settings dialog.
+It is found by convention: the meta class name with `Meta` replaced by `Dialog`, first looked up in the same package and then in the same package with `.hop.` replaced by `.hop.ui.`.
+Override `getDialogClassName()` if you need something else.
+Keeping the dialog in a `org.apache.hop.ui.*` package is the convention in Hop's own plugins, so that a headless runtime never loads SWT classes.
+
+=== Settings and serialisation
+
+Annotate the fields with `@HopMetadataProperty` and both XML serialisation and metadata injection come for free.
+No `getXml()` or `loadXml()`, no `loadTransformMeta()`:
+
+[source,java]
+----
+@HopMetadataProperty(key = "value_field")
+private String valueField;
+
+@HopMetadataProperty(groupKey = "fields", key = "field")
+private List<FooField> fields;
+----
+
+You will still find older transforms writing XML by hand.
+Do not copy them; see xref:metadata-serialization.adoc[Metadata serialization] and xref:metadata-injection.adoc[Metadata injection].
+
+=== The methods that matter
+
+`setDefault()`::
+The settings for a transform that was just dropped on the canvas.
+
+`getFields(...)`::
+Describes the outgoing row: which fields it has, of which types, and where they came from.
+Everything downstream — the next transform's dialog, previews, the SQL a bulk loader generates — depends on this being right.
+This is the single most important method to get correct.
+
+`check(...)`::
+Design-time validation, shown when a user checks a pipeline.
+Add `CheckResult` entries for missing input hops, unresolvable fields, and settings that cannot work.
+
+`init()` / `processRow()` / `dispose()` on the transform::
+`init()` opens what needs opening and returns false to fail the pipeline.
+`processRow()` handles one row and returns false when there is nothing left to do; it is called repeatedly until it does.
+`dispose()` cleans up.
+
+=== Engine compatibility
+
+By default a transform expresses no opinion about which engines can run it.
+`supportedEngines` and `excludedEngines` on the annotation let it say so explicitly.
+Declaring both fails registration — pick one.
+See xref:engine-compatibility.adoc[Engine compatibility].
+
+== Transform engine support (fragment)
+
+A *fragment* plugin type does not add a plugin; it modifies one that already exists.
+`@TransformEngineSupport` is the only one, and it exists so that an engine module can declare compatibility for transforms it does not own:
+
+[source,java]
+----
+@TransformEngineSupport(id = "TableInput", excludedEngines = {"Beam*"})
+----
+
+Annotation:: `@TransformEngineSupport`
+Plugin type:: `TransformEngineSupportPluginType`, extending `BaseFragmentType`
+Details:: xref:engine-compatibility.adoc[Engine compatibility]
+
+== Action
+
+An action is the unit of work in a workflow.
+Where transforms stream rows, actions run once and report success or failure.
+
+Annotation:: `@Action`
+Implement:: `IAction`, in practice by extending `ActionBase`
+Plugin type:: `ActionPluginType`, id `ACTION`
+Examples:: everything under `plugins/actions`
+
+An action is two classes, not four: `ActionFoo` and `ActionFooDialog`.
+There is no separate data object because there are no parallel copies, and no meta/runtime split because the action object is both.
+
+`execute(Result prevResult, int nr)`::
+Does the work and returns a `Result`.
+Set `setResult(true)` for success, and use `setNrErrors(...)` to signal failure.
+Rows and filenames are passed along the workflow through the same `Result`.
+
+`isStart()` / `isJoin()`::
+Only relevant for special actions like Start and Dummy.
+
+Serialisation is the same `@HopMetadataProperty` mechanism as transforms — `ActionBase.getXml()` and `loadXml()` already route through it.
+The dialog is found by the same convention (`ActionFoo` → `ActionFooDialog`, with a `.hop.ui.` fallback) unless you override `getDialogClassName()`.
+
+Like transforms, actions can declare `supportedEngines` / `excludedEngines`.
+
+== Pipeline engine
+
+A pipeline engine is a runtime that executes a pipeline.
+Hop ships Local, Remote and Load Balancing engines, and the Beam plugin adds several more.
+
+Annotation:: `@PipelineEnginePlugin`
+Implement:: `IPipelineEngine<PipelineMeta>`
+Plugin type:: `PipelineEnginePluginType`, id `HOP_PIPELINE_ENGINES`
+Examples:: `engine/src/main/java/org/apache/hop/pipeline/engines`, `plugins/engines/beam`
+
+This is a large interface, and writing an engine from scratch is a serious undertaking: it covers preparing and starting execution, exposing components and their metrics, firing the execution lifecycle extension points, and stopping cleanly.
+
+Two things are specific to being a plugin rather than just an engine:
+
+* An engine is configured through a *pipeline run configuration*, which is a metadata object.
+The engine plugin ships the `IPipelineEngineRunConfiguration` implementation that holds its settings, and it is that class the user edits in the GUI.
+* `supports(IPlugin transformPlugin)` is the engine's own compatibility verdict about a transform.
+The default is `EngineCompatibility.unknown()`, meaning "no opinion, fall back to the transform's annotation".
+Override it to say `SUPPORTED` or `UNSUPPORTED` authoritatively.
+
+== Workflow engine
+
+The same idea for workflows.
+
+Annotation:: `@WorkflowEnginePlugin`
+Implement:: `IWorkflowEngine<WorkflowMeta>`
+Plugin type:: `WorkflowEnginePluginType`, id `HOP_WORKFLOW_ENGINES`
+Examples:: `engine/src/main/java/org/apache/hop/workflow/engines`
+
+Configured through a *workflow run configuration* metadata object, and it has the same `supports()` verdict for actions.
+
+[NOTE]
+====
+An extension point that binds to a concrete `Workflow` or `Pipeline` class instead of `IWorkflowEngine` / `IPipelineEngine` works locally and throws a `ClassCastException` on remote or Beam engines.
+Always bind to the interface.
+====
+
+== Partitioner
+
+A partitioner decides which partition of a partition schema a row belongs to.
+Hop ships exactly one, `ModPartitioner`, which takes the modulo of a field value.
+
+Annotation:: `@PartitionerPlugin`
+Implement:: `IPartitioner`, usually by extending `BasePartitioner`
+Plugin type:: `PartitionerPluginType`, id `PARTITIONER`
+Example:: `engine/src/main/java/org/apache/hop/pipeline/ModPartitioner.java`
+
+The interface is small: `getPartition(...)` returns a partition number for a row, plus `clone()`, `getInstance()` and the usual id/description accessors.
+`getDialogClassName()` points at the SWT dialog for its settings, and `getXml()` / `loadXml()` serialise them.
+
+== Row distribution
+
+When a transform sends rows to several copies of the next transform, something has to decide which copy each row goes to.
+The built-in choices are round-robin and copy-to-all; a row distribution plugin adds a third option to that list.
+
+Annotation:: `@RowDistributionPlugin`
+Implement:: `IRowDistribution`
+Plugin type:: `RowDistributionPluginType`, id `ROW_DISTRIBUTION`
+
+The annotation uses `code` rather than `id` — that is the value stored in the pipeline file.
+`distributeRow(rowMeta, row, transform)` does the work: it is handed the transform, picks one of its output row sets and puts the row there.
+`getDistributionImage()` returns the small SVG drawn on the hop, or null for the standard icon.
+
+There are no implementations in the Hop distribution today, so `engine/src/test/java/org/apache/hop/pipeline/transform/FakeRowDistribution.java` is the closest thing to an example.

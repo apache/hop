@@ -162,7 +162,7 @@ class GenericDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD BAR VARCHAR(45)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

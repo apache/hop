@@ -59,7 +59,6 @@ class IngresDatabaseMetaTest {
     assertTrue(nativeMeta.isFetchSizeSupported());
     assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertFalse(nativeMeta.isSupportsSynonyms());
-    assertFalse(nativeMeta.isSupportsGetBlob());
   }
 
   @Test

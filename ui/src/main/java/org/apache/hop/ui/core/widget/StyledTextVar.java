@@ -331,7 +331,8 @@ public class StyledTextVar extends TextComposite {
       getToolbar().setEnabled(enabled);
     }
     // StyledText component does not get the "disabled" look, so it needs to be applied explicitly
-    if (Display.getDefault() != null) {
+    Display display = wText.getDisplay();
+    if (display != null && !display.isDisposed()) {
       wText.setBackground(
           enabled
               ? GuiResource.getInstance().getColorWhite()

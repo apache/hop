@@ -44,6 +44,7 @@ import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PluginWidgetFactory;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -192,7 +193,7 @@ public class TeraFastDialog extends BaseTransformDialog {
                 BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     this.meta.setChanged(this.changed);

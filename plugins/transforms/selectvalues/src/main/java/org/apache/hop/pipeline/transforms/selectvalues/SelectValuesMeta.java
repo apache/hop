@@ -70,16 +70,6 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
   }
 
   @Override
-  public SelectValuesMeta clone() {
-    return new SelectValuesMeta(this);
-  }
-
-  public SelectValuesMeta(SelectValuesMeta m) {
-    super.clone();
-    this.selectOption = new SelectOptions(m.getSelectOption());
-  }
-
-  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,

@@ -47,12 +47,6 @@ public class ActionSuccess extends ActionBase implements Cloneable, IAction {
     this("", "");
   }
 
-  @Override
-  public Object clone() {
-    ActionSuccess je = (ActionSuccess) super.clone();
-    return je;
-  }
-
   /**
    * Execute this action and return the result. In this case it means, just set the result boolean
    * in the Result class.

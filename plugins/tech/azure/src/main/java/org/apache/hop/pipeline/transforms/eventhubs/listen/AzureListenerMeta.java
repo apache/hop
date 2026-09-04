@@ -104,34 +104,6 @@ public class AzureListenerMeta extends BaseTransformMeta<AzureListener, AzureLis
     super();
   }
 
-  public AzureListenerMeta(AzureListenerMeta m) {
-    this();
-    this.namespace = m.namespace;
-    this.eventHubName = m.eventHubName;
-    this.sasKeyName = m.sasKeyName;
-    this.sasKey = m.sasKey;
-    this.consumerGroupName = m.consumerGroupName;
-    this.storageConnectionString = m.storageConnectionString;
-    this.storageContainerName = m.storageContainerName;
-    this.prefetchSize = m.prefetchSize;
-    this.batchSize = m.batchSize;
-    this.outputField = m.outputField;
-    this.partitionIdField = m.partitionIdField;
-    this.offsetField = m.offsetField;
-    this.sequenceNumberField = m.sequenceNumberField;
-    this.hostField = m.hostField;
-    this.enqueuedTimeField = m.enqueuedTimeField;
-    this.batchPipeline = m.batchPipeline;
-    this.batchInputTransform = m.batchInputTransform;
-    this.batchOutputTransform = m.batchOutputTransform;
-    this.batchMaxWaitTime = m.batchMaxWaitTime;
-  }
-
-  @Override
-  public AzureListenerMeta clone() {
-    return new AzureListenerMeta(this);
-  }
-
   @Override
   public void setDefault() {
     consumerGroupName = "$Default";

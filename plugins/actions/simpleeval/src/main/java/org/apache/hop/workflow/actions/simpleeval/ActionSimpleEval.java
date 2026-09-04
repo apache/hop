@@ -332,12 +332,6 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionSimpleEval je = (ActionSimpleEval) super.clone();
-    return je;
-  }
-
   public void setSuccessWhenVarSet(boolean successwhenvarset) {
     this.successWhenVarSet = successwhenvarset;
   }

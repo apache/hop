@@ -56,6 +56,19 @@ public class AddXmlData extends BaseTransformData implements ITransformData {
 
   public int[] fieldIndexes;
 
+  /**
+   * Index, in the output fields, of the field that declares the namespace of the root node, or -1
+   * when the root node has no namespace. Its value is read per row and applied when the document is
+   * created, which is the only point at which a default namespace can be set.
+   */
+  public int namespaceFieldIndex = -1;
+
+  /**
+   * True when the root node's namespace is declared as a default namespace ({@code xmlns}) rather
+   * than a prefixed one. Only a default namespace is inherited by unprefixed child elements.
+   */
+  public boolean rootNamespaceIsDefault;
+
   /** */
   public AddXmlData() {
     super();

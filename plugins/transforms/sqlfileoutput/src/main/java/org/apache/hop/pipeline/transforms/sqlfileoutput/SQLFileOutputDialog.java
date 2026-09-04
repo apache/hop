@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -171,6 +172,15 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
+    Button wbSchema = new Button(wGConnection, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.top = new FormAttachment(wConnection, margin);
+    fdbSchema.right = new FormAttachment(100, 0);
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaName());
+
     wSchema = new TextVar(variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
@@ -178,7 +188,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
     fdSchema.top = new FormAttachment(wConnection, margin);
-    fdSchema.right = new FormAttachment(100, 0);
+    fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
@@ -849,6 +859,41 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     }
 
     dispose();
+  }
+
+  private void getSchemaName() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+        if (null != schemas && schemas.length > 0) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
+          String name = dialog.open();
+          if (name != null) {
+            wSchema.setText(name);
+          }
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
+            e);
+      }
+    }
   }
 
   private void getTableName() {

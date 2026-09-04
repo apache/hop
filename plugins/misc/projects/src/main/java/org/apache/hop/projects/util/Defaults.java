@@ -28,4 +28,7 @@ public class Defaults {
    * enabled and no custom filename is configured.
    */
   public static final String DEFAULT_AUTO_EXPORT_METADATA_FILENAME = "metadata.json";
+
+  /** Documentation page for project and environment properties. */
+  public static final String DOCUMENTATION_URI = "projects/projects-environments.html";
 }

@@ -81,3 +81,61 @@ First use Generate rows to create your fields and values to use (children: Boole
 |The input field that will contain the limit with which to search
 
 |===
+
+== Operation types
+
+The transform always needs input rows. Which input fields are required, and which columns are added, depends on the operation.
+
+[options="header"]
+|===
+|Operation
+|Required input fields
+|Added output
+
+|Get execution IDs
+|Include children, Limit
+|`id`
+
+|Get execution and state
+|Execution ID
+|Execution and state columns (see below)
+
+|Find executions
+|Execution parent ID
+|One output row per child execution, with execution and state columns
+
+|Find last execution
+|Execution name, Execution type
+|Execution and state columns for the most recent matching run, or no row
+
+|Find previous successful execution
+|Execution name, Execution type
+|Execution and state columns for the most recent matching run that did *not* fail, or no row
+
+|Find child IDs
+|Execution parent ID, Execution type
+|`id`
+
+|Find parent ID
+|Execution ID
+|`id`
+
+|Get execution data
+|Execution ID, Execution parent ID
+|Collected data-profile rows
+
+|Delete execution
+|Execution ID
+|`deleted` (Boolean)
+|===
+
+Execution *type* is the `ExecutionType` name: `Pipeline`, `Workflow`, `Transform`, or `Action`.
+
+Find last execution / Find previous successful execution / Get execution and state add:
+
+`executionId`, `parentId`, `name`, `executionType`, `filename`, `executorXml`, `metadataJson`, `registrationDate`, `executionStartDate`, `runConfigurationName`, `logLevel`, `updateTime`, `loggingText`, `failed`, `statusDescription`, `executionEndDate`.
+
+If no execution matches, the transform writes no output row for that input.
+
+*Find previous successful execution* is the operation to use for incremental extracts: it answers “when did this workflow or pipeline last succeed?” so a xref:pipeline/transforms/tableinput.adoc[Table Input] can filter on a timestamp or increasing ID. How to wire that (or write the watermark yourself on the success path) is in xref:how-to-guides/cdc-filtered-selection.adoc[CDC: filtered selection].
+

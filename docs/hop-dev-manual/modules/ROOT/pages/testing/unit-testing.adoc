@@ -1,0 +1,53 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How unit tests are written and run in Hop, and what the test infrastructure gives you.
+[[Testing-UnitTesting]]
+= Unit tests
+
+Unit tests run on JUnit 5 through Surefire, as part of every `./mvnw clean install`.
+
+[source,bash]
+----
+./mvnw test -pl core                    # one module
+./mvnw test -pl core -Dtest=ConstTest   # one class
+----
+
+== What you get for free
+
+The Surefire configuration in the root pom points `HOP_AUDIT_FOLDER` at the module's `target/`, so tests never write into a developer's real audit folder.
+
+`hop-core`, `hop-engine` and `hop-ui` publish test jars, and the plugins parent already puts them on every plugin's test classpath, so a plugin test can reuse the shared fixtures without adding a dependency.
+`org.apache.hop.core.util.TestUtil` registers the built-in value types, a database plugin and a password encoder, which is enough for a test that only needs to construct rows.
+
+Most tests that touch anything plugin-based need an initialised environment.
+`HopClientEnvironment.init()` is enough for value types, databases and metadata; `HopEnvironment.init()` is needed as soon as transforms or actions are involved.
+
+== A trap worth knowing
+
+`-Dtest=!SomeTest` silently discards the Surefire excludes configured in the module poms, so a full-reactor run with that flag can surface a large number of failures that are not real.
+Exclude by editing the pom, or run the module on its own.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* The conventions: naming, where test resources go, when Mockito is appropriate and when it is not.
+* Testing a transform end to end without a whole pipeline.
+* Testing metadata serialization round-trips, and testing metadata injection.
+* Coverage: what JaCoCo is configured to collect and what is expected of a pull request.
+* Known flaky areas and how to tell a flake from a regression.
+====

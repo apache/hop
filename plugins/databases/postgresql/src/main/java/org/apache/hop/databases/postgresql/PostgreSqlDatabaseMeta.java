@@ -17,14 +17,33 @@
 
 package org.apache.hop.databases.postgresql;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.ColumnTypeRules;
+import org.apache.hop.core.database.types.DatabaseColumn;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.database.types.StandardJdbcTypeMapper;
+import org.apache.hop.core.database.validation.ColumnValueConstraints;
+import org.apache.hop.core.database.validation.StringLengthUnit;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 
 /** Contains PostgreSQL specific information through static final members */
 @DatabaseMetaPlugin(
@@ -35,7 +54,115 @@ import org.apache.hop.core.row.IValueMeta;
     classLoaderGroup = "postgres-db")
 @GuiPlugin(id = "GUI-PostgreSQLDatabaseMeta")
 public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /**
+   * Postgres takes JSON and JSONB as a typed object rather than a string. Other databases reject
+   * {@link Types#OTHER}, which is why this cannot be the neutral handling.
+   */
+  private static final IValueBinding JSON_BINDING =
+      new IValueBinding() {
+        @Override
+        public Object read(
+            IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index) {
+          throw new UnsupportedOperationException("This binding only writes values");
+        }
+
+        @Override
+        public void write(
+            IDatabase database,
+            IValueMeta valueMeta,
+            PreparedStatement preparedStatement,
+            int index,
+            Object value)
+            throws SQLException, HopValueException {
+          Object json = valueMeta.getNativeDataType(value);
+          if (json == null) {
+            preparedStatement.setNull(index, Types.OTHER);
+          } else {
+            preparedStatement.setObject(index, json, Types.OTHER);
+          }
+        }
+      };
+
+  /**
+   * Postgres has column types, uuid and inet among them, that the driver will not take a plain
+   * string for, and will not take a null for at all without being told which type is meant. So the
+   * neutral handling of those values, which writes them as strings, cannot serve here.
+   *
+   * <p>Leaving the type unspecified hands the resolution to the server, which reads the string as
+   * whatever the column is: uuid or inet on Postgres, character varying on a Redshift that has
+   * neither.
+   */
+  private static final IValueBinding UNSPECIFIED_STRING_BINDING =
+      new IValueBinding() {
+        @Override
+        public Object read(
+            IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index) {
+          throw new UnsupportedOperationException("This binding only writes values");
+        }
+
+        @Override
+        public void write(
+            IDatabase database,
+            IValueMeta valueMeta,
+            PreparedStatement preparedStatement,
+            int index,
+            Object value)
+            throws SQLException, HopValueException {
+          String string = valueMeta.getString(value);
+          if (string == null) {
+            preparedStatement.setNull(index, Types.OTHER);
+          } else {
+            preparedStatement.setObject(index, string, Types.OTHER);
+          }
+        }
+      };
+
+  /** Visible so a dialect that derives from Postgres can prepend its own and keep these. */
+  public static final List<IDatabaseTypeRule> POSTGRES_TYPE_RULES =
+      DatabaseTypes.rules()
+          // The driver reports the widest a double can hold rather than a declared size.
+          .read(Types.DOUBLE)
+          .where(
+              (variables, databaseMeta, column) ->
+                  StandardJdbcTypeMapper.numericScale(column) >= 16
+                      && StandardJdbcTypeMapper.numericLength(column) >= 16)
+          .as(IValueMeta.TYPE_NUMBER, -1, -1)
+          // A numeric with no declared size means arbitrary precision.
+          .read(Types.NUMERIC)
+          .where(
+              (variables, databaseMeta, column) ->
+                  StandardJdbcTypeMapper.numericLength(column) == 0
+                      && StandardJdbcTypeMapper.numericScale(column) == 0)
+          .as(IValueMeta.TYPE_BIGNUMBER, -1, -1)
+          // An address is Types.OTHER, which the standard mapping takes as a string, so without
+          // this the value type Hop has for addresses never sees the column.
+          .readNative("INET")
+          .as(IValueMeta.TYPE_INET)
+          // Non-legacy applications are advised to use JSONB rather than JSON.
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSONB")
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
+          .write(IValueMeta.TYPE_INET)
+          .as("INET")
+          .bind(IValueMeta.TYPE_JSON, JSON_BINDING)
+          .bind(IValueMeta.TYPE_UUID, UNSPECIFIED_STRING_BINDING)
+          .bind(IValueMeta.TYPE_INET, UNSPECIFIED_STRING_BINDING)
+          // An integer with no declared length is a Long, not a double precision. Issue #4174.
+          .rule(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG)
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return POSTGRES_TYPE_RULES;
+  }
+
   private static final int GB_LIMIT = 1_073_741_824;
+
+  /** The largest precision PostgreSQL accepts in a NUMERIC(p, s) declaration. */
+  private static final int MAX_NUMERIC_PRECISION = 1000;
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
   @Override
@@ -228,7 +355,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -342,7 +469,17 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           if (length > 0) {
             if (precision > 0 || length > 18) {
               // Numeric(Precision, Scale): Precision = total length; Scale = decimal places
-              retval += "NUMERIC(" + (length + precision) + ", " + precision + ")";
+              int numericPrecision = length + precision;
+              if (numericPrecision > MAX_NUMERIC_PRECISION) {
+                // PostgreSQL refuses a declared precision above 1000 outright: "NUMERIC precision
+                // 1073741824 must be between 1 and 1000". A length that large only ever arrives
+                // from the CLOB_LENGTH marker, which means unbounded, and an unconstrained NUMERIC
+                // is exactly that: it holds 131072 digits before the point, far past anything a
+                // Hop value carries.
+                retval += "NUMERIC";
+              } else {
+                retval += "NUMERIC(" + numericPrecision + ", " + precision + ")";
+              }
             } else {
               if (length > 9) {
                 retval += "BIGINT";
@@ -1109,11 +1246,6 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return true;
   }
 
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
-  }
-
   /**
    * @return true if the database supports the use of safe-points and if it is appropriate to ever
    *     use it (default to false)
@@ -1137,5 +1269,86 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   public void addDefaultOptions() {
     setSupportsBooleanDataType(true);
     setSupportsTimestampDataType(true);
+  }
+
+  @Override
+  public String getDatabaseCharacterSet(Database database) throws HopDatabaseException {
+    if (database == null) {
+      return "UTF8";
+    }
+    try {
+      RowMetaAndData row = database.getOneRow("SHOW server_encoding");
+      if (row != null && row.getData() != null && row.getRowMeta() != null) {
+        String encoding = row.getRowMeta().getString(row.getData(), 0);
+        if (!Utils.isEmpty(encoding)) {
+          return encoding;
+        }
+      }
+    } catch (Exception e) {
+      // Fall through to UTF8; validation still runs with a sensible default.
+    }
+    return "UTF8";
+  }
+
+  @Override
+  public void enrichColumnValueConstraints(
+      ColumnValueConstraints spec, DatabaseColumn column, String characterSet) {
+    ColumnValueConstraints.enrichFromJdbc(spec, column);
+    if (spec == null || column == null) {
+      return;
+    }
+    String nativeType = nativeTypeKey(column.getNativeTypeName());
+    switch (nativeType) {
+      case "varchar", "character varying" -> {
+        spec.setLengthUnit(StringLengthUnit.CHARACTERS);
+        spec.setRejectNulChar(true);
+      }
+      case "bpchar", "char", "character" -> {
+        spec.setLengthUnit(StringLengthUnit.CHARACTERS);
+        spec.setRejectNulChar(true);
+      }
+      case "text", "citext" -> {
+        spec.setStringMaxLength(-1);
+        spec.setRejectNulChar(true);
+      }
+      case "uuid" -> spec.setUuid(true);
+      case "json", "jsonb" -> spec.setJson(true);
+      case "int2", "smallint", "smallserial", "serial2" -> {
+        spec.setIntegerMin(-32768L);
+        spec.setIntegerMax(32767L);
+      }
+      case "int4", "integer", "int", "serial", "serial4" -> {
+        spec.setIntegerMin((long) Integer.MIN_VALUE);
+        spec.setIntegerMax((long) Integer.MAX_VALUE);
+      }
+      case "int8", "bigint", "bigserial", "serial8" -> {
+        spec.setIntegerMin(Long.MIN_VALUE);
+        spec.setIntegerMax(Long.MAX_VALUE);
+      }
+      case "numeric", "decimal" -> {
+        if (column.getPrecision() <= 0) {
+          spec.setNumericPrecision(-1);
+          spec.setNumericScale(-1);
+        } else {
+          spec.setNumericPrecision(column.getPrecision());
+          spec.setNumericScale(Math.max(column.getScale(), 0));
+        }
+      }
+      default -> {
+        // JDBC defaults from enrichFromJdbc already applied.
+      }
+    }
+  }
+
+  private static String nativeTypeKey(String nativeTypeName) {
+    if (Utils.isEmpty(nativeTypeName)) {
+      return "";
+    }
+    String name = nativeTypeName.trim().toLowerCase(java.util.Locale.ROOT);
+    int paren = name.indexOf('(');
+    if (paren > 0) {
+      name = name.substring(0, paren).trim();
+    }
+    return name;
   }
 }

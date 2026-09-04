@@ -1,0 +1,252 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopServerJsonApi]]
+:imagesdir: ../assets/images
+:description: Hop Server exposes a JSON API next to its XML web services, to read and write metadata, query the plugin registry, run web services and query execution information locations.
+
+= Hop Server JSON API
+
+Next to the xref:hop-server/rest-api.adoc[XML web services], Hop Server exposes a JSON API.
+It covers everything the XML services do for execution information, adds metadata and plugin registry access, and speaks JSON in both directions.
+
+== The base URL
+
+The API is served by Hop Server itself, under `/hop/api/v1/`:
+
+`+http://<hostname>:<port>/hop/api/v1/+`
+
+It is available in the same two deployments as the rest of Hop Server: the standalone `hop-server` process, and the Hop Web war deployed in a servlet container.
+
+[NOTE]
+====
+Before Hop 2.20 this API was a separate `hop-rest` war which had to be deployed on its own and served the same resources under `/api/v1/`.
+That module has been removed.
+Point existing clients at a Hop Server and add the `/hop` prefix, and note that authentication is now required.
+The `HOP_REST_CONFIG_FOLDER` environment variable and the `hop-rest.properties` file no longer exist: log level, project and environment are configured on `hop-server` itself.
+====
+
+== Authentication
+
+The JSON API sits behind the same authentication as every other Hop Server endpoint, which is enabled by default.
+Requests without valid credentials are rejected with an HTTP `401`.
+
+[source,bash]
+----
+curl --user cluster:cluster http://localhost:8081/hop/api/v1/metadata/types
+----
+
+== Error responses
+
+Errors are reported as JSON with an appropriate status code:
+
+[source,json]
+----
+{"error": "Unable to find web service 'test'"}
+----
+
+[cols="1,4"]
+|===
+|Status|Meaning
+
+|`400`
+|The request itself was wrong: a missing or invalid parameter, or a body that could not be parsed.
+
+|`401`
+|No or invalid credentials.
+
+|`404`
+|The requested path, or the element it names, does not exist.
+
+|`405`
+|The path exists but not for this HTTP method.
+
+|`409`
+|The element exists but is disabled.
+
+|`415`
+|The request body is not in a content type this endpoint accepts.
+
+|`500`
+|The request failed on the server.
+|===
+
+Failures which do not come from Hop itself are reported generically, with the detail written to the server log only.
+A stack trace is never sent to the client.
+
+== Metadata services
+
+[cols="1,3,3"]
+|===
+|Method|Path|Description
+
+|`GET`
+|`metadata/types`
+|List all the metadata type keys.
+
+|`GET`
+|`metadata/list/{key}`
+|List the names of all the elements of a type.
+
+|`GET`
+|`metadata/{key}/{name}`
+|Get one metadata element, serialized exactly as it is on the filesystem.
+
+|`POST`
+|`metadata/{key}`
+|Save a metadata element, posted as JSON. Returns the name of the element that was saved.
+
+|`DELETE`
+|`metadata/{key}/{name}`
+|Delete a metadata element. Returns the name of the element that was deleted.
+|===
+
+[source,bash]
+----
+curl --user cluster:cluster http://localhost:8081/hop/api/v1/metadata/list/pipeline-run-configuration
+----
+
+[source,json]
+----
+["local"]
+----
+
+== Plugin services
+
+[cols="1,3,3"]
+|===
+|Method|Path|Description
+
+|`GET`
+|`plugins/types`
+|List all the plugin type class names in the registry.
+
+|`GET`
+|`plugins/list/{typeClassName}`
+|List all the plugins for a plugin type. Only class names present in the registry are accepted.
+|===
+
+== Execution services
+
+[cols="1,3,3"]
+|===
+|Method|Path|Description
+
+|`POST`
+|`execute/sync`
+|Run a xref:hop-server/web-service.adoc[Web Service] synchronously and stream its output back.
+|===
+
+The body to post can contain the following options:
+
+* `service`: the name of the Web Service metadata element to use
+* `runConfig`: the pipeline run configuration to use, overriding the one on the web service
+* `variables`: a map of variables (or parameters) with their names and values
+* `bodyContent`: set as a variable using the body content variable option on the Web Service metadata
+
+[source,bash]
+----
+curl -X POST --user cluster:cluster \
+  http://localhost:8081/hop/api/v1/execute/sync \
+  -H 'Content-Type: application/json' \
+  -d '{ "service" : "test", "runConfig" : "local", "variables" : { "VAR1" : "value1" } }'
+----
+
+The response body is the concatenation of the values of the output field, for every row written by the transform configured on the Web Service metadata element, streamed as the pipeline produces them.
+The response content type is the one configured on that element, `text/plain` when it is left empty.
+
+This endpoint runs exactly the same code as `hop/webService`, so the body and header content variables, binary output fields and the status listing option all behave identically.
+
+[NOTE]
+====
+The one option which is not honoured here is the Web Service *status code* field.
+JAX-RS fixes the response status before the body is streamed, so a pipeline which has to drive the HTTP status must be called through xref:hop-server/rest-api.adoc[`hop/webService`] instead.
+====
+
+Asynchronous web services are not executed here: use `hop/asyncRun` and `hop/asyncStatus`, described in xref:hop-server/async-web-service.adoc[Asynchronous Web Service].
+
+== Execution information location services
+
+These operate on an xref:metadata-types/execution-information-location.adoc[Execution Information Location] metadata element, named by `{location}` in the paths below.
+They are the JSON equivalent of the `hop/getExecInfo` and `hop/registerExecInfo` services and cover the same operations.
+
+[cols="1,3,3"]
+|===
+|Method|Path|Description
+
+|`GET`
+|`location/{location}/executions?children=&limit=`
+|List execution IDs. `children` includes child executions, `limit` caps the number of IDs (`0` or lower for all).
+
+|`POST`
+|`location/{location}/executions`
+|Register an execution, posted as JSON.
+
+|`GET`
+|`location/{location}/executions/last?execType=&name=`
+|Find the last execution of a given type and name.
+
+|`GET`
+|`location/{location}/executions/{id}`
+|Get one execution.
+
+|`DELETE`
+|`location/{location}/executions/{id}`
+|Delete one execution.
+
+|`GET`
+|`location/{location}/executions/{id}/state`
+|Get the execution state.
+
+|`PUT`
+|`location/{location}/executions/{id}/state`
+|Update the execution state, posted as JSON.
+
+|`GET`
+|`location/{location}/executions/{id}/state/logging?limit=`
+|Get the logging text of the execution state. `limit` caps the number of characters; `-1` (the default) returns the whole log.
+
+|`GET`
+|`location/{location}/executions/{id}/children`
+|Find the child executions of a parent execution.
+
+|`GET`
+|`location/{location}/executions/{id}/child-ids?execType=`
+|Find the child execution IDs of a given type.
+
+|`GET`
+|`location/{location}/executions/{id}/parent`
+|Find the parent execution ID.
+
+|`GET`
+|`location/{location}/executions/{id}/data?parentId=`
+|Get the execution data. `parentId` defaults to the execution ID itself.
+
+|`POST`
+|`location/{location}/executions/{id}/data`
+|Register execution data, posted as JSON.
+|===
+
+[source,bash]
+----
+curl --user cluster:cluster \
+  'http://localhost:8081/hop/api/v1/location/local/executions?children=true&limit=100'
+----
+
+[source,json]
+----
+["af84cbc2-0166-4dea-956f-72b73cf66d0d","bf84cbc2-0166-4dea-956f-72b73cf66d0e"]
+----

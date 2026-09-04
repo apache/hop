@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0005-bulk-loader-empty</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Loads nothing at all. The target table still has to be truncated, which is what the transform does when Truncate only when there are rows is off.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/08/21 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/08/21 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Rows to load</from>
+      <to>Bulk load mapped</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Rows to load</name>
+    <type>DataGrid</type>
+    <description>No rows, on purpose.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+<data>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id</name>
+        <type>Integer</type>
+        <format>####0;-####0</format>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>note</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>amount</name>
+        <type>BigNumber</type>
+        <format/>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>active</name>
+        <type>Boolean</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>day_value</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>moment_value</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd HH:mm:ss</format>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Bulk load mapped</name>
+    <type>MsSqlServerBulkLoader</type>
+    <description>Explicit mapping, so the target columns are deliberately named differently from the stream fields. The batch size is smaller than the row count so more than one batch is written.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <allow_encrypted_value_modifications>N</allow_encrypted_value_modifications>
+    <batch_size>3</batch_size>
+    <bulk_copy_timeout>0</bulk_copy_timeout>
+    <check_constraints>N</check_constraints>
+    <connection>${MSSQL_CONNECTION}</connection>
+    <fields>
+      <field>
+        <order_hint>ASC</order_hint>
+        <stream_field>id</stream_field>
+        <table_field>row_id</table_field>
+      </field>
+      <field>
+        <order_hint>NONE</order_hint>
+        <stream_field>note</stream_field>
+        <table_field>label</table_field>
+      </field>
+      <field>
+        <order_hint>NONE</order_hint>
+        <stream_field>amount</stream_field>
+        <table_field>total</table_field>
+      </field>
+      <field>
+        <order_hint>NONE</order_hint>
+        <stream_field>active</stream_field>
+        <table_field>is_active</table_field>
+      </field>
+      <field>
+        <order_hint>NONE</order_hint>
+        <stream_field>day_value</stream_field>
+        <table_field>happened_on</table_field>
+      </field>
+      <field>
+        <order_hint>NONE</order_hint>
+        <stream_field>moment_value</stream_field>
+        <table_field>happened_at</table_field>
+      </field>
+    </fields>
+    <fire_triggers>N</fire_triggers>
+    <keep_identity>N</keep_identity>
+    <keep_nulls>N</keep_nulls>
+    <only_when_have_rows>N</only_when_have_rows>
+    <schema>dbo</schema>
+    <specify_fields>Y</specify_fields>
+    <table>bulkloader_mapped</table>
+    <table_lock>Y</table_lock>
+    <truncate>Y</truncate>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

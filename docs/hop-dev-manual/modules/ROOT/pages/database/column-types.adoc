@@ -1,0 +1,242 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How a database column becomes a Hop value and back again, and how a dialect declares the parts it does differently.
+[[Database-ColumnTypes]]
+= Column types and type rules
+
+Hop has its own small set of data types, and every database has a larger and different set.
+Something has to decide that a `NUMBER(38,0)` read from Oracle is a Hop Integer, and that a Hop Integer written to PostgreSQL is a `BIGINT`.
+
+That decision is made by the dialect, not by Hop.
+Hop provides the plain JDBC behaviour; a dialect declares the parts it does differently, as rules.
+
+== The Hop types
+
+[cols="1,1,3"]
+|===
+|Constant |Java type |Notes
+
+|`TYPE_STRING` |String |
+|`TYPE_INTEGER` |Long |Up to 18 significant digits.
+|`TYPE_NUMBER` |Double |
+|`TYPE_BIGNUMBER` |BigDecimal |For anything a double cannot hold exactly.
+|`TYPE_DATE` |java.util.Date |A precision of 1 marks "a date, not a timestamp".
+|`TYPE_TIMESTAMP` |java.sql.Timestamp |
+|`TYPE_BOOLEAN` |Boolean |
+|`TYPE_BINARY` |byte[] |
+|`TYPE_INET` |InetAddress |
+|`TYPE_JSON` |JsonNode |
+|`TYPE_UUID` |UUID |From the UUID value type plugin.
+|===
+
+Two of these carry a meaning that is easy to get wrong.
+
+`length` on a numeric type is the number of digits *before* the decimal, not the total.
+A database reports the total, so the scale has to come off.
+`NUMERIC(10,2)` is length 8, precision 2, and is written back as `NUMERIC(8+2, 2)`.
+Getting this backwards makes a column grow by its scale on every round trip.
+
+`precision` of exactly 1 on a `TYPE_DATE` is a marker meaning the value is a date rather than a timestamp.
+It is not a digit count.
+
+== A rule
+
+A rule is one `IDatabaseTypeRule`.
+It can answer three questions, and returns `null` from any it does not know, so a rule only has to describe what it actually does.
+
+[source,java]
+----
+IValueMeta getValueMeta(IVariables variables, DatabaseMeta databaseMeta, DatabaseColumn column);
+String getColumnType(IVariables variables, IDatabase database, IValueMeta valueMeta, ColumnContext context);
+IValueBinding getBinding(IDatabase database, IValueMeta valueMeta);
+----
+
+Reading a column::
+`getValueMeta` claims a column and says what Hop value it is.
+
+Writing a column definition::
+`getColumnType` gives the column type for a Hop value, without the column name. Hop adds the name and any line break.
+It is handed the dialect rather than the `DatabaseMeta` wrapper, because a dialect assembling an `ALTER TABLE` reaches this path from inside itself, where there is no wrapper. A connection option a type decision depends on lives on the dialect instance anyway, which is the same object `getTypeRules()` is answered from.
+
+Moving the values::
+`getBinding` is only for drivers that need the values themselves handled specially, and has its own page: xref:database/value-bindings.adoc[Moving values across JDBC].
+
+== Declaring rules
+
+A dialect returns its rules from `getTypeRules()`, built as a table rather than written as a switch.
+
+[source,java]
+----
+private static final List<IDatabaseTypeRule> TYPE_RULES =
+    DatabaseTypes.rules()
+        // A YEAR column is reported as a date, but is really a four digit integer when the
+        // driver has been told not to treat it as one.
+        .read(Types.DATE, Types.TIME)
+        .nativeName("YEAR")
+        .where(
+            (variables, databaseMeta, column) -> {
+              String property =
+                  databaseMeta.getConnectionProperties(variables).getProperty("yearIsDateType");
+              return property != null && "false".equalsIgnoreCase(property);
+            })
+        .as(IValueMeta.TYPE_INTEGER, 4, 0)
+        // Postgres advises new applications to use JSONB rather than JSON.
+        .write(IValueMeta.TYPE_JSON)
+        .as("JSONB")
+        .build();
+
+@Override
+public List<IDatabaseTypeRule> getTypeRules() {
+  return TYPE_RULES;
+}
+----
+
+Rules are matched in declaration order and the first match wins.
+
+=== Matching a column to read
+
+`read(int... sqlTypes)`::
+Match on `java.sql.Types` constants.
+
+`readNative(String... names)`::
+Match on the database's own type name, ignoring case, such as `SDO_GEOMETRY` or `jsonb`.
+
+`readNativeMatching(String regex)`::
+Match the type name against a regular expression, for databases whose type names carry a size or an affinity.
+
+`nativeName(String...)`::
+Chains onto `read(...)` when both the JDBC type *and* the database's name for it have to match.
+
+`where(...)`::
+Narrows the match.
+The simple form takes the column; the fuller form also gets the variables and the `DatabaseMeta`, for rules that depend on a connection property or on another capability of the dialect.
+
+`as(...)`::
+Terminal.
+Either a Hop type on its own, a Hop type with a fixed length and precision, or a Hop type whose length and precision are derived from the column.
+
+=== Producing a column definition to write
+
+`write(int... hopTypes)`::
+The Hop types this rule spells.
+
+`where(Predicate<IValueMeta>)`::
+Narrows on the value, usually its length.
+
+`as(String)` or `as(Function<IValueMeta, String>)`::
+Terminal.
+Either a fixed type name, or one derived from the value for size dependent types.
+
+=== When the table is not enough
+
+`rule(IDatabaseTypeRule)` takes a hand written rule, and `include(List<IDatabaseTypeRule>)` appends another set, for a dialect that shares behaviour with one it does not extend.
+
+== Resolution order
+
+Reading a column, first match wins:
+
+. rules contributed by a `@DatabaseTypeRulesPlugin` targeting this dialect
+. the dialect's own `getTypeRules()`
+. the value type plugins
+. the standard JDBC mapping
+
+Writing a column definition:
+
+. the dialect's rules
+. the value type's own opinion, if it has one
+. the dialect's `getFieldDefinition()`
+. the fallback, below
+
+Two things follow from that order.
+A dialect overrides the standard behaviour simply by declaring a rule, and a plugin from outside can override a dialect, which is deliberate.
+
+== A type the database does not have
+
+Every database can spell a string, a number and a date.
+Past those, a Hop type only reaches a column if some dialect said how, and most never do.
+
+So the last step is not a name: it is `ColumnTypeFallback`, which writes the value as something the database can actually hold.
+A JSON document becomes the widest text the dialect has, a UUID a 36 character string, an address a 45 character one, and a type Hop has never heard of — a geometry, a vector — text of its own length.
+Nothing has to be declared for that to happen, and a dialect that can do better says so with a write rule.
+
+This is why a value type should *not* name a column type it has not checked.
+`ValueMetaJson` used to answer `JSON` for every database, which is a type most of them do not have, and the DDL only failed once someone created a table.
+
+== A type only some versions have
+
+The other half of the question is version rather than vendor.
+SQL Server grew a JSON type in 2025 and Oracle in 21c: the same dialect, connected to an older server, must write text instead.
+
+A declared type is therefore put back to the dialect before it is used, through `isColumnTypeAvailable`:
+
+[source,java]
+----
+private static final int FIRST_VERSION_WITH_JSON = 17;   // SQL Server 2025
+
+@Override
+public boolean isColumnTypeAvailable(String columnType) {
+  if ("JSON".equals(columnType)) {
+    return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+  }
+  return true;
+}
+----
+
+A no falls back the same way as a type nobody declared.
+The dialect answers from `ServerInfo`, which carries what the driver said about the server — its version and the type list from `DatabaseMetaData.getTypeInfo()` — read once per connection, when a definition is first generated.
+
+Prefer the version.
+That type list looks like the answer and is not: several drivers, MySQL's among them, compile it in rather than asking the server, so JSON is missing from it on a MySQL that has had the type for years.
+
+Silence is not a no.
+With no connection — the golden tests, an `ALTER TABLE` assembled offline — and with a driver that will not say which version it reached, nothing contradicts the declared type and it stands.
+So declare the type your database has in its current version and let the check take care of the older ones.
+
+[NOTE]
+====
+The `SUPPORTS_BOOLEAN_DATA_TYPE` and `SUPPORTS_TIMESTAMP_DATA_TYPE` connection attributes are the hand-cranked version of this: a checkbox per type, defaulting to off, that the operator has to know to tick.
+`ColumnTypeFallback` already knows what those two fall back to — a date for a timestamp, `CHAR(1)` for a boolean — so a dialect that declares `BOOLEAN` and `TIMESTAMP` as rules can let the driver answer the question instead, and the two attributes can go.
+====
+
+== Rules are inherited
+
+A dialect that extends another inherits its rules in the ordinary Java way.
+`RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta`, so Redshift reads columns the way Postgres does without restating anything, and can prepend its own rules by overriding `getTypeRules()`.
+
+This is also how rules contributed from outside find their target: a rule written for `POSTGRESQL` applies to every dialect that extends the PostgreSQL one.
+
+== Where to put a rule
+
+Put a rule in the dialect that needs it.
+
+The exception is a behaviour genuinely shared by dialects that do not extend one another.
+`ColumnTypeRules` in core holds those, named after what they do rather than after a vendor, because Generic, Hive and SingleStore all speak to a MySQL driver without extending `MySqlDatabaseMeta`.
+That list is short on purpose.
+If only one dialect needs a rule, it belongs in that dialect's plugin.
+
+== The standard mapping
+
+What survives when no rule claims a column is `StandardJdbcTypeMapper`, which does the plain JDBC thing and names no database.
+
+It exposes a few helpers that rules can use so that a condition does not have to restate arithmetic the mapping already does:
+
+* `numericLength(column)` — digits before the decimal, after the scale has been taken off
+* `numericScale(column)` — digits after the decimal
+* `displaySizeIsTwiceThePrecision(databaseMeta, column)` — the `CHAR(X) FOR BIT DATA` shape
+
+That last one matters if you write a rule for binary columns.
+The check outranks every dialect rule, but rules run *before* the standard mapping, so a binary rule has to defer to it explicitly or the precedence silently inverts.

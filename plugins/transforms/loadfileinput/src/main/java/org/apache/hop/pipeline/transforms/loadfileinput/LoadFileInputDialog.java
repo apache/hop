@@ -204,7 +204,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     wFilenameInField.setToolTipText(
         BaseMessages.getString(PKG, "LoadFileInputDialog.FilenameInField.Tooltip"));
     FormData fdFileNameInField = new FormData();
-    fdFileNameInField.left = new FormAttachment(middle, -margin);
+    fdFileNameInField.left = new FormAttachment(middle, 0);
     fdFileNameInField.top = new FormAttachment(wlFilenameInField, 0, SWT.CENTER);
     wFilenameInField.setLayoutData(fdFileNameInField);
     SelectionAdapter lsxmlstream =
@@ -232,7 +232,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdXMLField = new FormData();
-    fdXMLField.left = new FormAttachment(middle, -margin);
+    fdXMLField.left = new FormAttachment(middle, 0);
     fdXMLField.top = new FormAttachment(wFilenameInField, margin);
     fdXMLField.right = new FormAttachment(100, -margin);
     wFilenameField.setLayoutData(fdXMLField);
@@ -313,7 +313,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(100, 0);
+    fdFilemask.right = new FormAttachment(wFilename, 0, SWT.RIGHT);
     wFilemask.setLayoutData(fdFilemask);
 
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);

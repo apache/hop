@@ -1,0 +1,156 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How to add support for a database Hop does not know yet, by writing a dialect.
+[[Database-CreatingADialect]]
+= Creating a dialect
+
+A dialect tells Hop how one database differs from plain JDBC.
+It is a class implementing `IDatabase`, which in practice means extending `BaseDatabaseMeta` and overriding only what is actually different.
+
+== The smallest possible dialect
+
+[source,java]
+----
+@DatabaseMetaPlugin(
+    type = "ACME",
+    typeDescription = "ACME Database",
+    classLoaderGroup = "acme-db",
+    documentationUrl = "/database/databases/acme.html")
+@GuiPlugin(id = "GUI-AcmeDatabaseMeta")
+public class AcmeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  @Override
+  public String getDriverClass() {
+    return "com.acme.jdbc.Driver";
+  }
+
+  @Override
+  public String getURL(String hostname, String port, String databaseName) {
+    return "jdbc:acme://" + hostname + ":" + port + "/" + databaseName;
+  }
+
+  @Override
+  public int getDefaultDatabasePort() {
+    return 5555;
+  }
+}
+----
+
+Everything else has a default in `BaseDatabaseMeta`.
+Start there and override as the differences show up, rather than working through the whole interface.
+
+=== The annotation
+
+`type`::
+The identifier for this dialect, uppercase by convention.
+It is stored in saved connections, so changing it later breaks existing projects.
+It is also how other plugins refer to this dialect without compiling against it, so pick something stable and obvious.
+
+`typeDescription`::
+What the user sees in the connection dialog.
+
+`classLoaderGroup`::
+Give every dialect one, named after the module, and give the *same* group to every other plugin class in the module.
+See <<Classloading>>.
+
+`documentationUrl`::
+Path to the page in the user manual, which the connection dialog links to.
+
+== Capabilities
+
+Most of `IDatabase` is questions about what the database supports.
+They are ordinary methods with sensible defaults, and the ones that matter most in practice are these.
+
+[cols="1,3"]
+|===
+|Method |What it controls
+
+|`isSupportsBooleanDataType()`
+|Whether a Hop boolean can be written as `BOOLEAN`, or has to become a one character column.
+
+|`isSupportsTimestampDataType()`
+|Whether timestamps survive as timestamps, or collapse to dates.
+
+|`isSupportsAutoInc()`
+|Whether the database can generate technical keys itself.
+
+|`isFetchSizeSupported()`
+|Whether the JDBC fetch size can be set at all.
+
+|`isSupportsErrorHandling()`
+|Set this false for databases that invalidate a statement, or the whole connection, when a statement fails. SQLite is the example in the tree.
+
+|`getLimitClause(int)`
+|The clause appended *after* the FROM clause to limit rows, such as `" LIMIT 10"`.
+
+|`getLimitClausePrefix(int)`
+|The clause placed directly after `SELECT` instead, such as `" TOP 10"`. Databases use one form or the other, so override this or `getLimitClause`, not both.
+|===
+
+Both include their own leading space, and both default to returning nothing.
+A dialect that offers neither still works: the row count is capped while reading, so it simply fetches a little more than it needs.
+
+Prefer overriding a capability over overriding behaviour.
+A capability is a fact about the database that Hop can act on in several places; overridden behaviour only fixes the one place you overrode.
+
+== SQL differences
+
+Where the SQL itself differs, override the statement the difference belongs to: `getTruncateTableStatement`, `getAddColumnStatement`, `getModifyColumnStatement`, `getSqlListOfSchemas`, and so on.
+
+Column types are not done this way.
+They have their own mechanism, described in xref:database/column-types.adoc[Column types and type rules], and a new dialect should use that rather than overriding `getFieldDefinition`.
+
+When one of those statements has to name a column type, call `getColumnDefinition(v, tk, pk, useAutoIncrement, addFieldName, addCr, purpose)` rather than `getFieldDefinition(...)`.
+It asks the type rules first, so a column is spelled in an `ALTER TABLE` exactly the way it is in the `CREATE TABLE`; calling `getFieldDefinition` directly skips the rules and the two drift apart.
+Pass `ColumnContext.Purpose.ADD_COLUMN` or `MODIFY_COLUMN` to say which statement is being built.
+
+`addFieldName` means only whether the returned definition is prefixed with the column name.
+A dialect whose `ALTER` syntax puts the name somewhere else writes that name into the statement itself and asks for the definition with `addFieldName` false, as Firebird, Interbase and SAPDB do:
+
+[source,java]
+----
+return "ALTER TABLE " + tableName + " ALTER COLUMN " + v.getName() + " TYPE "
+    + getColumnDefinition(v, tk, pk, useAutoinc, false, false, ColumnContext.Purpose.MODIFY_COLUMN);
+----
+
+[[Classloading]]
+== Classloading and the JDBC driver
+
+Hop loads each plugin in its own classloader so that two plugins can use incompatible versions of the same library.
+Plugins that declare the same `classLoaderGroup` share one classloader instead.
+
+This matters for two reasons.
+
+Within your own module, the dialect loads the JDBC driver, and any bulk loader you ship needs the same driver classes.
+If the dialect declares a group and the bulk loader does not, they end up in different classloaders and the bulk loader cannot see the driver.
+Give every plugin class in the module the same group.
+
+Across modules, a plugin from somewhere else can join your group by naming it, which is how somebody can add support for a database specific type without a change to your plugin.
+Choose a group name that reads as public API, because it is.
+
+== Registering the driver
+
+Hop does not bundle most JDBC drivers.
+Declare the dependency as `provided` in the module's `pom.xml`, so the plugin builds against it without shipping it, and document which jar the user has to drop into the plugin folder.
+
+== Checklist
+
+* The dialect extends `BaseDatabaseMeta` and carries `@DatabaseMetaPlugin`.
+* Every plugin class in the module carries the same `classLoaderGroup`.
+* Column types are declared as rules, not as an overridden `getFieldDefinition`.
+* There is a golden test for the generated DDL, see xref:database/testing.adoc[Testing a database plugin].
+* There is a page in the user manual, and `documentationUrl` points at it.

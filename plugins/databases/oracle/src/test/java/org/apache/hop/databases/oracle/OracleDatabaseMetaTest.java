@@ -299,7 +299,7 @@ class OracleDatabaseMetaTest {
         "ALTER TABLE FOO ADD ( FOO CHAR(1) ) ",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("FOO"), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD ( FOO  UNKNOWN ) ",
+        "ALTER TABLE FOO ADD ( FOO VARCHAR2(45) ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("FOO"), "", false, "", false));
 

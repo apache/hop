@@ -123,7 +123,6 @@ public class GuiResource {
   //
   private ManagedFont fontDefault;
   private ManagedFont fontGraph;
-  private ManagedFont fontNote;
   private ManagedFont fontFixed;
   private ManagedFont fontMedium;
   private ManagedFont fontMediumBold;
@@ -443,7 +442,6 @@ public class GuiResource {
     //
     fontDefault.dispose();
     fontGraph.dispose();
-    fontNote.dispose();
     fontFixed.dispose();
     fontMedium.dispose();
     fontMediumBold.dispose();
@@ -672,11 +670,6 @@ public class GuiResource {
         (int) Math.round(1.5 + graphFontData.getHeight() / PropsUi.getNativeZoomFactor());
     graphFontData.setHeight(graphFontSize);
     fontGraph = new ManagedFont(display, graphFontData);
-
-    FontData noteFontData = props.getNoteFont();
-    int noteFontSize = (int) Math.round(noteFontData.getHeight() * props.getGlobalZoomFactor());
-    noteFontData.setHeight(noteFontSize);
-    fontNote = new ManagedFont(display, noteFontData);
 
     FontData fixedFontData = props.getFixedFont();
     int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * props.getGlobalZoomFactor());
@@ -1041,11 +1034,9 @@ public class GuiResource {
     return fontDefault.getFont();
   }
 
-  /**
-   * @return Returns the fontNote.
-   */
+  /** Fallback font for notes that do not set their own. Same as {@link #getFontGraph()}. */
   public Font getFontNote() {
-    return fontNote.getFont();
+    return fontGraph.getFont();
   }
 
   /**
@@ -1236,7 +1227,17 @@ public class GuiResource {
   private Image getZoomedImaged(
       SwtUniversalImage universalImage, Device device, int width, int height) {
     return universalImage.getAsBitmapForSize(
-        device, (int) (zoomFactor * width), (int) (zoomFactor * height));
+        device,
+        ConstUi.zoomedIconSize(width, zoomFactor),
+        ConstUi.zoomedIconSize(height, zoomFactor));
+  }
+
+  /**
+   * Tree/toolbar-sized bitmap of {@code image}, scaled by the current zoom factor. Do not dispose
+   * the returned image; it is cached on the universal image.
+   */
+  public Image getSmallIcon(SwtUniversalImage image) {
+    return getZoomedImaged(image, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**

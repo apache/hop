@@ -20,7 +20,7 @@ under the License.
 
 = Hop Server
 
-Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configurations.
+Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline], xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow], or xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[load-balancing] run configurations.
 
 How you get a project onto a Hop Server is covered in xref:hop-server/deploying.adoc[Deploying Hop Server].
 
@@ -483,7 +483,7 @@ If applied correctly, your Hop Server starts producing _a lot_ of logging inform
 === Start Hop Server with docker
 
 It's often very convenient to run a Hop docker container since it has all the required software automatically delivered.
-For a complete description of the standard Hop docker container see the https://hop.apache.org/tech-manual/latest/docker-container.html[full reference] in the technical documentation.
+For a complete description of the standard Hop docker container see the xref:docker-container.adoc[Hop in Docker] page.
 Here is an example of how you would start a "long-lived" docker container:
 
 [source,bash]

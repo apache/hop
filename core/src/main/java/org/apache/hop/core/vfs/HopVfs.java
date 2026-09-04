@@ -54,6 +54,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 
 public class HopVfs {
   private static final Class<?> PKG = HopVfs.class;
@@ -72,6 +74,12 @@ public class HopVfs {
 
   /** Set once the metadata driven providers have been registered on {@link #fsm}. */
   private static boolean namedProvidersRegistered;
+
+  /**
+   * The metadata the named connections on {@link #fsm} were read from, or null while nothing has
+   * registered any yet.
+   */
+  private static IHopMetadataProvider defaultNamespaceProvider;
 
   /**
    * Guards against re-entrant registration: reading the VFS connection metadata resolves files
@@ -97,7 +105,7 @@ public class HopVfs {
     // them, so start over. Nothing registered yet means we can keep the manager as it is: phase 2
     // simply runs with these variables the next time around.
     //
-    if (namedProvidersRegistered) {
+    if (namedProvidersRegistered && !HopVfsNamespaces.isIsolated()) {
       reset();
     }
   }
@@ -138,6 +146,11 @@ public class HopVfs {
       registeringNamedProviders = true;
       try {
         registerNamedProviders(fsm, bootstrapVariables);
+        // Remember whose connections these are. Everything running against this same metadata can
+        // use this manager and needs no namespace of its own; everything else does. Note it is the
+        // provider the manager was *built from* that matters, not whatever is current later on:
+        // in Hop Web "current" is per session, and would stop describing this shared manager.
+        defaultNamespaceProvider = HopMetadataInstance.getMetadataProvider();
       } finally {
         registeringNamedProviders = false;
         namedProvidersRegistered = true;
@@ -154,6 +167,13 @@ public class HopVfs {
    * @see #getFileSystemManager()
    */
   public static synchronized DefaultFileSystemManager getFileSystemManager(IVariables variables) {
+    // An execution running against its own metadata - an export on a Hop Server - has its own
+    // namespace, with its own named VFS connections. Everything else uses the process wide
+    // manager below, exactly as before. See issue #8106.
+    HopVfsNamespace namespace = HopVfsNamespaces.resolve(variables);
+    if (namespace != null) {
+      return namespace.getFileSystemManager();
+    }
     bootstrapWith(variables);
     return getFileSystemManager();
   }
@@ -177,11 +197,27 @@ public class HopVfs {
    */
   private static void registerNamedProviders(
       DefaultFileSystemManager manager, IVariables variables) {
+    registerNamedProviders(manager, variables, null);
+  }
+
+  /**
+   * Register a provider for every named VFS connection, reading them from {@code metadataProvider}
+   * when one is given. A null provider leaves every VFS plugin to find the metadata itself from the
+   * variables, which is what the process wide manager does.
+   *
+   * @param manager the manager to register the providers on
+   * @param variables the variables the providers resolve their settings with
+   * @param metadataProvider the metadata holding the connections, or null to derive it
+   */
+  static void registerNamedProviders(
+      DefaultFileSystemManager manager,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     PluginRegistry registry = PluginRegistry.getInstance();
     for (IPlugin plugin : registry.getPlugins(VfsPluginType.class)) {
       try {
         IVfs iVfs = registry.loadClass(plugin, IVfs.class);
-        Map<String, FileProvider> fileProviderMap = iVfs.getProviders(variables);
+        Map<String, FileProvider> fileProviderMap = iVfs.getProviders(variables, metadataProvider);
         if (fileProviderMap == null) {
           continue;
         }
@@ -193,7 +229,11 @@ public class HopVfs {
                     + scheme
                     + "' of plugin "
                     + plugin.getIds()[0]
-                    + " is ignored: a provider is already registered for that scheme.");
+                    + " is ignored: a provider is already registered for that scheme."
+                    + " Two named connections can not share a name: rename one of them,"
+                    + " otherwise files resolved through '"
+                    + scheme
+                    + ":' silently use the other connection.");
             continue;
           }
           manager.addProvider(scheme, entry.getValue());
@@ -216,7 +256,17 @@ public class HopVfs {
    * @throws HopException
    */
   @SuppressWarnings("java:S2095") // the file system manager is a process-wide singleton
-  private static DefaultFileSystemManager createFileSystemManager() throws HopException {
+  /**
+   * The metadata whose named VFS connections are registered on the process wide file system
+   * manager. Anything running against this same metadata is already served by it.
+   *
+   * @return the metadata behind the process wide manager, or null if nothing registered yet
+   */
+  static synchronized IHopMetadataProvider getDefaultNamespaceProvider() {
+    return defaultNamespaceProvider;
+  }
+
+  static DefaultFileSystemManager createFileSystemManager() throws HopException {
     try {
       DefaultFileSystemManager fsm = new DefaultFileSystemManager();
       fsm.addProvider("ram", new org.apache.commons.vfs2.provider.ram.RamFileProvider());
@@ -292,22 +342,108 @@ public class HopVfs {
   }
 
   /**
+   * Resolve a file in the VFS namespace these variables belong to.
+   *
+   * <p>Prefer this over {@link #getFileObject(String)} anywhere inside an execution: the variables
+   * are what tell us which named VFS connections apply. An execution carrying its own metadata - an
+   * export running on a Hop Server - has its own connections, and resolving without variables can
+   * only fall back to the namespace bound to the current thread.
+   *
    * @param vfsFilename the name of the file to resolve
-   * @param variables the variables to bootstrap the metadata driven providers with, in case nothing
-   *     did that yet. They play no role in resolving the file itself.
+   * @param variables the variables of the caller
    * @return the file object
    * @see #getFileObject(String)
    */
   public static FileObject getFileObject(String vfsFilename, IVariables variables)
       throws HopFileException {
-    bootstrapWith(variables);
-    return getFileObject(vfsFilename);
+    return resolveWith(vfsFilename, getFileSystemManager(variables), variables);
   }
 
   public static synchronized FileObject getFileObject(String vfsFilename) throws HopFileException {
-    DefaultFileSystemManager fsManager = getFileSystemManager();
+    // Nothing to go on but the thread: the namespace of the execution running on it, if any.
+    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    return resolveWith(
+        vfsFilename,
+        namespace == null ? getFileSystemManager() : namespace.getFileSystemManager(),
+        null);
+  }
+
+  /**
+   * Resolves paths that start with {@code ~} (tilde) to the user's home directory.
+   *
+   * <p>The tilde character is recognized only at the start of a path (e.g. {@code ~}, {@code
+   * ~/path}, {@code ~\path} on Windows, or prefixed with {@code file://~} or {@code file:~}). A
+   * tilde elsewhere in a path (e.g. {@code /tmp/~} or {@code foo~bar}) or a tilde followed by
+   * non-separator characters (e.g. {@code ~username} or {@code ~temp}) is not replaced.
+   *
+   * @param path the path to resolve
+   * @param variables optional variables to look up {@code user.home} from; if null or unset, falls
+   *     back to {@code System.getProperty("user.home")}
+   * @return the path with leading tilde expanded, or the original path if no tilde prefix applies
+   */
+  public static String resolveHomeDirectory(String path, IVariables variables) {
+    if (path == null || path.isEmpty()) {
+      return path;
+    }
+    String prefix = "";
+    String remaining = path;
+    if (remaining.startsWith("file://")) {
+      prefix = "file://";
+      remaining = remaining.substring("file://".length());
+    } else if (remaining.startsWith("file:")) {
+      prefix = "file:";
+      remaining = remaining.substring("file:".length());
+    }
+
+    if (remaining.equals("~") || remaining.startsWith("~/") || remaining.startsWith("~\\")) {
+      String userHome = null;
+      if (variables != null) {
+        userHome = variables.getVariable("user.home");
+      }
+      if (StringUtils.isEmpty(userHome)) {
+        userHome = System.getProperty("user.home");
+      }
+      if (userHome != null) {
+        // Strip trailing slash/backslash from userHome so appending remainder does not duplicate it
+        while (userHome.length() > 1 && (userHome.endsWith("/") || userHome.endsWith("\\"))) {
+          userHome = userHome.substring(0, userHome.length() - 1);
+        }
+        if (remaining.equals("~")) {
+          remaining = userHome;
+        } else {
+          remaining = userHome + remaining.substring(1);
+        }
+        if (!prefix.isEmpty()) {
+          if (prefix.equals("file://") && !remaining.startsWith("/")) {
+            return prefix + "/" + remaining;
+          }
+          return prefix + remaining;
+        }
+        return remaining;
+      }
+    }
+    return path;
+  }
+
+  /**
+   * Resolves paths that start with {@code ~} (tilde) to the user's home directory using {@code
+   * System.getProperty("user.home")}.
+   *
+   * @param path the path to resolve
+   * @return the path with leading tilde expanded, or the original path if no tilde prefix applies
+   * @see #resolveHomeDirectory(String, IVariables)
+   */
+  public static String resolveHomeDirectory(String path) {
+    return resolveHomeDirectory(path, null);
+  }
+
+  private static FileObject resolveWith(
+      String vfsFilename, DefaultFileSystemManager fsManager, IVariables variables)
+      throws HopFileException {
 
     try {
+      vfsFilename = resolveHomeDirectory(vfsFilename, variables);
+
       // We have one problem with VFS: if the file is in a subdirectory of the current one:
       // somedir/somefile
       // In that case, VFS doesn't parse the file correctly.
@@ -686,7 +822,9 @@ public class HopVfs {
    */
   public static boolean startsWithScheme(String vfsFileName, IVariables variables) {
     bootstrapWith(variables);
-    return startsWithScheme(vfsFileName);
+    // The schemes that apply are the ones of the namespace these variables resolve files in: the
+    // named connections of an export, or of a Hop Web session, are not on the process manager.
+    return startsWithScheme(vfsFileName, getFileSystemManager(variables));
   }
 
   /**
@@ -697,8 +835,13 @@ public class HopVfs {
    * @return boolean
    */
   public static boolean startsWithScheme(String vfsFileName) {
-    DefaultFileSystemManager fsManager = getFileSystemManager();
+    // Nothing to go on but the thread: the namespace of the execution running on it, if any.
+    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    return startsWithScheme(
+        vfsFileName, namespace == null ? getFileSystemManager() : namespace.getFileSystemManager());
+  }
 
+  private static boolean startsWithScheme(String vfsFileName, DefaultFileSystemManager fsManager) {
     boolean found = false;
     String[] schemes = fsManager.getSchemes();
     for (String scheme : schemes) {
@@ -716,6 +859,7 @@ public class HopVfs {
    * prepended. This recognises:
    *
    * <ul>
+   *   <li>Tilde paths pointing to user home ({@code ~}, {@code ~/path}, {@code ~\path})
    *   <li>VFS URIs with a scheme, e.g. {@code file:///...}, {@code s3://...}, {@code hdfs://...}
    *   <li>POSIX absolute paths ({@code /...})
    *   <li>Windows UNC paths ({@code \\host\share})
@@ -728,6 +872,16 @@ public class HopVfs {
   public static boolean isAbsolutePath(String filename) {
     if (filename == null || filename.isEmpty()) {
       return false;
+    }
+    String stripped = filename;
+    if (stripped.startsWith("file://")) {
+      stripped = stripped.substring("file://".length());
+    } else if (stripped.startsWith("file:")) {
+      stripped = stripped.substring("file:".length());
+    }
+    // A path starting with tilde (home directory): ~, ~/, ~\
+    if (stripped.equals("~") || stripped.startsWith("~/") || stripped.startsWith("~\\")) {
+      return true;
     }
     // A VFS URI with a scheme, e.g. file:///, s3://, hdfs://, ...
     if (filename.contains("://")) {
@@ -781,11 +935,67 @@ public class HopVfs {
   }
 
   /**
-   * Drop the file system manager so it's rebuilt, providers of the named VFS connections included,
-   * the next time it's used. The bootstrap variables are kept: use {@link
-   * #setBootstrapVariables(IVariables)} to change those.
+   * Let go of the file systems nobody is using any more in the namespace these variables resolve
+   * files in.
+   *
+   * <p>Use this rather than {@link #freeUnusedResources()} at the end of an execution: an execution
+   * carrying its own metadata resolved its files in a namespace of its own, and those are the file
+   * systems it is done with. The process wide manager belongs to whoever else is in this JVM.
+   *
+   * @param variables the variables of the execution that just ended
+   */
+  public static void freeUnusedResources(IVariables variables) {
+    HopVfsNamespace namespace = HopVfsNamespaces.resolve(variables);
+    if (namespace != null) {
+      namespace.freeUnusedResources();
+      return;
+    }
+    freeUnusedResources();
+  }
+
+  /**
+   * Read the named VFS connections again for whoever these variables belong to, after one of them
+   * was added or changed.
+   *
+   * <p>Use this rather than {@link #reset()} from anything that belongs to one project, one session
+   * or one execution - saving a connection in its editor, switching project. {@link #reset()}
+   * empties the whole JVM, which in Hop Web means one user's save invalidating every open file of
+   * everyone else.
+   *
+   * @param variables the variables of whoever changed a connection
+   */
+  public static void refresh(IVariables variables) {
+    try {
+      if (HopVfsNamespaces.refresh(variables)) {
+        return;
+      }
+    } catch (Exception e) {
+      // Deliberately not falling back to reset(): the caller has a namespace of its own, which
+      // means tenants share this JVM, and emptying it for all of them is the very thing this
+      // avoids. Their connections stay as they were until the next attempt.
+      LogChannel.GENERAL.logError(
+          "Error re-reading the named VFS connections of this caller. They are unchanged.", e);
+      return;
+    }
+    if (HopVfsNamespaces.isIsolated()) {
+      LogChannel.GENERAL.logDebug(
+          "No VFS namespace to re-read the named connections for. The process wide file system "
+              + "manager is left alone: other sessions are using it.");
+      return;
+    }
+    // What they resolve files in is the process wide manager.
+    reset();
+  }
+
+  /**
+   * Throw away the process wide file system manager and everything in it, so the next use builds it
+   * again. Every file object anywhere in the JVM stops working, so keep this for process level
+   * events - starting a client, starting a worker. Everything else wants {@link
+   * #refresh(IVariables)}.
    */
   public static synchronized void reset() {
+    HopVfsNamespaces.reset();
+    defaultNamespaceProvider = null;
     if (fsm != null) {
       fsm.freeUnusedResources();
       fsm.close();

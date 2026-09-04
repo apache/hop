@@ -47,12 +47,14 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -192,6 +194,15 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.top = new FormAttachment(wConnection, margin);
+    fdbSchema.right = new FormAttachment(100, 0);
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaName());
+
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
@@ -199,7 +210,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
     fdSchema.top = new FormAttachment(wConnection, margin);
-    fdSchema.right = new FormAttachment(100, 0);
+    fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
@@ -363,7 +374,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wDirect);
     fdDirect = new FormData();
     fdDirect.left = new FormAttachment(middle, 0);
-    fdDirect.top = new FormAttachment(0, margin);
+    fdDirect.top = new FormAttachment(wlDirect, 0, SWT.CENTER);
     fdDirect.right = new FormAttachment(100, 0);
     wDirect.setLayoutData(fdDirect);
     wDirect.addSelectionListener(lsSelMod);
@@ -378,7 +389,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAbortOnError);
     fdlAbortOnError = new FormData();
     fdlAbortOnError.left = new FormAttachment(0, 0);
-    fdlAbortOnError.top = new FormAttachment(wlDirect, margin);
+    fdlAbortOnError.top = new FormAttachment(wDirect, margin);
     fdlAbortOnError.right = new FormAttachment(middle, -margin);
     wlAbortOnError.setLayoutData(fdlAbortOnError);
     wAbortOnError = new Button(wMainComp, SWT.CHECK);
@@ -387,7 +398,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wAbortOnError);
     fdAbortOnError = new FormData();
     fdAbortOnError.left = new FormAttachment(middle, 0);
-    fdAbortOnError.top = new FormAttachment(wlDirect, margin);
+    fdAbortOnError.top = new FormAttachment(wlAbortOnError, 0, SWT.CENTER);
     fdAbortOnError.right = new FormAttachment(100, 0);
     wAbortOnError.setLayoutData(fdAbortOnError);
     wAbortOnError.addSelectionListener(lsSelMod);
@@ -405,7 +416,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdlExceptionsLogFile = new FormData();
     fdlExceptionsLogFile.left = new FormAttachment(0, 0);
     fdlExceptionsLogFile.right = new FormAttachment(middle, -margin);
-    fdlExceptionsLogFile.top = new FormAttachment(wlAbortOnError, margin);
+    fdlExceptionsLogFile.top = new FormAttachment(wAbortOnError, margin);
     wlExceptionsLogFile.setLayoutData(fdlExceptionsLogFile);
 
     wExceptionsLogFile = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -417,7 +428,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wExceptionsLogFile.addFocusListener(lsFocusLost);
     fdExceptionsLogFile = new FormData();
     fdExceptionsLogFile.left = new FormAttachment(middle, 0);
-    fdExceptionsLogFile.top = new FormAttachment(wlAbortOnError, margin);
+    fdExceptionsLogFile.top = new FormAttachment(wAbortOnError, margin);
     fdExceptionsLogFile.right = new FormAttachment(100, 0);
     wExceptionsLogFile.setLayoutData(fdExceptionsLogFile);
 
@@ -433,7 +444,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdlRejectedDataLogFile = new FormData();
     fdlRejectedDataLogFile.left = new FormAttachment(0, 0);
     fdlRejectedDataLogFile.right = new FormAttachment(middle, -margin);
-    fdlRejectedDataLogFile.top = new FormAttachment(wlExceptionsLogFile, margin);
+    fdlRejectedDataLogFile.top = new FormAttachment(wExceptionsLogFile, margin);
     wlRejectedDataLogFile.setLayoutData(fdlRejectedDataLogFile);
 
     wRejectedDataLogFile = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -445,7 +456,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wRejectedDataLogFile.addFocusListener(lsFocusLost);
     fdRejectedDataLogFile = new FormData();
     fdRejectedDataLogFile.left = new FormAttachment(middle, 0);
-    fdRejectedDataLogFile.top = new FormAttachment(wlExceptionsLogFile, margin);
+    fdRejectedDataLogFile.top = new FormAttachment(wExceptionsLogFile, margin);
     fdRejectedDataLogFile.right = new FormAttachment(100, 0);
     wRejectedDataLogFile.setLayoutData(fdRejectedDataLogFile);
 
@@ -459,7 +470,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     FormData fdlStreamName = new FormData();
     fdlStreamName.left = new FormAttachment(0, 0);
     fdlStreamName.right = new FormAttachment(middle, -margin);
-    fdlStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin);
+    fdlStreamName.top = new FormAttachment(wRejectedDataLogFile, margin);
     wlStreamName.setLayoutData(fdlStreamName);
 
     wStreamName = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -470,7 +481,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wStreamName.addFocusListener(lsFocusLost);
     fdStreamName = new FormData();
     fdStreamName.left = new FormAttachment(middle, 0);
-    fdStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin);
+    fdStreamName.top = new FormAttachment(wRejectedDataLogFile, margin);
     fdStreamName.right = new FormAttachment(100, 0);
     wStreamName.setLayoutData(fdStreamName);
 
@@ -593,7 +604,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -921,6 +932,42 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     }
 
     dispose();
+  }
+
+  private void getSchemaName() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+        if (null != schemas && schemas.length > 0) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
+          String name = dialog.open();
+          if (name != null) {
+            wSchema.setText(name);
+          }
+        } else {
+          org.apache.hop.ui.core.dialog.MessageBox mb =
+              new org.apache.hop.ui.core.dialog.MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
+            e);
+      }
+    }
   }
 
   private void getTableName() {

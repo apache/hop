@@ -1,0 +1,89 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Hop's data types are a plugin type. This is how to add one.
+[[ValueTypes]]
+= Value types
+
+A value type is what Hop knows about one kind of data: how to compare it, convert it, serialise it across a hop, and write it to a file.
+The built-in set is small — string, integer, number, big number, date, timestamp, boolean, binary — and it is extensible.
+
+`UUID` and `JSON` are value types.
+A geometry type, a vector type or a money type would be too.
+
+== When you need one
+
+You need a value type when a value has to *travel*.
+
+A row crosses transforms, gets serialised, is compared and sorted, and may be written to a file that has nothing to do with a database.
+Anything that has to survive all of that is a value type.
+
+You do not need one to read an unusual column from a single database if the value can reasonably be carried as a string or as bytes.
+Reach for the simpler option first.
+
+== Writing one
+
+Extend `ValueMetaBase` and carry the annotation:
+
+[source,java]
+----
+@ValueMetaPlugin(
+    id = "1042",
+    name = "Geometry",
+    description = "Geospatial geometry")
+public class ValueMetaGeometry extends ValueMetaBase {
+
+  public static final int TYPE_GEOMETRY = 1042;
+
+  public ValueMetaGeometry() {
+    super(null, TYPE_GEOMETRY);
+  }
+
+  @Override
+  public Class<?> getNativeDataTypeClass() {
+    return Geometry.class;
+  }
+
+  @Override
+  public Object convertData(IValueMeta meta2, Object data2) throws HopValueException {
+    ...
+  }
+}
+----
+
+At minimum you will implement conversion to and from the types Hop already knows, a native class, and binary serialisation.
+`ValueMetaUuid` in `plugins/valuetypes/uuid` is a complete and fairly small example to read.
+
+== Type ids
+
+[WARNING]
+====
+Type ids are plain integers and there is no allocation registry.
+The built-in types use low numbers and the shipped plugins use `20` for Avro and `32` for UUID.
+
+Two plugins that pick the same id will collide, and the failure will not be obvious.
+Until Hop has a convention, pick something distinctive and high, and say in your documentation which id you took.
+====
+
+== Value types and databases
+
+Keep the two apart.
+
+A value type should give the *neutral* answer and know about no database at all.
+`ValueMetaJson` says the column type is `JSON`; that PostgreSQL prefers `JSONB` is declared by PostgreSQL, in its own rules.
+
+If your type needs different treatment on a particular database, that belongs in a xref:database/extending-another-dialect.adoc[type rules plugin] targeting that dialect, not in the value type.
+This keeps the type usable on databases you have never heard of, and keeps you out of the business of maintaining a list of vendors.

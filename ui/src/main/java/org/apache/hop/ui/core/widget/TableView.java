@@ -116,6 +116,17 @@ public class TableView extends Composite {
   private static final int EXTRA_COLUMN_WIDTH_MARGIN =
       Const.toInt(HopConfig.readStringVariable(Const.HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN, ""), 0);
 
+  /**
+   * Key of the {@link TableItem} data holding a row's values as {@code [full][displayed]}, both
+   * indexed by column. See {@link #setCellValue(TableItem, int, String)}.
+   */
+  private static final String CELL_VALUES_KEY = "TableView.CellValues";
+
+  /** Index of the complete value, and of the shortened text put in the cell, in that data. */
+  private static final int FULL = 0;
+
+  private static final int DISPLAYED = 1;
+
   /** Default minimum height hint in pixels for all TableView instances. */
   public static final int HEIGHT_HINT_PX = 200;
 
@@ -170,6 +181,22 @@ public class TableView extends Composite {
   private final Composite composite;
   private final ColumnInfo[] columns;
   @Getter @Setter private boolean readonly;
+
+  /**
+   * Draw long / multi-line text cells shortened and single-lined (see {@link
+   * #formatCellValueForDisplay(String)}). Off by default: it was added to keep the data-heavy grids
+   * responsive — the row preview and the data grids — and elsewhere it only changes how a
+   * configuration value looks. Switch it on per grid with {@link
+   * #setShortenDisplayedValues(boolean)}.
+   */
+  private boolean shortenDisplayedValues;
+
+  /** Layout of the table itself, kept so the web footnote can be inserted underneath it later. */
+  private FormData fdTable;
+
+  /** Hop Web only, and only for grids that shorten values: see {@link #addWebNewlineHint()}. */
+  private Label webNewlineHint;
+
   private int buttonRowNr;
   private int buttonColNr;
   private String buttonContent;
@@ -239,6 +266,13 @@ public class TableView extends Composite {
   private final List<String> removeToolItems;
   private final Set<Integer> hiddenDataColumns = new HashSet<>();
   private int[] rememberedWidths;
+
+  /**
+   * Last width we asked each native column to take during {@link #optWidth}. Win32/DPI often
+   * returns a slightly different {@code getWidth()} than the value passed to {@code setWidth}, so
+   * grow-only mode uses this to avoid applying the same target again every refresh.
+   */
+  private int[] lastOptWidthApplied;
 
   /**
    * Create a table to add to a dialog
@@ -525,7 +559,7 @@ public class TableView extends Composite {
     PropsUi.setLook(table);
     table.setLinesVisible(true);
 
-    FormData fdTable = new FormData();
+    fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
     fdTable.right = new FormAttachment(100, 0);
     fdTable.width = WIDTH_HINT_PX;
@@ -536,21 +570,6 @@ public class TableView extends Composite {
     }
     fdTable.bottom = new FormAttachment(100, 0);
     table.setLayoutData(fdTable);
-
-    // Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
-    // which we use on the desktop). Add a footnote pointing users to the editor for the full value.
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      Label webNewlineHint = new Label(this, SWT.LEFT);
-      PropsUi.setLook(webNewlineHint);
-      webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
-      FormData fdHint = new FormData();
-      fdHint.left = new FormAttachment(0, 0);
-      fdHint.right = new FormAttachment(100, 0);
-      fdHint.bottom = new FormAttachment(100, 0);
-      webNewlineHint.setLayoutData(fdHint);
-      // The table now stops just above the footnote.
-      fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
-    }
 
     tableColumn = new TableColumn[columns.length + 1];
     tableColumn[0] = new TableColumn(table, SWT.RIGHT);
@@ -858,7 +877,7 @@ public class TableView extends Composite {
       final String[] fBeforeEdit = beforeEdit;
       String[] afterEdit = getItemText(row);
       checkChanged(new String[][] {fBeforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
-      row.setText(colNr, value);
+      setCellValue(row, colNr, value);
     };
   }
 
@@ -1803,8 +1822,12 @@ public class TableView extends Composite {
       // Keep TableItem#getData() across the rebuild so callers that tag their rows can still map a
       // visual row back to their own data after the user sorts a column.
       final Object[] preservedData = new Object[items.length];
+      final String[][][] preservedCellValues = new String[items.length][][];
       for (int i = 0; i < items.length; i++) {
         preservedData[i] = items[i].getData();
+        // A sort rebuilds every item from its text, so the values kept aside by setCellValue have
+        // to travel with the row or the grid would be left holding only the shortened text.
+        preservedCellValues[i] = (String[][]) items[i].getData(CELL_VALUES_KEY);
       }
 
       final int[] sortIndex = new int[] {sortField + 2};
@@ -1859,6 +1882,9 @@ public class TableView extends Composite {
 
         if (preservedData[origIdx] != null) {
           item.setData(preservedData[origIdx]);
+        }
+        if (preservedCellValues[origIdx] != null) {
+          item.setData(CELL_VALUES_KEY, preservedCellValues[origIdx]);
         }
       }
       table.setSortColumn(table.getColumn(this.sortField));
@@ -2030,7 +2056,7 @@ public class TableView extends Composite {
     }
     String textData = getTextWidgetValue(colNr);
 
-    row.setText(colNr, textData);
+    setCellValue(row, colNr, textData);
     disposeInlineEditor();
     table.setFocus();
 
@@ -2176,7 +2202,7 @@ public class TableView extends Composite {
       seed = getTextWidgetValue(colNr);
       disposeInlineEditor();
     } else {
-      seed = row.getText(colNr);
+      seed = getCellValue(row, colNr);
     }
 
     setPosition(rowNr, colNr);
@@ -2185,15 +2211,19 @@ public class TableView extends Composite {
     if (!viewOnly) {
       beforeEdit = getItemText(row);
       // An edit is already in progress when the carried-over text differs from the stored value.
-      fieldChanged = !seed.equals(row.getText(colNr));
+      fieldChanged = !seed.equals(getCellValue(row, colNr));
     }
 
     Rectangle cellBounds = row.getBounds(colNr);
     Point location = table.toDisplay(cellBounds.x, cellBounds.y);
 
     // Resizable (but title-less) floating shell so the user can drag its edges to make a long value
-    // bigger, matching the read-only value viewer.
-    final Shell popup = new Shell(getShell(), SWT.RESIZE);
+    // bigger, matching the read-only value viewer. SWT.RESIZE on its own is only title-less on
+    // macOS: it is part of SWT.SHELL_TRIM, so GTK leaves the window decorated and the window
+    // manager puts a full title bar with minimize and maximize on a pop-out that has no use for
+    // either. Adding SWT.ON_TOP makes a child shell a GTK popup window, which SWT undecorates,
+    // and keeps the drag-to-resize border by way of SWT's own custom resize.
+    final Shell popup = new Shell(getShell(), SWT.ON_TOP | SWT.RESIZE);
     multilineShell = popup;
     popup.addListener(
         SWT.Dispose,
@@ -2267,8 +2297,8 @@ public class TableView extends Composite {
             // A value viewer only closes: nothing to store, nothing changed.
             return;
           }
-          if (!newValue.equals(row.getText(colNr))) {
-            row.setText(colNr, newValue);
+          if (!newValue.equals(getCellValue(row, colNr))) {
+            setCellValue(row, colNr, newValue);
           }
           String[] afterEdit = getItemText(row);
           checkChanged(new String[][] {beforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
@@ -2320,6 +2350,50 @@ public class TableView extends Composite {
               multi.setSelection(multi.getText().length());
               popup.addListener(SWT.Deactivate, e -> commit.run());
             });
+  }
+
+  /**
+   * Shorten long / multi-line text cells for display in this grid: the cell is drawn cut to {@link
+   * PropsUi#getMaxPreviewCellLength()} characters and on a single line, while the stored value —
+   * what is copied, exported and saved — stays complete.
+   *
+   * <p>Off by default. Switch it on for grids that show data rather than configuration (the row
+   * preview, the data grids), where values are long, numerous, or multi-line and drawing them in
+   * full costs real time.
+   */
+  public void setShortenDisplayedValues(boolean shortenDisplayedValues) {
+    this.shortenDisplayedValues = shortenDisplayedValues;
+    if (shortenDisplayedValues) {
+      addWebNewlineHint();
+    }
+    if (table != null && !table.isDisposed()) {
+      table.redraw();
+    }
+  }
+
+  public boolean isShortenDisplayedValues() {
+    return shortenDisplayedValues;
+  }
+
+  /**
+   * Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
+   * which we use on the desktop). Add a footnote pointing users to the editor for the full value.
+   */
+  private void addWebNewlineHint() {
+    if (webNewlineHint != null || !EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    webNewlineHint = new Label(this, SWT.LEFT);
+    PropsUi.setLook(webNewlineHint);
+    webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
+    FormData fdHint = new FormData();
+    fdHint.left = new FormAttachment(0, 0);
+    fdHint.right = new FormAttachment(100, 0);
+    fdHint.bottom = new FormAttachment(100, 0);
+    webNewlineHint.setLayoutData(fdHint);
+    // The table now stops just above the footnote.
+    fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
+    layout(true, true);
   }
 
   /**
@@ -2398,12 +2472,69 @@ public class TableView extends Composite {
   }
 
   /**
+   * Fill a data-grid cell: the untruncated value is kept on the item and the cell itself only gets
+   * the shortened, single-line text.
+   *
+   * <p>Native tables take their geometry from the text a cell holds, and not every platform stops
+   * at the first line: GTK measures every row from its cell renderers, so a stored line break makes
+   * the whole row grow to as many lines as the value has (macOS keeps a uniform row height, which
+   * is why this stays invisible there). Drawing the value shortened is therefore not enough — the
+   * text we do not want drawn must not be in the cell to begin with.
+   *
+   * <p>Use it for the grids that show data rather than configuration. Everything in this widget
+   * that needs the real value reads it with {@link #getCellValue(TableItem, int)}; a grid that
+   * hands its rows out to a caller has to do the same.
+   */
+  public void setCellValue(TableItem item, int colNr, String value) {
+    if (!shortenDisplayedValues) {
+      item.setText(colNr, value);
+      return;
+    }
+    String[][] cells = (String[][]) item.getData(CELL_VALUES_KEY);
+    if (cells == null) {
+      int columnCount = table.getColumnCount();
+      cells = new String[][] {new String[columnCount], new String[columnCount]};
+      item.setData(CELL_VALUES_KEY, cells);
+    }
+    String display = formatCellValueForDisplay(value);
+    display = display == null ? "" : display;
+    if (colNr < cells[FULL].length) {
+      cells[FULL][colNr] = value;
+      cells[DISPLAYED][colNr] = display;
+    }
+    item.setText(colNr, display);
+  }
+
+  /**
+   * The complete value of a cell: the one kept aside by {@link #setCellValue(TableItem, int,
+   * String)}, or the cell text itself for the grids that hold their values in full.
+   *
+   * <p>The value is only used while the cell still shows the text it was derived from. Anything
+   * that writes the cell some other way therefore takes over cleanly: the worst a write path that
+   * does not know about this can cause is a value drawn in full again, never a stale one saved.
+   */
+  public static String getCellValue(TableItem item, int colNr) {
+    String[][] cells = (String[][]) item.getData(CELL_VALUES_KEY);
+    if (cells != null
+        && colNr < cells[FULL].length
+        && cells[FULL][colNr] != null
+        && cells[DISPLAYED][colNr].equals(item.getText(colNr))) {
+      return cells[FULL][colNr];
+    }
+    return item.getText(colNr);
+  }
+
+  /**
    * The shortened display string for a text cell whose stored value is longer / multi-line, or null
-   * when the cell should be drawn natively (non-text column, or nothing to shorten). Used by the
-   * desktop owner-draw so {@link TableItem#getText(int)} keeps returning the full, saved value.
+   * when the cell should be drawn natively (nothing to shorten, or the cell already holds the
+   * shortened text because the grid stores its values with {@link #setCellValue(TableItem, int,
+   * String)}).
    */
   private String customCellText(TableItem item, int columnIndex) {
-    if (item == null || columnIndex < 1 || columnIndex - 1 >= columns.length) {
+    if (!shortenDisplayedValues
+        || item == null
+        || columnIndex < 1
+        || columnIndex - 1 >= columns.length) {
       return null;
     }
     ColumnInfo colinfo = columns[columnIndex - 1];
@@ -2412,9 +2543,8 @@ public class TableView extends Composite {
             && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)) {
       return null;
     }
-    String full = item.getText(columnIndex);
-    String display = formatCellValueForDisplay(full);
-    return display != null && !display.equals(full) ? display : null;
+    String display = formatCellValueForDisplay(getCellValue(item, columnIndex));
+    return display != null && !display.equals(item.getText(columnIndex)) ? display : null;
   }
 
   private void eraseCell(Event event) {
@@ -2540,8 +2670,21 @@ public class TableView extends Composite {
     if (id == SWT.YES) {
       table.removeAll();
       new TableItem(table, SWT.NONE);
-      if (!readonly) {
-        composite.getDisplay().asyncExec(() -> edit(0, 1));
+      // Only start editing when the user cleared an already-visible grid. Programmatic refill
+      // before a dialog is opened (run options Parameters/Variables) must not grab focus.
+      Shell parentShell = composite.getShell();
+      if (!readonly
+          && parentShell != null
+          && !parentShell.isDisposed()
+          && parentShell.isVisible()) {
+        composite
+            .getDisplay()
+            .asyncExec(
+                () -> {
+                  if (!table.isDisposed() && table.getItemCount() > 0) {
+                    edit(0, 1);
+                  }
+                });
       }
       this.setModified(); // timh
     }
@@ -2776,11 +2919,11 @@ public class TableView extends Composite {
         if (c > 1) {
           selection.append(CLIPBOARD_DELIMITER);
         }
-        String value = ti.getText(c);
+        String value = getCellValue(ti, c);
         if (StringUtils.isNotEmpty(value)) {
           Color textColor = ti.getForeground(c);
           if (!nullTextColor.equals(textColor) || !"<null>".equals(value)) {
-            selection.append(ti.getText(c));
+            selection.append(value);
           }
         }
       }
@@ -3097,7 +3240,7 @@ public class TableView extends Composite {
 
     String[] retval = new String[table.getColumnCount() - 1];
     for (int i = 0; i < retval.length; i++) {
-      retval[i] = row.getText(i + 1);
+      retval[i] = getCellValue(row, i + 1);
     }
 
     return retval;
@@ -3148,12 +3291,12 @@ public class TableView extends Composite {
     // edit values that contain a line break in the multi-line pop-out editor instead.
     if ((colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT
             || colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
-        && indexOfLineBreak(row.getText(colNr)) >= 0) {
+        && indexOfLineBreak(getCellValue(row, colNr)) >= 0) {
       editMultiline(row, rowNr, colNr, colinfo);
       return;
     }
 
-    String content = row.getText(colNr) + (!viewOnly && extra != 0 ? "" + extra : "");
+    String content = getCellValue(row, colNr) + (!viewOnly && extra != 0 ? "" + extra : "");
     String tooltip = columns[colNr - 1].getToolTip();
 
     final boolean useVariables = !viewOnly && columns[colNr - 1].isUsingVariables();
@@ -3630,6 +3773,21 @@ public class TableView extends Composite {
   }
 
   public void optWidth(boolean header, int nrLines) {
+    optWidth(header, nrLines, false);
+  }
+
+  /**
+   * Size columns to their content.
+   *
+   * @param header include header text in the packed size
+   * @param nrLines max rows to measure, or {@code <= 0} for all rows
+   * @param growOnly when true, never shrink a column and never touch columns with an explicit
+   *     {@link ColumnInfo} width (user-sized). Used by live grids that refresh often.
+   */
+  public void optWidth(boolean header, int nrLines, boolean growOnly) {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
 
     int extraForMargin;
     if (Const.isWindows()) {
@@ -3639,117 +3797,130 @@ public class TableView extends Composite {
     }
     extraForMargin += EXTRA_COLUMN_WIDTH_MARGIN;
 
-    for (int c = 0; c < table.getColumnCount(); c++) {
-      TableColumn tc = table.getColumn(c);
-      if (c > 0 && hiddenDataColumns.contains(c - 1)) {
-        if (tc.getWidth() != 0) {
-          tc.setWidth(0);
+    boolean widthChanged = false;
+    table.setRedraw(false);
+    try {
+      for (int c = 0; c < table.getColumnCount(); c++) {
+        TableColumn tc = table.getColumn(c);
+        if (c > 0 && hiddenDataColumns.contains(c - 1)) {
+          if (tc.getWidth() != 0) {
+            tc.setWidth(0);
+            rememberAppliedColumnWidth(c, 0);
+            widthChanged = true;
+          }
+          continue;
         }
-        continue;
-      }
-      int max = 0;
-      if (header) {
-        max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
-        if (tc.getImage() != null) {
-          max += tc.getImage().getBounds().width;
-        }
+        int max = 0;
+        if (header) {
+          max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
+          if (tc.getImage() != null) {
+            max += tc.getImage().getBounds().width;
+          }
 
-        // Check if the column has a sorted mark set. In that case, we need the
-        // header to be a bit wider...
-        //
-        if (c == sortField && sortable) {
-          max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
-        }
-      }
-      Set<String> columnStrings = new HashSet<>();
-
-      boolean haveToGetTexts = false;
-      if (c > 0) {
-        final ColumnInfo column = columns[c - 1];
-        if (column != null) {
-          switch (column.getType()) {
-            case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
-              haveToGetTexts = true;
-              break;
-            case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
-              haveToGetTexts = true;
-              if (column.getComboValues() != null) {
-                for (String comboValue : columns[c - 1].getComboValues()) {
-                  columnStrings.add(comboValue);
-                }
-              }
-              break;
-            case ColumnInfo.COLUMN_TYPE_BUTTON:
-              columnStrings.add(column.getButtonText());
-              break;
-            default:
-              break;
+          // Check if the column has a sorted mark set. In that case, we need the
+          // header to be a bit wider...
+          //
+          if (c == sortField && sortable) {
+            max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
           }
         }
-      } else {
-        haveToGetTexts = true;
-      }
+        Set<String> columnStrings = new HashSet<>();
 
-      if (haveToGetTexts) {
-        for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
-          TableItem ti = table.getItem(r);
-          if (ti != null) {
-            // Size on what is actually drawn: a long or multi-line value is shown shortened, so
-            // measuring the full value would stretch the column for text nobody sees.
-            String display = customCellText(ti, c);
-            columnStrings.add(display != null ? display : ti.getText(c));
-          }
-        }
-      }
-
-      for (String str : columnStrings) {
-        int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
-        if (len > max) {
-          max = len;
-        }
-      }
-
-      try {
-        max += extraForMargin;
+        boolean haveToGetTexts = false;
         if (c > 0) {
-          max += extraForMargin; // margins on both sides of the column
-        }
-        if (Const.isWindows() || Const.isLinux()) {
-          max += extraForMargin;
-        }
-
-        // The line number column
-        //
-        if (c == 0) {
-          if (tc.getWidth() != max) {
-            tc.setWidth(max);
+          final ColumnInfo column = columns[c - 1];
+          if (column != null) {
+            switch (column.getType()) {
+              case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
+                haveToGetTexts = true;
+                break;
+              case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
+                haveToGetTexts = true;
+                if (column.getComboValues() != null) {
+                  for (String comboValue : columns[c - 1].getComboValues()) {
+                    columnStrings.add(comboValue);
+                  }
+                }
+                break;
+              case ColumnInfo.COLUMN_TYPE_BUTTON:
+                columnStrings.add(column.getButtonText());
+                break;
+              default:
+                break;
+            }
           }
         } else {
-          int desiredWidth = columns[c - 1].getWidth();
-          if (desiredWidth > 0) {
-            if (tc.getWidth() != desiredWidth) {
-              tc.setWidth(desiredWidth);
-            }
-          } else {
-            if (tc.getWidth() != max) {
-              tc.setWidth(max);
+          haveToGetTexts = true;
+        }
+
+        if (haveToGetTexts) {
+          for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
+            TableItem ti = table.getItem(r);
+            if (ti != null) {
+              // Size on what is actually drawn: a long or multi-line value is shown shortened, so
+              // measuring the full value would stretch the column for text nobody sees.
+              String display = customCellText(ti, c);
+              columnStrings.add(display != null ? display : ti.getText(c));
             }
           }
         }
 
-        if (tc.getWidth() != max) {
-          if (c > 0 && columns[c - 1].getWidth() > 0) {
-            tc.setWidth(columns[c - 1].getWidth());
-          } else {
-            tc.setWidth(max);
+        for (String str : columnStrings) {
+          int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
+          if (len > max) {
+            max = len;
           }
         }
-      } catch (Exception e) {
-        // Ignore errors
-        LogChannel.UI.logError("error in TableView", e);
+
+        try {
+          max += extraForMargin;
+          if (c > 0) {
+            max += extraForMargin; // margins on both sides of the column
+          }
+          if (Const.isWindows() || Const.isLinux()) {
+            max += extraForMargin;
+          }
+
+          int desiredWidth = preferredColumnWidth(c);
+          int target;
+          if (c == 0) {
+            // Line-number column: always pack unless the caller marked a preferred width.
+            target = desiredWidth > 0 ? desiredWidth : max;
+          } else if (desiredWidth > 0) {
+            target = desiredWidth;
+          } else {
+            target = max;
+          }
+
+          if (growOnly) {
+            if (desiredWidth > 0) {
+              continue;
+            }
+            int baseline = Math.max(tc.getWidth(), lastAppliedColumnWidth(c));
+            if (max <= baseline) {
+              continue;
+            }
+            target = max;
+          }
+
+          if (tc.getWidth() != target) {
+            tc.setWidth(target);
+            rememberAppliedColumnWidth(c, target);
+            widthChanged = true;
+          } else {
+            rememberAppliedColumnWidth(c, target);
+          }
+        } catch (Exception e) {
+          // Ignore errors
+          LogChannel.UI.logError("error in TableView", e);
+        }
+      }
+    } finally {
+      if (!table.isDisposed()) {
+        table.setRedraw(true);
       }
     }
-    if (table.isListening(SWT.Resize)) {
+    if (widthChanged && table.isListening(SWT.Resize)) {
       Event resizeEvent = new Event();
       resizeEvent.widget = table;
       resizeEvent.type = SWT.Resize;
@@ -3758,6 +3929,60 @@ public class TableView extends Composite {
       table.notifyListeners(SWT.Resize, resizeEvent);
     }
     unEdit();
+  }
+
+  /**
+   * Records a preferred width for a table column ({@code 0} is the "#" index column). Later {@link
+   * #optWidth} calls honor this instead of packing, and grow-only mode will not change it.
+   *
+   * @param tableColumnIndex native table column index
+   * @param width pixel width
+   */
+  public void setPreferredColumnWidth(int tableColumnIndex, int width) {
+    if (tableColumnIndex == 0) {
+      if (numberColumn != null) {
+        numberColumn.setWidth(width);
+      }
+      return;
+    }
+    int dataIndex = tableColumnIndex - 1;
+    if (dataIndex >= 0 && dataIndex < columns.length) {
+      columns[dataIndex].setWidth(width);
+    }
+  }
+
+  private int preferredColumnWidth(int tableColumnIndex) {
+    if (tableColumnIndex == 0) {
+      return numberColumn != null ? numberColumn.getWidth() : -1;
+    }
+    int dataIndex = tableColumnIndex - 1;
+    if (dataIndex >= 0 && dataIndex < columns.length && columns[dataIndex] != null) {
+      return columns[dataIndex].getWidth();
+    }
+    return -1;
+  }
+
+  private int lastAppliedColumnWidth(int tableColumnIndex) {
+    if (lastOptWidthApplied == null || tableColumnIndex >= lastOptWidthApplied.length) {
+      return -1;
+    }
+    return lastOptWidthApplied[tableColumnIndex];
+  }
+
+  private void rememberAppliedColumnWidth(int tableColumnIndex, int width) {
+    int count = table.getColumnCount();
+    if (lastOptWidthApplied == null || lastOptWidthApplied.length != count) {
+      int[] next = new int[count];
+      Arrays.fill(next, -1);
+      if (lastOptWidthApplied != null) {
+        System.arraycopy(
+            lastOptWidthApplied, 0, next, 0, Math.min(lastOptWidthApplied.length, count));
+      }
+      lastOptWidthApplied = next;
+    }
+    if (tableColumnIndex >= 0 && tableColumnIndex < lastOptWidthApplied.length) {
+      lastOptWidthApplied[tableColumnIndex] = width;
+    }
   }
 
   public void optimizeTableView() {
@@ -4702,7 +4927,7 @@ public class TableView extends Composite {
     String[] retval = new String[table.getItemCount()];
     for (int i = 0; i < retval.length; i++) {
       TableItem item = table.getItem(i);
-      retval[i] = item.getText(colNr + 1);
+      retval[i] = getCellValue(item, colNr + 1);
     }
     return retval;
   }

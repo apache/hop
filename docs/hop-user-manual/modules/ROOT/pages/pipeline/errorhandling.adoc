@@ -58,6 +58,8 @@ The available options are:
 |min nr of rows to read before doing % evaluation|number of rows to read before doing the percentage evaluation. These rows will be taken into account in the evaluation, but the evaluation will only be performed once the specified number of rows has been processed.
 |===
 
+To find *which rows, columns and values* a database would reject on insert, put xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation] in front of Table Output (or a bulk loader) and send its error hop to a reject file or table.
+
 An example output when trying to cast an invalid date string to a date is shown below.
 
 image:error-handling-output.png[Error handling output, width="90%"]

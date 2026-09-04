@@ -1,0 +1,282 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# Every transform Hop declares, resolved from the @Transform annotations and their
+# English message bundles. Regenerate rather than edit by hand: the previous list had
+# drifted to Title Case ('Avro Decode' for 'Avro decode'), which made every entry after
+# the ninth fail, and it was missing 55 transforms added since it was last touched.
+#
+# Two entries a regeneration has to get right, because a generator reading annotations
+# alone gets them wrong:
+#  - a transform whose meta class is @Deprecated is registered under its name plus
+#    " (deprecated)", which is what the palette and the canvas call it.
+#  - the list must hold names, not plugin ids. 'Fake' is the id of the transform named
+#    'Fake data'; it was in here as an entry of its own and passed only because the
+#    fake.svg icon draws the word "Fake", which the old tests read as a transform name.
+(Experimental) Beam Hive catalog input
+Abort
+Add a checksum
+Add constants
+Add sequence
+Add value fields changing sequence
+Add XML
+Analytic query
+Apache Tika
+Append streams
+Avro decode
+Avro encode
+Avro file input
+Avro file output
+AWS SNS notify
+AWS SQS reader
+Azure Event Hubs listener
+Azure Event Hubs writer
+Beam Bigtable input
+Beam Bigtable output
+Beam file input
+Beam file output
+Beam GCP Pub/Sub: publish
+Beam GCP Pub/Sub: subscribe
+Beam Kafka consume
+Beam Kafka produce
+Beam Kinesis consume
+Beam Kinesis produce
+Beam timestamp
+Beam window
+BigQuery input
+BigQuery output
+Binary File Output
+Block until transforms finish
+Blocking transform
+Calculator
+Call DB procedure
+Cassandra input
+Cassandra output
+Change file encoding
+Check if file is locked
+Check if webservice is available
+Clone row
+Closure generator
+Coalesce fields
+Column exists
+Combination lookup/update
+Concat fields
+Copy rows to result
+CrateDB bulk loader
+Credit card validator
+CSV file input
+Data grid
+Data set input
+Data set output
+Data stream input
+Data stream output
+Data validator
+Database impact input
+Database join
+Database lookup
+DDL
+De-serialize from file
+Delay row
+Delete
+Detect empty stream
+Detect language
+Dimension lookup/update
+Doris bulk loader
+Dummy (do nothing)
+Dynamic SQL row
+EDI to XML
+Email messages input
+Enhanced JSON output
+ETL metadata injection
+Execute a process
+Execute row SQL script
+Execute SQL script
+Execute unit tests
+Execution information
+Fake data
+File exists
+File metadata
+Filter rows
+Formula
+Fuzzy match
+Generate random value
+Generate rows
+Generate Snowflake ID
+Get data from XML
+Get file names
+Get files from result
+Get files rows count
+Get JDBC metadata
+Get Neo4j logging info
+Get records from stream (deprecated)
+Get rows from result
+Get server status
+Get subfolder names
+Get system info
+Get table names
+Get variables
+Google Analytics 4
+Google Sheets input
+Google Sheets output
+Group by
+HTML to text
+HTTP client
+HTTP post
+Identify last row in a stream
+If null
+Injector
+Insert / update
+Java filter
+JavaScript
+JMS consumer
+JMS producer
+Join rows (cartesian product)
+JSON input
+JSON normalize input
+JSON output
+Kafka consumer
+Kafka producer
+Language model chat
+LDAP input
+LDAP output
+Load file content in memory
+Mail
+Mapping input
+Mapping output
+Memory group by
+Merge join
+Merge rows (diff)
+Metadata input
+Metadata structure of stream
+Microsoft Access output
+Microsoft Excel input
+Microsoft Excel writer
+MonetDB bulk loader
+MongoDB delete
+MongoDB input
+MongoDB output
+MS SQL Server bulk loader
+Multi Mapping
+Multiway merge join
+MySQL bulk loader
+Neo4j Cypher
+Neo4j Cypher builder
+Neo4j generate CSVs
+Neo4j graph output
+Neo4j import
+Neo4j output
+Neo4j split graph
+Null if
+Number range
+OData input
+Oracle bulk loader
+Parquet file input
+Parquet file output
+PGP decrypt stream
+PGP encrypt stream
+Pipeline executor
+Pipeline logging
+Pipeline probe
+PostgreSQL bulk loader
+Process files
+Properties input
+Properties output
+Redis input
+Redis output
+Redshift bulk loader
+Regex evaluation
+Repeat fields
+Replace in string
+Reservoir sampling
+REST client
+Row denormaliser
+Row flattener
+Row normaliser
+Rules accumulator
+Rules executor
+Run SSH commands
+Salesforce delete
+Salesforce input
+Salesforce insert
+Salesforce update
+Salesforce upsert
+Sample rows
+SAS input
+Schema mapping
+Script
+Select values
+Serialize to file
+Set field value
+Set field value to a constant
+Set files in result
+Set variables
+SFTP Put
+Simple mapping (sub-pipeline)
+Snowflake bulk loader
+Sort rows
+Sorted merge
+Sorted schema merge
+Spark file input
+Spark file output
+Spark lake table input
+Spark lake table maintenance
+Spark lake table merge
+Spark lake table output
+Spark SQL
+Split field to rows
+Split fields
+Splunk input
+SQL file output
+SSTable output
+Standardize phone number
+Stanford simple NLP
+Stream lookup
+Stream schema merge
+String operations
+Strings cut
+Surefire report output
+Switch / case
+Synchronize after merge
+Table compare
+Table exists
+Table input
+Table output
+Teradata FastLoad bulk loader
+Text file input
+Text file output
+Token replacement
+Unique rows
+Unique rows (HashSet)
+Update
+User defined Java class
+User defined Java expression
+Value mapper
+vCard input
+vCard output
+Vertica bulk loader
+Web services lookup
+Workflow executor
+Workflow logging
+Write to log
+XML input stream (StAX)
+XML join
+XML output
+XML output (Advanced)
+XSD validator
+XSL transformation
+YAML input
+Zip file

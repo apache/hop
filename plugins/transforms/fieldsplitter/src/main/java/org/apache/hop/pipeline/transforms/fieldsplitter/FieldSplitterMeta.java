@@ -100,21 +100,6 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     fields = new ArrayList<>();
   }
 
-  public FieldSplitterMeta(FieldSplitterMeta m) {
-    this();
-    this.splitField = m.splitField;
-    this.delimiter = m.delimiter;
-    this.enclosure = m.enclosure;
-    this.escapeString = m.escapeString;
-    this.keepSplitField = m.keepSplitField;
-    m.fields.forEach(f -> this.fields.add(new FSField(f)));
-  }
-
-  @Override
-  public FieldSplitterMeta clone() {
-    return new FieldSplitterMeta(this);
-  }
-
   @Override
   public void setDefault() {
     splitField = "";

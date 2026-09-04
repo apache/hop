@@ -57,12 +57,6 @@ public class FilesFromResultMeta extends BaseTransformMeta<FilesFromResult, File
     readData(transformNode);
   }
 
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
   private void readData(Node transformNode) {
     // Do nothing
   }

@@ -74,7 +74,7 @@ class MergeRowsMetaTest {
     meta.setAlignInputLayouts(false);
     meta.getKeyFields().add("id");
 
-    MergeRowsMeta copy = meta.clone();
+    MergeRowsMeta copy = (MergeRowsMeta) meta.clone();
     assertEquals("flag", copy.getFlagField());
     assertEquals("difference", copy.getDiffJsonField());
     assertFalse(copy.isAlignInputLayouts());

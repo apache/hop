@@ -1,0 +1,71 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How the Hop manuals are organised, where a new page goes, and the rules every page has to follow.
+[[WritingDocumentation]]
+= Writing documentation
+
+Documentation lives in the Hop repository next to the code it describes, in `docs/`.
+Changing it is an ordinary pull request, which makes it one of the easiest ways to make a first contribution.
+
+== The three manuals
+
+Each is an https://antora.org/[Antora] component with its own `antora.yml` and its own navigation tree:
+
+`docs/hop-user-manual`::
+For people *using* Hop. Every transform, action and metadata type has a page here.
+
+`docs/hop-dev-manual`::
+This manual: for people working on Hop or writing plugins for it.
+
+There is no third manual: if a page tells someone how to *use* or *operate* Hop it belongs in the user manual, and if it tells someone how to *build, extend or release* Hop it belongs here.
+
+Inside a manual the layout is always `modules/ROOT/`, with `pages/` for the content, `assets/images/` for images, `nav.adoc` for the navigation tree, and — in the user manual — `templates/` with starting points for a plugin, sample or FAQ page.
+
+== Adding a page
+
+. Put the `.adoc` file under `modules/ROOT/pages/`, in the subfolder matching its section.
+. Give it the Apache License 2.0 header in an AsciiDoc comment block (`////` ... `////`).
+Without it, Apache RAT fails the build.
+. Add a `:description:` line. It is used as the page summary and for search.
+. Add the page to `modules/ROOT/nav.adoc`, or it will not be published.
+. Link between pages with an `xref` macro, with the path relative to `pages/` rather than to the current file: `+xref:database/index.adoc[Database plugins]+`.
+Across manuals, prefix the component name — `manual` or `dev-manual`: `+xref:manual::pipeline/transforms/tableinput.adoc[Table input]+`.
+
+== Documenting a plugin
+
+A transform, action or metadata type gets a page in the *user* manual, and the plugin's `documentationUrl` annotation attribute points at it:
+
+[source,java]
+----
+@Transform(
+    id = "DetectEmptyStream",
+    documentationUrl = "/pipeline/transforms/detectemptystream.html")
+----
+
+The path is relative to the user manual on the website, and it is what the help button in the dialog opens.
+`docs/hop-user-manual/modules/ROOT/templates/template-plugin.adoc` is the starting point.
+
+Anything a plugin developer needs — rather than a user — belongs in this manual instead.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Building the documentation locally to preview it. The Antora playbook lives in the Hop website repository, not this one; the exact steps need writing down.
+* The AsciiDoc conventions this project actually follows: one sentence per line, admonition usage, image sizing, how snippets under `pages/snippets` are included.
+* How a page reaches hop.apache.org, and how versioned manuals are cut at release time.
+====

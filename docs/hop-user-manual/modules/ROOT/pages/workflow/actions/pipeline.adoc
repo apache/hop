@@ -65,6 +65,7 @@ Select the desired run configuration to control where and how the pipeline is ex
 |Clear results rows before execution|Makes sure the results rows are cleared before the pipeline starts.
 |Clear results files before execution|Makes sure the results files are cleared before the pipeline starts.
 |Wait for remote pipeline to finish|If you selected Server as your environment type, choose this option to block the workflow until the pipeline runs on the server.
+|Stop after (milliseconds)|Maximum time to wait for the pipeline to complete. Empty or 0 means wait indefinitely. When the time is reached the pipeline is stopped and this action fails. Only used when wait-to-finish is enabled. The value may contain a variable.
 |Follow local abort to remote pipeline|If you selected Server as your environment type, choose this option to send the local abort signal remotely.
 |===
 
@@ -98,8 +99,8 @@ See xref:logging/logging-basics.adoc[Logging] for more details.
 
 See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how parameters relate to fields and variables.
 
-*Pass params downstream*: On the Parameters tab, select the pipeline transform checkbox to `Pass parameter values to sub pipeline`. The parameter must already exist in the pipeline (in pipeline properties for example) or alternatively, on the Parameters tab, you can specify new parameters.
-The Parameters tab allows you to override existing parameter values or NULL them by leaving the value empty.
+*Pass params downstream*: On the Parameters tab, tick `Pass parent values to matching parameters`. The parameter must already exist in the pipeline (in pipeline properties for example) or alternatively, on the Parameters tab, you can specify new parameters.
+A value you fill in here overrides the sub-pipeline's own default for this execution. Leaving the value empty does *not* blank the parameter out: an empty value means nothing was passed, so the sub-pipeline's own default applies. The exact rules are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
 
 *Pass field values upstream*: The sub pipeline requires a Copy rows to result transform to send a row upstream. This requires a row to exist in the sub pipeline. Note that that rows do not exist in a workflow, but you can use a Get variables in a subsequent sub pipeline to use the first sub pipeline’s field values.
 
@@ -110,7 +111,7 @@ Use Set variables if you want to pass a single value upstream from a pipeline to
 |===
 |Option|Description
 |Copy results to parameters|Copies the results from a previous pipeline as parameters of the pipeline using the Copy rows to result transform.
-|Pass parameter values to sub pipeline|Pass all parameters of the workflow down to the sub-pipeline.
+|Pass parent values to matching parameters|Seed a parameter the sub-pipeline declares, but that is not listed above, from this workflow's value of the same name. With the option off the sub-pipeline keeps its own default. Variables are inherited by the sub-pipeline either way.
 |Parameter|Specify the parameter name passed to the pipeline.
 |Stream column name|Specify the field of an incoming record from a previous pipeline as the parameter.
 |Value|Specify pipeline parameter values through one of the following actions: +

@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -58,7 +59,25 @@ public class HopGuiKeyHandler extends KeyAdapter {
   /** Widget classes that pass their key listeners on to a widget inside them. */
   private static final Map<Class<?>, Boolean> DELEGATING_KEY_LISTENERS = new ConcurrentHashMap<>();
 
-  private static HopGuiKeyHandler singleton;
+  private static HopGuiKeyHandler fallback;
+
+  private static final ISingletonProvider PROVIDER = loadProvider();
+
+  private static ISingletonProvider loadProvider() {
+    try {
+      return (ISingletonProvider) ImplementationLoader.newInstance(HopGuiKeyHandler.class);
+    } catch (Throwable e) {
+      // hop-ui unit tests have no rcp/rap *Impl on the classpath.
+      return () -> {
+        synchronized (HopGuiKeyHandler.class) {
+          if (fallback == null) {
+            fallback = new HopGuiKeyHandler();
+          }
+          return fallback;
+        }
+      };
+    }
+  }
 
   public Set<Object> parentObjects;
 
@@ -69,20 +88,21 @@ public class HopGuiKeyHandler extends KeyAdapter {
   private final Set<Shell> handledShells = new HashSet<>();
 
   /**
-   * Displays with a focus filter. This handler is a singleton for the whole process while Hop Web
-   * has a display per session, so the filter is installed once per display.
+   * Displays with a focus filter. Hop Web has one handler (and one display) per RAP UISession; the
+   * desktop handler covers the single process display.
    */
   private final Set<Display> filteredDisplays = new HashSet<>();
 
-  private HopGuiKeyHandler() {
+  /**
+   * Public no-arg constructor so RAP {@code SingletonUtil.getSessionInstance} can create a handler
+   * per UISession. Call {@link #getInstance()} rather than constructing this yourself.
+   */
+  public HopGuiKeyHandler() {
     this.parentObjects = new HashSet<>();
   }
 
   public static HopGuiKeyHandler getInstance() {
-    if (singleton == null) {
-      singleton = new HopGuiKeyHandler();
-    }
-    return singleton;
+    return (HopGuiKeyHandler) PROVIDER.getInstanceInternal();
   }
 
   public void addParentObjectToHandle(Object parentObject) {
@@ -163,21 +183,33 @@ public class HopGuiKeyHandler extends KeyAdapter {
    * Composite widgets like TextVar and ComboVar pass the key listeners they get on to the widget
    * inside them. They style themselves before creating that widget, so it is not always there yet,
    * and it gets the handler through its own {@code PropsUi.setLook()} call anyway.
+   *
+   * <p>Both ways of delegating count: overriding {@code addKeyListener()} and overriding the {@code
+   * addListener()} that {@link Control#addKeyListener(KeyListener)} ends up calling. Widgets like
+   * MetaSelectionLine and StyledTextComp only do the latter.
    */
   private static boolean delegatesKeyListeners(Control control) {
     if (!(control instanceof Composite)) {
       return false;
     }
     return DELEGATING_KEY_LISTENERS.computeIfAbsent(
-        control.getClass(),
-        widgetClass -> {
-          try {
-            Method method = widgetClass.getMethod("addKeyListener", KeyListener.class);
-            return !Control.class.equals(method.getDeclaringClass());
-          } catch (NoSuchMethodException e) {
-            return Boolean.FALSE;
-          }
-        });
+        control.getClass(), HopGuiKeyHandler::isDelegatingClass);
+  }
+
+  private static Boolean isDelegatingClass(Class<?> widgetClass) {
+    return isOverridden(widgetClass, Control.class, "addKeyListener", KeyListener.class)
+        || isOverridden(widgetClass, Widget.class, "addListener", int.class, Listener.class);
+  }
+
+  /** Is the method of the given widget class declared below the class that normally declares it? */
+  private static boolean isOverridden(
+      Class<?> widgetClass, Class<?> declaringClass, String name, Class<?>... parameterTypes) {
+    try {
+      Method method = widgetClass.getMethod(name, parameterTypes);
+      return !declaringClass.equals(method.getDeclaringClass());
+    } catch (NoSuchMethodException e) {
+      return false;
+    }
   }
 
   /** The terminal widget and everything in it handles all keys itself. */
@@ -214,7 +246,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
       return;
     }
 
-    List<Object> orderedParents = getParentObjectsInContextOrder(event.widget);
+    List<Object> orderedParents = getParentObjectsInContextOrder(event);
     for (Object parentObject : orderedParents) {
       List<KeyboardShortcut> shortcuts =
           GuiRegistry.getInstance().getKeyboardShortcuts(parentObject.getClass().getName());
@@ -230,11 +262,15 @@ public class HopGuiKeyHandler extends KeyAdapter {
   }
 
   /** Order: parents whose window has focus (closest first), then active perspectives, then rest. */
-  private List<Object> getParentObjectsInContextOrder(Object focusedWidget) {
+  private List<Object> getParentObjectsInContextOrder(KeyEvent event) {
+    Object focusedWidget = event.widget;
     List<Object> inFocus = new ArrayList<>();
     List<Object> fallback = new ArrayList<>();
     for (Object parent : parentObjects) {
       Control control = parent instanceof Control c ? c : parentToControl.get(parent);
+      if (control != null && !belongsToEventDisplay(control, event)) {
+        continue;
+      }
       if (control != null && isWidgetInControlHierarchy(focusedWidget, control)) {
         inFocus.add(parent);
       } else {
@@ -296,6 +332,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
       Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
     if (parentObject instanceof Control control) {
       try {
+        if (!belongsToEventDisplay(control, event)) {
+          return false;
+        }
         if (!control.isVisible()) {
           return shortcut.isGlobal();
         }
@@ -379,8 +418,24 @@ public class HopGuiKeyHandler extends KeyAdapter {
     return false;
   }
 
+  /**
+   * RAP forbids touching a widget whose Display belongs to another UISession. Skip those parents
+   * instead of walking their widget tree.
+   */
+  private boolean belongsToEventDisplay(Control control, KeyEvent event) {
+    if (control == null || control.isDisposed() || event == null) {
+      return false;
+    }
+    try {
+      Display controlDisplay = control.getDisplay();
+      return event.display != null && event.display.equals(controlDisplay);
+    } catch (SWTException e) {
+      return false;
+    }
+  }
+
   private boolean isWidgetInControlHierarchy(Object widget, Control control) {
-    if (!(widget instanceof Control)) {
+    if (!(widget instanceof Control) || control == null || control.isDisposed()) {
       return false;
     }
 
@@ -425,8 +480,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
   /**
    * Keys that text-like widgets must handle themselves: copy/cut/paste/select-all,
-   * delete/backspace, and caret / selection navigation (arrows, home/end, page up/down) without
-   * CTRL/CMD/ALT. Shift alone is allowed so Shift+Arrow selection stays in the widget.
+   * delete/backspace, caret / selection navigation (arrows, home/end, page up/down) without
+   * CTRL/CMD/ALT, and unmodified printable characters (including space).
+   *
+   * <p>Graph shortcuts such as Space (output fields) and {@code z} (open referenced object) must
+   * not steal those keys from filter and search fields. App shortcuts with CTRL/CMD/ALT (e.g.
+   * Ctrl+S) still run.
    */
   private static boolean isNativeTextEditingKey(KeyEvent event) {
     if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
@@ -438,7 +497,24 @@ public class HopGuiKeyHandler extends KeyAdapter {
     if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
       return true;
     }
-    return isCaretNavigationKey(event);
+    if (isCaretNavigationKey(event)) {
+      return true;
+    }
+    return isUnmodifiedPrintableCharacter(event);
+  }
+
+  /**
+   * Space, letters and punctuation with no CTRL/CMD/ALT. Shift may be held for capitals. SWT
+   * reports space as {@link SWT#SPACE} and/or {@code character == ' '}.
+   */
+  private static boolean isUnmodifiedPrintableCharacter(KeyEvent event) {
+    if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0) {
+      return false;
+    }
+    if (event.keyCode == SWT.SPACE || event.character == ' ') {
+      return true;
+    }
+    return event.character >= 32 && event.character != SWT.DEL;
   }
 
   /**

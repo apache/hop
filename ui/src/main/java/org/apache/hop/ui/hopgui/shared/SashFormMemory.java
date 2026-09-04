@@ -18,9 +18,11 @@
 package org.apache.hop.ui.hopgui.shared;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
@@ -52,8 +54,12 @@ public final class SashFormMemory {
    */
   private static final int[] DEFAULT_WEIGHTS = {20, 80};
 
-  /** Every tracked sash form, keyed by its audit key, so {@link #resetAll()} can reach them all. */
-  private static final Map<String, Tracked> TRACKED = new LinkedHashMap<>();
+  /**
+   * Tracked sash forms of one Display, keyed by audit key. Hop Web has a Display per UISession; a
+   * process-wide map would let {@link #resetAll()} touch another session's widgets.
+   */
+  private static final Map<Display, Map<String, Tracked>> TRACKED_BY_DISPLAY =
+      new ConcurrentHashMap<>();
 
   private record Tracked(SashForm sashForm, int[] defaultWeights) {}
 
@@ -76,7 +82,7 @@ public final class SashFormMemory {
     }
     int[] defaults = defaultsOrFallback(defaultWeights);
     restore(sashForm, key, defaults);
-    TRACKED.put(key, new Tracked(sashForm, defaults));
+    trackedFor(sashForm.getDisplay()).put(key, new Tracked(sashForm, defaults));
 
     Display display = sashForm.getDisplay();
     Runnable saver = () -> save(sashForm, key);
@@ -149,15 +155,38 @@ public final class SashFormMemory {
    * startup).
    */
   public static void resetAll() {
-    for (Map.Entry<String, Tracked> entry : TRACKED.entrySet()) {
-      Tracked tracked = entry.getValue();
-      SashForm sashForm = tracked.sashForm();
-      int[] defaults = tracked.defaultWeights();
+    Display display = Display.getCurrent();
+    if (display == null || display.isDisposed()) {
+      return;
+    }
+    Map<String, Tracked> tracked = TRACKED_BY_DISPLAY.get(display);
+    if (tracked == null) {
+      return;
+    }
+    for (Map.Entry<String, Tracked> entry : tracked.entrySet()) {
+      Tracked item = entry.getValue();
+      SashForm sashForm = item.sashForm();
+      int[] defaults = item.defaultWeights();
       if (sashForm != null && !sashForm.isDisposed() && defaults != null && defaults.length > 0) {
         sashForm.setWeights(defaults);
       }
       forget(entry.getKey());
     }
+  }
+
+  private static Map<String, Tracked> trackedFor(Display display) {
+    return TRACKED_BY_DISPLAY.computeIfAbsent(
+        display,
+        d -> {
+          d.addListener(SWT.Dispose, e -> TRACKED_BY_DISPLAY.remove(d));
+          return Collections.synchronizedMap(new LinkedHashMap<>());
+        });
+  }
+
+  /** Visible for tests: how many sash forms this Display currently tracks. */
+  static int trackedCount(Display display) {
+    Map<String, Tracked> tracked = TRACKED_BY_DISPLAY.get(display);
+    return tracked == null ? 0 : tracked.size();
   }
 
   /** The caller's defaults, or the shared {@link #DEFAULT_WEIGHTS} when none were supplied. */

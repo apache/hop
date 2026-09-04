@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -38,6 +38,7 @@ import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.util.FileTypeUtils;
+import org.apache.hop.git.util.PreCommitCheck;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
@@ -55,15 +56,13 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileBeforeCommitExtension;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.eclipse.jgit.api.AddCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.swt.SWT;
@@ -119,7 +118,7 @@ public class GitCommitPerspective implements IHopPerspective {
   private static final String STAGED_LABEL = "GitCommitPerspective.Status.Staged.Label";
   private static final String UNSTAGED_LABEL = "GitCommitPerspective.Status.Unstaged.Label";
   private static final String UNTRACKED_LABEL = "GitCommitPerspective.Status.Untracked.Label";
-  @Getter private static GitCommitPerspective instance;
+  private static GitCommitPerspective instance;
 
   private HopGui hopGui;
   private SashForm wSashForm;
@@ -138,6 +137,18 @@ public class GitCommitPerspective implements IHopPerspective {
 
   public GitCommitPerspective() {
     instance = this;
+  }
+
+  public static GitCommitPerspective getInstance() {
+    try {
+      GitCommitPerspective fromGui = HopGui.findSessionPerspective(GitCommitPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   @Override
@@ -848,30 +859,47 @@ public class GitCommitPerspective implements IHopPerspective {
       String message = wMessage.getText();
       boolean amend = wAmend.getSelection();
 
-      Git git = uiGit.getGit();
-
-      // Reset all staged files
-      git.reset().setMode(ResetCommand.ResetType.MIXED).call();
-
-      // Add only selected files
-      AddCommand addCommand = git.add();
-      for (UIFile file : filesToCommit) {
-        addCommand.addFilepattern(file.getName());
+      // A merge, cherry-pick or revert has to be committed as a whole: the commit records the
+      // complete result, and for a merge it also records the second parent. Say so instead of
+      // dropping the unchecked files from the commit behind the user's back.
+      //
+      String pendingOperation = getPendingOperation(uiGit);
+      if (pendingOperation != null && !filesToIgnore.isEmpty()) {
+        showStatus(
+            GuiResource.getInstance().getImageError(),
+            BaseMessages.getString(
+                PKG, "GitCommitPerspective.Error.PartialCommit.Message", pendingOperation));
+        return;
       }
-      addCommand.call();
 
-      // Commit selected files
-      uiGit.commit(authorName, message, amend);
+      List<String> pathsToCommit = filesToCommit.stream().map(UIFile::getName).toList();
+
+      // Let optional plugins refuse the commit, the way git's pre-commit hook can. Nothing is
+      // staged or committed when they do.
+      //
+      HopGuiFileBeforeCommitExtension preCommit =
+          PreCommitCheck.check(
+              HopGui.getInstance().getLog(),
+              HopGui.getInstance().getVariables(),
+              uiGit.getDirectory(),
+              pathsToCommit);
+      if (preCommit.isCancelled()) {
+        showStatus(
+            GuiResource.getInstance().getImageError(),
+            BaseMessages.getString(
+                PKG,
+                "GitCommitPerspective.Error.CommitRefused.Message",
+                Const.NVL(
+                    preCommit.getCancelReason(),
+                    BaseMessages.getString(PKG, "GitCommitPerspective.CommitRefused.NoReason"))));
+        return;
+      }
+
+      // Stage and commit the checked files, keeping the staged files which were unchecked out of
+      // the commit
+      //
+      uiGit.commitPaths(pathsToCommit, authorName, message, amend);
       String commitId = uiGit.getCommitId(Constants.HEAD);
-
-      // Restore unselected staged files
-      if (!filesToIgnore.isEmpty()) {
-        AddCommand restoreCommand = git.add();
-        for (UIFile file : filesToIgnore) {
-          restoreCommand.addFilepattern(file.getName());
-        }
-        restoreCommand.call();
-      }
 
       GitGuiPlugin.getInstance().beforeRefresh();
       refresh();
@@ -913,6 +941,25 @@ public class GitCommitPerspective implements IHopPerspective {
           BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Message"),
           e);
     }
+  }
+
+  /**
+   * The name of the operation git is in the middle of, to name it in a message. Git refuses to
+   * commit part of the index while one of these is in progress.
+   *
+   * @param uiGit the repository to check
+   * @return the name of the operation, or null when git is not in the middle of one
+   */
+  private String getPendingOperation(UIGit uiGit) {
+    return switch (uiGit.getRepositoryState()) {
+      case MERGING, MERGING_RESOLVED ->
+          BaseMessages.getString(PKG, "GitCommitPerspective.Operation.Merge.Label");
+      case CHERRY_PICKING, CHERRY_PICKING_RESOLVED ->
+          BaseMessages.getString(PKG, "GitCommitPerspective.Operation.CherryPick.Label");
+      case REVERTING, REVERTING_RESOLVED ->
+          BaseMessages.getString(PKG, "GitCommitPerspective.Operation.Revert.Label");
+      default -> null;
+    };
   }
 
   /**

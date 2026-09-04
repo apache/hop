@@ -123,7 +123,7 @@ class RandomValueMetaTest {
   void testCloneDeepCopy() {
     RandomValueMeta meta = sampleMeta();
 
-    RandomValueMeta cloned = meta.clone();
+    RandomValueMeta cloned = (RandomValueMeta) meta.clone();
 
     assertNotSame(meta, cloned);
     assertEquals(meta.getSeed(), cloned.getSeed());

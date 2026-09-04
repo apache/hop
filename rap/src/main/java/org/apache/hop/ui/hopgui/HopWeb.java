@@ -45,8 +45,10 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.ui.hopgui.canvas.CanvasRenderServiceHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.eclipse.rap.rwt.application.Application;
@@ -59,6 +61,7 @@ public class HopWeb implements ApplicationConfiguration {
   public static final String CONST_LIGHT = "light";
 
   private static final String WEB_PAGE_TITLE = "Apache Hop Web";
+  private static final String RESOURCE_LOGO_ICON_PNG = "ui/images/logo_icon.png";
 
   /**
    * Returns the browser page title for Hop Web, including the Apache Hop version when it is
@@ -79,6 +82,10 @@ public class HopWeb implements ApplicationConfiguration {
   @Override
   public void configure(Application application) {
 
+    HopMetadataInstance.setScope(
+        new RapSessionScope<>(RapSessionScope.MetadataProviderHolder.class));
+    HopVfsNamespaces.setScope(new RapSessionScope<>(RapSessionScope.VfsNamespaceHolder.class));
+
     try {
       // Hop initialization is already done here.
       // This means we can simply ask the gui registry for the toolbar images to register.
@@ -87,10 +94,8 @@ public class HopWeb implements ApplicationConfiguration {
       //
       GuiRegistry registry = GuiRegistry.getInstance();
       Map<String, Map<String, GuiToolbarItem>> guiToolbarMap = registry.getGuiToolbarMap();
-      for (String toolbarId : guiToolbarMap.keySet()) {
-        Map<String, GuiToolbarItem> itemMap = guiToolbarMap.get(toolbarId);
-        for (String itemId : itemMap.keySet()) {
-          final GuiToolbarItem item = itemMap.get(itemId);
+      for (Map<String, GuiToolbarItem> itemMap : guiToolbarMap.values()) {
+        for (GuiToolbarItem item : itemMap.values()) {
           addResource(application, item.getImage(), item.getClassLoader());
         }
       }
@@ -127,7 +132,7 @@ public class HopWeb implements ApplicationConfiguration {
     }
 
     application.addResource(
-        "ui/images/logo_icon.png",
+        RESOURCE_LOGO_ICON_PNG,
         new ResourceLoader() {
           @Override
           public InputStream getResourceAsStream(String resourceName) {
@@ -146,6 +151,10 @@ public class HopWeb implements ApplicationConfiguration {
             return new ByteArrayInputStream(outputStream.toByteArray());
           }
         });
+    application.addResource(
+        "ui/images/logo_hop.svg",
+        resourceName ->
+            HopWeb.class.getClassLoader().getResourceAsStream("ui/images/logo_hop.svg"));
     application.addServiceHandler(
         CanvasRenderServiceHandler.SERVICE_ID, new CanvasRenderServiceHandler());
 
@@ -177,15 +186,17 @@ public class HopWeb implements ApplicationConfiguration {
 
     Map<String, String> propertiesLight = new HashMap<>();
     propertiesLight.put(WebClient.PAGE_TITLE, webPageTitle);
-    propertiesLight.put(WebClient.FAVICON, "ui/images/logo_icon.png");
+    propertiesLight.put(WebClient.FAVICON, RESOURCE_LOGO_ICON_PNG);
     propertiesLight.put(WebClient.THEME_ID, CONST_LIGHT);
     propertiesLight.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
+    propertiesLight.put(WebClient.BODY_HTML, splashBodyHtml(CONST_LIGHT));
 
     Map<String, String> propertiesDark = new HashMap<>();
     propertiesDark.put(WebClient.PAGE_TITLE, webPageTitle);
-    propertiesDark.put(WebClient.FAVICON, "ui/images/logo_icon.png");
+    propertiesDark.put(WebClient.FAVICON, RESOURCE_LOGO_ICON_PNG);
     propertiesDark.put(WebClient.THEME_ID, "dark");
     propertiesDark.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
+    propertiesDark.put(WebClient.BODY_HTML, splashBodyHtml("dark"));
 
     application.addEntryPoint("/ui", HopWebEntryPoint.class, propertiesLight);
     application.addEntryPoint("/ui-dark", HopWebEntryPoint.class, propertiesDark);
@@ -219,12 +230,7 @@ public class HopWeb implements ApplicationConfiguration {
         String resourceName = "monaco/" + trimmed;
         application.addResource(
             resourceName,
-            new ResourceLoader() {
-              @Override
-              public InputStream getResourceAsStream(String name) {
-                return HopWeb.class.getClassLoader().getResourceAsStream(classpathResource);
-              }
-            });
+            name -> HopWeb.class.getClassLoader().getResourceAsStream(classpathResource));
       }
     } catch (Exception e) {
       LogChannel.UI.logError("Failed to register Monaco editor resources", e);
@@ -255,6 +261,16 @@ public class HopWeb implements ApplicationConfiguration {
           }
         };
     application.addResource(imageFilename, loader);
+  }
+
+  /**
+   * Startup overlay for {@link WebClient#BODY_HTML}. It stays up until the main toolbar exists
+   * ({@code toolbar-10010-new}), covering the first-request {@code HopGui.open()} work; client JS
+   * then drops the z-index so Welcome and the GUI stay clickable (issue #8112).
+   */
+  static String splashBodyHtml(String theme) {
+    String safeTheme = CONST_LIGHT.equals(theme) ? CONST_LIGHT : "dark";
+    return readTextFromResource("splash.html").replace("{{theme}}", safeTheme);
   }
 
   private static String readTextFromResource(String resourceName) {

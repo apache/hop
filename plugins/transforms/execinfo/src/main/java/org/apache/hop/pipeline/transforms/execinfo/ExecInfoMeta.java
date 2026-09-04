@@ -67,22 +67,6 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
     super(); // allocate BaseTransformMeta
   }
 
-  public ExecInfoMeta(ExecInfoMeta m) {
-    this.location = m.location;
-    this.operationType = m.operationType;
-    this.idFieldName = m.idFieldName;
-    this.parentIdFieldName = m.parentIdFieldName;
-    this.typeFieldName = m.typeFieldName;
-    this.nameFieldName = m.nameFieldName;
-    this.includeChildrenFieldName = m.includeChildrenFieldName;
-    this.limitFieldName = m.limitFieldName;
-  }
-
-  @Override
-  public ExecInfoMeta clone() {
-    return new ExecInfoMeta(this);
-  }
-
   @Override
   public void setDefault() {
     operationType = OperationType.GetExecutionIds;

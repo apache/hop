@@ -29,9 +29,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -78,9 +81,13 @@ import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -119,6 +126,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
@@ -134,6 +142,7 @@ import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
@@ -168,6 +177,20 @@ import org.eclipse.swt.widgets.ToolItem;
 @Setter
 public class HopGui
     implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
+
+  /**
+   * What a perspective's sidebar button is called in the browser, plus the perspective's plugin id.
+   * Switching perspective is the first thing any Hop Web test has to do, and the buttons are icons
+   * with no text to go by.
+   */
+  public static final String PERSPECTIVE_TEST_ID_PREFIX = "perspective-";
+
+  /**
+   * What a perspective's own content area is called in the browser. Exactly one is visible at a
+   * time, so it says which perspective is showing rather than which button was pressed.
+   */
+  public static final String PERSPECTIVE_CONTENT_TEST_ID_PREFIX = "perspective-content-";
+
   private static final Class<?> PKG = HopGui.class;
 
   public static final String TEXT_EDITOR_FOCUS_DATA = HopGui.class.getName() + ".textEditorFocus";
@@ -348,6 +371,21 @@ public class HopGui
    */
   @Setter private HopSecurityContext securityContext;
 
+  /**
+   * Per-HopGui (per RAP UISession) plugin/UI singletons that cannot use RAP {@code SingletonUtil}
+   * because they live in plugin classloaders.
+   */
+  private final Map<Class<?>, Object> sessionSingletons = new ConcurrentHashMap<>();
+
+  /**
+   * The file dialog currently open in this session, so toolbar plugins can navigate it without a
+   * process-wide static.
+   */
+  @Getter @Setter private org.apache.hop.ui.core.vfs.HopVfsFileDialog openVfsFileDialog;
+
+  /** Active namespace for this GUI session (project id, or {@link #DEFAULT_HOP_GUI_NAMESPACE}). */
+  @Getter @Setter private String activeNamespace = DEFAULT_HOP_GUI_NAMESPACE;
+
   protected HopGui() {
     this(Display.getCurrent());
   }
@@ -358,7 +396,7 @@ public class HopGui
     this.id = UUID.randomUUID().toString();
 
     commandLineArguments = new ArrayList<>();
-    variables = Variables.getADefaultVariableSpace();
+    setVariables(Variables.getADefaultVariableSpace());
 
     loggingObject = new LoggingObject(APP_NAME);
     log = new LogChannel(APP_NAME);
@@ -380,6 +418,7 @@ public class HopGui
 
     updateMetadataManagers();
 
+    this.activeNamespace = DEFAULT_HOP_GUI_NAMESPACE;
     HopNamespace.setNamespace(DEFAULT_HOP_GUI_NAMESPACE);
     shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
   }
@@ -399,8 +438,117 @@ public class HopGui
     PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(HopGui.class);
   }
 
+  /**
+   * Sits behind this GUI's variables and answers with the metadata of the project it has open, so
+   * that everything resolving a file through those variables lands in the right VFS namespace. In
+   * Hop Web every session has its own HopGui, so this is also what keeps one user's named VFS
+   * connections apart from another's. See issue #8106.
+   *
+   * <p>It is reached by walking the parent chain, never for looking a variable value up - {@link
+   * Variables#getVariable(String)} reads its own properties only - so variable inheritance is
+   * untouched.
+   */
+  private final IVariables metadataAnchor =
+      new Variables() {
+        @Override
+        public IHopMetadataProvider getMetadataProvider() {
+          return HopGui.this.metadataProvider;
+        }
+      };
+
+  /** The metadata this GUI took a VFS namespace for, so it can let go of it again. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
+  /**
+   * Take the VFS namespace of the project this GUI now has open, and let go of the previous one.
+   *
+   * <p>Only does anything where tenants share the JVM: in Hop Web this is what gives each session
+   * its own named VFS connections, so two people can both have a connection called {@code mydata}
+   * pointing somewhere different. On the desktop there is one project in the process and the
+   * process wide file system manager already holds its connections, so this reads them again
+   * instead. See Apache Hop issue #8106.
+   */
+  public void useVfsNamespaceOfOpenProject() {
+    IHopMetadataProvider previousProvider = vfsNamespaceProvider;
+    HopVfsNamespace namespace =
+        HopVfsNamespaces.acquire(variables, metadataProvider, "Hop GUI " + id);
+    vfsNamespaceProvider = namespace == null ? null : metadataProvider;
+
+    // Bind it for this session, so the call sites that resolve a file with no variables in hand
+    // land in it too. Deliberately not restored afterwards: it stays for as long as the session.
+    HopVfsNamespaces.bindThread(namespace);
+
+    if (previousProvider != null) {
+      HopVfsNamespaces.release(previousProvider);
+    }
+    if (namespace == null) {
+      HopVfs.refresh(variables);
+    }
+  }
+
+  /** Let go of the VFS namespace of this GUI, when its session ends. */
+  public void releaseVfsNamespace() {
+    if (vfsNamespaceProvider != null) {
+      HopVfsNamespaces.release(vfsNamespaceProvider);
+      vfsNamespaceProvider = null;
+    }
+    // Put back nothing: this session is going away.
+    HopVfsNamespaces.restoreThread(null);
+  }
+
+  /**
+   * Give this GUI a new set of variables, as loading a project does. The metadata of the open
+   * project stays reachable from them either way.
+   *
+   * @param variables the variables to use
+   */
+  public void setVariables(IVariables variables) {
+    this.variables = variables;
+    if (variables != null) {
+      variables.setParentVariables(metadataAnchor);
+    }
+  }
+
   public static HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
+  }
+
+  /**
+   * The HopGui of this process/session if it already exists. Does not construct a GUI. Use this
+   * from {@code getInstance()} helpers that must stay inert in unit tests.
+   */
+  public static HopGui peekInstance() {
+    try {
+      return (HopGui) PROVIDER.peekInstanceInternal();
+    } catch (Throwable e) {
+      return null;
+    }
+  }
+
+  /**
+   * Returns a singleton owned by this HopGui / RAP UISession. Desktop has one HopGui, so this is
+   * equivalent to a process-wide singleton there. Plugins cannot use RAP {@code SingletonUtil}
+   * through {@link ImplementationLoader} because they load from a different classloader.
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T getSessionSingleton(Class<T> type, Supplier<T> factory) {
+    return (T) sessionSingletons.computeIfAbsent(type, key -> factory.get());
+  }
+
+  /**
+   * Looks up a perspective on the current session's HopGui. Returns null when the GUI or its
+   * perspective manager is not ready (tests, disabled perspectives).
+   */
+  public static <T extends IHopPerspective> T findSessionPerspective(Class<T> type) {
+    try {
+      HopGui hopGui = peekInstance();
+      if (hopGui == null || hopGui.getPerspectiveManager() == null) {
+        return null;
+      }
+      return hopGui.getPerspectiveManager().findPerspective(type);
+    } catch (Throwable e) {
+      return null;
+    }
   }
 
   public void setWebThemeRedirectCallback(Consumer<Boolean> callback) {
@@ -897,6 +1045,9 @@ public class HopGui
         imageLabel.setToolTipText(tooltip);
         imageLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
         SvgLabelFacade.setData(perspective.getId() + "-sidebar", imageLabel, imagePath, imageSize);
+        // The composite is what a click has to land on; the image only draws the icon.
+        TestIdFacade.set(comp, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId());
+        TestIdFacade.set(imageLabel, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId() + "-icon");
 
         // Center the label in the composite
         GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
@@ -904,6 +1055,7 @@ public class HopGui
       } else {
         Canvas canvas = new Canvas(parent, SWT.NONE);
         composite = canvas;
+        TestIdFacade.set(canvas, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId());
         canvas.setToolTipText(tooltip);
         canvas.setBackground(normalBg);
         imageLabel = null;
@@ -2053,40 +2205,60 @@ public class HopGui
   }
 
   public void setUndoMenu(IUndo undoInterface) {
-    // Grab the undo and redo menu items...
-    //
-    MenuItem undoItem = mainMenuWidgets.findMenuItem(ID_MAIN_MENU_EDIT_UNDO);
-    MenuItem redoItem = mainMenuWidgets.findMenuItem(ID_MAIN_MENU_EDIT_REDO);
+    try {
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      if (handler instanceof ISnapshotUndoSupport support
+          && (undoInterface == null || support.isUndoMeta(undoInterface))) {
+        setUndoMenu(support.canUndo(), support.canRedo());
+        return;
+      }
+    } catch (Exception e) {
+      // Menu is built before a file handler exists.
+    }
+
+    ChangeAction prev = undoInterface != null ? undoInterface.viewThisUndo() : null;
+    ChangeAction next = undoInterface != null ? undoInterface.viewNextUndo() : null;
+    setUndoMenuItems(prev != null, next != null, prev, next);
+  }
+
+  public void setUndoMenu(boolean canUndo, boolean canRedo) {
+    setUndoMenuItems(canUndo, canRedo, null, null);
+  }
+
+  private void setUndoMenuItems(
+      boolean canUndo, boolean canRedo, ChangeAction prev, ChangeAction next) {
+    GuiMenuWidgets widgets = getMainMenuWidgets();
+    if (widgets == null) {
+      return;
+    }
+    MenuItem undoItem = widgets.findMenuItem(ID_MAIN_MENU_EDIT_UNDO);
+    MenuItem redoItem = widgets.findMenuItem(ID_MAIN_MENU_EDIT_REDO);
     if (undoItem == null || redoItem == null || undoItem.isDisposed() || redoItem.isDisposed()) {
       return;
     }
 
-    ChangeAction prev = null;
-    ChangeAction next = null;
-
-    if (undoInterface != null) {
-      prev = undoInterface.viewThisUndo();
-      next = undoInterface.viewNextUndo();
-    }
-
-    undoItem.setEnabled(prev != null);
-    if (prev == null) {
+    undoItem.setEnabled(canUndo);
+    if (!canUndo) {
       undoItem.setText(UNDO_UNAVAILABLE);
-    } else {
+    } else if (prev != null) {
       undoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Undo.Available", prev.toString()));
+    } else {
+      undoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Edit.Undo"));
     }
-    KeyboardShortcut undoShortcut = mainMenuWidgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_UNDO);
+    KeyboardShortcut undoShortcut = widgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_UNDO);
     if (undoShortcut != null) {
       GuiMenuWidgets.appendShortCut(undoItem, undoShortcut);
     }
 
-    redoItem.setEnabled(next != null);
-    if (next == null) {
+    redoItem.setEnabled(canRedo);
+    if (!canRedo) {
       redoItem.setText(REDO_UNAVAILABLE);
-    } else {
+    } else if (next != null) {
       redoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Redo.Available", next.toString()));
+    } else {
+      redoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Edit.Redo"));
     }
-    KeyboardShortcut redoShortcut = mainMenuWidgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_REDO);
+    KeyboardShortcut redoShortcut = widgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_REDO);
     if (redoShortcut != null) {
       GuiMenuWidgets.appendShortCut(redoItem, redoShortcut);
     }
@@ -2291,6 +2463,10 @@ public class HopGui
     //
     StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
     layout.topControl = perspective.getControl();
+    // Only the perspective on top is visible, so naming every perspective's own control is what
+    // tells a browser which perspective is showing - the sidebar buttons all look alike.
+    TestIdFacade.set(
+        perspective.getControl(), PERSPECTIVE_CONTENT_TEST_ID_PREFIX + perspective.getId());
     mainPerspectivesComposite.layout();
 
     // Notify the perspective that it has been activated.
@@ -2383,6 +2559,7 @@ public class HopGui
         imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
         String svgId = "sidebar-bottom-" + d.getId();
         SvgLabelFacade.setData(svgId, imgLabel, d.getImagePath(), d.getImageSize());
+        TestIdFacade.set(comp, svgId);
 
         GridData compGd = new GridData();
         compGd.widthHint = buttonSize;
@@ -2449,6 +2626,7 @@ public class HopGui
         canvas.setToolTipText(d.getTooltip());
         canvas.setBackground(normalBg);
         canvas.setData("descriptor", d);
+        TestIdFacade.set(canvas, "sidebar-bottom-" + d.getId());
         canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
         canvas.setData("hovered", false);
 
@@ -2555,11 +2733,7 @@ public class HopGui
     HopPerspectivePlugin plugin =
         activePerspective.getClass().getAnnotation(HopPerspectivePlugin.class);
     if (plugin != null) {
-      try {
-        EnvironmentUtils.getInstance().openUrl(getDocUrl(plugin.documentationUrl()));
-      } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error opening URL", e);
-      }
+      HelpUtils.openHelp(shell, getDocUrl(plugin.documentationUrl()));
     }
   }
 

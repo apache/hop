@@ -68,18 +68,6 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
     file = new CubeFile();
   }
 
-  public CubeInputMeta(CubeInputMeta m) {
-    this();
-    this.file = new CubeFile(m.file);
-    this.rowLimit = m.rowLimit;
-    this.addFilenameResult = m.addFilenameResult;
-  }
-
-  @Override
-  public CubeInputMeta clone() {
-    return new CubeInputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     this.file = new CubeFile();
@@ -98,6 +86,10 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
       throws HopTransformException {
     GZIPInputStream fis = null;
     DataInputStream dis = null;
+    if (file == null || file.getName() == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "CubeInputMeta.Exception.NoFilenameSpecified"));
+    }
     try {
       InputStream is =
           HopVfs.getInputStream(

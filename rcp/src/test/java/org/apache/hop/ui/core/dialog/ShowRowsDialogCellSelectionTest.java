@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,6 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -102,11 +104,15 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
   }
 
   /**
-   * Copy to clipboard, export to Excel/CSV and save-to-data-set all read the cell straight off the
-   * table item, so the item has to hold the complete value: the grid only shortens it when drawing.
+   * A data grid puts the shortened, single-line text in the cell and keeps the value itself aside.
+   * Native tables take their geometry from the text a cell holds, and GTK grows a row to as many
+   * lines as its value has, so a stored line break makes the whole row tall no matter how short we
+   * draw it (issue #8155; invisible on macOS, whose rows are all the same height). The complete
+   * value stays available through {@link TableView#getCellValue(TableItem, int)}, which is what the
+   * in-place editor and the clipboard read.
    */
   @Test
-  void gridCellsHoldTheFullValueEvenThoughTheyAreDrawnShortened() {
+  void gridCellsHoldTheShortenedTextWhileTheGridKeepsTheFullValue() {
     String multiLine = "first line\nsecond line\nthird line";
 
     IRowMeta rowMeta = new RowMeta();
@@ -123,14 +129,21 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
           Table table = awaitTable(bot);
           assertNotNull(table, "the ShowRowsDialog table should open");
 
+          assertTrue(
+              onUi(() -> table.getItem(0).getText(1)).length() < LONG_VALUE.length(),
+              "a long value must be shortened in the cell, not stored at its full length");
+          assertFalse(
+              onUi(() -> table.getItem(0).getText(2)).contains("\n"),
+              "a multi-line value must be single-lined in the cell, or the row grows on GTK");
+
           assertEquals(
               LONG_VALUE,
-              onUi(() -> table.getItem(0).getText(1)),
-              "a long cell value must be stored in full, not truncated with an ellipsis");
+              onUi(() -> TableView.getCellValue(table.getItem(0), 1)),
+              "the grid must still hand back the long value in full");
           assertEquals(
               multiLine,
-              onUi(() -> table.getItem(0).getText(2)),
-              "a multi-line cell value must keep all of its lines");
+              onUi(() -> TableView.getCellValue(table.getItem(0), 2)),
+              "the grid must still hand back the multi-line value with all of its lines");
         });
   }
 

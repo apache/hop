@@ -94,13 +94,6 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     super();
   }
 
-  @Override
-  public Object clone() {
-    WriteToLogMeta retval = (WriteToLogMeta) super.clone();
-
-    return retval;
-  }
-
   /** Added for backwards compatibility with older prefixed log level values. */
   @Override
   public void convertLegacyXml(Node node) throws HopException {

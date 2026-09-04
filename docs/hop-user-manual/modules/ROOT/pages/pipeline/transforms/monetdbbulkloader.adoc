@@ -27,6 +27,8 @@ under the License.
 
 The MonetDB Bulk Loader transform bulk loads data to MonetDB. This significantly speeds up data loading to MonetDB.
 
+TIP: binary stream fields are written as lowercase hex, which is the format MonetDB `COPY INTO` expects for `BLOB`.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

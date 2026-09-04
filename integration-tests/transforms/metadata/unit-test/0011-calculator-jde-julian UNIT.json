@@ -1,0 +1,41 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "isoDate",
+          "data_set_field": "isoDate"
+        },
+        {
+          "transform_field": "julianIn",
+          "data_set_field": "julianIn"
+        },
+        {
+          "transform_field": "julianOut",
+          "data_set_field": "julianOut"
+        },
+        {
+          "transform_field": "isoOut",
+          "data_set_field": "isoOut"
+        }
+      ],
+      "field_order": [
+        "isoDate",
+        "julianIn"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-calculator-jde-julian"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-calculator-jde-julian UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0011-calculator-jde-julian.hpl",
+  "test_type": "UNIT_TEST"
+}

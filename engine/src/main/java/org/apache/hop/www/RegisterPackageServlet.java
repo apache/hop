@@ -93,44 +93,51 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
       SerializableMetadataProvider metadataProvider =
           new SerializableMetadataProvider(metaStoreJson);
 
-      if (isWorkflow) {
-        Node node =
-            getConfigNodeFromZIP(
-                archiveUrl,
-                Workflow.CONFIGURATION_IN_EXPORT_FILENAME,
-                WorkflowExecutionConfiguration.XML_TAG);
-        WorkflowExecutionConfiguration workflowExecutionConfiguration =
-            new WorkflowExecutionConfiguration(node);
+      int maxConcurrent = HopServerAdmission.parseMaxConcurrent(request);
+      try {
+        if (isWorkflow) {
+          Node node =
+              getConfigNodeFromZIP(
+                  archiveUrl,
+                  Workflow.CONFIGURATION_IN_EXPORT_FILENAME,
+                  WorkflowExecutionConfiguration.XML_TAG);
+          WorkflowExecutionConfiguration workflowExecutionConfiguration =
+              new WorkflowExecutionConfiguration(node);
 
-        WorkflowMeta workflowMeta =
-            new WorkflowMeta(Variables.getADefaultVariableSpace(), fileUrl, metadataProvider);
-        WorkflowConfiguration workflowConfiguration =
-            new WorkflowConfiguration(
-                workflowMeta, workflowExecutionConfiguration, metadataProvider);
+          WorkflowMeta workflowMeta =
+              new WorkflowMeta(Variables.getADefaultVariableSpace(), fileUrl, metadataProvider);
+          WorkflowConfiguration workflowConfiguration =
+              new WorkflowConfiguration(
+                  workflowMeta, workflowExecutionConfiguration, metadataProvider);
 
-        IWorkflowEngine<WorkflowMeta> workflow = createWorkflow(workflowConfiguration);
-        resultId = workflow.getContainerId();
-      } else {
-        Node node =
-            getConfigNodeFromZIP(
-                archiveUrl,
-                Pipeline.CONFIGURATION_IN_EXPORT_FILENAME,
-                PipelineExecutionConfiguration.XML_TAG);
-        PipelineExecutionConfiguration pipelineExecutionConfiguration =
-            new PipelineExecutionConfiguration(node);
+          IWorkflowEngine<WorkflowMeta> workflow =
+              createWorkflow(workflowConfiguration, maxConcurrent);
+          resultId = workflow.getContainerId();
+        } else {
+          Node node =
+              getConfigNodeFromZIP(
+                  archiveUrl,
+                  Pipeline.CONFIGURATION_IN_EXPORT_FILENAME,
+                  PipelineExecutionConfiguration.XML_TAG);
+          PipelineExecutionConfiguration pipelineExecutionConfiguration =
+              new PipelineExecutionConfiguration(node);
 
-        PipelineMeta pipelineMeta =
-            new PipelineMeta(fileUrl, metadataProvider, Variables.getADefaultVariableSpace());
+          PipelineMeta pipelineMeta =
+              new PipelineMeta(fileUrl, metadataProvider, Variables.getADefaultVariableSpace());
 
-        PipelineConfiguration pipelineConfiguration =
-            new PipelineConfiguration(
-                pipelineMeta, pipelineExecutionConfiguration, metadataProvider);
+          PipelineConfiguration pipelineConfiguration =
+              new PipelineConfiguration(
+                  pipelineMeta, pipelineExecutionConfiguration, metadataProvider);
 
-        IPipelineEngine<PipelineMeta> pipeline = createPipeline(pipelineConfiguration);
-        resultId = pipeline.getContainerId();
+          IPipelineEngine<PipelineMeta> pipeline =
+              createPipeline(pipelineConfiguration, maxConcurrent);
+          resultId = pipeline.getContainerId();
+        }
+
+        return new WebResult(WebResult.STRING_OK, fileUrl, resultId);
+      } catch (HopServerAtCapacityException e) {
+        return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
       }
-
-      return new WebResult(WebResult.STRING_OK, fileUrl, resultId);
     }
 
     return null;

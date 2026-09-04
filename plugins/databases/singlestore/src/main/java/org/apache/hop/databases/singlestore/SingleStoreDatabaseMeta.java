@@ -29,6 +29,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -42,7 +43,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @DatabaseMetaPlugin(
     type = "SINGLESTORE",
     typeDescription = "SingleStore (MemSQL)",
-    documentationUrl = "/database/databases/singlestore.html")
+    documentationUrl = "/database/databases/singlestore.html",
+    classLoaderGroup = "singlestore-db")
 @GuiPlugin(id = "GUI-SingleStoreDatabaseMeta")
 public class SingleStoreDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
@@ -213,7 +215,8 @@ public class SingleStoreDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -260,7 +263,8 @@ public class SingleStoreDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return "ALTER TABLE "
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

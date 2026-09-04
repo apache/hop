@@ -214,8 +214,7 @@ final class ContentEditorTm4eSupport {
             new org.eclipse.jface.text.presentation.PresentationReconciler();
         reconciler.setDocumentPartitioning(
             org.eclipse.jface.text.IDocumentExtension3.DEFAULT_PARTITIONING);
-        Tm4eDamagerRepairer repairer =
-            new Tm4eDamagerRepairer(grammar, support::scopeToAttribute, support.display);
+        Tm4eDamagerRepairer repairer = new Tm4eDamagerRepairer(grammar, support::scopeToAttribute);
         reconciler.setDamager(repairer, org.eclipse.jface.text.IDocument.DEFAULT_CONTENT_TYPE);
         reconciler.setRepairer(repairer, org.eclipse.jface.text.IDocument.DEFAULT_CONTENT_TYPE);
         return reconciler;
@@ -356,62 +355,80 @@ final class ContentEditorTm4eSupport {
     return dark ? D_DEFAULT : L_DEFAULT;
   }
 
+  /** A stretch of text and the TM4E scopes covering it. No scopes means unscoped text. */
+  record ScopedRange(int offset, int length, List<String> scopes) {}
+
+  /**
+   * Tokenizes the text with the grammar and returns the part covering [rangeOffset, rangeOffset +
+   * rangeLength) as consecutive scoped ranges.
+   *
+   * <p>The ranges tile that interval: every character is covered exactly once, including the line
+   * delimiters TM4E doesn't tokenize. That is not cosmetic. {@link
+   * org.eclipse.jface.text.rules.DefaultDamagerRepairer#createPresentation} merges neighbouring
+   * tokens that share a {@link TextAttribute} by adding up their lengths, without looking at their
+   * offsets, so a gap in the stream shortens the resulting style range by the size of that gap.
+   * Leaving the delimiters out cost a run of same-coloured lines one character per line with LF and
+   * two with CRLF, which is why highlighting stopped short of the end of a run and why it looked
+   * like a Windows bug (issue #7971).
+   */
+  static List<ScopedRange> tokenize(
+      IGrammar grammar, String text, int rangeOffset, int rangeLength) {
+    int rangeEnd = Math.min(rangeOffset + rangeLength, text.length());
+    List<ScopedRange> ranges = new java.util.ArrayList<>();
+    int cursor = Math.max(rangeOffset, 0);
+
+    for (ScopedRange token : tokenizeLines(grammar, text, cursor, rangeEnd)) {
+      if (token.offset() > cursor) {
+        // Text no token covers, i.e. a line delimiter: keep the stream contiguous
+        ranges.add(new ScopedRange(cursor, token.offset() - cursor, List.of()));
+      }
+      ranges.add(token);
+      cursor = token.offset() + token.length();
+    }
+    if (cursor < rangeEnd) {
+      ranges.add(new ScopedRange(cursor, rangeEnd - cursor, List.of()));
+    }
+    return ranges;
+  }
+
   /** Damager/repairer that uses TM4E to tokenize and applies our attributes. */
   private static final class Tm4eDamagerRepairer
       extends org.eclipse.jface.text.rules.DefaultDamagerRepairer {
-    private final IGrammar grammar;
-    private final java.util.function.Function<List<String>, org.eclipse.jface.text.TextAttribute>
-        scopeToAttr;
-    private final Display display;
 
     Tm4eDamagerRepairer(
         IGrammar grammar,
-        java.util.function.Function<List<String>, org.eclipse.jface.text.TextAttribute> scopeToAttr,
-        Display display) {
-      super(new Tm4eScanner(grammar, scopeToAttr, display));
-      this.grammar = grammar;
-      this.scopeToAttr = scopeToAttr;
-      this.display = display;
+        java.util.function.Function<List<String>, org.eclipse.jface.text.TextAttribute>
+            scopeToAttr) {
+      super(new Tm4eScanner(grammar, scopeToAttr));
     }
   }
 
   /** JFace ITokenScanner that tokenizes with TM4E and returns tokens with our attributes. */
   private static final class Tm4eScanner implements org.eclipse.jface.text.rules.ITokenScanner {
 
-    private static final int MAX_LINES_TO_TOKENIZE = 100_000;
-    private static final int MAX_LINE_LENGTH = 100_000;
-
     private final IGrammar grammar;
     private final java.util.function.Function<List<String>, org.eclipse.jface.text.TextAttribute>
         scopeToAttr;
-    private final Display display;
 
-    private IDocument document;
-    private int rangeOffset;
-    private int rangeLength;
-    private java.util.List<ColoredToken> tokens;
+    private java.util.List<ScopedRange> ranges;
     private int index;
     private int tokenOffset;
     private int tokenLength;
 
     Tm4eScanner(
         IGrammar grammar,
-        java.util.function.Function<List<String>, org.eclipse.jface.text.TextAttribute> scopeToAttr,
-        Display display) {
+        java.util.function.Function<List<String>, org.eclipse.jface.text.TextAttribute>
+            scopeToAttr) {
       this.grammar = grammar;
       this.scopeToAttr = scopeToAttr;
-      this.display = display;
     }
 
     @Override
     public void setRange(IDocument doc, int offset, int length) {
-      this.document = doc;
-      this.rangeOffset = offset;
-      this.rangeLength = length;
       try {
-        this.tokens = tokenize(doc, offset, length);
+        this.ranges = tokenize(grammar, doc.get(), offset, length);
       } catch (Exception ignored) {
-        this.tokens = Collections.emptyList();
+        this.ranges = Collections.emptyList();
       }
       this.index = 0;
       this.tokenOffset = 0;
@@ -420,14 +437,14 @@ final class ContentEditorTm4eSupport {
 
     @Override
     public IToken nextToken() {
-      if (tokens == null || index >= tokens.size()) {
+      if (ranges == null || index >= ranges.size()) {
         tokenOffset = tokenLength = 0;
         return Token.EOF;
       }
-      ColoredToken t = tokens.get(index++);
-      tokenOffset = t.offset;
-      tokenLength = t.length;
-      return new Token(t.attribute);
+      ScopedRange range = ranges.get(index++);
+      tokenOffset = range.offset();
+      tokenLength = range.length();
+      return new Token(scopeToAttr.apply(range.scopes()));
     }
 
     @Override
@@ -439,84 +456,72 @@ final class ContentEditorTm4eSupport {
     public int getTokenLength() {
       return tokenLength;
     }
+  }
 
-    /** Tokenize document; runs synchronously on the UI thread. */
-    private java.util.List<ColoredToken> tokenize(IDocument doc, int rangeOffset, int rangeLength) {
-      String text;
-      try {
-        text = doc.get();
-      } catch (Exception e) {
-        return Collections.emptyList();
-      }
-      return tokenizeLines(text, rangeOffset, rangeLength);
-    }
+  private static final int MAX_LINES_TO_TOKENIZE = 100_000;
+  private static final int MAX_LINE_LENGTH = 100_000;
 
-    private java.util.List<ColoredToken> tokenizeLines(
-        String text, int rangeOffset, int rangeLength) {
-      java.util.List<ColoredToken> result = new java.util.ArrayList<>();
-      try {
-        int len = text.length();
-        String[] lines = text.split("\\n", -1);
-        long lineStart = 0;
-        IStateStack state = null;
-        int rangeEnd = Math.min(rangeOffset + rangeLength, len);
+  /** The scoped ranges the grammar produces, line by line, clipped to the requested range. */
+  private static List<ScopedRange> tokenizeLines(
+      IGrammar grammar, String text, int rangeOffset, int rangeEnd) {
+    List<ScopedRange> result = new java.util.ArrayList<>();
+    try {
+      String[] lines = text.split("\\n", -1);
+      long lineStart = 0;
+      IStateStack state = null;
 
-        for (int lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-          if (lineIndex >= MAX_LINES_TO_TOKENIZE) {
-            break;
-          }
+      for (int lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+        if (lineIndex >= MAX_LINES_TO_TOKENIZE) {
+          break;
+        }
 
-          String raw = lines[lineIndex];
-          int rawLen = raw.length();
-          String line = raw;
-          if (rawLen > 0 && raw.charAt(rawLen - 1) == '\r') {
-            line = raw.substring(0, rawLen - 1);
-          }
-          int lineLen = line.length();
-          if (lineLen > MAX_LINE_LENGTH) {
-            lineStart += rawLen + 1L;
-            continue;
-          }
+        String raw = lines[lineIndex];
+        int rawLen = raw.length();
+        String line = raw;
+        if (rawLen > 0 && raw.charAt(rawLen - 1) == '\r') {
+          line = raw.substring(0, rawLen - 1);
+        }
+        if (line.length() > MAX_LINE_LENGTH) {
+          lineStart += rawLen + 1L;
+          continue;
+        }
 
-          long lineEnd = lineStart + rawLen;
-          if (lineEnd <= rangeOffset) {
-            ITokenizeLineResult<org.eclipse.tm4e.core.grammar.IToken[]> res =
-                grammar.tokenizeLine(line, state, null);
-            state = res.getRuleStack();
-            lineStart = lineEnd + 1;
-            continue;
-          }
-          if (lineStart >= rangeEnd) break;
-
+        long lineEnd = lineStart + rawLen;
+        if (lineEnd <= rangeOffset) {
           ITokenizeLineResult<org.eclipse.tm4e.core.grammar.IToken[]> res =
               grammar.tokenizeLine(line, state, null);
           state = res.getRuleStack();
-
-          for (org.eclipse.tm4e.core.grammar.IToken t : res.getTokens()) {
-            long tStartLong = lineStart + t.getStartIndex();
-            long tEndLong = lineStart + t.getEndIndex();
-            if (tStartLong > Integer.MAX_VALUE || tEndLong > Integer.MAX_VALUE) continue;
-            int tStart = (int) tStartLong;
-            int tEnd = (int) tEndLong;
-            if (tEnd <= rangeOffset || tStart >= rangeEnd) continue;
-            int o = Math.max(tStart, rangeOffset);
-            int l = Math.min(tEnd, rangeEnd) - o;
-            if (l <= 0) continue;
-            List<String> tokenScopes = t.getScopes();
-            if (ContentEditorTm4eSupport.TRACE_SCOPES && tokenScopes != null) {
-              String joined = String.join(" ", tokenScopes);
-              System.err.println("[TM4E token] offset=" + o + " len=" + l + " | " + joined);
-            }
-            result.add(new ColoredToken(o, l, scopeToAttr.apply(tokenScopes)));
-          }
           lineStart = lineEnd + 1;
+          continue;
         }
-      } catch (Exception ignored) {
-        // ignore
-      }
-      return result;
-    }
+        if (lineStart >= rangeEnd) break;
 
-    private record ColoredToken(int offset, int length, TextAttribute attribute) {}
+        ITokenizeLineResult<org.eclipse.tm4e.core.grammar.IToken[]> res =
+            grammar.tokenizeLine(line, state, null);
+        state = res.getRuleStack();
+
+        for (org.eclipse.tm4e.core.grammar.IToken t : res.getTokens()) {
+          long tStartLong = lineStart + t.getStartIndex();
+          long tEndLong = lineStart + t.getEndIndex();
+          if (tStartLong > Integer.MAX_VALUE || tEndLong > Integer.MAX_VALUE) continue;
+          int tStart = (int) tStartLong;
+          int tEnd = (int) tEndLong;
+          if (tEnd <= rangeOffset || tStart >= rangeEnd) continue;
+          int o = Math.max(tStart, rangeOffset);
+          int l = Math.min(tEnd, rangeEnd) - o;
+          if (l <= 0) continue;
+          List<String> tokenScopes = t.getScopes();
+          if (TRACE_SCOPES && tokenScopes != null) {
+            System.err.println(
+                "[TM4E token] offset=" + o + " len=" + l + " | " + String.join(" ", tokenScopes));
+          }
+          result.add(new ScopedRange(o, l, tokenScopes == null ? List.of() : tokenScopes));
+        }
+        lineStart = lineEnd + 1;
+      }
+    } catch (Exception ignored) {
+      // ignore
+    }
+    return result;
   }
 }

@@ -117,7 +117,8 @@ public class CrateDBBulkLoaderMeta
   @HopMetadataProperty(
       key = "aws_secret_access_key",
       injectionKey = "AWS_SECRET_ACCESS_KEY",
-      injectionKeyDescription = "")
+      injectionKeyDescription = "",
+      password = true)
   private String awsSecretAccessKey;
 
   @HopMetadataProperty(
@@ -190,25 +191,10 @@ public class CrateDBBulkLoaderMeta
   /** Fields containing the values in the input stream to insert */
   private List<CrateDBBulkLoaderField> fields;
 
-  @HopMetadataProperty(
-      groupKey = "fields",
-      key = "field",
-      injectionGroupKey = "FIELDS",
-      injectionGroupDescription = "CrateDBBulkLoader.Injection.FIELDS",
-      injectionKey = "FIELDDATABASE",
-      injectionKeyDescription = "CrateDBBulkLoader.Injection.FIELDDATABASE")
-  /** Fields in the table to insert */
-  private String[] fieldDatabase;
-
   public CrateDBBulkLoaderMeta() {
     super(); // allocate BaseTransformMeta
 
     fields = new ArrayList<>();
-  }
-
-  @Override
-  public Object clone() {
-    return super.clone();
   }
 
   public String getHttpLogin() {
@@ -594,10 +580,10 @@ public class CrateDBBulkLoaderMeta
                     }
                   } else {
                     // Specifying the column names explicitly
-                    for (int i = 0; i < getFieldDatabase().length; i++) {
-                      int idx = r.indexOfValue(getFieldDatabase()[i]);
+                    for (CrateDBBulkLoaderField vbf : fields) {
+                      int idx = r.indexOfValue(vbf.getDatabaseField());
                       if (idx < 0) {
-                        error_message += "\t\t" + getFieldDatabase()[i] + Const.CR;
+                        error_message += "\t\t" + vbf.getDatabaseField() + Const.CR;
                         error_found = true;
                       }
                     }
@@ -626,7 +612,7 @@ public class CrateDBBulkLoaderMeta
                   error_message = "";
                   if (!specifyFields()) {
                     // Starting from table fields in r...
-                    for (int i = 0; i < getFieldDatabase().length; i++) {
+                    for (int i = 0; i < r.size(); i++) {
                       IValueMeta rv = r.getValueMeta(i);
                       int idx = prev.indexOfValue(rv.getName());
                       if (idx < 0) {
@@ -897,20 +883,6 @@ public class CrateDBBulkLoaderMeta
       throw new HopException(
           BaseMessages.getString(PKG, "CrateDBBulkLoaderMeta.Exception.ConnectionNotDefined"));
     }
-  }
-
-  /**
-   * @return Fields containing the fieldnames in the database insert.
-   */
-  public String[] getFieldDatabase() {
-    return fieldDatabase;
-  }
-
-  /**
-   * @param fieldDatabase The fields containing the names of the fields to insert.
-   */
-  public void setFieldDatabase(String[] fieldDatabase) {
-    this.fieldDatabase = fieldDatabase;
   }
 
   /**

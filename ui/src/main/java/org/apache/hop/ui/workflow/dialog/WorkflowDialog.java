@@ -48,6 +48,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -113,6 +114,10 @@ public class WorkflowDialog extends Dialog {
   private Text wModUser;
 
   private Text wModDate;
+
+  private Text wCreatedHopVersion;
+
+  private Text wModifiedHopVersion;
 
   private ArrayList<IWorkflowDialogPlugin> extraTabs;
 
@@ -203,7 +208,15 @@ public class WorkflowDialog extends Dialog {
     wWorkflowTab.setFont(GuiResource.getInstance().getFontDefault());
     wWorkflowTab.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowTab.Label"));
 
-    Composite wWorkflowComp = new Composite(wTabFolder, SWT.NONE);
+    // The field list is taller than the dialog once it's resized down, so the tab scrolls
+    // rather than silently cutting off whatever no longer fits.
+    //
+    ScrolledComposite wWorkflowSc = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wWorkflowSc);
+    wWorkflowSc.setExpandHorizontal(true);
+    wWorkflowSc.setExpandVertical(true);
+
+    Composite wWorkflowComp = new Composite(wWorkflowSc, SWT.NONE);
     PropsUi.setLook(wWorkflowComp);
 
     FormLayout workflowLayout = new FormLayout();
@@ -311,7 +324,7 @@ public class WorkflowDialog extends Dialog {
     fdExtendedDescription.left = new FormAttachment(middle, 0);
     fdExtendedDescription.top = new FormAttachment(wDescription, margin);
     fdExtendedDescription.right = new FormAttachment(100, 0);
-    fdExtendedDescription.bottom = new FormAttachment(50, -margin);
+    fdExtendedDescription.height = (int) (120 * PropsUi.getNativeZoomFactor());
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
     // Workflow version:
@@ -370,6 +383,25 @@ public class WorkflowDialog extends Dialog {
     fdCreateDate.right = new FormAttachment(100, 0);
     wCreateDate.setLayoutData(fdCreateDate);
 
+    // Created with Hop version:
+    Label wlCreatedHopVersion = new Label(wWorkflowComp, SWT.RIGHT);
+    wlCreatedHopVersion.setText(
+        BaseMessages.getString(PKG, "WorkflowDialog.CreatedHopVersion.Label"));
+    PropsUi.setLook(wlCreatedHopVersion);
+    FormData fdlCreatedHopVersion = new FormData();
+    fdlCreatedHopVersion.left = new FormAttachment(0, 0);
+    fdlCreatedHopVersion.right = new FormAttachment(middle, -margin);
+    fdlCreatedHopVersion.top = new FormAttachment(wCreateDate, margin);
+    wlCreatedHopVersion.setLayoutData(fdlCreatedHopVersion);
+    wCreatedHopVersion = new Text(wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCreatedHopVersion);
+    wCreatedHopVersion.setEditable(false);
+    FormData fdCreatedHopVersion = new FormData();
+    fdCreatedHopVersion.left = new FormAttachment(middle, 0);
+    fdCreatedHopVersion.top = new FormAttachment(wCreateDate, margin);
+    fdCreatedHopVersion.right = new FormAttachment(100, 0);
+    wCreatedHopVersion.setLayoutData(fdCreatedHopVersion);
+
     // Modified User:
     Label wlModUser = new Label(wWorkflowComp, SWT.RIGHT);
     wlModUser.setText(BaseMessages.getString(PKG, "WorkflowDialog.LastModifiedUser.Label"));
@@ -377,7 +409,7 @@ public class WorkflowDialog extends Dialog {
     FormData fdlModUser = new FormData();
     fdlModUser.left = new FormAttachment(0, 0);
     fdlModUser.right = new FormAttachment(middle, -margin);
-    fdlModUser.top = new FormAttachment(wCreateDate, margin);
+    fdlModUser.top = new FormAttachment(wCreatedHopVersion, margin);
     wlModUser.setLayoutData(fdlModUser);
     wModUser = new Text(wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wModUser);
@@ -385,7 +417,7 @@ public class WorkflowDialog extends Dialog {
     wModUser.addModifyListener(lsMod);
     FormData fdModUser = new FormData();
     fdModUser.left = new FormAttachment(middle, 0);
-    fdModUser.top = new FormAttachment(wCreateDate, margin);
+    fdModUser.top = new FormAttachment(wCreatedHopVersion, margin);
     fdModUser.right = new FormAttachment(100, 0);
     wModUser.setLayoutData(fdModUser);
 
@@ -408,14 +440,29 @@ public class WorkflowDialog extends Dialog {
     fdModDate.right = new FormAttachment(100, 0);
     wModDate.setLayoutData(fdModDate);
 
-    FormData fdWorkflowComp = new FormData();
-    fdWorkflowComp.left = new FormAttachment(0, 0);
-    fdWorkflowComp.top = new FormAttachment(0, 0);
-    fdWorkflowComp.right = new FormAttachment(100, 0);
-    fdWorkflowComp.bottom = new FormAttachment(100, 0);
+    // Last modified with Hop version:
+    Label wlModifiedHopVersion = new Label(wWorkflowComp, SWT.RIGHT);
+    wlModifiedHopVersion.setText(
+        BaseMessages.getString(PKG, "WorkflowDialog.ModifiedHopVersion.Label"));
+    PropsUi.setLook(wlModifiedHopVersion);
+    FormData fdlModifiedHopVersion = new FormData();
+    fdlModifiedHopVersion.left = new FormAttachment(0, 0);
+    fdlModifiedHopVersion.right = new FormAttachment(middle, -margin);
+    fdlModifiedHopVersion.top = new FormAttachment(wModDate, margin);
+    wlModifiedHopVersion.setLayoutData(fdlModifiedHopVersion);
+    wModifiedHopVersion = new Text(wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wModifiedHopVersion);
+    wModifiedHopVersion.setEditable(false);
+    FormData fdModifiedHopVersion = new FormData();
+    fdModifiedHopVersion.left = new FormAttachment(middle, 0);
+    fdModifiedHopVersion.top = new FormAttachment(wModDate, margin);
+    fdModifiedHopVersion.right = new FormAttachment(100, 0);
+    wModifiedHopVersion.setLayoutData(fdModifiedHopVersion);
 
-    wWorkflowComp.setLayoutData(fdWorkflowComp);
-    wWorkflowTab.setControl(wWorkflowComp);
+    wWorkflowComp.layout(true, true);
+    wWorkflowSc.setContent(wWorkflowComp);
+    wWorkflowSc.setMinSize(wWorkflowComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+    wWorkflowTab.setControl(wWorkflowSc);
 
     // ///////////////////////////////////////////////////////////
     // / END OF WORKFLOW TAB
@@ -539,6 +586,9 @@ public class WorkflowDialog extends Dialog {
     if (workflowMeta.getModifiedDate() != null) {
       wModDate.setText(workflowMeta.getModifiedDate().toString());
     }
+
+    wCreatedHopVersion.setText(Const.NVL(workflowMeta.getCreatedHopVersion(), ""));
+    wModifiedHopVersion.setText(Const.NVL(workflowMeta.getModifiedHopVersion(), ""));
 
     // The named parameters
     String[] parameters = workflowMeta.listParameters();

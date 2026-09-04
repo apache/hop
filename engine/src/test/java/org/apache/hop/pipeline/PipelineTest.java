@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -338,5 +340,52 @@ class PipelineTest {
     assertEquals(
         "Original value defined at run execution",
         pipelineTest.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  /**
+   * Issue #3861: a pipeline that never got as far as allocating its transforms could not be stopped
+   * at all, so it kept whatever non-terminal state it was in. Nothing ever cleaned it up.
+   */
+  @Test
+  void stopAllWorksBeforeTheTransformsAreAllocated() {
+    Pipeline pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    pipeline.setPreparing(true);
+
+    pipeline.stopAll();
+
+    assertTrue(pipeline.isStopped());
+    assertEquals(Pipeline.STRING_STOPPED, pipeline.getStatusDescription());
+  }
+
+  /**
+   * A stopped pipeline is no longer preparing or initializing. The Hop GUI reads those flags to
+   * decide whether a pipeline is still on the go, so they may not survive a stop.
+   */
+  @Test
+  void stopAllClearsTheTransientExecutionFlags() {
+    Pipeline pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    pipeline.setPreparing(true);
+    pipeline.setInitializing(true);
+
+    pipeline.stopAll();
+
+    assertFalse(pipeline.isPreparing());
+    assertFalse(pipeline.isInitializing());
+  }
+
+  /** Stopping stays a one-shot operation. */
+  @Test
+  void stopAllOnlyFiresTheStoppedListenersOnce() {
+    Pipeline pipeline = new LocalPipelineEngine(new PipelineMeta());
+    pipeline.setLogChannel(mock(ILogChannel.class));
+    int[] stopped = new int[1];
+    pipeline.addExecutionStoppedListener(p -> stopped[0]++);
+
+    pipeline.stopAll();
+    pipeline.stopAll();
+
+    assertEquals(1, stopped[0]);
   }
 }

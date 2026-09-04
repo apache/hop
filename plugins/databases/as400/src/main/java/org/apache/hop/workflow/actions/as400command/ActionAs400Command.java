@@ -48,7 +48,8 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionAs400Command.keyword",
     documentationUrl = "/workflow/actions/as400command.html",
-    isIncludeJdbcDrivers = true)
+    isIncludeJdbcDrivers = true,
+    classLoaderGroup = "as400-db")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class;
 
@@ -91,21 +92,6 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
 
   public ActionAs400Command() {
     this("", "");
-  }
-
-  public ActionAs400Command(ActionAs400Command other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.server = other.server;
-    this.user = other.user;
-    this.password = other.password;
-    this.proxyHost = other.proxyHost;
-    this.proxyPort = other.proxyPort;
-    this.command = other.command;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionAs400Command(this);
   }
 
   /**

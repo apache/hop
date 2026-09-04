@@ -51,6 +51,7 @@
         <module>cubeoutput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
+        <module>databasevaluevalidation</module>
         <module>datagrid</module>
         <module>datastream</module>
         <module>dbimpact</module>
@@ -163,6 +164,7 @@
         <module>textfile</module>
         <module>tika</module>
         <module>tokenreplacement</module>
+        <module>transformsmetrics</module>
         <module>uniquerows</module>
         <module>uniquerowsbyhashset</module>
         <module>update</module>

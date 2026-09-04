@@ -23,8 +23,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionLib;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
@@ -48,6 +51,9 @@ import org.eclipse.swt.widgets.TreeItem;
 public class FormulaEditor extends Dialog implements KeyListener {
   public static final Class<?> PKG = FormulaMeta.class;
   public static final String FUNCTIONS_FILE = "functions.xml";
+
+  private static final int DEFAULT_WIDTH = 900;
+  private static final int DEFAULT_HEIGHT = 700;
 
   private Shell shell;
   private Tree tree;
@@ -90,6 +96,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     formLayout.marginWidth = 5;
     formLayout.marginHeight = 5;
     shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "FormulaEditor.Shell.Title"));
 
     // At the bottom we have a few buttons...
     //
@@ -241,7 +248,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     fdMessage.bottom = new FormAttachment(0, 100);
     message.setLayoutData(fdMessage);
 
-    rightSash.setWeights(new int[] {10, 80});
+    rightSash.setWeights(new int[] {40, 60});
 
     sashForm.setWeights(new int[] {15, 85});
 
@@ -266,7 +273,11 @@ public class FormulaEditor extends Dialog implements KeyListener {
   }
 
   public String open() {
-    shell.layout();
+    // The default size only applies the first time: setSize() restores the geometry saved when the
+    // dialog was last closed, and no minimum is imposed on it so a smaller size the user picked is
+    // honoured as well.
+    shell.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    BaseTransformDialog.setSize(shell, -1, -1);
     shell.open();
 
     while (!shell.isDisposed()) {
@@ -279,11 +290,21 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   public void ok() {
     formula = expressionEditor.getText();
-    shell.dispose();
+    dispose();
   }
 
   public void cancel() {
     formula = null;
+    dispose();
+  }
+
+  /** Remember the geometry chosen by the user so the next opening restores it. */
+  private void dispose() {
+    WindowProperty winprop = new WindowProperty(shell);
+    PropsUi props = PropsUi.getInstance();
+    props.setSessionScreen(winprop);
+    props.setScreen(winprop);
+
     shell.dispose();
   }
 

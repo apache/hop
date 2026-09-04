@@ -22,6 +22,10 @@ under the License.
 
 This page contains a collection of how-to guides to perform a variety of tasks, configurations etc with Apache Hop.
 
+* xref:how-to-guides/change-data-capture.adoc[Change Data Capture]
+** xref:how-to-guides/cdc-log-sniffing.adoc[CDC: log sniffing]
+** xref:how-to-guides/cdc-filtered-selection.adoc[CDC: filtered selection]
+** xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots]
 * xref:how-to-guides/joins-lookups.adoc[Joins and lookups in Apache Hop]
 * xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]
 * xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Pipelines and Workflows from Apache Airflow]

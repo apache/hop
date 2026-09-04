@@ -30,10 +30,12 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.ShowHelpDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -48,6 +50,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class HelpUtils {
   private static final Class<?> PKG = HelpUtils.class;
+  private static final String RAP_CUSTOM_VARIANT = "org.eclipse.rap.rwt.customVariant";
+  private static final String HELP_BUTTON_VARIANT = "helpButton";
 
   public static Button createHelpButton(final Composite parent, final IPlugin plugin) {
     Button button = newButton(parent);
@@ -57,31 +61,61 @@ public class HelpUtils {
 
   public static Button createHelpButton(final Composite parent, final String url) {
     Button button = newButton(parent);
-    button.addListener(
-        SWT.Selection,
-        e -> {
-          try {
-            EnvironmentUtils.getInstance().openUrl(url);
-          } catch (Exception ex) {
-            new ErrorDialog(parent.getShell(), "Error", "Error opening URL", ex);
-          }
-        });
+    button.addListener(SWT.Selection, e -> openHelp(parent.getShell(), url));
     return button;
   }
 
   private static Button newButton(final Composite parent) {
     Button button = new Button(parent, SWT.PUSH);
     PropsUi.setLook(button);
-    button.setImage(GuiResource.getInstance().getImageHelp());
     button.setText(BaseMessages.getString(PKG, "System.Button.Help"));
     button.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
     FormData fdButton = new FormData();
     fdButton.left = new FormAttachment(0, 0);
     fdButton.bottom = new FormAttachment(100, 0);
     button.setLayoutData(fdButton);
+    applyHelpButtonImage(button);
     // Always available in read-only dialogs
     BaseDialog.keepEnabledInReadOnly(button);
     return button;
+  }
+
+  /**
+   * Set the standard help icon on a push button.
+   *
+   * <p>Call after {@code setText} and after attaching {@link FormData}. On Hop Web, RAP sizes PUSH
+   * buttons to the zoomed bitmap plus theme padding, which would make Help taller than OK/Cancel. A
+   * font-sized bitmap, a compact {@code helpButton} variant, and a locked height keep the
+   * question-mark icon without changing the row height. Native SWT already fits {@link
+   * ConstUi#SMALL_ICON_SIZE} in platform chrome.
+   */
+  public static void applyHelpButtonImage(Button button) {
+    if (button == null || button.isDisposed()) {
+      return;
+    }
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      button.setImage(GuiResource.getInstance().getImageHelp());
+      return;
+    }
+
+    int textHeight = button.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+    int request = webHelpIconRequestSize(PropsUi.getInstance().getZoomFactor());
+    button.setImage(GuiResource.getInstance().getImage("ui/images/help.svg", request, request));
+    button.setData(RAP_CUSTOM_VARIANT, HELP_BUTTON_VARIANT);
+    if (button.getLayoutData() instanceof FormData fd) {
+      fd.height = textHeight;
+    }
+  }
+
+  /**
+   * Inverse of {@link GuiResource} zoom so the help bitmap is {@link ConstUi#SMALL_ICON_SIZE} px on
+   * Hop Web.
+   */
+  static int webHelpIconRequestSize(double zoomFactor) {
+    if (zoomFactor <= 0) {
+      return ConstUi.SMALL_ICON_SIZE;
+    }
+    return Math.max(1, (int) Math.round(ConstUi.SMALL_ICON_SIZE / zoomFactor));
   }
 
   public static boolean isPluginDocumented(IPlugin plugin) {
@@ -96,17 +130,7 @@ public class HelpUtils {
       return;
     }
     if (isPluginDocumented(plugin)) {
-      try {
-        String originalUrl = getDocUrl(plugin.getDocumentationUrl());
-        String trackedUrl = appendUtmParameters(originalUrl);
-        if (ExplorerPerspectiveConfigSingleton.getConfig().isOpeningHelpFiles()) {
-          openHelpInTab(trackedUrl);
-        } else {
-          EnvironmentUtils.getInstance().openUrl(trackedUrl);
-        }
-      } catch (Exception ex) {
-        new ErrorDialog(shell, "Error", "Error opening URL", ex);
-      }
+      openHelp(shell, getDocUrl(plugin.getDocumentationUrl()));
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       String msg = "";
@@ -128,11 +152,53 @@ public class HelpUtils {
   }
 
   /**
+   * Open a documentation URL using the configured {@link HelpOpenMode}.
+   *
+   * @param shell context shell (transform/action dialog or main window)
+   * @param url documentation URL
+   */
+  public static void openHelp(Shell shell, String url) {
+    if (Utils.isEmpty(url)) {
+      return;
+    }
+    try {
+      openTrackedUrl(shell, appendUtmParameters(url));
+    } catch (Exception ex) {
+      Shell errorShell = shell != null ? shell : HopGui.getInstance().getShell();
+      new ErrorDialog(errorShell, "Error", "Error opening URL", ex);
+    }
+  }
+
+  static void openTrackedUrl(Shell shell, String trackedUrl) throws HopException {
+    HelpOpenMode mode = currentOpenMode();
+    switch (mode) {
+      case TAB:
+        openHelpInTab(trackedUrl);
+        break;
+      case DIALOG:
+        openHelpInDialog(shell, trackedUrl);
+        break;
+      case BROWSER:
+      default:
+        EnvironmentUtils.getInstance().openUrl(trackedUrl);
+        break;
+    }
+  }
+
+  static HelpOpenMode currentOpenMode() {
+    try {
+      return ExplorerPerspectiveConfigSingleton.getConfig().getHelpOpenMode();
+    } catch (Exception e) {
+      return HelpOpenMode.BROWSER;
+    }
+  }
+
+  /**
    * Add analytics tracking parameters for help-button <code>
    * mtm_campaign=hopgui&mtm_source=help_btn&mtm_kwd=write to log
    * </code>
    */
-  private static String appendUtmParameters(String url) {
+  static String appendUtmParameters(String url) {
     if (url == null || url.isEmpty()) {
       return url;
     }
@@ -167,5 +233,42 @@ public class HelpUtils {
     }
     // Fallback
     EnvironmentUtils.getInstance().openUrl(url);
+  }
+
+  private static void openHelpInDialog(Shell shell, String url) throws HopException {
+    Shell parent = resolveParentShell(shell);
+    if (parent == null) {
+      EnvironmentUtils.getInstance().openUrl(url);
+      return;
+    }
+
+    Object existing = parent.getData(ShowHelpDialog.SHELL_DATA_KEY);
+    if (existing instanceof ShowHelpDialog dialog && !dialog.isDisposed()) {
+      dialog.setUrl(url);
+      dialog.forceActive();
+      return;
+    }
+
+    try {
+      ShowHelpDialog dialog = new ShowHelpDialog(parent, url);
+      dialog.open();
+      parent.setData(ShowHelpDialog.SHELL_DATA_KEY, dialog);
+      parent.addDisposeListener(e -> parent.setData(ShowHelpDialog.SHELL_DATA_KEY, null));
+    } catch (Exception ex) {
+      parent.setData(ShowHelpDialog.SHELL_DATA_KEY, null);
+      new ErrorDialog(parent, "Error", "Error opening help dialog", ex);
+      EnvironmentUtils.getInstance().openUrl(url);
+    }
+  }
+
+  private static Shell resolveParentShell(Shell shell) {
+    if (shell != null && !shell.isDisposed()) {
+      return shell;
+    }
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui != null && hopGui.getShell() != null && !hopGui.getShell().isDisposed()) {
+      return hopGui.getShell();
+    }
+    return null;
   }
 }

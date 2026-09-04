@@ -1,0 +1,7 @@
+{
+  "fighters": [
+    { "name": "Goku", "power": 9500 },
+    { "name": "Vegeta", "power": 9000 },
+    { "name": "Gohan", "power": 8500 }
+  ]
+}

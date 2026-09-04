@@ -181,6 +181,39 @@ If you prefer the return values to be of value type Integer, use "new Long(1)" a
 samplestr != null && samplestr.indexOf("abc")>-1 ? 1 : 2
 ----
 
+== The expression editor
+
+Double click a formula in the grid to open it in the expression editor.
+The tree on the left lists the fields of the incoming stream and a reference of the operators and methods an expression can use, grouped in Operators, Text, Mathematical, Date & time, Logical, Conversion and the `row` helper below.
+Selecting an entry shows what it does, what it returns and a few examples, double clicking one inserts it in the expression.
+
+== Reading fields by name
+
+Next to the fields of the incoming stream, every expression receives a helper named `row` that reads the row by field name:
+
+[options="header"]
+|===
+|Method|Returns
+|`row.exists("field")`|`true` when the stream has a field with this name
+|`row.isNull("field")`|`true` when the field is absent, or present with a null value
+|`row.getString("field")`|the value as a String, `null` when the field is absent
+|`row.getInteger("field")`|the value as a Long, `null` when the field is absent
+|`row.getNumber("field")`|the value as a Double, `null` when the field is absent
+|`row.getBigNumber("field")`|the value as a BigDecimal, `null` when the field is absent
+|`row.getDate("field")`|the value as a Date, `null` when the field is absent
+|`row.getBoolean("field")`|the value as a Boolean, `null` when the field is absent
+|===
+
+A field that is read this way does not have to exist, which makes it possible to write an expression for a stream whose layout is only known at runtime.
+It is also the way to use a field whose name is not a valid Java identifier, e.g. a name with a space in it:
+
+[source,java]
+----
+row.exists("discount") ? row.getNumber("discount") : new Double(0)
+----
+
+NOTE: when the stream itself contains a field named `row`, that field wins and the helper is not available.
+
 == Blocking specific code
 
 As a simple security measure you can block the execution of code containing specific strings.

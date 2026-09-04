@@ -115,13 +115,13 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     Label label = new Label(group, SWT.RIGHT);
     label.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Label"));
     PropsUi.setLook(label);
-    label.setLayoutData(
-        new FormDataBuilder().left(0, -margin).top(group, margin).right(middle, -margin).result());
+    label.setLayoutData(new FormDataBuilder().left(0, 0).top(0, 0).right(middle, -margin).result());
 
     wFileField = new Button(group, SWT.CHECK);
     PropsUi.setLook(wFileField);
     wFileField.setToolTipText(BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Tooltip"));
-    wFileField.setLayoutData(new FormDataBuilder().left(middle, -margin).top(0, margin).result());
+    wFileField.setLayoutData(
+        new FormDataBuilder().left(middle, 0).top(label, 0, SWT.CENTER).result());
 
     wFileField.addSelectionListener(
         new SelectionAdapter() {
@@ -169,11 +169,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     wFilenameField.setLayoutData(
-        new FormDataBuilder()
-            .left(middle, -margin)
-            .top(wFileField, margin)
-            .right(100, -margin)
-            .result());
+        new FormDataBuilder().left(middle, 0).top(wFileField, margin).right(100, -margin).result());
 
     // Wildcard field
     Label wlWildcardField = new Label(group, SWT.RIGHT);
@@ -192,7 +188,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wWildcardField.addModifyListener(lsMod);
     wWildcardField.setLayoutData(
         new FormDataBuilder()
-            .left(middle, -margin)
+            .left(middle, 0)
             .top(wFilenameField, margin)
             .right(100, -margin)
             .result());
@@ -215,7 +211,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wExcludeWildcardField.addModifyListener(lsMod);
     wExcludeWildcardField.setLayoutData(
         new FormDataBuilder()
-            .left(middle, -margin)
+            .left(middle, 0)
             .top(wWildcardField, margin)
             .right(100, -margin)
             .result());
@@ -237,10 +233,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wIncludeSubFolder.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubFolder.Tooltip"));
     wIncludeSubFolder.setLayoutData(
-        new FormDataBuilder()
-            .left(middle, -margin)
-            .top(wlIncludeSubFolder, 0, SWT.CENTER)
-            .result());
+        new FormDataBuilder().left(middle, 0).top(wlIncludeSubFolder, 0, SWT.CENTER).result());
 
     wIncludeSubFolder.addSelectionListener(
         new SelectionAdapter() {
@@ -342,6 +335,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
                 GetFileNamesMeta.RequiredFilesCode[0]);
             wFilename.setText("");
             wFilemask.setText("");
+            wExcludeFilemask.setText("");
             wFilenameList.removeEmptyRows();
             wFilenameList.setRowNums();
             wFilenameList.optWidth(true);
@@ -633,11 +627,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wInclRownum.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.InclRownum.Tooltip"));
     wInclRownum.setLayoutData(
-        new FormDataBuilder()
-            .left(middle, -margin)
-            .top(wlInclRownum, 0, SWT.CENTER)
-            .right(100, -margin)
-            .result());
+        new FormDataBuilder().left(middle, 0).top(wlInclRownum, 0, SWT.CENTER).result());
     wInclRownum.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -663,7 +653,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wInclRownumField.addModifyListener(lsMod);
     wInclRownumField.setLayoutData(
         new FormDataBuilder()
-            .left(middle, -margin)
+            .left(middle, 0)
             .top(wInclRownum, margin)
             .right(100, -margin)
             .result());
@@ -698,10 +688,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wDoNotFailIfNoFile.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.DoNotFailIfNoFile.Tooltip"));
     wDoNotFailIfNoFile.setLayoutData(
-        new FormDataBuilder()
-            .left(middle, -margin)
-            .top(wlDoNotFailIfNoFile, 0, SWT.CENTER)
-            .result());
+        new FormDataBuilder().left(middle, 0).top(wlDoNotFailIfNoFile, 0, SWT.CENTER).result());
 
     // Raise an exception if no file?
     wlRaiseAnExceptionIfNoFile = new Label(wNoFilesFolderGroup, SWT.RIGHT);
@@ -721,7 +708,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "GetFileNamesDialog.RaiseAnExceptionIfNoFiles.Tooltip"));
     wRaiseAnExceptionIfNoFile.setLayoutData(
         new FormDataBuilder()
-            .left(middle, -margin)
+            .left(middle, 0)
             .top(wlRaiseAnExceptionIfNoFile, 0, SWT.CENTER)
             .result());
     wRaiseAnExceptionIfNoFile.addSelectionListener(

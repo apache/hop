@@ -1,0 +1,7 @@
+{
+  "variables" : [ {
+    "name" : "SQLITE_DB_FILE",
+    "value" : "/tmp/hop-it-sqlite-3910.sqlite",
+    "description" : "SQLite database file used by the date handling integration tests (issue #3910)"
+  } ]
+}

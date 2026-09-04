@@ -873,15 +873,14 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
         String[] schemas = database.getSchemas();
 
         if (null != schemas && schemas.length > 0) {
-          schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   shell,
                   schemas,
                   BaseMessages.getString(
-                      PKG, "DatabaseLookupDialog.AvailableSchemas.Title", wConnection.getText()),
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
                   BaseMessages.getString(
-                      PKG, "DatabaseLookupDialog.AvailableSchemas.Message", wConnection.getText()));
+                      PKG, "System.Dialog.AvailableSchemas.Message", wConnection.getText()));
           String d = dialog.open();
           if (d != null) {
             wSchema.setText(Const.NVL(d, ""));
@@ -890,15 +889,16 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
 
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-          mb.setMessage(BaseMessages.getString(PKG, "DatabaseLookupDialog.NoSchema.Error"));
-          mb.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetSchemas.Error"));
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
           mb.open();
         }
       } catch (Exception e) {
         new ErrorDialog(
             shell,
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-            BaseMessages.getString(PKG, "DatabaseLookupDialog.ErrorGettingSchemas"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
       }
     }

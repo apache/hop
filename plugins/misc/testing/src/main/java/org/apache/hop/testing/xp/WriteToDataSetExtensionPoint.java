@@ -17,7 +17,6 @@
 
 package org.apache.hop.testing.xp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
-import org.apache.hop.testing.DataSetCsvUtil;
+import org.apache.hop.testing.DataSetCsvWriter;
 import org.apache.hop.testing.util.DataSetConst;
 
 @ExtensionPoint(
@@ -122,8 +121,14 @@ public class WriteToDataSetExtensionPoint
     final IRowMeta setRowMeta = dataSet.getSetRowMeta();
 
     IEngineComponent component = pipeline.findComponent(transformMeta.getName(), 0);
+    if (component == null) {
+      throw new HopException(
+          "Could not find pipeline component '"
+              + transformMeta.getName()
+              + "' to write to a data set");
+    }
 
-    final List<Object[]> transformsForDbRows = new ArrayList<>();
+    final DataSetCsvWriter writer = new DataSetCsvWriter(pipeline, dataSet, setRowMeta);
 
     component.addRowListener(
         new RowAdapter() {
@@ -133,16 +138,14 @@ public class WriteToDataSetExtensionPoint
             for (SourceToTargetMapping mapping : mappings) {
               transformForDbRow[mapping.getTargetPosition()] = row[mapping.getSourcePosition()];
             }
-            transformsForDbRows.add(transformForDbRow);
+            try {
+              writer.writeRow(transformForDbRow);
+            } catch (HopException e) {
+              throw new HopTransformException(e);
+            }
           }
         });
 
-    // At the end of the pipeline, write it...
-    //
-    pipeline.addExecutionFinishedListener(
-        engine ->
-            // Write it
-            //
-            DataSetCsvUtil.writeDataSetData(pipeline, dataSet, setRowMeta, transformsForDbRows));
+    pipeline.addExecutionFinishedListener(engine -> writer.close());
   }
 }

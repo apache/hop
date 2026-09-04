@@ -54,12 +54,6 @@ public class DetectEmptyStreamMeta
     readData(transformNode);
   }
 
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
   private void readData(Node transformNode) {
     // Do nothing
   }

@@ -18,6 +18,7 @@
 package org.apache.hop.databases.mssql;
 
 import java.sql.ResultSet;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
@@ -25,6 +26,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -38,9 +42,47 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     type = "MSSQL",
     typeDescription = "MS SQL Server",
     image = "microsoft-sql.svg",
-    documentationUrl = "/database/databases/mssql.html")
+    documentationUrl = "/database/databases/mssql.html",
+    classLoaderGroup = "mssql-db")
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // SQL Server spells a UUID UNIQUEIDENTIFIER, and grew a JSON type in 2025: a server
+          // older than that says so through its type list and the column becomes NVARCHAR. There
+          // is no address type at all, so an address falls back to text on its own.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UNIQUEIDENTIFIER")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
+
+  /** SQL Server 2025, which is major version 17, is the first with a JSON type. */
+  private static final int FIRST_VERSION_WITH_JSON = 17;
+
+  @Override
+  public boolean isColumnTypeAvailable(String columnType) {
+    if ("JSON".equals(columnType)) {
+      return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+    }
+    return true;
+  }
+
+  /**
+   * SQL Server limits rows with TOP, between SELECT and the column list.
+   *
+   * <p>Inherited by the native dialect, which shares this syntax.
+   */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
@@ -232,7 +274,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -252,7 +294,8 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   /**

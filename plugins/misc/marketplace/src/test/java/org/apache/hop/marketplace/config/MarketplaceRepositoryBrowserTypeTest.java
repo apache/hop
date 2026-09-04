@@ -39,6 +39,40 @@ class MarketplaceRepositoryBrowserTypeTest {
   }
 
   @Test
+  void artifactoryUrlIsDetected() {
+    assertEquals(
+        MarketplaceRepository.BROWSER_JFROG,
+        new MarketplaceRepository("cloud", "https://acme.jfrog.io/artifactory/hop-plugins/")
+            .effectiveBrowserType());
+    assertEquals(
+        MarketplaceRepository.BROWSER_JFROG,
+        new MarketplaceRepository(
+                "self-hosted", "https://artifactory.example.com/artifactory/hop-plugins-local/")
+            .effectiveBrowserType());
+  }
+
+  @Test
+  void forgejoIsTestedBeforeArtifactory() {
+    // A Forgejo instance reachable under a path containing /artifactory/ must still read as
+    // Forgejo.
+    assertEquals(
+        MarketplaceRepository.BROWSER_FORGEJO,
+        new MarketplaceRepository(
+                "mixed", "https://forge.example.org/artifactory/api/packages/a/maven")
+            .effectiveBrowserType());
+  }
+
+  @Test
+  void explicitJfrogWinsOverANexusLookingUrl() {
+    // Artifactory behind a custom context path has no /artifactory/ segment to detect.
+    MarketplaceRepository repo =
+        new MarketplaceRepository("custom", "https://build.example.com/repo/hop-plugins/");
+    assertEquals(MarketplaceRepository.BROWSER_NEXUS, repo.effectiveBrowserType());
+    repo.setBrowserType(" JFrog ");
+    assertEquals(MarketplaceRepository.BROWSER_JFROG, repo.effectiveBrowserType());
+  }
+
+  @Test
   void nexusRemainsTheDefault() {
     assertEquals(
         MarketplaceRepository.BROWSER_NEXUS,

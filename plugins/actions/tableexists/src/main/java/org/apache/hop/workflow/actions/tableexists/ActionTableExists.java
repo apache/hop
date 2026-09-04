@@ -77,12 +77,6 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionTableExists je = (ActionTableExists) super.clone();
-    return je;
-  }
-
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }

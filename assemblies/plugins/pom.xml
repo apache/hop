@@ -626,12 +626,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-misc-async</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-debug</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -885,6 +879,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-databaselookup</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-databasevaluevalidation</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1538,6 +1538,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-transformsmetrics</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-uniquerows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1635,6 +1641,12 @@
         <profile>
             <id>full</id>
             <dependencies>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-action-dbt</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-engines-spark</artifactId>

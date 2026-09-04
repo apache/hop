@@ -56,6 +56,15 @@ public class ActionMeta
   private static final String XML_ATTRIBUTE_WORKFLOW_ACTION_COPY = AttributesUtil.XML_TAG + "_hac";
   private static final String CONST_SPACE = "      ";
 
+  /**
+   * Tracks changes to the settings this wrapper owns - the position on the canvas - as opposed to
+   * the settings an action dialog edits, which live on the {@link IAction} itself. Keeping the two
+   * apart means a dialog's Cancel, which restores the action's flag as it was when the dialog
+   * opened, cannot discard a change made on the canvas in the meantime. Action dialogs are not
+   * modal, so that overlap is easy to hit. See issue #8022.
+   */
+  private boolean wrapperChanged;
+
   @HopMetadataProperty(inline = true)
   private IAction action;
 
@@ -278,7 +287,7 @@ public class ActionMeta
 
     Point loc = new Point(nx, ny);
     if (!loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -286,7 +295,7 @@ public class ActionMeta
   @Override
   public void setLocation(Point loc) {
     if (loc != null && !loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -304,17 +313,27 @@ public class ActionMeta
   @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   @Override
   public void setChanged(boolean ch) {
+    wrapperChanged = ch;
     action.setChanged(ch);
   }
 
   @Override
   public void clearChanged() {
+    wrapperChanged = false;
     action.setChanged(false);
   }
 
   @Override
   public boolean hasChanged() {
-    return action.hasChanged();
+    return wrapperChanged || action.hasChanged();
+  }
+
+  /**
+   * Marks the settings owned by this wrapper as changed, without touching the action's own changed
+   * flag. See {@link #wrapperChanged}.
+   */
+  private void setWrapperChanged() {
+    wrapperChanged = true;
   }
 
   public void setLaunchingInParallel(boolean p) {

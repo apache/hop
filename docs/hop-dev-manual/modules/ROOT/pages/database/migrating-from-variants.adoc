@@ -1,0 +1,87 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The isXVariant() methods are deprecated. This is what replaced them and how to move a plugin across.
+[[Database-MigratingFromVariants]]
+= Migrating from isXVariant()
+
+`IDatabase` used to carry fourteen methods of the form `isMySqlVariant()`, `isPostgresVariant()`, `isOracleVariant()`.
+They are deprecated.
+This page is for anyone maintaining a database plugin written against them.
+
+== What they were for
+
+Core asked the connection which vendor it resembled, and switched on the answer:
+
+[source,java]
+----
+if (databaseMeta.getIDatabase().isOracleVariant()) {
+  // read this column the way Oracle does
+}
+----
+
+The problem was not the style, it was the direction.
+The knowledge lived in Hop, so a dialect could not describe itself, only be described.
+A database plugin Hop did not ship could never be fully correct however carefully it was written, because the list of vendors was compiled into core.
+
+== What replaced them
+
+A dialect declares what it does, through xref:database/column-types.adoc[type rules]:
+
+[source,java]
+----
+@Override
+public List<IDatabaseTypeRule> getTypeRules() {
+  return DatabaseTypes.rules()
+      .read(Types.VARBINARY, Types.LONGVARBINARY)
+      .as(IValueMeta.TYPE_STRING, DatabaseColumn::getDisplaySize, column -> -1)
+      .build();
+}
+----
+
+Where the flags asked "are you like Oracle?", inheritance now answers structurally.
+A dialect extending another inherits its rules, so Redshift reads columns the way PostgreSQL does without anybody maintaining a list of PostgreSQL-like databases.
+
+== Nothing breaks while you migrate
+
+The flags still work.
+A dialect that answers one is handed the rules that flag asks for, so an unmigrated plugin behaves exactly as it did.
+
+The bridge is consulted *after* a dialect's own rules, so migrating is an override rather than a conflict: you can declare your rules and keep answering the flag through the deprecation period.
+
+One limit is worth knowing.
+For every flag except `isMySqlVariant`, the rules are fetched from the dialect the flag names, so that dialect's plugin has to be installed.
+When it is not, Hop logs that it could not apply them rather than failing quietly.
+`isMySqlVariant` is resolved directly and has no such dependency, because Generic, Hive and SingleStore all claim it without extending the MySQL dialect.
+
+== Moving a plugin across
+
+. Work out what your dialect actually did differently. Anything guarded by a variant flag in core, plus anything you overrode in `getFieldDefinition`.
+. Write those as rules and return them from `getTypeRules()`.
+. Add a golden test if the plugin does not have one, *before* changing anything, so you can prove the move changed nothing. See xref:database/testing.adoc[Testing a database plugin].
+. Stop answering the flag.
+
+If your dialect claims to be like another database without extending it, either extend it, or declare the rules you need.
+Reusable rules shared by more than one dialect live in `ColumnTypeRules`.
+
+== Related deprecations
+
+`isStrictBigNumberInterpretation()` has gone the same way.
+It was an Oracle option sitting on the interface every dialect implements; Oracle now reads it from its own connection when it builds its rules.
+
+`IValueMeta.getValueFromSqlType()` and `IValueMeta.getMetadataPreview()` are also deprecated.
+They were older copies of the column mapping that had drifted from the one the engine used.
+Nothing should call them; `StandardJdbcTypeMapper` is the single implementation.

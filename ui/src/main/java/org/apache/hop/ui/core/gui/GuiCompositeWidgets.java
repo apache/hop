@@ -21,11 +21,14 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +39,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroups;
 import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -43,6 +48,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -50,9 +56,14 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -69,6 +80,7 @@ import org.eclipse.swt.widgets.Text;
 public class GuiCompositeWidgets {
   public static final String CONST_PARENT_ID = ", parent ID: ";
   public static final String NONE_DATABASE_META = "NoneDatabaseMeta";
+  private static final Class<?> PKG = GuiCompositeWidgets.class;
 
   @Setter @Getter private IVariables variables;
 
@@ -87,6 +99,8 @@ public class GuiCompositeWidgets {
   @Getter @Setter private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
 
   @Getter @Setter private IGuiPluginCompositeButtonsListener compositeButtonsListener;
+
+  private final List<ExtraGroup> extraGroups = new ArrayList<>();
 
   /** Parent composite of the last {@link #createCompositeWidgets} call (for button refresh). */
   private Composite widgetsParentComposite;
@@ -166,7 +180,7 @@ public class GuiCompositeWidgets {
     //
     boolean useNewLayout = isConfigPlugin(sourceData.getClass());
     this.widgetsUseNewLayout = useNewLayout;
-    addCompositeWidgets(sourceData, parent, guiElements, lastControl, useNewLayout);
+    layoutElements(sourceData, parent, guiElements, lastControl, useNewLayout);
 
     if (compositeWidgetsListener != null) {
       compositeWidgetsListener.widgetsCreated(this);
@@ -175,6 +189,183 @@ public class GuiCompositeWidgets {
     // Force re-layout
     //
     parent.layout(true, true);
+  }
+
+  /**
+   * Add a group that is not driven by {@link org.apache.hop.core.gui.plugin.GuiWidgetElement}
+   * fields, for example a {@code TableView}. It is shown with the annotated groups when {@link
+   * GuiWidgetGroupType#TABS} (or LIST / BOXES) is used.
+   */
+  public void registerExtraGroup(
+      String group, String groupOrder, Image image, Consumer<Composite> contents) {
+    extraGroups.add(new ExtraGroup(group, groupOrder, image, contents));
+  }
+
+  private void layoutElements(
+      Object sourceData,
+      Composite parent,
+      GuiElements guiElements,
+      Control lastControl,
+      boolean useNewLayout) {
+    List<WidgetGroup> groups = collectGroups(guiElements);
+    if (groups.isEmpty()) {
+      addCompositeWidgets(sourceData, parent, guiElements, lastControl, useNewLayout);
+      return;
+    }
+
+    if (GuiWidgetGroups.hasMixedTypes(guiElements.getChildren())) {
+      LogChannel.UI.logError(
+          "Mixed widget group types on parent "
+              + widgetsParentGuiElementId
+              + "; falling back to tabs");
+    }
+    GuiWidgetGroupType type = GuiWidgetGroups.typeOf(guiElements.getChildren());
+    if (type != GuiWidgetGroupType.TABS && type != GuiWidgetGroupType.NONE) {
+      LogChannel.UI.logBasic(
+          "Widget group type "
+              + type
+              + " is not implemented yet; showing tabs for parent "
+              + widgetsParentGuiElementId);
+    }
+    layoutTabs(sourceData, parent, groups, useNewLayout);
+  }
+
+  private List<WidgetGroup> collectGroups(GuiElements guiElements) {
+    if (!GuiWidgetGroups.hasGroups(guiElements.getChildren()) && extraGroups.isEmpty()) {
+      return List.of();
+    }
+
+    // Extra groups force a container; ungrouped fields land on the General tab.
+    String defaultLabel = BaseMessages.getString(PKG, "GuiCompositeWidgets.Group.General");
+    Map<String, WidgetGroup> byKey = new LinkedHashMap<>();
+    for (GuiWidgetGroups.Bucket bucket :
+        GuiWidgetGroups.from(guiElements.getChildren(), defaultLabel)) {
+      WidgetGroup group = new WidgetGroup(bucket.getLabel(), bucket.getOrder(), bucket.getImage());
+      group.elements.addAll(bucket.getElements());
+      byKey.put(bucket.getKey(), group);
+    }
+
+    for (ExtraGroup extra : extraGroups) {
+      WidgetGroup group =
+          byKey.computeIfAbsent(
+              extra.group, k -> new WidgetGroup(extra.group, extra.groupOrder, null));
+      group.extraImage = extra.image;
+      group.extras.add(extra.contents);
+      if (StringUtils.isEmpty(group.order) && StringUtils.isNotEmpty(extra.groupOrder)) {
+        group.order = extra.groupOrder;
+      }
+    }
+
+    List<WidgetGroup> groups = new ArrayList<>(byKey.values());
+    groups.sort(
+        Comparator.comparing((WidgetGroup g) -> Const.NVL(g.order, ""))
+            .thenComparing(g -> Const.NVL(g.label, "")));
+    return groups;
+  }
+
+  private void layoutTabs(
+      Object sourceData, Composite parent, List<WidgetGroup> groups, boolean useNewLayout) {
+    CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
+    PropsUi.setLook(folder);
+    FormData fdFolder = new FormData();
+    fdFolder.left = new FormAttachment(0, 0);
+    fdFolder.top =
+        widgetsFirstLastControl == null
+            ? new FormAttachment(0, 0)
+            : new FormAttachment(widgetsFirstLastControl, PropsUi.getMargin());
+    fdFolder.right = new FormAttachment(100, 0);
+    fdFolder.bottom = new FormAttachment(100, 0);
+    folder.setLayoutData(fdFolder);
+
+    for (WidgetGroup group : groups) {
+      CTabItem item = new CTabItem(folder, SWT.NONE);
+      item.setFont(GuiResource.getInstance().getFontDefault());
+      item.setText(Const.NVL(group.label, ""));
+      Image image = group.extraImage;
+      if (image == null) {
+        image = loadGroupImage(parent, group.image);
+      }
+      if (image != null) {
+        item.setImage(image);
+      }
+
+      ScrolledComposite scrolled = new ScrolledComposite(folder, SWT.V_SCROLL | SWT.H_SCROLL);
+      scrolled.setLayout(new FillLayout());
+      Composite composite = new Composite(scrolled, SWT.NONE);
+      PropsUi.setLook(composite);
+      FormLayout layout = new FormLayout();
+      layout.marginWidth = PropsUi.getFormMargin();
+      layout.marginHeight = PropsUi.getFormMargin();
+      composite.setLayout(layout);
+      scrolled.setContent(composite);
+      scrolled.setExpandHorizontal(true);
+      scrolled.setExpandVertical(true);
+      item.setControl(scrolled);
+
+      Control last = null;
+      for (GuiElements child : group.elements) {
+        last = addCompositeWidgets(sourceData, composite, child, last, useNewLayout);
+      }
+      for (Consumer<Composite> extra : group.extras) {
+        extra.accept(composite);
+      }
+      composite.pack();
+      Rectangle bounds = composite.getBounds();
+      scrolled.setMinWidth(bounds.width);
+      scrolled.setMinHeight(bounds.height);
+    }
+
+    if (folder.getItemCount() > 0) {
+      folder.setSelection(0);
+    }
+  }
+
+  private Image loadGroupImage(Composite parent, String filename) {
+    if (StringUtils.isEmpty(filename)) {
+      return null;
+    }
+    try {
+      int size = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getInstance().getZoomFactor());
+      Image image =
+          SwtSvgImageUtil.getImage(
+              parent.getDisplay(), getClass().getClassLoader(), filename, size, size);
+      if (image != null) {
+        parent.addListener(SWT.Dispose, e -> image.dispose());
+      }
+      return image;
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error loading widget group image " + filename, e);
+      return null;
+    }
+  }
+
+  private static final class ExtraGroup {
+    private final String group;
+    private final String groupOrder;
+    private final Image image;
+    private final Consumer<Composite> contents;
+
+    private ExtraGroup(String group, String groupOrder, Image image, Consumer<Composite> contents) {
+      this.group = group;
+      this.groupOrder = groupOrder;
+      this.image = image;
+      this.contents = contents;
+    }
+  }
+
+  private static final class WidgetGroup {
+    private final String label;
+    private String order;
+    private String image;
+    private Image extraImage;
+    private final List<GuiElements> elements = new ArrayList<>();
+    private final List<Consumer<Composite>> extras = new ArrayList<>();
+
+    private WidgetGroup(String label, String order, String image) {
+      this.label = label;
+      this.order = order;
+      this.image = image;
+    }
   }
 
   /**
@@ -202,6 +393,9 @@ public class GuiCompositeWidgets {
    * <p>Call this from {@link IGuiPluginCompositeWidgetsListener} when a plugin has options that
    * only apply to some of its settings, to keep the ones that cannot do anything out of the way.
    *
+   * <p>When widgets sit on different group containers (tabs), each container is re-hung on its own.
+   * Hiding a field on one tab must not collapse or re-attach rows on another tab.
+   *
    * @param sourceData the object the widgets were created for
    * @param hiddenIds ids of the GUI elements to hide; every other element is made visible again
    */
@@ -221,42 +415,53 @@ public class GuiCompositeWidgets {
     List<GuiElements> children = new ArrayList<>(root.getChildren());
     Collections.sort(children);
 
-    Control lastVisible = widgetsFirstLastControl;
+    // The registry appends without checking for duplicates, so an element can be in here more
+    // than once if the GUI plugins were scanned twice. There is only ever one widget per id, and
+    // hanging it below itself on a second pass would make the layout circular.
+    Map<Composite, List<GuiElements>> byParent = new LinkedHashMap<>();
     Set<String> handled = new HashSet<>();
     for (GuiElements element : children) {
-      if (element.isIgnored() || element.getId() == null) {
+      if (element.isIgnored() || element.getId() == null || !handled.add(element.getId())) {
         continue;
       }
-      // The registry appends without checking for duplicates, so an element can be in here more
-      // than once if the GUI plugins were scanned twice. There is only ever one widget per id, and
-      // hanging it below itself on a second pass would make the layout circular.
-      //
-      if (!handled.add(element.getId())) {
-        continue;
-      }
-      Control label = labelsMap.get(element.getId());
       Control widget = widgetsMap.get(element.getId());
-      Control action = actionWidgetsMap.get(element.getId());
-      boolean hidden = hiddenIds.contains(element.getId());
-
-      setControlVisible(label, !hidden);
-      setControlVisible(widget, !hidden);
-      setControlVisible(action, !hidden);
-
-      if (hidden) {
-        collapseRow(lastVisible, label, widget, action);
-        continue;
-      }
-
-      restoreRowHeight(label);
-      restoreRowHeight(widget);
-      restoreRowHeight(action);
-
       if (widget == null || widget.isDisposed()) {
         continue;
       }
-      reattachRow(element, label, widget, action, lastVisible);
-      lastVisible = widget;
+      byParent.computeIfAbsent(widget.getParent(), parent -> new ArrayList<>()).add(element);
+    }
+
+    for (Map.Entry<Composite, List<GuiElements>> entry : byParent.entrySet()) {
+      Composite parent = entry.getKey();
+      Control lastVisible = parent == widgetsParentComposite ? widgetsFirstLastControl : null;
+      for (GuiElements element : entry.getValue()) {
+        Control label = labelsMap.get(element.getId());
+        Control widget = widgetsMap.get(element.getId());
+        Control action = actionWidgetsMap.get(element.getId());
+        boolean hidden = hiddenIds.contains(element.getId());
+
+        setControlVisible(label, !hidden);
+        setControlVisible(widget, !hidden);
+        setControlVisible(action, !hidden);
+
+        if (hidden) {
+          collapseRow(lastVisible, label, widget, action);
+          continue;
+        }
+
+        restoreRowHeight(label);
+        restoreRowHeight(widget);
+        restoreRowHeight(action);
+
+        if (widget == null || widget.isDisposed()) {
+          continue;
+        }
+        reattachRow(element, label, widget, action, lastVisible);
+        lastVisible = widget;
+      }
+      if (parent != null && !parent.isDisposed()) {
+        parent.layout(true, true);
+      }
     }
 
     widgetsParentComposite.layout(true, true);
@@ -1200,7 +1405,7 @@ public class GuiCompositeWidgets {
             break;
           case CHECKBOX:
             Button button = (Button) control;
-            button.setSelection((Boolean) value);
+            button.setSelection(Boolean.TRUE.equals(value));
             break;
           case COMBO:
             if (guiElements.isVariablesEnabled()) {
@@ -1570,6 +1775,22 @@ public class GuiCompositeWidgets {
       Control bottom,
       String guiParentId,
       Object sourceData) {
+    return addScrolledComposite(parent, variables, top, bottom, guiParentId, sourceData, null);
+  }
+
+  /**
+   * Same as {@link #addScrolledComposite(Composite, IVariables, Control, Control, String, Object)}
+   * but {@code beforeCreate} runs after the widgets object exists and before fields are built, so
+   * extra groups (a {@code TableView}, for example) can be registered.
+   */
+  public static GuiCompositeWidgets addScrolledComposite(
+      Composite parent,
+      IVariables variables,
+      Control top,
+      Control bottom,
+      String guiParentId,
+      Object sourceData,
+      Consumer<GuiCompositeWidgets> beforeCreate) {
     ScrolledComposite scrolledComposite =
         new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
     scrolledComposite.setMinSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -1594,6 +1815,9 @@ public class GuiCompositeWidgets {
     // We add all the widgets...
     //
     GuiCompositeWidgets widgets = new GuiCompositeWidgets(variables);
+    if (beforeCreate != null) {
+      beforeCreate.accept(widgets);
+    }
     widgets.createCompositeWidgets(sourceData, null, composite, guiParentId, null);
     widgets.setWidgetsContents(sourceData, composite, guiParentId);
     scrolledComposite.setContent(composite);

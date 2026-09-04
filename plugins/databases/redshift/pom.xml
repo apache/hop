@@ -37,6 +37,13 @@
         <dependencies>
             <dependency>
                 <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
                 <artifactId>hop-libs-jdbc</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
@@ -55,6 +62,46 @@
             <groupId>com.amazon.redshift</groupId>
             <artifactId>redshift-jdbc42</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <!--
+            IAM authentication makes the driver ask AWS for temporary database credentials instead
+            of signing in with a Redshift password. It reaches for these to do so, but declares them
+            optional, so without them the connection fails with a NoClassDefFoundError on
+            software.amazon.awssdk.services.redshift.RedshiftClient. The rest of the AWS SDK they
+            need is already shared in lib/core.
+        -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>redshift</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>redshiftserverless</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

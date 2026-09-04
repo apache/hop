@@ -1,0 +1,12 @@
+{
+  "endPointHostname": "minio",
+  "virtualPath": "",
+  "secretKey": "ApacheHopSecretKey",
+  "accessKey": "ApacheHopAccessKey",
+  "partSize": "5242880",
+  "name": "export-only-storage",
+  "description": "A named VFS connection that exists ONLY in the client project's metadata-client-only folder. The Hop Server registers ${PROJECT_HOME}/metadata as its metadata folder, so this connection can only reach the server inside the export ZIP. Used by main-0014 to prove that VFS connections carried by an export are usable on the server (issue #8106). Values are literals on purpose: the test is about the connection reaching the server, not about variable resolution.",
+  "endPointPort": "9000",
+  "endPointSecure": false,
+  "region": "local"
+}

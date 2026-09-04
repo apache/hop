@@ -703,7 +703,6 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getExtraOptionsHelpText());
     assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isUseSafePoints());
     assertTrue(nativeMeta.isSupportsBooleanDataType());
     assertTrue(nativeMeta.isSupportsTimestampDataType());
@@ -813,8 +812,10 @@ public class PostgreSqlDatabaseMetaTest {
         "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(12, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+    // An ALTER TABLE spells a column the way a CREATE TABLE does: through the dialect's type
+    // rules. Before those were consulted here, this produced "BAR  UNKNOWN".
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD COLUMN BAR INET",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

@@ -34,4 +34,4 @@ Check with the other devs and on https://www.apache.org/legal/resolved.html[this
 
 == Colors scheme
 
-If you want to re-color or create icons that fit the Hop look & feel, please refer to http://hop.apache.org/tech-manual/latest/_attachments/BrandGuideline_Hop.pdf[Hop Branding guide] for some guidance.
+If you want to re-color or create icons that fit the Hop look & feel, please refer to https://hop.apache.org/graphical_resources/brand_guideline_hop.pdf[Hop Branding guide] for some guidance.

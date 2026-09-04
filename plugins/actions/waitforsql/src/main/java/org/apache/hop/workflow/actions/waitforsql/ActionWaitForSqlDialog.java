@@ -32,6 +32,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -93,11 +95,11 @@ public class ActionWaitForSqlDialog extends ActionDialog {
   private Label wlPosition;
 
   // Schema name
-  private Label wlSchemaname;
-  private TextVar wSchemaname;
+  private Label wlSchemaName;
+  private TextVar wSchemaName;
 
-  private Label wlTablename;
-  private TextVar wTablename;
+  private Label wlTableName;
+  private TextVar wTableName;
 
   private CCombo wSuccessCondition;
 
@@ -135,41 +137,50 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // Schema name line
-    wlSchemaname = new Label(shell, SWT.RIGHT);
-    wlSchemaname.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.Schemaname.Label"));
-    PropsUi.setLook(wlSchemaname);
-    FormData fdlSchemaname = new FormData();
-    fdlSchemaname.left = new FormAttachment(0, 0);
-    fdlSchemaname.right = new FormAttachment(middle, -margin);
-    fdlSchemaname.top = new FormAttachment(wConnection, margin);
-    wlSchemaname.setLayoutData(fdlSchemaname);
+    wlSchemaName = new Label(shell, SWT.RIGHT);
+    wlSchemaName.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.Schemaname.Label"));
+    PropsUi.setLook(wlSchemaName);
+    FormData fdlSchemaName = new FormData();
+    fdlSchemaName.left = new FormAttachment(0, 0);
+    fdlSchemaName.right = new FormAttachment(middle, -margin);
+    fdlSchemaName.top = new FormAttachment(wConnection, margin);
+    wlSchemaName.setLayoutData(fdlSchemaName);
 
-    wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wSchemaname);
-    wSchemaname.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.Schemaname.Tooltip"));
-    wSchemaname.addModifyListener(lsMod);
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.top = new FormAttachment(wConnection, margin);
+    fdbSchema.right = new FormAttachment(100, 0);
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaName());
+
+    wSchemaName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSchemaName);
+    wSchemaName.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.Schemaname.Tooltip"));
+    wSchemaName.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment(middle, 0);
     fdSchemaname.top = new FormAttachment(wConnection, margin);
-    fdSchemaname.right = new FormAttachment(100, 0);
-    wSchemaname.setLayoutData(fdSchemaname);
+    fdSchemaname.right = new FormAttachment(wbSchema, -margin);
+    wSchemaName.setLayoutData(fdSchemaname);
 
     // Table name line
-    wlTablename = new Label(shell, SWT.RIGHT);
-    wlTablename.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.Tablename.Label"));
-    PropsUi.setLook(wlTablename);
+    wlTableName = new Label(shell, SWT.RIGHT);
+    wlTableName.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.Tablename.Label"));
+    PropsUi.setLook(wlTableName);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
     fdlTablename.right = new FormAttachment(middle, -margin);
-    fdlTablename.top = new FormAttachment(wSchemaname, margin);
-    wlTablename.setLayoutData(fdlTablename);
+    fdlTablename.top = new FormAttachment(wSchemaName, margin);
+    wlTableName.setLayoutData(fdlTablename);
 
     wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wSchemaname, margin / 2);
+    fdbTable.top = new FormAttachment(wSchemaName, margin);
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -179,17 +190,17 @@ public class ActionWaitForSqlDialog extends ActionDialog {
           }
         });
 
-    wTablename =
+    wTableName =
         new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
             .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
-    PropsUi.setLook(wTablename);
-    wTablename.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.Tablename.Tooltip"));
-    wTablename.addModifyListener(lsMod);
+    PropsUi.setLook(wTableName);
+    wTableName.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.Tablename.Tooltip"));
+    wTableName.addModifyListener(lsMod);
     FormData fdTablename = new FormData();
     fdTablename.left = new FormAttachment(middle, 0);
-    fdTablename.top = new FormAttachment(wSchemaname, margin);
+    fdTablename.top = new FormAttachment(wSchemaName, margin);
     fdTablename.right = new FormAttachment(wbTable, -margin);
-    wTablename.setLayoutData(fdTablename);
+    wTableName.setLayoutData(fdTablename);
 
     // ////////////////////////
     // START OF Success GROUP///
@@ -219,7 +230,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
 
     PropsUi.setLook(wSuccessCondition);
     FormData fdSuccessCondition = new FormData();
-    fdSuccessCondition.left = new FormAttachment(middle, -margin);
+    fdSuccessCondition.left = new FormAttachment(middle, 0);
     fdSuccessCondition.top = new FormAttachment(0, margin);
     fdSuccessCondition.right = new FormAttachment(100, 0);
     wSuccessCondition.setLayoutData(fdSuccessCondition);
@@ -250,7 +261,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wRowsCountValue);
     wRowsCountValue.addModifyListener(lsMod);
     FormData fdRowsCountValue = new FormData();
-    fdRowsCountValue.left = new FormAttachment(middle, -margin);
+    fdRowsCountValue.left = new FormAttachment(middle, 0);
     fdRowsCountValue.top = new FormAttachment(wSuccessCondition, margin);
     fdRowsCountValue.right = new FormAttachment(100, 0);
     wRowsCountValue.setLayoutData(fdRowsCountValue);
@@ -270,7 +281,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionWaitForSQL.MaximumTimeout.Tooltip"));
     wMaximumTimeout.addModifyListener(lsMod);
     FormData fdMaximumTimeout = new FormData();
-    fdMaximumTimeout.left = new FormAttachment(middle, -margin);
+    fdMaximumTimeout.left = new FormAttachment(middle, 0);
     fdMaximumTimeout.top = new FormAttachment(wRowsCountValue, margin);
     fdMaximumTimeout.right = new FormAttachment(100, 0);
     wMaximumTimeout.setLayoutData(fdMaximumTimeout);
@@ -290,7 +301,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionWaitForSQL.CheckCycleTime.Tooltip"));
     wCheckCycleTime.addModifyListener(lsMod);
     FormData fdCheckCycleTime = new FormData();
-    fdCheckCycleTime.left = new FormAttachment(middle, -margin);
+    fdCheckCycleTime.left = new FormAttachment(middle, 0);
     fdCheckCycleTime.top = new FormAttachment(wMaximumTimeout, margin);
     fdCheckCycleTime.right = new FormAttachment(100, 0);
     wCheckCycleTime.setLayoutData(fdCheckCycleTime);
@@ -310,7 +321,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wSuccessOnTimeout.setToolTipText(
         BaseMessages.getString(PKG, "ActionWaitForSQL.SuccessOnTimeout.Tooltip"));
     FormData fdSuccessOnTimeout = new FormData();
-    fdSuccessOnTimeout.left = new FormAttachment(middle, -margin);
+    fdSuccessOnTimeout.left = new FormAttachment(middle, 0);
     fdSuccessOnTimeout.top = new FormAttachment(wlSuccessOnTimeout, 0, SWT.CENTER);
     fdSuccessOnTimeout.right = new FormAttachment(100, -margin);
     wSuccessOnTimeout.setLayoutData(fdSuccessOnTimeout);
@@ -356,7 +367,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wCustomSql);
     wCustomSql.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.customSQL.Tooltip"));
     FormData fdCustomSql = new FormData();
-    fdCustomSql.left = new FormAttachment(middle, -margin);
+    fdCustomSql.left = new FormAttachment(middle, 0);
     fdCustomSql.top = new FormAttachment(wlCustomSql, 0, SWT.CENTER);
     fdCustomSql.right = new FormAttachment(100, 0);
     wCustomSql.setLayoutData(fdCustomSql);
@@ -383,7 +394,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wUseSubs.setToolTipText(
         BaseMessages.getString(PKG, "ActionWaitForSQL.UseVariableSubst.Tooltip"));
     FormData fdUseSubs = new FormData();
-    fdUseSubs.left = new FormAttachment(middle, -margin);
+    fdUseSubs.left = new FormAttachment(middle, 0);
     fdUseSubs.top = new FormAttachment(wlUseSubs, 0, SWT.CENTER);
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
@@ -410,7 +421,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wClearResultList.setToolTipText(
         BaseMessages.getString(PKG, "ActionWaitForSQL.ClearResultList.Tooltip"));
     FormData fdClearResultList = new FormData();
-    fdClearResultList.left = new FormAttachment(middle, -margin);
+    fdClearResultList.left = new FormAttachment(middle, 0);
     fdClearResultList.top = new FormAttachment(wlClearResultList, 0, SWT.CENTER);
     fdClearResultList.right = new FormAttachment(100, 0);
     wClearResultList.setLayoutData(fdClearResultList);
@@ -437,7 +448,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wAddRowsToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionWaitForSQL.AddRowsToResult.Tooltip"));
     FormData fdAddRowsToResult = new FormData();
-    fdAddRowsToResult.left = new FormAttachment(middle, -margin);
+    fdAddRowsToResult.left = new FormAttachment(middle, 0);
     fdAddRowsToResult.top = new FormAttachment(wlAddRowsToResult, 0, SWT.CENTER);
     fdAddRowsToResult.right = new FormAttachment(100, 0);
     wAddRowsToResult.setLayoutData(fdAddRowsToResult);
@@ -676,18 +687,18 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wbSqlTable.setEnabled(wCustomSql.getSelection());
     wUseSubs.setEnabled(wCustomSql.getSelection());
     wbTable.setEnabled(!wCustomSql.getSelection());
-    wTablename.setEnabled(!wCustomSql.getSelection());
-    wlTablename.setEnabled(!wCustomSql.getSelection());
-    wlSchemaname.setEnabled(!wCustomSql.getSelection());
-    wSchemaname.setEnabled(!wCustomSql.getSelection());
+    wTableName.setEnabled(!wCustomSql.getSelection());
+    wlTableName.setEnabled(!wCustomSql.getSelection());
+    wlSchemaName.setEnabled(!wCustomSql.getSelection());
+    wSchemaName.setEnabled(!wCustomSql.getSelection());
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
     wConnection.setText(Const.nullToEmpty(action.getConnection()));
-    wSchemaname.setText(Const.nullToEmpty(action.getSchemaName()));
-    wTablename.setText(Const.nullToEmpty(action.getTableName()));
+    wSchemaName.setText(Const.nullToEmpty(action.getSchemaName()));
+    wTableName.setText(Const.nullToEmpty(action.getTableName()));
     wSuccessCondition.setText(action.getSuccessCondition().getDescription());
     wRowsCountValue.setText(Const.NVL(action.getRowsCountValue(), "0"));
     wCustomSql.setSelection(action.isCustomSqlEnabled());
@@ -721,8 +732,8 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     }
     action.setName(wName.getText());
     action.setConnection(wConnection.getText());
-    action.setSchemaName(wSchemaname.getText());
-    action.setTableName(wTablename.getText());
+    action.setSchemaName(wSchemaName.getText());
+    action.setTableName(wTableName.getText());
     action.setSuccessCondition(SuccessCondition.lookupDescription(wSuccessCondition.getText()));
     action.setRowsCountValue(wRowsCountValue.getText());
     action.setCustomSqlEnabled(wCustomSql.getSelection());
@@ -737,15 +748,53 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     dispose();
   }
 
+  private void getSchemaName() {
+    if (wSchemaName.isDisposed()) {
+      return;
+    }
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+        if (null != schemas && schemas.length > 0) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
+          String name = dialog.open();
+          if (name != null) {
+            wSchemaName.setText(name);
+          }
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
+            e);
+      }
+    }
+  }
+
   private void getTableName() {
     DatabaseMeta databaseMeta = workflowMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
               shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
-      std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
+      std.setSelectedSchemaAndTable(wSchemaName.getText(), wTableName.getText());
       if (std.open()) {
-        wTablename.setText(Const.NVL(std.getTableName(), ""));
+        wTableName.setText(Const.NVL(std.getTableName(), ""));
       }
     }
   }

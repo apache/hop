@@ -129,7 +129,7 @@ To execute the containers afterwards, the following environment variables or par
 |Name||Name of the Docker container
 |===
 
-In the technical documentation for Apache HOP running as Docker Container (pls see https://hop.apache.org/tech-manual/latest/docker-container.html[docs]), further parameters are listed (e.g. when using SSL), which have been omitted here for simplification.
+On the xref:docker-container.adoc[Hop in Docker] page, further parameters are listed (e.g. when using SSL), which have been omitted here for simplification.
 
 Example call:
 

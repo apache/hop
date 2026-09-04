@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0014-test-export-only-vfs-connection</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Regression test for issue #8106: a named VFS connection carried by an export must be
+    usable by the pipeline running on the remote Hop Server.
+
+    The "export-only-storage" Minio connection lives in the client project's metadata-client-only
+    folder. The server registers ${PROJECT_HOME}/metadata as its own metadata folder, so it never
+    sees that connection except inside the export ZIP. The inner workflow runs remotely and writes
+    a file through it; the check below runs back on the client, where the connection is known to
+    resolve, and proves the server really wrote to the object store.
+
+    Before the fix the server has no provider for the "export-only-storage" scheme, so the path is
+    treated as a relative local file, nothing reaches Minio and this test fails.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2024/01/01 00:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2024/01/01 00:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Cleanup marker in object store</name>
+      <description>Runs on the client, which can reach the same Minio. Removing the file first means
+        the check can only succeed on something the server wrote during this run, and it keeps the
+        export from bundling an existing file in place of the connection reference.</description>
+      <type>DELETE_FILE</type>
+      <attributes/>
+      <filename>export-only-storage:///hop-server-export-only/marker-8106.txt</filename>
+      <fail_if_file_not_exists>N</fail_if_file_not_exists>
+      <parallel>N</parallel>
+      <xloc>220</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write on the server through the exported connection</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <run_configuration>remote</run_configuration>
+      <filename>${PROJECT_HOME}/0014-write-to-export-only-vfs.hwf</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
+      <parallel>N</parallel>
+      <xloc>470</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Verify the server wrote to the object store</name>
+      <description/>
+      <type>FILE_EXISTS</type>
+      <attributes/>
+      <filename>export-only-storage:///hop-server-export-only/marker-8106.txt</filename>
+      <parallel>N</parallel>
+      <xloc>730</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Make sure the bucket exists</name>
+      <description>Runs on the client, through the same connection. The test is about the server
+        being able to use a connection it only got from the export, not about who creates the
+        bucket, so the folder is prepared here.</description>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <foldername>export-only-storage:///hop-server-export-only</foldername>
+      <parallel>N</parallel>
+      <xloc>350</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Cleanup marker in object store</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Cleanup marker in object store</from>
+      <to>Make sure the bucket exists</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Make sure the bucket exists</from>
+      <to>Write on the server through the exported connection</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Write on the server through the exported connection</from>
+      <to>Verify the server wrote to the object store</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

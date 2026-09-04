@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <name>MS SQL Server bulk loader</name>
+    <type>MsSqlServerBulkLoader</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <allow_encrypted_value_modifications>N</allow_encrypted_value_modifications>
+    <batch_size>25000</batch_size>
+    <bulk_copy_timeout>120</bulk_copy_timeout>
+    <check_constraints>Y</check_constraints>
+    <connection>mssql</connection>
+    <fields>
+        <field>
+            <order_hint>ASC</order_hint>
+            <stream_field>id</stream_field>
+            <table_field>order_id</table_field>
+        </field>
+        <field>
+            <order_hint>NONE</order_hint>
+            <stream_field>customer</stream_field>
+            <table_field>customer_name</table_field>
+        </field>
+    </fields>
+    <fire_triggers>N</fire_triggers>
+    <keep_identity>Y</keep_identity>
+    <keep_nulls>Y</keep_nulls>
+    <only_when_have_rows>Y</only_when_have_rows>
+    <schema>staging</schema>
+    <specify_fields>Y</specify_fields>
+    <table>orders</table>
+    <table_lock>Y</table_lock>
+    <truncate>Y</truncate>
+    <attributes/>
+    <GUI>
+        <xloc>464</xloc>
+        <yloc>160</yloc>
+    </GUI>
+</transform>

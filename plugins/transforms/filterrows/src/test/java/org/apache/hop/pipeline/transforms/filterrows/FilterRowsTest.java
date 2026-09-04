@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.filterrows;
 
 import static org.apache.hop.core.Condition.Function.EQUAL;
 import static org.apache.hop.core.Condition.Function.REGEXP;
+import static org.apache.hop.core.Condition.Function.SMALLER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -198,6 +199,40 @@ class FilterRowsTest {
     assertEquals("Alice", runtimeCondition.getCondition(0).getRightValueString());
     assertEquals("Bob", meta.getCondition().getCondition(0).getRightValueString());
     assertFalse(meta.getCondition().evaluate(rowMeta, matchingRow));
+  }
+
+  /**
+   * Regression for #3051: a Date constant whose stored text is Hop's compatible format while the
+   * mask is the user format must still evaluate after init() clones and caches the condition.
+   */
+  @Test
+  void dateConstantWithLegacyCompatibleTextEvaluatesAfterInit() throws Exception {
+    Condition.CValue constant = new Condition.CValue();
+    constant.setName("constant");
+    constant.setType("Date");
+    constant.setText("2022/01/01 00:00:00.000");
+    constant.setMask("yyyy-MM-dd");
+    constant.setNullValue(false);
+    constant.setLength(-1);
+    constant.setPrecision(-1);
+
+    Condition metadataCondition = new Condition();
+    metadataCondition.setLeftValueName("value");
+    metadataCondition.setFunction(SMALLER);
+    metadataCondition.setRightValue(constant);
+
+    FilterRows transform = createTransform(metadataCondition);
+    assertTrue(transform.init());
+    Condition runtimeCondition = transform.getData().condition;
+
+    SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd");
+    iso.setLenient(false);
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaDate("value"));
+
+    assertTrue(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2021-12-31")}));
+    assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2022-01-01")}));
+    assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2022-01-02")}));
   }
 
   private static Stream<Arguments> variableValueTypes() throws Exception {

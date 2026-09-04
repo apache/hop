@@ -114,7 +114,7 @@ class ScriptMetaTest {
         .add(new ScriptMeta.SScript(ScriptMeta.ScriptType.TRANSFORM_SCRIPT, "s1", "1+1"));
     meta.getFields().add(createField("f1", "Integer"));
 
-    ScriptMeta cloned = meta.clone();
+    ScriptMeta cloned = (ScriptMeta) meta.clone();
     assertNotNull(cloned);
     assertFalse(cloned == meta);
     assertEquals("Groovy", cloned.getLanguageName());
