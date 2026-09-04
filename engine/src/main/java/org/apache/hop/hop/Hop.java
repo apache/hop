@@ -23,10 +23,12 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -34,6 +36,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.hop.plugin.HopCommandPluginType;
 import org.apache.hop.hop.plugin.IHopCommand;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -76,7 +79,11 @@ public class Hop {
   public static void main(String[] args) throws Exception {
     Hop hop = new Hop();
 
-    hop.cmd = new CommandLine(new Hop());
+    hop.cmd = new CommandLine(hop);
+
+    if (args.length > 0) {
+      hop.prepareInternalOptions(new CommandLine(hop), args);
+    }
 
     // We want to apply system properties before we boot up Hop, the plugins, and everything
     // associated.
@@ -107,6 +114,10 @@ public class Hop {
     hop.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hop.variables);
     HopMetadataInstance.setMetadataProvider(hop.metadataProvider);
 
+    // Add mixin plugins with the ROOT category (e.g. project locations, environments, in-memory)
+    //
+    addMixinPlugins(hop.cmd, ConfigPlugin.CATEGORY_ROOT);
+
     // Look in the plugin registry for @HopCommand plugins.
     // Instantiate and initialize each of them.
     //
@@ -128,8 +139,61 @@ public class Hop {
       System.exit(1);
     }
 
+    // Process options on root command mixins before executing subcommands
+    //
+    for (Object mixin : hop.cmd.getMixins().values()) {
+      if (mixin instanceof IConfigOptions configOptions) {
+        configOptions.handleOption(LogChannel.GENERAL, null, hop.variables);
+      }
+    }
+
+    // Root mixins (for example --project-locations) may have replaced the metadata provider on
+    // HopMetadataInstance. Subcommands were initialized with the original provider, so copy the
+    // current one onto the selected command.
+    //
+    MultiMetadataProvider currentMetadata = HopMetadataInstance.getMetadataProvider();
+    if (currentMetadata != null) {
+      hop.setMetadataProvider(currentMetadata);
+      applyMetadataProviderToParsedCommand(parseResult, currentMetadata);
+    }
+
     int exitCode = hop.cmd.execute(args);
     System.exit(exitCode);
+  }
+
+  /**
+   * Apply a metadata provider to the user object of the last parsed subcommand, when it holds one.
+   *
+   * @param parseResult picocli parse result
+   * @param metadataProvider provider to set
+   */
+  public static void applyMetadataProviderToParsedCommand(
+      CommandLine.ParseResult parseResult, MultiMetadataProvider metadataProvider) {
+    if (parseResult == null || metadataProvider == null) {
+      return;
+    }
+    CommandLine.ParseResult current = parseResult;
+    while (current.hasSubcommand()) {
+      current = current.subcommand();
+    }
+    Object userObject = current.commandSpec().userObject();
+    if (userObject instanceof IHasHopMetadataProvider hasProvider) {
+      hasProvider.setMetadataProvider(metadataProvider);
+    }
+  }
+
+  private void prepareInternalOptions(CommandLine cmd, String[] args) {
+    for (String arg : args) {
+      if (arg.startsWith("-h") || arg.startsWith("--help")) {
+        return;
+      }
+    }
+
+    String[] helpArgs = new String[args.length + 1];
+    System.arraycopy(args, 0, helpArgs, 0, args.length);
+    helpArgs[args.length] = "-h";
+
+    cmd.parseArgs(helpArgs);
   }
 
   public void applySystemProperties() {
@@ -148,7 +212,7 @@ public class Hop {
   }
 
   public static void addMixinPlugins(CommandLine cmd, String category) throws HopPluginException {
-    // Now add configuration plugins with the RUN category.
+    // Add configuration plugins for the given category (root, run, gui, search, ...).
     // The 'projects' plugin for example configures things like the project metadata provider.
     //
     List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);

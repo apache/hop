@@ -14,7 +14,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Hop Encrypt is a command line tool to encrypt (obfuscate) passwords for use in XML, password or Hop metadata files.Hop Gui is Hop’s visual development environment. You’ll spend a lot of time here in the various perspectives of Hop GUI.
+:description: Hop GUI is Hop's visual development environment. Start it with hop gui or hop-gui.sh / hop-gui.bat, optionally selecting a project, environment, and file.
+:openvar: ${
+:closevar: }
 
 = Hop GUI
 
@@ -22,4 +24,70 @@ Hop GUI is the visual integrated development environment (IDE) for Apache Hop.
 
 == Usage
 
-Hop GUI doesn't take any parameters or arguments. To start, just run `hop-gui.bat` on Window or `hop-gui.sh` on Linux and Mac OS.
+Start Hop GUI with `hop-gui.bat` on Windows or `hop-gui.sh` on Linux and macOS, or with the `hop gui` command.
+
+Without extra options Hop GUI opens the last used project.
+You can also select a project, a lifecycle environment, and a file to open:
+
+[source,bash]
+----
+hop gui -j samples -f '{openvar}PROJECT_HOME{closevar}/transforms/add-a-checksum.hpl'
+hop gui -e production -f long-running-test.hpl
+----
+
+Relative filenames are resolved against the current directory, then against `{openvar}PROJECT_HOME{closevar}` once the project is enabled.
+
+The same `-j`, `-e` and `-f` options work with `hop-gui.sh` / `hop-gui.bat`.
+
+.Usage
+[%collapsible]
+=====
+
+.Output of help
+[source,bash]
+----
+Usage: hop gui [-hV] [-im] [-e=<environmentOption>] [-f=<filename>]
+               [-j=<projectOption>]
+               [--environment-conf-files=<environmentConfigFiles>[,
+               <environmentConfigFiles>...]]... [--environments=<environments>[,
+               <environments>...]]... [-pl=<projectLocations>[,
+               <projectLocations>...]]...
+The Hop GUI
+  -e, --environment=<environmentOption>
+                          The name of the lifecycle environment to use
+  -f, --file=<filename>   The filename of the workflow or pipeline to open
+  -h, --help              Show this help message and exit.
+      -im, --in-memory    Keep configuration in memory without persisting to
+                            hop-config.json
+  -j, --project=<projectOption>
+                          The name of the project to use
+      -pl, --project-locations=<projectLocations>[,<projectLocations>...]
+                          Comma-separated list of project locations
+                            (name=location or archive files)
+  -V, --version           Print version information and exit.
+----
+
+The available options are listed in more detail in the table below:
+
+[options="header"]
+|===
+|Short|Extended|Description
+|`-e`|`--environment`|The name of the lifecycle environment to enable. The project name is taken from that environment, so you do not need `-j` as well. See xref:projects/projects-environments.adoc[Projects and Environments].
+|`-f`|`--file`|The filename of the workflow or pipeline to open. Relative paths are resolved against the current directory, then `{openvar}PROJECT_HOME{closevar}`.
+|`-h`|`--help`|Displays this help message and quits.
+|`-im`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`.
+|`-j`|`--project`|The name of the project to enable. Not needed when `-e` is set.
+|`-pl`|`--project-locations`|Comma-separated project locations to register for this process only (`name=/path` or a zip/jar). See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json].
+||`--environments`|Comma-separated environment definitions (`name=[project:]file1;file2`) registered in memory for this process.
+||`--environment-conf-files` / `--environment-config-files`|Extra environment configuration files to apply to the enabled project or environment.
+|`-V`|`--version`|Print version information and exit.
+|===
+
+=====
+
+To open a project that is not listed in `hop-config.json`:
+
+[source,bash]
+----
+hop --project-locations my-project=/path/to/project gui -j my-project -f pipeline.hpl
+----

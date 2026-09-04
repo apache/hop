@@ -29,6 +29,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.projects.config.ProjectsConfig;
 
 public class ProjectConfig {
 
@@ -131,21 +132,36 @@ public class ProjectConfig {
                 + "' does not exist");
       }
       String actualConfigFilename = variables.resolve(getConfigFilename());
+      if (StringUtils.isEmpty(actualConfigFilename)) {
+        actualConfigFilename = ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+      }
+      FileObject configFile = actualHome.resolveFile(actualConfigFilename);
+      if (!configFile.exists()) {
+        String[] candidates =
+            new String[] {
+              ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME,
+              "hop-project.config",
+              "hop-config.json"
+            };
+        for (String candidate : candidates) {
+          FileObject cand = actualHome.resolveFile(candidate);
+          if (cand.exists()) {
+            configFile = cand;
+            actualConfigFilename = candidate;
+            break;
+          }
+        }
+      }
       // Use VFS resolve so archive/HTTP URIs work (FilenameUtils.concat mangles schemes).
       // For plain local paths keep the previous FilenameUtils behaviour for compatibility.
       //
       String scheme = actualHome.getName().getScheme();
       if (scheme != null && !"file".equalsIgnoreCase(scheme)) {
-        FileObject configFile = actualHome.resolveFile(actualConfigFilename);
         return configFile.getName().getURI();
       }
       String fullFilename = FilenameUtils.concat(actualHome.toString(), actualConfigFilename);
       if (fullFilename == null) {
-        throw new HopException(
-            "Unable to determine full path to the configuration file '"
-                + actualConfigFilename
-                + "' in home folder '"
-                + actualHomeFolder);
+        return configFile.getName().getPath();
       }
       return fullFilename;
     } catch (Exception e) {

@@ -175,6 +175,48 @@ System property `HOP_CONFIG_FOLDER` can also be used to point to a different fol
 
 &nbsp; +
 
+== Use a project without hop-config.json
+
+You can run or open a project for a single process without adding it to `hop-config.json`.
+Hop registers the project in memory, points metadata at `{openvar}PROJECT_HOME{closevar}/metadata`, and does not write the registration back to disk.
+
+This is useful when the project is provided by another system (a checkout, a zip, a container mount) and you do not want to mutate the Hop configuration.
+
+[source,bash]
+----
+hop --project-locations my-project=/path/to/project run -f pipeline.hpl -r local
+hop --project-locations my-project=/path/to/project gui -j my-project -f pipeline.hpl
+----
+
+`--project-locations` (short `-pl`) accepts a comma-separated list of:
+
+* `name=/path/to/folder`
+* `name=/path/to/archive.zip` or `name=/path/to/archive.jar` (opened read-only through VFS)
+* `name=/path/to/folder:custom-config.json` when the project file is not `project-config.json`
+* a bare folder or archive (the project name is taken from the folder or archive name)
+
+When more than one project is listed, Hop enables the leaf project (a child that references a parent).
+Parent metadata is still inherited.
+
+Optional environment files for that process:
+
+[source,bash]
+----
+hop --project-locations edw=/data/edw --environments edw-prod=/data/edw-prod.json \
+    run -e edw-prod -f load.hpl -r local
+----
+
+`--environments` uses `name=[project:]file1;file2`.
+If the project name is omitted, Hop infers it from the registered projects.
+`--environment-conf-files` (also `--environment-config-files`) adds extra variable files to the enabled project or environment.
+
+`-im` / `--in-memory` keeps Hop configuration in memory even when you are not using `--project-locations`.
+The same behaviour can be enabled with the `{openvar}HOP_CONFIG_IN_MEMORY{closevar}` system variable set to `Y`.
+
+These options are available on the `hop` root command (so they apply before `run`, `gui`, `search`, and so on) and on the subcommands themselves (`hop run -pl ...`, `hop gui -pl ...`).
+
+See xref:hop-tools/hop.adoc[hop], xref:hop-run/index.adoc[hop run] and xref:hop-tools/hop-gui.adoc[hop gui] for the full option lists.
+
 == Command Line Project Configuration
 
 In addition to the Hop Gui and configuration files, all aspects of and operations on projects and environments can be managed through the Hop Conf command line tool.
