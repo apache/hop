@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -112,6 +113,7 @@ public class ActionFilesExistDialog extends ActionDialog {
         };
 
     columns[0].setUsingVariables(true);
+    columns[0].setNamingSchemeType(NamingSchemeTypes.FILE);
     columns[0].setToolTip(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Column"));
     columns[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     columns[1].setUsingVariables(true);

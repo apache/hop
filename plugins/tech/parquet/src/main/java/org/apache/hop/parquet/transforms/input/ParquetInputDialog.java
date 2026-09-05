@@ -96,7 +96,9 @@ public class ParquetInputDialog extends BaseTransformDialog {
     fdlMetaFilename.right = new FormAttachment(middle, -margin);
     fdlMetaFilename.top = new FormAttachment(lastControl, margin);
     wlMetaFilename.setLayoutData(fdlMetaFilename);
-    wMetaFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMetaFilename =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wMetaFilename);
     FormData fdMetaFilename = new FormData();
     fdMetaFilename.left = new FormAttachment(middle, 0);

@@ -130,7 +130,6 @@ public class ComboVar extends Composite {
         new ControlSpaceKeyAdapter(
             variables, wCombo, getCaretPositionInterface, insertTextInterface);
     wCombo.addKeyListener(controlSpaceKeyAdapter);
-    attachNamingShortcut();
   }
 
   /**
@@ -190,6 +189,11 @@ public class ComboVar extends Composite {
     }
     relayoutCombo();
     return this;
+  }
+
+  public ComboVar asNameField(String type) {
+    setVariablesEnabled(false);
+    return enableNamingSchemes(type);
   }
 
   public String getNamingSchemeType() {

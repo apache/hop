@@ -61,14 +61,15 @@ public final class NamingSchemeColumnApplier implements INamingSchemeColumnAppli
         if (scheme == null) {
           continue;
         }
-        applyColumn(tableView, i + offset, scheme);
+        applyColumn(tableView, i + offset, scheme, typeCode);
       }
     } catch (Exception e) {
       // Get Fields should still succeed when metadata is unavailable
     }
   }
 
-  private static void applyColumn(TableView tableView, int colNr, NamingScheme scheme) {
+  private static void applyColumn(
+      TableView tableView, int colNr, NamingScheme scheme, String typeCode) {
     List<TableItem> items = tableView.getNonEmptyItems();
     if (items.isEmpty()) {
       return;
@@ -83,7 +84,7 @@ public final class NamingSchemeColumnApplier implements INamingSchemeColumnAppli
       if (NamingSchemeShortcut.shouldSkip(current)) {
         newValues[i] = current;
       } else {
-        String rewritten = NamingEngine.apply(scheme, current);
+        String rewritten = NamingEngine.apply(scheme, current, typeCode);
         newValues[i] = rewritten != null ? rewritten : current;
         changed |= !current.equals(newValues[i]);
       }

@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -135,6 +136,7 @@ public class HopDescribedVariablesDialog extends Dialog {
           false,
           false),
     };
+    columns[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     columns[2].setDisabledListener(rowNr -> false);
 
     // Fields between the label and the buttons

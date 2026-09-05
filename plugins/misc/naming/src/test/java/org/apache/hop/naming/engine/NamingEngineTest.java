@@ -18,7 +18,9 @@
 package org.apache.hop.naming.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.naming.metadata.NamingCaseStyle;
 import org.apache.hop.naming.metadata.NamingScheme;
@@ -101,6 +103,36 @@ class NamingEngineTest {
   }
 
   @Test
+  void spaceSeparator() {
+    NamingScheme scheme = new NamingScheme();
+    scheme.setCaseStyle(NamingCaseStyle.LOWER.getCode());
+    scheme.setWordSeparator(NamingWordSeparator.SPACE.getCode());
+    assertEquals("order id", NamingEngine.apply(scheme, "Order ID"));
+    assertEquals("read customers", NamingEngine.apply(scheme, "read_customers"));
+  }
+
+  @Test
+  void capitalizeFirstWordWithSpace() {
+    NamingScheme scheme = new NamingScheme();
+    scheme.setCaseStyle(NamingCaseStyle.LOWER.getCode());
+    scheme.setWordSeparator(NamingWordSeparator.SPACE.getCode());
+    scheme.setCapitalizeFirstWord(true);
+    assertEquals("Table input", NamingEngine.apply(scheme, "table_input"));
+    assertEquals("Read customers", NamingEngine.apply(scheme, "read_customers"));
+    assertEquals("Order id", NamingEngine.apply(scheme, "Order ID"));
+  }
+
+  @Test
+  void capitalizeFirstWordLeavesAlreadyCapital() {
+    NamingScheme scheme = new NamingScheme();
+    scheme.setCaseStyle(NamingCaseStyle.AS_IS.getCode());
+    scheme.setWordSeparator(NamingWordSeparator.SPACE.getCode());
+    scheme.setRemoveSpecialCharacters(false);
+    scheme.setCapitalizeFirstWord(true);
+    assertEquals("Table Input", NamingEngine.apply(scheme, "Table Input"));
+  }
+
+  @Test
   void prefixAndSuffix() {
     NamingScheme scheme = lowerUnderscore();
     scheme.setPrefix("fld_");
@@ -117,6 +149,55 @@ class NamingEngineTest {
   @Test
   void nullSchemeUsesDefaults() {
     assertEquals("order_id", NamingEngine.apply(null, "Order ID"));
+  }
+
+  @Test
+  void fileKeepsParentAndExtension() {
+    NamingScheme scheme = lowerUnderscore();
+    scheme.setType("file");
+    assertEquals("/data/order_id.csv", NamingEngine.apply(scheme, "/data/Order ID.csv", "file"));
+    assertEquals(
+        "s3://bucket/dir/my_file.csv",
+        NamingEngine.apply(scheme, "s3://bucket/dir/My File.csv", "file"));
+    assertEquals(
+        "C:\\data\\order_id.csv", NamingEngine.apply(scheme, "C:\\data\\Order ID.csv", "file"));
+    assertEquals("order_id.csv", NamingEngine.apply(scheme, "Order ID.csv", "file"));
+  }
+
+  @Test
+  void fileGeneralSchemeStillUsesKind() {
+    NamingScheme scheme = lowerUnderscore();
+    scheme.setType("general");
+    assertEquals("/data/order_id.csv", NamingEngine.apply(scheme, "/data/Order ID.csv", "file"));
+  }
+
+  @Test
+  void fileDoesNotSplitLeadingDot() {
+    NamingScheme scheme = lowerUnderscore();
+    scheme.setRemoveSpecialCharacters(false);
+    assertEquals("/data/.htaccess", NamingEngine.apply(scheme, "/data/.htaccess", "file"));
+  }
+
+  @Test
+  void folderKeepsParentAndTrailingSlash() {
+    NamingScheme scheme = lowerUnderscore();
+    scheme.setType("folder");
+    assertEquals("/data/my_folder", NamingEngine.apply(scheme, "/data/My Folder", "folder"));
+    assertEquals("/data/my_folder/", NamingEngine.apply(scheme, "/data/My Folder/", "folder"));
+    assertEquals("my_folder", NamingEngine.apply(scheme, "My Folder", "folder"));
+  }
+
+  @Test
+  void folderDoesNotSplitExtension() {
+    NamingScheme scheme = lowerUnderscore();
+    scheme.setRemoveSpecialCharacters(false);
+    assertEquals("/data/my.folder", NamingEngine.apply(scheme, "/data/My.Folder", "folder"));
+  }
+
+  @Test
+  void shouldSkipVariables() {
+    assertTrue(NamingEngine.shouldSkip("${PROJECT_HOME}/Order ID.csv"));
+    assertFalse(NamingEngine.shouldSkip("/data/Order ID.csv"));
   }
 
   private static NamingScheme lowerUnderscore() {

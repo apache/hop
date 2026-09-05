@@ -514,6 +514,7 @@ public class WorkflowDialog extends Dialog {
             BaseMessages.getString(PKG, "WorkflowDialog.ColumnInfo.Parameter.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "WorkflowDialog.ColumnInfo.Default.Label"),

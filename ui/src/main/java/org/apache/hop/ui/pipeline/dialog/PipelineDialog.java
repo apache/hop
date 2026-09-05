@@ -573,6 +573,7 @@ public class PipelineDialog extends Dialog {
             BaseMessages.getString(PKG, "PipelineDialog.ColumnInfo.Parameter.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "PipelineDialog.ColumnInfo.Default.Label"),

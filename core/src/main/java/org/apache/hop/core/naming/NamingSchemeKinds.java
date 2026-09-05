@@ -22,8 +22,19 @@ import org.apache.commons.lang3.StringUtils;
 /** Helpers for {@link NamingSchemeKind} and field-level naming type codes. */
 public final class NamingSchemeKinds {
 
+  public static final String FILE = "file";
+  public static final String FOLDER = "folder";
+
   private NamingSchemeKinds() {
     // utility
+  }
+
+  public static boolean isFile(String kind) {
+    return FILE.equalsIgnoreCase(kind);
+  }
+
+  public static boolean isFolder(String kind) {
+    return FOLDER.equalsIgnoreCase(kind);
   }
 
   /**

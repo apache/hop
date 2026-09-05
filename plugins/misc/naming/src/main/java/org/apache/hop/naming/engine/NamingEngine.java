@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.naming.NamingSchemeKinds;
 import org.apache.hop.naming.metadata.NamingCaseStyle;
 import org.apache.hop.naming.metadata.NamingScheme;
 import org.apache.hop.naming.metadata.NamingWordSeparator;
@@ -36,13 +37,6 @@ public final class NamingEngine {
   }
 
   /**
-   * Apply the scheme to {@code input}. Null input returns null; empty input returns empty.
-   *
-   * @param scheme naming rules (null is treated as default hop-field snake_case-ish scheme)
-   * @param input original name
-   * @return transformed name
-   */
-  /**
    * Names that must not be rewritten: empty, table null markers, and values that already contain a
    * variable expression.
    */
@@ -53,7 +47,20 @@ public final class NamingEngine {
     return value.contains("${");
   }
 
+  /**
+   * Apply the scheme as an identifier. Prefer {@link #apply(NamingScheme, String, String)} when the
+   * widget kind is known so file/folder paths keep their parent and (for files) extension.
+   */
   public static String apply(NamingScheme scheme, String input) {
+    return apply(scheme, input, scheme != null ? scheme.getType() : null);
+  }
+
+  /**
+   * Apply the scheme using {@code kind} to decide path handling. {@code kind} is the widget/field
+   * type ({@code file}, {@code folder}, {@code hop-field}, …), not necessarily the scheme's own
+   * type — a General scheme on a file widget still rewrites only the last path segment.
+   */
+  public static String apply(NamingScheme scheme, String input, String kind) {
     if (input == null) {
       return null;
     }
@@ -62,6 +69,44 @@ public final class NamingEngine {
     }
 
     NamingScheme effective = scheme != null ? scheme : new NamingScheme();
+    if (NamingSchemeKinds.isFile(kind)) {
+      return applyToLastSegment(effective, input, true);
+    }
+    if (NamingSchemeKinds.isFolder(kind)) {
+      return applyToLastSegment(effective, input, false);
+    }
+    return applyToIdentifier(effective, input);
+  }
+
+  private static String applyToLastSegment(
+      NamingScheme scheme, String input, boolean preserveExtension) {
+    boolean trailingSlash = input.endsWith("/") || input.endsWith("\\");
+    String working = trailingSlash ? input.substring(0, input.length() - 1) : input;
+    if (working.isEmpty()) {
+      return input;
+    }
+
+    int lastSep = Math.max(working.lastIndexOf('/'), working.lastIndexOf('\\'));
+    String parent = lastSep >= 0 ? working.substring(0, lastSep + 1) : "";
+    String segment = lastSep >= 0 ? working.substring(lastSep + 1) : working;
+    String extension = "";
+    if (preserveExtension) {
+      int dot = segment.lastIndexOf('.');
+      if (dot > 0) {
+        extension = segment.substring(dot);
+        segment = segment.substring(0, dot);
+      }
+    }
+    if (segment.isEmpty()) {
+      return input;
+    }
+
+    String rewritten = applyToIdentifier(scheme, segment);
+    String slash = trailingSlash ? String.valueOf(input.charAt(input.length() - 1)) : "";
+    return parent + rewritten + extension + slash;
+  }
+
+  private static String applyToIdentifier(NamingScheme effective, String input) {
     NamingCaseStyle caseStyle = NamingCaseStyle.fromCode(effective.getCaseStyle());
     NamingWordSeparator wordSeparator = NamingWordSeparator.fromCode(effective.getWordSeparator());
 
@@ -75,7 +120,23 @@ public final class NamingEngine {
 
     String joined = joinWords(words, caseStyle, wordSeparator);
     joined = postProcessSeparators(joined, wordSeparator, effective);
+    if (effective.isCapitalizeFirstWord()) {
+      joined = capitalizeFirstWord(joined);
+    }
     return applyAffixes(effective, joined);
+  }
+
+  /** Uppercase the first character of {@code value} (the start of the first word). */
+  static String capitalizeFirstWord(String value) {
+    if (value.isEmpty()) {
+      return value;
+    }
+    char first = value.charAt(0);
+    char upper = Character.toUpperCase(first);
+    if (first == upper) {
+      return value;
+    }
+    return upper + value.substring(1);
   }
 
   static List<String> splitWords(String input, String extraDelimiters) {

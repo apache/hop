@@ -418,6 +418,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
             false);
     colinfo[0].setUsingVariables(true);
+    colinfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
     colinfo[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     colinfo[1] =
         new ColumnInfo(

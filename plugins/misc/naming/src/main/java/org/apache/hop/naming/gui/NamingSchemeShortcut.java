@@ -17,9 +17,12 @@
 
 package org.apache.hop.naming.gui;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -30,12 +33,14 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.naming.engine.NamingEngine;
 import org.apache.hop.naming.metadata.NamingScheme;
 import org.apache.hop.naming.metadata.NamingSchemeSelector;
+import org.apache.hop.naming.metadata.NamingSchemeType;
+import org.apache.hop.naming.metadata.NamingWordSeparator;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ITextWidgetShortcut;
 import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TextWidgetShortcutContext;
 import org.apache.hop.ui.core.widget.TextWidgetShortcutRegistry;
@@ -87,6 +92,9 @@ public class NamingSchemeShortcut implements IExtensionPoint, ITextWidgetShortcu
     }
 
     String typeCode = context.getNamingSchemeType();
+    if (StringUtils.isEmpty(typeCode)) {
+      return;
+    }
     Shell shell = context.getShell();
     if (shell == null || shell.isDisposed()) {
       return;
@@ -102,8 +110,8 @@ public class NamingSchemeShortcut implements IExtensionPoint, ITextWidgetShortcu
       if (chosen == null) {
         return;
       }
-      lastUsedByType.put(typeCode, chosen.getName());
-      String rewritten = NamingEngine.apply(chosen, current);
+      rememberLastUsed(typeCode, chosen.getName());
+      String rewritten = NamingEngine.apply(chosen, current, typeCode);
       if (rewritten != null && !rewritten.equals(current)) {
         context.getSetText().accept(rewritten);
       }
@@ -126,20 +134,10 @@ public class NamingSchemeShortcut implements IExtensionPoint, ITextWidgetShortcu
       return;
     }
     String typeCode = context.getNamingSchemeType();
+    if (StringUtils.isEmpty(typeCode)) {
+      return;
+    }
     try {
-      List<NamingScheme> schemes = loadSchemes(typeCode);
-      if (schemes.isEmpty()) {
-        MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-        box.setText(BaseMessages.getString(PKG, "Naming.NoSchemes.Title"));
-        box.setMessage(BaseMessages.getString(PKG, "Naming.NoSchemes.Message"));
-        box.open();
-        return;
-      }
-      NamingScheme chosen = pickSchemeToOpen(shell, schemes, typeCode);
-      if (chosen == null) {
-        return;
-      }
-      lastUsedByType.put(typeCode, chosen.getName());
       IVariables vars =
           context.getVariables() != null
               ? context.getVariables()
@@ -147,7 +145,17 @@ public class NamingSchemeShortcut implements IExtensionPoint, ITextWidgetShortcu
       MetadataManager<NamingScheme> manager =
           new MetadataManager<>(
               vars, HopGui.getInstance().getMetadataProvider(), NamingScheme.class, shell);
-      manager.editMetadata(chosen.getName());
+      List<NamingScheme> schemes = loadSchemes(typeCode);
+      if (schemes.isEmpty()) {
+        createAndEditScheme(manager, typeCode);
+        return;
+      }
+      NamingScheme chosen = pickSchemeToOpen(shell, schemes, typeCode);
+      if (chosen == null) {
+        return;
+      }
+      rememberLastUsed(typeCode, chosen.getName());
+      manager.editMetadataInDialog(chosen.getName());
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -161,6 +169,63 @@ public class NamingSchemeShortcut implements IExtensionPoint, ITextWidgetShortcu
    * Skip empty cells, table null markers, and values that already contain a variable expression so
    * NamingEngine cannot chew {@code ${...}}.
    */
+  private void createAndEditScheme(MetadataManager<NamingScheme> manager, String typeCode)
+      throws Exception {
+    IHopMetadataSerializer<NamingScheme> serializer =
+        HopGui.getInstance().getMetadataProvider().getSerializer(NamingScheme.class);
+    NamingScheme created = newSchemeForType(typeCode);
+    created.setName(
+        uniqueSchemeName(NamingSchemeType.displayFromCode(typeCode), serializer.listObjectNames()));
+    NamingScheme saved = manager.newMetadata(created);
+    if (saved != null) {
+      rememberLastUsed(typeCode, saved.getName());
+    }
+  }
+
+  /**
+   * New scheme of {@code typeCode}. Transform and action schemes default to lower case, space
+   * separator, and capitalize first word.
+   */
+  static NamingScheme newSchemeForType(String typeCode) {
+    NamingScheme scheme = new NamingScheme();
+    scheme.setType(typeCode);
+    if (NamingSchemeTypes.HOP_TRANSFORM.equals(typeCode)
+        || NamingSchemeTypes.HOP_ACTION.equals(typeCode)) {
+      scheme.setWordSeparator(NamingWordSeparator.SPACE.getCode());
+      scheme.setCapitalizeFirstWord(true);
+    }
+    return scheme;
+  }
+
+  static String uniqueSchemeName(String preferred, Iterable<String> existing) {
+    String base = StringUtils.isNotEmpty(preferred) ? preferred : "Naming Scheme";
+    Set<String> taken = new HashSet<>();
+    if (existing != null) {
+      for (String name : existing) {
+        if (name != null) {
+          taken.add(name);
+        }
+      }
+    }
+    if (!taken.contains(base)) {
+      return base;
+    }
+    int n = 2;
+    String candidate;
+    do {
+      candidate = base + " " + n++;
+    } while (taken.contains(candidate));
+    return candidate;
+  }
+
+  /** ConcurrentHashMap rejects null keys and values. */
+  void rememberLastUsed(String typeCode, String schemeName) {
+    if (StringUtils.isEmpty(typeCode) || StringUtils.isEmpty(schemeName)) {
+      return;
+    }
+    lastUsedByType.put(typeCode, schemeName);
+  }
+
   static boolean shouldSkip(String value) {
     return NamingEngine.shouldSkip(value);
   }
@@ -219,7 +284,7 @@ public class NamingSchemeShortcut implements IExtensionPoint, ITextWidgetShortcu
     String last = lastUsedByType.get(typeCode);
     for (int i = 0; i < schemes.size(); i++) {
       NamingScheme scheme = schemes.get(i);
-      String preview = NamingEngine.apply(scheme, input);
+      String preview = NamingEngine.apply(scheme, input, typeCode);
       labels[i] = scheme.getName() + "  →  " + preview;
       if (last != null && last.equals(scheme.getName())) {
         preselect = i;

@@ -604,6 +604,7 @@ public class ProjectDialog extends Dialog {
               false),
         };
     columnInfo[0].setUsingVariables(true);
+    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     columnInfo[1].setUsingVariables(true);
 
     wVariables =

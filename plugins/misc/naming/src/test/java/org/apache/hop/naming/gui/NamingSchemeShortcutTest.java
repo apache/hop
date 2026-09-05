@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import org.apache.hop.naming.metadata.NamingScheme;
 import org.apache.hop.naming.metadata.NamingSchemeType;
+import org.apache.hop.naming.metadata.NamingWordSeparator;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +38,44 @@ class NamingSchemeShortcutTest {
     assertTrue(NamingSchemeShortcut.shouldSkip("${TABLE_NAME}"));
     assertTrue(NamingSchemeShortcut.shouldSkip("prefix_${VAR}_suffix"));
     assertFalse(NamingSchemeShortcut.shouldSkip("Order ID"));
+  }
+
+  @Test
+  void rememberLastUsedIgnoresNulls() {
+    NamingSchemeShortcut shortcut = NamingSchemeShortcut.INSTANCE;
+    shortcut.rememberLastUsed(null, "scheme");
+    shortcut.rememberLastUsed("file", null);
+    shortcut.rememberLastUsed("", "scheme");
+    shortcut.rememberLastUsed("file", "scheme");
+  }
+
+  @Test
+  void newSchemeForTypeSetsActionDefaults() {
+    NamingScheme scheme = NamingSchemeShortcut.newSchemeForType(NamingSchemeTypes.HOP_ACTION);
+    assertEquals(NamingSchemeTypes.HOP_ACTION, scheme.getType());
+    assertEquals(NamingWordSeparator.SPACE.getCode(), scheme.getWordSeparator());
+    assertTrue(scheme.isCapitalizeFirstWord());
+  }
+
+  @Test
+  void newSchemeForTypeKeepsFieldDefaults() {
+    NamingScheme scheme = NamingSchemeShortcut.newSchemeForType(NamingSchemeTypes.HOP_FIELD);
+    assertEquals(NamingSchemeTypes.HOP_FIELD, scheme.getType());
+    assertEquals(NamingWordSeparator.UNDERSCORE.getCode(), scheme.getWordSeparator());
+    assertFalse(scheme.isCapitalizeFirstWord());
+  }
+
+  @Test
+  void uniqueSchemeNameAddsSuffixWhenTaken() {
+    assertEquals(
+        "Hop action names", NamingSchemeShortcut.uniqueSchemeName("Hop action names", List.of()));
+    assertEquals(
+        "Hop action names 2",
+        NamingSchemeShortcut.uniqueSchemeName("Hop action names", List.of("Hop action names")));
+    assertEquals(
+        "Hop action names 3",
+        NamingSchemeShortcut.uniqueSchemeName(
+            "Hop action names", List.of("Hop action names", "Hop action names 2")));
   }
 
   @Test

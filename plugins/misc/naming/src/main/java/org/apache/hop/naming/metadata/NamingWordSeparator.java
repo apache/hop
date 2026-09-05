@@ -24,7 +24,8 @@ import org.apache.hop.i18n.BaseMessages;
 public enum NamingWordSeparator {
   EMPTY("empty", "", "NamingWordSeparator.Empty"),
   UNDERSCORE("underscore", "_", "NamingWordSeparator.Underscore"),
-  DASH("dash", "-", "NamingWordSeparator.Dash");
+  DASH("dash", "-", "NamingWordSeparator.Dash"),
+  SPACE("space", " ", "NamingWordSeparator.Space");
 
   private static final Class<?> PKG = NamingScheme.class;
 

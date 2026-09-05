@@ -164,7 +164,7 @@ public class TableViewNamingToolbarButton {
         if (NamingSchemeShortcut.shouldSkip(current)) {
           newValues[i] = current;
         } else {
-          newValues[i] = NamingEngine.apply(scheme, current);
+          newValues[i] = NamingEngine.apply(scheme, current, typeCode);
         }
       }
 

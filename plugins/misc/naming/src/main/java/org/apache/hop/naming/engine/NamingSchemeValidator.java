@@ -53,7 +53,7 @@ public final class NamingSchemeValidator {
       return findings;
     }
     for (NamingScheme scheme : applicable) {
-      String expected = NamingEngine.apply(scheme, value);
+      String expected = NamingEngine.apply(scheme, value, typeCode);
       if (expected != null && !expected.equals(value)) {
         Finding finding = new Finding();
         finding.severity = Severity.ERROR;

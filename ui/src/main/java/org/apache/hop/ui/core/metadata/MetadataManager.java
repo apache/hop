@@ -162,6 +162,21 @@ public class MetadataManager<T extends IHopMetadata> {
    * @return True, if anything was changed
    */
   public boolean editMetadata(String elementName) {
+    return editMetadata(elementName, false);
+  }
+
+  /**
+   * Edit an element in a modal dialog even when the metadata perspective is active. Use this when
+   * the caller is already editing something else (for example the naming-scheme N indicator).
+   *
+   * @param elementName The name of the element to edit
+   * @return True if anything was changed
+   */
+  public boolean editMetadataInDialog(String elementName) {
+    return editMetadata(elementName, true);
+  }
+
+  private boolean editMetadata(String elementName, boolean forceDialog) {
 
     if (StringUtils.isEmpty(elementName)) {
       return false;
@@ -189,9 +204,10 @@ public class MetadataManager<T extends IHopMetadata> {
 
       // Open this element in the metadata perspective if that one is active. The perspective is
       // absent when it is switched off in disabledGuiElements.xml, and we fall back to the dialog.
+      // Callers already editing another object pass forceDialog so we do not steal a tab.
       //
       MetadataPerspective perspective = HopGui.getMetadataPerspective();
-      if (perspective != null && perspective.isActive()) {
+      if (!forceDialog && perspective != null && perspective.isActive()) {
         perspective.addEditor(editor);
         return false;
       } else {

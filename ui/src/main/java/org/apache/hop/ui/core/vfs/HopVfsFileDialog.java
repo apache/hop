@@ -356,7 +356,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         navigateToolBarContainer, NAVIGATE_TOOLBAR_PARENT_ID);
     navigateToolBar.pack();
 
-    wFilename = new TextVar(variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(
+                browsingDirectories ? NamingSchemeTypes.FOLDER : NamingSchemeTypes.FILE);
     wFilename.addListener(SWT.DefaultSelection, e -> enteredFilenameOrFolder());
     wFilename.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     PropsUi.setLook(wFilename);

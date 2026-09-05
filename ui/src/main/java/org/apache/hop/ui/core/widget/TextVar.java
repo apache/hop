@@ -204,7 +204,6 @@ public class TextVar extends Composite {
         new ControlSpaceKeyAdapter(
             variables, wText, getCaretPositionInterface, insertTextInterface);
     wText.addKeyListener(controlSpaceKeyAdapter);
-    attachNamingShortcut();
   }
 
   /**

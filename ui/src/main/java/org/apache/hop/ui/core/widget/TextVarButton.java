@@ -117,7 +117,6 @@ public class TextVarButton extends TextVar {
         new ControlSpaceKeyAdapter(
             variables, wText, getCaretPositionInterface, insertTextInterface);
     wText.addKeyListener(controlSpaceKeyAdapter);
-    attachNamingShortcut();
   }
 
   @Override

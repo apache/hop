@@ -23,13 +23,15 @@ under the License.
 == Description
 
 A *Naming Scheme* describes how free-form names should be turned into consistent identifiers.
-Typical uses include cleaning field names that arrive with spaces (for example `Order ID` → `order_id`) and applying a shared project convention (snake_case, camelCase, PascalCase, and so on).
+Typical uses include cleaning field names that arrive with spaces (for example `Order ID` → `order_id`), normalizing file or folder names, and applying a shared project convention (snake_case, camelCase, PascalCase, and so on).
 
 Naming Schemes are managed as project metadata. Apply one without adding buttons to every dialog:
 
-* **N indicator** -- widgets that accept a naming scheme show a small *N* on the right (same diamond plate as `$` for variables and `#` for expanded integers). Click *N* to open the matching scheme in a dialog. If several schemes of that type exist, pick one first.
+* **N indicator** -- widgets that accept a naming scheme show a small *N* on the right (same diamond plate as `$` for variables and `#` for expanded integers). Click *N* to open the matching scheme in a dialog. If several schemes of that type exist, pick one first. If none exist, Hop creates a new scheme of that type and opens it.
 * **Keyboard shortcut** -- `CTRL-SHIFT-N` on a name field (transform/action name, field cell, table name, file name, …) lists schemes of the matching type and replaces the current identifier. When the field does *not* accept variables, `CTRL-SPACE` does the same thing.
 * **TableView toolbar** -- **Apply a Naming Scheme to a column** still rewrites a whole column at once (with undo).
+
+image:metadata-types/naming-scheme-indicator.png[Naming Scheme N indicator]
 
 If only one scheme of the required type exists, apply and open both skip the picker.
 
@@ -41,7 +43,11 @@ CSV File Input and Text File Input have an optional *Naming scheme* field. When 
 
 If the field is empty, Get Fields still auto-applies when exactly one matching scheme exists (a type-specific hop-field scheme, or a General scheme). The same automatic apply runs after Get Fields in other dialogs that fill annotated name columns (Excel, Parquet, Select Values, and so on).
 
-NOTE: Transform, action, pipeline, workflow and metadata name fields use the shortcut with *variable insertion disabled* -- they stay identifiers, not `${...}` expressions. They still show *N*, not `$`.
+NOTE: Transform, action, pipeline, workflow and metadata name fields use the shortcut with *variable insertion disabled* -- they stay identifiers, not `'${...}'` expressions. They still show *N*, not `$`.
+
+Annotated *filename* and *folder* widgets (run configurations, execution information locations, and so on) show *N* automatically. Filename widgets still accept variables (`CTRL-SPACE`); `CTRL-SHIFT-N` rewrites the last path segment only.
+
+Variable *names* (project described variables, pipeline and workflow parameters, Set Variables) use the *Hop variable names* type. Values that already contain `'${...}'` are left unchanged.
 
 == Options
 
@@ -54,9 +60,10 @@ The screenshot above shows a scheme named `lowercase-dashes`: lower case words j
 |Option|Description
 |Name|Unique metadata name of this scheme.
 |Description|Optional free-text description.
-|Type|Target kind. *General* applies to every name field unless a scheme of the widget's specific type exists (Hop field, transform, action, pipeline, workflow, metadata, variable, database table, database column, file, or folder).
+|Type|Target kind. *General* applies to every name field unless a scheme of the widget's specific type exists (Hop field, transform, action, pipeline, workflow, metadata, variable, database table, database column, file, or folder). *File* schemes rewrite only the last path segment and keep the parent folder and the file extension (`/data/Order ID.csv` → `/data/order_id.csv`). *Folder* schemes rewrite the last segment and keep the parent path (and a trailing slash).
 |Case style|`As is`, `Lower case`, `Upper case`, `camelCase`, or `PascalCase`.
-|Word separator|How words are joined when not using camel/Pascal case: none, underscore (`_`), or dash (`-`).
+|Word separator|How words are joined when not using camel/Pascal case: none, underscore (`_`), dash (`-`), or space.
+|Capitalize first word|When enabled, uppercase the first character of the first word. Typical for transform and action names with a space separator (`Table input`).
 |Extra delimiters|Additional characters treated as word boundaries (beyond spaces, `_`, `-`, and camelCase edges).
 |Remove special characters|When enabled, strip non letter/digit characters from each word.
 |Collapse repeated separators|When enabled, collapse repeated separators such as `__` to a single separator.
@@ -76,17 +83,25 @@ The screenshot above shows a scheme named `lowercase-dashes`: lower case words j
 |`Order ID`|PascalCase|_|`OrderId`
 |`order-id`|Upper case|Underscore (`_`)|`ORDER_ID`
 |`Order ID`|Lower case|Dash (`-`)|`order-id`
+|`read_customers`|Lower case|Space|`read customers`
+|`read_customers` (capitalize first word)|Lower case|Space|`Read customers`
+|`/data/Order ID.csv` (file type)|Lower case|Underscore (`_`)|`/data/order_id.csv`
+|`/data/My Folder/` (folder type)|Lower case|Underscore (`_`)|`/data/my_folder/`
 |===
 
 == Applying from a name field
 
+The screenshot below shows an action name field with the *N* indicator. Hover it for the shortcut reminder; click it to open the scheme in a dialog.
+
+image:metadata-types/naming-scheme-indicator-and-tooltip.png[Action name field with Naming Scheme indicator and tooltip, width="90%"]
+
 . Create at least one Naming Scheme in the Metadata perspective (pick the type that matches the field).
-. Focus a name widget -- transform name, action name, a field-name cell, a table name, a file name, …
+. Focus a name widget -- transform name, action name, a field-name cell, a table name, a file or folder path, a variable or parameter name, …
 . Press `CTRL-SHIFT-N` (or `CTRL-SPACE` on name fields that do not accept variables).
 . If several schemes of that type exist, pick one. The list shows a live preview (`Order ID → order_id`).
 . The current identifier is replaced. Values that already contain `${...}` are left unchanged.
 
-To review or change the rules instead of applying them, click the *N* indicator. That opens the scheme editor (or a picker when more than one scheme matches the field type).
+To review or change the rules instead of applying them, click the *N* indicator. That opens the scheme in a dialog (or a picker when more than one scheme matches the field type). It does not open another tab in the metadata perspective. If no scheme of that type (and no General scheme) exists yet, Hop creates one of the matching type and opens it for you to save.
 
 The same shortcut works on *F2* inline rename in the Metadata and File Explorer trees (metadata names, file names, and folder names). There is no *N* indicator on those tiny tree editors -- press `CTRL-SHIFT-N` after F2.
 

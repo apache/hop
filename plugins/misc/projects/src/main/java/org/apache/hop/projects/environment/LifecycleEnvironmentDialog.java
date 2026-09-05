@@ -356,6 +356,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
               false),
         };
     columnInfo[0].setUsingVariables(true);
+    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
 
     wConfigFiles =
         new TableView(
