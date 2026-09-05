@@ -27,6 +27,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Control;
@@ -155,7 +156,7 @@ public final class SashFormMemory {
    * startup).
    */
   public static void resetAll() {
-    Display display = Display.getCurrent();
+    Display display = SessionDisplay.current();
     if (display == null || display.isDisposed()) {
       return;
     }

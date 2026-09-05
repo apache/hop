@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
@@ -97,7 +98,7 @@ public class HopNamespace {
 
   /** The namespace of the session on this thread, or null. Only call with a user interface. */
   private static String namespaceOfCurrentDisplay() {
-    Display display = Display.getCurrent();
+    Display display = SessionDisplay.current();
     if (display == null || display.isDisposed()) {
       return null;
     }
@@ -106,7 +107,7 @@ public class HopNamespace {
 
   /** Remember the namespace for the session on this thread. Only call with a user interface. */
   private static void rememberForCurrentDisplay(String namespace) {
-    Display display = Display.getCurrent();
+    Display display = SessionDisplay.current();
     if (display == null || display.isDisposed()) {
       return;
     }

@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
@@ -40,7 +41,7 @@ public class TreeMemory {
   private Map<TreeMemoryEntry, Boolean> map;
 
   public static final TreeMemory getInstance() {
-    Display display = Display.getCurrent();
+    Display display = SessionDisplay.current();
     if (display != null && !display.isDisposed()) {
       return BY_DISPLAY.computeIfAbsent(
           display,

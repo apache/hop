@@ -35,7 +35,18 @@ public class BackgroundThreadFacadeImpl extends BackgroundThreadFacade {
     }
     // exec() binds the session to whatever thread calls it, which is the point here: the work
     // itself runs exactly as before, only now with a session to ask.
-    return () -> uiSession.exec(runnable);
+    return () -> {
+      if (!uiSession.isBound()) {
+        // The session ended between scheduling this work and running it - the browser closed, the
+        // user logged out, the session timed out. Binding it anyway leaves the thread with a
+        // context that resolves to nothing, which is worse than no context at all: RWT reads it
+        // back unchecked and even asking whether this thread has a display then fails with a
+        // NullPointerException (issue #8248). The work itself never needed the session.
+        runnable.run();
+        return;
+      }
+      uiSession.exec(runnable);
+    };
   }
 
   /** The session serving this thread, or null when there is none to carry over. */
