@@ -24,6 +24,7 @@ under the License.
 
 xref:hop-server/index.adoc[Hop Server] is a long-lived process that executes pipelines and workflows.
 It is not a scheduler: something else (Hop Gui, xref:hop-run/index.adoc[hop-run], Apache Airflow, cron, Jenkins, a Kubernetes CronJob, ...) has to submit the work.
+See xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines].
 
 This page is the deployment story: after you develop a project, how does a running Hop Server get the files and the configuration it needs?
 
@@ -122,7 +123,7 @@ You can inspect those runs later from the xref:hop-gui/perspective-execution-inf
 This is the usual production pattern when a scheduler (Airflow, Jenkins, cron, a Kubernetes Job or CronJob) already owns the calendar.
 Keep a long-lived Hop Server when you need xref:hop-server/web-service.adoc[web services], or when many clients submit work to a shared always-on engine.
 
-See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers] and the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow] how-to.
+See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers], xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines], and the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow] how-to.
 
 == Environment configuration
 
@@ -167,7 +168,7 @@ The server does not read them.
 == What Hop Server does not do
 
 * It does not schedule work.
-Use Airflow, cron, Jenkins, a Kubernetes CronJob, or hop-run from a wrapper.
+Use xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[an external scheduler]: Airflow, cron, Jenkins, a Kubernetes CronJob, or hop-run from a wrapper.
 * It does not keep a durable work queue.
 A restart drops in-flight executions unless you set `--shutdown-timeout` / `HOP_SERVER_SHUTDOWN_TIMEOUT` and the orchestrator waits.
 * A short-lived `apache/hop` container that runs `hop-run` and exits is *not* Hop Server.
