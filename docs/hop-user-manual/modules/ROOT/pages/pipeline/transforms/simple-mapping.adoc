@@ -46,6 +46,17 @@ Use this transform if you find yourself repeating the same logic multiple times 
 
 If you need more than one input or output, or info / target hops (for example a reusable Stream Lookup or Switch / Case), use xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] instead.
 
+== Create mapping from the canvas
+
+To extract an existing sequential chain into a mapping:
+
+. Select one transform, or a chain of transforms connected by hops (`A → B → C`).
+. Right-click a selected transform and choose *Create mapping*.
+. Save the new mapping pipeline (Mapping input, the selected transforms, Mapping output).
+. Hop replaces the selection with a Simple Mapping transform at the location of the first selected transform and rewires the surrounding hops.
+
+The selection must be a single path with at most one incoming hop and one outgoing hop. Splits, joins, extra info hops, and error hops that leave the selection are not supported; use Multi Mapping for those cases. Cancelling the save dialog leaves the original pipeline unchanged.
+
 == Options
 
 The options are fairly self-explanatory:
