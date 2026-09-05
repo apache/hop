@@ -200,7 +200,7 @@ class DatabaseLookupMetaTest {
 
     IRowMeta[] info = new IRowMeta[1];
     info[0] = new RowMeta();
-    info[0].addValueMeta(new ValueMetaInteger("amount"));
+    info[0].addValueMeta(new ValueMetaInteger("amount", 9, 0));
 
     IRowMeta row = new RowMeta();
     databaseLookupMeta.getFields(row, "Database lookup", info, null, null, null);
@@ -209,6 +209,69 @@ class DatabaseLookupMetaTest {
     IValueMeta amount = row.searchValueMeta("amount");
     assertNotNull(amount);
     assertEquals(IValueMeta.TYPE_STRING, amount.getType());
+    assertEquals(9, amount.getLength());
+    // String fields always report precision -1 (ValueMetaBase.getPrecision)
+    assertEquals(-1, amount.getPrecision());
+  }
+
+  @Test
+  void getFieldsKeepsLengthWhenConfiguredTypeMatchesTable() throws Exception {
+    Lookup lookup = databaseLookupMeta.getLookup();
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "description",
+                "",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    ValueMetaString tableField = new ValueMetaString("description", 30, -1);
+    tableField.setComments("dictionary_value");
+    tableField.setConversionMask("#");
+
+    IRowMeta[] info = new IRowMeta[1];
+    info[0] = new RowMeta();
+    info[0].addValueMeta(tableField);
+
+    IRowMeta row = new RowMeta();
+    databaseLookupMeta.getFields(row, "lookup type set", info, null, null, null);
+
+    IValueMeta description = row.searchValueMeta("description");
+    assertNotNull(description);
+    assertEquals(IValueMeta.TYPE_STRING, description.getType());
+    assertEquals(30, description.getLength());
+    assertEquals(-1, description.getPrecision());
+    assertEquals("#", description.getConversionMask());
+    assertEquals("dictionary_value", description.getComments());
+    assertEquals("lookup type set", description.getOrigin());
+  }
+
+  @Test
+  void getFieldsStillCreatesTypeWhenTableFieldIsMissing() throws Exception {
+    Lookup lookup = databaseLookupMeta.getLookup();
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "description",
+                "",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    IRowMeta[] info = new IRowMeta[1];
+    info[0] = new RowMeta();
+    info[0].addValueMeta(new ValueMetaString("other"));
+
+    IRowMeta row = new RowMeta();
+    databaseLookupMeta.getFields(row, "Database lookup", info, null, null, null);
+
+    IValueMeta description = row.searchValueMeta("description");
+    assertNotNull(description);
+    assertEquals(IValueMeta.TYPE_STRING, description.getType());
+    assertEquals(-1, description.getLength());
   }
 
   @Test
