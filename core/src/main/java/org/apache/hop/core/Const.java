@@ -280,21 +280,99 @@ public class Const {
   /** The default locale for the hop environment (system defined) */
   public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
-  /** The default decimal separator . or , */
+  /**
+   * The default decimal separator . or ,
+   *
+   * @deprecated captured at class-load time from {@link #DEFAULT_LOCALE}; use {@link
+   *     #getDefaultDecimalSeparator()} to read the active regional settings at call time.
+   */
+  @Deprecated(since = "2.20")
   public static final char DEFAULT_DECIMAL_SEPARATOR =
       (new DecimalFormatSymbols(DEFAULT_LOCALE)).getDecimalSeparator();
 
-  /** The default grouping separator , or . */
+  /**
+   * The default grouping separator , or .
+   *
+   * @deprecated captured at class-load time from {@link #DEFAULT_LOCALE}; use {@link
+   *     #getDefaultGroupingSeparator()} to read the active regional settings at call time.
+   */
+  @Deprecated(since = "2.20")
   public static final char DEFAULT_GROUPING_SEPARATOR =
       (new DecimalFormatSymbols(DEFAULT_LOCALE)).getGroupingSeparator();
 
-  /** The default currency symbol */
+  /**
+   * The default currency symbol
+   *
+   * @deprecated captured at class-load time from {@link #DEFAULT_LOCALE}; use {@link
+   *     #getDefaultCurrencySymbol()} to read the active regional settings at call time.
+   */
+  @Deprecated(since = "2.20")
   public static final String DEFAULT_CURRENCY_SYMBOL =
       (new DecimalFormatSymbols(DEFAULT_LOCALE)).getCurrencySymbol();
 
-  /** The default number format */
+  /**
+   * The default number format
+   *
+   * @deprecated captured at class-load time from {@link #DEFAULT_LOCALE}; use {@link
+   *     #getDefaultNumberFormat()} to read the active regional settings at call time.
+   */
+  @Deprecated(since = "2.20")
   public static final String DEFAULT_NUMBER_FORMAT =
       ((DecimalFormat) (NumberFormat.getInstance())).toPattern();
+
+  /**
+   * Cached symbols for the regional locale they were built from.
+   *
+   * <p>These accessors are called from the {@code ValueMetaBase} constructor, so they sit on a hot
+   * path: building a {@link DecimalFormatSymbols} on every call would be a real cost — the same one
+   * {@code ValueMetaBase.getDecimalFormat()} already warns about for {@code DecimalFormat}. The
+   * symbols are therefore cached and rebuilt only when the FORMAT locale actually changes.
+   *
+   * <p>Both fields are written together under {@code synchronized} and read together, so a racing
+   * reader can never pair one locale's symbols with another locale's marker.
+   */
+  private static DecimalFormatSymbols cachedFormatSymbols;
+
+  private static Locale cachedFormatSymbolsLocale;
+
+  private static synchronized DecimalFormatSymbols getFormatSymbols() {
+    Locale formatLocale = Locale.getDefault(Locale.Category.FORMAT);
+    if (cachedFormatSymbols == null || !formatLocale.equals(cachedFormatSymbolsLocale)) {
+      cachedFormatSymbols = new DecimalFormatSymbols(formatLocale);
+      cachedFormatSymbolsLocale = formatLocale;
+    }
+    return cachedFormatSymbols;
+  }
+
+  /**
+   * The decimal separator of the active regional settings, read at call time.
+   *
+   * <p>Prefer this over {@link #DEFAULT_DECIMAL_SEPARATOR}, which is captured when the class is
+   * loaded and therefore predates the regional settings being installed.
+   */
+  public static char getDefaultDecimalSeparator() {
+    return getFormatSymbols().getDecimalSeparator();
+  }
+
+  /** The grouping separator of the active regional settings, read at call time. */
+  public static char getDefaultGroupingSeparator() {
+    return getFormatSymbols().getGroupingSeparator();
+  }
+
+  /** The currency symbol of the active regional settings, read at call time. */
+  public static String getDefaultCurrencySymbol() {
+    return getFormatSymbols().getCurrencySymbol();
+  }
+
+  /**
+   * The number format pattern of the active regional settings, read at call time. In practice the
+   * returned pattern is locale-invariant (locale-specific separators are applied later via
+   * DecimalFormatSymbols), so callers do not generally need to re-read it when the locale changes.
+   */
+  public static String getDefaultNumberFormat() {
+    return ((DecimalFormat) NumberFormat.getInstance(Locale.getDefault(Locale.Category.FORMAT)))
+        .toPattern();
+  }
 
   /** Default string representing Null String values (empty) */
   public static final String NULL_STRING = "";
@@ -837,6 +915,25 @@ public class Const {
           "Set this variable to 'Y' to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL.")
   public static final String HOP_AGGREGATION_ALL_NULLS_ARE_ZERO =
       "HOP_AGGREGATION_ALL_NULLS_ARE_ZERO";
+
+  /**
+   * The FORMAT locale currently in effect (language_COUNTRY, for example {@code en_US} or {@code
+   * nl_BE}). Set when a lifecycle environment is enabled so pipelines can see which regional
+   * settings they are running under.
+   */
+  @Variable(
+      description =
+          "The FORMAT locale in effect for number, currency and date conversion (for example en_US). Set automatically when a lifecycle environment with a format locale is enabled.")
+  public static final String HOP_FORMAT_LOCALE = "HOP_FORMAT_LOCALE";
+
+  /**
+   * The default timezone currently in effect (IANA id, for example {@code Europe/Brussels}). Set
+   * when a lifecycle environment is enabled.
+   */
+  @Variable(
+      description =
+          "The default timezone in effect for date and timestamp conversion (IANA id, for example Europe/Brussels). Set automatically when a lifecycle environment with a timezone is enabled.")
+  public static final String HOP_TIMEZONE = "HOP_TIMEZONE";
 
   /** The name of the variable containing an alternative default timestamp format */
   @Variable(

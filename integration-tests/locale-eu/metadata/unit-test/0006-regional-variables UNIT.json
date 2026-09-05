@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "format_locale",
+          "data_set_field": "format_locale"
+        },
+        {
+          "transform_field": "timezone",
+          "data_set_field": "timezone"
+        }
+      ],
+      "field_order": [
+        "format_locale"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-regional-variables"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-regional-variables UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-regional-variables.hpl",
+  "test_type": "UNIT_TEST"
+}
