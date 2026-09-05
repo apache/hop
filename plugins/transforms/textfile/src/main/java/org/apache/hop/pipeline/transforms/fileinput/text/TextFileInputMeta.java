@@ -397,6 +397,15 @@ public class TextFileInputMeta
       injectionKeyDescription = "TextFileInput.Injection.IGNORE_FIELDS")
   private boolean ignoreFields;
 
+  /**
+   * Optional Naming Scheme applied to discovered field names when using Get Fields. Empty means
+   * auto-apply only when a unique matching scheme exists.
+   */
+  @HopMetadataProperty(
+      key = "namingScheme",
+      hopMetadataPropertyType = HopMetadataPropertyType.NAMING_SCHEME)
+  private String namingScheme;
+
   @HopMetadataProperty(inline = true)
   protected BaseFileInputAdditionalFields additionalOutputFields;
 

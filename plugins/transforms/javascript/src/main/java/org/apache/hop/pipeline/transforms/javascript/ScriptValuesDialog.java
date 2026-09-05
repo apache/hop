@@ -54,6 +54,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -399,6 +400,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               YES_NO_COMBO),
         };
+    colInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
+    colInfos[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(

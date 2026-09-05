@@ -105,6 +105,7 @@ public enum HopExtensionPoint {
   AfterCheckTransforms("After a set of transforms has been checked for warnings/errors."),
   BeforeCheckTransform("Right before a transform is about to be verified."),
   AfterCheckTransform("After a transform has been checked for warnings/errors."),
+  AfterCheckActions("After a set of workflow actions has been checked for warnings/errors."),
 
   HopServerInit("Right before the Hop server starts"),
   HopServerStartup("Right after the Hop server has started and is fully functional"),

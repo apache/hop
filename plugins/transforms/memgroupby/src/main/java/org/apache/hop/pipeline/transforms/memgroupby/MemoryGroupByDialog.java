@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -176,6 +177,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.Name"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    ciReturn[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     ciReturn[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.Subject"),

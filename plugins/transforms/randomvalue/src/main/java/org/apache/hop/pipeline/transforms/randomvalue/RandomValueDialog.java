@@ -25,6 +25,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -103,6 +104,7 @@ public class RandomValueDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false)
         };
+    columns[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     columns[1].setSelectionAdapter(
         new SelectionAdapter() {
           @Override

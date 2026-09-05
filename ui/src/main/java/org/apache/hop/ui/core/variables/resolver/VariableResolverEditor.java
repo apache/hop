@@ -41,6 +41,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.HelpUtils;
@@ -66,7 +68,7 @@ import org.eclipse.swt.widgets.ToolItem;
 public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
   private static final Class<?> PKG = VariableResolverEditor.class;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Combo wResolverType;
 
@@ -109,7 +111,9 @@ public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
     fdlName.top = new FormAttachment(0, 0);
     fdlName.left = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);

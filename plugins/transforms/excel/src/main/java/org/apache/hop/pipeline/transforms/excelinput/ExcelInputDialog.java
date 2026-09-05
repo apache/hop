@@ -65,6 +65,8 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -416,6 +418,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
             false);
     colinfo[0].setUsingVariables(true);
+    colinfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
     colinfo[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     colinfo[1] =
         new ColumnInfo(
@@ -857,6 +860,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT)
         };
 
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[5].setToolTip(BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Tooltip"));
 
     wFields =
@@ -1798,6 +1802,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
       wFields.removeEmptyRows();
       wFields.setRowNums();
       wFields.optWidth(true);
+      NamingSchemeColumnApplierRegistry.getInstance()
+          .applyAnnotatedColumns(wFields, metadataProvider, null);
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
       mb.setMessage(

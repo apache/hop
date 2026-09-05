@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -45,14 +46,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class ValueMapperDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ValueMapperMeta.class;
 
   private CCombo wFieldName;
 
-  private Text wTargetFieldName;
+  private TextVar wTargetFieldName;
 
   private TextVar wNonMatchDefault;
 
@@ -128,7 +128,9 @@ public class ValueMapperDialog extends BaseTransformDialog {
     fdlTargetFieldname.right = new FormAttachment(middle, -margin);
     fdlTargetFieldname.top = new FormAttachment(wFieldName, margin);
     wlTargetFieldname.setLayoutData(fdlTargetFieldname);
-    wTargetFieldName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTargetFieldName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     PropsUi.setLook(wTargetFieldName);
     FormData fdTargetFieldname = new FormData();
     fdTargetFieldname.left = new FormAttachment(middle, 0);

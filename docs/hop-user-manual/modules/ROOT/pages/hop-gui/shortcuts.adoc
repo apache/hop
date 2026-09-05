@@ -20,4 +20,16 @@ under the License.
 
 = Hop Shortcuts
 
-Shortcuts can now be found inside the application itself, In the setting perspective there is a tab named Keyboard Shortcuts that will give you an overview of the shortcuts and where to use them.
+Most shortcuts can be found inside the application itself. In the Settings perspective there is a tab named Keyboard Shortcuts that lists global chords and where to use them.
+
+Widget-local shortcuts (they apply to the focused field, not the whole window) are not listed there:
+
+[options="header"]
+|===
+|Shortcut|Where|What it does
+|`CTRL-SPACE`|`TextVar` / `ComboVar` that accept variables|Insert a `${variable}`
+|`CTRL-SPACE`|Name fields that do *not* accept variables (transform/action/metadata names)|Apply a xref:metadata-types/naming-scheme.adoc[Naming Scheme] of the matching type
+|`CTRL-SHIFT-N`|Any name field, field-name cell, table name, file/folder field, or F2 tree rename|List and apply a Naming Scheme. Replaces the current identifier (values that contain `${...}` are left unchanged)
+|===
+
+See xref:metadata-types/naming-scheme.adoc[Naming Scheme] for the *N* indicator, types, and the TableView bulk toolbar.

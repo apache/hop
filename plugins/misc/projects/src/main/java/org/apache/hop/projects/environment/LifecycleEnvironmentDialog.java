@@ -48,7 +48,9 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
@@ -79,7 +81,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Text wName;
+  private TextVar wName;
   private Combo wPurpose;
   private Combo wProject;
   private Text wCanvasText;
@@ -227,7 +229,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wName =
+        new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
@@ -352,6 +356,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
               false),
         };
     columnInfo[0].setUsingVariables(true);
+    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
 
     wConfigFiles =
         new TableView(

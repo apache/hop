@@ -100,6 +100,7 @@ import org.w3c.dom.Node;
  * This class defines information about a pipeline and offers methods to save and load it from XML
  * as well as methods to alter a pipeline by adding/removing databases, transforms, hops, etc.
  */
+@org.apache.hop.core.naming.NamingSchemeKind("hop-pipeline")
 public class PipelineMeta extends AbstractMeta
     implements IXml,
         Comparator<PipelineMeta>,

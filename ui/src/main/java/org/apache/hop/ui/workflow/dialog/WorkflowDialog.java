@@ -37,8 +37,10 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -72,7 +74,7 @@ public class WorkflowDialog extends Dialog {
 
   private final PropsUi props;
 
-  private Text wWorkflowName;
+  private TextVar wWorkflowName;
   private Button wNameFilenameSync;
   private Text wFilename;
 
@@ -232,7 +234,9 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowName.top = new FormAttachment(0, margin);
     wlWorkflowName.setLayoutData(fdlWorkflowName);
 
-    wWorkflowName = new Text(wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wWorkflowName =
+        new TextVar(variables, wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_WORKFLOW);
     PropsUi.setLook(wWorkflowName);
     wWorkflowName.addModifyListener(lsMod);
     FormData fdWorkflowName = new FormData();
@@ -510,6 +514,7 @@ public class WorkflowDialog extends Dialog {
             BaseMessages.getString(PKG, "WorkflowDialog.ColumnInfo.Parameter.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "WorkflowDialog.ColumnInfo.Default.Label"),

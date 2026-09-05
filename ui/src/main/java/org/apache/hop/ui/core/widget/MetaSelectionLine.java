@@ -26,11 +26,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -84,6 +87,35 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
   /** Prevents re-entrant refresh while {@link #fillItems()} runs. */
   private boolean repopulatingItems;
+
+  /**
+   * Create a selection line for a metadata plugin by key (for example {@code naming-scheme}) so
+   * callers do not need a compile dependency on that plugin. Returns {@code null} when the plugin
+   * is not installed.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public static MetaSelectionLine forMetadataKey(
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      Composite parentComposite,
+      int flags,
+      String metadataKey,
+      String labelText,
+      String toolTipText) {
+    try {
+      IPlugin plugin =
+          PluginRegistry.getInstance().findPluginWithId(MetadataPluginType.class, metadataKey);
+      if (plugin == null || plugin.getClassMap().isEmpty()) {
+        return null;
+      }
+      String className = plugin.getClassMap().values().iterator().next();
+      Class clazz = PluginRegistry.getInstance().getClass(plugin, className);
+      return new MetaSelectionLine(
+          variables, metadataProvider, clazz, parentComposite, flags, labelText, toolTipText);
+    } catch (Exception e) {
+      return null;
+    }
+  }
 
   public MetaSelectionLine(
       IVariables variables,

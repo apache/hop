@@ -691,9 +691,15 @@ public class GuiCompositeWidgets {
         comboItems = new String[] {};
       }
     }
-    if (guiElements.isVariablesEnabled()) {
+    boolean namingEnabled =
+        StringUtils.isNotEmpty(guiElements.getNamingSchemeType()) && !guiElements.isPassword();
+    if (guiElements.isVariablesEnabled() || namingEnabled) {
       ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
       PropsUi.setLook(comboVar);
+      if (!guiElements.isVariablesEnabled()) {
+        comboVar.setVariablesEnabled(false);
+      }
+      enableNamingIfPresent(comboVar, guiElements);
       widgetsMap.put(guiElements.getId(), comboVar);
       comboVar.setItems(comboItems);
       control = comboVar;
@@ -1002,7 +1008,9 @@ public class GuiCompositeWidgets {
       style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
     }
 
-    if (guiElements.isVariablesEnabled()) {
+    boolean namingEnabled =
+        StringUtils.isNotEmpty(guiElements.getNamingSchemeType()) && !guiElements.isPassword();
+    if (guiElements.isVariablesEnabled() || namingEnabled) {
       if (!multiLine && guiElements.isPassword()) {
         String toolTip =
             StringUtils.isNotEmpty(guiElements.getToolTip()) ? guiElements.getToolTip() : null;
@@ -1017,6 +1025,10 @@ public class GuiCompositeWidgets {
       } else {
         TextVar textVar = new TextVar(variables, parent, style);
         PropsUi.setLook(textVar);
+        if (!guiElements.isVariablesEnabled()) {
+          textVar.setVariablesEnabled(false);
+        }
+        enableNamingIfPresent(textVar, guiElements);
         widgetsMap.put(guiElements.getId(), textVar);
         addModifyListener(textVar.getTextWidget(), guiElements.getId());
         control = textVar;
@@ -1083,6 +1095,18 @@ public class GuiCompositeWidgets {
     }
 
     return control;
+  }
+
+  private void enableNamingIfPresent(Control control, GuiElements guiElements) {
+    String type = guiElements.getNamingSchemeType();
+    if (StringUtils.isEmpty(type) || guiElements.isPassword()) {
+      return;
+    }
+    if (control instanceof TextVar textVar) {
+      textVar.enableNamingSchemes(type);
+    } else if (control instanceof ComboVar comboVar) {
+      comboVar.enableNamingSchemes(type);
+    }
   }
 
   public ITypeFilename instantiateTypeFilename(GuiElements guiElements) {

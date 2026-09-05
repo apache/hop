@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.BaseMessageDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -81,6 +82,7 @@ public class ConstantDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ConstantDialog.Name.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ConstantDialog.Type.Column"),

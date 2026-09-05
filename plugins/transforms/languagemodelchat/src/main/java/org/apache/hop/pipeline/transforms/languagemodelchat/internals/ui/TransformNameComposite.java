@@ -29,15 +29,16 @@ import static org.eclipse.swt.SWT.SINGLE;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 public class TransformNameComposite implements IDialogComposite {
   private final Label label;
-  private final Text inputField;
+  private final TextVar inputField;
   private final ITransformMeta meta;
   private final Control control;
   private final CompositeParameters parameters;
@@ -48,7 +49,9 @@ public class TransformNameComposite implements IDialogComposite {
 
     // Transform Name label
     this.label = new Label(parameters.shell(), RIGHT);
-    this.inputField = new Text(parameters.shell(), SINGLE | LEFT | BORDER);
+    this.inputField =
+        new TextVar(parameters.variables(), parameters.shell(), SINGLE | LEFT | BORDER)
+            .asNameField(NamingSchemeTypes.HOP_TRANSFORM);
 
     setLook(label);
     setLook(inputField);
@@ -86,7 +89,7 @@ public class TransformNameComposite implements IDialogComposite {
     return label;
   }
 
-  public Text getInputField() {
+  public TextVar getInputField() {
     return inputField;
   }
 

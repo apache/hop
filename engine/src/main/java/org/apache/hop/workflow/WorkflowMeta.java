@@ -84,6 +84,7 @@ import org.w3c.dom.Node;
  */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-workflow")
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
   public static final String WORKFLOW_EXTENSION = ".hwf";
@@ -1600,6 +1601,12 @@ public class WorkflowMeta extends AbstractMeta
         // Progress bar...
         monitor.worked(worked++);
       }
+
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL,
+          variables,
+          HopExtensionPoint.AfterCheckActions.id,
+          new CheckActionsExtension(remarks, variables, this, actions, metadataProvider));
 
       monitor.done();
     } catch (Exception e) {

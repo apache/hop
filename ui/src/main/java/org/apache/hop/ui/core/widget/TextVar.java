@@ -35,6 +35,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
@@ -65,9 +66,20 @@ public class TextVar extends Composite {
   /** Optional expanded-integer (#) indicator; created by {@link #enableExpandedInteger()}. */
   protected Label wHashImage;
 
+  /** Optional naming-scheme (N) indicator; created by {@link #enableNamingSchemes(String)}. */
+  protected Label wNamingImage;
+
   protected FormData fdText;
 
   protected ModifyListener modifyListenerTooltipText;
+
+  /** When false, the $ indicator and CTRL-SPACE variable popup are hidden. */
+  protected boolean variablesEnabled = true;
+
+  /** Opt-in naming-scheme type code ({@link NamingSchemeTypes}); null means not a name field. */
+  protected String namingSchemeType;
+
+  private boolean namingShortcutAttached;
 
   public TextVar(IVariables variables, Composite composite, int flags) {
     this(variables, composite, flags, null, null, null);
@@ -214,16 +226,164 @@ public class TextVar extends Composite {
     wHashImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.ExpandedInteger"));
     FormData fdlHash = new FormData();
     fdlHash.top = new FormAttachment(0, 0);
-    fdlHash.right = new FormAttachment(wVariableImage, 0);
     wHashImage.setLayoutData(fdlHash);
 
-    // Rebind text field to end at the hash icon (left of $)
-    if (fdText != null) {
-      fdText.right = new FormAttachment(wHashImage, 0);
-      wText.setLayoutData(fdText);
-    }
-    layout(true, true);
+    relayoutTextField();
     return this;
+  }
+
+  /**
+   * Enable or disable variable support. When disabled the {@code $} indicator is hidden and
+   * CTRL-SPACE no longer opens the variable popup. Naming-scheme shortcuts stay available when
+   * {@link #enableNamingSchemes(String)} was called.
+   *
+   * @param enabled true to keep the default variable behavior
+   * @return this widget for chaining
+   */
+  public TextVar setVariablesEnabled(boolean enabled) {
+    this.variablesEnabled = enabled;
+    if (wVariableImage != null && !wVariableImage.isDisposed()) {
+      wVariableImage.setVisible(enabled);
+    }
+    if (wText != null && !wText.isDisposed() && controlSpaceKeyAdapter != null) {
+      wText.removeKeyListener(controlSpaceKeyAdapter);
+      if (enabled) {
+        wText.addKeyListener(controlSpaceKeyAdapter);
+      }
+    }
+    relayoutTextField();
+    updateNamingTooltip();
+    return this;
+  }
+
+  public boolean isVariablesEnabled() {
+    return variablesEnabled;
+  }
+
+  /**
+   * Opt this field into naming-scheme shortcuts (CTRL-SHIFT-N, and CTRL-SPACE when variables are
+   * disabled). {@code type} is a {@link NamingSchemeTypes} code.
+   *
+   * @param type scheme type code
+   * @return this widget for chaining
+   */
+  public TextVar enableNamingSchemes(String type) {
+    this.namingSchemeType = type;
+    attachNamingShortcut();
+    if (wNamingImage == null && wText != null && !wText.isDisposed()) {
+      wNamingImage = new Label(this, SWT.NONE);
+      PropsUi.setLook(wNamingImage);
+      wNamingImage.setImage(GuiResource.getInstance().getImageNamingMini());
+      wNamingImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme"));
+      FormData fdlNaming = new FormData();
+      fdlNaming.top = new FormAttachment(0, 0);
+      wNamingImage.setLayoutData(fdlNaming);
+      TextWidgetShortcutKeyAdapter.attachIndicatorClick(wNamingImage, this::buildShortcutContext);
+    } else if (wNamingImage != null && !wNamingImage.isDisposed()) {
+      wNamingImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme"));
+    }
+    relayoutTextField();
+    updateNamingTooltip();
+    return this;
+  }
+
+  /**
+   * Name-field helper: disable variables and enable naming schemes of the given type.
+   *
+   * @param type scheme type code
+   * @return this widget for chaining
+   */
+  public TextVar asNameField(String type) {
+    setVariablesEnabled(false);
+    return enableNamingSchemes(type);
+  }
+
+  public String getNamingSchemeType() {
+    return namingSchemeType;
+  }
+
+  protected void attachNamingShortcut() {
+    if (namingShortcutAttached || wText == null || wText.isDisposed()) {
+      return;
+    }
+    wText.addKeyListener(new TextWidgetShortcutKeyAdapter(this::buildShortcutContext));
+    namingShortcutAttached = true;
+  }
+
+  protected TextWidgetShortcutContext buildShortcutContext() {
+    return TextWidgetShortcutContext.builder()
+        .control(wText)
+        .variables(variables)
+        .getText(this::getText)
+        .setText(this::setText)
+        .namingSchemeType(namingSchemeType)
+        .variablesEnabled(variablesEnabled)
+        .build();
+  }
+
+  protected void updateNamingTooltip() {
+    if (wText == null || wText.isDisposed() || Utils.isEmpty(namingSchemeType)) {
+      return;
+    }
+    String namingTip = BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme");
+    if (Utils.isEmpty(toolTipText)) {
+      setToolTipText(namingTip);
+    }
+  }
+
+  /**
+   * Control that sits to the right of the indicator cluster (browse button on {@link
+   * TextVarButton}, otherwise the widget edge).
+   */
+  protected Control getRightmostFixedControl() {
+    return null;
+  }
+
+  private void attachIndicator(Control indicator, Control rightNeighbor) {
+    FormData fd = (FormData) indicator.getLayoutData();
+    if (fd == null) {
+      fd = new FormData();
+      fd.top = new FormAttachment(0, 0);
+    }
+    if (rightNeighbor != null) {
+      fd.right = new FormAttachment(rightNeighbor, 0);
+    } else {
+      fd.right = new FormAttachment(100, 0);
+    }
+    indicator.setLayoutData(fd);
+  }
+
+  /**
+   * Rebind the text field's right edge to the visible indicator(s). Layout is {@code [ text ] [#]
+   * [N] [$]} depending on which extras are enabled.
+   */
+  protected void relayoutTextField() {
+    if (fdText == null || wText == null || wText.isDisposed()) {
+      return;
+    }
+    Control right = getRightmostFixedControl();
+    if (variablesEnabled && wVariableImage != null && !wVariableImage.isDisposed()) {
+      wVariableImage.setVisible(true);
+      attachIndicator(wVariableImage, right);
+      right = wVariableImage;
+    } else if (wVariableImage != null && !wVariableImage.isDisposed()) {
+      wVariableImage.setVisible(false);
+    }
+    if (wNamingImage != null && !wNamingImage.isDisposed()) {
+      attachIndicator(wNamingImage, right);
+      right = wNamingImage;
+    }
+    if (wHashImage != null && !wHashImage.isDisposed()) {
+      attachIndicator(wHashImage, right);
+      right = wHashImage;
+    }
+    if (right != null) {
+      fdText.right = new FormAttachment(right, 0);
+    } else {
+      fdText.right = new FormAttachment(100, 0);
+    }
+    wText.setLayoutData(fdText);
+    layout(true, true);
   }
 
   /**
