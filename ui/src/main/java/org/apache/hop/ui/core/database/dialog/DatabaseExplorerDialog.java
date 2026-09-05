@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
@@ -56,6 +55,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -109,7 +109,6 @@ public class DatabaseExplorerDialog extends Dialog {
   private final PropsUi props;
   private DatabaseMeta dbMeta;
   private final IVariables variables;
-  private final DbCache dbcache;
   private final ILoggingObject loggingObject;
 
   private static final String STRING_CATALOG =
@@ -184,7 +183,6 @@ public class DatabaseExplorerDialog extends Dialog {
 
     props = PropsUi.getInstance();
     log = new LogChannel("DBExplorer");
-    dbcache = DbCache.getInstance();
   }
 
   public boolean open() {
@@ -911,8 +909,7 @@ public class DatabaseExplorerDialog extends Dialog {
               : qualifiedTableName);
 
       String sql = db.getCreateTableStatement(realTableName, r, null, false, null, true);
-      SqlEditor se = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
-      se.open();
+      DatabaseWorkbenchDialog.openSql(dbMeta, sql);
     } catch (HopDatabaseException dbe) {
       new ErrorDialog(
           shell,
@@ -961,8 +958,7 @@ public class DatabaseExplorerDialog extends Dialog {
             String sql =
                 targetDatabase.getCreateTableStatement(
                     qualifiedTableName, rowMeta, null, false, null, true);
-            SqlEditor sqlEditor = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
-            sqlEditor.open();
+            DatabaseWorkbenchDialog.openSql(targetDatabaseMeta, sql);
           }
         }
       } catch (HopDatabaseException dbe) {
@@ -986,22 +982,11 @@ public class DatabaseExplorerDialog extends Dialog {
         (qualifiedTableName.contains(".")
             ? qualifiedTableName.substring(qualifiedTableName.indexOf(".") + 1)
             : qualifiedTableName);
-    SqlEditor sqlEditor =
-        new SqlEditor(
-            shell, SWT.NONE, variables, dbMeta, dbcache, "SELECT * FROM " + realTableName);
-    sqlEditor.open();
+    DatabaseWorkbenchDialog.openSql(dbMeta, "SELECT * FROM " + realTableName);
   }
 
   public void getTruncate(String truncateTableReference) {
-    SqlEditor sql =
-        new SqlEditor(
-            shell,
-            SWT.NONE,
-            variables,
-            dbMeta,
-            dbcache,
-            "-- TRUNCATE TABLE " + truncateTableReference);
-    sql.open();
+    DatabaseWorkbenchDialog.openSql(dbMeta, "-- TRUNCATE TABLE " + truncateTableReference);
   }
 
   public void dispose() {

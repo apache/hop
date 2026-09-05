@@ -327,7 +327,7 @@ Call sites that use a plain `StyledTextComp` / `StyledTextVar` (including Hop We
 
 Because any plugin can attach to `TextComposite.ID_TOOLBAR` and branch on `styleType`, you can ship optional tooling without bloating core dialogs:
 
-* SQL pretty-print / format
+* SQL pretty-print / format (see the Apache Calcite plugin, `plugins/tech/calcite`, `SqlFormatToolbarButton`)
 * SQL lineage or “explain”
 * Visual SQL builders
 * JSON / XML formatters (see the sample JSON format button)
@@ -442,6 +442,9 @@ Escape variable-like tokens in properties with single quotes when needed (`'${VA
 
 | Sample JSON format button
 | `plugins/transforms/json/.../ui/TextCompositeToolbarJsonFormatButton.java`
+
+| Sample SQL format button
+| `plugins/tech/calcite/.../SqlFormatToolbarButton.java`
 
 | Sample table export buttons
 | `plugins/transforms/excel/.../TableViewExportToExcelToolbarButton.java`, CSV equivalent under textfile

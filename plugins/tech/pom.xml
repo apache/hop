@@ -33,6 +33,7 @@
         <module>avro</module>
         <module>aws</module>
         <module>azure</module>
+        <module>calcite</module>
         <module>cassandra</module>
         <module>databricks</module>
         <module>dropbox</module>

@@ -130,8 +130,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /**
    * When positive, applied to statements created in {@link #openQuery(String, IRowMeta, Object[],
-   * int, boolean)} via {@link Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC
-   * driver default (typically unlimited). Intended for short-lived GUI preview connections.
+   * int, boolean)} and {@link #execStatement(String, IRowMeta, Object[])} via {@link
+   * Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC driver default (typically
+   * unlimited). Intended for short-lived GUI preview connections.
    */
   private int statementQueryTimeoutSeconds;
 
@@ -270,8 +271,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /**
    * Sets the JDBC {@link Statement#setQueryTimeout(int)} (seconds) for statements opened by {@link
-   * #openQuery(String, IRowMeta, Object[], int, boolean)} until {@link #disconnect()}. Use {@code
-   * 0} to use the driver default.
+   * #openQuery(String, IRowMeta, Object[], int, boolean)} and {@link #execStatement(String,
+   * IRowMeta, Object[])} until {@link #disconnect()}. Use {@code 0} to use the driver default.
    *
    * @param seconds query timeout in whole seconds; values {@code < 0} are treated as {@code 0}
    */
@@ -1525,12 +1526,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (params != null) {
         PreparedStatement prepStmt = connection.prepareStatement(databaseMeta.stripCR(sql));
         setValues(params, data, prepStmt); // set the parameters!
+        applyStatementQueryTimeout(prepStmt);
         resultSet = prepStmt.execute();
         count = prepStmt.getUpdateCount();
         prepStmt.close();
       } else {
         String sqlStripped = databaseMeta.stripCR(sql);
         try (Statement stmt = connection.createStatement()) {
+          applyStatementQueryTimeout(stmt);
           resultSet = stmt.execute(sqlStripped);
           count = stmt.getUpdateCount();
         }
@@ -1614,8 +1617,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         if (!Const.onlySpaces(stat)) {
           String sql = Const.trim(stat);
-          if (sql.toUpperCase().startsWith("SELECT")
-              && !sql.toUpperCase().matches("(?is)^(select\\s.*\\sinto\\s).*")) {
+          if (SqlQueryClassifier.isQuery(sql)) {
             // A Query
             if (log.isDetailed()) {
               log.logDetailed("launch SELECT statement: " + Const.CR + sql);
@@ -3275,6 +3277,70 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     return retval.toString();
   }
 
+  /**
+   * DDL to recreate a table or view: catalog text when the dialect can read it, otherwise a {@code
+   * CREATE TABLE} (or a column-only {@code CREATE VIEW}) from field metadata.
+   *
+   * @param schemaName schema or catalog, may be {@code null}
+   * @param objectName table or view name
+   * @param view {@code true} to emit {@code CREATE VIEW}
+   * @param fields columns already loaded, or {@code null} to look them up
+   */
+  public String getObjectDdl(String schemaName, String objectName, boolean view, IRowMeta fields)
+      throws HopDatabaseException {
+    String qualified = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, objectName);
+    String catalog = readCatalogDdl(schemaName, objectName, view);
+    if (!Utils.isEmpty(catalog)) {
+      if (view && !DatabaseObjectDdl.startsWithCreate(catalog)) {
+        return DatabaseObjectDdl.asCreateViewStatement(qualified, catalog);
+      }
+      return DatabaseObjectDdl.ensureSemicolon(catalog);
+    }
+    IRowMeta layout = fields;
+    if (layout == null || layout.isEmpty()) {
+      layout = loadObjectFields(schemaName, objectName, qualified);
+    }
+    if (view) {
+      return DatabaseObjectDdl.synthesizeCreateView(
+          qualified, layout, "View definition is not available from the catalog");
+    }
+    if (layout == null || layout.isEmpty()) {
+      return "";
+    }
+    databaseMeta.quoteReservedWords(layout);
+    return getCreateTableStatement(qualified, layout, null, false, null, true);
+  }
+
+  private IRowMeta loadObjectFields(String schemaName, String objectName, String qualified)
+      throws HopDatabaseException {
+    try {
+      IRowMeta meta = getTableFieldsMeta(schemaName, objectName);
+      if (meta != null && meta.size() > 0) {
+        return meta;
+      }
+    } catch (Exception ignored) {
+      // Fall back to the query-based layout.
+    }
+    return getTableFields(qualified);
+  }
+
+  private String readCatalogDdl(String schemaName, String objectName, boolean view) {
+    String sql = databaseMeta.getSqlObjectDdl(schemaName, objectName);
+    if (Utils.isEmpty(sql) && view) {
+      sql = databaseMeta.getSqlViewDefinition(schemaName, objectName);
+    }
+    if (Utils.isEmpty(sql)) {
+      return null;
+    }
+    try {
+      RowMetaAndData row = getOneRow(sql);
+      return DatabaseObjectDdl.extractDefinition(row);
+    } catch (Exception e) {
+      log.logDebug("Unable to read object DDL from the catalog", e);
+      return null;
+    }
+  }
+
   public String getAlterTableStatement(
       String tableName,
       IRowMeta fields,
@@ -3694,9 +3760,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (monitor != null) {
       monitor.setTaskName("Opening query...");
     }
-    ResultSet rset = openQuery(sql, params, data, fetchMode, lazyConversion);
-
-    return getRows(rset, limit, monitor);
+    // openQuery honours setQueryLimit via Statement.setMaxRows. The limit argument used to only
+    // stop the client read loop, so drivers that buffer the result still fetched the whole table.
+    int previousLimit = rowlimit;
+    if (limit > 0) {
+      setQueryLimit(limit);
+    }
+    try {
+      ResultSet rset = openQuery(sql, params, data, fetchMode, lazyConversion);
+      return getRows(rset, limit, monitor);
+    } finally {
+      rowlimit = previousLimit;
+    }
   }
 
   /**

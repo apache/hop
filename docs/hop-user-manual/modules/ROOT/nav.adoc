@@ -39,6 +39,7 @@ under the License.
 ** xref:hop-gui/hop-gui-popup-dialog.adoc[Popup Dialog]
 ** xref:hop-gui/notes.adoc[Notes on pipelines and workflows]
 ** xref:hop-gui/perspectives.adoc[Perspectives]
+** xref:hop-gui/perspective-database.adoc[Database perspective]
 ** xref:hop-gui/perspective-search.adoc[Search]
 ** xref:hop-gui/hop-gui-git.adoc[Working with git]
 ** xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]
@@ -538,6 +539,7 @@ under the License.
 //::=END AUTO GENERATED LINKS
 * xref:samples/samples.adoc[Samples]
 * xref:technology/technology.adoc[Technology]
+** xref:technology/calcite/index.adoc[Apache Calcite]
 ** xref:technology/azure/index.adoc[Azure]
 ** xref:technology/cassandra/index.adoc[Cassandra]
 ** xref:technology/memgraph/index.adoc[Memgraph]

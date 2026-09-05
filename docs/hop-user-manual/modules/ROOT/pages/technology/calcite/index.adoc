@@ -1,0 +1,58 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/calcite/
+:language: en_US
+:imagesdir: ../../../assets/images
+:description: The Apache Calcite technology plugin pretty-prints SQL in Hop editors.
+
+= Apache Calcite
+
+https://calcite.apache.org/[Apache Calcite] is a dynamic data management framework with a SQL parser and pretty-printer.
+The Calcite technology plugin uses `org.apache.calcite.sql.pretty.SqlPrettyWriter` to format SQL in Hop Gui.
+
+== Format SQL
+
+When the plugin is installed, a **Format SQL** button appears on:
+
+* SQL editor tabs in the xref:hop-gui/perspective-database.adoc[Database perspective] (and the floating Database window / bottom dock)
+* SQL files opened in the File explorer
+* SQL fields in transform and action dialogs that use the shared text-editor toolbar (Table Input, Execute SQL script, and similar)
+
+Click the button to pretty-print the selection, or the whole buffer when nothing is selected.
+Undo (Ctrl+Z / Cmd+Z) restores the SQL from before the format.
+In a Database SQL editor the formatter picks a Calcite dialect from the tab's relational connection (MySQL, PostgreSQL, Oracle, SQL Server, and others).
+Quoted identifiers are accepted in PostgreSQL/ANSI double quotes (`"public".table`), MySQL backticks, and SQL Server brackets.
+Hop variable expressions such as `'${TABLE_NAME}'` are preserved.
+
+== Options
+
+Open the xref:hop-gui/perspective-configuration.adoc[Configuration perspective], then **Plugins → Apache Calcite SQL formatter**.
+The fields are Calcite's `SqlFormatOptions`: indentation, line length, whether clauses and list items start on a new line, CASE layout, WINDOW layout, keyword case, and whether to quote every identifier.
+
+image::hop-gui/database/apache-calcite-sql-formatter-layout-options.png[Apache Calcite SQL formatter layout options,width="90%"]
+
+image::hop-gui/database/apache-calcite-sql-formatter-keywords-and-identifiers-options.png[Apache Calcite SQL formatter keyword and identifier options,width="90%"]
+
+Changes are saved immediately to hop-config.json and used the next time you click **Format SQL**.
+
+Calcite cannot parse every vendor extension.
+Statements it does not understand are left unchanged when they sit next to statements it can format; if nothing in the buffer can be parsed, an error dialog explains why.
+
+See the official documentation:
+
+* https://calcite.apache.org/javadocAggregate/org/apache/calcite/sql/pretty/SqlPrettyWriter.html[SqlPrettyWriter]
+* xref:dev-manual::gui-plugins-toolbars.adoc[GUI plugins and toolbars] (this plugin is the SQL formatter example)

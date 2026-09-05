@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.widget.editor;
 
 import org.apache.hop.ui.core.widget.IFindReplaceTarget;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Control;
 import org.jspecify.annotations.Nullable;
@@ -34,6 +35,109 @@ public interface IContentEditorWidget extends IFindReplaceTarget {
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ContentEditor-Toolbar";
 
   public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "ContentEditor-ContextMenu";
+
+  /**
+   * SWT widget data key for a {@link Runnable} invoked on Ctrl+Enter / Cmd+Enter (execute the
+   * statement around the caret in a SQL editor).
+   */
+  String DATA_EXECUTE_ACTION = "hop.contentEditor.executeAction";
+
+  /**
+   * Set on the editor control for the duration of a Ctrl+Enter keystroke so StyledText cannot
+   * insert the Return. GTK VerifyKey events often arrive with {@code stateMask == 0}.
+   */
+  String DATA_EAT_EXECUTE_NEWLINE = "hop.contentEditor.eatExecuteNewline";
+
+  /**
+   * Walk ancestors of {@code start} for {@link #DATA_EXECUTE_ACTION}.
+   *
+   * @return the action, or {@code null} when none is registered
+   */
+  static Runnable executeActionOf(Control start) {
+    Control current = start;
+    while (current != null && !current.isDisposed()) {
+      Object data = current.getData(DATA_EXECUTE_ACTION);
+      if (data instanceof Runnable runnable) {
+        return runnable;
+      }
+      current = current.getParent();
+    }
+    return null;
+  }
+
+  static boolean eatExecuteNewlineArmed(Control start) {
+    Control current = start;
+    while (current != null && !current.isDisposed()) {
+      if (Boolean.TRUE.equals(current.getData(DATA_EAT_EXECUTE_NEWLINE))) {
+        return true;
+      }
+      current = current.getParent();
+    }
+    return false;
+  }
+
+  /** Ctrl or Cmd held, Shift not held. */
+  static boolean isExecuteModifier(int stateMask) {
+    if ((stateMask & SWT.SHIFT) != 0) {
+      return false;
+    }
+    return (stateMask & (SWT.MOD1 | SWT.CONTROL | SWT.COMMAND)) != 0;
+  }
+
+  /** Return / Enter, including keypad. */
+  static boolean isExecuteNewline(int keyCode, char character) {
+    int code = keyCode & SWT.KEY_MASK;
+    return keyCode == SWT.CR
+        || keyCode == SWT.KEYPAD_CR
+        || code == SWT.CR
+        || character == SWT.CR
+        || character == SWT.LF;
+  }
+
+  /**
+   * Ctrl/Cmd+Enter without Shift (main or keypad). GTK often reports Return as {@link SWT#CR} with
+   * {@code character == 0} when Control is down.
+   */
+  static boolean isExecuteKey(int stateMask, int keyCode, char character) {
+    return isExecuteModifier(stateMask) && isExecuteNewline(keyCode, character);
+  }
+
+  /** Ctrl or Cmd held together with Shift. */
+  static boolean isExecuteAllModifier(int stateMask) {
+    if ((stateMask & SWT.SHIFT) == 0) {
+      return false;
+    }
+    return (stateMask & (SWT.MOD1 | SWT.CONTROL | SWT.COMMAND)) != 0;
+  }
+
+  /** Ctrl/Cmd+Shift+Enter: run every statement in the SQL editor. */
+  static boolean isExecuteAllKey(int stateMask, int keyCode, char character) {
+    return isExecuteAllModifier(stateMask) && isExecuteNewline(keyCode, character);
+  }
+
+  /** {@link SWT#TRAVERSE_RETURN} with Ctrl/Cmd+Shift. */
+  static boolean isExecuteAllTraverse(int detail, int stateMask) {
+    return detail == SWT.TRAVERSE_RETURN && isExecuteAllModifier(stateMask);
+  }
+
+  /**
+   * True when {@code text} is only a line delimiter (what StyledText inserts for Enter).
+   *
+   * @param text the replacement text from an {@link SWT#Verify} event
+   * @return true if the insert is a newline and should be eaten for Ctrl+Enter
+   */
+  static boolean isLineDelimiterText(@Nullable String text) {
+    return "\n".equals(text) || "\r".equals(text) || "\r\n".equals(text);
+  }
+
+  /**
+   * {@link SWT#TRAVERSE_RETURN} with Ctrl/Cmd. StyledText sets {@code doit=true} for Return when
+   * modifiers are held so the shell can activate its default button; that consumes the key before
+   * KeyDown on GTK.
+   */
+  static boolean isExecuteTraverse(int detail, int stateMask) {
+    return detail == SWT.TRAVERSE_RETURN && isExecuteModifier(stateMask);
+  }
 
   /**
    * The SWT control to attach to a layout (e.g. the editor composite or the AWT bridge canvas).

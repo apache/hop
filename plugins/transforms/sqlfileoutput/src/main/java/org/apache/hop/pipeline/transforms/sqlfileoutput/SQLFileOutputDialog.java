@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -33,7 +32,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -42,6 +40,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -944,10 +943,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor editor =
-              new SqlEditor(
-                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-          editor.open();
+          DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(BaseMessages.getString(PKG, "SQLFileOutputDialog.NoSQL.DialogMessage"));

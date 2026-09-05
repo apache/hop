@@ -405,6 +405,19 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
   }
 
   @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    if (Utils.isEmpty(viewName)) {
+      return null;
+    }
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT TEXT FROM ALL_VIEWS WHERE VIEW_NAME = ").append(quoteSqlString(viewName));
+    if (!Utils.isEmpty(schemaName)) {
+      sql.append(" AND OWNER = ").append(quoteSqlString(schemaName));
+    }
+    return sql.toString();
+  }
+
+  @Override
   public String getSqlTableExists(String tableName) {
     return getSqlQueryFields(tableName);
   }
