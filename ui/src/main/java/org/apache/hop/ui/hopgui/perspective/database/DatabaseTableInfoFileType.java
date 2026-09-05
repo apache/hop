@@ -38,7 +38,7 @@ public class DatabaseTableInfoFileType extends HopFileTypeBase {
 
   @Override
   public String getName() {
-    return "Table information";
+    return "Object information";
   }
 
   @Override

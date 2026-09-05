@@ -267,6 +267,31 @@ public interface IDatabase extends Cloneable {
   String getSqlQueryFields(String tableName);
 
   /**
+   * Catalog query whose result contains this view's definition (the SELECT, or a full {@code CREATE
+   * VIEW}). The interesting column is named like {@code VIEW_DEFINITION}, {@code TEXT} or {@code
+   * sql}.
+   *
+   * @param schemaName schema or catalog, or {@code null}
+   * @param viewName view name
+   * @return SQL to run, or {@code null} when this dialect has no catalog query
+   */
+  default String getSqlViewDefinition(String schemaName, String viewName) {
+    return null;
+  }
+
+  /**
+   * Catalog query whose result is the {@code CREATE TABLE} / {@code CREATE VIEW} statement (for
+   * example {@code SHOW CREATE TABLE}). Used before synthesizing DDL from column metadata.
+   *
+   * @param schemaName schema or catalog, or {@code null}
+   * @param objectName table or view name
+   * @return SQL to run, or {@code null} when this dialect has no catalog DDL query
+   */
+  default String getSqlObjectDdl(String schemaName, String objectName) {
+    return null;
+  }
+
+  /**
    * Get the not found technical key.
    *
    * @param useAutoIncrement Whether or not we want to use an auto increment field

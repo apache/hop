@@ -22,8 +22,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,6 +54,8 @@ import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.database.config.DatabasePerspectiveConfig;
+import org.apache.hop.ui.hopgui.perspective.database.config.DatabasePerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
@@ -72,10 +74,11 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   public static final Class<?> PKG = DatabasePerspective.class;
 
   public static final String TOOLBAR_ITEM_RUN = "ContentEditor-Toolbar-05000-run";
+  public static final String TOOLBAR_ITEM_RUN_ALL = "ContentEditor-Toolbar-05010-run-all";
 
   static final String DATA_SQL_TAB = DatabaseSqlEditorTab.class.getName();
 
-  public static final int DEFAULT_ROW_LIMIT = 1000;
+  public static final int DEFAULT_ROW_LIMIT = DatabasePerspectiveConfig.DEFAULT_QUERY_ROW_LIMIT;
 
   private static final DatabaseSqlFileType FILE_TYPE = new DatabaseSqlFileType();
 
@@ -169,9 +172,21 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     }
   }
 
+  @GuiToolbarElement(
+      root = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_RUN_ALL,
+      toolTip = "i18n::DatabasePerspective.SqlTab.RunAll.Tooltip",
+      image = "ui/images/run-all.svg")
+  public static void runAllFromEditor(IContentEditorWidget editor) {
+    DatabaseSqlEditorTab tab = fromEditor(editor);
+    if (tab != null) {
+      tab.executeAllSql();
+    }
+  }
+
   @GuiToolbarElementFilter(parentId = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID)
   public static boolean showRunOnDatabaseSqlEditor(String itemId, Object guiPluginInstance) {
-    if (!TOOLBAR_ITEM_RUN.equals(itemId)) {
+    if (!TOOLBAR_ITEM_RUN.equals(itemId) && !TOOLBAR_ITEM_RUN_ALL.equals(itemId)) {
       return true;
     }
     if (!(guiPluginInstance instanceof IContentEditorWidget editor)) {
@@ -181,7 +196,8 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   }
 
   /**
-   * Listen for Ctrl+Enter / Cmd+Enter on the editor widget tree and run {@link #executeSql()}.
+   * Listen for Ctrl+Enter / Cmd+Enter ({@link #executeSql()}) and Ctrl+Shift+Enter /
+   * Cmd+Shift+Enter ({@link #executeAllSql()}) on the editor widget tree.
    *
    * <p>SWT does not bubble keys, so the listener has to sit on the focused control (desktop {@code
    * StyledText}, RAP fallback {@code Text}), not on this tab composite. On GTK, {@code StyledText}
@@ -246,11 +262,17 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
       }
       return;
     }
-    boolean match =
+    boolean runAll =
         event.type == SWT.Traverse
-            ? IContentEditorWidget.isExecuteTraverse(event.detail, event.stateMask)
-            : IContentEditorWidget.isExecuteKey(event.stateMask, event.keyCode, event.character);
-    if (!match) {
+            ? IContentEditorWidget.isExecuteAllTraverse(event.detail, event.stateMask)
+            : IContentEditorWidget.isExecuteAllKey(event.stateMask, event.keyCode, event.character);
+    boolean runCurrent =
+        !runAll
+            && (event.type == SWT.Traverse
+                ? IContentEditorWidget.isExecuteTraverse(event.detail, event.stateMask)
+                : IContentEditorWidget.isExecuteKey(
+                    event.stateMask, event.keyCode, event.character));
+    if (!runAll && !runCurrent) {
       return;
     }
     event.doit = false;
@@ -263,7 +285,11 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     }
     executeShortcutArmed = true;
     try {
-      executeSql();
+      if (runAll) {
+        executeAllSql();
+      } else {
+        executeSql();
+      }
     } finally {
       Display display = host.getDisplay();
       if (display != null && !display.isDisposed()) {
@@ -328,17 +354,38 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   }
 
   public void executeSql() {
-    String script =
-        SqlExecuteRange.scriptToExecute(
-            editor.getText(), editor.getSelectionText(), editor.getCaretPosition());
-    if (Utils.isEmpty(script)) {
+    String text = editor.getText();
+    String selection = editor.getSelectionText();
+    int caret = editor.getCaretPosition();
+    SqlExecuteRange.Range range = SqlExecuteRange.rangeToExecute(text, selection, caret);
+    boolean wholeRange = selection != null && !selection.isBlank();
+    executeScript(range, wholeRange ? SqlExecuteRange.ALL_STATEMENTS : caret);
+  }
+
+  /** Run every statement in the editor, ignoring caret and selection. */
+  public void executeAllSql() {
+    String text = editor.getText();
+    executeScript(
+        new SqlExecuteRange.Range(Const.NVL(text, ""), 0, text == null ? 0 : text.length()),
+        SqlExecuteRange.ALL_STATEMENTS);
+  }
+
+  private void executeScript(SqlExecuteRange.Range range, int caretInEditor) {
+    if (range == null || range.isBlank()) {
       return;
     }
+    workbench.ensureConnectedForExecute(databaseMeta, () -> runSqlStatements(range, caretInEditor));
+  }
+
+  private void runSqlStatements(SqlExecuteRange.Range range, int caretInEditor) {
+    List<SqlScriptStatement> parsed =
+        databaseMeta.getIDatabase().getSqlScriptStatements(range.script() + Const.CR);
     List<SqlScriptStatement> statements =
-        databaseMeta.getIDatabase().getSqlScriptStatements(script + Const.CR);
+        SqlExecuteRange.statementsToExecute(range, parsed, caretInEditor);
     if (statements.isEmpty()) {
       return;
     }
+    highlightExecutedSql(range, statements);
 
     String description =
         BaseMessages.getString(
@@ -348,6 +395,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
         databaseMeta.getName(),
         operation -> {
           int timeout = queryTimeoutSeconds();
+          int rowLimit = queryRowLimit();
           StringBuilder messages = new StringBuilder();
           List<DatabaseResultsPanel.QueryResult> queryResults = new ArrayList<>();
           try (Database db =
@@ -356,7 +404,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
             if (timeout > 0) {
               db.setStatementQueryTimeoutSeconds(timeout);
             }
-            db.setQueryLimit(DEFAULT_ROW_LIMIT);
+            db.setQueryLimit(rowLimit);
             db.connect();
             int nr = 0;
             for (SqlScriptStatement sql : statements) {
@@ -368,17 +416,10 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
               }
               nr++;
               if (sql.isQuery()) {
-                List<Object[]> rows = db.getRows(sql.getStatement(), DEFAULT_ROW_LIMIT);
+                List<Object[]> rows = db.getRows(sql.getStatement(), rowLimit);
                 IRowMeta rowMeta = db.getReturnRowMeta();
                 queryResults.add(new DatabaseResultsPanel.QueryResult(nr, rowMeta, rows));
-                messages
-                    .append(
-                        BaseMessages.getString(
-                            PKG,
-                            "DatabasePerspective.SqlTab.QueryRows",
-                            Integer.toString(nr),
-                            Integer.toString(rows.size())))
-                    .append(Const.CR);
+                messages.append(queryResultMessage(nr, rows.size(), rowLimit)).append(Const.CR);
               } else {
                 db.execStatement(sql.getStatement());
                 messages
@@ -396,6 +437,38 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
                 showResults();
               });
         });
+  }
+
+  private void highlightExecutedSql(
+      SqlExecuteRange.Range range, List<SqlScriptStatement> statements) {
+    if (!DatabasePerspectiveConfigSingleton.getConfig().isSelectExecutedSql()) {
+      return;
+    }
+    int[] offsets = SqlExecuteRange.editorOffsets(range, statements);
+    if (offsets == null || editor.isDisposed()) {
+      return;
+    }
+    editor.setSelection(offsets[0], offsets[1]);
+  }
+
+  static int queryRowLimit() {
+    return DatabasePerspectiveConfigSingleton.getConfig().resolvedQueryRowLimit();
+  }
+
+  static String queryResultMessage(int statementNr, int rowCount, int rowLimit) {
+    if (rowLimit > 0 && rowCount >= rowLimit) {
+      return BaseMessages.getString(
+          PKG,
+          "DatabasePerspective.SqlTab.QueryRowsLimited",
+          Integer.toString(statementNr),
+          Integer.toString(rowCount),
+          Integer.toString(rowLimit));
+    }
+    return BaseMessages.getString(
+        PKG,
+        "DatabasePerspective.SqlTab.QueryRows",
+        Integer.toString(statementNr),
+        Integer.toString(rowCount));
   }
 
   private int queryTimeoutSeconds() {
@@ -667,7 +740,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
 
   @Override
   public Map<String, Object> getStateProperties() {
-    return Collections.emptyMap();
+    return new HashMap<>();
   }
 
   @Override

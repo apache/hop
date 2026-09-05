@@ -52,7 +52,7 @@ public class SqlFileDatabaseActions {
       root = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_OPEN_IN_DATABASE,
       toolTip = "i18n::DatabasePerspective.OpenInDatabase.Tooltip",
-      image = "ui/images/database.svg",
+      image = "ui/images/database-perspective.svg",
       separator = true)
   public static void openInDatabasePerspective(IContentEditorWidget editor) {
     if (editor == null || editor.isDisposed()) {

@@ -102,6 +102,24 @@ public interface IContentEditorWidget extends IFindReplaceTarget {
     return isExecuteModifier(stateMask) && isExecuteNewline(keyCode, character);
   }
 
+  /** Ctrl or Cmd held together with Shift. */
+  static boolean isExecuteAllModifier(int stateMask) {
+    if ((stateMask & SWT.SHIFT) == 0) {
+      return false;
+    }
+    return (stateMask & (SWT.MOD1 | SWT.CONTROL | SWT.COMMAND)) != 0;
+  }
+
+  /** Ctrl/Cmd+Shift+Enter: run every statement in the SQL editor. */
+  static boolean isExecuteAllKey(int stateMask, int keyCode, char character) {
+    return isExecuteAllModifier(stateMask) && isExecuteNewline(keyCode, character);
+  }
+
+  /** {@link SWT#TRAVERSE_RETURN} with Ctrl/Cmd+Shift. */
+  static boolean isExecuteAllTraverse(int detail, int stateMask) {
+    return detail == SWT.TRAVERSE_RETURN && isExecuteAllModifier(stateMask);
+  }
+
   /**
    * True when {@code text} is only a line delimiter (what StyledText inserts for Enter).
    *

@@ -18,6 +18,8 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +35,19 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -49,6 +55,8 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.database.config.DatabasePerspectiveConfig;
+import org.apache.hop.ui.hopgui.perspective.database.config.DatabasePerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -96,13 +104,19 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   public static final String CONTEXT_MENU_PREVIEW = "DatabaseWorkbench-ContextMenu-10050-Preview";
   public static final String CONTEXT_MENU_SHOW = "DatabaseWorkbench-ContextMenu-10060-Show";
 
+  /** {@link TreeMemory} key for schema/catalog expand-collapse across filter and refresh. */
+  public static final String TREE_MEMORY_KEY = "DatabaseWorkbench-Tree";
+
   private static final int FILTER_DEBOUNCE_MS = 250;
+  private static final String RIGHT_SASH_KEY = "database-workbench-right-sash";
 
   private final IDatabaseWorkbenchHost host;
   private final Map<String, DatabaseConnectionState> connections = new LinkedHashMap<>();
   private final List<TabItemHandler> items = new ArrayList<>();
 
   private final SashForm horizontalSash;
+  private final Composite rightComposite;
+  private final SashForm rightSash;
   private final Tree tree;
   private final Text searchText;
   private final GuiToolbarWidgets toolBarWidgets;
@@ -114,6 +128,10 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   private String filterText = "";
   private SearchMatcher filterMatcher = new SearchMatcher("", false, false, false);
   private final Runnable applyFilterRunnable = this::rebuildTree;
+
+  /** True while rebuild applies expand state so SWT Expand/Collapse does not rewrite TreeMemory. */
+  private boolean applyingTreeState;
+
   final Runnable persistSqlTabsRunnable = () -> DatabaseSqlTabMemory.save(this);
   private final String eventListenerId;
   volatile boolean restoringSqlTabs;
@@ -166,6 +184,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         new FormDataBuilder().top(toolBar, PropsUi.getMargin()).bottom().fullWidth().result());
     tree.addListener(SWT.Selection, e -> updateToolbar());
     tree.addListener(SWT.DefaultSelection, e -> onTreeDefaultSelection());
+    tree.addListener(SWT.Expand, e -> rememberTreeExpand((TreeItem) e.item, true));
+    tree.addListener(SWT.Collapse, e -> rememberTreeExpand((TreeItem) e.item, false));
 
     Menu menu = new Menu(tree);
     menuWidgets = new GuiMenuWidgets();
@@ -174,7 +194,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     tree.setMenu(menu);
     tree.addListener(SWT.MenuDetect, e -> updateToolbar());
 
-    SashForm rightSash = new SashForm(horizontalSash, SWT.VERTICAL);
+    rightComposite = new Composite(horizontalSash, SWT.NONE);
+    rightComposite.setLayout(new FormLayout());
+    PropsUi.setLook(rightComposite);
+
+    rightSash = new SashForm(rightComposite, SWT.VERTICAL);
     tabFolder = new CTabFolder(rightSash, SWT.MULTI | SWT.BORDER);
     PropsUi.setLook(tabFolder, PropsUi.WIDGET_STYLE_TAB);
     tabFolder.addCTabFolder2Listener(
@@ -193,9 +217,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         });
     new TabCloseHandler(this, tabFolder);
 
-    operationsPanel = new DatabaseOperationsPanel(rightSash);
+    operationsPanel = new DatabaseOperationsPanel(rightSash, rightComposite);
+    operationsPanel.setExpandedListener(this::layoutOperationsPane);
     rightSash.setWeights(80, 20);
-    SashFormMemory.persist(rightSash, "database-workbench-right-sash", 80, 20);
+    SashFormMemory.persist(rightSash, RIGHT_SASH_KEY, 80, 20);
+    layoutOperationsPane(false);
 
     horizontalSash.setWeights(22, 78);
     SashFormMemory.persist(horizontalSash, "database-workbench-tree-width", 22, 78);
@@ -299,23 +325,85 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     filterText = Const.NVL(searchText.getText(), "");
     filterMatcher = new SearchMatcher(filterText, false, false, false);
     tree.setRedraw(false);
-    tree.removeAll();
-    for (DatabaseConnectionState state : connections.values()) {
-      if (!connectionMatches(state)) {
-        continue;
+    applyingTreeState = true;
+    try {
+      tree.removeAll();
+      for (DatabaseConnectionState state : connections.values()) {
+        if (!connectionMatches(state)) {
+          continue;
+        }
+        TreeItem connectionItem = new TreeItem(tree, SWT.NONE);
+        connectionItem.setText(state.getDatabaseMeta().getName());
+        connectionItem.setImage(GuiResource.getInstance().getImageDatabase());
+        connectionItem.setData(
+            DatabaseTreeNode.connection(state.getDatabaseMeta().getName(), state.isConnected()));
+        if (state.isConnected() && state.getInformation() != null) {
+          fillConnectionChildren(connectionItem, state);
+          connectionItem.setExpanded(true);
+        }
       }
-      TreeItem connectionItem = new TreeItem(tree, SWT.NONE);
-      connectionItem.setText(state.getDatabaseMeta().getName());
-      connectionItem.setImage(GuiResource.getInstance().getImageDatabase());
-      connectionItem.setData(
-          DatabaseTreeNode.connection(state.getDatabaseMeta().getName(), state.isConnected()));
-      if (state.isConnected() && state.getInformation() != null) {
-        fillConnectionChildren(connectionItem, state);
-        connectionItem.setExpanded(true);
+      restoreSchemaExpandState();
+      if (!Utils.isEmpty(filterText)) {
+        expandMatchingSchemaItems();
+      }
+    } finally {
+      applyingTreeState = false;
+      tree.setRedraw(true);
+    }
+    updateToolbar();
+  }
+
+  private void rememberTreeExpand(TreeItem item, boolean expanded) {
+    if (applyingTreeState || item == null || item.isDisposed()) {
+      return;
+    }
+    Object data = item.getData();
+    if (data instanceof DatabaseTreeNode node && remembersExpandState(node.getKind())) {
+      TreeMemory.getInstance().storeExpanded(TREE_MEMORY_KEY, item, expanded);
+    }
+  }
+
+  static boolean remembersExpandState(DatabaseTreeNode.Kind kind) {
+    return kind == DatabaseTreeNode.Kind.SCHEMA || kind == DatabaseTreeNode.Kind.CATALOG;
+  }
+
+  private void restoreSchemaExpandState() {
+    for (TreeItem connection : tree.getItems()) {
+      restoreSchemaExpandState(connection);
+    }
+  }
+
+  private void restoreSchemaExpandState(TreeItem parent) {
+    for (TreeItem child : parent.getItems()) {
+      Object data = child.getData();
+      if (data instanceof DatabaseTreeNode node && remembersExpandState(node.getKind())) {
+        child.setExpanded(
+            TreeMemory.getInstance().isExpanded(TREE_MEMORY_KEY, ConstUi.getTreeStrings(child)));
+      }
+      restoreSchemaExpandState(child);
+    }
+  }
+
+  /**
+   * While a filter is active, open schema/catalog folders that still have visible children so
+   * matches are not hidden. Those expands are not stored (see {@link #applyingTreeState}).
+   */
+  private void expandMatchingSchemaItems() {
+    for (TreeItem connection : tree.getItems()) {
+      boolean any = false;
+      for (TreeItem child : connection.getItems()) {
+        Object data = child.getData();
+        if (data instanceof DatabaseTreeNode node
+            && remembersExpandState(node.getKind())
+            && child.getItemCount() > 0) {
+          child.setExpanded(true);
+          any = true;
+        }
+      }
+      if (any) {
+        connection.setExpanded(true);
       }
     }
-    tree.setRedraw(true);
-    updateToolbar();
   }
 
   private boolean connectionMatches(DatabaseConnectionState state) {
@@ -351,6 +439,26 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         }
       }
     }
+    if (mapHasMatch(info.getViewMap()) || mapHasMatch(info.getSynonymMap())) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean mapHasMatch(Map<String, Collection<String>> map) {
+    if (map == null) {
+      return false;
+    }
+    for (Collection<String> names : map.values()) {
+      if (names == null) {
+        continue;
+      }
+      for (String name : names) {
+        if (filterMatcher.matches(name)) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 
@@ -360,20 +468,15 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     Schema[] schemas = info.getSchemas();
     if (schemas != null && schemas.length > 0) {
       for (Schema schema : schemas) {
-        if (!schemaOrChildMatches(schema)) {
+        if (!schemaOrChildMatches(schema, info)) {
           continue;
         }
         TreeItem schemaItem = new TreeItem(connectionItem, SWT.NONE);
         schemaItem.setText(Const.NVL(schema.getSchemaName(), ""));
         schemaItem.setImage(GuiResource.getInstance().getImageSchema());
         schemaItem.setData(DatabaseTreeNode.schema(connectionName, schema.getSchemaName()));
-        addTables(
-            schemaItem,
-            connectionName,
-            schema.getSchemaName(),
-            schema.getItems(),
-            DatabaseTreeNode.Kind.TABLE);
-        schemaItem.setExpanded(!Utils.isEmpty(filterText));
+        addSchemaObjects(
+            schemaItem, connectionName, schema.getSchemaName(), schema.getItems(), info);
       }
       return;
     }
@@ -384,12 +487,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         catalogItem.setText(Const.NVL(catalog.getCatalogName(), ""));
         catalogItem.setImage(GuiResource.getInstance().getImageFolder());
         catalogItem.setData(DatabaseTreeNode.catalog(connectionName, catalog.getCatalogName()));
-        addTables(
-            catalogItem,
-            connectionName,
-            catalog.getCatalogName(),
-            catalog.getItems(),
-            DatabaseTreeNode.Kind.TABLE);
+        addSchemaObjects(
+            catalogItem, connectionName, catalog.getCatalogName(), catalog.getItems(), info);
       }
       return;
     }
@@ -413,7 +512,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         DatabaseTreeNode.Kind.SYNONYM);
   }
 
-  private boolean schemaOrChildMatches(Schema schema) {
+  private boolean schemaOrChildMatches(Schema schema, DatabaseMetaInformation info) {
     if (Utils.isEmpty(filterText)) {
       return true;
     }
@@ -427,7 +526,83 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         }
       }
     }
+    for (String view : namesForSchema(info.getViewMap(), schema.getSchemaName())) {
+      if (filterMatcher.matches(view)) {
+        return true;
+      }
+    }
     return false;
+  }
+
+  /**
+   * Tables, views and synonyms under a schema (or catalog). Views get {@code view.svg} via {@link
+   * DatabaseTreeNode#kindOf}.
+   */
+  private void addSchemaObjects(
+      TreeItem parent,
+      String connectionName,
+      String schemaName,
+      String[] items,
+      DatabaseMetaInformation info) {
+    Collection<String> views = namesForSchema(info.getViewMap(), schemaName);
+    Collection<String> synonyms = namesForSchema(info.getSynonymMap(), schemaName);
+    List<String> names = new ArrayList<>();
+    if (items != null) {
+      names.addAll(Arrays.asList(items));
+    }
+    for (String view : views) {
+      if (!DatabaseTreeNode.containsIgnoreCase(names, view)) {
+        names.add(view);
+      }
+    }
+    for (String synonym : synonyms) {
+      if (!DatabaseTreeNode.containsIgnoreCase(names, synonym)) {
+        names.add(synonym);
+      }
+    }
+    names.sort(String.CASE_INSENSITIVE_ORDER);
+    for (String name : names) {
+      if (!matchesFilter(name, schemaName, connectionName)) {
+        continue;
+      }
+      DatabaseTreeNode.Kind kind = DatabaseTreeNode.kindOf(name, views, synonyms);
+      TreeItem item = new TreeItem(parent, SWT.NONE);
+      item.setText(name);
+      item.setImage(imageFor(kind));
+      item.setData(DatabaseTreeNode.table(kind, connectionName, schemaName, name));
+    }
+  }
+
+  static Collection<String> namesForSchema(Map<String, Collection<String>> map, String schemaName) {
+    if (map == null || map.isEmpty()) {
+      return List.of();
+    }
+    if (schemaName != null) {
+      Collection<String> exact = map.get(schemaName);
+      if (exact != null) {
+        return exact;
+      }
+      for (Map.Entry<String, Collection<String>> entry : map.entrySet()) {
+        if (schemaName.equalsIgnoreCase(entry.getKey()) && entry.getValue() != null) {
+          return entry.getValue();
+        }
+      }
+    }
+    Collection<String> empty = map.get("");
+    if (empty != null) {
+      return empty;
+    }
+    Collection<String> missing = map.get(null);
+    return missing != null ? missing : List.of();
+  }
+
+  private boolean matchesFilter(String name, String schemaName, String connectionName) {
+    if (Utils.isEmpty(filterText)) {
+      return true;
+    }
+    return filterMatcher.matches(name)
+        || filterMatcher.matches(schemaName)
+        || filterMatcher.matches(connectionName);
   }
 
   private void addFolder(
@@ -529,6 +704,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   }
 
   private void onTreeDefaultSelection() {
+    TreeItem[] selection = tree.getSelection();
+    TreeItem item = selection.length == 1 ? selection[0] : null;
     DatabaseTreeNode node = selectedNode();
     DatabaseConnectionState state = selectedState();
     if (node != null
@@ -536,6 +713,10 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         && state != null
         && !state.isConnected()) {
       connect(state);
+      return;
+    }
+    if (item != null && item.getItemCount() > 0 && (node == null || !node.isTableLike())) {
+      item.setExpanded(!item.getExpanded());
       return;
     }
     previewTable();
@@ -561,6 +742,14 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   }
 
   public void connect(DatabaseConnectionState state) {
+    connect(state, null);
+  }
+
+  /**
+   * Load schemas/tables for {@code state}. When {@code afterConnected} is set, it runs on the UI
+   * thread after a successful connect.
+   */
+  public void connect(DatabaseConnectionState state, Runnable afterConnected) {
     DatabaseMeta meta = state.getDatabaseMeta();
     String description =
         BaseMessages.getString(PKG, "DatabasePerspective.Operation.Connect", meta.getName());
@@ -579,8 +768,70 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
                 state.setConnected(true);
                 rebuildTree();
                 selectConnection(meta.getName());
+                if (afterConnected != null) {
+                  afterConnected.run();
+                }
               });
         });
+  }
+
+  /**
+   * If {@code meta} is already connected in this workbench, run {@code afterConnected} immediately.
+   * Otherwise ask (or auto-connect from config), connect, then run {@code afterConnected}.
+   *
+   * @return {@code false} when the user declined to connect
+   */
+  public boolean ensureConnectedForExecute(DatabaseMeta meta, Runnable afterConnected) {
+    if (meta == null || afterConnected == null) {
+      return false;
+    }
+    DatabaseConnectionState state = ensureConnection(meta);
+    if (state.isConnected()) {
+      afterConnected.run();
+      return true;
+    }
+    if (!confirmConnectForExecute(meta)) {
+      return false;
+    }
+    connect(state, afterConnected);
+    return true;
+  }
+
+  /**
+   * @return {@code true} when SQL execution should connect (auto-connect, or the user chose Yes)
+   */
+  boolean confirmConnectForExecute(DatabaseMeta meta) {
+    DatabasePerspectiveConfig config = DatabasePerspectiveConfigSingleton.getConfig();
+    if (config.isAutoConnectWhenExecutingSql()) {
+      return true;
+    }
+    MessageDialogWithToggle dialog =
+        new MessageDialogWithToggle(
+            host.getShell(),
+            BaseMessages.getString(PKG, "DatabasePerspective.ConnectToExecute.Title"),
+            BaseMessages.getString(
+                PKG, "DatabasePerspective.ConnectToExecute.Message", Const.NVL(meta.getName(), "")),
+            SWT.ICON_QUESTION,
+            new String[] {
+              BaseMessages.getString(PKG, "System.Button.Yes"),
+              BaseMessages.getString(PKG, "System.Button.No")
+            },
+            BaseMessages.getString(PKG, "DatabasePerspective.ConnectToExecute.Toggle"),
+            false);
+    int answer = dialog.open();
+    if (dialog.getToggleState()) {
+      config.setAutoConnectWhenExecutingSql(true);
+      try {
+        DatabasePerspectiveConfigSingleton.saveConfig();
+      } catch (Exception e) {
+        new ErrorDialog(
+            host.getShell(),
+            BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+            e.getMessage(),
+            e);
+      }
+    }
+    return (answer & 0xFF) == 0;
   }
 
   @GuiToolbarElement(
@@ -704,12 +955,26 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     DatabaseMeta meta = state.getDatabaseMeta();
-    String qualified =
-        meta.getQuotedSchemaTableCombination(
-            host.getVariables(), node.getSchemaName(), node.getObjectName());
-    String sql = "SELECT * FROM " + qualified;
+    String sql =
+        previewSelectSql(
+            meta,
+            host.getVariables(),
+            node.getSchemaName(),
+            node.getObjectName(),
+            DatabaseSqlEditorTab.queryRowLimit());
     DatabaseSqlEditorTab tab = openSqlTab(meta, sql, null, sql, false);
     tab.executeSql();
+  }
+
+  /**
+   * {@code SELECT * FROM schema.table} plus the dialect's limit clause ({@link
+   * DatabaseMeta#getLimitClause(int)}).
+   */
+  static String previewSelectSql(
+      DatabaseMeta meta, IVariables variables, String schemaName, String tableName, int rowLimit) {
+    String qualified = meta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+    String limit = Const.NVL(meta.getLimitClause(rowLimit), "");
+    return "SELECT * FROM " + qualified + limit;
   }
 
   @GuiToolbarElement(
@@ -729,7 +994,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (node == null || state == null || !node.isTableLike()) {
       return;
     }
-    openTableInfo(state.getDatabaseMeta(), node.getSchemaName(), node.getObjectName());
+    openTableInfo(
+        state.getDatabaseMeta(), node.getSchemaName(), node.getObjectName(), node.getKind());
   }
 
   @GuiToolbarElement(
@@ -799,6 +1065,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   }
 
   public void openTableInfo(DatabaseMeta meta, String schemaName, String tableName) {
+    openTableInfo(meta, schemaName, tableName, DatabaseTreeNode.Kind.TABLE);
+  }
+
+  public void openTableInfo(
+      DatabaseMeta meta, String schemaName, String tableName, DatabaseTreeNode.Kind kind) {
     for (TabItemHandler item : items) {
       if (item.getTypeHandler() instanceof DatabaseTableInfoTab tab
           && tab.matches(meta.getName(), schemaName, tableName)) {
@@ -808,7 +1079,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     }
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
     DatabaseTableInfoTab tab =
-        new DatabaseTableInfoTab(tabFolder, host, this, meta, schemaName, tableName);
+        new DatabaseTableInfoTab(tabFolder, host, this, meta, schemaName, tableName, kind);
     tab.setTabItem(tabItem);
     tabItem.setControl(tab.getControl());
     tabItem.setData(tab);
@@ -960,6 +1231,27 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   public DatabaseMeta findConnection(String name) {
     DatabaseConnectionState state = connections.get(name);
     return state == null ? null : state.getDatabaseMeta();
+  }
+
+  private void layoutOperationsPane(boolean expanded) {
+    if (rightSash.isDisposed() || rightComposite.isDisposed()) {
+      return;
+    }
+    Composite statusBar = operationsPanel.getStatusBar();
+    if (expanded) {
+      statusBar.setVisible(false);
+      statusBar.setLayoutData(new FormDataBuilder().left().bottom().height(0).width(0).result());
+      rightSash.setLayoutData(new FormDataBuilder().fullSize().result());
+      rightSash.setMaximizedControl(null);
+      SashFormMemory.restore(rightSash, RIGHT_SASH_KEY, 80, 20);
+    } else {
+      statusBar.setVisible(true);
+      statusBar.setLayoutData(new FormDataBuilder().bottom().fullWidth().result());
+      rightSash.setLayoutData(
+          new FormDataBuilder().top().fullWidth().bottom(statusBar, 0).result());
+      rightSash.setMaximizedControl(tabFolder);
+    }
+    rightComposite.layout(true, true);
   }
 
   public void runOperation(String description, String connectionName, DatabaseOperation.Work work) {

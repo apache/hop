@@ -925,6 +925,56 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * SQL-standard catalog lookup. Dialects without {@code INFORMATION_SCHEMA.VIEWS} override this
+   * (Oracle, SQLite) or {@link #getSqlObjectDdl(String, String)} (MySQL {@code SHOW CREATE TABLE}).
+   */
+  @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    if (Utils.isEmpty(viewName)) {
+      return null;
+    }
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = ");
+    sql.append(quoteSqlString(viewName));
+    if (!Utils.isEmpty(schemaName)) {
+      sql.append(" AND TABLE_SCHEMA = ").append(quoteSqlString(schemaName));
+    }
+    return sql.toString();
+  }
+
+  /**
+   * Quote an identifier for catalog SQL such as {@code SHOW CREATE TABLE}. Always quotes, unlike
+   * {@link DatabaseMeta#quoteField(String)}.
+   */
+  protected String quoteIdentifierAlways(String name) {
+    if (name == null) {
+      return null;
+    }
+    String start = Const.NVL(getStartQuote(), "");
+    String end = Const.NVL(getEndQuote(), start);
+    if (start.isEmpty()) {
+      return name;
+    }
+    return start + name.replace(end, end + end) + end;
+  }
+
+  /**
+   * {@code SHOW CREATE TABLE} for MySQL, Hive and similar. Quotes schema and object names.
+   *
+   * @return the statement, or {@code null} when {@code objectName} is empty
+   */
+  protected String showCreateTableSql(String schemaName, String objectName) {
+    if (Utils.isEmpty(objectName)) {
+      return null;
+    }
+    String qualified =
+        Utils.isEmpty(schemaName)
+            ? quoteIdentifierAlways(objectName)
+            : quoteIdentifierAlways(schemaName) + "." + quoteIdentifierAlways(objectName);
+    return "SHOW CREATE TABLE " + qualified;
+  }
+
+  /**
    * Most databases round number(7,2) 17.29999999 to 17.30, but some don't.
    *
    * @return true if the database supports roundinf of floating point data on update/insert
@@ -1648,12 +1698,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
         String stat = all.substring(from, to);
         if (!onlySpaces(stat)) {
           String s = Const.trim(stat);
-          statements.add(
-              new SqlScriptStatement(
-                  s,
-                  from,
-                  to,
-                  s.toUpperCase().startsWith("SELECT") || s.toLowerCase().startsWith("show")));
+          statements.add(new SqlScriptStatement(s, from, to, SqlQueryClassifier.isQuery(s)));
         }
         to++;
         from = to;

@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Shell;
     id = "170-HopDatabasePerspective",
     name = "i18n::DatabasePerspective.Name",
     description = "i18n::DatabasePerspective.Description",
-    image = "ui/images/database.svg",
+    image = "ui/images/database-perspective.svg",
     documentationUrl = "/hop-gui/perspective-database.html")
 @GuiPlugin(
     name = "i18n::DatabasePerspective.Name",

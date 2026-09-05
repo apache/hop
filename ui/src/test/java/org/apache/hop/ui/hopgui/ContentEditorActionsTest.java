@@ -57,6 +57,20 @@ class ContentEditorActionsTest {
     assertEquals("ui/images/run.svg", element.image());
   }
 
+  @Test
+  void databaseSqlRunAllIsOnTheContentEditorToolbar() throws Exception {
+    Method method =
+        org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab.class.getMethod(
+            "runAllFromEditor", IContentEditorWidget.class);
+    GuiToolbarElement element = method.getAnnotation(GuiToolbarElement.class);
+    assertNotNull(element);
+    assertEquals(IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID, element.root());
+    assertEquals(
+        org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab.TOOLBAR_ITEM_RUN_ALL,
+        element.id());
+    assertEquals("ui/images/run-all.svg", element.image());
+  }
+
   private static GuiToolbarElement toolbarElement(String methodName) throws Exception {
     Method method = ContentEditorActions.class.getMethod(methodName, IContentEditorWidget.class);
     GuiToolbarElement element = method.getAnnotation(GuiToolbarElement.class);

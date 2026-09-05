@@ -20,8 +20,12 @@ package org.apache.hop.ui.hopgui.perspective.database;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
+import lombok.Getter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -33,11 +37,17 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-/** Bottom-of-right-hand-side list of long-running database operations with kill. */
+/**
+ * Database operations: a one-line status by default, expandable to a table with kill.
+ *
+ * <p>The table lives in the workbench sash. The status bar is a sibling composite so it stays
+ * visible when the sash maximizes the editor tabs.
+ */
 @GuiPlugin
 public class DatabaseOperationsPanel extends Composite {
 
@@ -45,15 +55,28 @@ public class DatabaseOperationsPanel extends Composite {
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "DatabaseOperationsPanel-Toolbar";
   public static final String TOOLBAR_ITEM_KILL = "DatabaseOperations-Toolbar-10000-Kill";
+  public static final String TOOLBAR_ITEM_MINIMIZE = "DatabaseOperations-Toolbar-10010-Minimize";
+
+  public static final String GUI_PLUGIN_STATUS_TOOLBAR_PARENT_ID =
+      "DatabaseOperationsStatus-Toolbar";
+  public static final String TOOLBAR_ITEM_STATUS_KILL =
+      "DatabaseOperationsStatus-Toolbar-10000-Kill";
+  public static final String TOOLBAR_ITEM_STATUS_EXPAND =
+      "DatabaseOperationsStatus-Toolbar-10010-Expand";
 
   private final List<DatabaseOperation> operations = new ArrayList<>();
   private final Table table;
   private final GuiToolbarWidgets toolBarWidgets;
+  private final GuiToolbarWidgets statusToolBarWidgets;
+  @Getter private final Composite statusBar;
+  private final Label statusLabel;
   private final Runnable tickElapsed = this::refreshElapsed;
   private boolean timerArmed;
+  private boolean expanded;
+  private Consumer<Boolean> expandedListener;
 
-  public DatabaseOperationsPanel(Composite parent) {
-    super(parent, SWT.NONE);
+  public DatabaseOperationsPanel(Composite sashParent, Composite statusParent) {
+    super(sashParent, SWT.NONE);
     PropsUi.setLook(this);
     setLayout(new FormLayout());
 
@@ -81,6 +104,32 @@ public class DatabaseOperationsPanel extends Composite {
     addColumn(BaseMessages.getString(PKG, "DatabasePerspective.Operations.Column.Status"), 100);
     addColumn(BaseMessages.getString(PKG, "DatabasePerspective.Operations.Column.Elapsed"), 80);
 
+    statusBar = new Composite(statusParent, SWT.NONE);
+    statusBar.setLayout(new FormLayout());
+    PropsUi.setLook(statusBar, PropsUi.WIDGET_STYLE_TOOLBAR);
+
+    IToolbarContainer statusToolBarContainer =
+        ToolbarFacade.createToolbarContainer(statusBar, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    Control statusToolBar = statusToolBarContainer.getControl();
+    statusToolBar.setLayoutData(new FormDataBuilder().top().right().bottom().result());
+    PropsUi.setLook(statusToolBar, PropsUi.WIDGET_STYLE_TOOLBAR);
+    statusToolBarWidgets = new GuiToolbarWidgets();
+    statusToolBarWidgets.registerGuiPluginObject(this);
+    statusToolBarWidgets.createToolbarWidgets(
+        statusToolBarContainer, GUI_PLUGIN_STATUS_TOOLBAR_PARENT_ID);
+    statusToolBar.pack();
+
+    statusLabel = new Label(statusBar, SWT.LEFT);
+    PropsUi.setLook(statusLabel, PropsUi.WIDGET_STYLE_TOOLBAR);
+    statusLabel.setLayoutData(
+        new FormDataBuilder()
+            .left()
+            .top()
+            .bottom()
+            .right(statusToolBar, -PropsUi.getMargin())
+            .result());
+
+    updateStatusLine();
     updateKillEnablement();
   }
 
@@ -90,11 +139,30 @@ public class DatabaseOperationsPanel extends Composite {
     column.setWidth(width);
   }
 
+  public void setExpandedListener(Consumer<Boolean> expandedListener) {
+    this.expandedListener = expandedListener;
+  }
+
+  public boolean isExpanded() {
+    return expanded;
+  }
+
+  public void setExpanded(boolean expanded) {
+    if (this.expanded == expanded) {
+      return;
+    }
+    this.expanded = expanded;
+    if (expandedListener != null) {
+      expandedListener.accept(expanded);
+    }
+  }
+
   public void addOperation(DatabaseOperation operation) {
     operations.add(0, operation);
     TableItem item = new TableItem(table, SWT.NONE, 0);
     fillItem(item, operation);
     table.setSelection(0);
+    updateStatusLine();
     updateKillEnablement();
     armTimer();
   }
@@ -106,6 +174,7 @@ public class DatabaseOperationsPanel extends Composite {
     for (int i = 0; i < operations.size() && i < table.getItemCount(); i++) {
       fillItem(table.getItem(i), operations.get(i));
     }
+    updateStatusLine();
     updateKillEnablement();
     armTimer();
   }
@@ -123,6 +192,7 @@ public class DatabaseOperationsPanel extends Composite {
         anyRunning = true;
       }
     }
+    updateStatusLine();
     if (anyRunning) {
       armTimer();
     }
@@ -149,7 +219,25 @@ public class DatabaseOperationsPanel extends Composite {
     item.setData(operation);
   }
 
-  private String statusLabel(DatabaseOperation operation) {
+  private void updateStatusLine() {
+    if (statusLabel == null || statusLabel.isDisposed()) {
+      return;
+    }
+    String text = formatStatusLine(currentOperation());
+    statusLabel.setText(text);
+    statusLabel.setToolTipText(text);
+  }
+
+  DatabaseOperation currentOperation() {
+    for (DatabaseOperation operation : operations) {
+      if (!operation.isFinished()) {
+        return operation;
+      }
+    }
+    return operations.isEmpty() ? null : operations.get(0);
+  }
+
+  static String statusLabel(DatabaseOperation operation) {
     return switch (operation.getStatus()) {
       case RUNNING -> BaseMessages.getString(PKG, "DatabasePerspective.Operations.Status.Running");
       case DONE -> BaseMessages.getString(PKG, "DatabasePerspective.Operations.Status.Done");
@@ -157,6 +245,20 @@ public class DatabaseOperationsPanel extends Composite {
       case CANCELLED ->
           BaseMessages.getString(PKG, "DatabasePerspective.Operations.Status.Cancelled");
     };
+  }
+
+  static String formatStatusLine(DatabaseOperation operation) {
+    if (operation == null) {
+      return "";
+    }
+    StringBuilder line = new StringBuilder();
+    line.append(Const.NVL(operation.getDescription(), ""));
+    if (!Utils.isEmpty(operation.getConnectionName())) {
+      line.append(" - ").append(operation.getConnectionName());
+    }
+    line.append(" - ").append(statusLabel(operation));
+    line.append(" - ").append(formatElapsed(operation.elapsedMillis()));
+    return line.toString();
   }
 
   static String formatElapsed(long millis) {
@@ -183,6 +285,37 @@ public class DatabaseOperationsPanel extends Composite {
     }
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_MINIMIZE,
+      toolTip = "i18n::DatabasePerspective.Operations.Minimize.Tooltip",
+      image = "ui/images/minimize-panel.svg")
+  public void minimize() {
+    setExpanded(false);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_STATUS_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_STATUS_KILL,
+      toolTip = "i18n::DatabasePerspective.Operations.KillCurrent.Tooltip",
+      image = "ui/images/stop.svg")
+  public void killCurrent() {
+    DatabaseOperation operation = currentOperation();
+    if (operation != null && !operation.isFinished()) {
+      operation.cancel();
+      refresh();
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_STATUS_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_STATUS_EXPAND,
+      toolTip = "i18n::DatabasePerspective.Operations.Expand.Tooltip",
+      image = "ui/images/maximize-panel.svg")
+  public void expand() {
+    setExpanded(true);
+  }
+
   private DatabaseOperation selectedOperation() {
     TableItem[] selection = table.getSelection();
     if (selection.length != 1) {
@@ -193,9 +326,11 @@ public class DatabaseOperationsPanel extends Composite {
   }
 
   private void updateKillEnablement() {
-    DatabaseOperation operation = selectedOperation();
-    toolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_KILL, operation != null && !operation.isFinished());
+    DatabaseOperation selected = selectedOperation();
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_KILL, selected != null && !selected.isFinished());
+    DatabaseOperation current = currentOperation();
+    statusToolBarWidgets.enableToolbarItem(
+        TOOLBAR_ITEM_STATUS_KILL, current != null && !current.isFinished());
   }
 
   public void cancelAll() {

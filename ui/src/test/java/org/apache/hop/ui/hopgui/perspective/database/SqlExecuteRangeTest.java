@@ -17,10 +17,15 @@
 
 package org.apache.hop.ui.hopgui.perspective.database;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.NoneDatabaseMeta;
+import org.apache.hop.core.database.SqlScriptStatement;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.eclipse.swt.SWT;
 import org.junit.jupiter.api.Test;
@@ -104,6 +109,82 @@ class SqlExecuteRangeTest {
   }
 
   @Test
+  void rangeToExecuteKeepsOffsetsInEditor() {
+    String text = "prefix\nSELECT 1;\n\nSELECT 2;";
+    int caret = text.indexOf("SELECT 2");
+    SqlExecuteRange.Range range = SqlExecuteRange.rangeToExecute(text, "", caret);
+    assertEquals("SELECT 2;", range.script());
+    assertEquals(caret, range.start());
+    assertEquals(text.length(), range.end());
+  }
+
+  @Test
+  void editorOffsetsIncludeTrailingSemicolonAndStopThere() {
+    String script = "SELECT * FROM t;\nWHERE x = 1";
+    SqlExecuteRange.Range range = new SqlExecuteRange.Range(script, 10, 10 + script.length());
+    int semi = script.indexOf(';');
+    List<SqlScriptStatement> statements =
+        List.of(new SqlScriptStatement("SELECT * FROM t", 0, semi, true));
+    int[] offsets = SqlExecuteRange.editorOffsets(range, statements);
+    assertArrayEquals(new int[] {10, 10 + semi + 1}, offsets);
+    assertEquals("SELECT * FROM t;", script.substring(offsets[0] - 10, offsets[1] - 10));
+  }
+
+  @Test
+  void runAtCaretDoesNotSelectLeftoverAfterSemicolon() {
+    String script = "SELECT * FROM t;\nWHERE x = 1";
+    SqlExecuteRange.Range range = new SqlExecuteRange.Range(script, 0, script.length());
+    List<SqlScriptStatement> parsed = parse(script);
+    assertEquals(2, parsed.size());
+
+    List<SqlScriptStatement> toRun =
+        SqlExecuteRange.statementsToExecute(range, parsed, script.indexOf("FROM"));
+    assertEquals(1, toRun.size());
+    assertEquals("SELECT * FROM t", toRun.get(0).getStatement());
+
+    int[] offsets = SqlExecuteRange.editorOffsets(range, toRun);
+    assertEquals("SELECT * FROM t;", script.substring(offsets[0], offsets[1]));
+  }
+
+  @Test
+  void caretOnLeftoverFallsBackToPreviousStatement() {
+    String script = "SELECT * FROM t;\nWHERE x = 1";
+    SqlExecuteRange.Range range = new SqlExecuteRange.Range(script, 0, script.length());
+    List<SqlScriptStatement> toRun =
+        SqlExecuteRange.statementsToExecute(range, parse(script), script.indexOf("WHERE"));
+    assertEquals(1, toRun.size());
+    assertEquals("SELECT * FROM t", toRun.get(0).getStatement());
+    int[] offsets = SqlExecuteRange.editorOffsets(range, toRun);
+    assertEquals("SELECT * FROM t;", script.substring(offsets[0], offsets[1]));
+  }
+
+  @Test
+  void caretOnSecondQueryRunsThatQuery() {
+    String script = "SELECT 1;\nSELECT 2;";
+    SqlExecuteRange.Range range = new SqlExecuteRange.Range(script, 0, script.length());
+    List<SqlScriptStatement> toRun =
+        SqlExecuteRange.statementsToExecute(range, parse(script), script.indexOf("SELECT 2"));
+    assertEquals(1, toRun.size());
+    assertEquals("SELECT 2", toRun.get(0).getStatement());
+  }
+
+  @Test
+  void runAllKeepsLeftoverFragment() {
+    String script = "SELECT * FROM t;\nWHERE x = 1";
+    SqlExecuteRange.Range range = new SqlExecuteRange.Range(script, 0, script.length());
+    List<SqlScriptStatement> parsed = parse(script);
+    List<SqlScriptStatement> toRun =
+        SqlExecuteRange.statementsToExecute(range, parsed, SqlExecuteRange.ALL_STATEMENTS);
+    assertEquals(parsed, toRun);
+    int[] offsets = SqlExecuteRange.editorOffsets(range, toRun);
+    assertEquals(script, script.substring(offsets[0], offsets[1]));
+  }
+
+  private static List<SqlScriptStatement> parse(String script) {
+    return new NoneDatabaseMeta().getSqlScriptStatements(script + Const.CR);
+  }
+
+  @Test
   void executeKeyIsCtrlEnter() {
     assertTrue(IContentEditorWidget.isExecuteKey(SWT.MOD1, SWT.CR, SWT.CR));
     assertTrue(IContentEditorWidget.isExecuteKey(SWT.CONTROL, SWT.CR, (char) 0));
@@ -112,6 +193,12 @@ class SqlExecuteRangeTest {
     assertFalse(IContentEditorWidget.isExecuteKey(SWT.NONE, SWT.CR, SWT.CR));
     assertFalse(IContentEditorWidget.isExecuteKey(SWT.MOD1 | SWT.SHIFT, SWT.CR, SWT.CR));
     assertFalse(IContentEditorWidget.isExecuteTraverse(SWT.TRAVERSE_RETURN, SWT.NONE));
+    assertTrue(IContentEditorWidget.isExecuteAllKey(SWT.MOD1 | SWT.SHIFT, SWT.CR, SWT.CR));
+    assertTrue(IContentEditorWidget.isExecuteAllKey(SWT.CONTROL | SWT.SHIFT, SWT.CR, (char) 0));
+    assertTrue(
+        IContentEditorWidget.isExecuteAllTraverse(SWT.TRAVERSE_RETURN, SWT.CONTROL | SWT.SHIFT));
+    assertFalse(IContentEditorWidget.isExecuteAllKey(SWT.MOD1, SWT.CR, SWT.CR));
+    assertFalse(IContentEditorWidget.isExecuteAllTraverse(SWT.TRAVERSE_RETURN, SWT.CONTROL));
     assertTrue(IContentEditorWidget.isExecuteNewline(SWT.CR, (char) 0));
     assertTrue(IContentEditorWidget.isLineDelimiterText("\n"));
     assertTrue(IContentEditorWidget.isLineDelimiterText("\r"));

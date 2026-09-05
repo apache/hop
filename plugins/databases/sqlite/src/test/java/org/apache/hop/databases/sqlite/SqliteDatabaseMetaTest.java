@@ -95,6 +95,9 @@ class SqliteDatabaseMetaTest {
   void testSqlStatements() {
     assertEquals("DELETE FROM FOO", nativeMeta.getTruncateTableStatement("FOO"));
     assertEquals(
+        "SELECT sql FROM sqlite_master WHERE name = 'v' AND type IN ('table', 'view')",
+        nativeMeta.getSqlObjectDdl(null, "v"));
+    assertEquals(
         "ALTER TABLE FOO ADD BAR TEXT",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));

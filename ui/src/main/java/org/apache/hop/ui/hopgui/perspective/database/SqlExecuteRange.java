@@ -17,12 +17,38 @@
 
 package org.apache.hop.ui.hopgui.perspective.database;
 
+import java.util.List;
+import org.apache.hop.core.database.SqlQueryClassifier;
+import org.apache.hop.core.database.SqlScriptStatement;
+
 /**
  * Picks the SQL text to execute from an editor buffer. A non-blank selection wins; otherwise the
  * current statement is the blank-line-delimited block around the caret. Semicolon splitting is left
- * to {@link org.apache.hop.core.database.IDatabase#getSqlScriptStatements(String)}.
+ * to {@link org.apache.hop.core.database.IDatabase#getSqlScriptStatements(String)}. {@link
+ * #statementsToExecute} then keeps the statement at the caret (Run) or every statement (Run all /
+ * selection).
  */
 public final class SqlExecuteRange {
+
+  /** Pass to {@link #statementsToExecute} to keep every parsed statement. */
+  public static final int ALL_STATEMENTS = -1;
+
+  /**
+   * Script to run and its {@code [start, end)} offsets in the editor buffer.
+   *
+   * @param script SQL to parse and execute, never {@code null}
+   * @param start inclusive offset in the editor
+   * @param end exclusive offset in the editor
+   */
+  public record Range(String script, int start, int end) {
+    static Range empty() {
+      return new Range("", 0, 0);
+    }
+
+    boolean isBlank() {
+      return script == null || script.isBlank();
+    }
+  }
 
   private SqlExecuteRange() {}
 
@@ -33,15 +59,115 @@ public final class SqlExecuteRange {
    * @return script to run, never {@code null}
    */
   public static String scriptToExecute(String text, String selection, int caretOffset) {
-    if (selection != null && !selection.isBlank()) {
-      return selection;
-    }
-    return blankLineBlock(text == null ? "" : text, caretOffset);
+    return rangeToExecute(text, selection, caretOffset).script();
   }
 
-  static String blankLineBlock(String text, int caretOffset) {
+  /**
+   * Same as {@link #scriptToExecute(String, String, int)} plus the offsets of that script in {@code
+   * text}.
+   */
+  public static Range rangeToExecute(String text, String selection, int caretOffset) {
+    String buffer = text == null ? "" : text;
+    if (selection != null && !selection.isBlank()) {
+      int start = indexOfAroundCaret(buffer, selection, caretOffset);
+      if (start < 0) {
+        start = 0;
+      }
+      return new Range(selection, start, start + selection.length());
+    }
+    return blankLineBlockRange(buffer, caretOffset);
+  }
+
+  /**
+   * Statements to send to the database.
+   *
+   * @param caretInEditor caret in the editor buffer, or {@link #ALL_STATEMENTS} for every parsed
+   *     statement (selection or Run all)
+   */
+  public static List<SqlScriptStatement> statementsToExecute(
+      Range range, List<SqlScriptStatement> statements, int caretInEditor) {
+    if (statements == null || statements.isEmpty()) {
+      return List.of();
+    }
+    if (caretInEditor == ALL_STATEMENTS || range == null) {
+      return statements;
+    }
+    SqlScriptStatement picked = statementAtCaret(range, statements, caretInEditor);
+    return picked == null ? statements : List.of(picked);
+  }
+
+  /**
+   * Statement that contains the caret. If that fragment is not a complete SQL statement (a leftover
+   * {@code WHERE} after a semicolon, for example), the previous statement is used.
+   */
+  static SqlScriptStatement statementAtCaret(
+      Range range, List<SqlScriptStatement> statements, int caretInEditor) {
+    if (range == null || statements == null || statements.isEmpty()) {
+      return null;
+    }
+    int caret = caretInEditor - range.start();
+    int idx = indexContaining(statements, range.script(), caret);
+    SqlScriptStatement current = statements.get(idx);
+    if (!SqlQueryClassifier.isExecutableStatement(current.getStatement()) && idx > 0) {
+      return statements.get(idx - 1);
+    }
+    return current;
+  }
+
+  static int indexContaining(List<SqlScriptStatement> statements, String script, int caret) {
+    String buffer = script == null ? "" : script;
+    for (int i = 0; i < statements.size(); i++) {
+      SqlScriptStatement statement = statements.get(i);
+      int from = Math.max(0, statement.getFromIndex());
+      int to = exclusiveEnd(buffer, statement);
+      if (caret >= from && caret < to) {
+        return i;
+      }
+    }
+    if (caret <= 0) {
+      return 0;
+    }
+    return statements.size() - 1;
+  }
+
+  static int exclusiveEnd(String script, SqlScriptStatement statement) {
+    int to = statement.getToIndex();
+    if (to >= 0 && to < script.length() && script.charAt(to) == ';') {
+      to++;
+    }
+    return Math.max(0, to);
+  }
+
+  /**
+   * Map parsed statement offsets (relative to {@code range.script()}) to editor offsets, including
+   * a trailing semicolon when present.
+   *
+   * @return {@code [start, end)} or {@code null} when there is nothing to select
+   */
+  public static int[] editorOffsets(Range range, List<SqlScriptStatement> statements) {
+    if (range == null || range.isBlank() || statements == null || statements.isEmpty()) {
+      return null;
+    }
+    SqlScriptStatement first = statements.get(0);
+    SqlScriptStatement last = statements.get(statements.size() - 1);
+    int from = range.start() + Math.max(0, first.getFromIndex());
+    int relTo = last.getToIndex();
+    String script = range.script();
+    if (relTo >= 0 && relTo < script.length() && script.charAt(relTo) == ';') {
+      relTo++;
+    }
+    int to = range.start() + Math.max(0, relTo);
+    from = Math.max(range.start(), Math.min(from, range.end()));
+    to = Math.max(from, Math.min(to, range.end()));
+    if (from == to) {
+      return null;
+    }
+    return new int[] {from, to};
+  }
+
+  static Range blankLineBlockRange(String text, int caretOffset) {
     if (text.isEmpty()) {
-      return "";
+      return Range.empty();
     }
     int caret = Math.max(0, Math.min(caretOffset, text.length()));
 
@@ -57,7 +183,7 @@ public final class SqlExecuteRange {
         int belowStart =
             nextNonBlankLineStart(text, lineEnd < text.length() ? lineEnd + 1 : lineEnd);
         if (belowStart < 0) {
-          return "";
+          return Range.empty();
         }
         lineStart = belowStart;
         lineEnd = endOfLine(text, belowStart);
@@ -88,7 +214,41 @@ public final class SqlExecuteRange {
       blockEnd = nextEnd;
     }
 
-    return text.substring(blockStart, blockEnd).trim();
+    return trimRange(text, blockStart, blockEnd);
+  }
+
+  static Range trimRange(String text, int blockStart, int blockEnd) {
+    int start = blockStart;
+    int end = blockEnd;
+    while (start < end && isTrimWhitespace(text.charAt(start))) {
+      start++;
+    }
+    while (end > start && isTrimWhitespace(text.charAt(end - 1))) {
+      end--;
+    }
+    if (start >= end) {
+      return Range.empty();
+    }
+    return new Range(text.substring(start, end), start, end);
+  }
+
+  static int indexOfAroundCaret(String text, String selection, int caretOffset) {
+    if (text.isEmpty() || selection.isEmpty()) {
+      return 0;
+    }
+    int caret = Math.max(0, Math.min(caretOffset, text.length()));
+    int before = caret - selection.length();
+    if (before >= 0 && text.startsWith(selection, before)) {
+      return before;
+    }
+    if (caret + selection.length() <= text.length() && text.startsWith(selection, caret)) {
+      return caret;
+    }
+    return text.indexOf(selection);
+  }
+
+  private static boolean isTrimWhitespace(char c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
   }
 
   private static int startOfLine(String text, int offset) {

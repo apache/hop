@@ -711,6 +711,9 @@ public class PostgreSqlDatabaseMetaTest {
   @Test
   void testSqlStatements() {
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields("FOO"));
+    assertEquals(
+        "SELECT pg_catalog.pg_get_viewdef(c.oid, true) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN ('v', 'm') AND c.relname = E'customer_address' AND n.nspname = E'public'",
+        nativeMeta.getSqlViewDefinition("public", "customer_address"));
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists("FOO"));
     assertEquals("SELECT FOO FROM BAR limit 1", nativeMeta.getSqlColumnExists("FOO", "BAR"));
     assertEquals("SELECT FOO FROM BAR limit 1", nativeMeta.getSqlQueryColumnFields("FOO", "BAR"));

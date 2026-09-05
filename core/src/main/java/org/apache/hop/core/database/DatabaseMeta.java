@@ -1179,6 +1179,24 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.getSqlQueryFields(tableName);
   }
 
+  /**
+   * @param schemaName schema or catalog, or {@code null}
+   * @param viewName view name
+   * @return catalog SQL for the view definition, or {@code null}
+   */
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    return iDatabase.getSqlViewDefinition(schemaName, viewName);
+  }
+
+  /**
+   * @param schemaName schema or catalog, or {@code null}
+   * @param objectName table or view name
+   * @return catalog SQL for {@code CREATE TABLE}/{@code CREATE VIEW}, or {@code null}
+   */
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    return iDatabase.getSqlObjectDdl(schemaName, objectName);
+  }
+
   public String getAddColumnStatement(
       String tableName,
       IValueMeta v,

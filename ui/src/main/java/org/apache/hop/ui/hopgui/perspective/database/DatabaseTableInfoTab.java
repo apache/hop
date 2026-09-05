@@ -20,15 +20,17 @@ package org.apache.hop.ui.hopgui.perspective.database;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseObjectDdl;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -39,18 +41,21 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 
-/** Table information tab: identity, columns, indexes. */
+/** Object information tab: identity, columns, indexes, DDL. */
 public class DatabaseTableInfoTab implements IHopFileTypeHandler {
 
   public static final Class<?> PKG = DatabasePerspective.class;
@@ -62,11 +67,13 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   @Getter private final DatabaseMeta databaseMeta;
   @Getter private final String schemaName;
   @Getter private final String tableName;
+  @Getter private final DatabaseTreeNode.Kind kind;
   @Getter private final Composite control;
   @Getter private CTabItem tabItem;
 
   private TableView columnsView;
   private TableView indexesView;
+  private IContentEditorWidget ddlEditor;
 
   public DatabaseTableInfoTab(
       Composite parent,
@@ -75,11 +82,23 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
       DatabaseMeta databaseMeta,
       String schemaName,
       String tableName) {
+    this(parent, host, workbench, databaseMeta, schemaName, tableName, DatabaseTreeNode.Kind.TABLE);
+  }
+
+  public DatabaseTableInfoTab(
+      Composite parent,
+      IDatabaseWorkbenchHost host,
+      DatabaseWorkbench workbench,
+      DatabaseMeta databaseMeta,
+      String schemaName,
+      String tableName,
+      DatabaseTreeNode.Kind kind) {
     this.host = host;
     this.workbench = workbench;
     this.databaseMeta = databaseMeta;
     this.schemaName = schemaName;
     this.tableName = tableName;
+    this.kind = kind == null ? DatabaseTreeNode.Kind.TABLE : kind;
 
     control = new Composite(parent, SWT.NONE);
     control.setLayout(new FormLayout());
@@ -125,6 +144,16 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
     indexesView.setReadonly(true);
     indexesTab.setControl(indexesView);
 
+    CTabItem ddlTab = new CTabItem(folder, SWT.NONE);
+    ddlTab.setText(BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Ddl"));
+    Composite ddlParent = new Composite(folder, SWT.NONE);
+    ddlParent.setLayout(new FormLayout());
+    PropsUi.setLook(ddlParent);
+    ddlEditor = ContentEditorFacade.createContentEditor(ddlParent, "sql");
+    ddlEditor.getControl().setLayoutData(new FormDataBuilder().fullSize().result());
+    ddlEditor.setReadOnly(true);
+    ddlTab.setControl(ddlParent);
+
     folder.setSelection(0);
   }
 
@@ -132,8 +161,17 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
     this.tabItem = tabItem;
     if (tabItem != null && !tabItem.isDisposed()) {
       tabItem.setText(getName());
-      tabItem.setImage(GuiResource.getInstance().getImageTable());
+      tabItem.setImage(tabImage());
     }
+  }
+
+  private Image tabImage() {
+    GuiResource resources = GuiResource.getInstance();
+    return switch (kind) {
+      case VIEW -> resources.getImageView();
+      case SYNONYM -> resources.getImageSynonym();
+      default -> resources.getImageTable();
+    };
   }
 
   public void loadDetails() {
@@ -147,6 +185,8 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
         operation -> {
           IRowMeta fields;
           List<DatabaseIndexInfo> indexes;
+          String ddl;
+          boolean view = kind == DatabaseTreeNode.Kind.VIEW;
           try (Database db =
               new Database(host.getLoggingObject(), host.getVariables(), databaseMeta)) {
             operation.attachDatabase(db);
@@ -156,10 +196,20 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
             }
             fields = loadFields(db, qualified);
             indexes = loadIndexes(db, schemaName, tableName);
+            try {
+              ddl = db.getObjectDdl(schemaName, tableName, view, fields);
+            } catch (Exception e) {
+              ddl = "-- " + Const.NVL(e.getMessage(), e.getClass().getSimpleName());
+            }
           }
           IRowMeta loadedFields = fields;
           List<DatabaseIndexInfo> loadedIndexes = indexes;
-          host.asyncExec(() -> populate(loadedFields, loadedIndexes));
+          String loadedDdl =
+              view
+                  ? ddl
+                  : withIndexStatements(
+                      databaseMeta, host.getVariables(), schemaName, tableName, ddl, indexes);
+          host.asyncExec(() -> populate(loadedFields, loadedIndexes, loadedDdl));
         });
   }
 
@@ -208,12 +258,73 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
     return new ArrayList<>(byName.values());
   }
 
-  private void populate(IRowMeta fields, List<DatabaseIndexInfo> indexes) {
+  private void populate(IRowMeta fields, List<DatabaseIndexInfo> indexes, String ddl) {
     if (control.isDisposed()) {
       return;
     }
     fillColumns(fields);
     fillIndexes(indexes);
+    fillDdl(ddl);
+  }
+
+  private void fillDdl(String ddl) {
+    if (ddlEditor == null || ddlEditor.isDisposed()) {
+      return;
+    }
+    ddlEditor.setTextSuppressModify(Const.NVL(ddl, ""));
+  }
+
+  /**
+   * Append {@code CREATE INDEX} statements when the table DDL was synthesized and does not already
+   * describe keys.
+   */
+  static String withIndexStatements(
+      DatabaseMeta meta,
+      IVariables variables,
+      String schema,
+      String table,
+      String ddl,
+      List<DatabaseIndexInfo> indexes) {
+    if (Utils.isEmpty(ddl)
+        || indexes == null
+        || indexes.isEmpty()
+        || catalogDdlIncludesIndexes(ddl)) {
+      return ddl;
+    }
+    String qualified = meta.getQuotedSchemaTableCombination(variables, schema, table);
+    StringBuilder buffer = new StringBuilder(ddl.trim());
+    if (!buffer.toString().endsWith(";")) {
+      buffer.append(';');
+    }
+    for (DatabaseIndexInfo index : indexes) {
+      if (Utils.isEmpty(index.getName()) || index.getColumns().isEmpty()) {
+        continue;
+      }
+      buffer.append(Const.CR).append(Const.CR);
+      buffer.append(index.isUnique() ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
+      buffer.append(Const.NVL(meta.quoteField(index.getName()), index.getName()));
+      buffer.append(" ON ").append(qualified).append(" (");
+      for (int i = 0; i < index.getColumns().size(); i++) {
+        if (i > 0) {
+          buffer.append(", ");
+        }
+        String column = index.getColumns().get(i);
+        buffer.append(Const.NVL(meta.quoteField(column), column));
+      }
+      buffer.append(");");
+    }
+    return buffer.toString();
+  }
+
+  static boolean catalogDdlIncludesIndexes(String ddl) {
+    if (Utils.isEmpty(ddl)) {
+      return false;
+    }
+    String upper = ddl.toUpperCase(Locale.ROOT);
+    return upper.contains("PRIMARY KEY")
+        || upper.contains("CREATE INDEX")
+        || upper.contains(" UNIQUE KEY")
+        || DatabaseObjectDdl.startsWithCreate(ddl) && upper.contains(" KEY ");
   }
 
   private void fillColumns(IRowMeta fields) {
@@ -305,11 +416,18 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   private String headerText() {
+    String kindLabel =
+        switch (kind) {
+          case VIEW -> BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Kind.View");
+          case SYNONYM -> BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Kind.Synonym");
+          default -> BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Kind.Table");
+        };
     return BaseMessages.getString(
         PKG,
         "DatabasePerspective.TableInfo.Header",
         Const.NVL(databaseMeta.getName(), ""),
         Const.NVL(schemaName, ""),
+        kindLabel,
         Const.NVL(tableName, ""));
   }
 
@@ -381,13 +499,25 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   @Override
-  public void selectAll() {}
+  public void selectAll() {
+    if (ddlEditor != null && !ddlEditor.isDisposed()) {
+      ddlEditor.selectAll();
+    }
+  }
 
   @Override
-  public void unselectAll() {}
+  public void unselectAll() {
+    if (ddlEditor != null && !ddlEditor.isDisposed()) {
+      ddlEditor.unselectAll();
+    }
+  }
 
   @Override
-  public void copySelectedToClipboard() {}
+  public void copySelectedToClipboard() {
+    if (ddlEditor != null && !ddlEditor.isDisposed()) {
+      ddlEditor.copy();
+    }
+  }
 
   @Override
   public void cutSelectedToClipboard() {}
@@ -421,7 +551,7 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
 
   @Override
   public Map<String, Object> getStateProperties() {
-    return Collections.emptyMap();
+    return new HashMap<>();
   }
 
   @Override

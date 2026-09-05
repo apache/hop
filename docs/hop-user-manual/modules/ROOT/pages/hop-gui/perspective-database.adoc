@@ -29,9 +29,11 @@ The Database perspective is a non-modal alternative to the SQL editor dialog. Us
 
 It is *not* a full database IDE. There is no visual query builder, autocomplete, or grid editing.
 
+image::hop-gui/database/database-perspective-icon-and-tree.png[The Database perspective: connection tree on the left and a SQL editor tab,width="90%"]
+
 == Connection tree
 
-The left-hand tree lists every relational (`DatabaseMeta`) connection in the project. A filter field above the tree matches connection, schema and table names.
+The left-hand tree lists every relational (`DatabaseMeta`) connection in the project. A filter field above the tree matches connection, schema and table names. Expand/collapse of schema (and catalog) folders is remembered when you filter or refresh the tree.
 
 Toolbar:
 
@@ -40,24 +42,40 @@ Toolbar:
 * *Refresh* — reload the selected connected connection, or the connection list
 * *Open SQL editor* — new SQL tab for the selected connection (`SELECT * FROM table` when a table is selected)
 * *Generate DDL* — `CREATE TABLE` for the selected table, opened in a SQL tab
-* *Preview 1000* — run `SELECT` with a dialect-aware row limit of 1000
-* *Show* — table information tab (database, schema, table, columns, indexes)
+* *Preview table* — run `SELECT` with a dialect-aware row limit (the **Query row limit** in Configuration → Plugins → Database Perspective, default 1000)
+* *Show object information* — columns, indexes, and a **DDL** tab with `CREATE TABLE` or `CREATE VIEW`. Views use the catalog definition when the database provides it (`INFORMATION_SCHEMA`, `pg_get_viewdef`, `SHOW CREATE TABLE`, and similar).
 
-Double-click a disconnected connection to connect. Double-click a table to preview it.
+Double-click a disconnected connection to connect. Double-click a schema (or catalog / folder) to expand or collapse the tables and views underneath. Views use the view icon. Double-click a table or view to preview it (`SELECT * FROM …` plus the connection's limit clause for the configured query row limit).
 
 == SQL editor
 
 Each SQL tab is bound to one connection.
 
 * *Run* on the SQL editor toolbar (`Ctrl+Enter` / `Cmd+Enter`) executes the statement around the caret.
+* *Run all* (`Ctrl+Shift+Enter` / `Cmd+Shift+Enter`) executes every statement in the editor.
+* If the SQL tab's connection is not connected, Hop asks to connect first (`MessageDialogWithToggle`). Check **Don't ask again** to enable auto-connect; that option also lives in the Configuration perspective under **Plugins → Database Perspective**.
+* *Format SQL* (Apache Calcite plugin) pretty-prints the selection, or the whole buffer when nothing is selected. The formatter follows the tab's connection dialect when it can. Layout options live in the Configuration perspective under **Plugins → Apache Calcite SQL formatter**. See xref:technology/calcite/index.adoc[Apache Calcite].
 * If you have a selection, that selection is executed (all statements in it).
-* If you do not, the statement is the blank-line-delimited block around the caret, then split on `;` as usual.
-* Results appear in a sash under the editor (one tab per query, plus a messages tab). Close hides the results panel; the next run shows it again.
-* Queries are capped at 1000 rows. That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` does not pull the whole table. Statement timeout (`'${HOP_QUERY_PREVIEW_TIMEOUT}'`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
+* If you do not, **Run** takes the blank-line-delimited block around the caret, splits on `;`, and runs the statement at the caret. A leftover clause after a semicolon (for example `WHERE` on the next line) is not executed; use **Run all** to send every statement.
+* **Select the executed SQL in the editor** (Configuration perspective, **Plugins → Database Perspective**, on by default) highlights only the statement(s) that were sent.
+* Results appear in a sash under the editor (one tab per query, plus a messages tab). Close hides the results panel; the next run shows it again. **Open in separate window** (left of Close) opens the selected result table in a separate window.
+* Queries are capped at the **Query row limit** (Configuration perspective, **Plugins → Database Perspective**, default 1000). That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` or a SQL `LIMIT` above the option still does not pull the whole table. When the cap is hit, the Messages tab says so. Statement timeout (`'${HOP_QUERY_PREVIEW_TIMEOUT}'`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
 
-Long-running work (connect, listing, SQL, DDL, table info) is listed in the operations panel at the bottom of the right-hand side. Select a running row and *Kill* to cancel it (`Statement.cancel`).
+image::hop-gui/database/database-perspective-panel.png[SQL editor with query results, Open in separate window, and the operations status line,width="90%"]
+
+Long-running work (connect, listing, SQL, DDL, table info) is shown as a one-line status at the bottom of the right-hand side (`description - connection - Done/Failed - 23 ms`). *Stop* cancels the current operation (`Statement.cancel`). *Expand* opens the operations list; *Minimize* on that list returns to the status line.
 
 Open and save `.sql` files with the normal File menu. Explorer `.sql` files stay in the File explorer; use the database icon on the content-editor toolbar to open the buffer in this perspective (you pick the connection).
+
+== Configuration
+
+Open the xref:hop-gui/perspective-configuration.adoc[Configuration perspective], then **Plugins → Database Perspective**:
+
+* *Automatically connect when executing SQL* — skip the connect prompt when you run SQL on a disconnected tab
+* *Select the executed SQL in the editor* — highlight the statement that was sent (on by default)
+* *Query row limit* — maximum rows shown for a SELECT and for table preview (default 1000)
+
+image::hop-gui/database/database-perspective-configuration-options.png[Database Perspective options under Configuration, Plugins,width="90%"]
 
 == Floating window and bottom dock
 
@@ -65,6 +83,8 @@ The same workbench can run outside the perspective, like Search:
 
 * *Float* on the connection toolbar (or **Tools → Database window**) opens a non-modal window you can put on another monitor while you stay in Data orchestration.
 * *Dock* opens it as a tab in the bottom dock (next to the terminal and search results).
+
+image::hop-gui/database/database-perspective-popup-dialog.png[The floating Database window,width="90%"]
 
 Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`. SQL editor tabs (connection, file or buffer, unsaved edits) are remembered per project when you close the window or dock and when you restart Hop Gui. Query results are not stored.
 

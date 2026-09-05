@@ -285,6 +285,22 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    if (Utils.isEmpty(viewName)) {
+      return null;
+    }
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT pg_catalog.pg_get_viewdef(c.oid, true) ");
+    sql.append("FROM pg_catalog.pg_class c ");
+    sql.append("JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace ");
+    sql.append("WHERE c.relkind IN ('v', 'm') AND c.relname = ").append(quoteSqlString(viewName));
+    if (!Utils.isEmpty(schemaName)) {
+      sql.append(" AND n.nspname = ").append(quoteSqlString(schemaName));
+    }
+    return sql.toString();
+  }
+
+  @Override
   public String getSqlTableExists(String tableName) {
     return getSqlQueryFields(tableName);
   }

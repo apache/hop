@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -365,7 +366,7 @@ public class HopGuiAuditDelegate {
 
             // Also save the state : active, zoom, pane (Explorer split), fileType, ...
             //
-            Map<String, Object> stateProperties = typeHandler.getStateProperties();
+            Map<String, Object> stateProperties = copyStateProperties(typeHandler);
             boolean active =
                 activeFileTypeHandler != null
                     && activeFileTypeHandler.getFilename() != null
@@ -410,5 +411,21 @@ public class HopGuiAuditDelegate {
         }
       }
     }
+  }
+
+  /**
+   * Copy handler state into a mutable map. Some handlers return {@link
+   * java.util.Collections#emptyMap()}; the audit list still needs to record active/fileType/pane.
+   */
+  static Map<String, Object> copyStateProperties(IHopFileTypeHandler typeHandler) {
+    Map<String, Object> stateProperties = new HashMap<>();
+    if (typeHandler == null) {
+      return stateProperties;
+    }
+    Map<String, Object> existing = typeHandler.getStateProperties();
+    if (existing != null) {
+      stateProperties.putAll(existing);
+    }
+    return stateProperties;
   }
 }

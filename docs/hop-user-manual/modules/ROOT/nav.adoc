@@ -537,6 +537,7 @@ under the License.
 //::=END AUTO GENERATED LINKS
 * xref:samples/samples.adoc[Samples]
 * xref:technology/technology.adoc[Technology]
+** xref:technology/calcite/index.adoc[Apache Calcite]
 ** xref:technology/azure/index.adoc[Azure]
 ** xref:technology/cassandra/index.adoc[Cassandra]
 ** xref:technology/memgraph/index.adoc[Memgraph]

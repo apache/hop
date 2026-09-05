@@ -26,6 +26,7 @@ It also provides starting points for you if you want to learn more about the tec
 The technologies supported by Hop currently include:
 
 * xref:technology/arrow/apache-arrow.adoc[Apache Arrow]
+* xref:technology/calcite/index.adoc[Apache Calcite]
 * xref:technology/azure/index.adoc[Azure]
 * xref:technology/cassandra/index.adoc[Apache Cassandra]
 * xref:technology/google/index.adoc[Google]

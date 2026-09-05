@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import java.util.List;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -26,6 +27,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -44,6 +46,7 @@ public class DatabaseResultsPanel extends Composite {
 
   public static final Class<?> PKG = DatabasePerspective.class;
 
+  @Getter
   public static class QueryResult {
     private final int statementNr;
     private final IRowMeta rowMeta;
@@ -59,6 +62,7 @@ public class DatabaseResultsPanel extends Composite {
   private final IVariables variables;
   private final CTabFolder folder;
   private final Text messages;
+  private final Button openWindow;
 
   public DatabaseResultsPanel(Composite parent, IVariables variables, Runnable onClose) {
     super(parent, SWT.NONE);
@@ -77,6 +81,15 @@ public class DatabaseResultsPanel extends Composite {
     close.setLayoutData(new FormDataBuilder().top().right().result());
     close.addListener(SWT.Selection, e -> onClose.run());
 
+    openWindow = new Button(this, SWT.PUSH);
+    openWindow.setText(BaseMessages.getString(PKG, "DatabasePerspective.Results.Float"));
+    openWindow.setToolTipText(
+        BaseMessages.getString(PKG, "DatabasePerspective.Results.Float.Tooltip"));
+    openWindow.setLayoutData(
+        new FormDataBuilder().top().right(close, -PropsUi.getMargin()).result());
+    openWindow.addListener(SWT.Selection, e -> openSelectedInWindow());
+    openWindow.setEnabled(false);
+
     folder = new CTabFolder(this, SWT.BORDER);
     PropsUi.setLook(folder, PropsUi.WIDGET_STYLE_TAB);
     folder.setLayoutData(
@@ -89,6 +102,7 @@ public class DatabaseResultsPanel extends Composite {
     PropsUi.setLook(messages);
     messagesTab.setControl(messages);
     folder.setSelection(0);
+    folder.addListener(SWT.Selection, e -> updateFloatEnablement());
   }
 
   public void show(List<QueryResult> queryResults, String messageText) {
@@ -114,6 +128,7 @@ public class DatabaseResultsPanel extends Composite {
                 "DatabasePerspective.Results.QueryTab",
                 Integer.toString(result.statementNr),
                 Integer.toString(result.rows == null ? 0 : result.rows.size())));
+        tab.setData(result);
         tab.setControl(buildTable(result));
         if (firstResultTab == null) {
           firstResultTab = tab;
@@ -121,7 +136,47 @@ public class DatabaseResultsPanel extends Composite {
       }
     }
     folder.setSelection(firstResultTab != null ? firstResultTab : folder.getItem(0));
+    updateFloatEnablement();
     layout(true, true);
+  }
+
+  private void openSelectedInWindow() {
+    QueryResult result = currentQueryResult();
+    if (result == null || result.getRowMeta() == null || isDisposed()) {
+      return;
+    }
+    List<Object[]> rows = result.getRows() == null ? List.of() : result.getRows();
+    new ShowRowsDialog(
+            getShell(),
+            variables,
+            BaseMessages.getString(
+                PKG,
+                "DatabasePerspective.Results.Float.Title",
+                Integer.toString(result.getStatementNr())),
+            BaseMessages.getString(PKG, "DatabasePerspective.Results.Float.Message"),
+            result.getRowMeta(),
+            rows)
+        .open();
+  }
+
+  private QueryResult currentQueryResult() {
+    if (folder == null || folder.isDisposed()) {
+      return null;
+    }
+    CTabItem selected = folder.getSelection();
+    if (selected == null || selected.isDisposed()) {
+      return null;
+    }
+    Object data = selected.getData();
+    return data instanceof QueryResult result ? result : null;
+  }
+
+  private void updateFloatEnablement() {
+    if (openWindow == null || openWindow.isDisposed()) {
+      return;
+    }
+    QueryResult result = currentQueryResult();
+    openWindow.setEnabled(result != null && result.getRowMeta() != null);
   }
 
   private TableView buildTable(QueryResult result) {

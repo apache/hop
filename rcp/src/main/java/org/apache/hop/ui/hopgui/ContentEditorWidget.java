@@ -43,6 +43,7 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewerExtension5;
+import org.eclipse.jface.text.IUndoManager;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
@@ -445,11 +446,20 @@ public class ContentEditorWidget implements IContentEditorWidget {
     if (doc == null || range == null) {
       return;
     }
+    IUndoManager undoManager = sourceViewer.getUndoManager();
+    if (undoManager != null) {
+      undoManager.beginCompoundChange();
+    }
     try {
       doc.replace(range.x, range.y, insertion);
       sourceViewer.setSelectedRange(range.x + insertion.length(), 0);
     } catch (org.eclipse.jface.text.BadLocationException e) {
       // ignore invalid range
+    } finally {
+      if (undoManager != null) {
+        undoManager.endCompoundChange();
+      }
+      updateGui();
     }
   }
 
@@ -817,7 +827,8 @@ public class ContentEditorWidget implements IContentEditorWidget {
     if (IContentEditorWidget.executeActionOf(control) == null) {
       return false;
     }
-    if (IContentEditorWidget.isExecuteKey(stateMask, keyCode, character)) {
+    if (IContentEditorWidget.isExecuteKey(stateMask, keyCode, character)
+        || IContentEditorWidget.isExecuteAllKey(stateMask, keyCode, character)) {
       return true;
     }
     return IContentEditorWidget.isExecuteNewline(keyCode, character)

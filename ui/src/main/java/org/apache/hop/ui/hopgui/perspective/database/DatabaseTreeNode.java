@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.database;
 
+import java.util.Collection;
 import lombok.Getter;
 
 /** Data stored on a connection-tree item. */
@@ -71,5 +72,34 @@ public class DatabaseTreeNode {
 
   public boolean isTableLike() {
     return kind == Kind.TABLE || kind == Kind.VIEW || kind == Kind.SYNONYM;
+  }
+
+  /**
+   * Classify a schema object so views (and synonyms) can use a distinct tree icon.
+   *
+   * @param name object name
+   * @param views view names in the same schema (any case)
+   * @param synonyms synonym names in the same schema (any case)
+   */
+  public static Kind kindOf(String name, Collection<String> views, Collection<String> synonyms) {
+    if (containsIgnoreCase(views, name)) {
+      return Kind.VIEW;
+    }
+    if (containsIgnoreCase(synonyms, name)) {
+      return Kind.SYNONYM;
+    }
+    return Kind.TABLE;
+  }
+
+  static boolean containsIgnoreCase(Collection<String> names, String name) {
+    if (names == null || name == null) {
+      return false;
+    }
+    for (String candidate : names) {
+      if (name.equalsIgnoreCase(candidate)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
