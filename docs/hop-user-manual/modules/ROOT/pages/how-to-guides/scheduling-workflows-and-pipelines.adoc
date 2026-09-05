@@ -1,0 +1,463 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[SchedulingWorkflowsAndPipelines]]
+:imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
+:description: This page shows how to start a workflow or pipeline from cron, at, systemd, Windows Task Scheduler, Jenkins, a Kubernetes CronJob, or Apache Airflow.
+
+= Scheduling workflows and pipelines
+
+Hop has no calendar of its own.
+xref:hop-server/index.adoc[Hop Server] does not queue work for later, and the xref:workflow/actions/start.adoc[Start] action's repeat option is not a scheduler.
+
+Something *outside* Hop decides *when* a pipeline or workflow runs: a crontab, a systemd timer, Windows Task Scheduler, Jenkins, a Kubernetes CronJob, Apache Airflow, or any other orchestrator you already use.
+That outside process starts xref:hop-run/index.adoc[hop-run] (or a short-lived container that runs hop-run) and treats the exit code as the result.
+
+That is a feature, not a gap.
+Calendars, retries, overlapping-run policy, alerting and dependencies then live in one place — the scheduler you already operate — instead of inside a long-lived Java process.
+
+The xref:how-to-guides/run-hop-in-apache-airflow.adoc[Apache Airflow how-to] is a full worked example of one of these options.
+This page is the catalogue: the command the scheduler should run, then a short recipe for each common scheduler.
+
+== Choose how the run starts
+
+[cols="1,2,2",options="header"]
+|===
+|How the scheduler starts the work
+|When to use it
+|Hop side
+
+|xref:hop-run/index.adoc[hop-run] on a host
+|The host already has a Hop client, a registered project and an environment
+|The scheduler calls a small wrapper script.
+Exit code 0 is success.
+
+|A short-lived `apache/hop` (or project-baked) container
+|The project is already an image, or you do not want Hop installed on the scheduler host
+|The scheduler runs `docker run --rm ...` or a Kubernetes Job.
+The container exits when hop-run exits.
+
+|Submit to a long-lived xref:hop-server/index.adoc[Hop Server]
+|Many clients share one always-on engine, or you need xref:hop-server/web-service.adoc[web services]
+|The scheduler still calls hop-run, but with a xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote] run configuration.
+See xref:hop-server/deploying.adoc[Deploying Hop Server].
+|===
+
+For batch work, prefer the first or the second.
+A long-lived Hop Server is extra machinery if a scheduler already owns the calendar — see xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers].
+
+[cols="1,1,3",options="header"]
+|===
+|Scheduler
+|Repeats
+|Typical fit
+
+|<<cron,cron>>
+|Yes
+|A Linux or macOS host that already has a Hop client
+
+|<<at,at>>
+|Once
+|A single future run on that same host (`at 22:00`, `at now + 2 hours`)
+
+|<<systemd,systemd timer>>
+|Yes
+|A Linux host that already uses systemd (the usual replacement for an ad-hoc crontab)
+
+|<<windows,Windows Task Scheduler>>
+|Yes
+|A Windows host that already has a Hop client
+
+|<<jenkins,Jenkins>>
+|Yes
+|Jenkins already runs your CI; a scheduled job can run hop-run or `docker run`
+
+|<<cronjob,Kubernetes CronJob>>
+|Yes
+|The project is already a container image on a cluster
+
+|xref:how-to-guides/run-hop-in-apache-airflow.adoc[Apache Airflow]
+|Yes
+|You need DAG dependencies, sensors, retries or a shared data platform calendar
+|===
+
+GitHub Actions `on.schedule`, GitLab scheduled pipelines and similar CI timers are the same idea as Jenkins: they start hop-run or a container on a calendar.
+They are CI systems first; use them when that is already where the work is triggered.
+
+== Prerequisites
+
+For *hop-run on a host*:
+
+* A Hop client on that host (the same archive you unzip for Hop Gui), and Java 21 on `PATH` or in `HOP_JAVA_HOME` / `JAVA_HOME`.
+See xref:installation-configuration.adoc[Installation and configuration].
+* The project and a lifecycle environment registered in `HOP_CONFIG_FOLDER`, so `-e prod` is enough.
+See xref:projects/projects-environments.adoc[Projects and environments] and the xref:hop-server/deploy-git-checkout.adoc[git checkout] setup.
+* A run configuration that exists in the project's metadata (usually `local`).
+
+For a *short-lived container*:
+
+* An image that can run the project: the official `apache/hop` image with the project mounted, or a xref:hop-server/deploy-project-image.adoc[project baked into an image].
+* The xref:docker-container.adoc[short-lived environment variables]: at least `HOP_FILE_PATH` and `HOP_RUN_CONFIG`.
+
+In both cases, send xref:metadata-types/execution-information-location.adoc[execution information] somewhere that outlives the process.
+A container (and often a cron job's working directory) is gone when the run finishes.
+
+== A wrapper around hop-run
+
+Point the scheduler at a small script, not at `hop-run.sh` directly.
+The script is where you set `HOP_JAVA_HOME`, `HOP_CONFIG_FOLDER` and the log file.
+
+That avoids three quoting traps:
+
+* *cron* treats `%` as a newline, so a hop-run command with date formats or Windows-style `+%Y` does not belong in the crontab itself.
+* *systemd* expands `{openvar}NAME{closevar}` in `ExecStart=` from the unit environment.
+A literal `{openvar}PROJECT_HOME{closevar}` for hop-run has to be escaped as `${openvar}PROJECT_HOME{closevar}` (`$$` becomes `$`) — or you call a script and never think about it.
+* The *shell* expands `{openvar}PROJECT_HOME{closevar}` if you double-quote it.
+hop-run resolves that variable *after* it enables the project, so the wrapper must pass it in single quotes.
+
+&nbsp; +
+
+[tabs]
+====
+Linux, macOS::
++
+--
+`/usr/local/bin/run-hop-nightly.sh`:
+
+[source,bash]
+----
+#!/usr/bin/env bash
+set -euo pipefail
+
+export HOP_JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+export HOP_CONFIG_FOLDER=/etc/hop/config
+
+HOP=/opt/hop
+mkdir -p /var/log/hop
+LOG=/var/log/hop/nightly-$(date +%Y%m%d-%H%M%S).log
+
+"${HOP}/hop-run.sh" \
+  -e prod \
+  -r local \
+  -f '{openvar}PROJECT_HOME{closevar}/main.hwf' \
+  -l Basic \
+  -lf "${LOG}"
+----
+
+`chmod +x /usr/local/bin/run-hop-nightly.sh` and run it once by hand before you schedule it.
+`--logfile` (`-lf`) *overwrites* the file, which is why the name includes a timestamp.
+
+On Linux, put `flock -n /tmp/hop-nightly.lock` in front of the script so a second start fails instead of running the same load twice (`flock` is not on macOS by default).
+Otherwise use the scheduler's own "do not start a second instance" option, shown in each recipe below.
+--
+
+Windows::
++
+--
+`C:\hop-jobs\run-hop-nightly.cmd`:
+
+[source,bat]
+----
+@echo off
+setlocal
+
+set "HOP_JAVA_HOME=C:\Program Files\Microsoft\jdk-21"
+set "HOP_CONFIG_FOLDER=C:\hop-config"
+set "HOP=C:\hop"
+
+cd /d "%HOP%"
+hop-run.bat -e prod -r local -f {openvar}PROJECT_HOME{closevar}/main.hwf -l Basic
+exit /b %ERRORLEVEL%
+----
+
+Task Scheduler's setting *If the task is already running: Do not start a new instance* is the overlap policy on Windows.
+--
+====
+
+Use `-e` (the lifecycle environment) rather than `-j` (the project).
+The environment already points at the project, and it is what differs between Development, Test and Production.
+
+xref:hop-run/index.adoc#_possible_exit_codes[hop-run exit codes]: `0` success, `1` the workflow or pipeline failed, `2` hop-run itself failed, `9` bad arguments.
+Every scheduler below treats a non-zero exit as a failed run.
+
+== Recipes
+
+[#cron]
+=== cron
+
+[source]
+----
+# 02:00 every day, host local time. Mail on non-zero exit (cron's default).
+# Linux: flock refuses a second start while the previous run still holds the lock.
+0 2 * * * /usr/bin/flock -n /tmp/hop-nightly.lock /usr/local/bin/run-hop-nightly.sh
+----
+
+Install with `crontab -e` as the user that should run Hop (not root, unless that user owns the project files).
+cron's environment is minimal: `PATH` is often just `/usr/bin:/bin`, and it does not load `~/.bashrc`.
+That is why `HOP_JAVA_HOME` and `HOP_CONFIG_FOLDER` live in the wrapper, not in the crontab.
+
+cron uses the host's local timezone.
+Put the real command in the script; keep `%` out of the crontab line.
+
+[#at]
+=== at
+
+`at` runs a command *once* at a future time.
+It is the one-shot counterpart of cron, and it is what you want for "run this load tonight at 22:00" or "run it two hours from now".
+The package is often not installed by default (`apt install at` / `dnf install at`).
+
+[source,bash]
+----
+echo /usr/local/bin/run-hop-nightly.sh | at 22:00
+echo /usr/local/bin/run-hop-nightly.sh | at now + 2 hours
+echo /usr/local/bin/run-hop-nightly.sh | at 02:00 tomorrow
+----
+
+`atq` lists pending jobs, `atrm <job>` cancels one.
+The job runs with the environment `at` captured when you submitted it, which is closer to your interactive shell than cron is — still prefer the wrapper so Java and `HOP_CONFIG_FOLDER` are explicit.
+
+[#systemd]
+=== systemd timer
+
+A `Type=oneshot` service plus a timer is the systemd equivalent of a crontab line.
+systemd will not start a second instance of the same service while the first is still running.
+
+`/etc/systemd/system/hop-nightly.service`:
+
+[source,ini]
+----
+[Unit]
+Description=Nightly Hop load
+After=network.target
+
+[Service]
+Type=oneshot
+User=hop
+Group=hop
+ExecStart=/usr/local/bin/run-hop-nightly.sh
+----
+
+`/etc/systemd/system/hop-nightly.timer`:
+
+[source,ini]
+----
+[Unit]
+Description=Run the nightly Hop load at 02:00
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+RandomizedDelaySec=90
+
+[Install]
+WantedBy=timers.target
+----
+
+`Persistent=true` runs a missed job after a reboot.
+`RandomizedDelaySec` spreads the start if many timers fire at midnight.
+
+[source,bash]
+----
+sudo systemctl daemon-reload
+sudo systemctl enable --now hop-nightly.timer
+systemctl list-timers hop-nightly.timer
+journalctl -u hop-nightly.service
+----
+
+A long-lived Hop Server is a different unit (`Type=simple`, `Restart=on-failure`).
+A sample is in the repository at `docs/hop-user-manual/modules/ROOT/assets/files/hop-server/hop-server.service`.
+
+[#windows]
+=== Windows Task Scheduler
+
+. Open *Task Scheduler* and choose *Create Task* (not *Create Basic Task* — you need the overlap setting).
+. *General*: name it, choose *Run whether user is logged on or not*, and run as the account that can read the project and `HOP_CONFIG_FOLDER`.
+. *Triggers*: *New* → *Daily* at 02:00, or *One time* for the equivalent of `at`.
+. *Actions*: *Start a program* → `C:\hop-jobs\run-hop-nightly.cmd`.
+Set *Start in* to `C:\hop` so relative paths inside hop-run.bat resolve.
+. *Settings*: *If the task is already running, then the following rule applies: Do not start a new instance*.
+
+From a command prompt the same daily task is:
+
+[source,bat]
+----
+schtasks /create /tn "Hop nightly" /sc daily /st 02:00 /ru hop /rp * /tr "C:\hop-jobs\run-hop-nightly.cmd"
+----
+
+`schtasks /create /sc once /st 22:00 ...` is the one-shot form.
+`schtasks /run /tn "Hop nightly"` runs it immediately; `schtasks /query /tn "Hop nightly" /v` shows the last result.
+
+[#jenkins]
+=== Jenkins
+
+Jenkins as a *scheduler* is a job with a cron trigger that runs hop-run or `docker run`.
+That is a different use of Jenkins from xref:hop-server/deploy-project-image.adoc[building a project image], which is CI.
+
+A *Freestyle project* is enough: *Build Triggers* → *Build periodically* with a cron string (`0 2 * * *`), then an *Execute shell* (or *Execute Windows batch command*) step that calls the wrapper.
+Check *Do not allow concurrent builds* so two ticks cannot overlap.
+
+The same job as a Pipeline:
+
+[source,groovy]
+----
+pipeline {
+  agent any
+  triggers { cron('0 2 * * *') }
+  options { disableConcurrentBuilds() }
+  stages {
+    stage('Hop') {
+      steps {
+        sh '/usr/local/bin/run-hop-nightly.sh'
+      }
+    }
+  }
+}
+----
+
+If the agent should not have a Hop client, start a short-lived container instead (see <<container>> below) from that `sh` step.
+Pin the image tag; do not use `latest` on a calendar.
+
+[#container]
+=== Short-lived container
+
+The official image runs hop-run and exits when `HOP_FILE_PATH` and `HOP_RUN_CONFIG` are set.
+Full variable list: xref:docker-container.adoc[Hop in Docker].
+
+[source,bash]
+----
+docker run --rm \
+  -e HOP_LOG_LEVEL=Basic \
+  -e HOP_PROJECT_FOLDER=/files \
+  -e HOP_PROJECT_NAME=your-project \
+  -e HOP_ENVIRONMENT_NAME=prod \
+  -e HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/prod.json \
+  -e HOP_FILE_PATH='{openvar}PROJECT_HOME{closevar}/main.hwf' \
+  -e HOP_RUN_CONFIG=local \
+  -v /opt/hop-projects/your-project:/files:ro \
+  -v /etc/hop/environments/prod.json:/config/prod.json:ro \
+  apache/hop:<tag>
+----
+
+Replace `<tag>` with a release tag (not `latest`).
+Replace the two bind mounts with nothing extra when CI already xref:hop-server/deploy-project-image.adoc[baked the project into the image]; then `HOP_PROJECT_FOLDER` is a path inside the image such as `/your-project`.
+
+cron, systemd, Jenkins and Airflow can all run that `docker run --rm` line.
+On a cluster the same contract is a Job.
+
+[#cronjob]
+=== Kubernetes CronJob
+
+[source,yaml]
+----
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hop-nightly
+spec:
+  schedule: "0 2 * * *"
+  timeZone: "Europe/Brussels"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: hop
+              image: registry.example.com/your-project-hop:1.2.3
+              env:
+                - name: HOP_LOG_LEVEL
+                  value: Basic
+                - name: HOP_PROJECT_FOLDER
+                  value: /your-project
+                - name: HOP_PROJECT_NAME
+                  value: your-project
+                - name: HOP_ENVIRONMENT_NAME
+                  value: prod
+                - name: HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS
+                  value: /config/prod.json
+                - name: HOP_FILE_PATH
+                  value: '{openvar}PROJECT_HOME{closevar}/main.hwf'
+                - name: HOP_RUN_CONFIG
+                  value: local
+              volumeMounts:
+                - name: env
+                  mountPath: /config
+                  readOnly: true
+          volumes:
+            - name: env
+              secret:
+                secretName: hop-prod-env
+----
+
+`concurrencyPolicy: Forbid` is the overlap lock.
+`backoffLimit: 1` retries once immediately; further retries belong to the next calendar tick (or to Airflow).
+`timeZone` needs a current enough Kubernetes; without it the schedule is UTC.
+The xref:hop-server/deploy-project-image.adoc[project-in-an-image] page is the image this CronJob runs.
+
+=== Apache Airflow
+
+Airflow is the right scheduler when the Hop run is one task among dependencies, sensors and retries.
+The xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow how-to] uses the DockerOperator against a short-lived `apache/hop` container — the same contract as <<container>>.
+
+Two other honest options, covered there and on xref:hop-server/deploy-export-resources.adoc[Remote run with export resources]:
+
+* `BashOperator` calling hop-run on a worker that has a Hop client (the wrapper in this page).
+* hop-run with a *remote* run configuration, so Airflow submits work to a Hop Server instead of executing it on the worker.
+
+A cron expression on the DAG (`schedule='0 2 * * *'`, or `schedule_interval` on older Airflow) is Airflow's equivalent of the crontab line above.
+Prefer Airflow's own DAG schedule over also wrapping the DAG in cron.
+
+== What not to use as a scheduler
+
+The xref:workflow/actions/start.adoc[Start] action can repeat a workflow on an interval or at a clock time.
+That option exists for historical reasons.
+It keeps the Java process running for as long as the workflow is "scheduled", holds memory, and has no overlap policy, no durable calendar and no alerting.
+
+Use it only as a last resort on a workstation.
+In production, start the workflow once from hop-run and let the scheduler start it again next time.
+
+== Things every scheduler has to get right
+
+* *The process environment.*
+cron in particular will not see the `JAVA_HOME` or `PATH` from your login shell.
+Set `HOP_JAVA_HOME` (or `JAVA_HOME`) and `HOP_CONFIG_FOLDER` in the wrapper or the unit, not by hoping they are inherited.
+* *Overlapping runs.*
+A load that still runs at 02:00 the next day will corrupt results if a second copy starts.
+`flock`, systemd's default, Task Scheduler's *Do not start a new instance*, Jenkins `disableConcurrentBuilds()`, Kubernetes `concurrencyPolicy: Forbid`, Airflow `max_active_runs=1` — pick one and make it explicit.
+* *Logs that outlive the process.*
+hop-run writes to stdout (which cron, systemd, Jenkins and Kubernetes already collect) and optionally to `-lf`.
+Configure an xref:metadata-types/execution-information-location.adoc[execution information location] on the run configuration so you can inspect the run later from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective].
+* *Timezones.*
+cron and systemd use the host timezone; Kubernetes CronJob defaults to UTC; Airflow uses the DAG timezone.
+Write the intended zone down next to the expression.
+* *Image tags and Hop versions.*
+Pin them.
+`latest` on a calendar turns an unrelated pull into an unplanned production upgrade.
+
+== See also
+
+* xref:hop-run/index.adoc[hop-run] — the command, its options and exit codes
+* xref:docker-container.adoc[Hop in Docker] — short-lived vs long-lived containers
+* xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow]
+* xref:hop-server/deploying.adoc[Deploying Hop Server] — when you *do* want a long-lived server, and when you do not
+* xref:cloud.adoc[Running Apache Hop in the cloud] — the same "what starts a run" decision on a cloud platform
+* xref:workflow/actions/start.adoc[Start action] — why its repeat option is not a scheduler
