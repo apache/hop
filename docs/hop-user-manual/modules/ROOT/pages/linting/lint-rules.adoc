@@ -374,6 +374,39 @@ Entries missing either are refused and logged rather than applied.
 
 Exclusions and suppressions apply in Hop Gui as well as on the command line.
 
+*Explorer -> right-click a file or folder -> Exclude From Linting* writes an `exclude` entry for you, keeping the rest of the file, comments included, exactly as you wrote it, and your reason as a comment above the entry.
+On something already excluded the same item reads *Include In Linting Again* and takes the entry back out, comment and all.
+Both are in *Tools -> Lint* as well.
+
+A file covered by a broader pattern, `templates/**` rather than its own name, is left alone: which entry to change is a decision for you rather than a guess by the menu.
+
+== Accepting findings on a single transform or action
+
+An exclusion covers a whole file, which is right for a template that is dynamic from end to end and too much for one that is only partly dynamic.
+The usual example is a metadata injection template: its query and its fields arrive at runtime, so design-time checks report the transforms that are deliberately empty, on every open, while the rest of the pipeline is worth checking as normal.
+
+Right-click the transform or action and choose *Ignore lint findings...*.
+You are asked whether to accept everything reported there or only the rules reported right now, and for a reason, which is required.
+*Check this transform again* on the same menu takes the entries back out.
+Neither is offered on a file that is excluded from linting altogether: there is nothing to accept when nothing is checked.
+
+Both write to the project's `hop-lint.yml`, never to the pipeline or workflow: those files are opened by people who do not run the linter, and bookkeeping for a plugin they do not have installed has no business in them.
+
+[source,yaml]
+----
+suppress:
+  - rule: "*"
+    path: "templates/load-customers.hpl"
+    source: "Fonte Sql"
+    reason: "Connection and SQL are injected at runtime"
+----
+
+`rule: "*"` accepts whatever is reported on that element, including a rule that starts reporting on it later, which is what a transform filled in at runtime needs.
+It is only accepted together with a `path` or a `source`: on its own it would be the linter switched off under another name, and it is refused the same way an entry without a rule is.
+
+An element whose findings are accepted is drawn with a muted outline on the canvas rather than nothing at all, so the absence of a warning reads as somebody's decision rather than as a check that never ran.
+Turn that off with *Mark Ignored Transforms and Actions* in the linter options.
+
 == How the effective rule set is built
 
 Rules are resolved by merging every installed rule pack in priority order, and then applying the project's `hop-lint.yml` on top.

@@ -21,7 +21,9 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 
@@ -49,6 +51,9 @@ import org.apache.hop.core.util.Utils;
  * </pre>
  */
 public final class LintPolicy {
+
+  /** A suppression rule id standing for every rule, only valid together with a path or a source. */
+  public static final String ALL_RULES = "*";
 
   private static final LintPolicy EMPTY = new LintPolicy(List.of(), List.of());
 
@@ -109,7 +114,30 @@ public final class LintPolicy {
     return kept;
   }
 
-  private boolean isSuppressed(LintResult result, Path projectRoot) {
+  /**
+   * The transforms and actions this project has marked in the given file, whatever rule reports on
+   * them.
+   *
+   * <p>Resolved once per lint run and remembered, so that the canvas can show the silence is
+   * somebody's decision rather than a check that never ran, without reading the configuration on
+   * every repaint.
+   */
+  public Set<String> markedElements(String file, Path projectRoot) {
+    if (suppressions.isEmpty()) {
+      return Set.of();
+    }
+    String relative = relativise(file, projectRoot);
+    Set<String> marked = new LinkedHashSet<>();
+    for (Suppression suppression : suppressions) {
+      if (!Utils.isEmpty(suppression.getSource()) && suppression.appliesToFile(relative)) {
+        marked.add(suppression.getSource());
+      }
+    }
+    return marked;
+  }
+
+  /** Whether this project has accepted the finding, and it should not be reported. */
+  public boolean isSuppressed(LintResult result, Path projectRoot) {
     String relative = relativise(result.getFileName(), projectRoot);
     String sourceName = result.getSource() != null ? result.getSource().getName() : null;
     for (Suppression suppression : suppressions) {
@@ -197,15 +225,27 @@ public final class LintPolicy {
      * A suppression must name a rule; path and source narrow it further, and an omitted one matches
      * anything. Suppressing every rule everywhere would be indistinguishable from switching the
      * linter off, so an entry without a rule id is rejected when the configuration is read.
+     *
+     * <p>{@link LintPolicy#ALL_RULES} stands for "whatever is reported here", which is what a
+     * transform filled in at runtime needs: its design-time findings are noise today, and the rule
+     * that reports them tomorrow is noise too. It is only accepted alongside a path or a source, so
+     * that it narrows to something rather than silencing the project.
      */
     boolean matches(String candidateRuleId, String relativePath, String sourceName) {
-      if (!ruleId.equalsIgnoreCase(candidateRuleId)) {
+      if (!ALL_RULES.equals(ruleId) && !ruleId.equalsIgnoreCase(candidateRuleId)) {
         return false;
       }
-      if (!Utils.isEmpty(path) && !LintPolicy.matches(path, relativePath)) {
-        return false;
-      }
-      return Utils.isEmpty(source) || source.equalsIgnoreCase(sourceName);
+      return narrowsTo(relativePath, sourceName);
+    }
+
+    /** Whether the entry's path pattern, if it has one, covers this file. */
+    boolean appliesToFile(String relativePath) {
+      return Utils.isEmpty(path) || LintPolicy.matches(path, relativePath);
+    }
+
+    private boolean narrowsTo(String relativePath, String sourceName) {
+      return appliesToFile(relativePath)
+          && (Utils.isEmpty(source) || source.equalsIgnoreCase(sourceName));
     }
   }
 
