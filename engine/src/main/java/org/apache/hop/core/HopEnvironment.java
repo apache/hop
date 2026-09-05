@@ -46,6 +46,7 @@ import org.apache.hop.datastream.plugin.DataStreamPluginType;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
 import org.apache.hop.hop.plugin.HopCommandPluginType;
+import org.apache.hop.i18n.RegionalSettings;
 import org.apache.hop.imp.ImportPluginType;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.plugin.LineageSinkPluginType;
@@ -121,6 +122,11 @@ public class HopEnvironment {
         if (!HopClientEnvironment.isInitialized()) {
           HopClientEnvironment.init();
         }
+
+        // Install the regional settings (decimal separators, currency, date formats) before any
+        // conversion can happen. With the default configuration this is a no-op.
+        //
+        RegionalSettings.getInstance().applyHeadless();
 
         // Register the native types and the plugins for the various plugin types...
         //
