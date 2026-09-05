@@ -119,6 +119,8 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     try {
       // Prefer an explicit return type. When none is configured, infer from table field
       // metadata (info row from design-time / runtime, otherwise query the table).
+      // When a type is set, still clone the table field so length, precision, conversion
+      // mask and original JDBC metadata are kept (issue #8260).
       //
       IRowMeta tableFields = null;
       if (!Utils.isEmpty(infoRowMeta) && infoRowMeta[0] != null) {
@@ -131,19 +133,35 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
                 ? returnValue.getNewName()
                 : returnValue.getTableField();
         int typeId = ValueMetaFactory.getIdForValueMeta(returnValue.getDefaultType());
+        IValueMeta source = tableField(tableFields, returnValue.getTableField());
+        if (source == null && tableFields == null) {
+          try {
+            tableFields = getTableFields(variables);
+          } catch (Exception e) {
+            if (typeId == IValueMeta.TYPE_NONE) {
+              if (e instanceof HopException hopException) {
+                throw hopException;
+              }
+              throw new HopException(e);
+            }
+          }
+          source = tableField(tableFields, returnValue.getTableField());
+        }
+
         IValueMeta v;
         if (typeId != IValueMeta.TYPE_NONE) {
-          v = ValueMetaFactory.createValueMeta(fieldName, typeId);
-        } else {
-          if (tableFields == null) {
-            tableFields = getTableFields(variables);
+          if (source != null) {
+            v = ValueMetaFactory.cloneValueMeta(source, typeId);
+            v.setName(fieldName);
+          } else {
+            v = ValueMetaFactory.createValueMeta(fieldName, typeId);
           }
+        } else {
           if (tableFields == null) {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG, "DatabaseLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField"));
           }
-          IValueMeta source = tableFields.searchValueMeta(returnValue.getTableField());
           if (source == null) {
             throw new HopTransformException(
                 BaseMessages.getString(
@@ -359,6 +377,10 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  private static IValueMeta tableField(IRowMeta tableFields, String name) {
+    return tableFields == null ? null : tableFields.searchValueMeta(name);
   }
 
   @Override
