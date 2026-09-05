@@ -28,6 +28,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -292,6 +293,8 @@ public class HopGuiWorkflowActionDelegate {
       }
 
       byte[] beforeSnapshot = workflowGraph.captureUndoSnapshot();
+      boolean alreadyChanged = action.hasChanged();
+      String beforeXml = action.getXml();
 
       IAction jei = action.getAction();
 
@@ -305,6 +308,11 @@ public class HopGuiWorkflowActionDelegate {
           //
           workflowMeta.renameActionIfNameCollides(action);
           workflowGraph.commitDialogUndo(beforeSnapshot);
+          if (hasActionMetaChanged(beforeXml, action.getXml())) {
+            action.setChanged();
+          } else {
+            action.setChanged(alreadyChanged);
+          }
         }
         workflowGraph.updateGui();
       } else {
@@ -403,5 +411,15 @@ public class HopGuiWorkflowActionDelegate {
     workflowMeta.addAction(copyOfAction);
 
     workflowGraph.updateGui();
+  }
+
+  /**
+   * Returns {@code true} if two action snapshots differ in persisted configuration. Omitted XML
+   * elements ({@code null} fields) and empty elements ({@code <tag/>} from an empty string) are
+   * treated as the same so a dialog OK that only round-trips widget text does not mark the workflow
+   * dirty.
+   */
+  private static boolean hasActionMetaChanged(String beforeXml, String afterXml) {
+    return !XmlHandler.sameContentIgnoringEmptyValues(beforeXml, afterXml);
   }
 }

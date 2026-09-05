@@ -39,6 +39,7 @@ import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.IPartitioner;
@@ -200,6 +201,9 @@ public class HopGuiPipelineTransformDelegate {
       dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
       TransformMeta before = null;
       byte[] beforeSnapshot = null;
+      // Capture from the live object. A clone is often already "changed" because copying location
+      // or row distribution goes through setters that flip wrapperChanged.
+      boolean alreadyChanged = transformMeta.hasChanged();
       if (dialog != null) {
         dialogs.put(name, dialog);
 
@@ -267,7 +271,7 @@ public class HopGuiPipelineTransformDelegate {
         if (hasTransformMetaChanged(before, after)) {
           transformMeta.setChanged();
         } else {
-          transformMeta.setChanged(before.hasChanged());
+          transformMeta.setChanged(alreadyChanged);
         }
       }
       pipelineGraph.updateGui();
@@ -547,6 +551,7 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void editTransformPartitioning(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    boolean alreadyChanged = transformMeta.hasChanged();
     byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
     String[] schemaNames;
     try {
@@ -610,7 +615,7 @@ public class HopGuiPipelineTransformDelegate {
         if (hasTransformMetaChanged(partitionBefore, partitionAfter)) {
           transformMeta.setChanged();
         } else {
-          transformMeta.setChanged(partitionBefore.hasChanged());
+          transformMeta.setChanged(alreadyChanged);
         }
         pipelineGraph.redraw();
         pipelineGraph.updateGui();
@@ -677,6 +682,7 @@ public class HopGuiPipelineTransformDelegate {
       List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta, true);
 
       // now edit this transformErrorMeta object:
+      boolean alreadyChanged = transformMeta.hasChanged();
       TransformMeta before = (TransformMeta) transformMeta.clone();
       byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
       TransformErrorMetaDialog dialog =
@@ -694,7 +700,7 @@ public class HopGuiPipelineTransformDelegate {
         if (hasTransformMetaChanged(before, after)) {
           transformMeta.setChanged();
         } else {
-          transformMeta.setChanged(before.hasChanged());
+          transformMeta.setChanged(alreadyChanged);
         }
         pipelineGraph.redraw();
       }
@@ -704,14 +710,19 @@ public class HopGuiPipelineTransformDelegate {
   /**
    * Returns {@code true} if two transform snapshots differ in persisted configuration (transform
    * body, partitioning, GUI placement, and error handling).
+   *
+   * <p>Omitted XML elements ({@code null} fields) and empty elements ({@code <tag/>} from an empty
+   * string) are treated as the same so a dialog OK that only round-trips widget text does not mark
+   * the pipeline dirty. Serialization still writes them differently.
    */
   private static boolean hasTransformMetaChanged(TransformMeta before, TransformMeta after) {
     try {
-      if (!before.getXml().equals(after.getXml())) {
+      if (!XmlHandler.sameContentIgnoringEmptyValues(before.getXml(), after.getXml())) {
         return true;
       }
 
-      return !getErrorMetaXml(before).equals(getErrorMetaXml(after));
+      return !XmlHandler.sameContentIgnoringEmptyValues(
+          getErrorMetaXml(before), getErrorMetaXml(after));
     } catch (HopException e) {
       // If comparison fails, treat as changed to avoid losing edits.
       return true;

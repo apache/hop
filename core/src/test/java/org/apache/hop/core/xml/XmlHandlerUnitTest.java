@@ -18,8 +18,10 @@
 package org.apache.hop.core.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -337,5 +339,41 @@ class XmlHandlerUnitTest {
     subNode = XmlHandler.getSubNodeByNr(rootNode, "xpto", 3, false);
     assertNotNull(subNode);
     assertEquals("3", subNode.getTextContent());
+  }
+
+  @Test
+  void omittedElementEqualsEmptyElement() {
+    String withNullField = "<transform><name>Abort</name></transform>";
+    String withEmptyField = "<transform><name>Abort</name><message/></transform>";
+    String withEmptyPair = "<transform><name>Abort</name><message></message></transform>";
+    assertTrue(XmlHandler.sameContentIgnoringEmptyValues(withNullField, withEmptyField));
+    assertTrue(XmlHandler.sameContentIgnoringEmptyValues(withNullField, withEmptyPair));
+    assertTrue(XmlHandler.sameContentIgnoringEmptyValues(withEmptyField, withEmptyPair));
+  }
+
+  @Test
+  void nestedEmptyElementsEqualOmittedParent() {
+    String omitted = "<transform><name>Calc</name></transform>";
+    String emptyNested =
+        "<transform><name>Calc</name><fields><field><format/></field></fields></transform>";
+    assertTrue(XmlHandler.sameContentIgnoringEmptyValues(omitted, emptyNested));
+  }
+
+  @Test
+  void realTextChangeIsStillDetected() {
+    String before = "<transform><name>Abort</name></transform>";
+    String after = "<transform><name>Abort</name><message>stop</message></transform>";
+    assertFalse(XmlHandler.sameContentIgnoringEmptyValues(before, after));
+    assertFalse(
+        XmlHandler.sameContentIgnoringEmptyValues(
+            "<transform><message>old</message></transform>",
+            "<transform><message>new</message></transform>"));
+  }
+
+  @Test
+  void extraEmptyListItemIsIgnored() {
+    String oneField = "<fields><field><name>a</name></field></fields>";
+    String trailingEmpty = "<fields><field><name>a</name></field><field/></fields>";
+    assertTrue(XmlHandler.sameContentIgnoringEmptyValues(oneField, trailingEmpty));
   }
 }

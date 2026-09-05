@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.XMLConstants;
@@ -1212,6 +1213,125 @@ public class XmlHandler {
     String tag = "wrap";
     String newXml = openTag(tag) + xml + closeTag(tag);
     return loadXmlString(newXml, tag);
+  }
+
+  /**
+   * Compare two XML fragments for change detection, treating an omitted element (a {@code null}
+   * field, which {@link org.apache.hop.metadata.serializer.xml.XmlMetadataUtil} does not write) as
+   * the same as an empty element such as {@code <tag/>} (an empty string).
+   *
+   * <p>Serialization still distinguishes null from empty string. This method is only for deciding
+   * whether a dialog OK wrote the same persisted content back, typically after SWT widgets turned
+   * null into {@code ""}.
+   *
+   * @param left first XML fragment, may be null
+   * @param right second XML fragment, may be null
+   * @return true if the documents are equal after ignoring empty-valued elements
+   */
+  public static boolean sameContentIgnoringEmptyValues(String left, String right) {
+    if (Objects.equals(left, right)) {
+      return true;
+    }
+    if (left == null || right == null) {
+      return false;
+    }
+    try {
+      return sameElementIgnoringEmptyValues(wrapLoadXmlString(left), wrapLoadXmlString(right));
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  private static boolean sameElementIgnoringEmptyValues(Node left, Node right) {
+    if (!Objects.equals(left.getNodeName(), right.getNodeName())) {
+      return false;
+    }
+    if (!sameAttributes(left, right)) {
+      return false;
+    }
+    List<Node> leftChildren = significantElementChildren(left);
+    List<Node> rightChildren = significantElementChildren(right);
+    if (leftChildren.size() != rightChildren.size()) {
+      return false;
+    }
+    if (leftChildren.isEmpty()) {
+      return Objects.equals(directText(left), directText(right));
+    }
+    for (int i = 0; i < leftChildren.size(); i++) {
+      if (!sameElementIgnoringEmptyValues(leftChildren.get(i), rightChildren.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean sameAttributes(Node left, Node right) {
+    NamedNodeMap leftAttrs = left.getAttributes();
+    NamedNodeMap rightAttrs = right.getAttributes();
+    int leftCount = leftAttrs == null ? 0 : leftAttrs.getLength();
+    int rightCount = rightAttrs == null ? 0 : rightAttrs.getLength();
+    if (leftCount != rightCount) {
+      return false;
+    }
+    if (leftCount == 0) {
+      return true;
+    }
+    for (int i = 0; i < leftCount; i++) {
+      Node attr = leftAttrs.item(i);
+      Node other = rightAttrs.getNamedItem(attr.getNodeName());
+      if (other == null || !Objects.equals(attr.getNodeValue(), other.getNodeValue())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static List<Node> significantElementChildren(Node parent) {
+    List<Node> children = new ArrayList<>();
+    NodeList nodes = parent.getChildNodes();
+    for (int i = 0; i < nodes.getLength(); i++) {
+      Node child = nodes.item(i);
+      if (child.getNodeType() == Node.ELEMENT_NODE && hasSignificantContent(child)) {
+        children.add(child);
+      }
+    }
+    return children;
+  }
+
+  /**
+   * True when the element has attributes, non-whitespace text, or a child that itself has
+   * significant content. The opposite is an omitted null field versus {@code <tag/>} for an empty
+   * string.
+   */
+  private static boolean hasSignificantContent(Node element) {
+    NamedNodeMap attributes = element.getAttributes();
+    if (attributes != null && attributes.getLength() > 0) {
+      return true;
+    }
+    if (!directText(element).isEmpty()) {
+      return true;
+    }
+    NodeList nodes = element.getChildNodes();
+    for (int i = 0; i < nodes.getLength(); i++) {
+      Node child = nodes.item(i);
+      if (child.getNodeType() == Node.ELEMENT_NODE && hasSignificantContent(child)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String directText(Node element) {
+    StringBuilder text = new StringBuilder();
+    NodeList nodes = element.getChildNodes();
+    for (int i = 0; i < nodes.getLength(); i++) {
+      Node child = nodes.item(i);
+      short type = child.getNodeType();
+      if (type == Node.TEXT_NODE || type == Node.CDATA_SECTION_NODE) {
+        text.append(child.getNodeValue());
+      }
+    }
+    return text.toString().trim();
   }
 
   public static String getLicenseHeader(IVariables variables) throws HopException {
