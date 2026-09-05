@@ -305,6 +305,18 @@ public final class YamlRulePackParser {
                   + " every rule.");
           continue;
         }
+        String path = stringValue(entry.get("path"), null);
+        String source = stringValue(entry.get("source"), null);
+        if (LintPolicy.ALL_RULES.equals(ruleId) && Utils.isEmpty(path) && Utils.isEmpty(source)) {
+          LogChannel.GENERAL.logError(
+              "Ignoring suppress entry "
+                  + index
+                  + " in "
+                  + projectYaml
+                  + ": rule \"*\" needs a path or a source to narrow it to. On its own it would"
+                  + " silence every rule everywhere.");
+          continue;
+        }
         if (Utils.isEmpty(reason)) {
           LogChannel.GENERAL.logError(
               "Ignoring suppression of "
@@ -314,12 +326,7 @@ public final class YamlRulePackParser {
                   + ": it must give a reason, so the decision can be reviewed later.");
           continue;
         }
-        suppressions.add(
-            new LintPolicy.Suppression(
-                ruleId,
-                stringValue(entry.get("path"), null),
-                stringValue(entry.get("source"), null),
-                reason));
+        suppressions.add(new LintPolicy.Suppression(ruleId, path, source, reason));
       }
     }
 
