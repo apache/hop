@@ -202,6 +202,39 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
    * @param transformName the name of the transform for which we need to clear out all input and
    *     golden data sets
    */
+  /**
+   * Point input/golden data set locations and tweaks at {@code newName} when the transform they
+   * were attached to is renamed. Names are matched case-insensitively, same as {@link
+   * #findInputLocation(String)}.
+   *
+   * @return true when at least one location or tweak was updated
+   */
+  public boolean renameTransform(String oldName, String newName) {
+    if (Utils.isEmpty(oldName) || Utils.isEmpty(newName) || oldName.equals(newName)) {
+      return false;
+    }
+    boolean changed = false;
+    for (PipelineUnitTestSetLocation location : inputDataSets) {
+      if (oldName.equalsIgnoreCase(location.getTransformName())) {
+        location.setTransformName(newName);
+        changed = true;
+      }
+    }
+    for (PipelineUnitTestSetLocation location : goldenDataSets) {
+      if (oldName.equalsIgnoreCase(location.getTransformName())) {
+        location.setTransformName(newName);
+        changed = true;
+      }
+    }
+    for (PipelineUnitTestTweak tweak : tweaks) {
+      if (tweak.getTransformName() != null && oldName.equalsIgnoreCase(tweak.getTransformName())) {
+        tweak.setTransformName(newName);
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
   public void removeInputAndGoldenDataSets(String transformName) {
 
     for (Iterator<PipelineUnitTestSetLocation> iterator = inputDataSets.iterator();

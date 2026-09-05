@@ -67,11 +67,13 @@ import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestGraphVariables;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -132,6 +134,17 @@ public class TestingGuiPlugin {
 
   public static final String ACTION_ID_PIPELINE_GRAPH_COPY_TEST_ACTION_CLIPBOARD =
       "pipeline-graph-transform-10400-copy-pipeline-action";
+
+  /**
+   * GUI custom parameter: show the golden data set Dummy-replacement warning. Default {@code Y}.
+   */
+  public static final String STRING_GOLDEN_DATASET_WARNING_PARAMETER =
+      "UnitTestGoldenDataSetWarning";
+
+  /**
+   * GUI custom parameter: show the input data set Injector-replacement warning. Default {@code Y}.
+   */
+  public static final String STRING_INPUT_DATASET_WARNING_PARAMETER = "UnitTestInputDataSetWarning";
 
   private static TestingGuiPlugin instance = null;
 
@@ -235,6 +248,12 @@ public class TestingGuiPlugin {
       DataSet dataSet)
       throws HopException {
     HopGui hopGui = HopGui.getInstance();
+
+    showDataSetReplacementWarning(
+        hopGui.getShell(),
+        STRING_INPUT_DATASET_WARNING_PARAMETER,
+        "TestingGuiPlugin.InputDataSetReplacement.Title",
+        "TestingGuiPlugin.InputDataSetReplacement.Message");
 
     // Now we need to map the fields from the input data set to the transform...
     //
@@ -364,6 +383,45 @@ public class TestingGuiPlugin {
     }
   }
 
+  /**
+   * Inform the user that attaching a data set replaces the transform at test execution time. The
+   * "don't show this again" choice is stored as a GUI custom parameter.
+   */
+  private void showDataSetReplacementWarning(
+      Shell shell, String parameterName, String titleKey, String messageKey) {
+    PropsUi props = HopGui.getInstance().getProps();
+    if (!shouldShowReplacementWarning(props.getCustomParameter(parameterName, "Y"))) {
+      return;
+    }
+    MessageDialogWithToggle md =
+        new MessageDialogWithToggle(
+            shell,
+            BaseMessages.getString(PKG, titleKey),
+            BaseMessages.getString(PKG, messageKey, Const.CR) + Const.CR,
+            SWT.ICON_WARNING,
+            new String[] {BaseMessages.getString(PKG, "TestingGuiPlugin.DataSetReplacement.Close")},
+            BaseMessages.getString(PKG, "TestingGuiPlugin.DataSetReplacement.DontShowAgain"),
+            "N".equalsIgnoreCase(props.getCustomParameter(parameterName, "Y")));
+    md.open();
+    props.setCustomParameter(parameterName, replacementWarningStoredValue(md.getToggleState()));
+  }
+
+  /**
+   * @param storedValue GUI custom parameter value, {@code Y} (default) to show the warning
+   * @return true when the replacement warning dialog should be shown
+   */
+  static boolean shouldShowReplacementWarning(String storedValue) {
+    return "Y".equalsIgnoreCase(Const.NVL(storedValue, "Y"));
+  }
+
+  /**
+   * @param dontShowAgain true when the user checked "Don't show this message again"
+   * @return {@code N} to suppress the warning, {@code Y} to keep showing it
+   */
+  static String replacementWarningStoredValue(boolean dontShowAgain) {
+    return dontShowAgain ? "N" : "Y";
+  }
+
   private boolean checkTestPresent(HopGui hopGui, HopGuiPipelineTransformContext context) {
     // Get the unit test directly from the pipeline graph context (works in web/RAP mode)
     PipelineUnitTest activeTest = getUnitTestFromContext(context);
@@ -454,6 +512,13 @@ public class TestingGuiPlugin {
       PipelineUnitTest unitTest,
       DataSet dataSet)
       throws HopException {
+    HopGui hopGui = HopGui.getInstance();
+    showDataSetReplacementWarning(
+        hopGui.getShell(),
+        STRING_GOLDEN_DATASET_WARNING_PARAMETER,
+        "TestingGuiPlugin.GoldenDataSetReplacement.Title",
+        "TestingGuiPlugin.GoldenDataSetReplacement.Message");
+
     // Now we need to map the fields from the transform to golden data set fields...
     //
     IRowMeta transformFields;
@@ -471,7 +536,7 @@ public class TestingGuiPlugin {
     String[] setFieldNames = setFields.getFieldNames();
 
     EnterMappingDialog mappingDialog =
-        new EnterMappingDialog(HopGui.getInstance().getShell(), transformFieldNames, setFieldNames);
+        new EnterMappingDialog(hopGui.getShell(), transformFieldNames, setFieldNames);
     List<SourceToTargetMapping> mappings = mappingDialog.open();
     if (mappings == null) {
       return false;
@@ -490,7 +555,7 @@ public class TestingGuiPlugin {
     }
     EditRowsDialog orderDialog =
         new EditRowsDialog(
-            HopGui.getInstance().getShell(),
+            hopGui.getShell(),
             SWT.NONE,
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Title"),
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Message"),

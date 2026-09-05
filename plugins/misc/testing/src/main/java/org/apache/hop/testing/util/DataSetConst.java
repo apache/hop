@@ -17,10 +17,13 @@
 
 package org.apache.hop.testing.util;
 
-import com.google.common.math.DoubleMath;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -79,6 +82,13 @@ public class DataSetConst {
    * (design-time). Value type: {@code Set<String>}.
    */
   public static final String STATE_KEY_APPLIED_UNIT_TEST_VARIABLES = "AppliedUnitTestVariables";
+
+  /**
+   * Fallback mask when a Number/BigNumber field has no length/precision. Optional digits so 1 and
+   * 1.0 compare equal, with enough fraction digits to keep values distinguishable.
+   */
+  public static final String NUMERIC_COMPARE_MASK_DEFAULT =
+      "##########.#########;-###########.########";
 
   private static final String[] tweakDesc =
       new String[] {
@@ -312,6 +322,8 @@ public class DataSetConst {
 
         final int[] transformFieldIndices = new int[location.getFieldMappings().size()];
         final int[] goldenIndices = new int[location.getFieldMappings().size()];
+        final DecimalFormat[] numericCompareFormats =
+            new DecimalFormat[location.getFieldMappings().size()];
         for (int i = 0; i < location.getFieldMappings().size(); i++) {
           PipelineUnitTestFieldMapping fieldMapping = location.getFieldMappings().get(i);
 
@@ -333,6 +345,15 @@ public class DataSetConst {
                     + "' while testing output of transform '"
                     + location.getTransformName()
                     + "'");
+          }
+          IValueMeta transformCompareMeta = resultRowMeta.getValueMeta(transformFieldIndices[i]);
+          IValueMeta goldenCompareMeta = goldenRowMeta.getValueMeta(goldenIndices[i]);
+          if (transformCompareMeta.isNumber() || transformCompareMeta.isBigNumber()) {
+            IValueMeta spec =
+                goldenCompareMeta.getLength() > 0 ? goldenCompareMeta : transformCompareMeta;
+            numericCompareFormats[i] =
+                createNumericCompareFormat(
+                    buildNumericCompareMask(spec.getLength(), spec.getPrecision()));
           }
           log.logDetailed(
               "Field to compare #"
@@ -381,18 +402,15 @@ public class DataSetConst {
               int cmp =
                   transformValueMeta.compare(transformValue, goldenValueMeta, goldenValueConverted);
               if (cmp != 0
-                  && transformValueMeta.isNumber()
+                  && numericCompareFormats[i] != null
                   && !transformValueMeta.isNull(transformValue)
-                  && !transformValueMeta.isNull(goldenValueConverted)) {
-
-                // See if it's a floating point issue...
-                // Convert to an epsilon of 1 millionth.
-                Double d1 = transformValueMeta.getNumber(transformValue);
-                Double d2 = transformValueMeta.getNumber(goldenValueConverted);
-
-                if (DoubleMath.fuzzyEquals(d1, d2, 0.000001d)) {
-                  cmp = 0;
-                }
+                  && !transformValueMeta.isNull(goldenValueConverted)
+                  && formattedNumericValuesEqual(
+                      numericCompareFormats[i],
+                      transformValueMeta,
+                      transformValue,
+                      goldenValueConverted)) {
+                cmp = 0;
               }
               if (cmp != 0) {
                 if (log.isDebug()) {
@@ -457,6 +475,72 @@ public class DataSetConst {
               comment));
     }
     return nrErrors;
+  }
+
+  /**
+   * Build a DecimalFormat pattern from field length and precision so two floating-point values can
+   * be compared as strings with no leftover binary precision.
+   *
+   * <p>For length 7 and precision 2 this is {@code 00000.00;-0000.00}: {@code length - precision}
+   * integer digits on the positive side, one fewer on the negative side to make room for the minus
+   * sign. When length is missing or precision is negative, {@link #NUMERIC_COMPARE_MASK_DEFAULT} is
+   * used.
+   *
+   * @param length total digit count (integer + fraction), or &lt; 1 when unspecified
+   * @param precision number of fraction digits, or &lt; 0 when unspecified
+   * @return a positive;negative DecimalFormat pattern
+   */
+  public static String buildNumericCompareMask(int length, int precision) {
+    if (length < 1 || precision < 0) {
+      return NUMERIC_COMPARE_MASK_DEFAULT;
+    }
+    int integerDigits = length - precision;
+    if (integerDigits < 1) {
+      integerDigits = 1;
+    }
+    StringBuilder positive = new StringBuilder(integerDigits + precision + 1);
+    positive.append("0".repeat(integerDigits));
+    if (precision > 0) {
+      positive.append('.').append("0".repeat(precision));
+    }
+    int negativeIntegerDigits = Math.max(integerDigits - 1, 1);
+    StringBuilder negative = new StringBuilder(negativeIntegerDigits + precision + 2);
+    negative.append('-').append("0".repeat(negativeIntegerDigits));
+    if (precision > 0) {
+      negative.append('.').append("0".repeat(precision));
+    }
+    return positive.append(';').append(negative).toString();
+  }
+
+  /**
+   * Create a locale-independent formatter for {@link #buildNumericCompareMask(int, int)} patterns.
+   * Always uses {@code '.'} as decimal separator and half-up rounding.
+   */
+  public static DecimalFormat createNumericCompareFormat(String mask) {
+    DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.US);
+    symbols.setDecimalSeparator('.');
+    DecimalFormat format = new DecimalFormat(mask, symbols);
+    format.setGroupingUsed(false);
+    format.setRoundingMode(RoundingMode.HALF_UP);
+    return format;
+  }
+
+  /**
+   * @return true when both non-null numeric values format to the same string with {@code format}
+   */
+  static boolean formattedNumericValuesEqual(
+      DecimalFormat format, IValueMeta valueMeta, Object left, Object right)
+      throws HopValueException {
+    return format
+        .format(toComparableNumber(valueMeta, left))
+        .equals(format.format(toComparableNumber(valueMeta, right)));
+  }
+
+  static Number toComparableNumber(IValueMeta valueMeta, Object value) throws HopValueException {
+    if (valueMeta.isBigNumber()) {
+      return valueMeta.getBigNumber(value);
+    }
+    return valueMeta.getNumber(value);
   }
 
   public static String getDirectoryFromPath(String path) {

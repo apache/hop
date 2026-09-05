@@ -51,6 +51,8 @@ public enum HopExtensionPoint {
   PipelineGraphMouseMoved("The mouse was moved on the canvas"),
   PipelineGraphMouseDoubleClick("A left or right button was double-clicked in a Pipeline"),
   PipelineBeforeDeleteTransforms("Pipeline transforms about to be deleted"),
+  PipelineTransformRenamed(
+      "A pipeline transform was renamed (TransformNameChange: pipeline, old name, new name)"),
 
   HopGuiPipelineMetaExecutionStart("Hop GUI initiates the execution of a pipeline (PipelineMeta)"),
   HopGuiPipelineExecutionConfiguration(

@@ -68,6 +68,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
@@ -3370,6 +3371,23 @@ public class PipelineMeta extends AbstractMeta
   public void notifyAllListeners(TransformMeta oldMeta, TransformMeta newMeta) {
     for (ITransformMetaChangeListener listener : transformChangeListeners) {
       listener.onTransformChange(this, oldMeta, newMeta);
+    }
+    if (oldMeta == null || newMeta == null) {
+      return;
+    }
+    String oldName = oldMeta.getName();
+    String newName = newMeta.getName();
+    if (oldName == null || oldName.equals(newName)) {
+      return;
+    }
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL,
+          Variables.getADefaultVariableSpace(),
+          HopExtensionPoint.PipelineTransformRenamed.id,
+          new TransformNameChange(this, oldName, newName));
+    } catch (HopException e) {
+      LogChannel.GENERAL.logError("Error calling extension point PipelineTransformRenamed", e);
     }
   }
 
