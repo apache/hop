@@ -57,15 +57,43 @@ By default, the value for the `{openvar}HOP_DATASETS_FOLDER{closevar}` variable 
 
 When a pipeline is executed in Hop Gui and a unit test is selected the following happens:
 
-* all transforms marked with an input data set are replaced with an Injector transform
-* all transforms marked with a golden data set are replaced with a dummy transform (does nothing).
-* all transforms marked with a "Bypass" tweak are replaced with a dummy.
+* all transforms marked with an input data set are replaced with an xref:pipeline/transforms/injector.adoc[Injector] transform
+* all transforms marked with a golden data set are replaced with a xref:pipeline/transforms/dummy.adoc[Dummy] transform (does nothing).
+* all transforms marked with a "Bypass" tweak are replaced with a Dummy.
 * all transforms marked with a "Remove" tweak are removed
 
 These operations take place on a copy of the pipeline, in memory only unless you specify a hpl file location in the unit test dialog.
+The original pipeline on disk is not changed.
 
-After execution, transform output is validated against golden data and logged.
+After execution, the rows that flowed *into* each golden-data-set transform are compared to the golden data set and the result is logged.
 In case of errors in the test, a dialog will pop up when running in Hop Gui.
+
+=== Input data sets replace the transform with an Injector
+
+When you attach an input data set to a transform, that transform is replaced with an Injector during the test.
+The static rows from the data set are injected instead of executing the original transform.
+
+This is typically used so the unit test does not read from a file, a database, or another external source.
+
+Hop Gui shows a notice (with a *Don't show this message again* option) the first time you attach an input data set to a transform.
+
+image::pipeline-unit-testing-set-input-dataset-explanation.png[Input data set replacement notice,width="90%"]
+
+=== Golden data sets replace the transform with a Dummy
+
+When you attach a golden data set to a transform, that transform is replaced with a Dummy during the test.
+The rows that would have been sent *into* that transform are captured and compared to the golden data set.
+
+This is typically used to prevent the unit test from writing to a file or a database.
+Attach the golden data set to the *output* transform (for example Text File Output or Table Output), not to the transform whose results you want to verify.
+
+IMPORTANT: The transform you attach the golden data set to is *not* executed.
+If you want to validate the output of a Calculator, attach the golden data set to the transform *after* the Calculator.
+Attaching it to the Calculator itself would skip the Calculator and compare the Calculator's input instead.
+
+Hop Gui shows a notice (with a *Don't show this message again* option) the first time you attach a golden data set to a transform.
+
+image::pipeline-unit-testing-set-golden-dataset-explanation.png[Golden data set replacement notice,width="90%"]
 
 == Create unit tests
 
@@ -75,16 +103,18 @@ The 'Unit Testing' category in the transform context dialog (click on transform 
 
 image::pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets,width=90%]
 
-* **Set input data set**: For the active unit test, it defines which data set to use instead of the output of the transform
+* **Set input data set**: For the active unit test, replace this transform with an Injector that injects the selected data set instead of executing the transform (so the test does not read from a file or a database).
 * **Clear input data set**: Remove a defined input data set from this transform unit test
-* **Set golden data set**: The input to this transform is taken and compared to the golden data set you are selecting.
-* **Clear golden data set**: Remove a defined input data set for this transform unit test
+* **Set golden data set**: Compare the rows flowing *into* this transform with the selected golden data set. During the test the transform is replaced with a Dummy so it is not executed (for example it will not write to a file or a database).
+* **Clear golden data set**: Remove a defined golden data set from this transform unit test
 * **Create data set**: Create an empty data set with the output fields of this transform
 * **Write rows to data set**: Run the current pipeline and write the data to a data set
 * **Remove from test**: When this unit test is run, do not include this transform
 * **Include in test**: Run the current pipeline and write the data to a data set
 * **Bypass in test**: When this unit test is run, bypass this transform (replace with a dummy)
 * **Remove bypass in test**: Do not bypass this transform in the current pipeline during testing
+
+If a unit test is active and you rename a transform that has an input data set, a golden data set, or a tweak, Hop updates that location on the unit test so the attachment stays on the renamed transform.
 
 TIP: creating data sets is also possible from the 'New' context menu or metadata perspective.
 
@@ -142,11 +172,14 @@ For this example, just click 'guess'.
 Repeat for the 'customer by year out' transform and data set.
 
 Click the 'read customers' transform icon again, select 'set input data set'.
-Select the data set and accept the sort order.
+Select the data set.
+Hop Gui shows a notice that this transform will be replaced with an Injector during the test (you can check *Don't show this message again* if you do not want to see it next time).
+Then map the fields and accept the sort order.
 
 Repeat for 'customers by year out', but use 'Set golden data set'.
+Hop Gui shows a similar notice that this transform will be replaced with a Dummy during the test, so the pipeline does not write the output file.
 
-Your pipeline now has two new indicators for ths input and output data set.
+Your pipeline now has two new indicators for the input and output data set.
 
 image::pipeline-unit-testing-data-sets-enabled.png[Unit Test - data set enabled,width="90%"]
 
@@ -179,6 +212,11 @@ While successful test show 'Test passed succesfully against golden data set' and
 
 * `Incorrect number of rows received from transform, golden data set <GOLDEN_DATASET_NAME> has <GOLDEN_DATASET_ROWS> rows in it and we received <NB_ROWS_FOUND>`
 * `Validation against golden data failed for row number <ROW_NUMBER>, field <FIELD_NAME>: transform value [<FIELD_VALUE>] does not correspond to data set value [<GOLDEN_DATASET_VALUE>]`
+
+Number and BigNumber fields are compared by converting both values to a string with a format mask derived from the field length and precision.
+For example, length 7 and precision 2 uses `00000.00;-0000.00`.
+Values that round to the same string at that precision are considered equal (so `sqrt(2)` matches golden `1.4142` when precision is 4).
+If length or precision is not set, `##########.#########;-###########.########` is used.
 
 === Remove and bypass transforms in unit tests
 

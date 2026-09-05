@@ -26,6 +26,11 @@ A Data Set is a static pre-defined collection of rows, used in xref:metadata-typ
 This input set is used to be processed in a unit testing pipeline.
 After processing the result of the pipeline is compared to a data set that has been specified as the 'golden data set' for the test.
 
+When a data set is attached as *input*, the marked transform is replaced with an Injector and the static data set rows are injected (so the original transform does not read from a file or a database).
+When a data set is attached as *golden*, the marked transform is replaced with a Dummy and the rows flowing into it are compared to the data set (so the original transform does not write to a file or a database).
+
+See xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Testing] for details.
+
 == Related Plugins
 
 xref:pipeline/transforms/datasetinput.adoc[Data set input], xref:pipeline/transforms/datasetoutput.adoc[Data set output]
