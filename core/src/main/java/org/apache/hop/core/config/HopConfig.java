@@ -59,6 +59,25 @@ public class HopConfig extends ConfigFile {
     return instance;
   }
 
+  public static boolean isInMemoryMode() {
+    return getInstance().isInMemory();
+  }
+
+  public static void setInMemoryMode(boolean inMemory) {
+    HopConfig hopConfig = getInstance();
+    hopConfig.setInMemory(inMemory);
+  }
+
+  @Override
+  public void setInMemory(boolean inMemory) {
+    super.setInMemory(inMemory);
+    if (inMemory) {
+      setSerializer(new ConfigNoFileSerializer());
+    } else {
+      setSerializer(new ConfigFileSerializer());
+    }
+  }
+
   public void saveOption(String optionKey, Object optionValue) {
     synchronized (CONFIG_LOCK) {
       try {

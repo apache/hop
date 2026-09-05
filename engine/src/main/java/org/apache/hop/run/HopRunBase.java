@@ -50,6 +50,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -181,6 +182,15 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
         if (mixin instanceof IConfigOptions configOptions) {
           configOptions.handleOption(log, this, variables);
         }
+      }
+
+      // Root-level options such as --project-locations enable the project before this subcommand
+      // runs. Use that metadata provider when it was rebuilt against the project folder.
+      //
+      MultiMetadataProvider instanceProvider = HopMetadataInstance.getMetadataProvider();
+      if (instanceProvider != null
+          && StringUtils.isNotEmpty(variables.getVariable(Const.HOP_METADATA_FOLDER))) {
+        metadataProvider = instanceProvider;
       }
 
       // Optionally we can configure metadata to come from a JSON export file.
