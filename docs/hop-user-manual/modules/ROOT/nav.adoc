@@ -44,6 +44,7 @@ under the License.
 ** xref:hop-gui/hop-gui-git.adoc[Working with git]
 ** xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]
 ** xref:hop-gui/hop-web.adoc[Hop Web]
+** xref:hop-gui/notifications.adoc[Notifications]
 * xref:projects/index.adoc[Projects]
 ** xref:projects/projects-environments.adoc[Projects & Environments]
 ** xref:projects/metadata.adoc[Metadata]

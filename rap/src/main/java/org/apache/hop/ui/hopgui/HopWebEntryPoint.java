@@ -37,6 +37,7 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
+import org.apache.hop.ui.hopgui.notifications.NotificationService;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -261,6 +262,17 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
             new UISessionListener() {
               @Override
               public void beforeDestroy(UISessionEvent event) {
+                // Stop this session's notification polling and let go of its server push channel.
+                // Both are started per session, and nothing else would ever end them: the threads
+                // and the open push connection would otherwise accumulate for as long as the
+                // server runs. Done first, and on its own, so a disposed widget further down
+                // cannot skip it.
+                try {
+                  NotificationService.getInstance().stop();
+                  ServerPushSessionFacade.stop();
+                } catch (Exception e) {
+                  LogChannel.UI.logError("Error stopping notifications on session end", e);
+                }
                 try {
                   HopGui hopGui = HopGui.getInstance();
                   if (hopGui == null) {

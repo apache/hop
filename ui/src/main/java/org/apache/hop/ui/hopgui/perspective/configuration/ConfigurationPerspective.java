@@ -354,6 +354,21 @@ public class ConfigurationPerspective implements IHopPerspective {
     }
   }
 
+  /** Update the category tree selection to match the currently displayed tab. */
+  private void syncTreeSelectionToTab(String tabText) {
+    if (categoryTree == null || categoryTree.isDisposed() || tabText == null) {
+      return;
+    }
+    // Find top-level tree item with matching text
+    for (TreeItem item : categoryTree.getItems()) {
+      if (tabText.equals(item.getText())) {
+        categoryTree.setSelection(item);
+        categoryTree.showSelection();
+        return;
+      }
+    }
+  }
+
   private void loadSettingCategories() {
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
     List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(CONFIG_PERSPECTIVE_TABS);
@@ -885,6 +900,23 @@ public class ConfigurationPerspective implements IHopPerspective {
         showCategory(item.getText());
         break;
       }
+    }
+  }
+
+  /**
+   * Show the Notifications tab and select the Notifications item in the tree. Call this when
+   * opening notification settings from the notification panel.
+   */
+  public void showNotificationsTab() {
+    if (!isInitialized()) {
+      // There is no tree to navigate.
+      //
+      return;
+    }
+    Control notificationsPanel = categoryTabs.get("Notifications");
+    if (notificationsPanel != null && !notificationsPanel.isDisposed()) {
+      showCategory("Notifications", true);
+      syncTreeSelectionToTab("Notifications");
     }
   }
 

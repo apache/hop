@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        height="24"
+        width="24"
+        version="1.1">
+    <!-- Bell icon - simple black fill style matching Hop's icon style -->
+    <path
+            style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+            d="M 12 2 C 8.13 2 5 5.13 5 9 c 0 5.25 -2.5 7.9 -2.5 7.9 h 15 c 0 0 -2.5 -2.65 -2.5 -7.9 C 15 5.13 11.87 2 12 2 Z M 9.21 18.9 c 0.19 0.39 0.53 0.63 0.89 0.63 h 3.8 c 0.36 0 0.7 -0.24 0.89 -0.63 C 14.69 19.2 14.5 19 14.3 19 h -4.6 C 9.5 19 9.31 19.2 9.21 18.9 Z"/>
+</svg>
