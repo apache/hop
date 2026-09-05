@@ -20,15 +20,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -60,8 +65,8 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   /**
    * The display of the GUI this painter belongs to, read when it is built on the UI thread.
    *
-   * <p>{@code Display.getDefault()} answers for the session bound to the calling thread, and the
-   * results this repaints for arrive on lint threads that may have none.
+   * <p>The default display answers for the session bound to the calling thread, and the results
+   * this repaints for arrive on lint threads that may have none.
    */
   private final Display display;
 
@@ -77,7 +82,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   }
 
   public LintStatusFilePainter() {
-    this.display = Display.getCurrent() != null ? Display.getCurrent() : Display.getDefault();
+    this.display = SessionDisplay.currentOrDefault();
     updateFileStatusCache();
 
     LintResultsManager.getInstance()
@@ -99,8 +104,11 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
    * do: RWT only draws on a control, so the very first call failed and the Explorer showed no lint
    * status at all. Hop ships the three icons as SVG, and {@link GuiResource} loads and caches them
    * per session, which also settles who disposes them - not us.
+   *
+   * <p>Asked for at the size it will occupy, so the SVG is rasterized at that size rather than a
+   * bigger bitmap being resampled down into it - resampling is what costs an icon its edges.
    */
-  private Image badgeIcon(LintStatus status) {
+  private Image badgeIcon(LintStatus status, int size) {
     String location =
         switch (status) {
           case ERROR -> "ui/images/error.svg";
@@ -112,7 +120,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
       return null;
     }
     try {
-      return GuiResource.getInstance().getImage(location, BADGE_SIZE, BADGE_SIZE);
+      return GuiResource.getInstance().getImage(location, size, size);
     } catch (Exception e) {
       log.logDetailed("No lint status icon available for " + status + ": " + e.getMessage());
       return null;
@@ -181,21 +189,17 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
       }
     }
 
-    Image badge = badgeIcon(status);
-    if (badge == null || badge.isDisposed()) {
-      return;
-    }
     switch (status) {
       case ERROR:
-        addOverlayIcon(treeItem, badge, status);
+        addOverlayIcon(treeItem, status);
         addLintTooltip(treeItem, name, "Linter errors");
         break;
       case WARNING:
-        addOverlayIcon(treeItem, badge, status);
+        addOverlayIcon(treeItem, status);
         addLintTooltip(treeItem, name, "Linter warnings");
         break;
       case CLEAN:
-        addOverlayIcon(treeItem, badge, status);
+        addOverlayIcon(treeItem, status);
         addLintTooltip(treeItem, name, "No linter issues");
         break;
       default:
@@ -263,7 +267,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     return LintStatus.UNKNOWN;
   }
 
-  private void addOverlayIcon(TreeItem treeItem, Image lintIcon, LintStatus status) {
+  private void addOverlayIcon(TreeItem treeItem, LintStatus status) {
     try {
       // Already showing this exact status for this item -> nothing to do (avoids re-compositing
       // on every paint, which previously leaked a new Image each time and crashed the GUI).
@@ -282,22 +286,31 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
         }
       }
 
-      if (base == null || base.isDisposed()) {
+      boolean noBase = base == null || base.isDisposed();
+      org.eclipse.swt.graphics.Rectangle bounds = noBase ? null : base.getBounds();
+      // Rasterize the badge at the size it will occupy on this icon, so nothing is resampled.
+      Image lintIcon =
+          badgeIcon(
+              status, bounds == null ? BADGE_SIZE : badgeSizeFor(bounds.width, bounds.height));
+      if (lintIcon == null || lintIcon.isDisposed()) {
+        return;
+      }
+
+      if (bounds == null) {
         treeItem.setImage(lintIcon);
         treeItem.setData(APPLIED_STATUS_KEY, status);
         return;
       }
 
-      org.eclipse.swt.graphics.Rectangle bounds = base.getBounds();
       if (bounds.width > 100 || bounds.height > 100) {
         treeItem.setImage(lintIcon);
         treeItem.setData(APPLIED_STATUS_KEY, status);
         return;
       }
 
-      // No composite (Hop Web cannot draw one): leave the file's own icon alone. The item's
-      // colour already says what the status is, and replacing the icon with a bare badge would
-      // cost more than it tells.
+      // Without a composite, leave the file's own icon alone. The item's colour already says
+      // what the status is, and replacing the icon with a bare badge would cost more than it
+      // tells.
       Image compositeIcon = getOrCreateComposite(base, lintIcon);
       if (compositeIcon != null) {
         treeItem.setImage(compositeIcon);
@@ -305,7 +318,11 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
       treeItem.setData(APPLIED_STATUS_KEY, status);
     } catch (Exception e) {
       log.logError("Error creating overlay icon: " + e.getMessage(), e);
-      treeItem.setImage(lintIcon);
+      // The bare badge still says what the status is, which beats leaving the item unmarked.
+      Image fallback = badgeIcon(status, BADGE_SIZE);
+      if (fallback != null && !fallback.isDisposed()) {
+        treeItem.setImage(fallback);
+      }
     }
   }
 
@@ -323,43 +340,155 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     return composite;
   }
 
+  /**
+   * The file's own icon with the lint badge in its bottom right corner.
+   *
+   * <p>Composited pixel by pixel rather than with a {@code GC}. RWT resolves both the device and
+   * the drawing delegate of a {@code GC} from its drawable and understands only a Control or a
+   * Device, so a {@code GC} on an Image is left with neither: the drawing fails with a
+   * NullPointerException, and disposing it then fails with "A factory-created resource cannot be
+   * disposed", which is the exception that reaches the log. Working on the {@link ImageData} of
+   * both icons needs no drawing surface at all, so Hop Web gets the same badges as the desktop.
+   */
   private Image createCompositeIcon(Image originalIcon, Image lintIcon) {
     try {
       if (display == null || display.isDisposed()) {
         return null;
       }
-
-      org.eclipse.swt.graphics.Rectangle originalBounds = originalIcon.getBounds();
-      org.eclipse.swt.graphics.Rectangle lintBounds = lintIcon.getBounds();
-
-      Image composite = new Image(display, originalBounds.width, originalBounds.height);
-      org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(composite);
-      try {
-        gc.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-        gc.fillRectangle(0, 0, originalBounds.width, originalBounds.height);
-        gc.drawImage(originalIcon, 0, 0);
-
-        int badgeSize = Math.min(10, Math.min(originalBounds.width / 2, originalBounds.height / 2));
-        int lintX = originalBounds.width - badgeSize - 1;
-        int lintY = originalBounds.height - badgeSize - 1;
-        gc.drawImage(
-            lintIcon,
-            0,
-            0,
-            lintBounds.width,
-            lintBounds.height,
-            lintX,
-            lintY,
-            badgeSize,
-            badgeSize);
-        return composite;
-      } finally {
-        gc.dispose();
+      ImageData baseData = SwtUniversalImage.getImageDataAtZoom(originalIcon, 100);
+      if (baseData == null) {
+        return null;
       }
+      int badgeSize = badgeSizeFor(baseData.width, baseData.height);
+      if (badgeSize <= 0) {
+        return null;
+      }
+      // Composited again for every zoom the platform asks for, out of what both icons themselves
+      // have at that zoom. Handing over the 100% pixels alone and letting SWT raster-scale them up
+      // is what leaves icons blurry on a HiDPI screen - the very thing createDpiAwareImage exists
+      // to avoid.
+      return SwtUniversalImage.createDpiAwareImage(
+          display,
+          zoom ->
+              withBadge(
+                  SwtUniversalImage.getImageDataAtZoom(originalIcon, zoom),
+                  SwtUniversalImage.getImageDataAtZoom(lintIcon, zoom),
+                  SwtUniversalImage.pixelSize(badgeSize, zoom),
+                  SwtUniversalImage.pixelSize(1, zoom)));
     } catch (Exception e) {
       log.logError("Error creating composite icon: " + e.getMessage(), e);
       return null;
     }
+  }
+
+  /** A corner mark on an icon this size: half its width at most, and never more than 10px. */
+  private static int badgeSizeFor(int width, int height) {
+    return Math.min(10, Math.min(width / 2, height / 2));
+  }
+
+  /**
+   * The base icon with the badge scaled into its bottom right corner, blended over whatever the
+   * base has there rather than punched through it, so a badge with soft edges does not leave a hard
+   * outline. What the base leaves transparent stays transparent: the tree paints its own background
+   * behind the icon.
+   *
+   * <p>Sizes are in the pixels of the icons handed in, so that the same badge lands in the same
+   * place whichever zoom these pixels came from.
+   */
+  static ImageData withBadge(ImageData baseData, ImageData badgeData, int badgeSize, int margin) {
+    ImageData composite = withPerPixelAlpha(baseData);
+    ImageData scaled = badgeData.scaledTo(badgeSize, badgeSize);
+    ImageData scaledMask = transparencyMask(scaled);
+    int offsetX = composite.width - badgeSize - margin;
+    int offsetY = composite.height - badgeSize - margin;
+
+    for (int y = 0; y < badgeSize; y++) {
+      int targetY = offsetY + y;
+      if (targetY < 0 || targetY >= composite.height) {
+        continue;
+      }
+      for (int x = 0; x < badgeSize; x++) {
+        int targetX = offsetX + x;
+        if (targetX < 0 || targetX >= composite.width) {
+          continue;
+        }
+        int overAlpha = alphaAt(scaled, scaledMask, x, y);
+        if (overAlpha == 0) {
+          continue;
+        }
+        RGB over = scaled.palette.getRGB(scaled.getPixel(x, y));
+        if (overAlpha == 255) {
+          composite.setPixel(targetX, targetY, composite.palette.getPixel(over));
+          composite.setAlpha(targetX, targetY, 255);
+          continue;
+        }
+        RGB under = composite.palette.getRGB(composite.getPixel(targetX, targetY));
+        int underAlpha = composite.getAlpha(targetX, targetY);
+        int outAlpha = overAlpha + underAlpha * (255 - overAlpha) / 255;
+        composite.setPixel(
+            targetX,
+            targetY,
+            composite.palette.getPixel(blend(over, under, overAlpha, underAlpha)));
+        composite.setAlpha(targetX, targetY, outAlpha);
+      }
+    }
+    return composite;
+  }
+
+  /**
+   * The same picture in the one shape we can composite into: direct colour with an alpha value per
+   * pixel. An icon can express its transparency in any of several ways and only this one can be
+   * written back to, so the base is read through {@link #alphaAt} and rewritten as this.
+   */
+  private static ImageData withPerPixelAlpha(ImageData source) {
+    ImageData copy =
+        new ImageData(source.width, source.height, 24, new PaletteData(0xFF0000, 0xFF00, 0xFF));
+    copy.alphaData = new byte[source.width * source.height];
+    ImageData mask = transparencyMask(source);
+    for (int y = 0; y < source.height; y++) {
+      for (int x = 0; x < source.width; x++) {
+        RGB rgb = source.palette.getRGB(source.getPixel(x, y));
+        copy.setPixel(x, y, copy.palette.getPixel(rgb));
+        copy.setAlpha(x, y, alphaAt(source, mask, x, y));
+      }
+    }
+    return copy;
+  }
+
+  /** The 1-bit mask of an icon that carries one (ICO, BMP), or null - read once, not per pixel. */
+  private static ImageData transparencyMask(ImageData data) {
+    return data.maskData == null ? null : data.getTransparencyMask();
+  }
+
+  /** How opaque one pixel is, whichever of the four ways the icon says so. */
+  private static int alphaAt(ImageData data, ImageData mask, int x, int y) {
+    if (mask != null && mask.getPixel(x, y) == 0) {
+      return 0;
+    }
+    if (data.transparentPixel != -1 && data.getPixel(x, y) == data.transparentPixel) {
+      return 0;
+    }
+    if (data.alphaData != null) {
+      return data.getAlpha(x, y);
+    }
+    return data.alpha == -1 ? 255 : data.alpha;
+  }
+
+  /** Source-over: the colour left when {@code over} is laid on {@code under}. */
+  private static RGB blend(RGB over, RGB under, int overAlpha, int underAlpha) {
+    return new RGB(
+        channel(over.red, under.red, overAlpha, underAlpha),
+        channel(over.green, under.green, overAlpha, underAlpha),
+        channel(over.blue, under.blue, overAlpha, underAlpha));
+  }
+
+  private static int channel(int over, int under, int overAlpha, int underAlpha) {
+    int outAlpha = overAlpha + underAlpha * (255 - overAlpha) / 255;
+    if (outAlpha == 0) {
+      return 0;
+    }
+    int weighted = over * overAlpha * 255 + under * underAlpha * (255 - overAlpha);
+    return Math.min(255, weighted / (outAlpha * 255));
   }
 
   private void addLintTooltip(TreeItem treeItem, String fileName, String lintStatus) {

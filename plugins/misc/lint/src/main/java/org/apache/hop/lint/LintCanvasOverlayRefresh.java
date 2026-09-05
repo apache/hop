@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
@@ -68,7 +69,7 @@ public final class LintCanvasOverlayRefresh {
       display = hopGui.getShell().getDisplay();
     }
     if (display == null) {
-      display = Display.getCurrent();
+      display = SessionDisplay.current();
     }
     if (display == null || display.isDisposed()) {
       return;

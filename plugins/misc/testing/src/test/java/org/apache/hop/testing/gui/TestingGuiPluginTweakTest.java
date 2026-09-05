@@ -21,14 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mockStatic;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestTweak;
+import org.eclipse.swt.widgets.Display;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 /**
  * Unit tests for multi-transform unit-test tweak application (issue #2742). Covers pure helpers in
@@ -85,6 +89,36 @@ class TestingGuiPluginTweakTest {
   void getCurrentUnitTestReturnsNullOffUiThread() {
     assertNull(TestingGuiPlugin.getCurrentUnitTest(new PipelineMeta()));
     assertNull(TestingGuiPlugin.getStateMap(new PipelineMeta()));
+  }
+
+  /**
+   * In Hop Web the guard itself used to be the failure (issue #8248): background work carries a RAP
+   * session over to the thread that runs it, and once that session has been destroyed RWT throws
+   * from {@code Display.getCurrent()} rather than answering "no display". The exception escaped
+   * into GetFields, which logged "Error calling extension point 'GetFieldsExtension'" for every
+   * transform. A thread whose session is gone is a thread with no unit test.
+   */
+  @Test
+  void getCurrentUnitTestReturnsNullWhenTheSessionIsGone() {
+    String runtime = System.getProperty(Const.HOP_PLATFORM_RUNTIME);
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
+    try (MockedStatic<Display> display = mockStatic(Display.class)) {
+      display
+          .when(Display::getCurrent)
+          .thenThrow(
+              new NullPointerException(
+                  "Cannot invoke \"org.eclipse.rap.rwt.service.UISession.getAttribute(String)\""
+                      + " because \"uiSession\" is null"));
+
+      assertNull(TestingGuiPlugin.getCurrentUnitTest(new PipelineMeta()));
+      assertNull(TestingGuiPlugin.getStateMap(new PipelineMeta()));
+    } finally {
+      if (runtime == null) {
+        System.clearProperty(Const.HOP_PLATFORM_RUNTIME);
+      } else {
+        System.setProperty(Const.HOP_PLATFORM_RUNTIME, runtime);
+      }
+    }
   }
 
   @Test

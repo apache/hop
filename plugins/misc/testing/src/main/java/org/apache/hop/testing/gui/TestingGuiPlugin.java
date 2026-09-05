@@ -78,6 +78,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboFilterPopup;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
@@ -92,7 +93,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -1402,7 +1402,7 @@ public class TestingGuiPlugin {
    */
   public static HopGuiPipelineGraph getPipelineGraph(PipelineMeta pipelineMeta) {
     // Tab / graph lookup may touch SWT widgets; only safe on the UI thread (issue #7896).
-    if (Display.getCurrent() == null) {
+    if (SessionDisplay.current() == null) {
       return null;
     }
     try {
@@ -1441,7 +1441,7 @@ public class TestingGuiPlugin {
       return null;
     }
     // Same rule as getPipelineGraph: never access HopGui/SWT from a worker thread (issue #7896).
-    if (Display.getCurrent() == null) {
+    if (SessionDisplay.current() == null) {
       return null;
     }
     Map<String, Object> stateMap = getStateMap(pipelineMeta);

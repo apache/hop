@@ -133,7 +133,7 @@ public abstract class SwtUniversalImage {
    * Pixel size of a logical extent at an SWT zoom percentage. Must be linear ({@code 200} → {@code
    * 2 * 100}) to satisfy the desktop ImageDataProvider contract.
    */
-  static int pixelSize(int logical, int zoom) {
+  public static int pixelSize(int logical, int zoom) {
     return Math.max(1, logical * zoom / 100);
   }
 
