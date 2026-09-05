@@ -234,8 +234,9 @@ What survives when no rule claims a column is `StandardJdbcTypeMapper`, which do
 
 It exposes a few helpers that rules can use so that a condition does not have to restate arithmetic the mapping already does:
 
-* `numericLength(column)` — digits before the decimal, after the scale has been taken off
+* `numericLength(column)` — the total number of significant digits, the same value the database reports as its precision
 * `numericScale(column)` — digits after the decimal
+* `integerDigits(column)` — digits before the decimal, for a rule that tests whether a declaration is possible at all
 * `displaySizeIsTwiceThePrecision(databaseMeta, column)` — the `CHAR(X) FOR BIT DATA` shape
 
 That last one matters if you write a rule for binary columns.

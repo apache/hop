@@ -81,7 +81,7 @@ public final class ColumnTypeRules {
           .where(
               (variables, databaseMeta, column) ->
                   StandardJdbcTypeMapper.numericScale(column)
-                      >= StandardJdbcTypeMapper.numericLength(column))
+                      >= StandardJdbcTypeMapper.integerDigits(column))
           .as(IValueMeta.TYPE_NUMBER, -1, -1)
           .build()
           .get(0);

@@ -126,7 +126,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           .where(
               (variables, databaseMeta, column) ->
                   StandardJdbcTypeMapper.numericScale(column) >= 16
-                      && StandardJdbcTypeMapper.numericLength(column) >= 16)
+                      && StandardJdbcTypeMapper.integerDigits(column) >= 16)
           .as(IValueMeta.TYPE_NUMBER, -1, -1)
           // A numeric with no declared size means arbitrary precision.
           .read(Types.NUMERIC)
