@@ -88,9 +88,37 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
+  public void testTheSameIdWithADifferentTargetIsPolledSeparately() throws Exception {
+    // Hop Web: one session has just saved a new URL, another still holds the previous one.
+    // They share a source id, but must not satisfy each other from the cache.
+    CountingProvider current = new CountingProvider("shared-source");
+    current.description = "RSS/Atom feed provider for: https://example.com/new.xml";
+    CountingProvider stale = new CountingProvider("shared-source");
+    stale.description = "RSS/Atom feed provider for: https://example.com/old.xml";
+
+    NotificationFetchCache.fetch(current);
+    NotificationFetchCache.fetch(stale);
+
+    assertEquals(1, current.calls.get());
+    assertEquals(1, stale.calls.get());
+  }
+
+  @Test
   public void testInvalidatingMakesTheNextCallerPollAgain() throws Exception {
     // What the Retry button and a save of the settings both rely on.
     CountingProvider provider = new CountingProvider("shared-source");
+
+    NotificationFetchCache.fetch(provider);
+    NotificationFetchCache.invalidate("shared-source");
+    NotificationFetchCache.fetch(provider);
+
+    assertEquals(2, provider.calls.get());
+  }
+
+  @Test
+  public void testInvalidatingByIdDropsEveryTargetOfThatSource() throws Exception {
+    CountingProvider provider = new CountingProvider("shared-source");
+    provider.description = "RSS/Atom feed provider for: https://example.com/feed.xml";
 
     NotificationFetchCache.fetch(provider);
     NotificationFetchCache.invalidate("shared-source");
@@ -157,6 +185,7 @@ public class NotificationFetchCacheTest {
   /** Counts how often it is actually asked. */
   private static class CountingProvider implements INotificationProvider {
     private final String id;
+    private String description = "Counts how often it is asked";
     private final AtomicInteger calls = new AtomicInteger();
     private CountDownLatch entered;
     private CountDownLatch release;
@@ -177,7 +206,7 @@ public class NotificationFetchCacheTest {
 
     @Override
     public String getDescription() {
-      return "Counts how often it is asked";
+      return description;
     }
 
     @Override

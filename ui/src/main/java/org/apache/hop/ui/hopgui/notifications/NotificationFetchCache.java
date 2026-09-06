@@ -73,7 +73,7 @@ public final class NotificationFetchCache {
    * @throws HopException Whatever the provider threw
    */
   public static List<Notification> fetch(INotificationProvider provider) throws HopException {
-    String key = provider.getId();
+    String key = keyOf(provider);
     if (key == null) {
       // Nothing to share it under. NotificationService logs the source that has no id.
       return provider.fetchNotifications();
@@ -105,9 +105,32 @@ public final class NotificationFetchCache {
   public static void invalidate(String sourceId) {
     if (sourceId == null) {
       ENTRIES.clear();
-    } else {
-      ENTRIES.remove(sourceId);
+      return;
     }
+    ENTRIES.remove(sourceId);
+    String prefix = sourceId + "\0";
+    ENTRIES.keySet().removeIf(key -> key.startsWith(prefix));
+  }
+
+  /**
+   * Source id plus the target it would actually poll.
+   *
+   * <p>Hop Web keeps a provider per session. After one session edits a source, the others still
+   * hold the previous URL until they reload, and hop-config does not tell them to. Keying only by
+   * id would let that stale session refill the cache and hand the old feed to the session that just
+   * saved. {@link INotificationProvider#getDescription()} already names the RSS URL or GitHub
+   * repository for the built-in providers.
+   */
+  private static String keyOf(INotificationProvider provider) {
+    String id = provider.getId();
+    if (id == null) {
+      return null;
+    }
+    String description = provider.getDescription();
+    if (description == null || description.isEmpty()) {
+      return id;
+    }
+    return id + "\0" + description;
   }
 
   private static long freshnessOf(INotificationProvider provider) {
