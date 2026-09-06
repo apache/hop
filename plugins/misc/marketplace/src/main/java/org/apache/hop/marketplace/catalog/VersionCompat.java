@@ -17,18 +17,17 @@
 
 package org.apache.hop.marketplace.catalog;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.util.VersionCompare;
 
 /**
- * Hop / plugin version comparison and compatibility checks for marketplace discovery.
+ * Plugin compatibility checks for marketplace discovery.
  *
- * <p>Lightweight Maven-like ordering: numeric segments, then qualifiers; {@code -SNAPSHOT} is
- * treated as a pre-release of the same base version.
+ * <p>The ordering itself lives in {@link VersionCompare}, so the marketplace and everything else
+ * that has to decide whether one version is newer than another agree on the answer. What is
+ * specific to the marketplace, and stays here, is what a plugin's declared Hop bounds mean.
  */
 public final class VersionCompat {
 
@@ -71,113 +70,23 @@ public final class VersionCompat {
    * compatibility only.
    */
   static String stripSnapshotQualifier(String version) {
-    if (StringUtils.isBlank(version)) {
-      return version;
-    }
-    String v = version.trim();
-    String lower = v.toLowerCase(Locale.ROOT);
-    if (lower.endsWith("-snapshot")) {
-      return v.substring(0, v.length() - "-snapshot".length());
-    }
-    return v;
+    return VersionCompare.stripSnapshotQualifier(version);
   }
 
   /**
    * @return negative if a &lt; b, zero if equal, positive if a &gt; b
    */
   public static int compare(String a, String b) {
-    List<Object> pa = parse(a);
-    List<Object> pb = parse(b);
-    int n = Math.max(pa.size(), pb.size());
-    for (int i = 0; i < n; i++) {
-      Object xa = i < pa.size() ? pa.get(i) : 0;
-      Object xb = i < pb.size() ? pb.get(i) : 0;
-      int c = comparePart(xa, xb);
-      if (c != 0) {
-        return c;
-      }
-    }
-    return 0;
+    return VersionCompare.compare(a, b);
   }
 
   /** Highest version string in {@code versions}, or null if empty. */
   public static String latest(Collection<String> versions) {
-    if (versions == null || versions.isEmpty()) {
-      return null;
-    }
-    return versions.stream()
-        .filter(StringUtils::isNotBlank)
-        .max(VersionCompat::compare)
-        .orElse(null);
+    return VersionCompare.latest(versions);
   }
 
   /** Comparator for plugin artifact versions (newest first). */
   public static Comparator<String> newestFirst() {
-    return (a, b) -> compare(b, a);
-  }
-
-  private static int comparePart(Object a, Object b) {
-    boolean aNum = a instanceof Integer;
-    boolean bNum = b instanceof Integer;
-    if (aNum && bNum) {
-      return Integer.compare((Integer) a, (Integer) b);
-    }
-    if (aNum) {
-      // numeric segment > qualifier (1.0 > 1.0-alpha)
-      return 1;
-    }
-    if (bNum) {
-      return -1;
-    }
-    String sa = String.valueOf(a).toLowerCase(Locale.ROOT);
-    String sb = String.valueOf(b).toLowerCase(Locale.ROOT);
-    // snapshot is older than release of same base when compared as qualifier after base
-    int rankA = qualifierRank(sa);
-    int rankB = qualifierRank(sb);
-    if (rankA != rankB) {
-      return Integer.compare(rankA, rankB);
-    }
-    return sa.compareTo(sb);
-  }
-
-  private static int qualifierRank(String q) {
-    if ("snapshot".equals(q)) {
-      return -1;
-    }
-    if ("final".equals(q) || "ga".equals(q) || "release".equals(q) || q.isEmpty()) {
-      return 1;
-    }
-    return 0;
-  }
-
-  static List<Object> parse(String version) {
-    List<Object> parts = new ArrayList<>();
-    if (StringUtils.isBlank(version)) {
-      return parts;
-    }
-    String v = version.trim();
-    // Split on . - and treat SNAPSHOT specially
-    StringBuilder buf = new StringBuilder();
-    for (int i = 0; i <= v.length(); i++) {
-      char ch = i < v.length() ? v.charAt(i) : '.';
-      if (ch == '.' || ch == '-' || i == v.length()) {
-        if (buf.length() > 0) {
-          String token = buf.toString();
-          buf.setLength(0);
-          if (token.chars().allMatch(Character::isDigit)) {
-            try {
-              parts.add(Integer.parseInt(token));
-            } catch (NumberFormatException e) {
-              parts.add(token.toLowerCase(Locale.ROOT));
-            }
-          } else {
-            parts.add(token.toLowerCase(Locale.ROOT));
-          }
-        }
-      } else {
-        buf.append(ch);
-      }
-    }
-    return parts;
+    return VersionCompare.newestFirst();
   }
 }

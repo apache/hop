@@ -1,0 +1,127 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+:description: The bell in the Hop Gui toolbar collects notifications from the sources you configure: new Apache Hop releases, updates to the plugins you installed, and any GitHub repository or RSS feed you add yourself.
+
+= Notifications
+
+The bell in the top right of the Hop Gui toolbar collects notifications from the sources you configure.
+A dot on the bell means there is something unread; click it to open the panel.
+
+Out of the box there is one source, *Apache Hop Releases*, which reports new releases of Apache Hop itself.
+Installed plugins can add sources of their own without any configuration: the Hop marketplace, for example, reports when a plugin you installed has a newer version available.
+
+Sources are polled in the background, once an hour by default.
+Nothing is fetched while Hop Gui is starting up, so notifications never delay the moment the window opens.
+
+[IMPORTANT]
+====
+Notifications tell you that something is available; they do not act on it.
+There is no update or install action attached to a notification.
+Downloading a new Hop release, or updating a plugin through the xref:hop-tools/hop-marketplace.adoc[marketplace], stays a separate step you take yourself.
+====
+
+== The notification panel
+
+Each notification shows a title, a short message and how long ago it arrived.
+Clicking one opens its link in your browser — only `http` and `https` links are opened.
+
+The panel has three buttons:
+
+* *Mark all read* clears the dot on the bell without removing anything. Whether the notifications stay visible depends on the *Show read notifications* option.
+* *Clear all* marks everything as read and removes it. Cleared notifications do not come back, even if the source still offers them.
+* *Settings* opens the configuration described below.
+
+When a source cannot be reached, a banner at the top of the panel names it and explains why, with a *Retry* button that polls every source again.
+One source failing never stops the others.
+
+== Configuring notifications
+
+Open the *Configuration* perspective and select the *Notifications* tab, or click *Settings* in the notification panel.
+
+The options at the top apply to every source:
+
+[options="header"]
+|===
+|Option |Description
+|Enable notification system |Switch notifications off entirely. Polling stops and the bell stops updating.
+|Default poll interval (minutes) |How often a source is polled when it does not set its own interval. Defaults to 60.
+|Default days to go back |Notifications older than this are not shown in the panel. 0 shows everything.
+|Show read notifications |Whether notifications you have already read stay visible in the panel.
+|===
+
+Remember to click *Save* after changing anything.
+
+== Notification sources
+
+The table below the options lists your sources.
+Use *Add...*, *Edit...* and *Delete* to manage them.
+The *Color* column sets the colour of the marker shown next to that source's notifications, which is handy once you have more than a couple.
+
+Every source has a name, a type, an enabled flag, and an optional poll interval and days-to-go-back that override the defaults above.
+The remaining fields depend on the type.
+
+=== GitHub Releases
+
+Reports the releases of a GitHub repository.
+
+[options="header"]
+|===
+|Field |Description
+|GitHub URL (or owner/repo) |Paste a repository URL such as `https://github.com/apache/hop` and click *Parse* to fill in the owner and repository, or type `owner/repo` directly.
+|Owner, Repository |The repository to watch, if you would rather enter them separately.
+|Include pre-releases |Whether releases the repository flags as pre-releases are reported. Off by default.
+|Only versions newer than |Releases at or below this version are not reported. Leave it empty to be told about every release the repository offers, including its entire back catalogue.
+|User name, Password or token |Optional, for private repositories. A GitHub personal access token also raises the rate limit. GitHub ignores the user name when a token is given.
+|===
+
+[NOTE]
+====
+Apache Hop tags every release as a release candidate (`2.19.0-rc1`) without flagging it as a pre-release on GitHub, so *Include pre-releases* will not filter those out.
+The version floor is what keeps the list to releases newer than the one you are running.
+====
+
+The default *Apache Hop Releases* source is a GitHub Releases source pointing at `apache/hop`, with its version floor set to the Hop version you had when the source was first created.
+
+=== RSS Feed
+
+Reports the entries of an RSS 2.0 or Atom feed.
+
+[options="header"]
+|===
+|Field |Description
+|Feed URL |The address of the feed.
+|User name, Password or token |Optional, for a feed that requires authentication.
+|===
+
+=== Custom Plugin
+
+A source contributed by an installed plugin rather than configured by you.
+These appear in the table once the plugin is installed and need no setup.
+Edit one to change its poll interval, or clear its *Enabled* flag to stop it reporting.
+
+== Keeping tokens out of the configuration file
+
+Sources are stored in your `hop-config.json`.
+Rather than typing a token into the *Password or token* field directly, point the field at a variable:
+
+[source]
+----
+${GITHUB_TOKEN}
+----
+
+The variable is resolved when the source is polled, so the secret stays out of the configuration file and a rotated token takes effect without editing the source.

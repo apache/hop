@@ -280,6 +280,7 @@ public class HopGui
   public static final String ID_MAIN_TOOLBAR_LOG_OFF = "toolbar-10900-log-off";
 
   public static final String ID_STATUS_TOOLBAR = "HopGui-Status-Toolbar";
+  public static final String ID_NOTIFICATION_TOOLBAR = "HopGui-Notification-Toolbar";
 
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
@@ -321,6 +322,7 @@ public class HopGui
 
   private Menu mainMenu;
   private GuiMenuWidgets mainMenuWidgets;
+  private Composite toolbarComposite;
   private Composite mainHopGuiComposite;
 
   private Control mainToolbar;
@@ -329,11 +331,23 @@ public class HopGui
   private Control statusToolbar;
   private GuiToolbarWidgets statusToolbarWidgets;
 
+  private Control notificationToolbar;
+  private GuiToolbarWidgets notificationToolbarWidgets;
+
   private Composite perspectivesSidebar;
   private Composite bottomToolbar;
   private final java.util.List<SidebarToolbarItemDescriptor> sidebarToolbarDescriptors =
       new java.util.ArrayList<>();
   private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
+
+  public ToolBar getNotificationToolbar() {
+    return (ToolBar) notificationToolbar;
+  }
+
+  public GuiToolbarWidgets getNotificationToolbarWidgets() {
+    return notificationToolbarWidgets;
+  }
+
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
@@ -1954,13 +1968,24 @@ public class HopGui
   }
 
   protected void addMainToolbar() {
+    // Create a composite to hold both main toolbar and notification toolbar
+    toolbarComposite = new Composite(shell, SWT.NONE);
+    toolbarComposite.setLayout(new FormLayout());
+    FormData fdToolbarComposite = new FormData();
+    fdToolbarComposite.left = new FormAttachment(0, 0);
+    fdToolbarComposite.top = new FormAttachment(0, 0);
+    fdToolbarComposite.right = new FormAttachment(100, 0);
+    toolbarComposite.setLayoutData(fdToolbarComposite);
+
+    // Main toolbar (left side, fills remaining space) - use ToolbarFacade for SWT/RAP compatibility
     IToolbarContainer mainToolbarContainer =
-        ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+        ToolbarFacade.createToolbarContainer(
+            toolbarComposite, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     mainToolbar = mainToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
-    fdToolBar.right = new FormAttachment(100, 0);
+    fdToolBar.bottom = new FormAttachment(100, 0);
     mainToolbar.setLayoutData(fdToolBar);
     PropsUi.setLook(mainToolbar, Props.WIDGET_STYLE_TOOLBAR);
 
@@ -1979,6 +2004,27 @@ public class HopGui
       mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_LOG_OFF, false);
     }
     mainToolbar.pack();
+
+    // Notification toolbar (right side, fixed width)
+    IToolbarContainer notificationToolbarContainer =
+        ToolbarFacade.createToolbarContainer(
+            toolbarComposite, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    notificationToolbar = notificationToolbarContainer.getControl();
+    FormData fdNotificationToolBar = new FormData();
+    fdNotificationToolBar.right = new FormAttachment(100, 0);
+    fdNotificationToolBar.top = new FormAttachment(0, 0);
+    fdNotificationToolBar.bottom = new FormAttachment(100, 0);
+    notificationToolbar.setLayoutData(fdNotificationToolBar);
+    PropsUi.setLook(notificationToolbar, Props.WIDGET_STYLE_TOOLBAR);
+
+    notificationToolbarWidgets = new GuiToolbarWidgets();
+    notificationToolbarWidgets.registerGuiPluginObject(this);
+    notificationToolbarWidgets.createToolbarWidgets(
+        notificationToolbarContainer, ID_NOTIFICATION_TOOLBAR);
+    notificationToolbar.pack();
+
+    // Make main toolbar end before notification toolbar
+    fdToolBar.right = new FormAttachment(notificationToolbar, 0);
   }
 
   /**
@@ -2066,7 +2112,7 @@ public class HopGui
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
-    formData.top = new FormAttachment(mainToolbar, 0);
+    formData.top = new FormAttachment(toolbarComposite, 0);
     formData.bottom = new FormAttachment(statusToolbar, 0);
     mainHopGuiComposite.setLayoutData(formData);
 

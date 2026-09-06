@@ -103,6 +103,11 @@ public class HopWeb implements ApplicationConfiguration {
       // Register alternate images for toolbar toggles (e.g. show/hide, show-all/show-selected,
       // show-results/hide-results) so setToolbarItemImage() can switch icons in RWT without
       // "Resource does not exist"
+      //
+      // Only the image a toolbar item declares is registered from the GUI registry above. An icon
+      // that replaces it later has to be named here, or RWT hands the browser the location of a
+      // resource it never registered: the img src 404s, and the icon simply does not change, with
+      // no error on either side. The unread notification bell is one of those.
       ClassLoader uiClassLoader = HopWeb.class.getClassLoader();
       for (String path :
           new String[] {
@@ -111,7 +116,8 @@ public class HopWeb implements ApplicationConfiguration {
             "ui/images/show-all.svg",
             "ui/images/show-selected.svg",
             "ui/images/show-results.svg",
-            "ui/images/hide-results.svg"
+            "ui/images/hide-results.svg",
+            "ui/images/notification-bell-unread.svg"
           }) {
         addResource(application, path, uiClassLoader);
       }
