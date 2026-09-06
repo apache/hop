@@ -98,8 +98,8 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
     if (meta.isIncludeRowNumber() && meta.isResetRowNumber()) {
       data.rownr = 1L;
     }
-    // use -1 for include all strings.
-    String[] splitStrings = data.delimiterPattern.split(originalString, -1);
+
+    String[] splitStrings = splitSource(originalString);
     for (String string : splitStrings) {
       Object[] outputRow = RowDataUtil.createResizedCopy(rowData, data.outputRowMeta.size());
       outputRow[rowMeta.size()] = string;
@@ -112,6 +112,20 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
     }
 
     return true;
+  }
+
+  /**
+   * Split using enclosure-aware parsing when an enclosure is set and the delimiter is not a regular
+   * expression. Otherwise keep the historical Pattern.split behavior, including trailing empty
+   * values.
+   */
+  private String[] splitSource(String originalString) {
+    if (!Utils.isEmpty(data.enclosure) && !meta.isIsDelimiterRegex()) {
+      String[] splitStrings =
+          Const.splitString(originalString, data.delimiter, data.enclosure, true);
+      return splitStrings != null ? splitStrings : new String[] {originalString};
+    }
+    return data.delimiterPattern.split(originalString, -1);
   }
 
   @Override
@@ -144,11 +158,12 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       data.rownr = 1L;
 
       try {
-        String delimiter = Const.nullToEmpty(meta.getDelimiter());
+        data.delimiter = resolve(Const.nullToEmpty(meta.getDelimiter()));
+        data.enclosure = resolve(Const.NVL(meta.getEnclosure(), ""));
         if (meta.isIsDelimiterRegex()) {
-          data.delimiterPattern = Pattern.compile(resolve(delimiter));
+          data.delimiterPattern = Pattern.compile(data.delimiter);
         } else {
-          data.delimiterPattern = Pattern.compile(Pattern.quote(resolve(delimiter)));
+          data.delimiterPattern = Pattern.compile(Pattern.quote(data.delimiter));
         }
       } catch (PatternSyntaxException pse) {
         logError(pse.getMessage());

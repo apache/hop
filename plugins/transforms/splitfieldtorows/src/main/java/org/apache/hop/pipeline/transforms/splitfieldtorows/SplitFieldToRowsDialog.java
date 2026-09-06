@@ -51,6 +51,9 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
 
   private TextVar wDelimiter;
 
+  private Label wlEnclosure;
+  private TextVar wEnclosure;
+
   private TextVar wValName;
 
   private Button wInclRownum;
@@ -139,6 +142,26 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     fdDelimiter.right = new FormAttachment(100, 0);
     wDelimiter.setLayoutData(fdDelimiter);
 
+    // Enclosure line
+    wlEnclosure = new Label(shell, SWT.RIGHT);
+    wlEnclosure.setText(BaseMessages.getString(PKG, "SplitFieldToRowsDialog.Enclosure.Label"));
+    PropsUi.setLook(wlEnclosure);
+    FormData fdlEnclosure = new FormData();
+    fdlEnclosure.left = new FormAttachment(0, 0);
+    fdlEnclosure.right = new FormAttachment(middle, -margin);
+    fdlEnclosure.top = new FormAttachment(wDelimiter, margin);
+    wlEnclosure.setLayoutData(fdlEnclosure);
+    wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEnclosure.setToolTipText(
+        BaseMessages.getString(PKG, "SplitFieldToRowsDialog.Enclosure.Tooltip"));
+    PropsUi.setLook(wEnclosure);
+    wEnclosure.addModifyListener(lsMod);
+    FormData fdEnclosure = new FormData();
+    fdEnclosure.left = new FormAttachment(middle, 0);
+    fdEnclosure.top = new FormAttachment(wDelimiter, margin);
+    fdEnclosure.right = new FormAttachment(100, 0);
+    wEnclosure.setLayoutData(fdEnclosure);
+
     // Add File to the result files name
     Label wlDelimiterIsRegex = new Label(shell, SWT.RIGHT);
     wlDelimiterIsRegex.setText(
@@ -146,7 +169,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     PropsUi.setLook(wlDelimiterIsRegex);
     FormData fdlDelimiterIsRegex = new FormData();
     fdlDelimiterIsRegex.left = new FormAttachment(0, 0);
-    fdlDelimiterIsRegex.top = new FormAttachment(wDelimiter, margin);
+    fdlDelimiterIsRegex.top = new FormAttachment(wEnclosure, margin);
     fdlDelimiterIsRegex.right = new FormAttachment(middle, -margin);
     wlDelimiterIsRegex.setLayoutData(fdlDelimiterIsRegex);
     wDelimiterIsRegex = new Button(shell, SWT.CHECK);
@@ -162,6 +185,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
+            setEnclosureEnabled();
             input.setChanged();
           }
         };
@@ -269,6 +293,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
 
     getData();
     setIncludeRownum();
+    setEnclosureEnabled();
     input.setChanged(changed);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -282,9 +307,16 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     wResetRownum.setEnabled(wInclRownum.getSelection());
   }
 
+  public void setEnclosureEnabled() {
+    boolean enabled = !wDelimiterIsRegex.getSelection();
+    wlEnclosure.setEnabled(enabled);
+    wEnclosure.setEnabled(enabled);
+  }
+
   public void getData() {
     wSplitField.setText(Const.NVL(input.getSplitField(), ""));
     wDelimiter.setText(Const.NVL(input.getDelimiter(), ""));
+    wEnclosure.setText(Const.NVL(input.getEnclosure(), ""));
     wValName.setText(Const.NVL(input.getNewFieldname(), ""));
     wInclRownum.setSelection(input.isIncludeRowNumber());
     wDelimiterIsRegex.setSelection(input.isIsDelimiterRegex());
@@ -308,6 +340,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
     input.setSplitField(wSplitField.getText());
     input.setDelimiter(wDelimiter.getText());
+    input.setEnclosure(wEnclosure.getText());
     input.setNewFieldname(wValName.getText());
     input.setIncludeRowNumber(wInclRownum.getSelection());
     input.setRowNumberField(wInclRownumField.getText());

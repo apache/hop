@@ -61,6 +61,13 @@ public class SplitFieldToRowsMeta
       injectionKeyDescription = "SplitFieldsToRow.Injection.Delimiter.Description")
   private String delimiter;
 
+  /** Ignore delimiter inside pairs of the enclosure string */
+  @HopMetadataProperty(
+      key = "enclosure",
+      injectionKey = "ENCLOSURE",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.Enclosure.Description")
+  private String enclosure;
+
   /** New name of the split field */
   @HopMetadataProperty(
       key = "newfield",
@@ -123,6 +130,20 @@ public class SplitFieldToRowsMeta
   }
 
   /**
+   * @return Returns the enclosure.
+   */
+  public String getEnclosure() {
+    return enclosure;
+  }
+
+  /**
+   * @param enclosure The enclosure to set.
+   */
+  public void setEnclosure(String enclosure) {
+    this.enclosure = enclosure;
+  }
+
+  /**
    * @return Returns the splitField.
    */
   public String getSplitField() {
@@ -140,6 +161,7 @@ public class SplitFieldToRowsMeta
   public void setDefault() {
     splitField = "";
     delimiter = ";";
+    enclosure = "";
     newFieldname = "";
     includeRowNumber = false;
     isDelimiterRegex = false;
