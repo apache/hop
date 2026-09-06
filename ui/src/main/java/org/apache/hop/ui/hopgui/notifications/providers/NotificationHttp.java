@@ -16,9 +16,16 @@
  */
 package org.apache.hop.ui.hopgui.notifications.providers;
 
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.ui.hopgui.notifications.NotificationLinks;
 
 /** Shared HTTP setup for the notification providers. */
 final class NotificationHttp {
@@ -28,6 +35,16 @@ final class NotificationHttp {
 
   /** Give up if the remote host has not answered by then. */
   static final int RESPONSE_TIMEOUT_MS = 20000;
+
+  /**
+   * Stop reading a source that will not stop talking.
+   *
+   * <p>Neither provider knows how much it is about to read: a feed is streamed straight into a DOM
+   * parser and the GitHub answer straight into Jackson, so a source that answers with gigabytes -
+   * broken, hostile, or simply a misconfigured proxy - takes the process down with it. No real feed
+   * or releases page comes close to this.
+   */
+  static final long MAX_RESPONSE_BYTES = 8L * 1024 * 1024;
 
   private NotificationHttp() {
     // Utility class
@@ -44,28 +61,113 @@ final class NotificationHttp {
    * @return A client configured for polling a notification source
    */
   static CloseableHttpClient newClient() {
-    return newClient(null, null);
+    return newClient(null, null, null);
   }
 
   /**
    * A client with timeouts, authenticating when credentials are given.
    *
-   * @param username The user name, may be null or empty for anonymous access
+   * <p>The credentials are scoped to {@code target}. {@link
+   * HttpClientManager.HttpClientBuilderFacade#setCredentials(String, String)} registers {@code
+   * AuthScope(null, null, -1, null, null)}, which matches every host, so a source that redirects
+   * somewhere else and answers 401 would be offered this source's token. Redirects are followed by
+   * default and a feed is a remote party's URL, so that host is not ours to trust.
+   *
+   * @param target The URL about to be requested, which is the only origin these credentials are
+   *     for; null for an anonymous client
+   * @param username The user name, may be null or empty for a token-only source
    * @param password The password or token, may be null or empty for anonymous access
    * @return A client configured for polling a notification source
    */
-  static CloseableHttpClient newClient(String username, String password) {
+  static CloseableHttpClient newClient(URI target, String username, String password) {
     HttpClientManager.HttpClientBuilderFacade builder =
         HttpClientManager.getInstance()
             .createBuilder()
             .setConnectionTimeout(CONNECT_TIMEOUT_MS)
             .setSocketTimeout(RESPONSE_TIMEOUT_MS);
     String resolvedPassword = resolve(password);
-    if (resolvedPassword != null && !resolvedPassword.isEmpty()) {
+    if (target != null && resolvedPassword != null && !resolvedPassword.isEmpty()) {
       // A token is often all a source wants; GitHub, for one, ignores the user name entirely.
-      builder.setCredentials(resolve(username), resolvedPassword);
+      // HttpClient 5 will not build a credential without a user name, so a source that stores only
+      // a token gets an empty one rather than an IllegalArgumentException on the first poll.
+      String resolvedUsername = resolve(username);
+      builder.setCredentials(
+          resolvedUsername == null ? "" : resolvedUsername,
+          resolvedPassword,
+          new AuthScope(HttpClientManager.createHttpHost(target)));
     }
     return builder.build();
+  }
+
+  /**
+   * The URL a source is configured with, as a URI we are willing to request.
+   *
+   * <p>A stored URL is whatever the user typed, and it ends up both here and, through {@code
+   * HttpGet}, at whatever the scheme handler does with it. Only absolute http and https URLs naming
+   * a host are accepted, so a source cannot make Hop read {@code file:} or reach a JVM protocol
+   * handler.
+   *
+   * @param url The configured URL
+   * @return The parsed URL
+   * @throws HopException When the URL is not one we will request
+   */
+  static URI requestable(String url) throws HopException {
+    if (!NotificationLinks.isSafe(url)) {
+      throw new HopException(
+          "Refusing to poll '" + url + "': only absolute http and https URLs are requested.");
+    }
+    return URI.create(url.trim());
+  }
+
+  /**
+   * Wrap a response body so that reading it cannot run away.
+   *
+   * @param stream The response body
+   * @param source The URL it came from, for the error message
+   * @return A stream that fails once {@link #MAX_RESPONSE_BYTES} have been read
+   */
+  static InputStream bounded(InputStream stream, String source) {
+    return new BoundedStream(stream, source);
+  }
+
+  /** Fails rather than truncating: a half-read feed would only fail later, less clearly. */
+  private static final class BoundedStream extends FilterInputStream {
+    private final String source;
+    private long read;
+
+    private BoundedStream(InputStream in, String source) {
+      super(in);
+      this.source = source;
+    }
+
+    private void count(long justRead) throws IOException {
+      if (justRead <= 0) {
+        return;
+      }
+      read += justRead;
+      if (read > MAX_RESPONSE_BYTES) {
+        throw new IOException(
+            "The source at "
+                + source
+                + " answered with more than "
+                + (MAX_RESPONSE_BYTES / (1024 * 1024))
+                + " MB, which is more than a feed or a releases page should ever be.");
+      }
+    }
+
+    @Override
+    public int read() throws IOException {
+      int b = super.read();
+      count(b == -1 ? 0 : 1);
+      return b;
+    }
+
+    @Override
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+      int justRead = super.read(buffer, offset, length);
+      count(justRead);
+      return justRead;
+    }
   }
 
   /**

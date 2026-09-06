@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.notifications.providers;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -100,9 +101,13 @@ public class RssNotificationProvider implements INotificationProvider {
       return notifications;
     }
 
+    // Before anything is requested: a stored feed URL is whatever the user typed, and it reaches
+    // the scheme handlers of the JVM. On Hop Web it is the server that would do the reading.
+    URI target = NotificationHttp.requestable(feedUrl);
+
     try {
-      CloseableHttpClient client = NotificationHttp.newClient(username, password);
-      HttpGet request = new HttpGet(feedUrl);
+      CloseableHttpClient client = NotificationHttp.newClient(target, username, password);
+      HttpGet request = new HttpGet(target);
       request.addHeader(
           "Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml");
       conditional.applyTo(request);
@@ -123,7 +128,7 @@ public class RssNotificationProvider implements INotificationProvider {
           throw new HopException("The feed at " + feedUrl + " returned an empty response.");
         }
 
-        try (InputStream rawInputStream = entity.getContent();
+        try (InputStream rawInputStream = NotificationHttp.bounded(entity.getContent(), feedUrl);
             BufferedInputStream inputStream = new BufferedInputStream(rawInputStream, 8192)) {
           // Read first few bytes to check for BOM or non-XML content
           inputStream.mark(1024);
@@ -232,6 +237,9 @@ public class RssNotificationProvider implements INotificationProvider {
         if (summary == null || summary.isEmpty()) {
           summary = getElementText(entry, "content");
         }
+        // Atom summary and content are routinely HTML, and the panel shows them in a plain label.
+        title = FeedText.plainText(title);
+        summary = FeedText.plainText(summary);
         String link = getElementLink(entry);
         String publishedText = getElementText(entry, "published");
         if (publishedText == null || publishedText.isEmpty()) {
@@ -283,6 +291,9 @@ public class RssNotificationProvider implements INotificationProvider {
         String guid = getElementText(item, "guid");
         String title = getElementText(item, "title");
         String description = getElementText(item, "description");
+        // An RSS description is HTML more often than not, inside CDATA or escaped.
+        title = FeedText.plainText(title);
+        description = FeedText.plainText(description);
         String link = getElementText(item, "link");
         String pubDateText = getElementText(item, "pubDate");
         Date pubDate = parseRssDate(pubDateText);

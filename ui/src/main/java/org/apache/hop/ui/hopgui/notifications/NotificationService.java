@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -108,6 +109,14 @@ public class NotificationService {
   private final List<Notification> notifications;
   private final List<INotificationListener> listeners;
   private ScheduledExecutorService scheduler;
+
+  /**
+   * How far back each source is worth listing, by source id, for the sources that say. Built from
+   * the configuration on first use and rebuilt when the settings are saved, rather than read on
+   * every refresh: drawing the panel asks for this list once per notification on screen.
+   */
+  private volatile Map<String, Integer> daysBySource;
+
   private final Map<String, ScheduledFuture<?>> scheduledTasks;
   private final Map<String, Long> persistedReadState; // notificationId -> when it was read
   private final Map<String, Long> persistedRemovedIds; // notificationId -> when it was removed
@@ -249,6 +258,9 @@ public class NotificationService {
   public void reloadFromConfig() {
     synchronized (this) {
       try {
+        // The sources have just been edited, so what they last answered says nothing about what
+        // they would answer now.
+        NotificationFetchCache.invalidate(null);
         boolean enabled =
             HopConfig.readOptionString(CONFIG_KEY_ENABLED, "true").equalsIgnoreCase("true");
         if (!enabled) {
@@ -258,6 +270,7 @@ public class NotificationService {
         }
 
         List<NotificationSourceConfig> sources = loadSourcesFromConfig();
+        applySourceWindows(sources);
 
         // What should be registered after this reload. Sources the user configured, plus every
         // provider a plugin declares: those are discovered rather than configured, so the absence
@@ -403,6 +416,85 @@ public class NotificationService {
     }
   }
 
+  /**
+   * Whether a notification is recent enough to list.
+   *
+   * @param notification The notification to judge
+   * @param globalDays The global window, 0 for no limit
+   * @param now The moment to measure back from
+   * @return true when it is inside the window that applies to it
+   */
+  private boolean isWithinWindow(Notification notification, int globalDays, long now) {
+    int days = globalDays;
+    Integer perSource = daysBySource().get(notification.getSourceId());
+    if (perSource != null && perSource > 0) {
+      days = perSource;
+    }
+    if (days <= 0) {
+      return true;
+    }
+    Date timestamp = notification.getTimestamp();
+    if (timestamp == null) {
+      // Nothing to place in time, so nothing to keep once a window applies.
+      return false;
+    }
+    return timestamp.getTime() > now - (days * 24L * 60L * 60L * 1000L);
+  }
+
+  /**
+   * Record how far back each source is worth listing.
+   *
+   * @param sources The configured sources
+   */
+  void applySourceWindows(List<NotificationSourceConfig> sources) {
+    daysBySource = daysFrom(sources);
+  }
+
+  /**
+   * @return The per-source windows, read from the configuration the first time they are wanted
+   */
+  private Map<String, Integer> daysBySource() {
+    Map<String, Integer> current = daysBySource;
+    if (current == null) {
+      synchronized (this) {
+        current = daysBySource;
+        if (current == null) {
+          current = daysFrom(loadSourcesFromConfig());
+          daysBySource = current;
+        }
+      }
+    }
+    return current;
+  }
+
+  /**
+   * @param sources The configured sources
+   * @return The window of each source that sets one of its own, by source id
+   */
+  private static Map<String, Integer> daysFrom(List<NotificationSourceConfig> sources) {
+    Map<String, Integer> days = new ConcurrentHashMap<>();
+    for (NotificationSourceConfig source : sources) {
+      if (source == null || Utils.isEmpty(source.getId())) {
+        continue;
+      }
+      try {
+        // Zero and blank both mean "use the global setting", so only a real window is recorded.
+        int configured = Integer.parseInt(Const.NVL(source.getDaysToGoBack(), "0").trim());
+        if (configured > 0) {
+          days.put(source.getId(), configured);
+        }
+      } catch (NumberFormatException e) {
+        LogChannel.UI.logDetailed(
+            "Ignoring the notification window of source '"
+                + source.getId()
+                + "': '"
+                + source.getDaysToGoBack()
+                + "' is not a number of days");
+      }
+    }
+    return days;
+  }
+
   private List<NotificationSourceConfig> loadSourcesFromConfig() {
     return org.apache.hop.ui.hopgui.notifications.config.NotificationSources.load();
   }
@@ -446,32 +538,26 @@ public class NotificationService {
       result = new ArrayList<>(notifications);
     }
 
-    // Filter by days to go back if specified
-    if (daysToGoBack > 0) {
-      long cutoffTime = System.currentTimeMillis() - (daysToGoBack * 24L * 60L * 60L * 1000L);
-      Date cutoffDate = new Date(cutoffTime);
+    // Filter by age. A source may set its own window, which is what the "0 = use global" field in
+    // the source dialog means; the argument is the global setting it falls back to.
+    if (daysToGoBack > 0 || !daysBySource().isEmpty()) {
+      long now = System.currentTimeMillis();
       int beforeFilter = result.size();
       result =
           result.stream()
-              .filter(
-                  n -> {
-                    Date timestamp = n.getTimestamp();
-                    if (timestamp == null) {
-                      return false; // Exclude notifications without timestamps
-                    }
-                    return timestamp.after(cutoffDate);
-                  })
+              .filter(n -> isWithinWindow(n, daysToGoBack, now))
               .collect(Collectors.toList());
-      log.logDetailed(
-          "Filtered by daysToGoBack ("
-              + daysToGoBack
-              + " days): "
-              + result.size()
-              + " out of "
-              + beforeFilter
-              + " (cutoff: "
-              + cutoffDate
-              + ")");
+      if (result.size() != beforeFilter) {
+        log.logDetailed(
+            "Filtered by age (global "
+                + daysToGoBack
+                + " days, "
+                + daysBySource().size()
+                + " source(s) with their own): "
+                + result.size()
+                + " out of "
+                + beforeFilter);
+      }
     }
 
     // Sort by timestamp descending (newest first)
@@ -766,7 +852,9 @@ public class NotificationService {
    */
   private void fetchFrom(INotificationProvider provider) {
     try {
-      List<Notification> fetched = provider.fetchNotifications();
+      // Through the cache: in Hop Web every session polls the same process-wide list of sources,
+      // and the first one to arrive fetches for all of them.
+      List<Notification> fetched = NotificationFetchCache.fetch(provider);
       int before = notifications.size();
       for (Notification notification : fetched) {
         addNotification(notification);
@@ -810,6 +898,8 @@ public class NotificationService {
     // Asking for a retry says the service is wanted, whatever it was doing before. Without this a
     // retry after the service was stopped would have its failures written off as the stop.
     stopping = false;
+    // Retry means ask again. Without this the user would be shown the cached failure.
+    NotificationFetchCache.invalidate(null);
     runAsync(
         () -> {
           try {

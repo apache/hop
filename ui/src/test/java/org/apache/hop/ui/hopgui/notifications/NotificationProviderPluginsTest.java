@@ -108,4 +108,50 @@ public class NotificationProviderPluginsTest {
     source.setEnabled(true);
     return source;
   }
+
+  @Test
+  public void testAnUntouchedDiscoveredSourceIsNotPersisted() {
+    // A provider contributed by a plugin is found again from the registry every run. Storing it as
+    // it was found would outlive the plugin, leaving a configured source pointing at nothing.
+    List<NotificationSourceConfig> discovered = List.of(discovered("my-plugin"));
+    List<NotificationSourceConfig> shown = new ArrayList<>();
+    shown.add(source("github-apache-hop", null));
+    shown.add(discovered("my-plugin"));
+
+    List<NotificationSourceConfig> persisted =
+        NotificationProviderPlugins.toPersist(shown, discovered);
+
+    assertEquals(1, persisted.size());
+    assertEquals("github-apache-hop", persisted.get(0).getId());
+  }
+
+  @Test
+  public void testADiscoveredSourceTheUserChangedIsPersisted() {
+    List<NotificationSourceConfig> discovered = List.of(discovered("my-plugin"));
+    NotificationSourceConfig edited = discovered("my-plugin");
+    edited.setEnabled(false);
+    List<NotificationSourceConfig> shown = new ArrayList<>();
+    shown.add(edited);
+
+    List<NotificationSourceConfig> persisted =
+        NotificationProviderPlugins.toPersist(shown, discovered);
+
+    assertEquals(1, persisted.size());
+    assertEquals("my-plugin", persisted.get(0).getId());
+  }
+
+  @Test
+  public void testADiscoveredSourceGivenAPollIntervalIsPersisted() {
+    List<NotificationSourceConfig> discovered = List.of(discovered("my-plugin"));
+    NotificationSourceConfig retimed = discovered("my-plugin");
+    retimed.setPollIntervalMinutes("15");
+    List<NotificationSourceConfig> shown = new ArrayList<>();
+    shown.add(retimed);
+
+    List<NotificationSourceConfig> persisted =
+        NotificationProviderPlugins.toPersist(shown, discovered);
+
+    assertEquals(1, persisted.size());
+    assertEquals("15", persisted.get(0).getPollIntervalMinutes());
+  }
 }

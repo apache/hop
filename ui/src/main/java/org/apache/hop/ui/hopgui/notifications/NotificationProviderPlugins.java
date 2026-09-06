@@ -16,15 +16,21 @@
  */
 package org.apache.hop.ui.hopgui.notifications;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.notifications.INotificationProvider;
 import org.apache.hop.core.notifications.NotificationProviderPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig;
 
 /**
@@ -112,7 +118,9 @@ public final class NotificationProviderPlugins {
           plugin.getName() == null || plugin.getName().isEmpty() ? id : plugin.getName());
       source.setType(NotificationSourceConfig.SourceType.CUSTOM_PLUGIN);
       source.setEnabled(true);
-      source.setPollIntervalMinutes("60");
+      // Deliberately no poll interval: a provider knows how often its own source is worth asking,
+      // and the marketplace one asks every six hours. Writing an interval here would mean the
+      // settings tab overrode that with sixty minutes the first time anybody pressed Save.
       source.setColor(colorFor(id));
       described.add(source);
     }
@@ -152,6 +160,61 @@ public final class NotificationProviderPlugins {
         sources.add(candidate);
       }
     }
+  }
+
+  /**
+   * The sources worth writing to the configuration.
+   *
+   * <p>A discovered provider is added to the list the settings tab shows so that it can be turned
+   * off or re-timed, but it is not configuration until somebody changes something about it: a
+   * stored source is the record of what the user changed. Persisting the discovered ones as they
+   * were found would also outlive the plugin, leaving a configured source pointing at a provider
+   * that is no longer installed - the opposite of what {@link #plugins()} is for.
+   *
+   * @param sources The list as the settings tab holds it
+   * @return The same list without the discovered sources nobody has touched
+   */
+  public static List<NotificationSourceConfig> toPersist(List<NotificationSourceConfig> sources) {
+    return toPersist(sources, describeAsSources());
+  }
+
+  /**
+   * @param sources The list as the settings tab holds it
+   * @param discovered The sources describing the declared providers
+   * @return The same list without the discovered sources nobody has touched
+   */
+  static List<NotificationSourceConfig> toPersist(
+      List<NotificationSourceConfig> sources, List<NotificationSourceConfig> discovered) {
+    Map<String, String> untouched = new LinkedHashMap<>();
+    ObjectMapper mapper = JsonUtil.jsonMapper();
+    for (NotificationSourceConfig described : discovered) {
+      try {
+        untouched.put(described.getId(), mapper.writeValueAsString(described));
+      } catch (JsonProcessingException e) {
+        // Cannot tell whether this one was touched, so keep it: an extra stored source is a far
+        // smaller problem than a dropped setting.
+        LogChannel.UI.logDetailed(
+            "Could not compare the discovered notification source '"
+                + described.getId()
+                + "' with its stored form, so it is being saved");
+      }
+    }
+
+    List<NotificationSourceConfig> persisted = new ArrayList<>();
+    for (NotificationSourceConfig source : sources) {
+      String asDiscovered = source == null ? null : untouched.get(source.getId());
+      if (asDiscovered != null) {
+        try {
+          if (asDiscovered.equals(mapper.writeValueAsString(source))) {
+            continue;
+          }
+        } catch (JsonProcessingException e) {
+          // Same reasoning: keep it.
+        }
+      }
+      persisted.add(source);
+    }
+    return persisted;
   }
 
   /**

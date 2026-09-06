@@ -29,8 +29,11 @@ import java.util.Locale;
  * operating system associates with the string, so a feed could otherwise get a {@code file:},
  * {@code smb:} or executable path opened by a single click on a notification. Only absolute {@code
  * http} and {@code https} URLs with a host are accepted.
+ *
+ * <p>The same rule guards the other direction: {@code NotificationHttp.requestable} applies it to
+ * the URL a source is polled at, so a stored source cannot make Hop read {@code file:} either.
  */
-final class NotificationLinks {
+public final class NotificationLinks {
 
   private NotificationLinks() {
     // Utility class
@@ -42,7 +45,7 @@ final class NotificationLinks {
    * @param link The link to check, may be null or empty
    * @return true if the link is an absolute http(s) URL naming a host
    */
-  static boolean isSafe(String link) {
+  public static boolean isSafe(String link) {
     if (link == null) {
       return false;
     }

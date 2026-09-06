@@ -37,6 +37,7 @@ import org.apache.hop.core.notifications.NotificationPriority;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig;
 import org.apache.hop.ui.hopgui.notifications.providers.TestNotificationProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,6 +59,9 @@ public class NotificationServiceTest {
   @BeforeEach
   public void setUp() {
     clearPersistedNotificationState();
+    // The fetch cache is process-wide by design, so one test's poll would otherwise stand in for
+    // the next one's.
+    NotificationFetchCache.invalidate(null);
     // Constructed rather than fetched through getInstance(): that resolves the per-process or
     // per-session provider, which needs the desktop or web module on the classpath, and a test
     // wants its own service anyway.
@@ -511,5 +515,72 @@ public class NotificationServiceTest {
     public void shutdown() {
       // Nothing to clean up
     }
+  }
+
+  @Test
+  public void testASourceWithItsOwnWindowIsFilteredByIt() {
+    // The source dialog stores a per-source window and labels it "0 = use global". Until this it
+    // was stored and never read, so a source set to seven days still used the global thirty.
+    service.applySourceWindows(
+        List.of(sourceWithWindow("narrow", "7"), sourceWithWindow("wide", "0")));
+
+    service.addNotification(agedNotification("recent", "narrow", 2));
+    service.addNotification(agedNotification("stale", "narrow", 20));
+    service.addNotification(agedNotification("old-but-global", "wide", 20));
+
+    List<String> listed =
+        service.getNotifications(false, 30).stream().map(Notification::getId).toList();
+
+    assertTrue(listed.contains("narrow:recent"), listed.toString());
+    assertFalse(listed.contains("narrow:stale"), listed.toString());
+    assertTrue(listed.contains("wide:old-but-global"), listed.toString());
+  }
+
+  @Test
+  public void testZeroMeansTheGlobalWindow() {
+    service.applySourceWindows(List.of(sourceWithWindow("sid", "0")));
+
+    service.addNotification(agedNotification("inside", "sid", 5));
+    service.addNotification(agedNotification("outside", "sid", 40));
+
+    List<String> listed =
+        service.getNotifications(false, 30).stream().map(Notification::getId).toList();
+
+    assertTrue(listed.contains("sid:inside"), listed.toString());
+    assertFalse(listed.contains("sid:outside"), listed.toString());
+  }
+
+  @Test
+  public void testASourceWindowWiderThanTheGlobalOneIsHonoured() {
+    service.applySourceWindows(List.of(sourceWithWindow("sid", "90")));
+
+    service.addNotification(agedNotification("old", "sid", 60));
+
+    assertEquals(1, service.getNotifications(false, 30).size());
+  }
+
+  @Test
+  public void testAWindowThatIsNotANumberIsIgnoredRatherThanFatal() {
+    service.applySourceWindows(List.of(sourceWithWindow("sid", "soon")));
+
+    service.addNotification(agedNotification("inside", "sid", 5));
+
+    assertEquals(1, service.getNotifications(false, 30).size());
+  }
+
+  private NotificationSourceConfig sourceWithWindow(String id, String days) {
+    NotificationSourceConfig source = new NotificationSourceConfig();
+    source.setId(id);
+    source.setName(id);
+    source.setEnabled(true);
+    source.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES);
+    source.setDaysToGoBack(days);
+    return source;
+  }
+
+  private Notification agedNotification(String id, String sourceId, int daysOld) {
+    Notification n = notificationFrom(id, sourceId);
+    n.setTimestamp(new Date(System.currentTimeMillis() - daysOld * 24L * 60 * 60 * 1000));
+    return n;
   }
 }

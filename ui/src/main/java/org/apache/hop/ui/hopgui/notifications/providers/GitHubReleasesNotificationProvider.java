@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.notifications.providers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,7 +48,6 @@ public class GitHubReleasesNotificationProvider implements INotificationProvider
   private boolean enabled = true;
   private long pollInterval = 3600000; // 1 hour default
   private boolean includePreReleases = false; // Default: only stable releases
-  private String username;
   private String password;
   private String minimumVersion;
 
@@ -102,10 +102,19 @@ public class GitHubReleasesNotificationProvider implements INotificationProvider
     try {
       String apiUrl =
           "https://api.github.com/repos/" + repositoryOwner + "/" + repositoryName + "/releases";
-      CloseableHttpClient client = NotificationHttp.newClient(username, password);
-      HttpGet request = new HttpGet(apiUrl);
+      URI target = NotificationHttp.requestable(apiUrl);
+      // No credentials on the client: a token goes in the Authorization header below. GitHub asks
+      // for personal access tokens that way, and Basic authentication is only ever offered after a
+      // 401 challenge, which means it would be offered to whoever answered the redirect instead.
+      CloseableHttpClient client = NotificationHttp.newClient();
+      HttpGet request = new HttpGet(target);
       request.addHeader("Accept", "application/vnd.github.v3+json");
       request.addHeader("User-Agent", "Apache-Hop-Notification-System");
+      String token = NotificationHttp.resolve(password);
+      if (token != null && !token.trim().isEmpty()) {
+        // The user name is not part of this: GitHub identifies the caller from the token alone.
+        request.addHeader("Authorization", "Bearer " + token.trim());
+      }
       conditional.applyTo(request);
 
       try (ClassicHttpResponse response = (ClassicHttpResponse) client.execute(request)) {
@@ -124,7 +133,7 @@ public class GitHubReleasesNotificationProvider implements INotificationProvider
           throw new HopException("GitHub returned an empty response for " + apiUrl);
         }
 
-        try (InputStream inputStream = entity.getContent()) {
+        try (InputStream inputStream = NotificationHttp.bounded(entity.getContent(), apiUrl)) {
           JsonNode releases = JsonUtil.parse(inputStream);
 
           if (releases.isArray()) {
@@ -413,11 +422,12 @@ public class GitHubReleasesNotificationProvider implements INotificationProvider
    * A personal access token also lifts the rate limit: unauthenticated calls are counted per IP
    * address and shared by everyone behind it, authenticated ones per token.
    *
-   * @param username The user name, may be null
+   * @param username Ignored: GitHub identifies the caller from the token alone, and the token is
+   *     sent as a bearer credential rather than as HTTP Basic authentication. The parameter is kept
+   *     so a source configured with a user name still loads.
    * @param password The password or token, may be null
    */
   public void setCredentials(String username, String password) {
-    this.username = username;
     this.password = password;
   }
 

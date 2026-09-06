@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.notifications.Notification;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -511,7 +512,7 @@ public class NotificationPanel implements INotificationListener {
           BaseMessages.getString(
               PKG, "NotificationPanel.ProviderErrorItem", err.getProviderName(), err.getMessage());
       Label line = new Label(banner, SWT.WRAP);
-      line.setText(text);
+      line.setText(forLabel(text));
       PropsUi.setLook(line);
       line.setBackground(bannerBackground);
       line.setForeground(bannerForeground);
@@ -600,7 +601,11 @@ public class NotificationPanel implements INotificationListener {
     // Title starts after source indicator
     CLabel titleLabel = new CLabel(composite, SWT.LEFT);
     String fullTitle = notification.getTitle() != null ? notification.getTitle() : "";
-    titleLabel.setText(fullTitle);
+    // Escaped like any other label: CLabel paints with SWT.DRAW_MNEMONIC, and RAP renders it
+    // through a CLabelLCA that strips ampersands as well, so a feed entry about "Ben & Jerry"
+    // would lose the ampersand on the desktop and in Hop Web alike. The tooltip and the copy
+    // stashed below are left as the feed wrote them: neither goes through a mnemonic.
+    titleLabel.setText(forLabel(fullTitle));
     titleLabel.setData("type", "title"); // Mark for later updates
     titleLabel.setData("fullTitle", fullTitle); // Store full title for tooltip
     PropsUi.setLook(titleLabel);
@@ -648,7 +653,7 @@ public class NotificationPanel implements INotificationListener {
         displayMessage = displayMessage.substring(0, maxLength).trim() + "...";
       }
       messageLabel = new Label(composite, SWT.WRAP);
-      messageLabel.setText(displayMessage);
+      messageLabel.setText(forLabel(displayMessage));
       PropsUi.setLook(messageLabel);
       FormData fdMessage = new FormData();
       fdMessage.left = new FormAttachment(priorityBar, 10);
@@ -883,18 +888,46 @@ public class NotificationPanel implements INotificationListener {
   private String buildSourceTooltip(Notification notification) {
     StringBuilder tooltip = new StringBuilder();
     if (notification.getSource() != null && !notification.getSource().isEmpty()) {
-      tooltip.append("Source: ").append(notification.getSource());
+      tooltip.append(
+          BaseMessages.getString(PKG, "NotificationPanel.Source", notification.getSource()));
     }
     if (notification.getLink() != null && !notification.getLink().isEmpty()) {
       if (tooltip.length() > 0) {
         tooltip.append("\n");
       }
-      tooltip.append("URL: ").append(notification.getLink());
+      tooltip.append(BaseMessages.getString(PKG, "NotificationPanel.Url", notification.getLink()));
     }
-    return tooltip.length() > 0 ? tooltip.toString() : "Unknown source";
+    return tooltip.length() > 0
+        ? tooltip.toString()
+        : BaseMessages.getString(PKG, "NotificationPanel.UnknownSource");
   }
 
-  /** Format timestamp for display */
+  /**
+   * Escape a string that is about to become the text of an SWT {@link Label}.
+   *
+   * <p>{@code Label} reads {@code &} as the marker in front of a mnemonic key, so a feed entry
+   * about "Ben &amp; Jerry" would lose the ampersand and underline the J. {@code CLabel} does the
+   * same: it paints with {@code SWT.DRAW_MNEMONIC} on the desktop, and RAP renders both through
+   * kits that call {@code MnemonicUtil}. Nothing here has a mnemonic, so every ampersand is meant
+   * literally.
+   *
+   * @param text The text to show, may be null
+   * @return The text with its ampersands doubled
+   */
+  private static String forLabel(String text) {
+    return text == null ? null : text.replace("&", "&&");
+  }
+
+  /**
+   * How long ago something happened, in the language the GUI is running in.
+   *
+   * <p>Hop has no plural rules, so singular and plural are separate keys. A translation for a
+   * language that needs more forms than that can say the same thing in a way that does not need
+   * them, which is why the count is a parameter of both.
+   *
+   * @param timestamp When it happened
+   * @return The age as text, or the date once it is older than a week
+   */
   private String formatTimestamp(Date timestamp) {
     if (timestamp == null) {
       return "";
@@ -905,16 +938,26 @@ public class NotificationPanel implements INotificationListener {
     long days = diff / 86400000;
 
     if (minutes < 1) {
-      return "Just now";
+      return BaseMessages.getString(PKG, "NotificationPanel.Age.JustNow");
     } else if (minutes < 60) {
-      return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+      return BaseMessages.getString(PKG, ageKey("Minute", minutes), Long.toString(minutes));
     } else if (hours < 24) {
-      return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+      return BaseMessages.getString(PKG, ageKey("Hour", hours), Long.toString(hours));
     } else if (days < 7) {
-      return days + " day" + (days > 1 ? "s" : "") + " ago";
+      return BaseMessages.getString(PKG, ageKey("Day", days), Long.toString(days));
     } else {
-      return new SimpleDateFormat("MMM d, yyyy").format(timestamp);
+      // The pattern is translated with the rest of the panel, and the month name has to come from
+      // the same language: SimpleDateFormat would otherwise use the platform locale, which is how
+      // an English panel ends up showing a Dutch month.
+      return new SimpleDateFormat(
+              BaseMessages.getString(PKG, "NotificationPanel.Age.DateFormat"),
+              LanguageChoice.getInstance().getDefaultLocale())
+          .format(timestamp);
     }
+  }
+
+  private static String ageKey(String unit, long count) {
+    return "NotificationPanel.Age." + unit + (count == 1 ? "" : "s");
   }
 
   /** Position the panel below the bell icon */

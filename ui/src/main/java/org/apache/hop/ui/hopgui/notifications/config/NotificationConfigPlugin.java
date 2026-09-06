@@ -25,6 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
+import org.apache.hop.core.notifications.INotificationProvider;
 import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -418,15 +419,35 @@ public class NotificationConfigPlugin {
           col++, source.getType() == null ? "" : Const.NVL(source.getType().getDisplayName(), ""));
       item.setText(col++, source.isEnabled() ? yesLabel : noLabel);
       item.setText(col++, Const.NVL(source.getDetailsDisplay(), ""));
-      String pollInterval = source.getPollIntervalMinutes();
-      if (Utils.isEmpty(pollInterval)) {
-        pollInterval = getGlobalPollIntervalMinutes();
-      }
-      item.setText(col++, Const.NVL(pollInterval, "60"));
+      item.setText(col++, pollIntervalDisplay(source));
       item.setText(col, Const.NVL(source.getColor(), "#000000"));
       item.setData(source);
     }
     wSourcesTable.optimizeTableView();
+  }
+
+  /**
+   * What to show in the poll interval column.
+   *
+   * <p>A source that sets no interval is not a source polled every sixty minutes: a provider
+   * contributed by a plugin decides for itself, and the marketplace one asks every six hours. Show
+   * what will actually happen, taken from the running provider where there is one.
+   *
+   * @param source The source the row is for
+   * @return The interval in minutes, as text
+   */
+  private String pollIntervalDisplay(NotificationSourceConfig source) {
+    String configured = source.getPollIntervalMinutes();
+    if (!Utils.isEmpty(configured)) {
+      return configured;
+    }
+    INotificationProvider provider =
+        org.apache.hop.ui.hopgui.notifications.NotificationService.getInstance()
+            .getProvider(source.getId());
+    if (provider != null && provider.getPollInterval() > 0) {
+      return String.valueOf(provider.getPollInterval() / 60000);
+    }
+    return Const.NVL(getGlobalPollIntervalMinutes(), "60");
   }
 
   private void addSource() {
@@ -484,7 +505,10 @@ public class NotificationConfigPlugin {
   private void saveSources() {
     try {
       ObjectMapper mapper = JsonUtil.jsonMapper();
-      String sourcesJson = mapper.writeValueAsString(sources);
+      // Only what the user actually configured: a discovered plugin source nobody has touched is
+      // found again from the plugin registry, and storing it would outlive the plugin.
+      String sourcesJson =
+          mapper.writeValueAsString(NotificationProviderPlugins.toPersist(sources));
       HopConfig.getInstance().saveOption(CONFIG_KEY_SOURCES, sourcesJson);
       HopConfig.getInstance().saveToFile();
       notifyConfigChanged();

@@ -49,6 +49,33 @@ public class Notification {
     this.category = NotificationCategory.OTHER;
   }
 
+  /**
+   * Copy a notification.
+   *
+   * <p>Hop Web keeps read state per user session while a source is polled once for the process, so
+   * the same fetch is handed to several sessions. They must not be handed the same object: read
+   * state is set on the notification itself, and one user reading an item would mark it read for
+   * everyone.
+   *
+   * @param other The notification to copy
+   */
+  public Notification(Notification other) {
+    this();
+    this.id = other.id;
+    this.title = other.title;
+    this.message = other.message;
+    this.source = other.source;
+    this.sourceId = other.sourceId;
+    this.link = other.link;
+    this.timestamp = other.timestamp == null ? null : new Date(other.timestamp.getTime());
+    this.receivedAt = other.receivedAt == null ? null : new Date(other.receivedAt.getTime());
+    this.read = other.read;
+    this.priority = other.priority;
+    this.category = other.category;
+    this.metadata = other.metadata == null ? new HashMap<>() : new HashMap<>(other.metadata);
+    this.version = other.version;
+  }
+
   public Notification(
       String id,
       String title,
