@@ -76,13 +76,20 @@ class DataSetConstNumericCompareTest {
   @Test
   void sqrtOfTwoDoesNotMatchGoldenWithoutPrecision() throws HopValueException {
     IValueMeta meta = new ValueMetaNumber("sqrt");
-    DecimalFormat format =
-        DataSetConst.createNumericCompareFormat(
-            DataSetConst.buildNumericCompareMask(meta.getLength(), meta.getPrecision()));
 
     assertFalse(
-        DataSetConst.formattedNumericValuesEqual(format, meta, Math.sqrt(2), 1.4142),
-        "without length/precision the extra digits of sqrt(2) must still fail");
+        DataSetConst.numericValuesEqualForUnitTest(meta, Math.sqrt(2), meta, 1.4142),
+        "without length/precision sqrt(2) is still farther than the 1e-6 fuzzy tolerance");
+  }
+
+  @Test
+  void withoutPrecisionKeepsHistoricalFuzzyTolerance() throws HopValueException {
+    IValueMeta meta = new ValueMetaNumber("n");
+
+    assertTrue(
+        DataSetConst.numericValuesEqualForUnitTest(meta, 1.0000001d, meta, 1.0000002d),
+        "values within 1e-6 must still match when length/precision is not declared");
+    assertFalse(DataSetConst.numericValuesEqualForUnitTest(meta, 1.0d, meta, 1.01d));
   }
 
   @Test

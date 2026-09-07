@@ -216,7 +216,7 @@ While successful test show 'Test passed succesfully against golden data set' and
 Number and BigNumber fields are compared by converting both values to a string with a format mask derived from the field length and precision.
 For example, length 7 and precision 2 uses `00000.00;-0000.00`.
 Values that round to the same string at that precision are considered equal (so `sqrt(2)` matches golden `1.4142` when precision is 4).
-If length or precision is not set, `##########.#########;-###########.########` is used.
+If length or precision is not set, values are compared with a tolerance of `0.000001`, the same as previous Hop versions.
 
 === Remove and bypass transforms in unit tests
 

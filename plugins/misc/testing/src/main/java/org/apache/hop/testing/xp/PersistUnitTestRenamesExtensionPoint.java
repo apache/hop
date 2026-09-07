@@ -23,33 +23,32 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.TransformNameChange;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestTransformRenames;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
-    id = "RenameUnitTestLocationsExtensionPoint",
-    extensionPointId = "PipelineTransformRenamed",
-    description =
-        "Keep unit test input/golden data set locations and tweaks in sync when a transform is renamed")
-public class RenameUnitTestLocationsExtensionPoint implements IExtensionPoint<TransformNameChange> {
+    id = "PersistUnitTestRenamesExtensionPoint",
+    extensionPointId = "PipelineAfterSave",
+    description = "Persist in-memory unit test transform-name updates when the pipeline is saved")
+public class PersistUnitTestRenamesExtensionPoint implements IExtensionPoint<PipelineMeta> {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, TransformNameChange change)
+  public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
       throws HopException {
-    if (change == null || change.getPipelineMeta() == null) {
+    if (pipelineMeta == null) {
       return;
     }
-
-    HopGuiPipelineGraph pipelineGraph = TestingGuiPlugin.getPipelineGraph(change.getPipelineMeta());
-    if (pipelineGraph == null) {
-      return;
-    }
-    Map<String, Object> stateMap = pipelineGraph.getStateMap();
-    if (stateMap == null) {
+    HopGuiPipelineGraph pipelineGraph = TestingGuiPlugin.getPipelineGraph(pipelineMeta);
+    Map<String, Object> stateMap =
+        pipelineGraph != null
+            ? pipelineGraph.getStateMap()
+            : TestingGuiPlugin.getStateMap(pipelineMeta);
+    if (!UnitTestTransformRenames.hasPending(stateMap)) {
       return;
     }
     PipelineUnitTest unitTest =
@@ -57,11 +56,21 @@ public class RenameUnitTestLocationsExtensionPoint implements IExtensionPoint<Tr
     if (unitTest == null) {
       return;
     }
-    if (!unitTest.renameTransform(change.getOldName(), change.getNewName())) {
-      return;
+    try {
+      HopGui hopGui = HopGui.getInstance();
+      if (hopGui == null || hopGui.getMetadataProvider() == null) {
+        return;
+      }
+      IVariables graphVariables = pipelineGraph != null ? pipelineGraph.getVariables() : variables;
+      unitTest.setRelativeFilename(graphVariables, pipelineMeta.getFilename());
+      hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
+      UnitTestTransformRenames.clear(stateMap);
+    } catch (Exception e) {
+      log.logError(
+          "Error saving unit test '"
+              + unitTest.getName()
+              + "' after pipeline save with renamed transforms",
+          e);
     }
-    // Keep the rename in memory until the pipeline is saved, so Ctrl+Z can restore the old
-    // transform name without orphaning the data set attachment on disk.
-    UnitTestTransformRenames.record(stateMap, change.getOldName(), change.getNewName());
   }
 }

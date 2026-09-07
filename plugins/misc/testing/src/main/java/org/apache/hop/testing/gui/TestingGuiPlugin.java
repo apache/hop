@@ -65,6 +65,7 @@ import org.apache.hop.testing.actions.runtests.RunPipelineTests;
 import org.apache.hop.testing.actions.runtests.RunPipelineTestsField;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestGraphVariables;
+import org.apache.hop.testing.util.UnitTestTransformRenames;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
 import org.apache.hop.ui.core.PropsUi;
@@ -953,6 +954,11 @@ public class TestingGuiPlugin {
       // Clear unit-test sample variables from the graph variable space, then drop state.
       //
       Map<String, Object> stateMap = getStateMap(pipelineMeta);
+      if (stateMap != null) {
+        PipelineUnitTest unitTest =
+            (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+        UnitTestTransformRenames.revertAll(unitTest, stateMap);
+      }
       UnitTestGraphVariables.clear(pipelineGraph.getVariables(), stateMap);
       if (stateMap != null) {
         stateMap.clear();

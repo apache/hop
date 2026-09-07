@@ -22,7 +22,10 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
+import org.apache.hop.testing.util.DataSetConst;
+import org.apache.hop.testing.util.UnitTestTransformRenames;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.eclipse.swt.widgets.Display;
@@ -42,6 +45,14 @@ public class UpdateUnitTestButtonsExtensionPoint implements IExtensionPoint<HopG
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, HopGuiPipelineGraph pipelineGraph)
       throws HopException {
+
+    if (pipelineGraph != null && pipelineGraph.getStateMap() != null) {
+      PipelineUnitTest unitTest =
+          (PipelineUnitTest)
+              pipelineGraph.getStateMap().get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+      UnitTestTransformRenames.revertIfUndoRestoredOldNames(
+          pipelineGraph.getPipelineMeta(), unitTest, pipelineGraph.getStateMap());
+    }
 
     // Update the unit test button states
     // Use asyncExec to ensure this runs after any async combo population

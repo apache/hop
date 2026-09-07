@@ -17,6 +17,7 @@
 
 package org.apache.hop.testing.util;
 
+import com.google.common.math.DoubleMath;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -84,11 +85,24 @@ public class DataSetConst {
   public static final String STATE_KEY_APPLIED_UNIT_TEST_VARIABLES = "AppliedUnitTestVariables";
 
   /**
+   * In-memory transform renames that have not been saved to the unit test metadata yet. Value type:
+   * {@code List<UnitTestTransformRenames.Rename>}.
+   */
+  public static final String STATE_KEY_PENDING_TRANSFORM_RENAMES =
+      "UnitTestPendingTransformRenames";
+
+  /**
    * Fallback mask when a Number/BigNumber field has no length/precision. Optional digits so 1 and
    * 1.0 compare equal, with enough fraction digits to keep values distinguishable.
    */
   public static final String NUMERIC_COMPARE_MASK_DEFAULT =
       "##########.#########;-###########.########";
+
+  /**
+   * Historical tolerance used when a Number/BigNumber field has no declared length/precision.
+   * Matches the previous {@code DoubleMath.fuzzyEquals} epsilon of 1 millionth.
+   */
+  public static final double NUMERIC_COMPARE_EPSILON = 0.000001d;
 
   private static final String[] tweakDesc =
       new String[] {
@@ -322,8 +336,6 @@ public class DataSetConst {
 
         final int[] transformFieldIndices = new int[location.getFieldMappings().size()];
         final int[] goldenIndices = new int[location.getFieldMappings().size()];
-        final DecimalFormat[] numericCompareFormats =
-            new DecimalFormat[location.getFieldMappings().size()];
         for (int i = 0; i < location.getFieldMappings().size(); i++) {
           PipelineUnitTestFieldMapping fieldMapping = location.getFieldMappings().get(i);
 
@@ -345,15 +357,6 @@ public class DataSetConst {
                     + "' while testing output of transform '"
                     + location.getTransformName()
                     + "'");
-          }
-          IValueMeta transformCompareMeta = resultRowMeta.getValueMeta(transformFieldIndices[i]);
-          IValueMeta goldenCompareMeta = goldenRowMeta.getValueMeta(goldenIndices[i]);
-          if (transformCompareMeta.isNumber() || transformCompareMeta.isBigNumber()) {
-            IValueMeta spec =
-                goldenCompareMeta.getLength() > 0 ? goldenCompareMeta : transformCompareMeta;
-            numericCompareFormats[i] =
-                createNumericCompareFormat(
-                    buildNumericCompareMask(spec.getLength(), spec.getPrecision()));
           }
           log.logDetailed(
               "Field to compare #"
@@ -402,14 +405,11 @@ public class DataSetConst {
               int cmp =
                   transformValueMeta.compare(transformValue, goldenValueMeta, goldenValueConverted);
               if (cmp != 0
-                  && numericCompareFormats[i] != null
+                  && (transformValueMeta.isNumber() || transformValueMeta.isBigNumber())
                   && !transformValueMeta.isNull(transformValue)
                   && !transformValueMeta.isNull(goldenValueConverted)
-                  && formattedNumericValuesEqual(
-                      numericCompareFormats[i],
-                      transformValueMeta,
-                      transformValue,
-                      goldenValueConverted)) {
+                  && numericValuesEqualForUnitTest(
+                      transformValueMeta, transformValue, goldenValueMeta, goldenValueConverted)) {
                 cmp = 0;
               }
               if (cmp != 0) {
@@ -523,6 +523,30 @@ public class DataSetConst {
     format.setGroupingUsed(false);
     format.setRoundingMode(RoundingMode.HALF_UP);
     return format;
+  }
+
+  /**
+   * Compare two numeric values for a unit test. When length and precision are declared, both sides
+   * are formatted with {@link #buildNumericCompareMask(int, int)}. Otherwise the historical 1e-6
+   * fuzzy equals is used so existing tests without field precision keep passing.
+   */
+  static boolean numericValuesEqualForUnitTest(
+      IValueMeta transformMeta, Object transformValue, IValueMeta goldenMeta, Object goldenValue)
+      throws HopValueException {
+    IValueMeta spec = goldenMeta.getLength() > 0 ? goldenMeta : transformMeta;
+    if (hasDeclaredNumericPrecision(spec)) {
+      DecimalFormat format =
+          createNumericCompareFormat(
+              buildNumericCompareMask(spec.getLength(), spec.getPrecision()));
+      return formattedNumericValuesEqual(format, transformMeta, transformValue, goldenValue);
+    }
+    Double d1 = transformMeta.getNumber(transformValue);
+    Double d2 = transformMeta.getNumber(goldenValue);
+    return DoubleMath.fuzzyEquals(d1, d2, NUMERIC_COMPARE_EPSILON);
+  }
+
+  static boolean hasDeclaredNumericPrecision(IValueMeta meta) {
+    return meta != null && meta.getLength() > 0 && meta.getPrecision() >= 0;
   }
 
   /**
