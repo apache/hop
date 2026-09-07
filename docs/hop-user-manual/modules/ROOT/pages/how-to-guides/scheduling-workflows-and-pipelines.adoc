@@ -156,11 +156,14 @@ LOG=/var/log/hop/nightly-$(date +%Y%m%d-%H%M%S).log
   -r local \
   -f '{openvar}PROJECT_HOME{closevar}/main.hwf' \
   -l Basic \
-  -lf "${LOG}"
+  -lf "${LOG}" \
+  >/dev/null 2>&1
 ----
 
 `chmod +x /usr/local/bin/run-hop-nightly.sh` and run it once by hand before you schedule it.
 `--logfile` (`-lf`) *overwrites* the file, which is why the name includes a timestamp.
+It adds a file listener *alongside* the console logger, so hop-run still writes to stdout unless you redirect it as above.
+cron mails on any output, not on a non-zero exit, and without that redirect a successful run would mail the whole log.
 
 On Linux, put `flock -n /tmp/hop-nightly.lock` in front of the script so a second start fails instead of running the same load twice (`flock` is not on macOS by default).
 Otherwise use the scheduler's own "do not start a second instance" option, shown in each recipe below.
@@ -181,9 +184,11 @@ set "HOP_CONFIG_FOLDER=C:\hop-config"
 set "HOP=C:\hop"
 
 cd /d "%HOP%"
-hop-run.bat -e prod -r local -f {openvar}PROJECT_HOME{closevar}/main.hwf -l Basic
+call hop-run.bat -e prod -r local -f {openvar}PROJECT_HOME{closevar}/main.hwf -l Basic
 exit /b %ERRORLEVEL%
 ----
+
+`call` is required: without it, control never returns from `hop-run.bat` and any lines after it (cleanup, `exit /b`) are skipped.
 
 Task Scheduler's setting *If the task is already running: Do not start a new instance* is the overlap policy on Windows.
 --
@@ -202,8 +207,9 @@ Every scheduler below treats a non-zero exit as a failed run.
 
 [source]
 ----
-# 02:00 every day, host local time. Mail on non-zero exit (cron's default).
+# 02:00 every day, host local time.
 # Linux: flock refuses a second start while the previous run still holds the lock.
+# cron mails on any stdout/stderr, not on exit code; the wrapper keeps those quiet.
 0 2 * * * /usr/bin/flock -n /tmp/hop-nightly.lock /usr/local/bin/run-hop-nightly.sh
 ----
 
@@ -444,7 +450,8 @@ Set `HOP_JAVA_HOME` (or `JAVA_HOME`) and `HOP_CONFIG_FOLDER` in the wrapper or t
 A load that still runs at 02:00 the next day will corrupt results if a second copy starts.
 `flock`, systemd's default, Task Scheduler's *Do not start a new instance*, Jenkins `disableConcurrentBuilds()`, Kubernetes `concurrencyPolicy: Forbid`, Airflow `max_active_runs=1` — pick one and make it explicit.
 * *Logs that outlive the process.*
-hop-run writes to stdout (which cron, systemd, Jenkins and Kubernetes already collect) and optionally to `-lf`.
+hop-run writes to stdout (which systemd, Jenkins and Kubernetes already collect) and optionally to `-lf`.
+`-lf` does not stop the console logger: cron mails on any leftover stdout, not on a non-zero exit, so the wrapper above discards it.
 Configure an xref:metadata-types/execution-information-location.adoc[execution information location] on the run configuration so you can inspect the run later from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective].
 * *Timezones.*
 cron and systemd use the host timezone; Kubernetes CronJob defaults to UTC; Airflow uses the DAG timezone.
