@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -294,26 +293,6 @@ class CreateMappingFromSelectionTest {
         CreateMappingFromSelection.resolveSelectedTransforms(parent, find(parent, "B"));
     assertEquals(1, resolved.size());
     assertEquals("B", resolved.get(0).getName());
-  }
-
-  @Test
-  void toProjectRelativePathRewritesUnderHome() {
-    Variables variables = new Variables();
-    variables.setVariable("PROJECT_HOME", "/data/project");
-    assertEquals(
-        Const.VAR_PROJECT_HOME + "/mappings/child.hpl",
-        CreateMappingFromSelection.toProjectRelativePath(
-            "/data/project/mappings/child.hpl", variables));
-    assertEquals(
-        Const.VAR_PROJECT_HOME,
-        CreateMappingFromSelection.toProjectRelativePath("/data/project", variables));
-    assertEquals(
-        "/elsewhere/file.hpl",
-        CreateMappingFromSelection.toProjectRelativePath("/elsewhere/file.hpl", variables));
-    assertEquals(
-        Const.VAR_PROJECT_HOME + "/already.hpl",
-        CreateMappingFromSelection.toProjectRelativePath(
-            Const.VAR_PROJECT_HOME + "/already.hpl", variables));
   }
 
   @Test

@@ -321,39 +321,6 @@ public final class CreateMappingFromSelection {
     return simpleMapping;
   }
 
-  /**
-   * Expresses {@code path} relative to {@code PROJECT_HOME} as {@code ${PROJECT_HOME}/…} when
-   * possible. Returns the original path when it cannot be relativized.
-   */
-  public static String toProjectRelativePath(String path, IVariables variables) {
-    if (StringUtils.isEmpty(path)) {
-      return path;
-    }
-    if (path.startsWith(Const.VAR_PROJECT_HOME) || path.startsWith("${PROJECT_HOME}")) {
-      return path;
-    }
-    if (variables == null) {
-      return path;
-    }
-    String projectHome = variables.resolve(Const.VAR_PROJECT_HOME);
-    if (StringUtils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
-      return path;
-    }
-    String home = projectHome;
-    while (home.endsWith("/") || home.endsWith("\\")) {
-      home = home.substring(0, home.length() - 1);
-    }
-    String normalized = path.replace('\\', '/');
-    String homeNorm = home.replace('\\', '/');
-    if (normalized.equals(homeNorm)) {
-      return Const.VAR_PROJECT_HOME;
-    }
-    if (normalized.startsWith(homeNorm + "/")) {
-      return Const.VAR_PROJECT_HOME + normalized.substring(homeNorm.length());
-    }
-    return path;
-  }
-
   /** Base filename without extension, used as the Simple Mapping transform name. */
   public static String transformNameFromFilename(String mappingFilename) {
     if (StringUtils.isEmpty(mappingFilename)) {

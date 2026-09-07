@@ -34,17 +34,22 @@ import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.PipelineRenamedExtension;
+import org.apache.hop.ui.hopgui.file.shared.ReferencedConnectionSaveValidator;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -96,37 +101,53 @@ public class CreateMappingGuiPlugin {
       if (StringUtils.isEmpty(filename)) {
         return;
       }
-      // The save dialog can return '${PROJECT_HOME}/…'. Resolve before any VFS write so we do not
-      // create a literal folder named ${PROJECT_HOME} under the Hop install directory.
-      filename = CreateMappingFromSelection.resolveFilesystemPath(filename, variables);
-      if (StringUtils.isEmpty(filename)) {
+      if (!filename.toLowerCase().endsWith(PipelineMeta.PIPELINE_EXTENSION)) {
+        filename = filename + PipelineMeta.PIPELINE_EXTENSION;
+      }
+      // Keep the filename the dialog handed us: the HopGuiFileOpenedDialog extension point has
+      // already replaced every project path variable in it. Resolve only for the VFS write.
+      String resolvedFilename =
+          CreateMappingFromSelection.resolveFilesystemPath(filename, variables);
+      if (StringUtils.isEmpty(resolvedFilename)) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         box.setText(BaseMessages.getString(PKG, "CreateMapping.Error.Title"));
         box.setMessage(BaseMessages.getString(PKG, "CreateMapping.Error.UnresolvedPath"));
         box.open();
         return;
       }
-      filename = HopVfs.normalize(filename);
-      if (!filename.toLowerCase().endsWith(PipelineMeta.PIPELINE_EXTENSION)) {
-        filename = filename + PipelineMeta.PIPELINE_EXTENSION;
-      }
-      if (!confirmOverwrite(shell, filename, variables)) {
+      resolvedFilename = HopVfs.normalize(resolvedFilename);
+      if (!confirmOverwrite(shell, resolvedFilename, variables)) {
         return;
       }
 
       PipelineMeta mappingPipeline = result.getMappingPipeline();
-      mappingPipeline.setFilename(filename);
+      IHopMetadataProvider saveMetadataProvider = mappingPipeline.getMetadataProvider();
+      if (saveMetadataProvider == null) {
+        saveMetadataProvider = hopGui.getMetadataProvider();
+      }
+      if (!ReferencedConnectionSaveValidator.confirmSave(
+          shell, mappingPipeline, variables, saveMetadataProvider)) {
+        return;
+      }
+
+      mappingPipeline.setFilename(resolvedFilename);
       mappingPipeline.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
       writePipeline(mappingPipeline, variables, hopGui.getLog());
+
+      AuditManager.registerEvent(HopNamespace.getNamespace(), "file", resolvedFilename, "save");
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          variables,
+          HopExtensionPoint.PipelineAfterSaveAs.id,
+          new PipelineRenamedExtension(mappingPipeline, null));
 
       ExplorerPerspective explorer = HopGui.getExplorerPerspective();
       if (explorer != null) {
         explorer.refresh();
       }
 
-      String storedFilename = CreateMappingFromSelection.toProjectRelativePath(filename, variables);
       pipelineGraph.markUndoPoint();
-      CreateMappingFromSelection.replaceSelection(pipelineMeta, result, storedFilename);
+      CreateMappingFromSelection.replaceSelection(pipelineMeta, result, filename);
       pipelineMeta.setChanged();
       pipelineGraph.updateGui();
     } catch (Exception e) {
@@ -174,14 +195,11 @@ public class CreateMappingGuiPlugin {
         log, variables, HopExtensionPoint.PipelineBeforeSave.id, mappingPipeline);
 
     String xml = mappingPipeline.getXml(variables);
-    OutputStream out = HopVfs.getOutputStream(mappingPipeline.getFilename(), false, variables);
-    try {
+    try (OutputStream out =
+        HopVfs.getOutputStream(mappingPipeline.getFilename(), false, variables)) {
       out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
       out.write(xml.getBytes(StandardCharsets.UTF_8));
       mappingPipeline.clearChanged();
-    } finally {
-      out.flush();
-      out.close();
     }
 
     ExtensionPointHandler.callExtensionPoint(
