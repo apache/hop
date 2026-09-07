@@ -28,6 +28,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
@@ -231,6 +233,15 @@ public class ProjectsOptionPlugin implements IConfigOptions {
 
     if (extraConfigFiles != null && !extraConfigFiles.isEmpty()) {
       configurationFiles.addAll(extraConfigFiles);
+    }
+
+    if (ProjectsConfigHelper.alreadyEnabled(projectName, environmentName)
+        && (extraConfigFiles == null || extraConfigFiles.isEmpty())) {
+      MultiMetadataProvider current = HopMetadataInstance.getMetadataProvider();
+      if (hasHopMetadataProvider != null && current != null) {
+        hasHopMetadataProvider.setMetadataProvider(current);
+      }
+      return true;
     }
 
     try {

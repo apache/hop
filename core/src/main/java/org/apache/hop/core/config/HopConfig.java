@@ -25,11 +25,13 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.vfs.HopVfs;
 
 /**
  * This class keeps track of storing and retrieving all the configuration options in Hop. This
@@ -73,8 +75,16 @@ public class HopConfig extends ConfigFile {
     super.setInMemory(inMemory);
     if (inMemory) {
       setSerializer(new ConfigNoFileSerializer());
-    } else {
-      setSerializer(new ConfigFileSerializer());
+      return;
+    }
+    try {
+      boolean exists;
+      try (FileObject configFile = HopVfs.getFileObject(getConfigFilename())) {
+        exists = configFile.exists();
+      }
+      setSerializer(exists ? new ConfigFileSerializer() : new ConfigNoFileSerializer());
+    } catch (Exception e) {
+      setSerializer(new ConfigNoFileSerializer());
     }
   }
 

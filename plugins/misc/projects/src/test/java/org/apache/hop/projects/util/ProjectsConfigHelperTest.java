@@ -20,6 +20,7 @@ package org.apache.hop.projects.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -395,5 +396,62 @@ public class ProjectsConfigHelperTest {
     assertTrue(
         runDescription.contains("ttt") && runDescription.contains("metadata"),
         "run metadata provider should use the project folder: " + runDescription);
+  }
+
+  @Test
+  public void testBareFolderDoesNotRegisterEverySubdirectory() throws Exception {
+    Path projectDir = tempRoot.resolve("plain-proj");
+    Files.createDirectories(projectDir.resolve(".git"));
+    Files.createDirectories(projectDir.resolve("datasets"));
+    Files.createDirectories(projectDir.resolve("metadata"));
+    Files.writeString(
+        projectDir.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME),
+        "{ \"metadataBaseFolder\" : \"${PROJECT_HOME}/metadata\" }\n",
+        StandardCharsets.UTF_8);
+
+    IVariables variables = new Variables();
+    List<String> registered =
+        ProjectsConfigHelper.addProjectLocations(
+            LogChannel.GENERAL, variables, new String[] {projectDir.toAbsolutePath().toString()});
+    registeredProjects.addAll(registered);
+
+    assertEquals(1, registered.size());
+    assertEquals("plain-proj", registered.get(0));
+    assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig(".git"));
+    assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig("metadata"));
+    assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig("datasets"));
+  }
+
+  @Test
+  public void testDetectConfigFilenameReturnsNullWhenMissing() throws Exception {
+    Path emptyDir = tempRoot.resolve("empty");
+    Files.createDirectories(emptyDir);
+    assertNull(
+        ProjectsConfigHelper.detectConfigFilename(
+            emptyDir.toAbsolutePath().toString(), new Variables()));
+  }
+
+  @Test
+  public void testJsonExportHomeRequiresExportLayout() throws Exception {
+    Path projectDir = tempRoot.resolve("normal");
+    Files.createDirectories(projectDir.resolve("metadata"));
+    Files.writeString(
+        projectDir.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME),
+        "{}\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        projectDir.resolve("variables.json"),
+        "{\"RUNCFG\":\"from-export\"}\n",
+        StandardCharsets.UTF_8);
+
+    IVariables variables = new Variables();
+    assertFalse(
+        ProjectsConfigHelper.isJsonExportHome(projectDir.toAbsolutePath().toString(), variables));
+
+    Path exportDir = tempRoot.resolve("export-only");
+    Files.createDirectories(exportDir);
+    Files.writeString(exportDir.resolve("metadata.json"), "{}\n", StandardCharsets.UTF_8);
+    assertTrue(
+        ProjectsConfigHelper.isJsonExportHome(exportDir.toAbsolutePath().toString(), variables));
   }
 }

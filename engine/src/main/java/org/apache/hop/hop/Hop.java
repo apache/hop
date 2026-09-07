@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
@@ -92,6 +93,7 @@ public class Hop {
     // Apply the system properties to the JVM
     //
     hop.applySystemProperties();
+    hop.activateInMemoryFromArgs(args);
 
     // Initialize the Hop environment: load plugins and more
     //
@@ -194,6 +196,32 @@ public class Hop {
     helpArgs[args.length] = "-h";
 
     cmd.parseArgs(helpArgs);
+  }
+
+  /**
+   * Mixins are not loaded yet, so scan the raw arguments for in-memory flags before {@link
+   * HopEnvironment#init()} can write hop-config.json.
+   */
+  void activateInMemoryFromArgs(String[] args) {
+    if (args == null) {
+      return;
+    }
+    for (String arg : args) {
+      if (arg == null) {
+        continue;
+      }
+      if (arg.equals("-im")
+          || arg.equals("--in-memory")
+          || arg.equals("-pl")
+          || arg.startsWith("-pl=")
+          || arg.equals("--project-locations")
+          || arg.startsWith("--project-locations=")
+          || arg.equals("--environments")
+          || arg.startsWith("--environments=")) {
+        System.setProperty(Const.HOP_CONFIG_IN_MEMORY, "Y");
+        return;
+      }
+    }
   }
 
   public void applySystemProperties() {

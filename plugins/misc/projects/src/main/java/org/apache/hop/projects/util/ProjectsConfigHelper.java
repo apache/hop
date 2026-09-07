@@ -53,15 +53,16 @@ import org.apache.hop.projects.project.ProjectConfig;
  */
 public class ProjectsConfigHelper {
 
-  private static final String[] CONFIG_CANDIDATES = {
-    ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME, "hop-project.config", "hop-config.json"
-  };
+  private static final String[] CONFIG_CANDIDATES = ProjectConfig.CONFIG_FILENAME_CANDIDATES;
 
   /**
    * Project names registered in this process via {@code --project-locations}. Used so a subcommand
    * mixin (for example hop-run) can enable a project that was registered on the root command.
    */
   private static final List<String> sessionRegisteredProjects = new CopyOnWriteArrayList<>();
+
+  private static volatile String lastEnabledProjectName;
+  private static volatile String lastEnabledEnvironmentName;
 
   /** Private constructor to prevent instantiation. */
   private ProjectsConfigHelper() {}
@@ -78,6 +79,24 @@ public class ProjectsConfigHelper {
   /** Clears the session list of dynamically registered projects (for tests). */
   public static void clearSessionRegisteredProjects() {
     sessionRegisteredProjects.clear();
+    lastEnabledProjectName = null;
+    lastEnabledEnvironmentName = null;
+  }
+
+  /**
+   * True when this process already enabled the same project and environment, so a later mixin can
+   * skip a second full enable.
+   */
+  public static boolean alreadyEnabled(String projectName, String environmentName) {
+    return StringUtils.equals(projectName, lastEnabledProjectName)
+        && StringUtils.equals(
+            StringUtils.defaultString(environmentName),
+            StringUtils.defaultString(lastEnabledEnvironmentName));
+  }
+
+  public static void markEnabled(String projectName, String environmentName) {
+    lastEnabledProjectName = projectName;
+    lastEnabledEnvironmentName = environmentName;
   }
 
   private static void rememberRegisteredProject(String projectName) {
@@ -193,10 +212,13 @@ public class ProjectsConfigHelper {
 
         String normalizedHome = normalizeProjectHome(locPart, variables);
         normalizedHome = resolveExportSubfolder(normalizedHome, projectName, variables);
-        String configFile =
-            (explicitConfigFile != null)
-                ? explicitConfigFile
-                : detectConfigFilename(normalizedHome, variables);
+        String configFile = explicitConfigFile;
+        if (configFile == null) {
+          configFile = detectConfigFilename(normalizedHome, variables);
+        }
+        if (configFile == null) {
+          configFile = ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+        }
 
         ProjectConfig pc = new ProjectConfig(projectName, normalizedHome, configFile);
         if (ProjectConfig.isArchiveUri(normalizedHome)) {
@@ -372,7 +394,7 @@ public class ProjectsConfigHelper {
     } catch (Exception e) {
       // Ignored
     }
-    return ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+    return null;
   }
 
   /**
@@ -565,48 +587,89 @@ public class ProjectsConfigHelper {
   }
 
   /**
+   * True when the home is an archive or a JSON-export layout (metadata.json / variables.json and no
+   * metadata folder). Regular projects with a {@code metadata/} folder are not treated as exports.
+   */
+  public static boolean isJsonExportHome(String projectHome, IVariables variables) {
+    if (StringUtils.isEmpty(projectHome)) {
+      return false;
+    }
+    if (ProjectConfig.isArchiveUri(projectHome)) {
+      return true;
+    }
+    try {
+      FileObject homeObj = HopVfs.getFileObject(projectHome, variables);
+      if (!homeObj.exists()) {
+        return false;
+      }
+      FileObject metadataDir = homeObj.resolveFile("metadata");
+      if (metadataDir.exists() && metadataDir.getType() == FileType.FOLDER) {
+        return false;
+      }
+      FileObject metadataJson = homeObj.resolveFile("metadata.json");
+      FileObject variablesJson = homeObj.resolveFile("variables.json");
+      return (metadataJson.exists() && metadataJson.isFile())
+          || (variablesJson.exists() && variablesJson.isFile());
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
    * Loads metadata and variables from project export files (metadata.json, variables.json) if
-   * present in the project home.
+   * present in a JSON-export or archive home.
    */
   public static void applyProjectExportFiles(
       ILogChannel log,
       String projectHome,
       IVariables variables,
       MultiMetadataProvider metadataProvider) {
-    if (StringUtils.isEmpty(projectHome)) {
+    applyProjectExportFiles(log, projectHome, variables, metadataProvider, true, true);
+  }
+
+  public static void applyProjectExportFiles(
+      ILogChannel log,
+      String projectHome,
+      IVariables variables,
+      MultiMetadataProvider metadataProvider,
+      boolean loadVariables,
+      boolean loadMetadata) {
+    if (StringUtils.isEmpty(projectHome) || (!loadVariables && !loadMetadata)) {
       return;
     }
     try {
       String realProjectHome = (variables != null) ? variables.resolve(projectHome) : projectHome;
+      if (!isJsonExportHome(realProjectHome, variables)) {
+        return;
+      }
       FileObject projectHomeObj = HopVfs.getFileObject(realProjectHome, variables);
       if (!projectHomeObj.exists()) {
         return;
       }
 
-      // Check for exported metadata.json
-      FileObject metadataJsonObj = projectHomeObj.resolveFile("metadata.json");
-      if (metadataJsonObj.exists() && metadataJsonObj.isFile()) {
-        try (InputStream in = HopVfs.getInputStream(metadataJsonObj)) {
-          String json = IOUtils.toString(in, StandardCharsets.UTF_8);
-          SerializableMetadataProvider exportedProvider = new SerializableMetadataProvider(json);
-          if (metadataProvider != null) {
-            metadataProvider.getProviders().add(exportedProvider);
+      if (loadMetadata && metadataProvider != null) {
+        FileObject metadataJsonObj = projectHomeObj.resolveFile("metadata.json");
+        if (metadataJsonObj.exists() && metadataJsonObj.isFile()) {
+          try (InputStream in = HopVfs.getInputStream(metadataJsonObj)) {
+            String json = IOUtils.toString(in, StandardCharsets.UTF_8);
+            metadataProvider.getProviders().add(new SerializableMetadataProvider(json));
+            logBasic(log, "Loaded exported metadata from: " + metadataJsonObj.getName().getURI());
           }
-          logBasic(log, "Loaded exported metadata from: " + metadataJsonObj.getName().getURI());
         }
       }
 
-      // Check for exported variables.json
-      FileObject variablesJsonObj = projectHomeObj.resolveFile("variables.json");
-      if (variablesJsonObj.exists() && variablesJsonObj.isFile() && variables != null) {
-        try (InputStream in = HopVfs.getInputStream(variablesJsonObj)) {
-          ObjectMapper mapper = new ObjectMapper();
-          Map<String, String> varMap =
-              mapper.readValue(in, new TypeReference<Map<String, String>>() {});
-          for (Map.Entry<String, String> entry : varMap.entrySet()) {
-            variables.setVariable(entry.getKey(), entry.getValue());
+      if (loadVariables && variables != null) {
+        FileObject variablesJsonObj = projectHomeObj.resolveFile("variables.json");
+        if (variablesJsonObj.exists() && variablesJsonObj.isFile()) {
+          try (InputStream in = HopVfs.getInputStream(variablesJsonObj)) {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, String> varMap =
+                mapper.readValue(in, new TypeReference<Map<String, String>>() {});
+            for (Map.Entry<String, String> entry : varMap.entrySet()) {
+              variables.setVariable(entry.getKey(), entry.getValue());
+            }
+            logBasic(log, "Loaded exported variables from: " + variablesJsonObj.getName().getURI());
           }
-          logBasic(log, "Loaded exported variables from: " + variablesJsonObj.getName().getURI());
         }
       }
     } catch (Exception e) {
@@ -628,8 +691,10 @@ public class ProjectsConfigHelper {
       char c = str.charAt(i);
       if (c == '\'' && !inDoubleQuote) {
         inSingleQuote = !inSingleQuote;
+        continue;
       } else if (c == '"' && !inSingleQuote) {
         inDoubleQuote = !inDoubleQuote;
+        continue;
       } else if (c == delimiter && !inSingleQuote && !inDoubleQuote) {
         tokens.add(current.toString().trim());
         current.setLength(0);

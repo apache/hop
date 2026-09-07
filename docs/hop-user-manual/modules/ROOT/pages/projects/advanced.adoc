@@ -193,10 +193,12 @@ hop --project-locations my-project=/path/to/project gui -j my-project -f pipelin
 * `name=/path/to/folder`
 * `name=/path/to/archive.zip` or `name=/path/to/archive.jar` (opened read-only through VFS)
 * `name=/path/to/folder:custom-config.json` when the project file is not `project-config.json`
-* a bare folder or archive (the project name is taken from the folder or archive name)
+* a bare folder or archive: if the folder itself is a project (`project-config.json` or `hop-project.config`), it is registered under the folder name. If it is a parent of several project folders, each child with a project config file is registered.
 
-When more than one project is listed, Hop enables the leaf project (a child that references a parent).
+When more than one project is listed or discovered, Hop enables the leaf project (a child that references a parent).
 Parent metadata is still inherited.
+
+A zip export may also contain `metadata.json` and `variables.json`. Those files are loaded only for archive or JSON-export layouts (no `metadata/` folder), not for a normal project that happens to contain them.
 
 Optional environment files for that process:
 

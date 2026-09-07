@@ -101,9 +101,8 @@ public class ProjectsUtil {
     //
     project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
 
-    // Apply variables from project export (variables.json) if present
     ProjectsConfigHelper.applyProjectExportFiles(
-        log, projectConfig.getProjectHome(), variables, null);
+        log, projectConfig.getProjectHome(), variables, null, true, false);
 
     // Re-bind the process-global two-way password encoder from project/environment variables
     // (HOP_PASSWORD_ENCODER_PLUGIN, HOP_AES_ENCODER_KEY / HOP_AES_ENCODER_KEY_FILE). This resets
@@ -134,17 +133,15 @@ public class ProjectsUtil {
     //
     MultiMetadataProvider metadataProvider =
         HopMetadataUtil.getStandardHopMetadataProvider(variables);
-    // Apply metadata from project export (metadata.json) if present
-    ProjectsConfigHelper.applyProjectExportFiles(
-        log, projectConfig.getProjectHome(), variables, metadataProvider);
-    // Also apply metadata from parent project if parent is a project export
     if (StringUtils.isNotEmpty(project.getParentProjectName())) {
       ProjectConfig parentPc = config.findProjectConfig(project.getParentProjectName());
       if (parentPc != null) {
         ProjectsConfigHelper.applyProjectExportFiles(
-            log, parentPc.getProjectHome(), variables, metadataProvider);
+            log, parentPc.getProjectHome(), variables, metadataProvider, false, true);
       }
     }
+    ProjectsConfigHelper.applyProjectExportFiles(
+        log, projectConfig.getProjectHome(), variables, metadataProvider, false, true);
     if (hasHopMetadataProvider != null) {
       hasHopMetadataProvider.setMetadataProvider(metadataProvider);
     }
@@ -208,6 +205,7 @@ public class ProjectsUtil {
         buildAttributesContext(config, projectConfig, projectName, environmentName, variables);
     ExtensionPointHandler.callExtensionPoint(
         log, variables, HopExtensionPoint.HopProjectEnvironmentAfterEnabled.id, attributesContext);
+    ProjectsConfigHelper.markEnabled(projectName, environmentName);
   }
 
   /**

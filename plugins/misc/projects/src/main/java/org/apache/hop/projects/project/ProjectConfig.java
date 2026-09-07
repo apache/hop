@@ -33,6 +33,11 @@ import org.apache.hop.projects.config.ProjectsConfig;
 
 public class ProjectConfig {
 
+  /** Project config filenames recognised besides the declared `configFilename`. */
+  public static final String[] CONFIG_FILENAME_CANDIDATES = {
+    ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME, "hop-project.config"
+  };
+
   /**
    * VFS schemes that provide read-only access to archive contents (Zip, Jar and Tar family). See
    * https://commons.apache.org/proper/commons-vfs/filesystems.html#Zip.2C_Jar_and_Tar
@@ -137,13 +142,7 @@ public class ProjectConfig {
       }
       FileObject configFile = actualHome.resolveFile(actualConfigFilename);
       if (!configFile.exists()) {
-        String[] candidates =
-            new String[] {
-              ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME,
-              "hop-project.config",
-              "hop-config.json"
-            };
-        for (String candidate : candidates) {
+        for (String candidate : CONFIG_FILENAME_CANDIDATES) {
           FileObject cand = actualHome.resolveFile(candidate);
           if (cand.exists()) {
             configFile = cand;

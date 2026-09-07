@@ -38,6 +38,7 @@ hop gui -e production -f long-running-test.hpl
 Relative filenames are resolved against the current directory, then against `{openvar}PROJECT_HOME{closevar}` once the project is enabled.
 
 The same `-j`, `-e` and `-f` options work with `hop-gui.sh` / `hop-gui.bat`.
+`--project-locations` and `--in-memory` are parsed by the `hop` command and are not available on `hop-gui.sh` / `hop-gui.bat`.
 
 .Usage
 [%collapsible]
