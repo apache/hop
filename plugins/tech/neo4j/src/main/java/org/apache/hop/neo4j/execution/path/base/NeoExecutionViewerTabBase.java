@@ -67,31 +67,50 @@ public abstract class NeoExecutionViewerTabBase {
   }
 
   protected String getPathToRootCypher() {
-    // Do we have a parent?  If not we can just return the cypher to the current execution node
-    //
-    if (StringUtils.isEmpty(viewer.getExecution().getParentId())) {
+    return buildPathToRootCypher(StringUtils.isNotEmpty(viewer.getExecution().getParentId()));
+  }
+
+  /**
+   * Cypher that walks from a child execution to the root parent using directed EXECUTES
+   * relationships. The cartesian {@code MATCH (top:Execution)} form is avoided because it does not
+   * scale on a busy logging graph and is a common timeout on Neo4j 5.
+   */
+  public static String buildPathToRootCypher(boolean hasParent) {
+    if (!hasParent) {
       return "MATCH(e:Execution {id: $executionId }) " + Const.CR + "RETURN e " + Const.CR;
-    } else {
-      return "MATCH(top:Execution), (child:Execution {id: $executionId }), p=shortestPath((top)-[:EXECUTES*]-(child)) "
-          + Const.CR
-          + "WHERE top.parentId IS NULL "
-          + Const.CR
-          + "RETURN p "
-          + Const.CR
-          + "ORDER BY size(RELATIONSHIPS(p)) DESC "
-          + Const.CR
-          + "LIMIT 10 "
-          + Const.CR;
     }
+    return "MATCH (child:Execution {id: $executionId }) "
+        + Const.CR
+        + "MATCH p = shortestPath((top:Execution)-[:EXECUTES*]->(child)) "
+        + Const.CR
+        + "WHERE top.parentId IS NULL "
+        + Const.CR
+        + "RETURN p "
+        + Const.CR
+        + "ORDER BY size(RELATIONSHIPS(p)) DESC "
+        + Const.CR
+        + "LIMIT 10 "
+        + Const.CR;
   }
 
   protected String getPathToFailedCypher() {
+    return buildPathToFailedCypher();
+  }
 
-    return "MATCH(top:Execution {id: $executionId }), (child:Execution), p=shortestPath((top)-[:EXECUTES*]-(child)) "
+  /**
+   * Cypher that walks from the current execution to failed leaf executions. The leaf predicate uses
+   * a pattern predicate rather than {@code size((n)-[:EXECUTES]->())}, which Neo4j 5 removed.
+   */
+  public static String buildPathToFailedCypher() {
+    return "MATCH (top:Execution {id: $executionId }) "
         + Const.CR
-        + "WHERE child.failed "
+        + "MATCH p = shortestPath((top)-[:EXECUTES*]->(child:Execution)) "
+        + Const.CR
+        + "WHERE child.failed = true "
         + Const.CR
         + "AND   child.id <> $executionId "
+        + Const.CR
+        + "AND   NOT (child)-[:EXECUTES]->() "
         + Const.CR
         + "RETURN p "
         + Const.CR
