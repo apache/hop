@@ -69,6 +69,7 @@ If the value type/format of the new row is not specified, the new field will use
 Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
 |Enclosure|Optional enclosure string. Delimiters inside a pair of enclosure characters are not treated as split points, and the enclosure characters are removed from the output values.
 For example with a comma (,) delimiter: ```hi,"hello, world","hey"``` becomes three rows using enclosure ```"```.
+Doubled enclosure characters inside a quoted value are treated as one literal enclosure. Trailing empty values are preserved, matching the behaviour without an enclosure. An unterminated enclosure is logged and the remainder of the field is kept as one value.
 This option is ignored when *Delimiter is a Regular Expression* is enabled.
 |Delimiter is a Regular Expression|The regular expression to match the delimiter.
 |New field name|The name of the new field.   

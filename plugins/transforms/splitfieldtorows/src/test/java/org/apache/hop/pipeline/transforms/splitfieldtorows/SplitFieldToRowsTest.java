@@ -21,13 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -69,7 +72,7 @@ class SplitFieldToRowsTest {
   }
 
   @Test
-  void interpretsNullDelimiterAsEmpty() throws Exception {
+  void interpretsNullDelimiterAsEmpty() {
     SplitFieldToRows transform =
         new SplitFieldToRows(
             transformMockHelper.transformMeta,
@@ -134,6 +137,52 @@ class SplitFieldToRowsTest {
   }
 
   @Test
+  void preservesTrailingEmptyValuesWithoutEnclosure() throws Exception {
+    List<Object[]> rows = executeSplit("a,b,,", ",", null, false);
+    assertEquals(List.of("a", "b", "", ""), values(rows));
+  }
+
+  @Test
+  void preservesTrailingEmptyValuesWithEnclosure() throws Exception {
+    List<Object[]> rows = executeSplit("a,b,,", ",", "\"", false);
+    assertEquals(List.of("a", "b", "", ""), values(rows));
+  }
+
+  @Test
+  void splitsLoneDelimiterIntoTwoEmptyValuesWithEnclosure() throws Exception {
+    List<Object[]> rows = executeSplit(",", ",", "\"", false);
+    assertEquals(List.of("", ""), values(rows));
+  }
+
+  @Test
+  void keepsRemainderAndLogsUnterminatedEnclosure() throws Exception {
+    List<Object[]> rows = executeSplit("a,\"b", ",", "\"", false);
+    assertEquals(List.of("a", "b"), values(rows));
+    verify(transformMockHelper.iLogChannel).logError(contains("Unterminated enclosure"));
+  }
+
+  @Test
+  void doesNotDropRowOnStrayEnclosure() throws Exception {
+    List<Object[]> rows = executeSplit("a\"b,c", ",", "\"", false);
+    assertEquals(List.of("ab,c"), values(rows));
+    verify(transformMockHelper.iLogChannel).logError(contains("Unterminated enclosure"));
+  }
+
+  @Test
+  void unescapesDoubledEnclosureInsideQuotedValue() throws Exception {
+    List<Object[]> rows = executeSplit("\"a,b\",\"c\"\"d\"", ",", "\"", false);
+    assertEquals(List.of("a,b", "c\"d"), values(rows));
+  }
+
+  @Test
+  void resolvesEnclosureFromVariable() throws Exception {
+    List<Object[]> rows =
+        executeSplit(
+            createMeta(",", "${ENCL}", false), "hi,\"hello, world\",\"hey\"", Map.of("ENCL", "\""));
+    assertEquals(List.of("hi", "hello, world", "hey"), values(rows));
+  }
+
+  @Test
   void includesResetRowNumbers() throws Exception {
     SplitFieldToRowsMeta meta = createMeta(",", "\"", false);
     meta.setIncludeRowNumber(true);
@@ -156,6 +205,11 @@ class SplitFieldToRowsTest {
   }
 
   private List<Object[]> executeSplit(SplitFieldToRowsMeta meta, String value) throws Exception {
+    return executeSplit(meta, value, Map.of());
+  }
+
+  private List<Object[]> executeSplit(
+      SplitFieldToRowsMeta meta, String value, Map<String, String> variables) throws Exception {
     SplitFieldToRowsData data = new SplitFieldToRowsData();
     when(transformMockHelper.transformMeta.getTransform()).thenReturn(meta);
 
@@ -167,6 +221,7 @@ class SplitFieldToRowsTest {
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
+    variables.forEach(transform::setVariable);
     transform.init();
 
     RowMeta input = new RowMeta();
