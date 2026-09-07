@@ -66,6 +66,15 @@ public class DatabaseWorkbenchViews {
     DatabaseWorkbenchDialog.open(hopGui);
   }
 
+  /** True when the floating Database window is already open. */
+  public static boolean isDialogOpen(HopGui hopGui) {
+    if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+      return false;
+    }
+    Object existing = hopGui.getShell().getData(DatabaseWorkbenchDialog.SHELL_DATA_KEY);
+    return existing instanceof DatabaseWorkbenchDialog dialog && dialog.isOpen();
+  }
+
   /** Open or focus the Database tab in the bottom dock. */
   public static void openDock(HopGui hopGui) {
     if (hopGui == null) {

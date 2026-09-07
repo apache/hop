@@ -32,11 +32,18 @@ public class HopGuiDatabaseWorkbenchHost implements IDatabaseWorkbenchHost {
   private final HopGui hopGui;
   private final BooleanSupplier alive;
   private final Runnable onActivate;
+  private final Shell dialogShell;
 
   public HopGuiDatabaseWorkbenchHost(HopGui hopGui, BooleanSupplier alive, Runnable onActivate) {
+    this(hopGui, alive, onActivate, null);
+  }
+
+  public HopGuiDatabaseWorkbenchHost(
+      HopGui hopGui, BooleanSupplier alive, Runnable onActivate, Shell dialogShell) {
     this.hopGui = hopGui;
     this.alive = alive;
     this.onActivate = onActivate;
+    this.dialogShell = dialogShell;
   }
 
   @Override
@@ -46,6 +53,9 @@ public class HopGuiDatabaseWorkbenchHost implements IDatabaseWorkbenchHost {
 
   @Override
   public Shell getShell() {
+    if (dialogShell != null && !dialogShell.isDisposed()) {
+      return dialogShell;
+    }
     return hopGui.getShell();
   }
 

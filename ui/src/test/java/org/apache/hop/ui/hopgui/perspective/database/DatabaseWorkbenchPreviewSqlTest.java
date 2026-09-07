@@ -65,4 +65,18 @@ class DatabaseWorkbenchPreviewSqlTest {
     assertEquals(
         "SELECT * FROM t", DatabaseWorkbench.previewSelectSql(meta, variables, null, "t", 1000));
   }
+
+  @Test
+  void previewSelectSqlUsesPrefixLimitClause() {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
+    IVariables variables = mock(IVariables.class);
+    when(meta.getQuotedSchemaTableCombination(any(), eq("dbo"), eq("mytable")))
+        .thenReturn("dbo.mytable");
+    when(meta.getLimitClausePrefix(1000)).thenReturn(" TOP 1000");
+    when(meta.getLimitClause(1000)).thenReturn("");
+
+    assertEquals(
+        "SELECT TOP 1000 * FROM dbo.mytable",
+        DatabaseWorkbench.previewSelectSql(meta, variables, "dbo", "mytable", 1000));
+  }
 }

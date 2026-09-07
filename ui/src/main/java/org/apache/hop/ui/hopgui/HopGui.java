@@ -134,6 +134,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
@@ -351,6 +352,7 @@ public class HopGui
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
+  private IHopFileTypeHandler capabilityFileTypeHandler;
   private org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock terminalPanel;
 
   public org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock getTerminalPanel() {
@@ -2337,6 +2339,8 @@ public class HopGui
       boolean running,
       boolean paused) {
 
+    this.capabilityFileTypeHandler = handler;
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
@@ -2403,6 +2407,11 @@ public class HopGui
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
+    if (capabilityFileTypeHandler instanceof DatabaseSqlEditorTab tab
+        && tab.getControl() != null
+        && !tab.getControl().isDisposed()) {
+      return tab;
+    }
     return getActivePerspective().getActiveFileTypeHandler();
   }
 

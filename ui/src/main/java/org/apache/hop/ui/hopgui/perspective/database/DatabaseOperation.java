@@ -74,6 +74,7 @@ public class DatabaseOperation {
         // Best-effort; the worker still sees isCancelled().
       }
     }
+    detachDatabase();
   }
 
   public boolean isCancelled() {
@@ -87,12 +88,18 @@ public class DatabaseOperation {
   public void complete() {
     status = cancelled ? Status.CANCELLED : Status.DONE;
     endTime = System.currentTimeMillis();
+    detachDatabase();
   }
 
   public void fail(String message) {
     status = cancelled ? Status.CANCELLED : Status.FAILED;
     errorMessage = message;
     endTime = System.currentTimeMillis();
+    detachDatabase();
+  }
+
+  void detachDatabase() {
+    database.set(null);
   }
 
   public long elapsedMillis() {

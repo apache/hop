@@ -32,6 +32,7 @@ import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
@@ -49,6 +50,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
@@ -242,21 +244,35 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
                 host.asyncExec(
                     () -> {
                       closeSqlEditorTabs();
+                      operationsPanel.cancelAll();
+                      operationsPanel.clearAll();
                       reloadConnections();
-                      DatabaseSqlTabMemory.restore(this);
+                      if (DatabaseSqlTabMemory.isOwner(this)) {
+                        DatabaseSqlTabMemory.restore(this);
+                      }
                     }),
             HopGuiEvents.ProjectActivated.name());
 
     addDisposeListener(
         e -> {
+          boolean wasOwner = DatabaseSqlTabMemory.isOwner(this);
           DatabaseSqlTabMemory.saveNow(this);
           operationsPanel.cancelAll();
+          DatabaseSqlTabMemory.unregister(this);
+          if (wasOwner) {
+            DatabaseSqlTabMemory.restoreIntoRemaining(this);
+          }
           host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId);
           host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId + "-project");
         });
 
+    DatabaseSqlTabMemory.register(this);
     reloadConnections();
     DatabaseSqlTabMemory.restore(this);
+  }
+
+  HopGui hopGui() {
+    return host.getHopGui();
   }
 
   public DatabaseSqlFileType getSqlFileType() {
@@ -967,14 +983,16 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   }
 
   /**
-   * {@code SELECT * FROM schema.table} plus the dialect's limit clause ({@link
-   * DatabaseMeta#getLimitClause(int)}).
+   * {@code SELECT * FROM schema.table} plus the dialect's row limit. Some databases put the clause
+   * after {@code SELECT} ({@link DatabaseMeta#getLimitClausePrefix(int)}); others append it ({@link
+   * DatabaseMeta#getLimitClause(int)}). Matches {@code Database.getFirstRows}.
    */
   static String previewSelectSql(
       DatabaseMeta meta, IVariables variables, String schemaName, String tableName, int rowLimit) {
     String qualified = meta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
-    String limit = Const.NVL(meta.getLimitClause(rowLimit), "");
-    return "SELECT * FROM " + qualified + limit;
+    String prefix = rowLimit > 0 ? Const.NVL(meta.getLimitClausePrefix(rowLimit), "") : "";
+    String limit = rowLimit > 0 ? Const.NVL(meta.getLimitClause(rowLimit), "") : "";
+    return "SELECT" + prefix + " * FROM " + qualified + limit;
   }
 
   @GuiToolbarElement(
@@ -1005,7 +1023,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       image = "ui/images/detach-panel.svg",
       separator = true)
   public void openFloatingWindow() {
-    DatabaseSqlTabMemory.saveNow(this);
+    if (DatabaseWorkbenchViews.isDialogOpen(host.getHopGui())) {
+      DatabaseWorkbenchViews.openDialog(host.getHopGui());
+      return;
+    }
+    DatabaseSqlTabMemory.handOff(this);
     DatabaseWorkbenchViews.openDialog(host.getHopGui());
   }
 
@@ -1015,12 +1037,19 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       toolTip = "i18n::DatabasePerspective.Toolbar.Dock.Tooltip",
       image = "ui/images/dock-panel.svg")
   public void openInBottomDock() {
-    DatabaseSqlTabMemory.saveNow(this);
+    if (DatabaseWorkbenchViews.isDockOpen(host.getHopGui())) {
+      DatabaseWorkbenchViews.openDock(host.getHopGui());
+      return;
+    }
+    DatabaseSqlTabMemory.handOff(this);
     DatabaseWorkbenchViews.openDock(host.getHopGui());
   }
 
   public DatabaseSqlEditorTab openSqlTab(
       DatabaseMeta meta, String sql, String filename, String buffer, boolean dirty) {
+    if (!restoringSqlTabs) {
+      DatabaseSqlTabMemory.ensureOwner(this);
+    }
     if (!Utils.isEmpty(filename)) {
       for (TabItemHandler item : items) {
         if (item.getTypeHandler() instanceof DatabaseSqlEditorTab tab
@@ -1049,7 +1078,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         }
       }
     } else {
-      tab.setInitialText(Const.NVL(sql, ""));
+      String text = buffer != null ? buffer : Const.NVL(sql, "");
+      tab.applyBuffer(text, dirty);
     }
     tab.setTabItem(tabItem);
     tabItem.setControl(tab.getControl());
@@ -1263,6 +1293,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
             work.run(operation);
             operation.complete();
           } catch (Exception e) {
+            LogChannel.UI.logError(description, e);
             operation.fail(Const.NVL(e.getMessage(), e.toString()));
           }
           host.asyncExec(operationsPanel::refresh);
@@ -1322,13 +1353,26 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     items.remove(item);
     IHopFileTypeHandler handler = item.getTypeHandler();
     if (handler != null && handler.getFilename() != null) {
-      host.getHopGui().fileRefreshDelegate.remove(handler.getFilename());
+      host.getHopGui().fileRefreshDelegate.remove(handler.getFilename(), handler);
     }
     if (item.getTabItem() != null && !item.getTabItem().isDisposed()) {
+      Control content = item.getTabItem().getControl();
+      if (content != null && !content.isDisposed()) {
+        content.dispose();
+      }
       item.getTabItem().dispose();
     }
     host.updateGui(getActiveFileTypeHandler());
     schedulePersistSqlTabs();
+  }
+
+  boolean canCloseSqlTabs() {
+    for (TabItemHandler item : new ArrayList<>(items)) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab tab && !tab.isCloseable()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

@@ -479,6 +479,14 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  public String getLimitClausePrefix(int nrRows) {
+    if (databaseDialect != null) {
+      return databaseDialect.getLimitClausePrefix(nrRows);
+    }
+    return super.getLimitClausePrefix(nrRows);
+  }
+
+  @Override
   public String getSelectCountStatement(String tableName) {
     if (databaseDialect != null) {
       return databaseDialect.getSelectCountStatement(tableName);

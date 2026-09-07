@@ -122,7 +122,7 @@ public class DatabaseWorkbenchDialog {
     shell.setLayout(layout);
 
     HopGuiDatabaseWorkbenchHost host =
-        new HopGuiDatabaseWorkbenchHost(hopGui, this::isOpen, this::activate);
+        new HopGuiDatabaseWorkbenchHost(hopGui, this::isOpen, this::activate, shell);
     workbench = new DatabaseWorkbench(shell, host);
     workbench.setLayoutData(new FormDataBuilder().fullSize().result());
 
@@ -130,6 +130,14 @@ public class DatabaseWorkbenchDialog {
     keyHandler.addParentObjectToHandle(workbench);
     hopGui.replaceKeyboardShortcutListeners(workbench, keyHandler);
     hopGui.replaceKeyboardShortcutListeners(shell, keyHandler);
+
+    shell.addListener(
+        SWT.Close,
+        event -> {
+          if (workbench != null && !workbench.isDisposed() && !workbench.canCloseSqlTabs()) {
+            event.doit = false;
+          }
+        });
 
     shell.addDisposeListener(
         e -> {

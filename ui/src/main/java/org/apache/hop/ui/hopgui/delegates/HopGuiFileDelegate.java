@@ -59,6 +59,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -271,7 +272,10 @@ public class HopGuiFileDelegate {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE)) {
-        boolean removed = perspective.remove(typeHandler);
+        boolean removed =
+            typeHandler instanceof DatabaseSqlEditorTab sqlTab
+                ? sqlTab.requestClose()
+                : perspective.remove(typeHandler);
         if (removed) {
           hopGui.auditDelegate.writeLastOpenFiles();
         }

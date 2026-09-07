@@ -523,6 +523,20 @@ class DatabaseTest {
   }
 
   @Test
+  void disconnectClearsCachedDatabaseMetaData() throws Exception {
+    Database db = new Database(log, variables, meta);
+    Connection connection = mockConnection(dbMetaData);
+    db.setConnection(connection);
+    assertNotNull(db.getDatabaseMetaData());
+
+    db.disconnect();
+
+    Field field = Database.class.getDeclaredField("dbmd");
+    field.setAccessible(true);
+    assertNull(field.get(db));
+  }
+
+  @Test
   void testGetTablenames() throws SQLException, HopDatabaseException {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
