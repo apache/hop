@@ -37,6 +37,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler;
+import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.CompiledFormula;
 import org.apache.hop.pipeline.transforms.formula.util.FormulaParser;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
@@ -48,6 +50,8 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
   private FormulaPoi[] poi;
   private List<String>[] formulaFieldLists;
+  private CompiledFormula[] fastCompiled;
+  private List<String>[] fastFieldLists;
   private final HashMap<String, String> replaceMap = new HashMap<>();
 
   @Override
@@ -134,6 +138,24 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
               .map(FormulaMetaFunction::getFormula)
               .map(f -> getFormulaFieldList(resolve(f)))
               .toArray(List[]::new);
+
+      // compile each formula for the fast path when it is within the supported subset: the
+      // resolved formula goes through the same variable resolution and field replacement as the
+      // regular POI path, so both evaluate exactly the same expression.
+      //
+      int formulaCount = meta.getFormulas().size();
+      fastCompiled = new CompiledFormula[formulaCount];
+      fastFieldLists = new List[formulaCount];
+      for (int i = 0; i < formulaCount; i++) {
+        FormulaMetaFunction fn = meta.getFormulas().get(i);
+        String resolved = resolve(fn.getFormula());
+        String effective = applyReplaceMap(resolved, replaceMap);
+        List<String> effectiveFields = getFormulaFieldList(effective);
+        fastFieldLists[i] = effectiveFields;
+        fastCompiled[i] =
+            FastFormulaCompiler.compile(
+                effective, effectiveFields, data.outputRowMeta, fn.isSetNa());
+      }
     }
 
     int tempIndex = getInputRowMeta().size();
@@ -146,70 +168,78 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     for (int i = 0; i < meta.getFormulas().size(); i++) {
       Object outputValue = null;
       FormulaMetaFunction formula = meta.getFormulas().get(i);
-      FormulaParser parser =
-          new FormulaParser(
-              formula,
-              data.outputRowMeta,
-              outputRowData,
-              poi[i],
-              variables,
-              replaceMap,
-              formulaFieldLists[i]);
+      int outputValueType = formula.getValueType();
+      CompiledFormula compiled = fastCompiled[i];
       try {
-        CellValue cellValue = parser.getFormulaValue();
-        CellType cellType = cellValue.getCellType();
+        if (compiled != null && compiled.fastPath()) {
+          // Fast path: no POI workbook or worksheet, just run the compiled plain-Java tree.
+          Object[] args = buildFastArguments(fastFieldLists[i], outputRowData, formula.isSetNa());
+          Object formulaResult = compiled.function().apply(args);
+          outputValue = mapFastResult(formulaResult, outputValueType, i, formula);
+        } else {
+          FormulaParser parser =
+              new FormulaParser(
+                  formula,
+                  data.outputRowMeta,
+                  outputRowData,
+                  poi[i],
+                  variables,
+                  replaceMap,
+                  formulaFieldLists[i]);
+          CellValue cellValue = parser.getFormulaValue();
+          CellType cellType = cellValue.getCellType();
 
-        int outputValueType = formula.getValueType();
-        switch (cellType) {
-          case BLANK:
-            // should never happen.
-            break;
-          case NUMERIC:
-            outputValue = cellValue.getNumberValue();
-            switch (outputValueType) {
-              case IValueMeta.TYPE_NUMBER:
-                data.returnType[i] = FormulaData.RETURN_TYPE_NUMBER;
-                formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
-                break;
-              case IValueMeta.TYPE_INTEGER:
-                data.returnType[i] = FormulaData.RETURN_TYPE_INTEGER;
-                formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
-                break;
-              case IValueMeta.TYPE_BIGNUMBER:
-                data.returnType[i] = FormulaData.RETURN_TYPE_BIGDECIMAL;
-                formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
-                break;
-              case IValueMeta.TYPE_DATE:
-                outputValue = DateUtil.getJavaDate(cellValue.getNumberValue());
-                data.returnType[i] = FormulaData.RETURN_TYPE_DATE;
-                formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
-                break;
-              case IValueMeta.TYPE_TIMESTAMP:
-                outputValue =
-                    Timestamp.from(DateUtil.getJavaDate(cellValue.getNumberValue()).toInstant());
-                data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
-                formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
-                break;
-              default:
-                break;
-            }
-            // get cell value
-            break;
-          case BOOLEAN:
-            outputValue = cellValue.getBooleanValue();
-            data.returnType[i] = FormulaData.RETURN_TYPE_BOOLEAN;
-            formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_BOOLEAN);
-            break;
-          case STRING:
-            outputValue = cellValue.getStringValue();
-            data.returnType[i] = FormulaData.RETURN_TYPE_STRING;
-            formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_STRING);
-            break;
-          case ERROR:
-            outputValue = getErrorValue(cellValue, formula);
-            break;
-          default:
-            break;
+          switch (cellType) {
+            case BLANK:
+              // should never happen.
+              break;
+            case NUMERIC:
+              outputValue = cellValue.getNumberValue();
+              switch (outputValueType) {
+                case IValueMeta.TYPE_NUMBER:
+                  data.returnType[i] = FormulaData.RETURN_TYPE_NUMBER;
+                  formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
+                  break;
+                case IValueMeta.TYPE_INTEGER:
+                  data.returnType[i] = FormulaData.RETURN_TYPE_INTEGER;
+                  formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
+                  break;
+                case IValueMeta.TYPE_BIGNUMBER:
+                  data.returnType[i] = FormulaData.RETURN_TYPE_BIGDECIMAL;
+                  formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
+                  break;
+                case IValueMeta.TYPE_DATE:
+                  outputValue = DateUtil.getJavaDate(cellValue.getNumberValue());
+                  data.returnType[i] = FormulaData.RETURN_TYPE_DATE;
+                  formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
+                  break;
+                case IValueMeta.TYPE_TIMESTAMP:
+                  outputValue =
+                      Timestamp.from(DateUtil.getJavaDate(cellValue.getNumberValue()).toInstant());
+                  data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
+                  formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
+                  break;
+                default:
+                  break;
+              }
+              // get cell value
+              break;
+            case BOOLEAN:
+              outputValue = cellValue.getBooleanValue();
+              data.returnType[i] = FormulaData.RETURN_TYPE_BOOLEAN;
+              formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_BOOLEAN);
+              break;
+            case STRING:
+              outputValue = cellValue.getStringValue();
+              data.returnType[i] = FormulaData.RETURN_TYPE_STRING;
+              formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_STRING);
+              break;
+            case ERROR:
+              outputValue = getErrorValue(cellValue, formula);
+              break;
+            default:
+              break;
+          }
         }
 
         int realIndex = (data.replaceIndex[i] < 0) ? tempIndex++ : data.replaceIndex[i];
@@ -362,5 +392,97 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     IValueMeta target = data.outputRowMeta.getValueMeta(i);
     IValueMeta actual = ValueMetaFactory.guessValueMetaInterface(formulaResult);
     return target.convertData(actual, formulaResult);
+  }
+
+  /**
+   * Applies the "replace field" mapping to a formula, mirroring what {@link FormulaParser} does so
+   * the fast path evaluates the exact same expression. Formula fields are substituted by their
+   * replacement column, e.g. {@code [aliasAmount]} becomes {@code [realAmount]}.
+   *
+   * @param formula the variable-resolved formula
+   * @param replacements the field to replacement mapping
+   * @return the formula with replacements applied
+   */
+  private static String applyReplaceMap(String formula, HashMap<String, String> replacements) {
+    String effective = formula;
+    for (String field : getFormulaFieldList(formula)) {
+      String replacement = replacements.get(field);
+      if (replacement != null) {
+        effective = effective.replace("[" + field + "]", "[" + replacement + "]");
+      }
+    }
+    return effective;
+  }
+
+  /**
+   * Builds the argument array handed to a fast-path function in the order of its field list. A null
+   * field bound with the "#N/A" option is passed as the {@link FastFormulaCompiler#NA} marker so
+   * the functions can tell a blank cell from an error cell, exactly like the POI path.
+   */
+  private Object[] buildFastArguments(List<String> fieldList, Object[] sourceRow, boolean setNa) {
+    Object[] args = new Object[fieldList.size()];
+    for (int i = 0; i < fieldList.size(); i++) {
+      int fieldIndex = data.outputRowMeta.indexOfValue(fieldList.get(i));
+      Object value = fieldIndex < 0 ? null : sourceRow[fieldIndex];
+      args[i] = (value == null && setNa) ? FastFormulaCompiler.NA : value;
+    }
+    return args;
+  }
+
+  /**
+   * Maps a plain-Java fast-path result to the output value and {@code returnType} the way the POI
+   * {@code CellType} switch would, so both paths produce identical output. Numbers become numeric
+   * cells, booleans become boolean cells and strings become string cells; a null result (a blank or
+   * {@code #N/A} cell) stays null.
+   *
+   * <p>Replicating the switch rather than refactoring the POI branch keeps the existing behavior
+   * untouched; a null {@code returnType} of {@code -1} makes {@link #getReturnValue} return null.
+   */
+  private Object mapFastResult(
+      Object formulaResult, int outputValueType, int i, FormulaMetaFunction formula) {
+    if (formulaResult == null) {
+      data.returnType[i] = -1;
+      return null;
+    }
+    if (formulaResult instanceof Number number) {
+      double cellNumberValue = number.doubleValue();
+      switch (outputValueType) {
+        case IValueMeta.TYPE_NUMBER:
+          data.returnType[i] = FormulaData.RETURN_TYPE_NUMBER;
+          formula.setNeedDataConversion(false);
+          return cellNumberValue;
+        case IValueMeta.TYPE_INTEGER:
+          data.returnType[i] = FormulaData.RETURN_TYPE_INTEGER;
+          formula.setNeedDataConversion(true);
+          return cellNumberValue;
+        case IValueMeta.TYPE_BIGNUMBER:
+          data.returnType[i] = FormulaData.RETURN_TYPE_BIGDECIMAL;
+          formula.setNeedDataConversion(true);
+          return cellNumberValue;
+        case IValueMeta.TYPE_DATE:
+          data.returnType[i] = FormulaData.RETURN_TYPE_DATE;
+          formula.setNeedDataConversion(true);
+          return DateUtil.getJavaDate(cellNumberValue);
+        case IValueMeta.TYPE_TIMESTAMP:
+          data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
+          formula.setNeedDataConversion(true);
+          return Timestamp.from(DateUtil.getJavaDate(cellNumberValue).toInstant());
+        default:
+          data.returnType[i] = -1;
+          return cellNumberValue;
+      }
+    }
+    if (formulaResult instanceof Boolean booleanValue) {
+      data.returnType[i] = FormulaData.RETURN_TYPE_BOOLEAN;
+      formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_BOOLEAN);
+      return booleanValue;
+    }
+    if (formulaResult instanceof String stringValue) {
+      data.returnType[i] = FormulaData.RETURN_TYPE_STRING;
+      formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_STRING);
+      return stringValue;
+    }
+    data.returnType[i] = -1;
+    return null;
   }
 }
