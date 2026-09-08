@@ -211,7 +211,7 @@ public class ImporterDialog extends BaseTransformDialog {
     fdlNeo4jVersion.top = new FormAttachment(lastControl, margin);
     wlNeo4jVersion.setLayoutData(fdlNeo4jVersion);
     wNeo4jVersion = new CCombo(wComposite, SWT.BORDER | SWT.READ_ONLY);
-    wNeo4jVersion.setItems(new String[] {"4.x", "5.x"});
+    wNeo4jVersion.setItems(new String[] {"4.x", "5.x", "2025.x"});
     PropsUi.setLook(wNeo4jVersion);
     wNeo4jVersion.addModifyListener(lsMod);
     FormData fdNeo4jVersion = new FormData();
@@ -621,7 +621,9 @@ public class ImporterDialog extends BaseTransformDialog {
     wBaseFolder.setText(Const.NVL(input.getBaseFolder(), ""));
 
     String neo4jVersion = Const.NVL(input.getNeo4jVersion(), "4.x");
-    if (neo4jVersion.equals("5.x") || neo4jVersion.startsWith("5.")) {
+    if (neo4jVersion.startsWith("2025") || neo4jVersion.startsWith("2026")) {
+      wNeo4jVersion.setText("2025.x");
+    } else if (neo4jVersion.equals("5.x") || neo4jVersion.startsWith("5.")) {
       wNeo4jVersion.setText("5.x");
     } else {
       wNeo4jVersion.setText("4.x");

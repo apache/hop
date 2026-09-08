@@ -149,7 +149,10 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
     // Determine Neo4j version (default to 4.x for backward compatibility)
     String neo4jVersion =
         StringUtils.isNotEmpty(meta.getNeo4jVersion()) ? meta.getNeo4jVersion() : "4.x";
-    boolean isNeo4j5 = "5.x".equals(neo4jVersion) || neo4jVersion.startsWith("5.");
+    boolean isNeo4j5 =
+        neo4jVersion.startsWith("5")
+            || neo4jVersion.startsWith("2025")
+            || neo4jVersion.startsWith("2026");
 
     // Build command based on Neo4j version
     if (isNeo4j5) {

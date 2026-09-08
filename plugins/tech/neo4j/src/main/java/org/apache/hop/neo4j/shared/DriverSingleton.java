@@ -37,7 +37,7 @@ public class DriverSingleton {
     driverMap = new HashMap<>();
   }
 
-  public static DriverSingleton getInstance() {
+  public static synchronized DriverSingleton getInstance() {
     if (singleton == null) {
       singleton = new DriverSingleton();
     }
@@ -47,27 +47,26 @@ public class DriverSingleton {
   public static Driver getDriver(ILogChannel log, IVariables variables, NeoConnection connection)
       throws HopConfigException {
     DriverSingleton ds = getInstance();
-
     String key = getDriverKey(connection, variables);
-
-    Driver driver = ds.driverMap.get(key);
-    if (driver == null) {
-      driver = connection.getDriver(log, variables);
-      ds.driverMap.put(key, driver);
+    synchronized (ds.driverMap) {
+      Driver driver = ds.driverMap.get(key);
+      if (driver == null) {
+        driver = connection.getDriver(log, variables);
+        ds.driverMap.put(key, driver);
+      }
+      return driver;
     }
-
-    return driver;
   }
 
   public static void closeAll() {
     DriverSingleton ds = getInstance();
-
-    List<String> keys = new ArrayList<>(ds.getDriverMap().keySet());
-    for (String key : keys) {
-      synchronized (ds.getDriverMap()) {
-        Driver driver = ds.driverMap.get(key);
-        driver.close();
-        ds.driverMap.remove(key);
+    synchronized (ds.driverMap) {
+      List<String> keys = new ArrayList<>(ds.driverMap.keySet());
+      for (String key : keys) {
+        Driver driver = ds.driverMap.remove(key);
+        if (driver != null) {
+          driver.close();
+        }
       }
     }
   }

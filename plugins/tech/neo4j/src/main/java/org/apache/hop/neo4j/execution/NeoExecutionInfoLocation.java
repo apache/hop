@@ -232,11 +232,31 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public void close() throws HopException {
+    Exception first = null;
     try {
-      session.close();
-      driver.close();
+      if (session != null) {
+        session.close();
+      }
     } catch (Exception e) {
-      throw new HopException("Error closing Neo4j execution information location", e);
+      first = e;
+    } finally {
+      session = null;
+    }
+    try {
+      if (driver != null) {
+        driver.close();
+      }
+    } catch (Exception e) {
+      if (first == null) {
+        first = e;
+      } else {
+        first.addSuppressed(e);
+      }
+    } finally {
+      driver = null;
+    }
+    if (first != null) {
+      throw new HopException("Error closing Neo4j execution information location", first);
     }
   }
 
@@ -247,7 +267,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public void unBuffer(String executionId) {
-    // There is nothing to remove from a buffer or cache.
+    NeoLocationCache.remove(executionId);
   }
 
   /** Simply show the DDL to create the indexes */
@@ -265,7 +285,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     addIndex(cypher, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
     addIndex(cypher, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
     addIndex(cypher, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
-    addIndex(cypher, "idx_execution_metric_id", EL_EXECUTION, EP_ID, EP_NAME, EP_COPY_NR);
+    addIndex(
+        cypher,
+        "idx_execution_metric_id",
+        CL_EXECUTION_METRIC,
+        CP_ID,
+        CP_NAME,
+        CP_COPY_NR,
+        CP_METRIC_KEY);
     addIndex(cypher, "idx_execution_data_id", DL_EXECUTION_DATA, DP_PARENT_ID, DP_OWNER_ID);
     addIndex(
         cypher,
@@ -348,9 +375,17 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       }
 
       addIndex(neo4jIndex, "idx_execution_id", EL_EXECUTION, EP_ID);
+      addIndex(neo4jIndex, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
       addIndex(neo4jIndex, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
       addIndex(neo4jIndex, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
-      addIndex(neo4jIndex, "idx_execution_metric_id", EL_EXECUTION, EP_ID, EP_NAME, EP_COPY_NR);
+      addIndex(
+          neo4jIndex,
+          "idx_execution_metric_id",
+          CL_EXECUTION_METRIC,
+          CP_ID,
+          CP_NAME,
+          CP_COPY_NR,
+          CP_METRIC_KEY);
       addIndex(neo4jIndex, "idx_execution_data_id", DL_EXECUTION_DATA, DP_PARENT_ID, DP_OWNER_ID);
       addIndex(
           neo4jIndex,
@@ -423,9 +458,12 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void registerExecution(Execution execution) throws HopException {
     synchronized (this) {
       try {
-        assert execution.getName() != null : "Please register executions with a name";
-        assert execution.getExecutionType() != null
-            : "Please register executions with an execution type";
+        if (StringUtils.isEmpty(execution.getName())) {
+          throw new HopException("Please register executions with a name");
+        }
+        if (execution.getExecutionType() == null) {
+          throw new HopException("Please register executions with an execution type");
+        }
 
         session.executeWrite(transaction -> registerNeo4jExecution(transaction, execution));
       } catch (Exception e) {
@@ -762,9 +800,12 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void updateExecutionState(ExecutionState executionState) throws HopException {
     synchronized (this) {
       try {
-        assert executionState.getName() != null : "Please update execution states with a name";
-        assert executionState.getExecutionType() != null
-            : "Please update execution states with an execution type";
+        if (StringUtils.isEmpty(executionState.getName())) {
+          throw new HopException("Please update execution states with a name");
+        }
+        if (executionState.getExecutionType() == null) {
+          throw new HopException("Please update execution states with an execution type");
+        }
 
         session.executeWrite(transaction -> updateNeo4jExecutionState(transaction, executionState));
       } catch (Exception e) {
@@ -798,14 +839,13 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
           // Save all the metrics in this map in there...
           //
           for (String metricKey : metric.getMetrics().keySet()) {
-            Map<String, Object> metricKeys =
-                Map.of(
-                    CP_ID, state.getId(),
-                    CP_NAME, metric.getComponentName(),
-                    CP_COPY_NR, metric.getComponentCopy(),
-                    CP_METRIC_KEY, metricKey);
-            CypherCreateBuilder metricBuilder =
-                CypherCreateBuilder.of()
+            Map<String, Object> metricKeys = new HashMap<>();
+            metricKeys.put(CP_ID, state.getId());
+            metricKeys.put(CP_NAME, Const.NVL(metric.getComponentName(), ""));
+            metricKeys.put(CP_COPY_NR, Const.NVL(metric.getComponentCopy(), "0"));
+            metricKeys.put(CP_METRIC_KEY, metricKey);
+            CypherMergeBuilder metricBuilder =
+                CypherMergeBuilder.of()
                     .withLabelAndKeys(CL_EXECUTION_METRIC, metricKeys)
                     .withValue(CP_METRIC_VALUE, metric.getMetrics().get(metricKey));
             execute(transaction, metricBuilder);
@@ -813,20 +853,16 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 CypherRelationshipBuilder.of()
                     .withMatch(EL_EXECUTION, "e", EP_ID, state.getId())
                     .withMatch(CL_EXECUTION_METRIC, "m", metricKeys)
-                    .withCreate("e", "m", R_HAS_METRIC);
+                    .withMerge("e", "m", R_HAS_METRIC);
             execute(transaction, relationshipBuilder);
           }
         }
       }
 
-      // Transaction is automatically committed by executeWrite
+      NeoLocationCache.store(state);
       return true;
     } catch (Exception e) {
-      // Transaction is automatically rolled back by executeWrite on exception
       throw new HopRuntimeException("Error updating the state of an execution in Neo4j", e);
-    } finally {
-      // Update the cache
-      NeoLocationCache.store(state);
     }
   }
 
@@ -1113,8 +1149,20 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   private boolean registerNeo4jData(TransactionContext transaction, ExecutionData data) {
     try {
-      assert data != null : "no execution data provided";
-      assert data.getExecutionType() != null : "execution data has no type";
+      if (data == null) {
+        throw new HopRuntimeException("no execution data provided");
+      }
+      if (data.getExecutionType() == null) {
+        throw new HopRuntimeException("execution data has no type");
+      }
+      if (StringUtils.isEmpty(data.getParentId()) || StringUtils.isEmpty(data.getOwnerId())) {
+        throw new HopRuntimeException(
+            "Execution data is missing parentId or ownerId (parentId="
+                + data.getParentId()
+                + ", ownerId="
+                + data.getOwnerId()
+                + ")");
+      }
 
       // We'll not cache this data as it can be a lot.
 
@@ -1175,6 +1223,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       for (String setKey : data.getDataSets().keySet()) {
         RowBuffer rowBuffer = data.getDataSets().get(setKey);
         ExecutionDataSetMeta setMeta = data.getSetMetaData().get(setKey);
+        if (setMeta == null) {
+          log.logError("Skipping execution data set '" + setKey + "': no metadata");
+          continue;
+        }
         saveNeo4jRowsAndMeta(
             transaction, data.getParentId(), data.getOwnerId(), rowBuffer, setMeta);
       }
@@ -1195,8 +1247,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       ExecutionDataSetMeta setMeta) {
 
     try {
+      if (rowBuffer == null || rowBuffer.getRowMeta() == null) {
+        log.logError(
+            "Skipping execution data set without row metadata: "
+                + (setMeta == null ? "?" : setMeta.getSetKey()));
+        return;
+      }
       IRowMeta rowMeta = rowBuffer.getRowMeta();
-      String rowMetaJson = rowMeta == null ? null : JsonRowMeta.toJson(rowMeta);
+      String rowMetaJson = JsonRowMeta.toJson(rowMeta);
 
       // Save the Execution Data Set node
       //
@@ -1730,12 +1788,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public String findParentId(String childId) throws HopException {
     try {
-      for (String id : getExecutionIds(true, 100)) {
-        ExecutionState executionState = getExecutionState(id);
-        List<String> childIds = executionState.getChildIds();
-        if (childIds != null && childIds.contains(childId)) {
-          return id;
-        }
+      Execution child = getExecution(childId);
+      if (child != null) {
+        return child.getParentId();
       }
       return null;
     } catch (Exception e) {
