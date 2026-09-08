@@ -27,6 +27,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.RowPreviewSupport;
 import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -187,9 +188,7 @@ public class DatabaseResultsPanel extends Composite {
       IValueMeta valueMeta = rowMeta.getValueMeta(i);
       columnInfos[i] =
           new ColumnInfo(valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
-      columnInfos[i].setValueMeta(valueMeta);
-      columnInfos[i].setReadOnly(true);
-      columnInfos[i].setImage(GuiResource.getInstance().getImage(valueMeta));
+      RowPreviewSupport.applyColumnMeta(columnInfos[i], valueMeta);
     }
 
     TableView view =
@@ -206,6 +205,9 @@ public class DatabaseResultsPanel extends Composite {
     view.setShortenDisplayedValues(true);
     view.setSortable(true);
     view.setReadonly(true);
+    if (rowMeta != null) {
+      RowPreviewSupport.installCellTooltips(view, rowMeta);
+    }
 
     if (result.rows != null && rowMeta != null) {
       int lineNr = 0;
@@ -220,7 +222,7 @@ public class DatabaseResultsPanel extends Composite {
         for (int c = 0; c < rowMeta.size(); c++) {
           String display;
           try {
-            display = rowMeta.getValueMeta(c).getString(row[c]);
+            display = RowPreviewSupport.formatCell(rowMeta.getValueMeta(c), row[c]);
           } catch (HopValueException | ArrayIndexOutOfBoundsException e) {
             display = null;
           }

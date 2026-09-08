@@ -18,8 +18,6 @@
 package org.apache.hop.ui.core.dialog;
 
 import java.util.List;
-import java.util.Objects;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
@@ -35,7 +33,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -57,9 +54,6 @@ import org.eclipse.swt.widgets.TableItem;
 public final class ShowRowsDialog {
 
   private static final Class<?> PKG = ShowRowsDialog.class;
-
-  private static final int MAX_BINARY_STRING_PREVIEW_SIZE =
-      PreviewRowsDialog.MAX_BINARY_STRING_PREVIEW_SIZE;
 
   private static final boolean AVOID_BINARY_IN_HEX =
       Const.toBoolean(
@@ -131,7 +125,7 @@ public final class ShowRowsDialog {
 
     tableView = buildTableView(margin, messageLabel);
     populateRows();
-    setupCellTooltip();
+    RowPreviewSupport.installCellTooltips(tableView, rowMeta);
 
     BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());
   }
@@ -142,12 +136,7 @@ public final class ShowRowsDialog {
       IValueMeta valueMeta = rowMeta.getValueMeta(i);
       columns[i] =
           new ColumnInfo(valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
-      columns[i].setToolTip(formatColumnMetaTooltip(valueMeta));
-      columns[i].setValueMeta(valueMeta);
-      columns[i].setImage(GuiResource.getInstance().getImage(valueMeta));
-      // Read-only: the grid gives such a column a view-only inline editor with an expand icon, so
-      // the full value stays selectable in place and can be opened in the multi-line viewer.
-      columns[i].setReadOnly(true);
+      RowPreviewSupport.applyColumnMeta(columns[i], valueMeta);
     }
 
     TableView view =
@@ -208,20 +197,7 @@ public final class ShowRowsDialog {
       IValueMeta valueMeta = rowMeta.getValueMeta(column);
       String displayValue;
       try {
-        if (valueMeta.isBinary()) {
-          byte[] bytes = valueMeta.getBinary(row[column]);
-          if (bytes == null) {
-            displayValue = null;
-          } else {
-            displayValue =
-                AVOID_BINARY_IN_HEX ? valueMeta.getString(bytes) : Hex.encodeHexString(bytes);
-            if (displayValue != null && displayValue.length() > MAX_BINARY_STRING_PREVIEW_SIZE) {
-              displayValue = displayValue.substring(0, MAX_BINARY_STRING_PREVIEW_SIZE);
-            }
-          }
-        } else {
-          displayValue = valueMeta.getString(row[column]);
-        }
+        displayValue = RowPreviewSupport.formatCell(valueMeta, row[column], AVOID_BINARY_IN_HEX);
       } catch (HopValueException | ArrayIndexOutOfBoundsException e) {
         new LogChannel(PKG).logError("Unable to format cell value", e);
         displayValue = null;
@@ -247,81 +223,7 @@ public final class ShowRowsDialog {
     shell.dispose();
   }
 
-  /**
-   * Hovering a cell shows column metadata in a tooltip: name, type, length, precision. Selecting a
-   * cell is handled by the grid itself: a read-only column gets a view-only inline editor holding
-   * the full value, with an expand icon for the multi-line viewer.
-   */
-  private void setupCellTooltip() {
-    tableView.table.addListener(
-        SWT.MouseMove,
-        event -> {
-          int dataColumn = dataColumnAt(new Point(event.x, event.y));
-          String tip =
-              dataColumn < 0 ? null : formatColumnMetaTooltip(rowMeta.getValueMeta(dataColumn));
-          if (!Objects.equals(tip, tableView.table.getToolTipText())) {
-            tableView.table.setToolTipText(tip);
-          }
-        });
-  }
-
-  /**
-   * Build a multi-line tooltip describing a column: name, type, and optional length / precision /
-   * origin.
-   */
   static String formatColumnMetaTooltip(IValueMeta valueMeta) {
-    if (valueMeta == null) {
-      return null;
-    }
-    StringBuilder tip = new StringBuilder();
-    tip.append(
-        BaseMessages.getString(
-            PKG, "ShowRowsDialog.CellTooltip.Name", Const.NVL(valueMeta.getName(), "")));
-    tip.append(Const.CR);
-    tip.append(
-        BaseMessages.getString(
-            PKG, "ShowRowsDialog.CellTooltip.Type", Const.NVL(valueMeta.getTypeDesc(), "")));
-    if (valueMeta.getLength() > 0) {
-      tip.append(Const.CR);
-      tip.append(
-          BaseMessages.getString(
-              PKG, "ShowRowsDialog.CellTooltip.Length", Integer.toString(valueMeta.getLength())));
-    }
-    if (valueMeta.getPrecision() > 0) {
-      tip.append(Const.CR);
-      tip.append(
-          BaseMessages.getString(
-              PKG,
-              "ShowRowsDialog.CellTooltip.Precision",
-              Integer.toString(valueMeta.getPrecision())));
-    }
-    if (!Utils.isEmpty(valueMeta.getOrigin())) {
-      tip.append(Const.CR);
-      tip.append(
-          BaseMessages.getString(PKG, "ShowRowsDialog.CellTooltip.Origin", valueMeta.getOrigin()));
-    }
-    return tip.toString();
-  }
-
-  /**
-   * The 0-based data column under a table-relative point, or -1 when the point isn't over a data
-   * cell (the row-number column, empty space, or a column outside the row metadata).
-   */
-  private int dataColumnAt(Point point) {
-    if (tableView == null || tableView.isDisposed() || rowMeta == null) {
-      return -1;
-    }
-    TableItem item = tableView.table.getItem(point);
-    if (item == null) {
-      return -1;
-    }
-    // Column 0 is the row-number column; data columns start at 1. Find the one under the pointer.
-    for (int i = 1; i < tableView.table.getColumnCount(); i++) {
-      if (item.getBounds(i).contains(point)) {
-        int dataColumn = i - 1;
-        return dataColumn < rowMeta.size() ? dataColumn : -1;
-      }
-    }
-    return -1;
+    return RowPreviewSupport.formatColumnMetaTooltip(valueMeta);
   }
 }

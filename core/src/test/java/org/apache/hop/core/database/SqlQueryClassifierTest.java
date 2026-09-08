@@ -46,6 +46,16 @@ class SqlQueryClassifierTest {
   @Test
   void selectIntoIsNotAQuery() {
     assertFalse(SqlQueryClassifier.isQuery("SELECT * INTO dest FROM src"));
+    assertFalse(SqlQueryClassifier.isQuery("SELECT id FROM customers INTO @last_id"));
+    assertFalse(
+        SqlQueryClassifier.isQuery("SELECT id, name FROM customers INTO OUTFILE '/tmp/c.csv'"));
+    assertFalse(SqlQueryClassifier.isQuery("WITH s AS (SELECT 1) SELECT * FROM s INTO @x"));
+  }
+
+  @Test
+  void intoInsideAStringOrSubqueryDoesNotHideASelect() {
+    assertTrue(SqlQueryClassifier.isQuery("SELECT * FROM t WHERE note = 'insert into x'"));
+    assertTrue(SqlQueryClassifier.isQuery("SELECT * FROM (SELECT * INTO dest FROM src) s"));
   }
 
   @Test

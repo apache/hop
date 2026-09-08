@@ -38,6 +38,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -46,6 +47,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -429,13 +431,26 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
                     .append(Const.CR);
               }
             }
+          } catch (Exception e) {
+            if (!messages.isEmpty() && messages.charAt(messages.length() - 1) != '\n') {
+              messages.append(Const.CR);
+            }
+            messages
+                .append(BaseMessages.getString(PKG, "DatabasePerspective.SqlTab.Failed"))
+                .append(": ")
+                .append(Const.NVL(e.getMessage(), e.toString()));
+            throw e;
+          } finally {
+            String messageText = messages.toString();
+            host.asyncExec(
+                () -> {
+                  if (control.isDisposed() || resultsPanel.isDisposed()) {
+                    return;
+                  }
+                  resultsPanel.show(queryResults, messageText);
+                  showResults();
+                });
           }
-          String messageText = messages.toString();
-          host.asyncExec(
-              () -> {
-                resultsPanel.show(queryResults, messageText);
-                showResults();
-              });
         });
   }
 
@@ -634,6 +649,19 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   }
 
   @Override
+  public void reload() {
+    if (Utils.isEmpty(filename) || changed) {
+      return;
+    }
+    try {
+      loadFromVfs();
+      host.updateGui(this);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Unable to reload SQL file '" + filename + "'", e);
+    }
+  }
+
+  @Override
   public void start() {}
 
   @Override
@@ -701,7 +729,17 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
       int answer = messageDialog.open();
       if ((answer & SWT.YES) != 0) {
         if (Utils.isEmpty(filename)) {
-          host.getHopGui().fileDelegate.fileSaveAs();
+          String newFilename =
+              BaseDialog.presentFileDialog(
+                  true,
+                  host.getShell(),
+                  FILE_TYPE.getFilterExtensions(),
+                  FILE_TYPE.getFilterNames(),
+                  true);
+          if (newFilename == null) {
+            return false;
+          }
+          saveAs(getVariables().resolve(newFilename));
           return !changed;
         }
         save();
@@ -721,6 +759,10 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   @Override
   public void close() {
     workbench.remove(this);
+  }
+
+  public boolean requestClose() {
+    return workbench.remove(this);
   }
 
   @Override

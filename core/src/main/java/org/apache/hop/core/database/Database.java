@@ -624,10 +624,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     openQueryStatement = null;
     openQueryRowMeta = null;
     if (connection == null) {
+      dbmd = null;
       return; // Nothing to do...
     }
     try {
       if (connection.isClosed()) {
+        dbmd = null;
         return; // Nothing to do...
       }
     } catch (SQLException ex) {
@@ -723,6 +725,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.logError(Const.getStackTracker(hde));
       }
       statementQueryTimeoutSeconds = 0;
+      dbmd = null;
     }
   }
 
@@ -738,6 +741,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         connection.close();
         connection = null;
       }
+      dbmd = null;
 
       if (log.isDetailed()) {
         log.logDetailed("Connection to database closed!");

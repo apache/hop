@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.perspective.database;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.Getter;
 import org.apache.hop.core.Const;
@@ -33,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -55,7 +57,10 @@ public class DatabaseOperationsPanel extends Composite {
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "DatabaseOperationsPanel-Toolbar";
   public static final String TOOLBAR_ITEM_KILL = "DatabaseOperations-Toolbar-10000-Kill";
+  public static final String TOOLBAR_ITEM_CLEAR = "DatabaseOperations-Toolbar-10005-Clear";
   public static final String TOOLBAR_ITEM_MINIMIZE = "DatabaseOperations-Toolbar-10010-Minimize";
+
+  static final int MAX_FINISHED_OPERATIONS = 50;
 
   public static final String GUI_PLUGIN_STATUS_TOOLBAR_PARENT_ID =
       "DatabaseOperationsStatus-Toolbar";
@@ -97,6 +102,19 @@ public class DatabaseOperationsPanel extends Composite {
     table.setLayoutData(
         new FormDataBuilder().top(toolBar, PropsUi.getMargin()).bottom().fullWidth().result());
     table.addListener(SWT.Selection, e -> updateKillEnablement());
+    table.addListener(
+        SWT.MouseMove,
+        e -> {
+          TableItem item = table.getItem(new Point(e.x, e.y));
+          String tip = "";
+          if (item != null && item.getData() instanceof DatabaseOperation operation) {
+            tip =
+                Const.NVL(operation.getErrorMessage(), Const.NVL(formatStatusLine(operation), ""));
+          }
+          if (!Objects.equals(tip, table.getToolTipText())) {
+            table.setToolTipText(tip);
+          }
+        });
 
     addColumn(
         BaseMessages.getString(PKG, "DatabasePerspective.Operations.Column.Description"), 280);
@@ -159,8 +177,8 @@ public class DatabaseOperationsPanel extends Composite {
 
   public void addOperation(DatabaseOperation operation) {
     operations.add(0, operation);
-    TableItem item = new TableItem(table, SWT.NONE, 0);
-    fillItem(item, operation);
+    trimFinished(operations, MAX_FINISHED_OPERATIONS);
+    rebuildTable();
     table.setSelection(0);
     updateStatusLine();
     updateKillEnablement();
@@ -177,6 +195,48 @@ public class DatabaseOperationsPanel extends Composite {
     updateStatusLine();
     updateKillEnablement();
     armTimer();
+  }
+
+  public void clearFinished() {
+    operations.removeIf(DatabaseOperation::isFinished);
+    rebuildTable();
+    updateStatusLine();
+    updateKillEnablement();
+  }
+
+  public void clearAll() {
+    operations.clear();
+    rebuildTable();
+    updateStatusLine();
+    updateKillEnablement();
+  }
+
+  private void rebuildTable() {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    table.removeAll();
+    for (DatabaseOperation operation : operations) {
+      TableItem item = new TableItem(table, SWT.NONE);
+      fillItem(item, operation);
+    }
+  }
+
+  static void trimFinished(List<DatabaseOperation> operations, int maxFinished) {
+    if (operations == null || maxFinished < 0) {
+      return;
+    }
+    int finished = 0;
+    for (int i = 0; i < operations.size(); i++) {
+      if (!operations.get(i).isFinished()) {
+        continue;
+      }
+      finished++;
+      if (finished > maxFinished) {
+        operations.remove(i);
+        i--;
+      }
+    }
   }
 
   private void refreshElapsed() {
@@ -258,6 +318,10 @@ public class DatabaseOperationsPanel extends Composite {
     }
     line.append(" - ").append(statusLabel(operation));
     line.append(" - ").append(formatElapsed(operation.elapsedMillis()));
+    if (operation.getStatus() == DatabaseOperation.Status.FAILED
+        && !Utils.isEmpty(operation.getErrorMessage())) {
+      line.append(" - ").append(operation.getErrorMessage());
+    }
     return line.toString();
   }
 
@@ -283,6 +347,15 @@ public class DatabaseOperationsPanel extends Composite {
       operation.cancel();
       refresh();
     }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_CLEAR,
+      toolTip = "i18n::DatabasePerspective.Operations.Clear.Tooltip",
+      image = "ui/images/clear.svg")
+  public void clearFinishedFromToolbar() {
+    clearFinished();
   }
 
   @GuiToolbarElement(

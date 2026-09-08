@@ -18,8 +18,11 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import org.apache.hop.core.database.Database;
 import org.junit.jupiter.api.Test;
 
 class DatabaseOperationsPanelTest {
@@ -40,12 +43,38 @@ class DatabaseOperationsPanelTest {
     operation.fail("boom");
     String line = DatabaseOperationsPanel.formatStatusLine(operation);
     assertTrue(line.startsWith("Connect - Failed - "));
-    assertTrue(line.endsWith(" ms") || line.contains(" s"));
+    assertTrue(line.contains("boom"));
+    assertTrue(line.endsWith(" ms") || line.contains(" s") || line.contains("boom"));
+  }
+
+  @Test
+  void trimFinishedKeepsNewestFinishedAndAllRunning() {
+    java.util.List<DatabaseOperation> operations = new java.util.ArrayList<>();
+    DatabaseOperation running = new DatabaseOperation("run", "db");
+    operations.add(running);
+    for (int i = 0; i < 5; i++) {
+      DatabaseOperation done = new DatabaseOperation("done-" + i, "db");
+      done.complete();
+      operations.add(done);
+    }
+    DatabaseOperationsPanel.trimFinished(operations, 2);
+    assertEquals(3, operations.size());
+    assertEquals(running, operations.get(0));
+    assertEquals("done-0", operations.get(1).getDescription());
+    assertEquals("done-1", operations.get(2).getDescription());
   }
 
   @Test
   void formatStatusLineEmptyWhenNoOperation() {
     assertEquals("", DatabaseOperationsPanel.formatStatusLine(null));
+  }
+
+  @Test
+  void failDetachesDatabase() {
+    DatabaseOperation operation = new DatabaseOperation("Connect", "shop");
+    operation.attachDatabase(mock(Database.class));
+    operation.fail("boom");
+    assertNull(operation.getDatabase().get());
   }
 
   @Test

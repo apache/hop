@@ -29,7 +29,9 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Remembers SQL editor tabs across the Database perspective, floating window and bottom dock, and
@@ -52,13 +54,27 @@ final class DatabaseSqlTabMemory {
 
   static final int MAX_SQL_CHARS = 512_000;
   private static final int SAVE_DEBOUNCE_MS = 400;
+  static final String SESSION_KEY = DatabaseSqlTabMemory.class.getName();
 
   private DatabaseSqlTabMemory() {}
 
   static void restore(DatabaseWorkbench workbench) {
-    if (workbench == null || workbench.isDisposed() || workbench.hasSqlEditorTabs()) {
+    if (workbench == null || workbench.isDisposed()) {
       return;
     }
+    register(workbench);
+    if (workbench.hasSqlEditorTabs()) {
+      claim(workbench);
+      return;
+    }
+    Session existing = session(workbench);
+    if (existing != null
+        && existing.owner != null
+        && existing.owner != workbench
+        && !existing.owner.isDisposed()) {
+      handOff(existing.owner);
+    }
+    claim(workbench);
     try {
       String group = HopNamespace.getNamespace();
       AuditList list = AuditManager.getActive().retrieveList(group, AUDIT_TYPE);
@@ -115,7 +131,7 @@ final class DatabaseSqlTabMemory {
   }
 
   static void save(DatabaseWorkbench workbench) {
-    if (workbench == null || workbench.isDisposed()) {
+    if (workbench == null || workbench.isDisposed() || !isOwner(workbench)) {
       return;
     }
     try {
@@ -138,6 +154,121 @@ final class DatabaseSqlTabMemory {
     } catch (Exception e) {
       LogChannel.UI.logError("Unable to save Database SQL editor tabs", e);
     }
+  }
+
+  static Session session(DatabaseWorkbench workbench) {
+    if (workbench == null) {
+      return null;
+    }
+    HopGui hopGui = workbench.hopGui();
+    if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+      return null;
+    }
+    Shell shell = hopGui.getShell();
+    Object data = shell.getData(SESSION_KEY);
+    if (data instanceof Session existing) {
+      return existing;
+    }
+    Session created = new Session();
+    shell.setData(SESSION_KEY, created);
+    return created;
+  }
+
+  static void register(DatabaseWorkbench workbench) {
+    Session session = session(workbench);
+    if (session == null || workbench == null) {
+      return;
+    }
+    if (!session.live.contains(workbench)) {
+      session.live.add(workbench);
+    }
+  }
+
+  static void unregister(DatabaseWorkbench workbench) {
+    Session session = session(workbench);
+    if (session == null || workbench == null) {
+      return;
+    }
+    session.live.remove(workbench);
+    if (session.owner == workbench) {
+      session.owner = null;
+    }
+  }
+
+  static boolean isOwner(DatabaseWorkbench workbench) {
+    Session session = session(workbench);
+    if (session == null) {
+      return true;
+    }
+    return session.owner == workbench;
+  }
+
+  static void claim(DatabaseWorkbench workbench) {
+    Session session = session(workbench);
+    if (session != null) {
+      session.owner = workbench;
+    }
+  }
+
+  static void release(DatabaseWorkbench workbench) {
+    Session session = session(workbench);
+    if (session != null && session.owner == workbench) {
+      session.owner = null;
+    }
+  }
+
+  static void cancelScheduledSave(DatabaseWorkbench workbench) {
+    if (workbench == null || workbench.isDisposed()) {
+      return;
+    }
+    Display display = workbench.getDisplay();
+    if (display != null && !display.isDisposed()) {
+      display.timerExec(-1, workbench.persistSqlTabsRunnable);
+    }
+  }
+
+  /**
+   * Persist this workbench's tabs if it owns them, close the SQL editors without writing again, and
+   * drop ownership so another host can restore the snapshot.
+   */
+  static void handOff(DatabaseWorkbench workbench) {
+    if (workbench == null || workbench.isDisposed()) {
+      return;
+    }
+    cancelScheduledSave(workbench);
+    saveNow(workbench);
+    workbench.closeSqlEditorTabs();
+    release(workbench);
+  }
+
+  static void ensureOwner(DatabaseWorkbench workbench) {
+    if (workbench == null || workbench.isDisposed() || isOwner(workbench)) {
+      return;
+    }
+    Session session = session(workbench);
+    DatabaseWorkbench previous = session == null ? null : session.owner;
+    if (previous != null && previous != workbench && !previous.isDisposed()) {
+      handOff(previous);
+    }
+    claim(workbench);
+  }
+
+  static void restoreIntoRemaining(DatabaseWorkbench leaving) {
+    Session session = session(leaving);
+    if (session == null) {
+      return;
+    }
+    for (DatabaseWorkbench live : new ArrayList<>(session.live)) {
+      if (live != leaving && live != null && !live.isDisposed()) {
+        restore(live);
+        return;
+      }
+    }
+  }
+
+  static final class Session {
+    final List<DatabaseWorkbench> live = new ArrayList<>();
+    DatabaseWorkbench owner;
   }
 
   static List<Snapshot> snapshotsFromAudit(AuditList list, AuditStateMap stateMap) {
