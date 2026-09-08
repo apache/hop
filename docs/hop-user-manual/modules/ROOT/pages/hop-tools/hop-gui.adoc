@@ -47,7 +47,7 @@ The same `-j`, `-e` and `-f` options work with `hop-gui.sh` / `hop-gui.bat`.
 .Output of help
 [source,bash]
 ----
-Usage: hop gui [-hV] [-im] [-e=<environmentOption>] [-f=<filename>]
+Usage: hop gui [-hV] [-ime] [-e=<environmentOption>] [-f=<filename>]
                [-j=<projectOption>]
                [--environment-conf-files=<environmentConfigFiles>[,
                <environmentConfigFiles>...]]... [--environments=<environments>[,
@@ -58,7 +58,7 @@ The Hop GUI
                           The name of the lifecycle environment to use
   -f, --file=<filename>   The filename of the workflow or pipeline to open
   -h, --help              Show this help message and exit.
-      -im, --in-memory    Keep configuration in memory without persisting to
+      -ime, --in-memory   Keep configuration in memory without persisting to
                             hop-config.json
   -j, --project=<projectOption>
                           The name of the project to use
@@ -76,7 +76,7 @@ The available options are listed in more detail in the table below:
 |`-e`|`--environment`|The name of the lifecycle environment to enable. The project name is taken from that environment, so you do not need `-j` as well. See xref:projects/projects-environments.adoc[Projects and Environments].
 |`-f`|`--file`|The filename of the workflow or pipeline to open. Relative paths are resolved against the current directory, then `{openvar}PROJECT_HOME{closevar}`.
 |`-h`|`--help`|Displays this help message and quits.
-|`-im`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`.
+|`-ime`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`.
 |`-j`|`--project`|The name of the project to enable. Not needed when `-e` is set.
 |`-pl`|`--project-locations`|Comma-separated project locations to register for this process only (`name=/path` or a zip/jar). See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json].
 ||`--environments`|Comma-separated environment definitions (`name=[project:]file1;file2`) registered in memory for this process.

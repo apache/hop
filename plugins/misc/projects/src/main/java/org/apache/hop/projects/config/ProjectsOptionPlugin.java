@@ -72,7 +72,7 @@ public class ProjectsOptionPlugin implements IConfigOptions {
   protected String[] environmentConfigFiles = null;
 
   @CommandLine.Option(
-      names = {"-im", "--in-memory"},
+      names = {"-ime", "--in-memory"},
       description = "Keep configuration in memory without persisting to hop-config.json")
   protected boolean inMemory = false;
 

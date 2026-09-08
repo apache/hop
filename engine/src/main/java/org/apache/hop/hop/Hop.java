@@ -210,7 +210,7 @@ public class Hop {
       if (arg == null) {
         continue;
       }
-      if (arg.equals("-im")
+      if (arg.equals("-ime")
           || arg.equals("--in-memory")
           || arg.equals("-pl")
           || arg.startsWith("-pl=")
