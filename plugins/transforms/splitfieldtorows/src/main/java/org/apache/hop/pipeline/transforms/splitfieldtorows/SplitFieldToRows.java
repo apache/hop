@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import org.apache.hop.core.Const;
@@ -98,8 +100,8 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
     if (meta.isIncludeRowNumber() && meta.isResetRowNumber()) {
       data.rownr = 1L;
     }
-    // use -1 for include all strings.
-    String[] splitStrings = data.delimiterPattern.split(originalString, -1);
+
+    String[] splitStrings = splitSource(originalString);
     for (String string : splitStrings) {
       Object[] outputRow = RowDataUtil.createResizedCopy(rowData, data.outputRowMeta.size());
       outputRow[rowMeta.size()] = string;
@@ -112,6 +114,56 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
     }
 
     return true;
+  }
+
+  /**
+   * Split using enclosure-aware parsing when an enclosure is set and the delimiter is not a regular
+   * expression. Otherwise keep the historical Pattern.split behavior, including trailing empty
+   * values.
+   */
+  private String[] splitSource(String originalString) {
+    if (Utils.isEmpty(data.enclosure) || meta.isIsDelimiterRegex()) {
+      // use -1 to include trailing empty strings
+      return data.delimiterPattern.split(originalString, -1);
+    }
+    return splitWithEnclosure(originalString);
+  }
+
+  /**
+   * Split on the delimiter, ignoring delimiters inside enclosures. Doubled enclosures inside an
+   * enclosed value are kept as one literal enclosure. Trailing empty values are preserved, matching
+   * the non-enclosure behaviour.
+   */
+  private String[] splitWithEnclosure(String source) {
+    String delimiter = data.delimiter;
+    String enclosure = data.enclosure;
+    List<String> values = new ArrayList<>();
+    StringBuilder value = new StringBuilder();
+    boolean inEnclosure = false;
+    int index = 0;
+    while (index < source.length()) {
+      if (source.startsWith(enclosure, index)) {
+        if (inEnclosure && source.startsWith(enclosure, index + enclosure.length())) {
+          value.append(enclosure);
+          index += 2 * enclosure.length();
+        } else {
+          inEnclosure = !inEnclosure;
+          index += enclosure.length();
+        }
+      } else if (!inEnclosure && !delimiter.isEmpty() && source.startsWith(delimiter, index)) {
+        values.add(value.toString());
+        value.setLength(0);
+        index += delimiter.length();
+      } else {
+        value.append(source.charAt(index));
+        index++;
+      }
+    }
+    if (inEnclosure) {
+      logError(BaseMessages.getString(PKG, "SplitFieldToRows.Log.UnterminatedEnclosure", source));
+    }
+    values.add(value.toString());
+    return values.toArray(new String[0]);
   }
 
   @Override
@@ -144,11 +196,12 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       data.rownr = 1L;
 
       try {
-        String delimiter = Const.nullToEmpty(meta.getDelimiter());
+        data.delimiter = resolve(Const.nullToEmpty(meta.getDelimiter()));
+        data.enclosure = resolve(Const.NVL(meta.getEnclosure(), ""));
         if (meta.isIsDelimiterRegex()) {
-          data.delimiterPattern = Pattern.compile(resolve(delimiter));
+          data.delimiterPattern = Pattern.compile(data.delimiter);
         } else {
-          data.delimiterPattern = Pattern.compile(Pattern.quote(resolve(delimiter)));
+          data.delimiterPattern = Pattern.compile(Pattern.quote(data.delimiter));
         }
       } catch (PatternSyntaxException pse) {
         logError(pse.getMessage());

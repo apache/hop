@@ -30,6 +30,8 @@ public class SplitFieldToRowsData extends BaseTransformData implements ITransfor
   public IValueMeta splitMeta;
   public long rownr;
   public Pattern delimiterPattern;
+  public String delimiter;
+  public String enclosure;
 
   public SplitFieldToRowsData() {
     super();
