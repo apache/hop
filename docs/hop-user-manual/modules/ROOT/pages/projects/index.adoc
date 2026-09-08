@@ -47,6 +47,8 @@ TIP: project variables should only be used when you need variables on the projec
 
 TIP: Project configurations are stored in hop-config.json, which is read from `hop/config` by default. Use the `HOP_CONFIG_FOLDER` operating system variable to store your Hop configuration in a folder outside your Hop folder. This will let you keep your project list if you switch Hop installations or upgrade to a newer Hop version.
 
+TIP: To run or open a project folder without adding it to `hop-config.json`, use `--project-locations`. See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json].
+
 TIP: In Hop Web Docker, keep *project homes* on a host folder or volume as well. The image's `default` and `samples` projects are only a starter layout. See xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
 
 Projects can inherit metadata and variables from a parent project.

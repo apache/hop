@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ConfigPlugin {
+  String CATEGORY_ROOT = "root";
   String CATEGORY_CONFIG = "config";
   String CATEGORY_RUN = "run";
   String CATEGORY_SEARCH = "search";
@@ -36,6 +37,7 @@ public @interface ConfigPlugin {
   String CATEGORY_DOC = "doc";
   String CATEGORY_PYTHON = "python";
   String CATEGORY_NAMING = "naming";
+  String CATEGORY_GUI = "gui";
 
   String id();
 

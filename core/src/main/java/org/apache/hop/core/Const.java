@@ -161,6 +161,14 @@ public class Const {
           "Set this variable to 'Y' to automatically create config file when it's missing.")
   public static final String HOP_AUTO_CREATE_CONFIG = "HOP_AUTO_CREATE_CONFIG";
 
+  /** The system variable to keep the Hop configuration in memory without persisting it to disk */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "N",
+      description =
+          "Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk.")
+  public static final String HOP_CONFIG_IN_MEMORY = "HOP_CONFIG_IN_MEMORY";
+
   /**
    * The system environment variable pointing to the alternative location for the Hop metadata
    * folder

@@ -29,6 +29,7 @@ import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.config.ProjectsGuiOptionPlugin;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.project.Project;
@@ -38,6 +39,7 @@ import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiCommandLine;
 import org.eclipse.swt.SWT;
 
 @ExtensionPoint(
@@ -61,23 +63,34 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
       if (ProjectsConfigSingleton.getConfig().isEnabled()) {
         logChannelInterface.logBasic("Projects enabled");
 
-        // Build list of candidate projects to try: last used first, then default.
-        // If -project= is present in URL/command line args, prefer that project first.
+        // Build list of candidate projects to try: CLI/URL first, then last used, then default.
         // Defensive: try multiple recent projects so one failing does not block startup.
         //
         List<String> candidateNames = new ArrayList<>();
-        for (String arg : hopGui.getCommandLineArguments()) {
-          if (arg != null && arg.startsWith("-project=")) {
-            String projectName = arg.substring("-project=".length()).trim();
-            if (StringUtils.isNotEmpty(projectName)
-                && config.findProjectConfig(projectName) != null
-                && !candidateNames.contains(projectName)) {
-              candidateNames.add(projectName);
-              logChannelInterface.logBasic(
-                  "Using project from URL/arguments: '" + projectName + "'");
-            }
-            break;
+        String cliEnvironment =
+            firstNonEmpty(
+                ProjectsGuiOptionPlugin.getRequestedEnvironmentName(),
+                HopGuiCommandLine.findOption(
+                    hopGui.getCommandLineArguments(), HopGuiCommandLine.ENVIRONMENT_OPTION_NAMES));
+        String cliProject =
+            firstNonEmpty(
+                ProjectsGuiOptionPlugin.getRequestedProjectName(),
+                HopGuiCommandLine.findOption(
+                    hopGui.getCommandLineArguments(), HopGuiCommandLine.PROJECT_OPTION_NAMES));
+        LifecycleEnvironment cliLifecycleEnvironment = null;
+        if (StringUtils.isNotEmpty(cliEnvironment)) {
+          cliLifecycleEnvironment = config.findEnvironment(cliEnvironment);
+          if (cliLifecycleEnvironment != null
+              && StringUtils.isEmpty(cliProject)
+              && StringUtils.isNotEmpty(cliLifecycleEnvironment.getProjectName())) {
+            cliProject = cliLifecycleEnvironment.getProjectName();
           }
+        }
+        if (StringUtils.isNotEmpty(cliProject)
+            && config.findProjectConfig(cliProject) != null
+            && !candidateNames.contains(cliProject)) {
+          candidateNames.add(cliProject);
+          logChannelInterface.logBasic("Using project from command line: '" + cliProject + "'");
         }
         List<AuditEvent> auditEvents =
             AuditManager.findEvents(
@@ -122,20 +135,24 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
             logChannelInterface.logBasic("Enabling project : '" + lastProjectName + "'");
 
             LifecycleEnvironment lastEnvironment = null;
+            if (cliLifecycleEnvironment != null
+                && lastProjectName.equals(cliLifecycleEnvironment.getProjectName())) {
+              lastEnvironment = cliLifecycleEnvironment;
+            } else {
+              List<AuditEvent> envEvents =
+                  AuditManager.findEvents(
+                      ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+                      ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+                      "open",
+                      100,
+                      true);
 
-            List<AuditEvent> envEvents =
-                AuditManager.findEvents(
-                    ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-                    ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
-                    "open",
-                    100,
-                    true);
-
-            for (AuditEvent envEvent : envEvents) {
-              LifecycleEnvironment environment = config.findEnvironment(envEvent.getName());
-              if (environment != null && lastProjectName.equals(environment.getProjectName())) {
-                lastEnvironment = environment;
-                break;
+              for (AuditEvent envEvent : envEvents) {
+                LifecycleEnvironment environment = config.findEnvironment(envEvent.getName());
+                if (environment != null && lastProjectName.equals(environment.getProjectName())) {
+                  lastEnvironment = environment;
+                  break;
+                }
               }
             }
 
@@ -191,5 +208,17 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
       new ErrorDialog(
           hopGui.getActiveShell(), "Error", "Error initializing the Projects system", e);
     }
+  }
+
+  private static String firstNonEmpty(String... values) {
+    if (values == null) {
+      return null;
+    }
+    for (String value : values) {
+      if (StringUtils.isNotEmpty(value)) {
+        return value;
+      }
+    }
+    return null;
   }
 }
