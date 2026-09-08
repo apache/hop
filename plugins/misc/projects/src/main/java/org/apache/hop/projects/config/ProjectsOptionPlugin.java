@@ -33,6 +33,7 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsConfigHelper;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
@@ -104,10 +105,18 @@ public class ProjectsOptionPlugin implements IConfigOptions {
     projectName = projectOption;
     environmentName = environmentOption;
 
+    // A later mixin (hop-server, hop-run) often has empty -e/-j even though the root command
+    // already enabled an environment. Inherit HOP_ENVIRONMENT_NAME so environment config files
+    // are not dropped on the second configure(). Only do this when this mixin specified neither.
     if (StringUtils.isEmpty(projectName) && StringUtils.isEmpty(environmentName)) {
-      projectName =
-          ProjectsConfigHelper.determineActiveProject(
-              projectName, environmentName, registeredProjects, variables);
+      if (variables != null) {
+        environmentName = variables.getVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME);
+      }
+      if (StringUtils.isEmpty(environmentName)) {
+        projectName =
+            ProjectsConfigHelper.determineActiveProject(
+                projectName, environmentName, registeredProjects, variables);
+      }
     }
 
     if (hasHopMetadataProvider == null
@@ -237,6 +246,11 @@ public class ProjectsOptionPlugin implements IConfigOptions {
 
     if (ProjectsConfigHelper.alreadyEnabled(projectName, environmentName)
         && (extraConfigFiles == null || extraConfigFiles.isEmpty())) {
+      // Skip the expensive second enable (VFS reset, metadata rebuild, extension points) but
+      // still apply PROJECT_HOME and environment config variables onto this variables instance.
+      // hop-server rebuilds HopServerConfig after the mixin runs; a different IVariables than
+      // the one that was first enabled must still resolve ${PROJECT_HOME}. See issue #8284.
+      applyEnabledProjectVariables(variables, projectConfig, configurationFiles, environmentName);
       MultiMetadataProvider current = HopMetadataInstance.getMetadataProvider();
       if (hasHopMetadataProvider != null && current != null) {
         hasHopMetadataProvider.setMetadataProvider(current);
@@ -265,6 +279,25 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       return true;
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "'", e);
+    }
+  }
+
+  /**
+   * Copy project and environment variables onto {@code variables} without rebuilding metadata or
+   * resetting VFS. Used when the same project/environment was already enabled on another instance.
+   */
+  static void applyEnabledProjectVariables(
+      IVariables variables,
+      ProjectConfig projectConfig,
+      List<String> configurationFiles,
+      String environmentName)
+      throws HopException {
+    if (variables == null || projectConfig == null) {
+      return;
+    }
+    Project project = projectConfig.loadProject(variables);
+    if (project != null) {
+      project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
     }
   }
 }

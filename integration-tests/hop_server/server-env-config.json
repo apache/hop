@@ -1,0 +1,7 @@
+{
+  "variables" : [ {
+    "name" : "SERVER_IT_MARKER",
+    "value" : "from-environment",
+    "description" : "Distinctive environment variable used by main-0016 to prove hop-server applied -e / HOP_ENVIRONMENT_NAME config files (issue #8284)."
+  } ]
+}

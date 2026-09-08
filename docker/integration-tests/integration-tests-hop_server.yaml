@@ -39,6 +39,13 @@ services:
     build:
       context: ../../.
       dockerfile: docker/Dockerfile
+      # Same uid/gid as the test runner (JENKINS_UID from run-tests-docker.sh).
+      # hop-server writes mapped folders on /hop_server_volume (the host
+      # integration-tests/hop_server tree). The default image user is 501, so a
+      # 775 directory owned by the host user is AccessDenied (main-0015).
+      args:
+        - HOP_UID=${JENKINS_UID:-1000}
+        - HOP_GID=${JENKINS_GID:-1000}
     pull_policy: never
     hostname: hop-server
     ports:
@@ -50,6 +57,8 @@ services:
       - HOP_PROJECT_NAME=samples
       - HOP_PROJECT_FOLDER=/opt/hop/config/projects/samples
       - HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
+      - HOP_ENVIRONMENT_NAME=server-dev
+      - HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/hop_server_volume/server-env-config.json
     volumes:
       - ./../../integration-tests/hop_server/:/hop_server_volume
     healthcheck:

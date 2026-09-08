@@ -392,7 +392,7 @@ public class WorkflowMeta extends AbstractMeta
       throws HopXmlException {
     try {
       // OK, try to load using the VFS stuff...
-      Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(filename));
+      Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(filename, variables));
       if (doc != null) {
         // The workflowNode
         Node workflowNode = XmlHandler.getSubNode(doc, XML_TAG);
