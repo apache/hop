@@ -146,7 +146,7 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 |```--system-properties```
 |A comma separated list of KEY=VALUE pairs
 
-|```-im```
+|```-ime```
 |```--in-memory```
 |Keep Hop configuration in memory. Changes are not written to `hop-config.json`. Implied by `--project-locations` and `--environments`.
 

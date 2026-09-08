@@ -33,7 +33,7 @@ The command list depends on the plugins in your installation; the sample below s
 [source,bash]
 ----
 $ ./hop help
-Usage: hop [-hV] [--dev-debug] [--dev-debug-wait] [-im]
+Usage: hop [-hV] [--dev-debug] [--dev-debug-wait] [-ime]
            [-e=<environmentOption>] [-j=<projectOption>]
            [--environment-conf-files=<environmentConfigFiles>[,
            <environmentConfigFiles>...]]... [--environments=<environments>[,
@@ -43,7 +43,7 @@ Usage: hop [-hV] [--dev-debug] [--dev-debug-wait] [-im]
   -e, --environment=<environmentOption>
                          The name of the lifecycle environment to use
   -h, --help             Show this help message and exit.
-      -im, --in-memory   Keep configuration in memory without persisting to
+      -ime, --in-memory  Keep configuration in memory without persisting to
                            hop-config.json
   -j, --project=<projectOption>
                          The name of the project to use
@@ -74,7 +74,7 @@ Commands:
 |Short|Extended|Description
 |`-e`|`--environment`|The name of the lifecycle environment to enable before the subcommand runs.
 |`-h`|`--help`|Displays this help message and quits.
-|`-im`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`. Implied by `--project-locations` and `--environments`.
+|`-ime`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`. Implied by `--project-locations` and `--environments`.
 |`-j`|`--project`|The name of the project to enable before the subcommand runs.
 |`-pl`|`--project-locations`|Comma-separated project locations to register for this process only (`name=/path`, a zip/jar, or a bare folder). See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json].
 ||`--environments`|Comma-separated environment definitions (`name=[project:]file1;file2`) registered in memory for this process.

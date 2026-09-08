@@ -212,7 +212,7 @@ hop --project-locations edw=/data/edw --environments edw-prod=/data/edw-prod.jso
 If the project name is omitted, Hop infers it from the registered projects.
 `--environment-conf-files` (also `--environment-config-files`) adds extra variable files to the enabled project or environment.
 
-`-im` / `--in-memory` keeps Hop configuration in memory even when you are not using `--project-locations`.
+`-ime` / `--in-memory` keeps Hop configuration in memory even when you are not using `--project-locations`.
 The same behaviour can be enabled with the `{openvar}HOP_CONFIG_IN_MEMORY{closevar}` system variable set to `Y`.
 
 These options are available on the `hop` root command (so they apply before `run`, `gui`, `search`, and so on) and on the subcommands themselves (`hop run -pl ...`, `hop gui -pl ...`).
