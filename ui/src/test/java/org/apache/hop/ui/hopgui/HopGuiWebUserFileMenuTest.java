@@ -20,11 +20,30 @@ package org.apache.hop.ui.hopgui;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.Test;
 
 class HopGuiWebUserFileMenuTest {
+
+  @Test
+  void browserSaveAllowsUnchangedFlowsButRejectsOtherFileTypesAndDeniedPermission() {
+    IHopFileTypeHandler handler = mock(IHopFileTypeHandler.class);
+    when(handler.hasChanged()).thenReturn(false);
+    when(handler.getSubject()).thenReturn(new PipelineMeta());
+    assertTrue(HopWebUserFileMenuState.canDownload(handler, true));
+    when(handler.getSubject()).thenReturn(new WorkflowMeta());
+    assertTrue(HopWebUserFileMenuState.canDownload(handler, true));
+    assertFalse(HopWebUserFileMenuState.canDownload(handler, false));
+    when(handler.getSubject()).thenReturn("text editor");
+    assertFalse(HopWebUserFileMenuState.canDownload(handler, true));
+    assertFalse(HopWebUserFileMenuState.canDownload(null, true));
+  }
 
   @Test
   void projectExportRequiresAnActiveProjectPluginAndPermission() {

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.LongSupplier;
 import java.util.stream.Stream;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
@@ -39,17 +40,18 @@ import org.eclipse.rap.rwt.service.ServiceHandler;
 import org.eclipse.rap.rwt.service.ServiceManager;
 import org.eclipse.rap.rwt.service.UISession;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
 /** Browser-backed file selection and download support for Hop Web. */
 final class UserFileTransfer {
 
-  @FunctionalInterface
   interface UploadListener {
     void uploaded(String filename, Path uploadedFile) throws Exception;
 
-    default void error(Exception exception) {}
+    void error(Exception exception);
   }
 
   static final long DEFAULT_UPLOAD_TIME_LIMIT = Duration.ofMinutes(5).toMillis();
@@ -59,6 +61,7 @@ final class UserFileTransfer {
   private static final String DOWNLOAD_SERVICE_PREFIX = UserFileTransfer.class.getName() + ".";
 
   private final Shell shell;
+  private final Display display;
   private final ServiceManager serviceManager;
   private final UISession uiSession;
   private final String uiSessionId;
@@ -69,9 +72,17 @@ final class UserFileTransfer {
   private final Path downloadDirectory;
   private final Map<String, Download> downloads = new ConcurrentHashMap<>();
   private final AtomicBoolean disposed = new AtomicBoolean();
+  private final LongSupplier nanoTime;
 
   UserFileTransfer(Shell shell, Path sessionTempDirectory) throws IOException {
+    this(shell, sessionTempDirectory, System::nanoTime);
+  }
+
+  UserFileTransfer(Shell shell, Path sessionTempDirectory, LongSupplier nanoTime)
+      throws IOException {
     this.shell = shell;
+    this.display = shell.getDisplay();
+    this.nanoTime = nanoTime;
     serviceManager = RWT.getServiceManager();
     uiSession = RWT.getUISession();
     uiSessionId = uiSession.getId();
@@ -111,12 +122,8 @@ final class UserFileTransfer {
         return;
       }
 
-      Path uploadedFile = Path.of(uploadedPath);
-      if (!Files.isRegularFile(uploadedFile, LinkOption.NOFOLLOW_LINKS)
-          || Files.size(uploadedFile) > uploadSizeLimit) {
-        throw new IOException("The uploaded file is invalid or exceeds the configured size limit.");
-      }
-      listener.uploaded(dialog.getFileName(), uploadedFile);
+      Path uploadedFile = validateUploadedFile(requestDirectory, uploadedPath, uploadSizeLimit);
+      listener.uploaded(safeUploadFilename(dialog.getFileName()), uploadedFile);
     } catch (Exception e) {
       listener.error(e);
     } finally {
@@ -125,10 +132,15 @@ final class UserFileTransfer {
   }
 
   void download(String filename, String contentType, byte[] content) throws IOException {
+    download(filename, contentType, content, null);
+  }
+
+  void download(String filename, String contentType, byte[] content, Runnable onSuccess)
+      throws IOException {
     Path file = Files.createTempFile(downloadDirectory, "download-", ".tmp");
     try {
       Files.write(file, content);
-      registerDownload(filename, contentType, file);
+      registerDownload(filename, contentType, file, onSuccess);
     } catch (IOException | RuntimeException e) {
       Files.deleteIfExists(file);
       throw e;
@@ -139,14 +151,15 @@ final class UserFileTransfer {
     Path file = Files.createTempFile(downloadDirectory, "download-", ".tmp");
     try {
       Files.copy(source, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-      registerDownload(filename, contentType, file);
+      registerDownload(filename, contentType, file, null);
     } catch (IOException | RuntimeException e) {
       Files.deleteIfExists(file);
       throw e;
     }
   }
 
-  private void registerDownload(String filename, String contentType, Path file) throws IOException {
+  private synchronized void registerDownload(
+      String filename, String contentType, Path file, Runnable onSuccess) throws IOException {
     if (isDisposed()) {
       throw new IOException("The browser file transfer session is closed.");
     }
@@ -159,17 +172,14 @@ final class UserFileTransfer {
             safeHeaderFilename(filename),
             contentType,
             file,
-            System.nanoTime() + DOWNLOAD_TTL_NANOS);
+            nanoTime.getAsLong() + DOWNLOAD_TTL_NANOS,
+            onSuccess);
     downloads.put(token, download);
-    if (isDisposed()) {
-      downloads.remove(token, download);
-      throw new IOException("The browser file transfer session is closed.");
-    }
-    String url =
-        serviceManager.getServiceHandlerUrl(downloadServiceId)
-            + "&token="
-            + URLEncoder.encode(token, StandardCharsets.UTF_8);
     try {
+      String url =
+          serviceManager.getServiceHandlerUrl(downloadServiceId)
+              + "&token="
+              + URLEncoder.encode(token, StandardCharsets.UTF_8);
       RWT.getClient().getService(UrlLauncher.class).openURL(url);
     } catch (RuntimeException e) {
       downloads.remove(token, download);
@@ -181,17 +191,20 @@ final class UserFileTransfer {
     return disposed.get();
   }
 
-  void dispose() {
+  synchronized void dispose() {
     if (disposed.compareAndSet(false, true)) {
-      serviceManager.unregisterServiceHandler(downloadServiceId);
-      downloads.values().forEach(download -> deleteFile(download.file()));
-      downloads.clear();
-      deleteTree(transferDirectory);
+      try {
+        serviceManager.unregisterServiceHandler(downloadServiceId);
+      } finally {
+        downloads.values().forEach(download -> deleteFile(download.file()));
+        downloads.clear();
+        deleteTree(transferDirectory);
+      }
     }
   }
 
   private void removeExpiredDownloads() {
-    long now = System.nanoTime();
+    long now = nanoTime.getAsLong();
     downloads.forEach(
         (token, download) -> {
           if (download.expiresAtNanos() - now <= 0 && downloads.remove(token, download)) {
@@ -218,7 +231,7 @@ final class UserFileTransfer {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
-      if (!isRequestFromOwningSession(request)) {
+      if (isDisposed() || !isRequestFromOwningSession(request)) {
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
         return;
       }
@@ -244,10 +257,57 @@ final class UserFileTransfer {
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.setHeader("Content-Disposition", contentDisposition(download.filename()));
         Files.copy(download.file(), response.getOutputStream());
+        response.flushBuffer();
+        notifyDownloadSucceeded(download.onSuccess());
       } finally {
         deleteFile(download.file());
+        if (isDisposed()) {
+          // A concurrent session teardown may have encountered this file while it was still open.
+          deleteTree(transferDirectory);
+        }
       }
     }
+  }
+
+  private void notifyDownloadSucceeded(Runnable onSuccess) {
+    if (onSuccess == null || isDisposed() || display.isDisposed()) {
+      return;
+    }
+    try {
+      display.asyncExec(
+          () -> {
+            if (!isDisposed() && !shell.isDisposed()) {
+              onSuccess.run();
+            }
+          });
+    } catch (SWTException e) {
+      if (e.code != SWT.ERROR_DEVICE_DISPOSED) {
+        throw e;
+      }
+    }
+  }
+
+  static Path validateUploadedFile(Path requestDirectory, String uploadedPath, long sizeLimit)
+      throws IOException {
+    Path directory = requestDirectory.toAbsolutePath().normalize();
+    Path uploadedFile = Path.of(uploadedPath).toAbsolutePath().normalize();
+    if (!uploadedFile.startsWith(directory)
+        || !directory.equals(uploadedFile.getParent())
+        || !Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)
+        || !Files.isRegularFile(uploadedFile, LinkOption.NOFOLLOW_LINKS)
+        || Files.size(uploadedFile) > sizeLimit) {
+      throw new IOException("The uploaded file is invalid or exceeds the configured size limit.");
+    }
+    return uploadedFile;
+  }
+
+  static String safeUploadFilename(String filename) {
+    if (filename == null) {
+      return "hop-file";
+    }
+    String basename = filename.replace('\\', '/');
+    basename = basename.substring(basename.lastIndexOf('/') + 1);
+    return safeHeaderFilename(basename);
   }
 
   private boolean isRequestFromOwningSession(HttpServletRequest request) {
@@ -264,7 +324,7 @@ final class UserFileTransfer {
 
   static String safeHeaderFilename(String filename) {
     String safe = filename == null ? "hop-file" : filename;
-    safe = safe.replaceAll("[\\r\\n\\\\/\"]", "_");
+    safe = safe.replaceAll("[\\x00-\\x1f\\x7f\\\\/\"]", "_");
     return safe.isBlank() ? "hop-file" : safe;
   }
 
@@ -293,5 +353,6 @@ final class UserFileTransfer {
     }
   }
 
-  private record Download(String filename, String contentType, Path file, long expiresAtNanos) {}
+  private record Download(
+      String filename, String contentType, Path file, long expiresAtNanos, Runnable onSuccess) {}
 }

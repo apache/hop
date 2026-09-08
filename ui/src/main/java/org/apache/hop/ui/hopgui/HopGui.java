@@ -2372,11 +2372,6 @@ public class HopGui
     mainToolbarWidgets.enableToolbarItem(
         fileType, handler, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
 
-    mainMenuWidgets.enableMenuItem(
-        fileType, handler, ID_MAIN_MENU_FILE_USER_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
-    mainMenuWidgets.enableMenuItem(
-        fileType, handler, ID_MAIN_MENU_FILE_USER_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
-
     // New file / metadata: not capability-driven per active file — gate by RBAC only
     boolean canCreate =
         HopSecurity.allows(Permission.FILE_CREATE) || HopSecurity.allows(Permission.METADATA_WRITE);
@@ -2413,6 +2408,12 @@ public class HopGui
             getActivePipelineGraph() != null,
             getActiveWorkflowGraph() != null,
             HopSecurity.allows(Permission.FILE_EXPORT));
+
+    boolean canDownload =
+        HopWebUserFileMenuState.canDownload(
+            getActiveFileTypeHandler(), HopSecurity.allows(Permission.FILE_SAVE));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE, canDownload);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE_AS, canDownload);
 
     // Keep the enabled-state map in sync for keyboard/menu dispatch and hide unavailable actions.
     // File Server keeps the same actions, but shares the web-only visibility rules for SVG.

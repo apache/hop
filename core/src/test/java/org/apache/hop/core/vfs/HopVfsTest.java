@@ -216,12 +216,27 @@ class HopVfsTest {
   }
 
   @Test
-  void testGetFileObjectForNonExistingAbsolutePath(@TempDir Path tempDir) throws Exception {
+  void testGetFileObjectForNonExistingLocalFileUri(@TempDir Path tempDir) throws Exception {
     Path configFile = tempDir.resolve("folder with spaces #1").resolve("hop-config.json.new");
 
-    FileObject fileObject = HopVfs.getFileObject(configFile.toString());
+    // Literal local filenames must be escaped by the caller. Path.toUri also produces the absolute
+    // file:///C:/... form required by VFS on Windows, without a process-wide path rewrite.
+    try (FileObject fileObject = HopVfs.getFileObject(configFile.toUri().toString())) {
+      assertEquals(configFile.toAbsolutePath().toString(), HopVfs.getFilename(fileObject));
+    }
+  }
 
-    assertNotNull(fileObject);
-    assertEquals(configFile.toAbsolutePath().toString(), HopVfs.getFilename(fileObject));
+  @Test
+  void testSchemeLessPathRetainsPercentEncodedTraversalSemantics(@TempDir Path tempDir)
+      throws Exception {
+    Path candidate = tempDir.resolve("%2e%2e%2fsecret");
+    Path expected = tempDir.getParent().resolve("secret");
+
+    // Explorer's containment check depends on VFS decoding escapes before normalizing the path.
+    // Encoding every scheme-less path as a URI would make this look like a direct child instead.
+    try (FileObject candidateObject = HopVfs.getFileObject(candidate.toString());
+        FileObject expectedObject = HopVfs.getFileObject(expected.toString())) {
+      assertEquals(expectedObject.getName(), candidateObject.getName());
+    }
   }
 }

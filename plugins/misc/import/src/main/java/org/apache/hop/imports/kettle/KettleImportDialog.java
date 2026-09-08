@@ -43,6 +43,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -733,9 +734,13 @@ public class KettleImportDialog extends Dialog {
       }
     } catch (Exception e) {
       String title = BaseMessages.getString(PKG, "KettleImportDialog.Error.Title");
-      String message = BaseMessages.getString(PKG, "KettleImportDialog.Error.Message");
+      boolean web = EnvironmentUtils.getInstance().isWeb();
+      String message =
+          BaseMessages.getString(
+              PKG,
+              web ? "KettleImportDialog.Error.Web.Message" : "KettleImportDialog.Error.Message");
       LogChannel.UI.logError(message, e);
-      new ErrorDialog(shell, title, message, new HopException(message));
+      new ErrorDialog(shell, title, message, web ? new HopException(message) : e);
     }
   }
 

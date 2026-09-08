@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -37,15 +38,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.security.Permission;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
@@ -58,6 +64,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.UISession;
+import org.w3c.dom.Node;
 
 /** Hop Web menu actions for opening and saving files on the user's computer. */
 @GuiPlugin(name = "Hop Web user files")
@@ -198,7 +205,7 @@ public class HopWebUserFilePlugin {
       root = HopGui.ID_MAIN_MENU,
       id = HopGui.ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT,
       label = "i18n::HopGui.Menu.File.ExportProjectZip",
-      image = "export.svg",
+      image = "ui/images/zipfile.svg",
       parentId = ID_MAIN_MENU_FILE_USER)
   public void exportProjectZip() {
     if (!HopSecurityUi.check(Permission.FILE_EXPORT)) {
@@ -282,19 +289,64 @@ public class HopWebUserFilePlugin {
       if (!HopSecurityUi.check(Permission.FILE_VIEW)) {
         return;
       }
-      String extension = FilenameUtils.getExtension(filename);
-      if (!"hpl".equalsIgnoreCase(extension) && !"hwf".equalsIgnoreCase(extension)) {
-        throw new HopException("Only Hop pipeline and workflow files can be opened here.");
-      }
       String safeName = safeFilename(filename, "");
-      Path file = getSessionTempDirectory().resolve(UUID.randomUUID().toString() + "-" + safeName);
-      Files.copy(uploadedFile, file);
-      IHopFileTypeHandler handler = HopGui.getInstance().fileDelegate.fileOpen(file.toString());
-      if (handler != null) {
-        userFileNames.put(handler, safeName);
-      }
+      HopGui hopGui = HopGui.getInstance();
+      AbstractMeta model =
+          readUploadedFile(
+              safeName, uploadedFile, hopGui.getMetadataProvider(), hopGui.getVariables());
+      // The editor must never see the upload path: tab state, recent files and file watchers
+      // otherwise retain a session temporary file as if it were a saved server document.
+      IHopFileTypeHandler handler =
+          model instanceof PipelineMeta pipeline
+              ? HopGui.getExplorerPerspective().addPipeline(pipeline)
+              : HopGui.getExplorerPerspective().addWorkflow((WorkflowMeta) model);
+      userFileNames.put(handler, safeName);
+      handler.updateGui();
+      HopGui.getExplorerPerspective().activate();
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          hopGui.getVariables(),
+          model instanceof PipelineMeta
+              ? HopExtensionPoint.PipelineAfterOpen.id
+              : HopExtensionPoint.WorkflowAfterOpen.id,
+          model);
     } catch (Exception e) {
       showError("HopGui.FileBrowser.Error.Open", e);
+    }
+  }
+
+  static AbstractMeta readUploadedFile(
+      String filename,
+      Path uploadedFile,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables)
+      throws IOException, HopException {
+    String extension = FilenameUtils.getExtension(filename);
+    boolean pipeline = "hpl".equalsIgnoreCase(extension);
+    if (!pipeline && !"hwf".equalsIgnoreCase(extension)) {
+      throw new HopException("Only Hop pipeline and workflow files can be opened here.");
+    }
+    try (InputStream input = Files.newInputStream(uploadedFile)) {
+      Node root = XmlHandler.loadXmlFile(input, null, false, false).getDocumentElement();
+      String expectedTag = pipeline ? PipelineMeta.XML_TAG : WorkflowMeta.XML_TAG;
+      if (root == null || !expectedTag.equals(root.getNodeName())) {
+        throw new HopException("The uploaded file does not contain the selected Hop file type.");
+      }
+      AbstractMeta model;
+      if (pipeline) {
+        PipelineMeta pipelineMeta = new PipelineMeta();
+        pipelineMeta.loadXml(root, null, metadataProvider, variables);
+        model = pipelineMeta;
+      } else {
+        model = new WorkflowMeta(root, metadataProvider, variables);
+      }
+      if (StringUtils.isBlank(model.getName())) {
+        model.setName(FilenameUtils.getBaseName(filename));
+      }
+      model.setFilename(null);
+      // Like a new document, the uploaded copy has no permanent server location yet.
+      model.setChanged();
+      return model;
     }
   }
 
@@ -357,12 +409,41 @@ public class HopWebUserFilePlugin {
       }
 
       String downloadName = safeFilename(name, extension);
-      transfer().download(downloadName, "application/xml", content);
-      if (saveAs) {
-        userFileNames.put(handler, downloadName);
-      }
+      transfer()
+          .download(
+              downloadName,
+              "application/xml",
+              content,
+              () -> {
+                // A tab can be closed or edited while its HTTP download is in flight.
+                if (HopGui.getExplorerPerspective().getItems().stream()
+                    .noneMatch(item -> item.getTypeHandler() == handler)) {
+                  return;
+                }
+                try {
+                  if (saveAs) {
+                    userFileNames.put(handler, downloadName);
+                  }
+                  markDownloaded(handler, content);
+                } catch (HopException e) {
+                  showError("HopGui.FileBrowser.Error.Save", e);
+                }
+              });
     } catch (Exception e) {
       showError("HopGui.FileBrowser.Error.Save", e);
+    }
+  }
+
+  static void markDownloaded(IHopFileTypeHandler handler, byte[] downloadedContent)
+      throws HopException {
+    // A browser copy must not mark an existing server file as saved. For an untitled document,
+    // acknowledge only the exact revision sent, leaving any edits made during the transfer dirty.
+    if (StringUtils.isBlank(handler.getFilename())
+        && Arrays.equals(downloadedContent, serialize(handler))) {
+      if (handler.getSubject() instanceof AbstractMeta model) {
+        model.clearChanged();
+        handler.updateGui();
+      }
     }
   }
 

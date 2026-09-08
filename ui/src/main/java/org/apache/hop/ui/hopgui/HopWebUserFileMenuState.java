@@ -20,10 +20,20 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.workflow.WorkflowMeta;
 
 final class HopWebUserFileMenuState {
 
   private HopWebUserFileMenuState() {}
+
+  static boolean canDownload(IHopFileTypeHandler handler, boolean saveAllowed) {
+    return saveAllowed
+        && handler != null
+        && (handler.getSubject() instanceof PipelineMeta
+            || handler.getSubject() instanceof WorkflowMeta);
+  }
 
   static boolean shouldShowProjectExport(
       String projectHome, boolean pluginAvailable, boolean exportAllowed) {

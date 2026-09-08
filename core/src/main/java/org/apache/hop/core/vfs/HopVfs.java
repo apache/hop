@@ -466,7 +466,7 @@ public class HopVfs {
       } else {
         if (relativeFilename) {
           File file = new File(vfsFilename);
-          filename = toFileUri(file);
+          filename = file.getAbsolutePath();
         } else {
           filename = vfsFilename;
         }
@@ -481,22 +481,6 @@ public class HopVfs {
               + e.getMessage(),
           e);
     }
-  }
-
-  /**
-   * Commons VFS expects a URI with an absolute path for Windows drive letters. Java's {@link
-   * File#toURI()} emits {@code file:/C:/...}; normalize that form while leaving UNC and non-file
-   * URIs untouched.
-   */
-  private static String toFileUri(File file) {
-    String uri = file.toURI().toString();
-    if (uri.length() > 8
-        && uri.startsWith("file:/")
-        && Character.isLetter(uri.charAt(6))
-        && uri.charAt(7) == ':') {
-      return "file:///" + uri.substring(6);
-    }
-    return uri;
   }
 
   protected static boolean checkForScheme(

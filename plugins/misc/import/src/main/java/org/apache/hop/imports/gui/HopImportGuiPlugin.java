@@ -29,6 +29,7 @@ import org.apache.hop.imports.kettle.KettleImportDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 
 @GuiPlugin(name = "Import", description = "Import Kettle projects")
 public class HopImportGuiPlugin {
@@ -77,9 +78,12 @@ public class HopImportGuiPlugin {
       dialog.open();
     } catch (Exception e) {
       String title = BaseMessages.getString(PKG, "HopGuiImport.Error.Title");
-      String message = BaseMessages.getString(PKG, "HopGuiImport.Error.Message");
+      boolean web = EnvironmentUtils.getInstance().isWeb();
+      String message =
+          BaseMessages.getString(
+              PKG, web ? "HopGuiImport.Error.Web.Message" : "HopGuiImport.Error.Message");
       hopGui.getLog().logError(message, e);
-      new ErrorDialog(hopGui.getShell(), title, message, new HopException(message));
+      new ErrorDialog(hopGui.getShell(), title, message, web ? new HopException(message) : e);
     }
   }
 }
