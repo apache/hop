@@ -78,6 +78,7 @@ public class HopWebUserFilePlugin {
   private static final String KETTLE_IMPORT_MENU_ID = "10060-menu-tools-import";
   private static final String SESSION_TEMP_DIRECTORY =
       HopWebUserFilePlugin.class.getName() + ".tempDirectory";
+  static final String SESSION_TEMP_DIRECTORY_PREFIX = "hop-web-user-files-";
   private static final String HOP_FILE_EXTENSIONS = ".hpl,.hwf";
   private static final long MAX_HOP_FILE_SIZE = 25L * 1024 * 1024;
   private static final long MAX_COMPRESSED_ZIP_SIZE = 100L * 1024 * 1024;
@@ -597,7 +598,7 @@ public class HopWebUserFilePlugin {
       return directory;
     }
 
-    directory = Files.createTempDirectory("hop-web-user-files-");
+    directory = Files.createTempDirectory(SESSION_TEMP_DIRECTORY_PREFIX);
     session.setAttribute(SESSION_TEMP_DIRECTORY, directory);
     Path sessionDirectory = directory;
     session.addUISessionListener(event -> deleteSessionTempDirectory(sessionDirectory));

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
@@ -76,6 +77,55 @@ class KettleImportDialogTest {
     assertEquals(
         "previous-project", KettleImportDialog.initialSourceFolder(null, "previous-project"));
     assertEquals("", KettleImportDialog.initialSourceFolder(null, null));
+  }
+
+  @Test
+  void ignoresADeletedFileBrowserUploadAsLastUsedSource() {
+    assertEquals(
+        "",
+        KettleImportDialog.initialSourceFolder(
+            null, "/tmp/hop-web-user-files-abc/kettle-import-1"));
+    assertEquals(
+        "",
+        KettleImportDialog.initialSourceFolder(
+            null, "C:\\Temp\\hop-web-user-files-abc\\kettle-import-1"));
+    assertEquals(
+        "uploaded-project",
+        KettleImportDialog.initialSourceFolder(
+            "uploaded-project", "/tmp/hop-web-user-files-abc/kettle-import-1"));
+  }
+
+  @Test
+  void remembersTraditionalSourceFoldersButNotFileBrowserUploads() {
+    assertTrue(KettleImportDialog.shouldRememberSourceFolder(null, "/home/kettle"));
+    assertTrue(KettleImportDialog.shouldRememberSourceFolder("", "/home/kettle"));
+    assertFalse(
+        KettleImportDialog.shouldRememberSourceFolder(
+            "/tmp/hop-web-user-files-abc/kettle-import-1",
+            "/tmp/hop-web-user-files-abc/kettle-import-1"));
+    assertFalse(
+        KettleImportDialog.shouldRememberSourceFolder(
+            null, "/tmp/hop-web-user-files-abc/kettle-import-1"));
+    assertTrue(
+        KettleImportDialog.shouldRememberSourceFolder(
+            "/tmp/hop-web-user-files-abc/kettle-import-1", "/srv/kettle"));
+    assertFalse(
+        KettleImportDialog.shouldRememberSourceFolder(
+            "/tmp/hop-web-user-files-abc/kettle-import-1/",
+            "/tmp/hop-web-user-files-abc/kettle-import-1"));
+  }
+
+  @Test
+  void detectsHopWebSessionTempUploadFolders() {
+    assertTrue(
+        KettleImportDialog.isEphemeralWebUploadFolder(
+            "/tmp/hop-web-user-files-xyz/kettle-import-1"));
+    assertTrue(
+        KettleImportDialog.isEphemeralWebUploadFolder(
+            "C:\\Users\\hop\\AppData\\Local\\Temp\\hop-web-user-files-xyz\\project"));
+    assertFalse(KettleImportDialog.isEphemeralWebUploadFolder("/home/kettle/project"));
+    assertFalse(KettleImportDialog.isEphemeralWebUploadFolder(null));
+    assertFalse(KettleImportDialog.isEphemeralWebUploadFolder(""));
   }
 
   @ParameterizedTest

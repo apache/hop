@@ -65,6 +65,7 @@ The *File Browser* menu transfers files between Hop Web and your computer:
 * *Save As* asks for a download filename first. The browser controls where the download is stored on your computer.
 * *Export project ZIP* downloads the active project.
 * *Import Kettle/PDI ZIP* uploads a ZIP and opens the existing Kettle/PDI import dialog.
+  The extracted folder is temporary and is not stored as the last import source.
   The standard distribution includes the import plugin; custom distributions must include `hop-misc-import`.
 
 *Export SVG* appears in both menus only while a pipeline or workflow is active.
