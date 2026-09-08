@@ -289,3 +289,8 @@ Result:
 |Key|value
 |key1|"String with spaces"
 |===
+
+== Scheduling
+
+Hop Run is the command a scheduler should invoke: it runs one file and exits.
+See xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] for cron, `at`, systemd, Windows Task Scheduler, Jenkins, Kubernetes CronJob and Apache Airflow.
