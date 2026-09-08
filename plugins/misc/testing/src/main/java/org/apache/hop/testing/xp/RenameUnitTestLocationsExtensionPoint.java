@@ -17,48 +17,51 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.TransformNameChange;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestTransformRenames;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.eclipse.swt.widgets.Display;
 
 @ExtensionPoint(
-    extensionPointId = "HopGuiPipelineGraphUpdateGui",
-    id = "UpdateUnitTestButtonsUpdateGuiExtensionPoint",
-    description = "Enable/disable unit test toolbar buttons based on whether a test is selected")
-/**
- * This extension point is called whenever the pipeline graph GUI is updated. It ensures the unit
- * test toolbar buttons (Edit, Detach, Delete) are enabled or disabled based on whether a unit test
- * is currently selected.
- */
-public class UpdateUnitTestButtonsExtensionPoint implements IExtensionPoint<HopGuiPipelineGraph> {
+    id = "RenameUnitTestLocationsExtensionPoint",
+    extensionPointId = "PipelineTransformRenamed",
+    description =
+        "Keep unit test input/golden data set locations and tweaks in sync when a transform is renamed")
+public class RenameUnitTestLocationsExtensionPoint implements IExtensionPoint<TransformNameChange> {
 
   @Override
-  public void callExtensionPoint(
-      ILogChannel log, IVariables variables, HopGuiPipelineGraph pipelineGraph)
+  public void callExtensionPoint(ILogChannel log, IVariables variables, TransformNameChange change)
       throws HopException {
-
-    if (pipelineGraph != null && pipelineGraph.getStateMap() != null) {
-      PipelineUnitTest unitTest =
-          (PipelineUnitTest)
-              pipelineGraph.getStateMap().get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
-      UnitTestTransformRenames.revertIfUndoRestoredOldNames(
-          pipelineGraph.getPipelineMeta(), unitTest, pipelineGraph.getStateMap());
+    if (change == null || change.getPipelineMeta() == null) {
+      return;
     }
 
-    // Update the unit test button states
-    // Use asyncExec to ensure this runs after any async combo population
-    Display display = HopGui.getInstance().getDisplay();
-    if (display != null && !display.isDisposed()) {
-      display.asyncExec(() -> TestingGuiPlugin.getInstance().enableUnitTestButtons());
+    HopGuiPipelineGraph pipelineGraph = TestingGuiPlugin.getPipelineGraph(change.getPipelineMeta());
+    if (pipelineGraph == null) {
+      return;
     }
+    Map<String, Object> stateMap = pipelineGraph.getStateMap();
+    if (stateMap == null) {
+      return;
+    }
+    PipelineUnitTest unitTest =
+        (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    if (unitTest == null) {
+      return;
+    }
+    if (!unitTest.renameTransform(change.getOldName(), change.getNewName())) {
+      return;
+    }
+    // Keep the rename in memory until the pipeline is saved, so Ctrl+Z can restore the old
+    // transform name without orphaning the data set attachment on disk.
+    UnitTestTransformRenames.record(stateMap, change.getOldName(), change.getNewName());
   }
 }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,34 +27,50 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
-import org.apache.hop.testing.util.UnitTestGraphVariables;
 import org.apache.hop.testing.util.UnitTestTransformRenames;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
-    extensionPointId = "HopGuiPipelineAfterClose",
-    id = "HopGuiPipelineAfterClose",
-    description = "Cleanup the active unit test for the closed pipeline")
-public class HopGuiPipelineAfterClose implements IExtensionPoint<PipelineMeta> {
+    id = "PersistUnitTestRenamesExtensionPoint",
+    extensionPointId = "PipelineAfterSave",
+    description = "Persist in-memory unit test transform-name updates when the pipeline is saved")
+public class PersistUnitTestRenamesExtensionPoint implements IExtensionPoint<PipelineMeta> {
 
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
       throws HopException {
+    if (pipelineMeta == null) {
+      return;
+    }
     HopGuiPipelineGraph pipelineGraph = TestingGuiPlugin.getPipelineGraph(pipelineMeta);
     Map<String, Object> stateMap =
         pipelineGraph != null
             ? pipelineGraph.getStateMap()
             : TestingGuiPlugin.getStateMap(pipelineMeta);
-    if (pipelineGraph != null) {
-      UnitTestGraphVariables.clear(pipelineGraph.getVariables(), stateMap);
-    } else {
-      UnitTestGraphVariables.clear(variables, stateMap);
+    if (!UnitTestTransformRenames.hasPending(stateMap)) {
+      return;
     }
-    if (stateMap != null) {
-      PipelineUnitTest unitTest =
-          (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
-      UnitTestTransformRenames.revertAll(unitTest, stateMap);
-      stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    PipelineUnitTest unitTest =
+        (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    if (unitTest == null) {
+      return;
+    }
+    try {
+      HopGui hopGui = HopGui.getInstance();
+      if (hopGui == null || hopGui.getMetadataProvider() == null) {
+        return;
+      }
+      IVariables graphVariables = pipelineGraph != null ? pipelineGraph.getVariables() : variables;
+      unitTest.setRelativeFilename(graphVariables, pipelineMeta.getFilename());
+      hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
+      UnitTestTransformRenames.clear(stateMap);
+    } catch (Exception e) {
+      log.logError(
+          "Error saving unit test '"
+              + unitTest.getName()
+              + "' after pipeline save with renamed transforms",
+          e);
     }
   }
 }

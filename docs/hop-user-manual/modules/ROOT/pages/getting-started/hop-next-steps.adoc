@@ -33,6 +33,7 @@ Here are a couple of topics you may want to look into:
 * xref:how-to-guides/change-data-capture.adoc[Change Data Capture] covers the three ways Hop detects inserts, updates and deletes: log sniffing, filtered selection, and snapshot comparison.
 * xref:best-practices/index.adoc[Best Practices] covers a number of things you might want to think about while using Apache Hop.
 * xref:projects/index.adoc[Projects] explains how to work with projects and environments
+* xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] shows how to start a run from cron, systemd, Jenkins, a Kubernetes CronJob or Apache Airflow
 * xref:hop-server/deploying.adoc[Deploying Hop Server] covers the three common ways to get a project onto a running server
 * xref:vfs.adoc[VFS] explains how you can access resources in the 3 main cloud platforms: AWS, Azure and GCP.
 * xref:logging/logging-basics.adoc[Logging] explains how to configure Hop for your desired log level and target platform

@@ -15,26 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.splitfieldtorows;
+package org.apache.hop.pipeline;
 
-import java.util.regex.Pattern;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import lombok.Getter;
 
-@SuppressWarnings("java:S1104")
-public class SplitFieldToRowsData extends BaseTransformData implements ITransformData {
-  public int fieldnr;
-  public IRowMeta outputRowMeta;
-  public IValueMeta splitMeta;
-  public long rownr;
-  public Pattern delimiterPattern;
-  public String delimiter;
-  public String enclosure;
+/**
+ * Payload for {@link org.apache.hop.core.extension.HopExtensionPoint#PipelineTransformRenamed}.
+ * Fired when a transform dialog commits a new name, before the live {@link
+ * org.apache.hop.pipeline.transform.TransformMeta} is updated.
+ */
+@Getter
+public class TransformNameChange {
+  private final PipelineMeta pipelineMeta;
+  private final String oldName;
+  private final String newName;
 
-  public SplitFieldToRowsData() {
-    super();
-    delimiterPattern = null;
+  public TransformNameChange(PipelineMeta pipelineMeta, String oldName, String newName) {
+    this.pipelineMeta = pipelineMeta;
+    this.oldName = oldName;
+    this.newName = newName;
   }
 }

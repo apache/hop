@@ -186,6 +186,7 @@ docker run --rm \
 Airflow can do this with the DockerOperator (or KubernetesPodOperator on a cluster).
 That is exactly the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow how-to], except the image already contains `/your-project` so you do not mount the project from the worker.
 On Kubernetes or OpenShift the same idea is a Job or CronJob whose container spec is this image plus those environment variables.
+See xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] for a CronJob manifest, and for cron, systemd and Jenkins starting the same image.
 
 The container is gone when hop-run finishes, so anything you still want to look at later must be written *outside* it.
 
