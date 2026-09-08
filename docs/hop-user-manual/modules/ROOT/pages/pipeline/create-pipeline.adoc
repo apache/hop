@@ -96,6 +96,7 @@ image::hop-gui/pipeline/transforms.png[Hop - transforms,75%,align="left"]
 |===
 |Action|Description
 |Detach transform|Detach the transform from the pipeline
+|Create mapping|Extract the selected sequential transforms into a mapping pipeline and replace them with a Simple Mapping transform
 |Edit the transform|Edit the transform's metadata
 |Copy transform to clipboard|Copies selected items to clipboard.
 |Create hop| Creates a new hop between two transforms.
