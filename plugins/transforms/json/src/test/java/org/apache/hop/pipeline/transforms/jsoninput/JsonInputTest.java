@@ -1224,6 +1224,66 @@ class JsonInputTest {
     }
   }
 
+  /**
+   * Regression for Hidden additional field: must use {@code data.hidden} from {@code
+   * FileObject.isHidden()}, not {@code Boolean.valueOf(data.path)} (path is never the string
+   * "true", so the old code always emitted false).
+   */
+  @Test
+  void testHiddenFileFieldUsesFileIsHiddenFlag() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    final String path = BASE_RAM_DIR + "hidden-flag.json";
+    try (FileObject fileObj = HopVfs.getFileObject(path)) {
+      try (OutputStream out = fileObj.getContent().getOutputStream()) {
+        out.write("{ \"store\": { \"bicycle\": { \"color\": \"green\" } } }".getBytes());
+      }
+
+      JsonInputField color = new JsonInputField();
+      color.setName("color");
+      color.setType(IValueMeta.TYPE_STRING);
+      color.setPath("$.store.bicycle.color");
+
+      JsonInputMeta meta = createSimpleMeta("in file", color);
+      meta.setInFields(true);
+      meta.setIsAFile(true);
+      meta.setRemoveSourceField(true);
+      meta.setPathField("dir path");
+      meta.setIsHiddenField("is_hidden");
+
+      JsonInputData data = new JsonInputData();
+      IRowSet input = helper.getMockInputRowSet(new Object[][] {new Object[] {path}});
+      IRowMeta rowMeta = new RowMeta();
+      rowMeta.addValueMeta(new ValueMetaString("in file"));
+      input.setRowMeta(rowMeta);
+
+      // Force hidden=true after VFS fill; path remains a normal URI so
+      // Boolean.valueOf(path)==false.
+      JsonInput jsonInput =
+          new JsonInput(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline) {
+            @Override
+            protected void fillFileAdditionalFields(JsonInputData data, FileObject file)
+                throws FileSystemException {
+              super.fillFileAdditionalFields(data, file);
+              data.hidden = true;
+            }
+          };
+      jsonInput.addRowSetToInputRowSets(input);
+      jsonInput.setInputRowMeta(rowMeta);
+      jsonInput.init();
+
+      RowComparatorListener rowComparator =
+          new RowComparatorListener(new Object[] {"green", "ram:///jsonInputTest", true});
+      jsonInput.addRowListener(rowComparator);
+      processRows(jsonInput, 2);
+      assertEquals(0, jsonInput.getErrors(), err.toString());
+      assertEquals(1, rowComparator.rowNbr, "expected one output row");
+    } finally {
+      deleteFiles();
+    }
+  }
+
   @Test
   void testZeroSizeFile() throws Exception {
     ByteArrayOutputStream log = new ByteArrayOutputStream();

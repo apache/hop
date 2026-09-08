@@ -477,7 +477,7 @@ public class JsonNormalizeInput
       outputRowData[rowIndex++] = d.size;
     }
     if (!Utils.isEmpty(meta.isHiddenField())) {
-      outputRowData[rowIndex++] = Boolean.valueOf(d.path);
+      outputRowData[rowIndex++] = d.hidden;
     }
     if (meta.getLastModificationDateField() != null
         && !meta.getLastModificationDateField().isEmpty()) {

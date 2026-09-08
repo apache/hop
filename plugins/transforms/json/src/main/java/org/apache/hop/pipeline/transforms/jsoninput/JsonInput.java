@@ -607,7 +607,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     }
     // add Hidden
     if (!Utils.isEmpty(meta.isHiddenField())) {
-      outputRowData[rowIndex++] = Boolean.valueOf(data.path);
+      outputRowData[rowIndex++] = data.hidden;
     }
     // Add modification date
     if (meta.getLastModificationDateField() != null
