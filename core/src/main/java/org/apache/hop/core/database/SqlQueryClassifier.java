@@ -220,9 +220,6 @@ public final class SqlQueryClassifier {
         if ("INTO".equals(keyword)) {
           return true;
         }
-        if ("FROM".equals(keyword) || "WHERE".equals(keyword)) {
-          return false;
-        }
         if (keyword != null) {
           i = skipKeyword(sql, i);
           continue;

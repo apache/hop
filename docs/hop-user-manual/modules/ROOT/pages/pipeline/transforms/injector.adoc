@@ -29,6 +29,9 @@ The Injector transform is used for special purpose pipelines where you  want to 
 
 Among other things you can build 'headless' pipelines with it: pipelines that have no input at design time: do not read from file or database.
 
+Pipeline unit tests replace a transform that has an input data set attached with an Injector, and inject the static data set rows instead of executing the original transform.
+See xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Testing].
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

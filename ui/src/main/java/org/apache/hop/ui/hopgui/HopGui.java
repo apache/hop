@@ -134,6 +134,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
@@ -351,6 +352,7 @@ public class HopGui
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
+  private IHopFileTypeHandler capabilityFileTypeHandler;
   private org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock terminalPanel;
 
   public org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock getTerminalPanel() {
@@ -844,48 +846,34 @@ public class HopGui
   }
 
   /**
-   * If -file= was passed in command line args (e.g. from Hop Web URL ?file=...), open that file
-   * once and remove the arg so the URL can later reflect the current tab.
+   * If -file= / --file / -f was passed in command line args (e.g. from Hop Web URL ?file=... or
+   * {@code hop gui -f}), open that file once and remove the arg so the URL can later reflect the
+   * current tab.
    */
   private void openFileFromCommandLineArgs() {
     List<String> args = getCommandLineArguments();
     if (args == null) {
       return;
     }
-    String filePath = null;
-    for (int i = 0; i < args.size(); i++) {
-      String arg = args.get(i);
-      if (arg != null && arg.startsWith("-file=")) {
-        filePath = arg.substring("-file=".length()).trim();
-        args.remove(i);
-        break;
-      }
-    }
+    String filePath = HopGuiCommandLine.takeOption(args, HopGuiCommandLine.FILE_OPTION_NAMES);
     if (StringUtils.isEmpty(filePath)) {
       return;
     }
     try {
-      String resolved = variables.resolve(filePath);
+      String resolved = HopGuiCommandLine.resolveFile(variables, filePath);
       if (StringUtils.isNotEmpty(resolved)) {
         fileDelegate.fileOpen(resolved, true);
       }
     } catch (Exception e) {
-      log.logError("Error opening file from URL '" + filePath + "'", e);
+      log.logError("Error opening file from command line '" + filePath + "'", e);
     }
   }
 
-  /** True if command line args contain -file=... (e.g. from Hop Web URL). */
+  /** True if command line args contain a file to open. */
   private boolean hasFileInCommandLineArgs() {
-    List<String> args = getCommandLineArguments();
-    if (args == null) {
-      return false;
-    }
-    for (String arg : args) {
-      if (arg != null && arg.startsWith("-file=")) {
-        return true;
-      }
-    }
-    return false;
+    return StringUtils.isNotEmpty(
+        HopGuiCommandLine.findOption(
+            getCommandLineArguments(), HopGuiCommandLine.FILE_OPTION_NAMES));
   }
 
   private void loadPerspectives() {
@@ -2337,6 +2325,8 @@ public class HopGui
       boolean running,
       boolean paused) {
 
+    this.capabilityFileTypeHandler = handler;
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
@@ -2403,6 +2393,11 @@ public class HopGui
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
+    if (capabilityFileTypeHandler instanceof DatabaseSqlEditorTab tab
+        && tab.getControl() != null
+        && !tab.getControl().isDisposed()) {
+      return tab;
+    }
     return getActivePerspective().getActiveFileTypeHandler();
   }
 

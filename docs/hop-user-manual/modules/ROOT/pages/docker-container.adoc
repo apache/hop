@@ -287,7 +287,7 @@ That image will contain the last built Development snapshot of Apache Hop. rxq77
 
 The most common use case will be that you run a **short-lived container** to just complete one Hop workflow or pipeline.
 If CI already baked the project into the image, this is often all you need in production: a scheduler starts the container, hop-run finishes, the container exits -- no long-lived Hop Server.
-See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers].
+See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers] and xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines].
 
 The first example below runs the sample `switch-case-basic.hpl` **pipeline** from the samples project.
 

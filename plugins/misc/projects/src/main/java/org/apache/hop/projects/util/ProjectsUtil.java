@@ -101,6 +101,9 @@ public class ProjectsUtil {
     //
     project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
 
+    ProjectsConfigHelper.applyProjectExportFiles(
+        log, projectConfig.getProjectHome(), variables, null, true, false);
+
     // Re-bind the process-global two-way password encoder from project/environment variables
     // (HOP_PASSWORD_ENCODER_PLUGIN, HOP_AES_ENCODER_KEY / HOP_AES_ENCODER_KEY_FILE). This resets
     // AES keys between projects and allows falling back to Hop obfuscation when unset.
@@ -124,14 +127,32 @@ public class ProjectsUtil {
           "Error initializing the two-way password encoder for project '" + projectName + "'", e);
     }
 
-    // Change the metadata provider in the GUI
+    // Point metadata at the project's metadataBaseFolder (HOP_METADATA_FOLDER). Do this even when
+    // the caller has no IHasHopMetadataProvider (root CLI mixins): HopRun and other subcommands
+    // pick the provider up from HopMetadataInstance.
     //
+    MultiMetadataProvider metadataProvider =
+        HopMetadataUtil.getStandardHopMetadataProvider(variables);
+    if (StringUtils.isNotEmpty(project.getParentProjectName())) {
+      ProjectConfig parentPc = config.findProjectConfig(project.getParentProjectName());
+      if (parentPc != null) {
+        ProjectsConfigHelper.applyProjectExportFiles(
+            log, parentPc.getProjectHome(), variables, metadataProvider, false, true);
+      }
+    }
+    ProjectsConfigHelper.applyProjectExportFiles(
+        log, projectConfig.getProjectHome(), variables, metadataProvider, false, true);
     if (hasHopMetadataProvider != null) {
-      MultiMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
       hasHopMetadataProvider.setMetadataProvider(metadataProvider);
-      HopMetadataInstance.setMetadataProvider(metadataProvider);
-      project.setMetadataProvider(metadataProvider);
+    }
+    HopMetadataInstance.setMetadataProvider(metadataProvider);
+    project.setMetadataProvider(metadataProvider);
+    if (log.isBasic()) {
+      log.logBasic(
+          "Project '"
+              + projectName
+              + "' metadata folder: "
+              + Const.NVL(variables.getVariable(Const.HOP_METADATA_FOLDER), ""));
     }
 
     // The named VFS connections live in the metadata of this project, so hand HopVfs the variables
@@ -184,6 +205,7 @@ public class ProjectsUtil {
         buildAttributesContext(config, projectConfig, projectName, environmentName, variables);
     ExtensionPointHandler.callExtensionPoint(
         log, variables, HopExtensionPoint.HopProjectEnvironmentAfterEnabled.id, attributesContext);
+    ProjectsConfigHelper.markEnabled(projectName, environmentName);
   }
 
   /**

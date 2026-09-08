@@ -35,6 +35,11 @@ class DatabaseWorkbenchViewsTest {
   }
 
   @Test
+  void dialogIsNotOpenWithoutHopGui() {
+    assertFalse(DatabaseWorkbenchViews.isDialogOpen(null));
+  }
+
+  @Test
   void openDialogAndDockTolerateNullHopGui() {
     assertDoesNotThrow(() -> DatabaseWorkbenchViews.openDialog(null));
     assertDoesNotThrow(() -> DatabaseWorkbenchViews.openDock(null));
