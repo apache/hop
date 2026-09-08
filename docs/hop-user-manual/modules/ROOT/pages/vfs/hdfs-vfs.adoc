@@ -1,0 +1,43 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /vfs/
+:language: en_US
+:description: HDFS through a named VFS connection (WebHDFS / HttpFS / Knox)
+
+= HDFS
+
+== Scheme
+
+HDFS is a **named** VFS connection.
+The scheme is the connection name, not `hdfs`:
+
+`**cdp:///warehouse/db/table/part.parquet**`
+
+See xref:metadata-types/hdfs-connection.adoc[HDFS Connection].
+
+`hdfs://namenode:8020/...` is a Spark/Hadoop FileSystem URI.
+Do not paste it into Hop File Input/Output on the local engine.
+See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
+
+== Configuration
+
+Create an xref:metadata-types/hdfs-connection.adoc[HDFS Connection] in the metadata perspective.
+Install the `hop-tech-hadoop` marketplace plugin if it is not in your distribution.
+
+For remote containers (OpenShift) use **HttpFS** or **Knox**.
+WebHDFS redirects data to DataNode HTTP ports, which those pods usually cannot reach.

@@ -47,6 +47,7 @@ xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location]: Defines where and how Apache Hop stores execution metadata, supporting local files, remote servers, Neo4j, or Elastic for later inspection and analysis.
 * xref:metadata-types/ftp-connection.adoc[FTP Connection]: Named FTP or FTPS server used as a VFS scheme in file paths and by the FTP actions
 * xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]: A Google Cloud Storage connection type.
+* xref:metadata-types/hdfs-connection.adoc[HDFS Connection]: Named HDFS access via HttpFS, Knox or WebHDFS (no Hadoop client JARs)
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection

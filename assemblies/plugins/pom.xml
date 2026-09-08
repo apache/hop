@@ -1721,6 +1721,12 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-hadoop</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-minio</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>

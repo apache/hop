@@ -1,0 +1,11 @@
+{
+  "variables" : [ {
+    "name" : "HDFS_ENDPOINT_HOSTNAME",
+    "value" : "namenode",
+    "description" : "WebHDFS NameNode hostname on the compose network"
+  }, {
+    "name" : "HDFS_ENDPOINT_PORT",
+    "value" : "9870",
+    "description" : "WebHDFS HTTP port"
+  } ]
+}

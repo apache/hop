@@ -432,6 +432,7 @@ under the License.
 ** xref:vfs/dropbox-vfs.adoc[Dropbox]
 ** xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]
 ** xref:vfs/google-drive-vfs.adoc[Google Drive]
+** xref:vfs/hdfs-vfs.adoc[HDFS]
 ** xref:vfs/minio-vfs.adoc[MinIO]
 * xref:database/databases.adoc[Relational Database Connections]
 //::=START AUTO GENERATED LINKS DATABASES
@@ -499,6 +500,7 @@ under the License.
 *** xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j location]
 ** xref:metadata-types/ftp-connection.adoc[FTP Connection]
 ** xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]
+** xref:metadata-types/hdfs-connection.adoc[HDFS Connection]
 ** xref:metadata-types/hop-server.adoc[Hop Server]
 ** xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]
 ** xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]
@@ -589,6 +591,7 @@ under the License.
 ** xref:how-to-guides/logging-workflow-log.adoc[Logging workflow data with workflow log]
 ** xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]
 ** xref:how-to-guides/workflows-parallel-execution.adoc[Parallel execution in workflows]
+** xref:how-to-guides/hdfs-parquet-openshift.adoc[Write Parquet to Cloudera HDFS from OpenShift]
 ** xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow]
 ** xref:how-to-guides/avoiding-deadlocks.adoc[Avoiding deadlocks]
 * xref:community-blogs/index.adoc[Community Posts]

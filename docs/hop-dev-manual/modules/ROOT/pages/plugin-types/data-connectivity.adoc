@@ -93,7 +93,8 @@ The two stream classes are thin wrappers extending `CompressionInputStream` / `C
 == VFS
 
 Hop addresses every file through Apache VFS, so adding support for a new kind of storage means adding a VFS provider.
-This is how `s3://`, `azure://`, `gs://`, `hdfs://`, `ftp://` and `sftp://` work.
+This is how `s3://`, `azure://`, `gs://`, `ftp://` and `sftp://` work.
+HDFS is a named VFS connection (marketplace plugin `hop-tech-hadoop`); it does not register a global `hdfs://` scheme, because Native Spark already uses `hdfs://` as a Hadoop FileSystem URI.
 
 Annotation:: `@VfsPlugin`
 Implement:: `IVfs`
