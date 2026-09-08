@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
@@ -132,7 +131,6 @@ public class LoggingCore {
       // Transaction is automatically committed by executeWrite
     } catch (Exception e) {
       log.logError("Error logging hierarchies", e);
-      throw new HopRuntimeException("Error logging hierarchies", e);
     }
   }
 

@@ -285,7 +285,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     addIndex(cypher, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
     addIndex(cypher, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
     addIndex(cypher, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
-    addIndex(cypher, "idx_execution_metric_id", EL_EXECUTION, EP_ID, EP_NAME, EP_COPY_NR);
+    addIndex(
+        cypher,
+        "idx_execution_metric_id",
+        CL_EXECUTION_METRIC,
+        CP_ID,
+        CP_NAME,
+        CP_COPY_NR,
+        CP_METRIC_KEY);
     addIndex(cypher, "idx_execution_data_id", DL_EXECUTION_DATA, DP_PARENT_ID, DP_OWNER_ID);
     addIndex(
         cypher,
@@ -371,7 +378,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       addIndex(neo4jIndex, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
       addIndex(neo4jIndex, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
       addIndex(neo4jIndex, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
-      addIndex(neo4jIndex, "idx_execution_metric_id", EL_EXECUTION, EP_ID, EP_NAME, EP_COPY_NR);
+      addIndex(
+          neo4jIndex,
+          "idx_execution_metric_id",
+          CL_EXECUTION_METRIC,
+          CP_ID,
+          CP_NAME,
+          CP_COPY_NR,
+          CP_METRIC_KEY);
       addIndex(neo4jIndex, "idx_execution_data_id", DL_EXECUTION_DATA, DP_PARENT_ID, DP_OWNER_ID);
       addIndex(
           neo4jIndex,
