@@ -69,6 +69,85 @@ limitations under the License.
       <xloc>768</xloc>
       <yloc>64</yloc>
     </action>
+    <action>
+      <name>0001-hdfs-read-parquet.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0001-hdfs-read-parquet.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>976</xloc>
+      <yloc>64</yloc>
+    </action>
+    <action>
+      <name>0002-hdfs-write-gzip.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0002-hdfs-write-gzip.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>176</xloc>
+      <yloc>192</yloc>
+    </action>
+    <action>
+      <name>0002-hdfs-read-gzip.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0002-hdfs-read-gzip.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>192</yloc>
+    </action>
+    <action>
+      <name>0003-hdfs-write-copies.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0003-hdfs-write-copies.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>192</yloc>
+    </action>
+    <action>
+      <name>0003-hdfs-read-copies.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0003-hdfs-read-copies.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>192</yloc>
+    </action>
+    <action>
+      <name>create webhdfs-ha:///it</name>
+      <type>CREATE_FOLDER</type>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <foldername>webhdfs-ha:///it</foldername>
+      <parallel>N</parallel>
+      <xloc>32</xloc>
+      <yloc>320</yloc>
+    </action>
+    <action>
+      <name>0004-hdfs-ha-write-text.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0004-hdfs-ha-write-text.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>176</xloc>
+      <yloc>320</yloc>
+    </action>
+    <action>
+      <name>0004-hdfs-ha-read-text.hpl</name>
+      <type>PIPELINE</type>
+      <filename>${PROJECT_HOME}/0004-hdfs-ha-read-text.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>320</yloc>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -89,6 +168,46 @@ limitations under the License.
     <hop>
       <from>0001-hdfs-read-text.hpl</from>
       <to>0001-hdfs-write-parquet.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0001-hdfs-write-parquet.hpl</from>
+      <to>0001-hdfs-read-parquet.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0001-hdfs-read-parquet.hpl</from>
+      <to>0002-hdfs-write-gzip.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0002-hdfs-write-gzip.hpl</from>
+      <to>0002-hdfs-read-gzip.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0002-hdfs-read-gzip.hpl</from>
+      <to>0003-hdfs-write-copies.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0003-hdfs-write-copies.hpl</from>
+      <to>0003-hdfs-read-copies.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0003-hdfs-read-copies.hpl</from>
+      <to>create webhdfs-ha:///it</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>create webhdfs-ha:///it</from>
+      <to>0004-hdfs-ha-write-text.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0004-hdfs-ha-write-text.hpl</from>
+      <to>0004-hdfs-ha-read-text.hpl</to>
       <enabled>Y</enabled>
     </hop>
   </hops>

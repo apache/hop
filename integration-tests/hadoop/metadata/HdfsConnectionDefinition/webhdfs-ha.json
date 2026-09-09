@@ -1,0 +1,12 @@
+{
+  "name": "webhdfs-ha",
+  "description": "WebHDFS with a dead first NameNode so failover and prefer-active are exercised",
+  "transport": "WebHDFS",
+  "endpointHostname": "namenode:1,${HDFS_ENDPOINT_HOSTNAME}",
+  "endpointPort": "${HDFS_ENDPOINT_PORT}",
+  "https": false,
+  "basePath": "/webhdfs/v1",
+  "simpleUser": "hop",
+  "kerberosEnabled": false,
+  "hostnameVerification": true
+}

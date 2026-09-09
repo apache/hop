@@ -19,14 +19,14 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0001-hdfs-read-text</name>
+    <name>0003-hdfs-read-copies</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
   </info>
   <order>
     <hop>
-      <from>Read text</from>
+      <from>Read copy files</from>
       <to>Count rows</to>
       <enabled>Y</enabled>
     </hop>
@@ -42,7 +42,7 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>Read text</name>
+    <name>Read copy files</name>
     <type>TextFileInput</type>
     <distribute>Y</distribute>
     <copies>1</copies>
@@ -51,14 +51,13 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <accept_filenames>N</accept_filenames>
-    <passing_through_fields>N</passing_through_fields>
     <separator>,</separator>
     <enclosure>"</enclosure>
     <header>Y</header>
     <format>UNIX</format>
     <file>
-      <name>webhdfs:///it/hello.txt</name>
-      <filemask/>
+      <name>webhdfs:///it/copies</name>
+      <filemask>random-data_[0-9]+\.csv</filemask>
       <exclude_filemask/>
       <file_required>Y</file_required>
       <include_subfolders>N</include_subfolders>
@@ -118,7 +117,7 @@ limitations under the License.
         <value>
           <name>constant</name>
           <type>Integer</type>
-          <text>10</text>
+          <text>400</text>
           <length>-1</length>
           <precision>0</precision>
           <isnull>N</isnull>

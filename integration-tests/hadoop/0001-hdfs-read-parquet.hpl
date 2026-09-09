@@ -19,14 +19,19 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0001-hdfs-read-text</name>
+    <name>0001-hdfs-read-parquet</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
   </info>
   <order>
     <hop>
-      <from>Read text</from>
+      <from>Parquet filename</from>
+      <to>Read parquet</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Read parquet</from>
       <to>Count rows</to>
       <enabled>Y</enabled>
     </hop>
@@ -42,37 +47,49 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>Read text</name>
-    <type>TextFileInput</type>
+    <name>Parquet filename</name>
+    <type>RowGenerator</type>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <accept_filenames>N</accept_filenames>
-    <passing_through_fields>N</passing_through_fields>
-    <separator>,</separator>
-    <enclosure>"</enclosure>
-    <header>Y</header>
-    <format>UNIX</format>
-    <file>
-      <name>webhdfs:///it/hello.txt</name>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>Y</file_required>
-      <include_subfolders>N</include_subfolders>
-      <type>CSV</type>
-      <compression>None</compression>
-    </file>
     <fields>
       <field>
-        <name>id</name>
-        <type>Integer</type>
+        <name>filename</name>
+        <type>String</type>
+        <nullif>webhdfs:///it/data.parquet</nullif>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <limit>1</limit>
+    <never_ending>N</never_ending>
+    <interval_in_ms>5000</interval_in_ms>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Read parquet</name>
+    <type>ParquetFileInput</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename_field>filename</filename_field>
+    <fields>
+      <field>
+        <source_field>id</source_field>
+        <target_field>id</target_field>
+        <target_type>Integer</target_type>
       </field>
     </fields>
     <GUI>
-      <xloc>80</xloc>
+      <xloc>256</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -96,7 +113,7 @@ limitations under the License.
       </field>
     </fields>
     <GUI>
-      <xloc>256</xloc>
+      <xloc>432</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -127,7 +144,7 @@ limitations under the License.
       </condition>
     </compare>
     <GUI>
-      <xloc>432</xloc>
+      <xloc>608</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -144,7 +161,7 @@ limitations under the License.
     <always_log_rows>Y</always_log_rows>
     <row_threshold>0</row_threshold>
     <GUI>
-      <xloc>608</xloc>
+      <xloc>784</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>

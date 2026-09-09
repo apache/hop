@@ -19,14 +19,14 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0001-hdfs-read-text</name>
+    <name>0004-hdfs-ha-read-text</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
   </info>
   <order>
     <hop>
-      <from>Read text</from>
+      <from>Read via HA</from>
       <to>Count rows</to>
       <enabled>Y</enabled>
     </hop>
@@ -42,7 +42,7 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>Read text</name>
+    <name>Read via HA</name>
     <type>TextFileInput</type>
     <distribute>Y</distribute>
     <copies>1</copies>
@@ -51,13 +51,12 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <accept_filenames>N</accept_filenames>
-    <passing_through_fields>N</passing_through_fields>
     <separator>,</separator>
     <enclosure>"</enclosure>
     <header>Y</header>
     <format>UNIX</format>
     <file>
-      <name>webhdfs:///it/hello.txt</name>
+      <name>webhdfs-ha:///it/ha/hello.txt</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>Y</file_required>
