@@ -50,6 +50,9 @@ Ids are conventionally prefixed with a number (`20010-search-max-results`) becau
 
 A `@GuiPlugin` class that holds state — a settings page, for instance — needs a static `getInstance()` method, because the GUI works with one shared instance rather than constructing a new one per contribution.
 
+`classLoaderGroup`::
+Same meaning as on `@HopMetadata` and `@VfsPlugin`. Set it when the annotated class is also metadata (or otherwise lives in a grouped plugin folder). Without it `GuiPluginType` loads a second copy of the class, and a `@GuiWidgetElement` BUTTON that casts the editor object throws `ClassCastException`.
+
 [WARNING]
 ====
 A toolbar element *filter* is asked about every button on the toolbar it hooks into, not just your own.

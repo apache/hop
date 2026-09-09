@@ -38,7 +38,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-@GuiPlugin(description = "This is the editor for HDFS connection metadata")
+@GuiPlugin(
+    description = "This is the editor for HDFS connection metadata",
+    classLoaderGroup = "vfs-hdfs")
 public class HdfsMetaEditor extends MetadataEditor<HdfsMeta> {
 
   private static final Class<?> PKG = HdfsMetaEditor.class;

@@ -118,7 +118,7 @@ public class AzureVfsPlugin implements IVfs {
 [IMPORTANT]
 ====
 Named VFS connections register as global schemes on one shared VFS manager.
-Keep the metadata classes and the VFS classes in the same `classLoaderGroup`, or the metadata object loaded by one classloader will not match the one the provider expects.
+Keep the metadata classes, the VFS classes, and any `@GuiPlugin` that annotates those classes in the same `classLoaderGroup`, or the metadata object loaded by one classloader will not match the one the provider or the editor buttons expect.
 ====
 
 == Data stream

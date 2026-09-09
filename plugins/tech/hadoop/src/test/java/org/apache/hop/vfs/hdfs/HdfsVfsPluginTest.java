@@ -20,10 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
+import org.apache.hop.vfs.hdfs.metadata.HdfsMetaEditor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -41,8 +43,12 @@ class HdfsVfsPluginTest {
   void sharesClassLoaderGroupWithMetadata() {
     String pluginGroup = HdfsVfsPlugin.class.getAnnotation(VfsPlugin.class).classLoaderGroup();
     String metadataGroup = HdfsMeta.class.getAnnotation(HopMetadata.class).classLoaderGroup();
+    String guiGroup = HdfsMeta.class.getAnnotation(GuiPlugin.class).classLoaderGroup();
+    String editorGroup = HdfsMetaEditor.class.getAnnotation(GuiPlugin.class).classLoaderGroup();
     assertEquals("vfs-hdfs", pluginGroup);
     assertEquals(pluginGroup, metadataGroup);
+    assertEquals(pluginGroup, guiGroup);
+    assertEquals(pluginGroup, editorGroup);
   }
 
   @Test
