@@ -56,8 +56,13 @@ public enum ParquetWriteMode implements IEnumHasCode {
   }
 
   public static ParquetWriteMode getModeFromDescription(String description) {
+    if (description == null || description.isEmpty()) {
+      return Append;
+    }
     for (ParquetWriteMode mode : values()) {
-      if (mode.getDescription().equals(description)) {
+      if (mode.getDescription().equals(description)
+          || mode.name().equals(description)
+          || mode.getCode().equals(description)) {
         return mode;
       }
     }

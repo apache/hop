@@ -53,6 +53,12 @@ class ParquetOutputMetaTest {
     assertFalse(meta.isFilenameIncludingDateTime());
     assertTrue(meta.isFilenameCompressionBeforeExtension());
     assertTrue(meta.getFields().isEmpty());
+    assertTrue(meta.getPartitionFields().isEmpty());
+    assertFalse(meta.isPartitioning());
+    assertEquals(ParquetWriteMode.Append, meta.getWriteMode());
+    assertEquals("10", meta.getMaxOpenPartitions());
+    assertEquals("Parquet 2.0", meta.getVersionDescription());
+    assertEquals(ParquetWriteMode.Append.getDescription(), meta.getWriteModeDescription());
   }
 
   @Test
@@ -75,6 +81,8 @@ class ParquetOutputMetaTest {
     assertEquals(ParquetVersion.Version1, copy.getVersion());
     assertEquals(1, copy.getFields().size());
     assertEquals("id", copy.getFields().get(0).getSourceFieldName());
+    copy.getFields().get(0).setSourceFieldName("changed");
+    assertEquals("id", original.getFields().get(0).getSourceFieldName());
   }
 
   @Test
@@ -98,6 +106,9 @@ class ParquetOutputMetaTest {
     meta.setDictionaryPageSize("256");
     meta.getFields().add(new ParquetField("id", "id"));
     meta.getFields().add(new ParquetField("name", "name"));
+    meta.getPartitionFields().add(new ParquetPartitionField("region"));
+    meta.setWriteMode(ParquetWriteMode.OverwritePartitions);
+    meta.setMaxOpenPartitions("4");
 
     String xml =
         XmlHandler.openTag(TransformMeta.XML_TAG)
@@ -143,5 +154,13 @@ class ParquetOutputMetaTest {
           expected.getFields().get(i).getTargetFieldName(),
           actual.getFields().get(i).getTargetFieldName());
     }
+    assertEquals(expected.getPartitionFields().size(), actual.getPartitionFields().size());
+    for (int i = 0; i < expected.getPartitionFields().size(); i++) {
+      assertEquals(
+          expected.getPartitionFields().get(i).getName(),
+          actual.getPartitionFields().get(i).getName());
+    }
+    assertEquals(expected.getWriteMode(), actual.getWriteMode());
+    assertEquals(expected.getMaxOpenPartitions(), actual.getMaxOpenPartitions());
   }
 }

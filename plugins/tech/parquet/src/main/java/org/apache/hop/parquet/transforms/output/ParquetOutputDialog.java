@@ -17,30 +17,33 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -49,34 +52,10 @@ public class ParquetOutputDialog extends BaseTransformDialog {
 
   public static final Class<?> PKG = ParquetOutputMeta.class;
 
-  protected ParquetOutputMeta input;
-
-  private TextVar wFilenameBase;
-  private TextVar wFilenameExtension;
-  private Button wFilenameIncludeDate;
-  private Button wFilenameIncludeTime;
-  private Button wFilenameIncludeDateTime;
-  private Label wlFilenameDateTimeFormat;
-  private TextVar wFilenameDateTimeFormat;
-  private Button wFilenameIncludeCopyNr;
-  private Button wFilenameIncludeSplitNr;
-  private Label wlFilenameSplitSize;
-  private TextVar wFilenameSplitSize;
-  private Button wFilenameCreateFolders;
-  private Button wFilenameCompressionBeforeExtension;
-  private Combo wCompressionCodec;
-  private Combo wVersion;
-  private TextVar wRowGroupSize;
-  private TextVar wDataPageSize;
-  private TextVar wDictionaryPageSize;
+  private final ParquetOutputMeta input;
+  private GuiCompositeWidgets widgets;
   private TableView wFields;
   private TableView wPartitionFields;
-  private Combo wWriteMode;
-  private TextVar wMaxOpenPartitions;
-  private Label wlWriteMode;
-  private Label wlMaxOpenPartitions;
-
-  private String returnValue;
 
   public ParquetOutputDialog(
       Shell parent,
@@ -91,355 +70,79 @@ public class ParquetOutputDialog extends BaseTransformDialog {
   public String open() {
     createShell(BaseMessages.getString(PKG, "ParquetOutput.Name"));
 
+    changed = input.hasChanged();
+
     buildButtonBar().ok(e -> ok()).get(e -> getFields()).cancel(e -> cancel()).build();
 
-    Control lastControl = wSpacer;
+    widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            shell,
+            variables,
+            wTransformName,
+            wOk,
+            ParquetOutputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+            input,
+            w -> {
+              // Extra-group builders run during createCompositeWidgets, before
+              // addScrolledComposite returns. Keep the field assigned so they can
+              // look up widgets already placed on the same tab.
+              widgets = w;
+              w.registerExtraGroup(
+                  BaseMessages.getString(PKG, "ParquetOutputMeta.Group.Partitioning"),
+                  "0300",
+                  null,
+                  this::addPartitionFieldsTable);
+              w.registerExtraGroup(
+                  BaseMessages.getString(PKG, "ParquetOutputMeta.Group.Fields"),
+                  "0400",
+                  null,
+                  this::addFieldsTable);
+            });
+    widgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            if (!loading) {
+              input.setChanged();
+            }
+            if (ParquetOutputMeta.WIDGET_FILENAME_INCLUDE_DATETIME.equals(widgetId)
+                || ParquetOutputMeta.WIDGET_FILENAME_INCLUDE_SPLIT_NR.equals(widgetId)) {
+              enableFields();
+            }
+          }
 
-    Group wFileGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
-    wFileGroup.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameGroup.Label"));
-    wFileGroup.setLayout(new FormLayout());
-    PropsUi.setLook(wFileGroup);
-    FormData fdFileGroup = new FormData();
-    fdFileGroup.left = new FormAttachment(0, 0);
-    fdFileGroup.right = new FormAttachment(100, 0);
-    fdFileGroup.top = new FormAttachment(lastControl, margin);
-    wFileGroup.setLayoutData(fdFileGroup);
+          @Override
+          public void persistContents(GuiCompositeWidgets compositeWidgets) {
+            persistTables();
+            persistDescribedEnums();
+          }
+        });
 
-    Label wlFilenameBase = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameBase.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameBase.Label"));
-    PropsUi.setLook(wlFilenameBase);
-    FormData fdlFilenameBase = new FormData();
-    fdlFilenameBase.left = new FormAttachment(0, 0);
-    fdlFilenameBase.top = new FormAttachment(0, margin);
-    fdlFilenameBase.right = new FormAttachment(middle, -margin);
-    wlFilenameBase.setLayoutData(fdlFilenameBase);
-    wFilenameBase =
-        new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
-            .enableNamingSchemes(NamingSchemeTypes.FILE);
-    PropsUi.setLook(wFilenameBase);
-    FormData fdFilenameBase = new FormData();
-    fdFilenameBase.left = new FormAttachment(middle, 0);
-    fdFilenameBase.top = new FormAttachment(wlFilenameBase, 0, SWT.CENTER);
-    fdFilenameBase.right = new FormAttachment(90, 0);
-    wFilenameBase.setLayoutData(fdFilenameBase);
-    lastControl = wFilenameBase;
+    applyDescribedEnumCombos();
+    enableExpandedIntegers();
+    populateTables();
+    setFieldComboValues();
+    enableFields();
+    input.setChanged(changed);
 
-    Button wbFilename = new Button(wFileGroup, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    FormData fdbFilename = new FormData();
-    fdbFilename.left = new FormAttachment(wFilenameBase, 0);
-    fdbFilename.top = new FormAttachment(wFilenameBase, 0, SWT.CENTER);
-    wbFilename.setLayoutData(fdbFilename);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    return transformName;
+  }
 
-    wbFilename.addListener(
-        SWT.Selection,
-        e ->
-            BaseDialog.presentFileDialog(
-                true,
-                shell,
-                wFilenameBase,
-                variables,
-                new String[] {".parquet", "*"},
-                new String[] {
-                  BaseMessages.getString(PKG, "ParquetOutputDialog.extension.Label"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                },
-                true));
+  private void addPartitionFieldsTable(Composite parent) {
+    Control last = widgets.getWidgetsMap().get(ParquetOutputMeta.WIDGET_MAX_OPEN_PARTITIONS);
 
-    Label wlFilenameExtension = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameExtension.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameExtension.Label"));
-    PropsUi.setLook(wlFilenameExtension);
-    FormData fdlFilenameExtension = new FormData();
-    fdlFilenameExtension.left = new FormAttachment(0, 0);
-    fdlFilenameExtension.right = new FormAttachment(middle, -margin);
-    fdlFilenameExtension.top = new FormAttachment(lastControl, margin);
-    wlFilenameExtension.setLayoutData(fdlFilenameExtension);
-    wFilenameExtension = new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFilenameExtension);
-    FormData fdFilenameExtension = new FormData();
-    fdFilenameExtension.left = new FormAttachment(middle, 0);
-    fdFilenameExtension.top = new FormAttachment(wlFilenameExtension, 0, SWT.CENTER);
-    fdFilenameExtension.right = new FormAttachment(100, 0);
-    wFilenameExtension.setLayoutData(fdFilenameExtension);
-    lastControl = wFilenameExtension;
-
-    Label wlFilenameIncludeDate = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameIncludeDate.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameIncludeDate.Label"));
-    PropsUi.setLook(wlFilenameIncludeDate);
-    FormData fdlFilenameIncludeDate = new FormData();
-    fdlFilenameIncludeDate.left = new FormAttachment(0, 0);
-    fdlFilenameIncludeDate.right = new FormAttachment(middle, -margin);
-    fdlFilenameIncludeDate.top = new FormAttachment(lastControl, margin);
-    wlFilenameIncludeDate.setLayoutData(fdlFilenameIncludeDate);
-    wFilenameIncludeDate = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameIncludeDate);
-    FormData fdFilenameIncludeDate = new FormData();
-    fdFilenameIncludeDate.left = new FormAttachment(middle, 0);
-    fdFilenameIncludeDate.top = new FormAttachment(wlFilenameIncludeDate, 0, SWT.CENTER);
-    fdFilenameIncludeDate.right = new FormAttachment(100, 0);
-    wFilenameIncludeDate.setLayoutData(fdFilenameIncludeDate);
-    lastControl = wlFilenameIncludeDate;
-
-    Label wlFilenameIncludeTime = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameIncludeTime.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameIncludeTime.Label"));
-    PropsUi.setLook(wlFilenameIncludeTime);
-    FormData fdlFilenameIncludeTime = new FormData();
-    fdlFilenameIncludeTime.left = new FormAttachment(0, 0);
-    fdlFilenameIncludeTime.right = new FormAttachment(middle, -margin);
-    fdlFilenameIncludeTime.top = new FormAttachment(lastControl, margin);
-    wlFilenameIncludeTime.setLayoutData(fdlFilenameIncludeTime);
-    wFilenameIncludeTime = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameIncludeTime);
-    FormData fdFilenameIncludeTime = new FormData();
-    fdFilenameIncludeTime.left = new FormAttachment(middle, 0);
-    fdFilenameIncludeTime.top = new FormAttachment(wlFilenameIncludeTime, 0, SWT.CENTER);
-    fdFilenameIncludeTime.right = new FormAttachment(100, 0);
-    wFilenameIncludeTime.setLayoutData(fdFilenameIncludeTime);
-    lastControl = wlFilenameIncludeTime;
-
-    Label wlFilenameIncludeDateTime = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameIncludeDateTime.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameIncludeDateTime.Label"));
-    PropsUi.setLook(wlFilenameIncludeDateTime);
-    FormData fdlFilenameIncludeDateTime = new FormData();
-    fdlFilenameIncludeDateTime.left = new FormAttachment(0, 0);
-    fdlFilenameIncludeDateTime.right = new FormAttachment(middle, -margin);
-    fdlFilenameIncludeDateTime.top = new FormAttachment(lastControl, margin);
-    wlFilenameIncludeDateTime.setLayoutData(fdlFilenameIncludeDateTime);
-    wFilenameIncludeDateTime = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameIncludeDateTime);
-    FormData fdFilenameIncludeDateTime = new FormData();
-    fdFilenameIncludeDateTime.left = new FormAttachment(middle, 0);
-    fdFilenameIncludeDateTime.top = new FormAttachment(wlFilenameIncludeDateTime, 0, SWT.CENTER);
-    fdFilenameIncludeDateTime.right = new FormAttachment(100, 0);
-    wFilenameIncludeDateTime.setLayoutData(fdFilenameIncludeDateTime);
-    wFilenameIncludeDateTime.addListener(SWT.Selection, e -> enableFields());
-    lastControl = wlFilenameIncludeDateTime;
-
-    wlFilenameDateTimeFormat = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameDateTimeFormat.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameDateTimeFormat.Label"));
-    PropsUi.setLook(wlFilenameDateTimeFormat);
-    FormData fdlFilenameDateTimeFormat = new FormData();
-    fdlFilenameDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlFilenameDateTimeFormat.right = new FormAttachment(middle, -margin);
-    fdlFilenameDateTimeFormat.top = new FormAttachment(lastControl, margin);
-    wlFilenameDateTimeFormat.setLayoutData(fdlFilenameDateTimeFormat);
-    wFilenameDateTimeFormat =
-        new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFilenameDateTimeFormat);
-    FormData fdFilenameDateTimeFormat = new FormData();
-    fdFilenameDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdFilenameDateTimeFormat.top = new FormAttachment(wlFilenameDateTimeFormat, 0, SWT.CENTER);
-    fdFilenameDateTimeFormat.right = new FormAttachment(100, 0);
-    wFilenameDateTimeFormat.setLayoutData(fdFilenameDateTimeFormat);
-    lastControl = wFilenameDateTimeFormat;
-
-    Label wlFilenameIncludeCopyNr = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameIncludeCopyNr.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameIncludeCopyNr.Label"));
-    PropsUi.setLook(wlFilenameIncludeCopyNr);
-    FormData fdlFilenameIncludeCopyNr = new FormData();
-    fdlFilenameIncludeCopyNr.left = new FormAttachment(0, 0);
-    fdlFilenameIncludeCopyNr.right = new FormAttachment(middle, -margin);
-    fdlFilenameIncludeCopyNr.top = new FormAttachment(lastControl, margin);
-    wlFilenameIncludeCopyNr.setLayoutData(fdlFilenameIncludeCopyNr);
-    wFilenameIncludeCopyNr = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameIncludeCopyNr);
-    FormData fdFilenameIncludeCopyNr = new FormData();
-    fdFilenameIncludeCopyNr.left = new FormAttachment(middle, 0);
-    fdFilenameIncludeCopyNr.top = new FormAttachment(wlFilenameIncludeCopyNr, 0, SWT.CENTER);
-    fdFilenameIncludeCopyNr.right = new FormAttachment(100, 0);
-    wFilenameIncludeCopyNr.setLayoutData(fdFilenameIncludeCopyNr);
-    lastControl = wlFilenameIncludeCopyNr;
-
-    Label wlFilenameIncludeSplitNr = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameIncludeSplitNr.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameIncludeSplitNr.Label"));
-    PropsUi.setLook(wlFilenameIncludeSplitNr);
-    FormData fdlFilenameIncludeSplitNr = new FormData();
-    fdlFilenameIncludeSplitNr.left = new FormAttachment(0, 0);
-    fdlFilenameIncludeSplitNr.right = new FormAttachment(middle, -margin);
-    fdlFilenameIncludeSplitNr.top = new FormAttachment(lastControl, margin);
-    wlFilenameIncludeSplitNr.setLayoutData(fdlFilenameIncludeSplitNr);
-    wFilenameIncludeSplitNr = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameIncludeSplitNr);
-    FormData fdFilenameIncludeSplitNr = new FormData();
-    fdFilenameIncludeSplitNr.left = new FormAttachment(middle, 0);
-    fdFilenameIncludeSplitNr.top = new FormAttachment(wlFilenameIncludeSplitNr, 0, SWT.CENTER);
-    fdFilenameIncludeSplitNr.right = new FormAttachment(100, 0);
-    wFilenameIncludeSplitNr.setLayoutData(fdFilenameIncludeSplitNr);
-    wFilenameIncludeSplitNr.addListener(SWT.Selection, e -> enableFields());
-    lastControl = wlFilenameIncludeSplitNr;
-
-    wlFilenameSplitSize = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameSplitSize.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameSplitSize.Label"));
-    PropsUi.setLook(wlFilenameSplitSize);
-    FormData fdlFilenameSplitSize = new FormData();
-    fdlFilenameSplitSize.left = new FormAttachment(0, 0);
-    fdlFilenameSplitSize.right = new FormAttachment(middle, -margin);
-    fdlFilenameSplitSize.top = new FormAttachment(lastControl, margin);
-    wlFilenameSplitSize.setLayoutData(fdlFilenameSplitSize);
-    wFilenameSplitSize = new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wFilenameSplitSize.enableExpandedInteger();
-    PropsUi.setLook(wFilenameSplitSize);
-    FormData fdFilenameSplitSize = new FormData();
-    fdFilenameSplitSize.left = new FormAttachment(middle, 0);
-    fdFilenameSplitSize.top = new FormAttachment(wlFilenameSplitSize, 0, SWT.CENTER);
-    fdFilenameSplitSize.right = new FormAttachment(100, 0);
-    wFilenameSplitSize.setLayoutData(fdFilenameSplitSize);
-    lastControl = wFilenameSplitSize;
-
-    Label wlFilenameCreateFolders = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameCreateFolders.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameCreateFolders.Label"));
-    PropsUi.setLook(wlFilenameCreateFolders);
-    FormData fdlFilenameCreateFolders = new FormData();
-    fdlFilenameCreateFolders.left = new FormAttachment(0, 0);
-    fdlFilenameCreateFolders.right = new FormAttachment(middle, -margin);
-    fdlFilenameCreateFolders.top = new FormAttachment(lastControl, margin);
-    wlFilenameCreateFolders.setLayoutData(fdlFilenameCreateFolders);
-    wFilenameCreateFolders = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameCreateFolders);
-    FormData fdFilenameCreateFolders = new FormData();
-    fdFilenameCreateFolders.left = new FormAttachment(middle, 0);
-    fdFilenameCreateFolders.top = new FormAttachment(wlFilenameCreateFolders, 0, SWT.CENTER);
-    fdFilenameCreateFolders.right = new FormAttachment(100, 0);
-    wFilenameCreateFolders.setLayoutData(fdFilenameCreateFolders);
-    lastControl = wlFilenameCreateFolders;
-
-    Label wlFilenameCompressionBeforeExtension = new Label(wFileGroup, SWT.RIGHT);
-    wlFilenameCompressionBeforeExtension.setText(
-        BaseMessages.getString(
-            PKG, "ParquetOutputDialog.FilenameCompressionBeforeExtension.Label"));
-    PropsUi.setLook(wlFilenameCompressionBeforeExtension);
-    FormData fdlFilenameCompressionBeforeExtension = new FormData();
-    fdlFilenameCompressionBeforeExtension.left = new FormAttachment(0, 0);
-    fdlFilenameCompressionBeforeExtension.right = new FormAttachment(middle, -margin);
-    fdlFilenameCompressionBeforeExtension.top = new FormAttachment(lastControl, margin);
-    wlFilenameCompressionBeforeExtension.setLayoutData(fdlFilenameCompressionBeforeExtension);
-    wFilenameCompressionBeforeExtension = new Button(wFileGroup, SWT.CHECK);
-    PropsUi.setLook(wFilenameCompressionBeforeExtension);
-    FormData fdFilenameCompressionBeforeExtension = new FormData();
-    fdFilenameCompressionBeforeExtension.left = new FormAttachment(middle, 0);
-    fdFilenameCompressionBeforeExtension.top =
-        new FormAttachment(wlFilenameCompressionBeforeExtension, 0, SWT.CENTER);
-    fdFilenameCompressionBeforeExtension.right = new FormAttachment(100, 0);
-    wFilenameCompressionBeforeExtension.setLayoutData(fdFilenameCompressionBeforeExtension);
-
-    // End of the file group
-    //
-    lastControl = wFileGroup;
-
-    Label wlCompressionCodec = new Label(shell, SWT.RIGHT);
-    wlCompressionCodec.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.CompressionCodec.Label"));
-    PropsUi.setLook(wlCompressionCodec);
-    FormData fdlCompressionCodec = new FormData();
-    fdlCompressionCodec.left = new FormAttachment(0, 0);
-    fdlCompressionCodec.right = new FormAttachment(middle, -margin);
-    fdlCompressionCodec.top = new FormAttachment(lastControl, margin);
-    wlCompressionCodec.setLayoutData(fdlCompressionCodec);
-    wCompressionCodec = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    for (CompressionCodecName codecName : CompressionCodecName.values()) {
-      wCompressionCodec.add(codecName.name());
-    }
-    PropsUi.setLook(wCompressionCodec);
-    FormData fdCompressionCodec = new FormData();
-    fdCompressionCodec.left = new FormAttachment(middle, 0);
-    fdCompressionCodec.top = new FormAttachment(wlCompressionCodec, 0, SWT.CENTER);
-    fdCompressionCodec.right = new FormAttachment(100, 0);
-    wCompressionCodec.setLayoutData(fdCompressionCodec);
-    lastControl = wCompressionCodec;
-
-    Label wlVersion = new Label(shell, SWT.RIGHT);
-    wlVersion.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.Version.Label"));
-    PropsUi.setLook(wlVersion);
-    FormData fdlVersion = new FormData();
-    fdlVersion.left = new FormAttachment(0, 0);
-    fdlVersion.right = new FormAttachment(middle, -margin);
-    fdlVersion.top = new FormAttachment(lastControl, margin);
-    wlVersion.setLayoutData(fdlVersion);
-    wVersion = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    for (ParquetVersion version : ParquetVersion.values()) {
-      wVersion.add(version.getDescription());
-    }
-    PropsUi.setLook(wVersion);
-    FormData fdVersion = new FormData();
-    fdVersion.left = new FormAttachment(middle, 0);
-    fdVersion.top = new FormAttachment(wlVersion, 0, SWT.CENTER);
-    fdVersion.right = new FormAttachment(100, 0);
-    wVersion.setLayoutData(fdVersion);
-    lastControl = wVersion;
-
-    Label wlRowGroupSize = new Label(shell, SWT.RIGHT);
-    wlRowGroupSize.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.RowGroupSize.Label"));
-    PropsUi.setLook(wlRowGroupSize);
-    FormData fdlRowGroupSize = new FormData();
-    fdlRowGroupSize.left = new FormAttachment(0, 0);
-    fdlRowGroupSize.right = new FormAttachment(middle, -margin);
-    fdlRowGroupSize.top = new FormAttachment(lastControl, margin);
-    wlRowGroupSize.setLayoutData(fdlRowGroupSize);
-    wRowGroupSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wRowGroupSize.enableExpandedInteger();
-    PropsUi.setLook(wRowGroupSize);
-    FormData fdRowGroupSize = new FormData();
-    fdRowGroupSize.left = new FormAttachment(middle, 0);
-    fdRowGroupSize.top = new FormAttachment(wlRowGroupSize, 0, SWT.CENTER);
-    fdRowGroupSize.right = new FormAttachment(100, 0);
-    wRowGroupSize.setLayoutData(fdRowGroupSize);
-    lastControl = wRowGroupSize;
-
-    Label wlDataPageSize = new Label(shell, SWT.RIGHT);
-    wlDataPageSize.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.DataPageSize.Label"));
-    PropsUi.setLook(wlDataPageSize);
-    FormData fdlDataPageSize = new FormData();
-    fdlDataPageSize.left = new FormAttachment(0, 0);
-    fdlDataPageSize.right = new FormAttachment(middle, -margin);
-    fdlDataPageSize.top = new FormAttachment(lastControl, margin);
-    wlDataPageSize.setLayoutData(fdlDataPageSize);
-    wDataPageSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wDataPageSize.enableExpandedInteger();
-    PropsUi.setLook(wDataPageSize);
-    FormData fdDataPageSize = new FormData();
-    fdDataPageSize.left = new FormAttachment(middle, 0);
-    fdDataPageSize.top = new FormAttachment(wlDataPageSize, 0, SWT.CENTER);
-    fdDataPageSize.right = new FormAttachment(100, 0);
-    wDataPageSize.setLayoutData(fdDataPageSize);
-    lastControl = wDataPageSize;
-
-    Label wlDictionaryPageSize = new Label(shell, SWT.RIGHT);
-    wlDictionaryPageSize.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.DictionaryPageSize.Label"));
-    PropsUi.setLook(wlDictionaryPageSize);
-    FormData fdlDictionaryPageSize = new FormData();
-    fdlDictionaryPageSize.left = new FormAttachment(0, 0);
-    fdlDictionaryPageSize.right = new FormAttachment(middle, -margin);
-    fdlDictionaryPageSize.top = new FormAttachment(lastControl, margin);
-    wlDictionaryPageSize.setLayoutData(fdlDictionaryPageSize);
-    wDictionaryPageSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wDictionaryPageSize.enableExpandedInteger();
-    PropsUi.setLook(wDictionaryPageSize);
-    FormData fdDictionaryPageSize = new FormData();
-    fdDictionaryPageSize.left = new FormAttachment(middle, 0);
-    fdDictionaryPageSize.top = new FormAttachment(wlDictionaryPageSize, 0, SWT.CENTER);
-    fdDictionaryPageSize.right = new FormAttachment(100, 0);
-    wDictionaryPageSize.setLayoutData(fdDictionaryPageSize);
-    lastControl = wDictionaryPageSize;
-
-    Label wlPartitionFields = new Label(shell, SWT.LEFT);
+    Label wlPartitionFields = new Label(parent, SWT.LEFT);
     wlPartitionFields.setText(
         BaseMessages.getString(PKG, "ParquetOutputDialog.PartitionFields.Label"));
     PropsUi.setLook(wlPartitionFields);
     FormData fdlPartitionFields = new FormData();
     fdlPartitionFields.left = new FormAttachment(0, 0);
     fdlPartitionFields.right = new FormAttachment(100, 0);
-    fdlPartitionFields.top = new FormAttachment(lastControl, margin);
+    fdlPartitionFields.top =
+        last == null ? new FormAttachment(0, 0) : new FormAttachment(last, margin);
     wlPartitionFields.setLayoutData(fdlPartitionFields);
 
     ColumnInfo[] partitionColumns =
@@ -452,74 +155,34 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     wPartitionFields =
         new TableView(
             variables,
-            shell,
-            SWT.BORDER,
+            parent,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             partitionColumns,
-            input.getPartitionFields().size(),
+            input.getPartitionFields() == null ? 0 : input.getPartitionFields().size(),
             false,
-            null,
+            e -> {
+              if (!loading) {
+                input.setChanged();
+              }
+              enableFields();
+            },
             props);
-    PropsUi.setLook(wPartitionFields);
     FormData fdPartitionFields = new FormData();
     fdPartitionFields.left = new FormAttachment(0, 0);
     fdPartitionFields.top = new FormAttachment(wlPartitionFields, margin);
     fdPartitionFields.right = new FormAttachment(100, 0);
-    fdPartitionFields.height = (int) (100 * props.getZoomFactor());
+    fdPartitionFields.bottom = new FormAttachment(100, 0);
     wPartitionFields.setLayoutData(fdPartitionFields);
-    wPartitionFields.addModifyListener(e -> enableFields());
-    lastControl = wPartitionFields;
+  }
 
-    wlWriteMode = new Label(shell, SWT.RIGHT);
-    wlWriteMode.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.WriteMode.Label"));
-    wlWriteMode.setToolTipText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.WriteMode.ToolTip"));
-    PropsUi.setLook(wlWriteMode);
-    FormData fdlWriteMode = new FormData();
-    fdlWriteMode.left = new FormAttachment(0, 0);
-    fdlWriteMode.right = new FormAttachment(middle, -margin);
-    fdlWriteMode.top = new FormAttachment(lastControl, margin);
-    wlWriteMode.setLayoutData(fdlWriteMode);
-    wWriteMode = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
-    wWriteMode.setItems(ParquetWriteMode.getDescriptions());
-    wWriteMode.setToolTipText(BaseMessages.getString(PKG, "ParquetOutputDialog.WriteMode.ToolTip"));
-    PropsUi.setLook(wWriteMode);
-    FormData fdWriteMode = new FormData();
-    fdWriteMode.left = new FormAttachment(middle, 0);
-    fdWriteMode.top = new FormAttachment(wlWriteMode, 0, SWT.CENTER);
-    fdWriteMode.right = new FormAttachment(100, 0);
-    wWriteMode.setLayoutData(fdWriteMode);
-    lastControl = wWriteMode;
-
-    wlMaxOpenPartitions = new Label(shell, SWT.RIGHT);
-    wlMaxOpenPartitions.setText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.MaxOpenPartitions.Label"));
-    wlMaxOpenPartitions.setToolTipText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.MaxOpenPartitions.ToolTip"));
-    PropsUi.setLook(wlMaxOpenPartitions);
-    FormData fdlMaxOpenPartitions = new FormData();
-    fdlMaxOpenPartitions.left = new FormAttachment(0, 0);
-    fdlMaxOpenPartitions.right = new FormAttachment(middle, -margin);
-    fdlMaxOpenPartitions.top = new FormAttachment(lastControl, margin);
-    wlMaxOpenPartitions.setLayoutData(fdlMaxOpenPartitions);
-    wMaxOpenPartitions = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wMaxOpenPartitions.enableExpandedInteger();
-    wMaxOpenPartitions.setToolTipText(
-        BaseMessages.getString(PKG, "ParquetOutputDialog.MaxOpenPartitions.ToolTip"));
-    PropsUi.setLook(wMaxOpenPartitions);
-    FormData fdMaxOpenPartitions = new FormData();
-    fdMaxOpenPartitions.left = new FormAttachment(middle, 0);
-    fdMaxOpenPartitions.top = new FormAttachment(wlMaxOpenPartitions, 0, SWT.CENTER);
-    fdMaxOpenPartitions.right = new FormAttachment(100, 0);
-    wMaxOpenPartitions.setLayoutData(fdMaxOpenPartitions);
-    lastControl = wMaxOpenPartitions;
-
-    Label wlFields = new Label(shell, SWT.LEFT);
+  private void addFieldsTable(Composite parent) {
+    Label wlFields = new Label(parent, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(lastControl, margin);
+    fdlFields.right = new FormAttachment(100, 0);
+    fdlFields.top = new FormAttachment(0, 0);
     wlFields.setLayoutData(fdlFields);
 
     ColumnInfo[] columns =
@@ -537,144 +200,194 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     columns[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     wFields =
         new TableView(
-            variables, shell, SWT.BORDER, columns, input.getFields().size(), false, null, props);
-    PropsUi.setLook(wFields);
+            variables,
+            parent,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            columns,
+            input.getFields() == null ? 0 : input.getFields().size(),
+            false,
+            e -> {
+              if (!loading) {
+                input.setChanged();
+              }
+            },
+            props);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(100, 0);
     wFields.setLayoutData(fdFields);
+  }
 
-    getData();
-    focusTransformName();
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-    return returnValue;
+  private void applyDescribedEnumCombos() {
+    widgets.setComboValues(ParquetOutputMeta.WIDGET_VERSION, ParquetVersion.getDescriptions());
+    setComboText(ParquetOutputMeta.WIDGET_VERSION, input.getVersionDescription());
+    widgets.setComboValues(ParquetOutputMeta.WIDGET_WRITE_MODE, ParquetWriteMode.getDescriptions());
+    setComboText(ParquetOutputMeta.WIDGET_WRITE_MODE, input.getWriteModeDescription());
+  }
+
+  private void enableExpandedIntegers() {
+    enableExpandedInteger(ParquetOutputMeta.WIDGET_FILE_SPLIT_SIZE);
+    enableExpandedInteger(ParquetOutputMeta.WIDGET_ROW_GROUP_SIZE);
+    enableExpandedInteger(ParquetOutputMeta.WIDGET_DATA_PAGE_SIZE);
+    enableExpandedInteger(ParquetOutputMeta.WIDGET_DICTIONARY_PAGE_SIZE);
+    enableExpandedInteger(ParquetOutputMeta.WIDGET_MAX_OPEN_PARTITIONS);
+  }
+
+  private void enableExpandedInteger(String widgetId) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control instanceof TextVar textVar) {
+      textVar.enableExpandedInteger();
+    }
+  }
+
+  private void populateTables() {
+    if (wFields != null && !wFields.isDisposed()) {
+      wFields.clearAll();
+      if (input.getFields() != null) {
+        for (ParquetField field : input.getFields()) {
+          TableItem item = new TableItem(wFields.table, SWT.NONE);
+          item.setText(1, Const.NVL(field.getSourceFieldName(), ""));
+          item.setText(2, Const.NVL(field.getTargetFieldName(), ""));
+        }
+      }
+      wFields.optimizeTableView();
+    }
+
+    if (wPartitionFields != null && !wPartitionFields.isDisposed()) {
+      wPartitionFields.clearAll();
+      if (input.getPartitionFields() != null) {
+        for (ParquetPartitionField field : input.getPartitionFields()) {
+          TableItem item = new TableItem(wPartitionFields.table, SWT.NONE);
+          item.setText(1, Const.NVL(field.getName(), ""));
+        }
+      }
+      wPartitionFields.optimizeTableView();
+    }
+  }
+
+  private void persistTables() {
+    if (wFields != null && !wFields.isDisposed()) {
+      List<ParquetField> fields = new ArrayList<>();
+      for (TableItem item : wFields.getNonEmptyItems()) {
+        fields.add(new ParquetField(item.getText(1), item.getText(2)));
+      }
+      input.setFields(fields);
+    }
+    if (wPartitionFields != null && !wPartitionFields.isDisposed()) {
+      List<ParquetPartitionField> partitionFields = new ArrayList<>();
+      for (TableItem item : wPartitionFields.getNonEmptyItems()) {
+        partitionFields.add(new ParquetPartitionField(item.getText(1)));
+      }
+      input.setPartitionFields(partitionFields);
+    }
+  }
+
+  private void persistDescribedEnums() {
+    input.setVersion(
+        ParquetVersion.getVersionFromDescription(getComboText(ParquetOutputMeta.WIDGET_VERSION)));
+    input.setWriteMode(
+        ParquetWriteMode.getModeFromDescription(getComboText(ParquetOutputMeta.WIDGET_WRITE_MODE)));
+  }
+
+  private void setFieldComboValues() {
+    try {
+      IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
+      String[] names = fields == null ? new String[0] : fields.getFieldNames();
+      if (wFields != null && !wFields.isDisposed()) {
+        wFields.getColumns()[0].setComboValues(names);
+      }
+      if (wPartitionFields != null && !wPartitionFields.isDisposed()) {
+        wPartitionFields.getColumns()[0].setComboValues(names);
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting source fields", e);
+    }
   }
 
   private void enableFields() {
-    wlFilenameDateTimeFormat.setEnabled(wFilenameIncludeDateTime.getSelection());
-    wFilenameDateTimeFormat.setEnabled(wFilenameIncludeDateTime.getSelection());
+    boolean includeDateTime = isChecked(ParquetOutputMeta.WIDGET_FILENAME_INCLUDE_DATETIME);
+    setEnabled(ParquetOutputMeta.WIDGET_FILENAME_DATETIME_FORMAT, includeDateTime);
 
-    wlFilenameSplitSize.setEnabled(wFilenameIncludeSplitNr.getSelection());
-    wFilenameSplitSize.setEnabled(wFilenameIncludeSplitNr.getSelection());
+    boolean includeSplit = isChecked(ParquetOutputMeta.WIDGET_FILENAME_INCLUDE_SPLIT_NR);
+    setEnabled(ParquetOutputMeta.WIDGET_FILE_SPLIT_SIZE, includeSplit);
 
-    // The write mode and the open-partition limit only mean something while partitioning.
-    boolean partitioning = !wPartitionFields.getNonEmptyItems().isEmpty();
-    wlWriteMode.setEnabled(partitioning);
-    wWriteMode.setEnabled(partitioning);
-    wlMaxOpenPartitions.setEnabled(partitioning);
-    wMaxOpenPartitions.setEnabled(partitioning);
+    boolean partitioning =
+        wPartitionFields != null
+            && !wPartitionFields.isDisposed()
+            && !wPartitionFields.getNonEmptyItems().isEmpty();
+    setEnabled(ParquetOutputMeta.WIDGET_WRITE_MODE, partitioning);
+    setEnabled(ParquetOutputMeta.WIDGET_MAX_OPEN_PARTITIONS, partitioning);
+  }
+
+  private boolean isChecked(String widgetId) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    return control instanceof Button button && button.getSelection();
+  }
+
+  private void setEnabled(String widgetId, boolean enabled) {
+    Control label = widgets.getLabelsMap().get(widgetId);
+    if (label != null && !label.isDisposed()) {
+      label.setEnabled(enabled);
+    }
+    Control widget = widgets.getWidgetsMap().get(widgetId);
+    if (widget != null && !widget.isDisposed()) {
+      widget.setEnabled(enabled);
+    }
+  }
+
+  private void setComboText(String widgetId, String text) {
+    String value = Const.NVL(text, "");
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control instanceof ComboVar comboVar) {
+      comboVar.setText(value);
+    } else if (control instanceof Combo combo) {
+      combo.setText(value);
+    }
+  }
+
+  private String getComboText(String widgetId) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control instanceof ComboVar comboVar) {
+      return Const.NVL(comboVar.getText(), "");
+    }
+    if (control instanceof Combo combo) {
+      return Const.NVL(combo.getText(), "");
+    }
+    return "";
   }
 
   private void getFields() {
-    // Populate the wFields grid
-    //
     try {
       IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
       BaseTransformDialog.getFieldsFromPrevious(
           rowMeta, wFields, 2, new int[] {1, 2}, new int[0], -1, -1, true, null);
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting fields", e);
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FailedToGetFields.Title"),
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FailedToGetFields.Message"),
+          e);
     }
-  }
-
-  private void getData() {
-    try {
-      IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
-      wFields.getColumns()[0].setComboValues(fields.getFieldNames());
-      wPartitionFields.getColumns()[0].setComboValues(fields.getFieldNames());
-    } catch (Exception e) {
-      LogChannel.UI.logError("Error getting source fields", e);
-    }
-    wFilenameBase.setText(Const.NVL(input.getFilenameBase(), ""));
-    wFilenameExtension.setText(Const.NVL(input.getFilenameExtension(), ""));
-    wFilenameIncludeDate.setSelection(input.isFilenameIncludingDate());
-    wFilenameIncludeTime.setSelection(input.isFilenameIncludingTime());
-    wFilenameIncludeDateTime.setSelection(input.isFilenameIncludingDateTime());
-    wFilenameDateTimeFormat.setText(Const.NVL(input.getFilenameDateTimeFormat(), ""));
-    wFilenameIncludeCopyNr.setSelection(input.isFilenameIncludingCopyNr());
-    wFilenameIncludeSplitNr.setSelection(input.isFilenameIncludingSplitNr());
-    wFilenameSplitSize.setText(Const.NVL(input.getFileSplitSize(), ""));
-    wFilenameCreateFolders.setSelection(input.isFilenameCreatingParentFolders());
-    wFilenameCompressionBeforeExtension.setSelection(input.isFilenameCompressionBeforeExtension());
-    wCompressionCodec.setText(input.getCompressionCodec().name());
-    wVersion.setText(input.getVersion().getDescription());
-    wRowGroupSize.setText(Const.NVL(input.getRowGroupSize(), ""));
-    wDataPageSize.setText(Const.NVL(input.getDataPageSize(), ""));
-    wDictionaryPageSize.setText(Const.NVL(input.getDictionaryPageSize(), ""));
-    for (int i = 0; i < input.getFields().size(); i++) {
-      ParquetField field = input.getFields().get(i);
-      TableItem item = wFields.table.getItem(i);
-      item.setText(1, Const.NVL(field.getSourceFieldName(), ""));
-      item.setText(2, Const.NVL(field.getTargetFieldName(), ""));
-    }
-    wFields.optimizeTableView();
-
-    for (int i = 0; i < input.getPartitionFields().size(); i++) {
-      ParquetPartitionField field = input.getPartitionFields().get(i);
-      TableItem item = wPartitionFields.table.getItem(i);
-      item.setText(1, Const.NVL(field.getName(), ""));
-    }
-    wPartitionFields.optimizeTableView();
-    wWriteMode.setText(
-        input.getWriteMode() == null
-            ? ParquetWriteMode.Append.getDescription()
-            : input.getWriteMode().getDescription());
-    wMaxOpenPartitions.setText(Const.NVL(input.getMaxOpenPartitions(), ""));
-
-    enableFields();
-  }
-
-  private void ok() {
-    returnValue = wTransformName.getText();
-
-    input.setFilenameBase(wFilenameBase.getText());
-    input.setFilenameExtension(wFilenameExtension.getText());
-    input.setFilenameIncludingDate(wFilenameIncludeDate.getSelection());
-    input.setFilenameIncludingTime(wFilenameIncludeTime.getSelection());
-    input.setFilenameIncludingDateTime(wFilenameIncludeDateTime.getSelection());
-    input.setFilenameDateTimeFormat(wFilenameDateTimeFormat.getText());
-    input.setFilenameIncludingCopyNr(wFilenameIncludeCopyNr.getSelection());
-    input.setFilenameIncludingSplitNr(wFilenameIncludeSplitNr.getSelection());
-    input.setFileSplitSize(wFilenameSplitSize.getText());
-    input.setFilenameCreatingParentFolders(wFilenameCreateFolders.getSelection());
-    input.setFilenameCompressionBeforeExtension(wFilenameCompressionBeforeExtension.getSelection());
-
-    CompressionCodecName codec = CompressionCodecName.UNCOMPRESSED;
-    try {
-      codec = CompressionCodecName.valueOf(wCompressionCodec.getText());
-    } catch (Exception e) {
-      // Uncompressed it is.
-    }
-    input.setCompressionCodec(codec);
-
-    input.setVersion(ParquetVersion.getVersionFromDescription(wVersion.getText()));
-    input.setRowGroupSize(wRowGroupSize.getText());
-    input.setDataPageSize(wDataPageSize.getText());
-    input.setDictionaryPageSize(wDictionaryPageSize.getText());
-    input.getFields().clear();
-    for (TableItem item : wFields.getNonEmptyItems()) {
-      input.getFields().add(new ParquetField(item.getText(1), item.getText(2)));
-    }
-    input.getPartitionFields().clear();
-    for (TableItem item : wPartitionFields.getNonEmptyItems()) {
-      input.getPartitionFields().add(new ParquetPartitionField(item.getText(1)));
-    }
-    input.setWriteMode(ParquetWriteMode.getModeFromDescription(wWriteMode.getText()));
-    input.setMaxOpenPartitions(wMaxOpenPartitions.getText());
-    input.setChanged();
-    dispose();
   }
 
   private void cancel() {
-    returnValue = null;
+    transformName = null;
+    input.setChanged(changed);
     dispose();
   }
 
-  @Override
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
+  private void ok() {
+    if (Utils.isEmpty(wTransformName.getText())) {
+      return;
+    }
+
+    widgets.getWidgetsContents(input, ParquetOutputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    persistTables();
+    persistDescribedEnums();
+    transformName = wTransformName.getText();
+    input.setChanged();
+    dispose();
   }
 }

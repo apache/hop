@@ -19,12 +19,20 @@ package org.apache.hop.parquet.transforms.output;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 
+@Getter
+@Setter
 @Transform(
     id = "ParquetFileOutput",
     image = "parquet_output.svg",
@@ -33,35 +41,165 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/parquet-file-output.html",
     keywords = "i18n::ParquetOutputMeta.keyword")
+@GuiPlugin
 public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetOutputData> {
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PARQUET_OUTPUT_DIALOG_OPTIONS";
+
+  public static final String GROUP_FILE = "i18n::ParquetOutputMeta.Group.File";
+  public static final String GROUP_OPTIONS = "i18n::ParquetOutputMeta.Group.Options";
+  public static final String GROUP_PARTITIONING = "i18n::ParquetOutputMeta.Group.Partitioning";
+  public static final String GROUP_FIELDS = "i18n::ParquetOutputMeta.Group.Fields";
+
+  public static final String WIDGET_FILENAME_BASE = "filenameBase";
+  public static final String WIDGET_FILENAME_EXTENSION = "filenameExtension";
+  public static final String WIDGET_FILENAME_INCLUDE_DATE = "filenameIncludingDate";
+  public static final String WIDGET_FILENAME_INCLUDE_TIME = "filenameIncludingTime";
+  public static final String WIDGET_FILENAME_INCLUDE_DATETIME = "filenameIncludingDateTime";
+  public static final String WIDGET_FILENAME_DATETIME_FORMAT = "filenameDateTimeFormat";
+  public static final String WIDGET_FILENAME_INCLUDE_COPY_NR = "filenameIncludingCopyNr";
+  public static final String WIDGET_FILENAME_INCLUDE_SPLIT_NR = "filenameIncludingSplitNr";
+  public static final String WIDGET_FILE_SPLIT_SIZE = "fileSplitSize";
+  public static final String WIDGET_FILENAME_CREATE_FOLDERS = "filenameCreatingParentFolders";
+  public static final String WIDGET_FILENAME_COMPRESSION_BEFORE_EXTENSION =
+      "filenameCompressionBeforeExtension";
+  public static final String WIDGET_COMPRESSION_CODEC = "compressionCodec";
+  public static final String WIDGET_VERSION = "version";
+  public static final String WIDGET_ROW_GROUP_SIZE = "rowGroupSize";
+  public static final String WIDGET_DATA_PAGE_SIZE = "dataPageSize";
+  public static final String WIDGET_DICTIONARY_PAGE_SIZE = "dictionaryPageSize";
+  public static final String WIDGET_WRITE_MODE = "writeMode";
+  public static final String WIDGET_MAX_OPEN_PARTITIONS = "maxOpenPartitions";
+
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_BASE,
+      order = "0100",
+      type = GuiElementType.FILENAME,
+      typeFilename = ParquetTypeFilename.class,
+      namingSchemeType = "file",
+      label = "i18n::ParquetOutputDialog.FilenameBase.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameBase.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_base")
   private String filenameBase;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_EXTENSION,
+      order = "0200",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.FilenameExtension.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameExtension.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_ext")
   private String filenameExtension;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_INCLUDE_DATE,
+      order = "0300",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameIncludeDate.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameIncludeDate.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_include_date")
   private boolean filenameIncludingDate;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_INCLUDE_TIME,
+      order = "0400",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameIncludeTime.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameIncludeTime.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_include_time")
   private boolean filenameIncludingTime;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_INCLUDE_DATETIME,
+      order = "0500",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameIncludeDateTime.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameIncludeDateTime.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_include_datetime")
   private boolean filenameIncludingDateTime;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_DATETIME_FORMAT,
+      order = "0600",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.FilenameDateTimeFormat.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameDateTimeFormat.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_datetime_format")
   private String filenameDateTimeFormat;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_INCLUDE_COPY_NR,
+      order = "0700",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameIncludeCopyNr.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameIncludeCopyNr.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_include_copy")
   private boolean filenameIncludingCopyNr;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_INCLUDE_SPLIT_NR,
+      order = "0800",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameIncludeSplitNr.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameIncludeSplitNr.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_include_split")
   private boolean filenameIncludingSplitNr;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILE_SPLIT_SIZE,
+      order = "0900",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.FilenameSplitSize.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameSplitSize.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_split_size")
   private String fileSplitSize;
 
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_CREATE_FOLDERS,
+      order = "1000",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameCreateFolders.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameCreateFolders.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_create_parent_folders")
   private boolean filenameCreatingParentFolders;
 
@@ -71,21 +209,84 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
    * file.parquet.snappy). New transforms default to true; pipelines loaded without this property
    * keep false for backward compatibility.
    */
+  @GuiWidgetElement(
+      id = WIDGET_FILENAME_COMPRESSION_BEFORE_EXTENSION,
+      order = "1100",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ParquetOutputDialog.FilenameCompressionBeforeExtension.Label",
+      toolTip = "i18n::ParquetOutputMeta.FilenameCompressionBeforeExtension.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_FILE,
+      groupOrder = "0100")
   @HopMetadataProperty(key = "filename_compression_before_extension")
   private boolean filenameCompressionBeforeExtension;
 
+  @GuiWidgetElement(
+      id = WIDGET_COMPRESSION_CODEC,
+      order = "0100",
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::ParquetOutputDialog.CompressionCodec.Label",
+      toolTip = "i18n::ParquetOutputMeta.CompressionCodec.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = "0200")
   @HopMetadataProperty(key = "compression_codec")
   private CompressionCodecName compressionCodec;
 
+  @GuiWidgetElement(
+      id = WIDGET_VERSION,
+      order = "0200",
+      type = GuiElementType.COMBO,
+      variables = false,
+      getterMethod = "getVersionDescription",
+      label = "i18n::ParquetOutputDialog.Version.Label",
+      toolTip = "i18n::ParquetOutputMeta.Version.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = "0200")
   @HopMetadataProperty(key = "version", storeWithCode = true)
   private ParquetVersion version;
 
+  @GuiWidgetElement(
+      id = WIDGET_ROW_GROUP_SIZE,
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.RowGroupSize.Label",
+      toolTip = "i18n::ParquetOutputMeta.RowGroupSize.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = "0200")
   @HopMetadataProperty(key = "row_group_size")
   private String rowGroupSize;
 
+  @GuiWidgetElement(
+      id = WIDGET_DATA_PAGE_SIZE,
+      order = "0400",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.DataPageSize.Label",
+      toolTip = "i18n::ParquetOutputMeta.DataPageSize.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = "0200")
   @HopMetadataProperty(key = "data_page_size")
   private String dataPageSize;
 
+  @GuiWidgetElement(
+      id = WIDGET_DICTIONARY_PAGE_SIZE,
+      order = "0500",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.DictionaryPageSize.Label",
+      toolTip = "i18n::ParquetOutputMeta.DictionaryPageSize.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = "0200")
   @HopMetadataProperty(key = "dictionary_page_size")
   private String dictionaryPageSize;
 
@@ -95,9 +296,31 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
   @HopMetadataProperty(groupKey = "partition_fields", key = "partition_field")
   private List<ParquetPartitionField> partitionFields;
 
+  @GuiWidgetElement(
+      id = WIDGET_WRITE_MODE,
+      order = "0100",
+      type = GuiElementType.COMBO,
+      variables = false,
+      getterMethod = "getWriteModeDescription",
+      label = "i18n::ParquetOutputDialog.WriteMode.Label",
+      toolTip = "i18n::ParquetOutputDialog.WriteMode.ToolTip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_PARTITIONING,
+      groupOrder = "0300")
   @HopMetadataProperty(key = "write_mode", storeWithCode = true)
   private ParquetWriteMode writeMode;
 
+  @GuiWidgetElement(
+      id = WIDGET_MAX_OPEN_PARTITIONS,
+      order = "0200",
+      type = GuiElementType.TEXT,
+      label = "i18n::ParquetOutputDialog.MaxOpenPartitions.Label",
+      toolTip = "i18n::ParquetOutputDialog.MaxOpenPartitions.ToolTip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_PARTITIONING,
+      groupOrder = "0300")
   @HopMetadataProperty(key = "max_open_partitions")
   private String maxOpenPartitions;
 
@@ -136,7 +359,12 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     this.rowGroupSize = m.rowGroupSize;
     this.dataPageSize = m.dataPageSize;
     this.dictionaryPageSize = m.dictionaryPageSize;
-    this.fields = m.fields;
+    this.fields = new ArrayList<>();
+    if (m.fields != null) {
+      for (ParquetField field : m.fields) {
+        this.fields.add(new ParquetField(field));
+      }
+    }
     this.partitionFields = new ArrayList<>();
     if (m.partitionFields != null) {
       for (ParquetPartitionField f : m.partitionFields) {
@@ -148,291 +376,16 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
   }
 
   /**
-   * Gets filenameBase
-   *
-   * @return value of filenameBase
+   * Combo text for {@link #version}. {@code GuiCompositeWidgets} shows enum {@code toString()}
+   * values by default; this getter feeds the user-facing description instead.
    */
-  public String getFilenameBase() {
-    return filenameBase;
+  public String getVersionDescription() {
+    return version == null ? "" : version.getDescription();
   }
 
-  /**
-   * @param filenameBase The filenameBase to set
-   */
-  public void setFilenameBase(String filenameBase) {
-    this.filenameBase = filenameBase;
-  }
-
-  /**
-   * Gets filenameExtension
-   *
-   * @return value of filenameExtension
-   */
-  public String getFilenameExtension() {
-    return filenameExtension;
-  }
-
-  /**
-   * @param filenameExtension The filenameExtension to set
-   */
-  public void setFilenameExtension(String filenameExtension) {
-    this.filenameExtension = filenameExtension;
-  }
-
-  /**
-   * Gets filenameIncludingDate
-   *
-   * @return value of filenameIncludingDate
-   */
-  public boolean isFilenameIncludingDate() {
-    return filenameIncludingDate;
-  }
-
-  /**
-   * @param filenameIncludingDate The filenameIncludingDate to set
-   */
-  public void setFilenameIncludingDate(boolean filenameIncludingDate) {
-    this.filenameIncludingDate = filenameIncludingDate;
-  }
-
-  /**
-   * Gets filenameIncludingTime
-   *
-   * @return value of filenameIncludingTime
-   */
-  public boolean isFilenameIncludingTime() {
-    return filenameIncludingTime;
-  }
-
-  /**
-   * @param filenameIncludingTime The filenameIncludingTime to set
-   */
-  public void setFilenameIncludingTime(boolean filenameIncludingTime) {
-    this.filenameIncludingTime = filenameIncludingTime;
-  }
-
-  /**
-   * Gets filenameIncludingDateTime
-   *
-   * @return value of filenameIncludingDateTime
-   */
-  public boolean isFilenameIncludingDateTime() {
-    return filenameIncludingDateTime;
-  }
-
-  /**
-   * @param filenameIncludingDateTime The filenameIncludingDateTime to set
-   */
-  public void setFilenameIncludingDateTime(boolean filenameIncludingDateTime) {
-    this.filenameIncludingDateTime = filenameIncludingDateTime;
-  }
-
-  /**
-   * Gets filenameDateTimeFormat
-   *
-   * @return value of filenameDateTimeFormat
-   */
-  public String getFilenameDateTimeFormat() {
-    return filenameDateTimeFormat;
-  }
-
-  /**
-   * @param filenameDateTimeFormat The filenameDateTimeFormat to set
-   */
-  public void setFilenameDateTimeFormat(String filenameDateTimeFormat) {
-    this.filenameDateTimeFormat = filenameDateTimeFormat;
-  }
-
-  /**
-   * Gets filenameIncludingCopyNr
-   *
-   * @return value of filenameIncludingCopyNr
-   */
-  public boolean isFilenameIncludingCopyNr() {
-    return filenameIncludingCopyNr;
-  }
-
-  /**
-   * @param filenameIncludingCopyNr The filenameIncludingCopyNr to set
-   */
-  public void setFilenameIncludingCopyNr(boolean filenameIncludingCopyNr) {
-    this.filenameIncludingCopyNr = filenameIncludingCopyNr;
-  }
-
-  /**
-   * Gets filenameIncludingSplitNr
-   *
-   * @return value of filenameIncludingSplitNr
-   */
-  public boolean isFilenameIncludingSplitNr() {
-    return filenameIncludingSplitNr;
-  }
-
-  /**
-   * @param filenameIncludingSplitNr The filenameIncludingSplitNr to set
-   */
-  public void setFilenameIncludingSplitNr(boolean filenameIncludingSplitNr) {
-    this.filenameIncludingSplitNr = filenameIncludingSplitNr;
-  }
-
-  /**
-   * Gets filenameIncludingSplitSize
-   *
-   * @return value of filenameIncludingSplitSize
-   */
-  public String getFileSplitSize() {
-    return fileSplitSize;
-  }
-
-  /**
-   * @param fileSplitSize The filenameIncludingSplitSize to set
-   */
-  public void setFileSplitSize(String fileSplitSize) {
-    this.fileSplitSize = fileSplitSize;
-  }
-
-  /**
-   * Gets filenameCreatingParentFolders
-   *
-   * @return value of filenameCreatingParentFolders
-   */
-  public boolean isFilenameCreatingParentFolders() {
-    return filenameCreatingParentFolders;
-  }
-
-  /**
-   * @param filenameCreatingParentFolders The filenameCreatingParentFolders to set
-   */
-  public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
-    this.filenameCreatingParentFolders = filenameCreatingParentFolders;
-  }
-
-  /**
-   * Gets filenameCompressionBeforeExtension
-   *
-   * @return value of filenameCompressionBeforeExtension
-   */
-  public boolean isFilenameCompressionBeforeExtension() {
-    return filenameCompressionBeforeExtension;
-  }
-
-  /**
-   * @param filenameCompressionBeforeExtension The filenameCompressionBeforeExtension to set
-   */
-  public void setFilenameCompressionBeforeExtension(boolean filenameCompressionBeforeExtension) {
-    this.filenameCompressionBeforeExtension = filenameCompressionBeforeExtension;
-  }
-
-  /**
-   * Gets compressionCodec
-   *
-   * @return value of compressionCodec
-   */
-  public CompressionCodecName getCompressionCodec() {
-    return compressionCodec;
-  }
-
-  /**
-   * @param compressionCodec The compressionCodec to set
-   */
-  public void setCompressionCodec(CompressionCodecName compressionCodec) {
-    this.compressionCodec = compressionCodec;
-  }
-
-  /**
-   * Gets version
-   *
-   * @return value of version
-   */
-  public ParquetVersion getVersion() {
-    return version;
-  }
-
-  /**
-   * @param version The version to set
-   */
-  public void setVersion(ParquetVersion version) {
-    this.version = version;
-  }
-
-  /**
-   * Gets rowGroupSize
-   *
-   * @return value of rowGroupSize
-   */
-  public String getRowGroupSize() {
-    return rowGroupSize;
-  }
-
-  /**
-   * @param rowGroupSize The rowGroupSize to set
-   */
-  public void setRowGroupSize(String rowGroupSize) {
-    this.rowGroupSize = rowGroupSize;
-  }
-
-  /**
-   * Gets dataPageSize
-   *
-   * @return value of dataPageSize
-   */
-  public String getDataPageSize() {
-    return dataPageSize;
-  }
-
-  /**
-   * @param dataPageSize The dataPageSize to set
-   */
-  public void setDataPageSize(String dataPageSize) {
-    this.dataPageSize = dataPageSize;
-  }
-
-  /**
-   * Gets dictionaryPageSize
-   *
-   * @return value of dictionaryPageSize
-   */
-  public String getDictionaryPageSize() {
-    return dictionaryPageSize;
-  }
-
-  /**
-   * @param dictionaryPageSize The dictionaryPageSize to set
-   */
-  public void setDictionaryPageSize(String dictionaryPageSize) {
-    this.dictionaryPageSize = dictionaryPageSize;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public List<ParquetField> getFields() {
-    return fields;
-  }
-
-  /**
-   * @param fields The fields to set
-   */
-  public void setFields(List<ParquetField> fields) {
-    this.fields = fields;
-  }
-
-  /**
-   * Gets partitionFields
-   *
-   * @return value of partitionFields
-   */
-  public List<ParquetPartitionField> getPartitionFields() {
-    return partitionFields;
-  }
-
-  /**
-   * @param partitionFields The partitionFields to set
-   */
-  public void setPartitionFields(List<ParquetPartitionField> partitionFields) {
-    this.partitionFields = partitionFields;
+  /** Combo text for {@link #writeMode}. Same reason as {@link #getVersionDescription()}. */
+  public String getWriteModeDescription() {
+    return writeMode == null ? "" : writeMode.getDescription();
   }
 
   /**
@@ -451,37 +404,5 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
       }
     }
     return false;
-  }
-
-  /**
-   * Gets writeMode
-   *
-   * @return value of writeMode
-   */
-  public ParquetWriteMode getWriteMode() {
-    return writeMode;
-  }
-
-  /**
-   * @param writeMode The writeMode to set
-   */
-  public void setWriteMode(ParquetWriteMode writeMode) {
-    this.writeMode = writeMode;
-  }
-
-  /**
-   * Gets maxOpenPartitions
-   *
-   * @return value of maxOpenPartitions
-   */
-  public String getMaxOpenPartitions() {
-    return maxOpenPartitions;
-  }
-
-  /**
-   * @param maxOpenPartitions The maxOpenPartitions to set
-   */
-  public void setMaxOpenPartitions(String maxOpenPartitions) {
-    this.maxOpenPartitions = maxOpenPartitions;
   }
 }
