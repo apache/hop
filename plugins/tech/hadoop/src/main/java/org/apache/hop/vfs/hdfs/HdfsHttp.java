@@ -49,6 +49,11 @@ public final class HdfsHttp {
         meta.getTransport() == null ? HdfsTransport.HttpFS : meta.getTransport();
     boolean https = meta.isHttps() || transport.defaultHttps();
     HttpClientBuilder builder = HttpClientBuilder.create();
+    // File bytes must not be gunzipped. HttpClient 5.4+ decompresses eagerly, so a WebHDFS 307
+    // with Content-Length 0 becomes java.io.EOFException on the first read.
+    builder.disableContentCompression();
+    // CREATE/OPEN 307s are followed explicitly so NameNode SPNEGO is not sent to a DataNode.
+    builder.disableRedirectHandling();
     builder.setDefaultRequestConfig(
         RequestConfig.custom()
             .setConnectTimeout(Timeout.ofSeconds(30))

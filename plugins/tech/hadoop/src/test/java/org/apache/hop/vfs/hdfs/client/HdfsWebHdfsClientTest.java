@@ -30,7 +30,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.concurrent.Executors;
 import javax.security.auth.login.LoginException;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.hdfs.HdfsTransport;
 import org.apache.hop.vfs.hdfs.kerberos.HdfsKerberosSession;
@@ -49,7 +49,8 @@ class HdfsWebHdfsClientTest {
     server = new WebHdfsTestServer();
     server.start();
     var executor = Executors.newCachedThreadPool();
-    var http = HttpClients.createDefault();
+    var http =
+        HttpClientBuilder.create().disableContentCompression().disableRedirectHandling().build();
     List<String> endpoints = List.of(server.endpoint());
     httpfs =
         new HdfsWebHdfsClient(
@@ -112,7 +113,10 @@ class HdfsWebHdfsClientTest {
     try {
       HdfsWebHdfsClient client =
           new HdfsWebHdfsClient(
-              HttpClients.createDefault(),
+              HttpClientBuilder.create()
+                  .disableContentCompression()
+                  .disableRedirectHandling()
+                  .build(),
               HdfsTransport.WebHDFS,
               List.of(standbyNn.endpoint(), activeNn.endpoint()),
               "http",
@@ -123,6 +127,12 @@ class HdfsWebHdfsClientTest {
               executor);
       HdfsFileStatus status = client.getFileStatus("/");
       assertTrue(status.isDirectory());
+      assertEquals(1, standbyNn.requestCount());
+      assertEquals(1, activeNn.requestCount());
+
+      assertTrue(client.getFileStatus("/").isDirectory());
+      assertEquals(1, standbyNn.requestCount(), "later calls must skip the known standby");
+      assertEquals(2, activeNn.requestCount());
     } finally {
       executor.shutdownNow();
       standbyNn.stop();
@@ -163,6 +173,27 @@ class HdfsWebHdfsClientTest {
   }
 
   @Test
+  void webhdfsOpenFollowsNoredirectLocation() throws Exception {
+    try (OutputStream out = webhdfs.create("/warehouse/read.txt", true)) {
+      out.write("hello parquet".getBytes(StandardCharsets.UTF_8));
+    }
+    try (InputStream in = webhdfs.open("/warehouse/read.txt")) {
+      assertEquals("hello parquet", new String(in.readAllBytes(), StandardCharsets.UTF_8));
+    }
+  }
+
+  @Test
+  void webhdfsOpenFollows307WithEmptyBody() throws Exception {
+    server.setOpenUses307(true);
+    try (OutputStream out = webhdfs.create("/warehouse/redirect.txt", true)) {
+      out.write("not empty".getBytes(StandardCharsets.UTF_8));
+    }
+    try (InputStream in = webhdfs.open("/warehouse/redirect.txt")) {
+      assertEquals("not empty", new String(in.readAllBytes(), StandardCharsets.UTF_8));
+    }
+  }
+
+  @Test
   void spnegoTokenIsBuiltInsideDoAs() {
     HdfsMeta meta = new HdfsMeta();
     meta.setName("t");
@@ -173,7 +204,10 @@ class HdfsWebHdfsClientTest {
     try {
       HdfsWebHdfsClient client =
           new HdfsWebHdfsClient(
-              HttpClients.createDefault(),
+              HttpClientBuilder.create()
+                  .disableContentCompression()
+                  .disableRedirectHandling()
+                  .build(),
               HdfsTransport.WebHDFS,
               List.of("master1.example.com:9871"),
               "https",

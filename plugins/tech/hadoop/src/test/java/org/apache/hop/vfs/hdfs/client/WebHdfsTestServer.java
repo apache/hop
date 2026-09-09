@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Minimal WebHDFS/HttpFS stub for unit tests. In-memory files, no Hadoop. */
 public class WebHdfsTestServer {
@@ -37,6 +38,8 @@ public class WebHdfsTestServer {
   private HttpServer server;
   private int port;
   private volatile boolean standby;
+  private volatile boolean openUses307;
+  private final AtomicInteger requests = new AtomicInteger();
 
   public WebHdfsTestServer() {
     dirs.put("/", true);
@@ -72,7 +75,16 @@ public class WebHdfsTestServer {
     this.standby = standby;
   }
 
+  public void setOpenUses307(boolean openUses307) {
+    this.openUses307 = openUses307;
+  }
+
+  public int requestCount() {
+    return requests.get();
+  }
+
   private void handle(HttpExchange exchange) throws IOException {
+    requests.incrementAndGet();
     try {
       String path = exchange.getRequestURI().getPath();
       String hdfsPath = path.substring("/webhdfs/v1".length());
@@ -87,7 +99,7 @@ public class WebHdfsTestServer {
         case "LISTSTATUS" -> listStatus(exchange, hdfsPath);
         case "MKDIRS" -> mkdirs(exchange, hdfsPath);
         case "CREATE" -> create(exchange, hdfsPath, query);
-        case "OPEN" -> open(exchange, hdfsPath);
+        case "OPEN" -> open(exchange, hdfsPath, query);
         case "DELETE" -> delete(exchange, hdfsPath);
         case "RENAME" -> rename(exchange, hdfsPath, query.get("destination"));
         default -> send(exchange, 400, "unknown op " + op);
@@ -174,10 +186,24 @@ public class WebHdfsTestServer {
     send(exchange, 201, "");
   }
 
-  private void open(HttpExchange exchange, String path) throws IOException {
+  private void open(HttpExchange exchange, String path, Map<String, String> query)
+      throws IOException {
     byte[] data = files.get(path);
     if (data == null) {
       send(exchange, 404, notFound(path));
+      return;
+    }
+    String location = "http://127.0.0.1:" + port + "/webhdfs/v1" + path + "?op=OPEN&offset=0";
+    boolean noredirect = "true".equalsIgnoreCase(query.get("noredirect"));
+    if (noredirect && openUses307) {
+      exchange.getResponseHeaders().add("Location", location);
+      exchange.getResponseHeaders().add("Content-Type", "application/octet-stream");
+      exchange.sendResponseHeaders(307, 0);
+      exchange.close();
+      return;
+    }
+    if (noredirect) {
+      send(exchange, 200, "{\"Location\":\"" + location + "\"}");
       return;
     }
     exchange.getResponseHeaders().add("Content-Type", "application/octet-stream");

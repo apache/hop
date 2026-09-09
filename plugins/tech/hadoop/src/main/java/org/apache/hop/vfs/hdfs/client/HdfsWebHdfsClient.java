@@ -44,6 +44,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
@@ -65,6 +66,7 @@ public class HdfsWebHdfsClient {
   private final CloseableHttpClient httpClient;
   private final HdfsTransport transport;
   private final List<String> endpoints;
+  private volatile String preferredEndpoint;
   private final String httpScheme;
   private final String basePath;
   private final String simpleUser;
@@ -85,7 +87,7 @@ public class HdfsWebHdfsClient {
       ExecutorService executor) {
     this.httpClient = httpClient;
     this.transport = transport;
-    this.endpoints = endpoints;
+    this.endpoints = List.copyOf(endpoints);
     this.httpScheme = httpScheme;
     String prefix = basePath == null || basePath.isBlank() ? DEFAULT_BASE_PATH : basePath.trim();
     if (prefix.endsWith("/")) {
@@ -136,7 +138,52 @@ public class HdfsWebHdfsClient {
   }
 
   public InputStream open(String path) throws IOException {
-    return executeStream("GET", path, Map.of("op", "OPEN"));
+    Map<String, String> params = new LinkedHashMap<>();
+    params.put("op", "OPEN");
+    // Same two-step as CREATE: NameNode returns a DataNode Location, then the client GETs it.
+    // Auto-following the 307 yields an empty body (Content-Length 0) and EOFException.
+    params.put("noredirect", "true");
+    IOException last = null;
+    for (String endpoint : orderedEndpoints()) {
+      CloseableHttpResponse response = null;
+      try {
+        String uri = buildUri(endpoint, path, params);
+        HttpGet request = new HttpGet(uri);
+        addSpnego(request, uri);
+        response = privileged(() -> httpClient.execute(request));
+        int code = response.getCode();
+        if (code >= 400) {
+          String error = readBody(response);
+          throw new IOException(errorMessage("GET", uri, code, error));
+        }
+        String location = redirectLocation(code, response);
+        if (location != null && !location.isBlank()) {
+          response.close();
+          response = null;
+          InputStream stream = getAbsoluteStream(location, false);
+          rememberWorkingEndpoint(endpoint);
+          return stream;
+        }
+        InputStream stream = streamEntity(response);
+        response = null;
+        rememberWorkingEndpoint(endpoint);
+        return stream;
+      } catch (IOException e) {
+        last = e;
+        logEndpointFailure(endpoint, e);
+      } catch (Exception e) {
+        last = new IOException(e);
+      } finally {
+        if (response != null) {
+          try {
+            response.close();
+          } catch (IOException ignored) {
+            // Best effort; the failed OPEN is already recorded in last.
+          }
+        }
+      }
+    }
+    throw last == null ? new IOException("No HDFS endpoints configured") : last;
   }
 
   /**
@@ -189,55 +236,117 @@ public class HdfsWebHdfsClient {
     executeRequest(put);
   }
 
-  private InputStream executeStream(String method, String path, Map<String, String> params)
-      throws IOException {
-    IOException last = null;
-    for (String endpoint : endpoints) {
-      try {
-        String uri = buildUri(endpoint, path, params);
-        HttpUriRequestBase request = request(method, uri);
-        return privileged(
-            () -> {
-              CloseableHttpResponse response = httpClient.execute(request);
-              int code = response.getCode();
-              if (code >= 400) {
-                try {
-                  String error = readBody(response);
-                  throw new IOException(errorMessage(method, uri, code, error));
-                } finally {
-                  response.close();
-                }
-              }
-              HttpEntity entity = response.getEntity();
-              if (entity == null) {
-                response.close();
-                throw new IOException("No entity for " + uri);
-              }
-              return new FilterInputStream(entity.getContent()) {
-                @Override
-                public void close() throws IOException {
-                  try {
-                    super.close();
-                  } finally {
-                    response.close();
-                  }
-                }
-              };
-            });
-      } catch (IOException e) {
-        last = e;
-        logEndpointFailure(endpoint, e);
-      } catch (Exception e) {
-        last = new IOException(e);
+  private InputStream getAbsoluteStream(String location, boolean redirected) throws IOException {
+    HttpGet get = new HttpGet(location);
+    if (shouldSpnegoForLocation(location)) {
+      addSpnego(get, location);
+    }
+    CloseableHttpResponse response = null;
+    try {
+      response = privileged(() -> httpClient.execute(get));
+      int code = response.getCode();
+      if (code >= 400) {
+        String error = readBody(response);
+        throw new IOException(errorMessage("GET", location, code, error));
+      }
+      if (isRedirectCode(code)) {
+        if (redirected) {
+          throw new IOException("WebHDFS OPEN redirected more than once for " + location);
+        }
+        Header header = response.getFirstHeader("Location");
+        if (header == null || header.getValue() == null || header.getValue().isBlank()) {
+          throw new IOException("WebHDFS OPEN redirect had no Location for " + location);
+        }
+        String next = header.getValue();
+        response.close();
+        response = null;
+        return getAbsoluteStream(next, true);
+      }
+      InputStream stream = streamEntity(response);
+      response = null;
+      return stream;
+    } catch (IOException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IOException(e);
+    } finally {
+      if (response != null) {
+        try {
+          response.close();
+        } catch (IOException ignored) {
+          // Best effort after a failed DataNode GET.
+        }
       }
     }
-    throw last == null ? new IOException("No HDFS endpoints configured") : last;
+  }
+
+  /**
+   * SPNEGO belongs on the NameNode / HttpFS / Knox host. DataNode OPEN URLs carry a delegation
+   * token in the query string; a NameNode ticket sent there is rejected.
+   */
+  private boolean shouldSpnegoForLocation(String location) {
+    if (!kerberos || kerberosSession == null) {
+      return false;
+    }
+    String host;
+    try {
+      host = hostOf(location);
+    } catch (URISyntaxException e) {
+      return false;
+    }
+    for (String endpoint : endpoints) {
+      if (host.equalsIgnoreCase(hostOfEndpoint(endpoint))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private String redirectLocation(int code, ClassicHttpResponse response) throws IOException {
+    if (isRedirectCode(code)) {
+      Header header = response.getFirstHeader("Location");
+      return header == null ? null : header.getValue();
+    }
+    if (code != 200) {
+      return null;
+    }
+    HttpEntity entity = response.getEntity();
+    if (entity == null) {
+      return null;
+    }
+    String contentType = entity.getContentType();
+    if (contentType == null || !contentType.toLowerCase(Locale.ROOT).contains("json")) {
+      return null;
+    }
+    return locationFromCreate(readBody(response));
+  }
+
+  private static boolean isRedirectCode(int code) {
+    return code == 301 || code == 302 || code == 303 || code == 307 || code == 308;
+  }
+
+  private static InputStream streamEntity(CloseableHttpResponse response) throws IOException {
+    HttpEntity entity = response.getEntity();
+    if (entity == null) {
+      response.close();
+      throw new IOException("No entity");
+    }
+    return new FilterInputStream(entity.getContent()) {
+      @Override
+      public void close() throws IOException {
+        try {
+          super.close();
+        } finally {
+          response.close();
+        }
+      }
+    };
   }
 
   private String executeString(String method, String path, Map<String, String> params, byte[] body)
       throws IOException {
     IOException last = null;
-    for (String endpoint : endpoints) {
+    for (String endpoint : orderedEndpoints()) {
       try {
         String uri = buildUri(endpoint, path, params);
         HttpUriRequestBase request = request(method, uri);
@@ -248,7 +357,9 @@ public class HdfsWebHdfsClient {
                   .setContentType(ContentType.APPLICATION_OCTET_STREAM)
                   .build());
         }
-        return executeRequest(request);
+        String result = executeRequest(request);
+        rememberWorkingEndpoint(endpoint);
+        return result;
       } catch (IOException e) {
         last = e;
         logEndpointFailure(endpoint, e);
@@ -259,7 +370,7 @@ public class HdfsWebHdfsClient {
 
   private String firstWorkingUri(String path, Map<String, String> params) throws IOException {
     IOException last = null;
-    for (String endpoint : endpoints) {
+    for (String endpoint : orderedEndpoints()) {
       try {
         return buildUri(endpoint, path, params);
       } catch (IOException e) {
@@ -490,6 +601,29 @@ public class HdfsWebHdfsClient {
     }
   }
 
+  private List<String> orderedEndpoints() {
+    String preferred = preferredEndpoint;
+    if (preferred == null || endpoints.size() < 2) {
+      return endpoints;
+    }
+    int index = endpoints.indexOf(preferred);
+    if (index <= 0) {
+      return endpoints;
+    }
+    List<String> ordered = new ArrayList<>(endpoints.size());
+    ordered.add(preferred);
+    for (int i = 0; i < endpoints.size(); i++) {
+      if (i != index) {
+        ordered.add(endpoints.get(i));
+      }
+    }
+    return ordered;
+  }
+
+  private void rememberWorkingEndpoint(String endpoint) {
+    preferredEndpoint = endpoint;
+  }
+
   private void logEndpointFailure(String endpoint, IOException error) {
     String message =
         isStandbyNameNode(error)
@@ -497,7 +631,7 @@ public class HdfsWebHdfsClient {
             : "HDFS VFS: " + endpoint + " failed: " + error.getMessage();
     try {
       if (isStandbyNameNode(error)) {
-        LogChannel.GENERAL.logBasic(message);
+        LogChannel.GENERAL.logDetailed(message);
       } else {
         LogChannel.GENERAL.logDebug(message);
       }
