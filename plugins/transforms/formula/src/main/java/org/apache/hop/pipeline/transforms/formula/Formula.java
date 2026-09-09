@@ -48,9 +48,6 @@ import org.apache.poi.ss.usermodel.FormulaError;
 public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   private static final Class<?> PKG = Formula.class; // for i18n purposes
 
-  private static final boolean ENABLE_FAST_PATH =
-      !Boolean.getBoolean("org.apache.hop.pipeline.transforms.formula.disableFastPath");
-
   private FormulaPoi[] poi;
   private List<String>[] formulaFieldLists;
   private CompiledFormula[] fastCompiled;
@@ -144,7 +141,11 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
       // compile each formula for the fast path when it is within the supported subset: the
       // resolved formula goes through the same variable resolution and field replacement as the
-      // regular POI path, so both evaluate exactly the same expression.
+      // regular POI path, so both evaluate exactly the same expression. The compiler returns
+      // NOT_ELIGIBLE (fastPath=false) for anything unsupported or when the fast path is disabled
+      // via
+      // -Dorg.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled=false
+      // in which case the POI path is used instead.
       //
       int formulaCount = meta.getFormulas().size();
       fastCompiled = new CompiledFormula[formulaCount];
@@ -156,10 +157,8 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         List<String> effectiveFields = getFormulaFieldList(effective);
         fastFieldLists[i] = effectiveFields;
         fastCompiled[i] =
-            ENABLE_FAST_PATH
-                ? FastFormulaCompiler.compile(
-                    effective, effectiveFields, data.outputRowMeta, fn.isSetNa())
-                : null;
+            FastFormulaCompiler.compile(
+                effective, effectiveFields, data.outputRowMeta, fn.isSetNa());
       }
     }
 
