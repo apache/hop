@@ -484,8 +484,10 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         } else {
           if (length > 0) {
             if (precision > 0 || length > 18) {
-              // Numeric(Precision, Scale): Precision = total length; Scale = decimal places
-              int numericPrecision = length + precision;
+              // Numeric(p, s): Hop length is the total number of significant digits. PostgreSQL
+              // before 15 rejects s > p, so widen p when a field was authored with scale larger
+              // than length.
+              int numericPrecision = Math.max(length, precision);
               if (numericPrecision > MAX_NUMERIC_PRECISION) {
                 // PostgreSQL refuses a declared precision above 1000 outright: "NUMERIC precision
                 // 1073741824 must be between 1 and 1000". A length that large only ever arrives

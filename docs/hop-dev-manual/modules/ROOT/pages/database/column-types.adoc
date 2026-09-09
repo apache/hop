@@ -45,10 +45,14 @@ Hop provides the plain JDBC behaviour; a dialect declares the parts it does diff
 
 Two of these carry a meaning that is easy to get wrong.
 
-`length` on a numeric type is the number of digits *before* the decimal, not the total.
-A database reports the total, so the scale has to come off.
-`NUMERIC(10,2)` is length 8, precision 2, and is written back as `NUMERIC(8+2, 2)`.
-Getting this backwards makes a column grow by its scale on every round trip.
+`length` on a numeric type is the *total* number of significant digits, the same value the database reports as precision.
+`NUMERIC(10,2)` is length 10, precision 2, and is written back as `NUMERIC(10, 2)` (or `DECIMAL(10,2)`).
+`numericLength()` on a `DatabaseColumn` is the digits before the decimal (8 for that example) and is only for dialect rules that test whether a declaration is possible.
+
+PostgreSQL used to emit `NUMERIC(length+precision, precision)` when Hop length still meant integer digits.
+From 2.20 it emits `NUMERIC(length, precision)`.
+A hand-authored Number field of length 10, precision 3 therefore generates `NUMERIC(10, 3)` rather than `NUMERIC(13, 3)`.
+If scale is larger than length, precision is widened so PostgreSQL before 15 does not reject the statement.
 
 `precision` of exactly 1 on a `TYPE_DATE` is a marker meaning the value is a date rather than a timestamp.
 It is not a digit count.
@@ -234,7 +238,8 @@ What survives when no rule claims a column is `StandardJdbcTypeMapper`, which do
 
 It exposes a few helpers that rules can use so that a condition does not have to restate arithmetic the mapping already does:
 
-* `numericLength(column)` — digits before the decimal, after the scale has been taken off
+* `numericLength(column)` — digits before the decimal, after the scale has been taken off. Dialect rules use this to test whether a declaration is possible at all.
+* `totalDigits(column)` — the total number of significant digits (JDBC precision). This is what Hop stores as Number/BigNumber length and what `DECIMAL(length, precision)` writers emit.
 * `numericScale(column)` — digits after the decimal
 * `displaySizeIsTwiceThePrecision(databaseMeta, column)` — the `CHAR(X) FOR BIT DATA` shape
 

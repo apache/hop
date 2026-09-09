@@ -197,6 +197,20 @@ class DatabaseMetaTest {
   }
 
   @Test
+  void splitsCompositeSchemaEvenWhenCatalogsAreUnsupported() {
+    when(iDatabase.getStartQuote()).thenReturn("[");
+    when(iDatabase.getEndQuote()).thenReturn("]");
+    when(iDatabase.isSupportsCatalogs()).thenReturn(false);
+    when(iDatabase.isQuoteAllFields()).thenReturn(true);
+    when(iDatabase.getSchemaTableCombination(anyString(), anyString()))
+        .thenAnswer(invocation -> invocation.getArgument(0) + "." + invocation.getArgument(1));
+
+    assertEquals(
+        "[catalog].[schema].[sample]",
+        databaseMeta.getQuotedSchemaTableCombination(variables, "catalog.schema", "sample"));
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   void testModifyingName() {
     DatabaseMeta meta = mock(DatabaseMeta.class);

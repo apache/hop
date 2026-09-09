@@ -71,9 +71,23 @@ class PostgreSqlTypeRulesTest {
     IValueMeta valueMeta = map(Types.NUMERIC, "numeric", 10, 2);
 
     assertTrue(valueMeta.isNumber());
-    // Hop length is the digits before the decimal, so it round-trips as NUMERIC(8+2, 2).
-    assertEquals(8, valueMeta.getLength());
+    // Hop length is the total number of significant digits, the same as the database precision.
+    assertEquals(10, valueMeta.getLength());
     assertEquals(2, valueMeta.getPrecision());
+  }
+
+  @Test
+  void aScaledNumericRoundTripsAsTheSameDeclaration() throws Exception {
+    assertEquals("NUMERIC(5, 2)", roundTrip(Types.NUMERIC, "numeric", 5, 2));
+    assertEquals("NUMERIC(24, 15)", roundTrip(Types.DECIMAL, "numeric", 24, 15));
+    assertEquals("NUMERIC(16, 1)", roundTrip(Types.NUMERIC, "numeric", 16, 1));
+  }
+
+  private String roundTrip(int sqlType, String typeName, int precision, int scale)
+      throws Exception {
+    PostgreSqlDatabaseMeta dialect = new PostgreSqlDatabaseMeta();
+    IValueMeta valueMeta = map(sqlType, typeName, precision, scale);
+    return dialect.getFieldDefinition(valueMeta, null, null, false, false, false);
   }
 
   /**
