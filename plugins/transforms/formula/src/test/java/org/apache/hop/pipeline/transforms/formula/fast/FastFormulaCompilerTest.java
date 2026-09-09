@@ -204,19 +204,15 @@ class FastFormulaCompilerTest {
   @Test
   void disabledFastPathReportsNotEligible() {
     add(new ValueMetaInteger("amount"));
-    String previous = System.getProperty(FastFormulaCompiler.ENABLED_PROPERTY);
+    boolean previous = FastFormulaCompiler.isEnabled();
     try {
-      System.setProperty(FastFormulaCompiler.ENABLED_PROPERTY, "false");
+      FastFormulaCompiler.setEnabled(false);
       FastFormulaCompiler.clear();
       CompiledFormula compiled =
           FastFormulaCompiler.compile("[amount] + 1", List.of("amount"), rowMeta, false);
       assertFalse(compiled.fastPath());
     } finally {
-      if (previous == null) {
-        System.clearProperty(FastFormulaCompiler.ENABLED_PROPERTY);
-      } else {
-        System.setProperty(FastFormulaCompiler.ENABLED_PROPERTY, previous);
-      }
+      FastFormulaCompiler.setEnabled(previous);
       FastFormulaCompiler.clear();
     }
   }
