@@ -164,6 +164,23 @@ class DatabaseTest {
     assertEquals(4, rowMeta.getValueMeta(1).getPrecision());
   }
 
+  @Test
+  void getParameterMetaDataMapsUnsizedNumericToInteger() throws Exception {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    ParameterMetaData parameterMetaData = mock(ParameterMetaData.class);
+    when(ps.getParameterMetaData()).thenReturn(parameterMetaData);
+    when(parameterMetaData.getParameterCount()).thenReturn(1);
+    when(parameterMetaData.getParameterType(1)).thenReturn(Types.NUMERIC);
+    when(parameterMetaData.getPrecision(1)).thenReturn(0);
+    when(parameterMetaData.getScale(1)).thenReturn(0);
+
+    Database db = new Database(log, variables, meta);
+    IRowMeta rowMeta = db.getParameterMetaData(ps);
+
+    assertEquals(1, rowMeta.size());
+    assertTrue(rowMeta.getValueMeta(0).isInteger());
+  }
+
   /**
    * When using getLookup calls there is no need to make attempt to retrieve row set metadata for
    * every call. That may bring performance penalty depends on jdbc driver implementation. For some

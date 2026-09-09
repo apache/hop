@@ -77,16 +77,17 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * known; new Hop Date fields stay DATETIME, new Timestamp fields become DATETIME2.
    */
   static String dateTimeColumnType(IValueMeta valueMeta) {
+    // Hop type first: a DATE column the user converted to Timestamp must keep the time.
+    if (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+        || "datetime2".equalsIgnoreCase(valueMeta.getOriginalColumnTypeName())) {
+      return "DATETIME2";
+    }
     int original = valueMeta.getOriginalColumnType();
     if (original == Types.DATE) {
       return "DATE";
     }
     if (original == Types.TIME) {
       return "TIME";
-    }
-    if (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
-        || "datetime2".equalsIgnoreCase(valueMeta.getOriginalColumnTypeName())) {
-      return "DATETIME2";
     }
     return "DATETIME";
   }

@@ -468,8 +468,11 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         } else {
           if (length > 0) {
             if (precision > 0 || length > 18) {
-              // Numeric(Precision, Scale): Hop length is the total number of significant digits.
-              if (length > MAX_NUMERIC_PRECISION) {
+              // Numeric(p, s): Hop length is the total number of significant digits. PostgreSQL
+              // before 15 rejects s > p, so widen p when a field was authored with scale larger
+              // than length.
+              int numericPrecision = Math.max(length, precision);
+              if (numericPrecision > MAX_NUMERIC_PRECISION) {
                 // PostgreSQL refuses a declared precision above 1000 outright: "NUMERIC precision
                 // 1073741824 must be between 1 and 1000". A length that large only ever arrives
                 // from the CLOB_LENGTH marker, which means unbounded, and an unconstrained NUMERIC
@@ -477,7 +480,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
                 // Hop value carries.
                 retval += "NUMERIC";
               } else {
-                retval += "NUMERIC(" + length + ", " + precision + ")";
+                retval += "NUMERIC(" + numericPrecision + ", " + precision + ")";
               }
             } else {
               if (length > 9) {

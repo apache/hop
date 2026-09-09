@@ -210,6 +210,13 @@ public class ProgressMonitorDialog {
         display.sleep();
       }
     }
+    // The worker may dispose the shell from its finally before this loop re-checks the flags.
+    if (interruptedException != null) {
+      throw interruptedException;
+    }
+    if (targetException != null) {
+      throw targetException;
+    }
   }
 
   public Shell getShell() {

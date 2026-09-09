@@ -1096,8 +1096,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   private String quoteSchema(String schemaName) {
-    // A composite "catalog.schema" is split whenever the caller passed one. supportsCatalogs()
-    // is a browsing flag and must not collapse an explicit catalog prefix into one identifier.
+    // A composite "catalog.schema" is split whenever the caller passed one, including on dialects
+    // that return supportsCatalogs() == false (jTDS SQL Server, Access, Gupta, Iris). That flag is
+    // a browsing hint and must not collapse mydb.dbo into the unresolvable identifier [mydb.dbo].
+    // A schema whose name itself contains a literal dot is vanishingly rare next to catalog.schema.
     int separatorIndex = schemaName.indexOf('.');
     if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
       String catalogName = schemaName.substring(0, separatorIndex);

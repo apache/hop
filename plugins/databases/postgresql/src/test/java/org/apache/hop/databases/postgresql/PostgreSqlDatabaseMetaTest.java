@@ -809,7 +809,7 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(5, 7)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(7, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     // An ALTER TABLE spells a column the way a CREATE TABLE does: through the dialect's type

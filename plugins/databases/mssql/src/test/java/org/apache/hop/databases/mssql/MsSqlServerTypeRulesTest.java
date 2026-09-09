@@ -70,6 +70,13 @@ class MsSqlServerTypeRulesTest {
   }
 
   @Test
+  void aTimestampConvertedFromDateKeepsTheTime() {
+    IValueMeta valueMeta = new ValueMetaTimestamp("COL");
+    valueMeta.setOriginalColumnType(Types.DATE);
+    assertEquals("DATETIME2", write(valueMeta));
+  }
+
+  @Test
   void nvarcharRoundTrips() throws Exception {
     assertEquals("NVARCHAR(20)", write(column(Types.NVARCHAR, "nvarchar", 20, 20)));
   }

@@ -2292,7 +2292,15 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         fields = getQueryFieldsFallback(sql, param, inform, data);
       }
     } catch (Exception e) {
-      fields = getQueryFieldsFallback(sql, param, inform, data);
+      // Only recover from the prepared-statement / data-service paths. The else branch already
+      // ran the fallback; calling it again would execute the user's SQL twice.
+      if (databaseMeta.supportsPreparedStatementMetadataRetrieval() || isDataServiceConnection()) {
+        fields = getQueryFieldsFallback(sql, param, inform, data);
+      } else if (e instanceof HopDatabaseException hopDatabaseException) {
+        throw hopDatabaseException;
+      } else {
+        throw new HopDatabaseException(e);
+      }
     }
 
     // Store in cache!!
@@ -3485,6 +3493,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         IValueMeta val = DatabaseTypeMapper.getValueMeta(this, databaseMeta, column, false, false);
         if (val == null) {
           val = new ValueMetaNone(name);
+        } else if (isUnsizedExactNumeric(sqlType, precision, scale) && val.isNumber()) {
+          // Drivers often report NUMERIC/DECIMAL with precision 0 for untyped parameters.
+          // The mapper then yields a double-backed Number; the old parameter path used Integer.
+          val = new ValueMetaInteger(name);
         }
         par.addValueMeta(val);
       }
@@ -3494,6 +3506,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     return par;
+  }
+
+  private static boolean isUnsizedExactNumeric(int sqlType, int precision, int scale) {
+    return (sqlType == Types.NUMERIC || sqlType == Types.DECIMAL) && precision <= 0 && scale <= 0;
   }
 
   public int countParameters(String sql) {
