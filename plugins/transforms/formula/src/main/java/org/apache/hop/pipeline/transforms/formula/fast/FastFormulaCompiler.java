@@ -45,6 +45,13 @@ public final class FastFormulaCompiler {
       "org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled";
   public static final int DEFAULT_MAX_SIZE = 1024;
 
+  /** Whether the fast path is enabled, read from {@value #ENABLED_PROPERTY} at class load. */
+  private static volatile boolean enabled = enabledFromProperty();
+
+  private static boolean enabledFromProperty() {
+    return Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
+  }
+
   /** Binds a formula to its compiled function (or states it is not eligible). */
   public record CompiledFormula(boolean fastPath, Function<Object[], Object> function) {
     public static final CompiledFormula NOT_ELIGIBLE = new CompiledFormula(false, null);
@@ -141,8 +148,14 @@ public final class FastFormulaCompiler {
     return key.toString();
   }
 
-  private static boolean isEnabled() {
-    return Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
+  /** Whether the fast path is enabled. */
+  public static boolean isEnabled() {
+    return enabled;
+  }
+
+  /** Overrides whether the fast path is enabled. Intended for tests. */
+  public static void setEnabled(boolean value) {
+    enabled = value;
   }
 
   private static int maxSize() {

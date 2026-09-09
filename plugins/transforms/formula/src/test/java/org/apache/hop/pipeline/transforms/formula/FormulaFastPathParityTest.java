@@ -68,6 +68,7 @@ class FormulaFastPathParityTest {
   @AfterEach
   void tearDown() {
     FastFormulaCompiler.clear();
+    FastFormulaCompiler.setEnabled(true);
     transformMockHelper.cleanUp();
   }
 
@@ -200,7 +201,7 @@ class FormulaFastPathParityTest {
   }
 
   private List<Object[]> run(Scenario scenario, boolean enabled) throws HopException {
-    System.setProperty(FastFormulaCompiler.ENABLED_PROPERTY, Boolean.toString(enabled));
+    FastFormulaCompiler.setEnabled(enabled);
     try {
       FastFormulaCompiler.clear();
 
