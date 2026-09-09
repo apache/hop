@@ -30,6 +30,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import javax.security.auth.login.LoginException;
@@ -225,7 +226,7 @@ public class HdfsWebHdfsClient {
             });
       } catch (IOException e) {
         last = e;
-        LogChannel.GENERAL.logDebug("HDFS VFS: " + endpoint + " failed: " + e.getMessage());
+        logEndpointFailure(endpoint, e);
       } catch (Exception e) {
         last = new IOException(e);
       }
@@ -250,7 +251,7 @@ public class HdfsWebHdfsClient {
         return executeRequest(request);
       } catch (IOException e) {
         last = e;
-        LogChannel.GENERAL.logDebug("HDFS VFS: " + endpoint + " failed: " + e.getMessage());
+        logEndpointFailure(endpoint, e);
       }
     }
     throw last == null ? new IOException("No HDFS endpoints configured") : last;
@@ -418,19 +419,90 @@ public class HdfsWebHdfsClient {
     return host + ":" + port;
   }
 
-  public static List<String> endpointList(String primaryHost, int port, String extra) {
-    List<String> list = new ArrayList<>();
-    if (primaryHost != null && !primaryHost.isBlank()) {
-      list.add(joinHostPort(primaryHost.trim(), port));
+  /**
+   * Hostname part of {@code host:port} (or a URL). Used so TLS/SPNEGO probes hit the first HA host
+   * when the field contains {@code master1,master2}.
+   */
+  public static String hostOfEndpoint(String endpoint) {
+    if (endpoint == null || endpoint.isBlank()) {
+      return "";
     }
-    if (extra != null) {
-      for (String line : extra.split("\\R")) {
-        String trimmed = line.trim();
-        if (!trimmed.isEmpty() && !list.contains(trimmed)) {
-          list.add(trimmed.contains(":") ? trimmed : joinHostPort(trimmed, port));
+    String hostPort = endpoint.trim();
+    int scheme = hostPort.indexOf("://");
+    if (scheme >= 0) {
+      hostPort = hostPort.substring(scheme + 3);
+    }
+    int slash = hostPort.indexOf('/');
+    if (slash >= 0) {
+      hostPort = hostPort.substring(0, slash);
+    }
+    int colon = hostPort.lastIndexOf(':');
+    if (colon > 0 && hostPort.substring(colon + 1).chars().allMatch(Character::isDigit)) {
+      return hostPort.substring(0, colon);
+    }
+    return hostPort;
+  }
+
+  /**
+   * True when the NameNode refused the call because it is HA standby ({@code
+   * https://s.apache.org/sbnn-error}).
+   */
+  public static boolean isStandbyNameNode(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase(Locale.ROOT);
+        if (lower.contains("state standby") || lower.contains("sbnn-error")) {
+          return true;
         }
       }
+      current = current.getCause();
     }
+    return false;
+  }
+
+  /**
+   * Build the failover list. {@code primaryHost} accepts one host or an Impala-style comma (or
+   * semicolon / whitespace) separated HA pair. {@code extra} is optional extra {@code host:port}
+   * lines.
+   */
+  public static List<String> endpointList(String primaryHost, int port, String extra) {
+    List<String> list = new ArrayList<>();
+    addEndpoints(list, primaryHost, port);
+    addEndpoints(list, extra, port);
     return list;
+  }
+
+  private static void addEndpoints(List<String> list, String spec, int port) {
+    if (spec == null || spec.isBlank()) {
+      return;
+    }
+    for (String token : spec.split("[,;\\s]+")) {
+      String trimmed = token.trim();
+      if (trimmed.isEmpty()) {
+        continue;
+      }
+      String endpoint = trimmed.contains(":") ? trimmed : joinHostPort(trimmed, port);
+      if (!list.contains(endpoint)) {
+        list.add(endpoint);
+      }
+    }
+  }
+
+  private void logEndpointFailure(String endpoint, IOException error) {
+    String message =
+        isStandbyNameNode(error)
+            ? "HDFS VFS: " + endpoint + " is a standby NameNode, trying the next HTTP endpoint"
+            : "HDFS VFS: " + endpoint + " failed: " + error.getMessage();
+    try {
+      if (isStandbyNameNode(error)) {
+        LogChannel.GENERAL.logBasic(message);
+      } else {
+        LogChannel.GENERAL.logDebug(message);
+      }
+    } catch (RuntimeException ignored) {
+      // HopLogStore is not started in some unit tests
+    }
   }
 }

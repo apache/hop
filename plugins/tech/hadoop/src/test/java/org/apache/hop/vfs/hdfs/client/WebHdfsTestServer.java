@@ -36,6 +36,7 @@ public class WebHdfsTestServer {
   private final Map<String, Boolean> dirs = new ConcurrentHashMap<>();
   private HttpServer server;
   private int port;
+  private volatile boolean standby;
 
   public WebHdfsTestServer() {
     dirs.put("/", true);
@@ -67,6 +68,10 @@ public class WebHdfsTestServer {
     return files.get(normalize(path));
   }
 
+  public void setStandby(boolean standby) {
+    this.standby = standby;
+  }
+
   private void handle(HttpExchange exchange) throws IOException {
     try {
       String path = exchange.getRequestURI().getPath();
@@ -93,6 +98,13 @@ public class WebHdfsTestServer {
   }
 
   private void getFileStatus(HttpExchange exchange, String path) throws IOException {
+    if (standby) {
+      send(
+          exchange,
+          403,
+          "{\"RemoteException\":{\"exception\":\"StandbyException\",\"javaClassName\":\"org.apache.hadoop.ipc.StandbyException\",\"message\":\"Operation category READ is not supported in state standby. Visit https://s.apache.org/sbnn-error\"}}");
+      return;
+    }
     if (dirs.containsKey(path)) {
       send(exchange, 200, "{\"FileStatus\":" + fileStatusJson(path, true, 0, "") + "}");
       return;

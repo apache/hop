@@ -59,21 +59,26 @@ public final class HdfsConnectionTester {
       path = "/";
     }
     boolean https = meta.isHttps() || transport.defaultHttps();
+    List<String> endpoints =
+        HdfsWebHdfsClient.endpointList(
+            host, port, variables.resolve(Const.NVL(meta.getHaNamenodes(), "")));
+    String probeHost =
+        endpoints.isEmpty() ? host : HdfsWebHdfsClient.hostOfEndpoint(endpoints.get(0));
 
     if (https) {
       try {
         HdfsTls.TrustMaterial trust = HdfsTls.load(variables, meta);
-        handshake(trust.sslContext(), host, port, meta.isHostnameVerification());
+        handshake(trust.sslContext(), probeHost, port, meta.isHostnameVerification());
         succeeded.add(
             BaseMessages.getString(
                 PKG,
                 "Hdfs.Test.Ok.Tls",
-                host,
+                probeHost,
                 Integer.toString(port),
                 trust.kind(),
                 Integer.toString(trust.certificateCount())));
       } catch (Exception e) {
-        throw failed(succeeded, "TLS", host + ":" + port, e);
+        throw failed(succeeded, "TLS", probeHost + ":" + port, e);
       }
     } else {
       succeeded.add(BaseMessages.getString(PKG, "Hdfs.Test.Ok.Http"));
@@ -85,13 +90,13 @@ public final class HdfsConnectionTester {
         session = loginSession(variables, meta);
         succeeded.add(kerberosOk(session));
       } catch (Exception e) {
-        throw failed(succeeded, "Kerberos", host, e);
+        throw failed(succeeded, "Kerberos", probeHost, e);
       }
       try {
-        session.doAs(() -> HdfsSpnego.authorizationHeader(host));
-        succeeded.add(BaseMessages.getString(PKG, "Hdfs.Test.Ok.Spnego", host));
+        session.doAs(() -> HdfsSpnego.authorizationHeader(probeHost));
+        succeeded.add(BaseMessages.getString(PKG, "Hdfs.Test.Ok.Spnego", probeHost));
       } catch (Exception e) {
-        throw failed(succeeded, "SPNEGO", "HTTP@" + host, e);
+        throw failed(succeeded, "SPNEGO", "HTTP@" + probeHost, e);
       }
     } else {
       succeeded.add(
@@ -129,7 +134,7 @@ public final class HdfsConnectionTester {
                 PKG,
                 "Hdfs.Test.Cluster.Success",
                 transport.name(),
-                host,
+                probeHost,
                 Integer.toString(port),
                 path))
         .append(Const.CR);
@@ -220,7 +225,7 @@ public final class HdfsConnectionTester {
     if (cause != null && StringUtils.isNotBlank(cause.getMessage())) {
       report.append(Const.CR).append(cause.getMessage());
     }
-    String hint = hintFor(step, detail);
+    String hint = hintFor(step, detail, cause);
     if (hint != null) {
       report.append(Const.CR).append(Const.CR).append(hint);
     }
@@ -237,7 +242,10 @@ public final class HdfsConnectionTester {
     }
   }
 
-  private static String hintFor(String step, String detail) {
+  private static String hintFor(String step, String detail, Throwable cause) {
+    if ("GETFILESTATUS".equals(step) && HdfsWebHdfsClient.isStandbyNameNode(cause)) {
+      return BaseMessages.getString(PKG, "Hdfs.Test.Hint.Standby");
+    }
     return switch (step) {
       case "TLS" -> BaseMessages.getString(PKG, "Hdfs.Test.Hint.Tls", Const.NVL(detail, ""));
       case "Kerberos" -> BaseMessages.getString(PKG, "Hdfs.Test.Hint.Kerberos");

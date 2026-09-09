@@ -189,11 +189,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       groupOrder = "010")
   public void testClusterButton(Object object) {
     runTest(
-        (HdfsMeta) object,
-        HdfsConnectionTester::testCluster,
-        "HdfsVFS.TestCluster.Success.Title",
-        "HdfsVFS.TestCluster.Error.Title",
-        "HdfsVFS.TestCluster.Error.Message");
+        (HdfsMeta) object, HdfsConnectionTester::testCluster, "HdfsVFS.TestCluster.Error.Message");
   }
 
   @GuiWidgetElement(
@@ -316,8 +312,6 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
     runTest(
         (HdfsMeta) object,
         HdfsConnectionTester::testKerberos,
-        "HdfsVFS.TestKerberos.Success.Title",
-        "HdfsVFS.TestKerberos.Error.Title",
         "HdfsVFS.TestKerberos.Error.Message");
   }
 
@@ -373,12 +367,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       group = GROUP_TLS,
       groupOrder = "030")
   public void testTlsButton(Object object) {
-    runTest(
-        (HdfsMeta) object,
-        HdfsConnectionTester::testTls,
-        "HdfsVFS.TestTls.Success.Title",
-        "HdfsVFS.TestTls.Error.Title",
-        "HdfsVFS.TestTls.Error.Message");
+    runTest((HdfsMeta) object, HdfsConnectionTester::testTls, "HdfsVFS.TestTls.Error.Message");
   }
 
   @FunctionalInterface
@@ -386,21 +375,17 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
     String run(IVariables variables, HdfsMeta meta) throws Exception;
   }
 
-  private void runTest(
-      HdfsMeta meta, Probe probe, String successTitle, String errorTitle, String errorMessage) {
+  private void runTest(HdfsMeta meta, Probe probe, String errorMessage) {
     HopGui hopGui = HopGui.getInstance();
+    String title = BaseMessages.getString(PKG, "HdfsVFS.Test.Title");
     try {
       String result = probe.run(hopGui.getVariables(), meta);
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, successTitle));
+      box.setText(title);
       box.setMessage(result);
       box.open();
     } catch (Exception e) {
-      String detail = e.getMessage();
-      if (detail == null || detail.isBlank()) {
-        detail = BaseMessages.getString(PKG, errorMessage);
-      }
-      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, errorTitle), detail, e);
+      new ErrorDialog(hopGui.getShell(), title, BaseMessages.getString(PKG, errorMessage), e);
     }
   }
 

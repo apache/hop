@@ -76,6 +76,26 @@ class HdfsConnectionTesterTest {
   }
 
   @Test
+  void clusterStandbyFailureHintsCommaSeparatedHosts() {
+    List<String> ok = new ArrayList<>();
+    ok.add("TLS handshake with master1.example.com:9871 (PEM, 2 certificate(s))");
+    ok.add("Kerberos login as hop@EXAMPLE.COM, ticket until -");
+    ok.add("SPNEGO token for HTTP@master1.example.com");
+    IOException error =
+        HdfsConnectionTester.failed(
+            ok,
+            "GETFILESTATUS",
+            "/",
+            new IOException(
+                "GET /webhdfs/v1/?op=GETFILESTATUS failed with HTTP 403: Operation category READ is not supported in state standby. Visit https://s.apache.org/sbnn-error"));
+    String message = error.getMessage();
+    assertTrue(message.contains("Succeeded:"));
+    assertTrue(message.contains("Failed: GETFILESTATUS /"));
+    assertTrue(message.contains("standby"));
+    assertTrue(message.contains("comma-separated") || message.contains("Impala"));
+  }
+
+  @Test
   void clusterProbeRequiresHost() {
     HdfsMeta meta = new HdfsMeta();
     assertThrows(

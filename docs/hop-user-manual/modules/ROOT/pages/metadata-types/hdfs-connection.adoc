@@ -59,11 +59,11 @@ That is the library-conflict and OpenShift-network path this plugin exists to av
 |Name |VFS scheme: `name:///path`
 |Description |Optional
 |Transport |HttpFS, Knox or WebHDFS
-|Endpoint hostname |HttpFS, Knox or NameNode host. Example: `'${HDFS_HTTPFS_HOST}'`
-|Port |Defaults: HttpFS 14000, Knox 8443, WebHDFS 9870
+|Endpoint hostname |One host, or two HA hosts separated by commas (Impala JDBC style): `master1.example.com,master2.example.com`. Example: `'${HDFS_HTTPFS_HOST}'`
+|Port |Defaults: HttpFS 14000, Knox 8443, WebHDFS 9870 (HTTPS WebHDFS is often 9871)
 |HTTPS |Use HTTPS
 |HTTP base path |Empty uses `/webhdfs/v1`. Knox example: `/gateway/cdp-proxy/webhdfs/v1`
-|Extra NameNode HTTP endpoints |WebHDFS failover `host:port` lines. Ignored for HttpFS and Knox.
+|Extra NameNode HTTP endpoints |Optional extra `host:port` lines when ports differ. WebHDFS fails over here (and to the second hostname) when a NameNode is standby.
 |Default HDFS root |Optional prefix, for example `/user/hop`
 |Simple-auth user |`user.name` query parameter when Kerberos is off
 |===
@@ -95,7 +95,7 @@ It does not call the `kinit` binary and does not use Hadoop `UserGroupInformatio
 
 Each tab has a **Test** button that uses the values currently in the editor (including the other tabs):
 
-* Cluster: TLS (when HTTPS), Kerberos login, SPNEGO token for `HTTP@host`, then `GETFILESTATUS` on the default HDFS root (or `/`). The result lists each step that succeeded; a failure names the step and a short hint.
+* Cluster: TLS (when HTTPS), Kerberos login, SPNEGO token for `HTTP@host`, then `GETFILESTATUS` on the default HDFS root (or `/`). The result lists each step that succeeded; a failure names the step and a short hint. A WebHDFS `403` `state standby` means that NameNode is HA standby — put both hosts in Endpoint hostname.
 * Kerberos: JAAS login from the keytab or ticket cache
 * TLS: load the PEM/keystore, then handshake with the HTTPS endpoint when host and HTTPS are set
 

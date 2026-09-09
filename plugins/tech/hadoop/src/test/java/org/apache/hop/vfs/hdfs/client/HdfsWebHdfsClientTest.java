@@ -94,6 +94,43 @@ class HdfsWebHdfsClientTest {
   }
 
   @Test
+  void endpointListParsesCommaSeparatedHaHosts() {
+    List<String> list =
+        HdfsWebHdfsClient.endpointList("master1.example.com,master2.example.com", 9871, null);
+    assertEquals(List.of("master1.example.com:9871", "master2.example.com:9871"), list);
+    assertEquals("master1.example.com", HdfsWebHdfsClient.hostOfEndpoint(list.get(0)));
+  }
+
+  @Test
+  void getFileStatusFailsOverFromStandbyNamenode() throws Exception {
+    WebHdfsTestServer standbyNn = new WebHdfsTestServer();
+    WebHdfsTestServer activeNn = new WebHdfsTestServer();
+    standbyNn.start();
+    activeNn.start();
+    standbyNn.setStandby(true);
+    var executor = Executors.newCachedThreadPool();
+    try {
+      HdfsWebHdfsClient client =
+          new HdfsWebHdfsClient(
+              HttpClients.createDefault(),
+              HdfsTransport.WebHDFS,
+              List.of(standbyNn.endpoint(), activeNn.endpoint()),
+              "http",
+              "/webhdfs/v1",
+              "hop",
+              false,
+              null,
+              executor);
+      HdfsFileStatus status = client.getFileStatus("/");
+      assertTrue(status.isDirectory());
+    } finally {
+      executor.shutdownNow();
+      standbyNn.stop();
+      activeNn.stop();
+    }
+  }
+
+  @Test
   void httpfsMkdirListWriteReadDelete() throws Exception {
     httpfs.mkdirs("/it");
     HdfsFileStatus dir = httpfs.getFileStatus("/it");
