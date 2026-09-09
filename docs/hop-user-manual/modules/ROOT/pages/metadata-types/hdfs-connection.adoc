@@ -95,9 +95,9 @@ It does not call the `kinit` binary and does not use Hadoop `UserGroupInformatio
 
 Each tab has a **Test** button that uses the values currently in the editor (including the other tabs):
 
-* Cluster: `GETFILESTATUS` on the default HDFS root (or `/`)
+* Cluster: TLS (when HTTPS), Kerberos login, SPNEGO token for `HTTP@host`, then `GETFILESTATUS` on the default HDFS root (or `/`). The result lists each step that succeeded; a failure names the step and a short hint.
 * Kerberos: JAAS login from the keytab or ticket cache
-* TLS: load the PEM/keystore, then TLS handshake when HTTPS and a host are set
+* TLS: load the PEM/keystore, then handshake with the HTTPS endpoint when host and HTTPS are set
 
 == Tips
 

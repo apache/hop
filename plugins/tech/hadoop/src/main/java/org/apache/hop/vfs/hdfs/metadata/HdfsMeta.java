@@ -396,11 +396,11 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       box.setMessage(result);
       box.open();
     } catch (Exception e) {
-      new ErrorDialog(
-          hopGui.getShell(),
-          BaseMessages.getString(PKG, errorTitle),
-          BaseMessages.getString(PKG, errorMessage),
-          e);
+      String detail = e.getMessage();
+      if (detail == null || detail.isBlank()) {
+        detail = BaseMessages.getString(PKG, errorMessage);
+      }
+      new ErrorDialog(hopGui.getShell(), BaseMessages.getString(PKG, errorTitle), detail, e);
     }
   }
 

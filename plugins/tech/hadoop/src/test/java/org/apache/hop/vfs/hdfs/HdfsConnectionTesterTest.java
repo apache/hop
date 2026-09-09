@@ -19,9 +19,13 @@ package org.apache.hop.vfs.hdfs;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.hdfs.client.WebHdfsTestServer;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
+import org.ietf.jgss.GSSException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +53,26 @@ class HdfsConnectionTesterTest {
     meta.setHttps(false);
     String report = HdfsConnectionTester.testCluster(new Variables(), meta);
     assertTrue(report.contains("HttpFS"));
+    assertTrue(report.contains("Succeeded:"));
+    assertTrue(report.contains("Plain HTTP"));
+    assertTrue(report.contains("GETFILESTATUS"));
     assertTrue(report.contains("DIRECTORY") || report.contains("/"));
+  }
+
+  @Test
+  void clusterFailureKeepsSucceededStepsAndHint() {
+    List<String> ok = new ArrayList<>();
+    ok.add("Plain HTTP (TLS not required)");
+    ok.add("Kerberos login as hop@EXAMPLE.COM, ticket until -");
+    IOException error =
+        HdfsConnectionTester.failed(
+            ok, "SPNEGO", "HTTP@master1.example.com", new GSSException(GSSException.NO_CRED));
+    String message = error.getMessage();
+    assertTrue(message.contains("Succeeded:"));
+    assertTrue(message.contains("Kerberos login as hop@EXAMPLE.COM"));
+    assertTrue(message.contains("Failed: SPNEGO HTTP@master1.example.com"));
+    assertTrue(message.contains("HTTP@master1.example.com"));
+    assertTrue(message.contains("FQDN") || message.contains("service ticket"));
   }
 
   @Test

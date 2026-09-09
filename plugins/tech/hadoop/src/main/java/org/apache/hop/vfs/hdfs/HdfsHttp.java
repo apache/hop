@@ -75,6 +75,16 @@ public final class HdfsHttp {
   public static HdfsWebHdfsClient createWebHdfsClient(
       IVariables variables, HdfsMeta meta, CloseableHttpClient httpClient, ExecutorService executor)
       throws FileSystemException {
+    return createWebHdfsClient(variables, meta, httpClient, executor, null);
+  }
+
+  public static HdfsWebHdfsClient createWebHdfsClient(
+      IVariables variables,
+      HdfsMeta meta,
+      CloseableHttpClient httpClient,
+      ExecutorService executor,
+      HdfsKerberosSession kerberosSession)
+      throws FileSystemException {
     HdfsTransport transport =
         meta.getTransport() == null ? HdfsTransport.HttpFS : meta.getTransport();
     String host = variables.resolve(Const.NVL(meta.getEndpointHostname(), ""));
@@ -89,9 +99,9 @@ public final class HdfsHttp {
     List<String> endpoints =
         HdfsWebHdfsClient.endpointList(
             host, port, variables.resolve(Const.NVL(meta.getHaNamenodes(), "")));
-    HdfsKerberosSession kerberosSession = null;
-    if (meta.isKerberosEnabled()) {
-      kerberosSession = new HdfsKerberosSession(variables, meta);
+    HdfsKerberosSession session = kerberosSession;
+    if (meta.isKerberosEnabled() && session == null) {
+      session = new HdfsKerberosSession(variables, meta);
     }
     return new HdfsWebHdfsClient(
         httpClient,
@@ -101,7 +111,7 @@ public final class HdfsHttp {
         basePath,
         simpleUser,
         meta.isKerberosEnabled(),
-        kerberosSession,
+        session,
         executor);
   }
 

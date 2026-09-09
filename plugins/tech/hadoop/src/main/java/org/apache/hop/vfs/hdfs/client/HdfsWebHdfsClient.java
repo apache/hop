@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import javax.security.auth.login.LoginException;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -312,10 +313,28 @@ public class HdfsWebHdfsClient {
     if (!kerberos || kerberosSession == null) {
       return;
     }
+    String host;
     try {
-      request.setHeader("Authorization", HdfsSpnego.authorizationHeader(hostOf(uri)));
-    } catch (GSSException | URISyntaxException e) {
+      host = hostOf(uri);
+    } catch (URISyntaxException e) {
       throw new IOException("SPNEGO token failed for " + uri, e);
+    }
+    try {
+      // GSS reads the TGT from the current Subject. useSubjectCredsOnly=true, so this
+      // must run inside session.doAs, not on the calling thread after a separate login.
+      String header = privileged(() -> HdfsSpnego.authorizationHeader(host));
+      request.setHeader("Authorization", header);
+    } catch (GSSException e) {
+      throw new IOException(
+          "SPNEGO token failed for HTTP@" + host + " at " + uri + ": " + e.getMessage(), e);
+    } catch (LoginException e) {
+      throw new IOException(
+          "Kerberos login failed before SPNEGO for HTTP@" + host + ": " + e.getMessage(), e);
+    } catch (IOException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IOException(
+          "SPNEGO token failed for HTTP@" + host + " at " + uri + ": " + e.getMessage(), e);
     }
   }
 

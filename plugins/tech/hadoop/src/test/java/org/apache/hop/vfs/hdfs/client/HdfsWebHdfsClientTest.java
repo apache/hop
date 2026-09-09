@@ -19,15 +19,22 @@ package org.apache.hop.vfs.hdfs.client;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.concurrent.Executors;
+import javax.security.auth.login.LoginException;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.hdfs.HdfsTransport;
+import org.apache.hop.vfs.hdfs.kerberos.HdfsKerberosSession;
+import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,6 +123,48 @@ class HdfsWebHdfsClientTest {
       out.write(new byte[2048]);
     }
     assertEquals(2048, server.file("/warehouse/data.parquet").length);
+  }
+
+  @Test
+  void spnegoTokenIsBuiltInsideDoAs() {
+    HdfsMeta meta = new HdfsMeta();
+    meta.setName("t");
+    meta.setPrincipal("hop@EXAMPLE.COM");
+    meta.setKeytabPath("/tmp/hop.keytab");
+    TrackingSession session = new TrackingSession(meta);
+    var executor = Executors.newCachedThreadPool();
+    try {
+      HdfsWebHdfsClient client =
+          new HdfsWebHdfsClient(
+              HttpClients.createDefault(),
+              HdfsTransport.WebHDFS,
+              List.of("master1.example.com:9871"),
+              "https",
+              "/webhdfs/v1",
+              "hop",
+              true,
+              session,
+              executor);
+      IOException error = assertThrows(IOException.class, () -> client.getFileStatus("/"));
+      assertTrue(session.doAsCalled, "SPNEGO must run inside Subject.doAs so the TGT is visible");
+      assertTrue(error.getMessage().contains("doAs-was-called"));
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  static class TrackingSession extends HdfsKerberosSession {
+    boolean doAsCalled;
+
+    TrackingSession(HdfsMeta meta) {
+      super(new Variables(), meta);
+    }
+
+    @Override
+    public <T> T doAs(PrivilegedExceptionAction<T> action) throws Exception {
+      doAsCalled = true;
+      throw new LoginException("doAs-was-called");
+    }
   }
 
   @Test
