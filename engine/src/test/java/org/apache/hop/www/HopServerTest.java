@@ -18,10 +18,41 @@
 package org.apache.hop.www;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
 
 class HopServerTest {
+
+  @Test
+  void logEnabledProjectVariablesFailsWhenProjectNameSetWithoutHome() {
+    HopServer hopServer = new HopServer();
+    hopServer.setLog(mock(ILogChannel.class));
+    IVariables variables = new Variables();
+    variables.setVariable("HOP_PROJECT_NAME", "samples");
+    hopServer.setVariables(variables);
+
+    HopException thrown = assertThrows(HopException.class, hopServer::logEnabledProjectVariables);
+    assertTrue(thrown.getMessage().contains("PROJECT_HOME"));
+  }
+
+  @Test
+  void logEnabledProjectVariablesAcceptsProjectWithHome() throws HopException {
+    HopServer hopServer = new HopServer();
+    hopServer.setLog(mock(ILogChannel.class));
+    IVariables variables = new Variables();
+    variables.setVariable("HOP_PROJECT_NAME", "samples");
+    variables.setVariable("PROJECT_HOME", "/opt/hop/config/projects/samples");
+    hopServer.setVariables(variables);
+
+    hopServer.logEnabledProjectVariables();
+  }
 
   @Test
   void testApplySystemPropertiesPreservesEqualsSignsInValue() {

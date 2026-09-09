@@ -322,6 +322,83 @@ public class ProjectsConfigHelperTest {
     assertTrue(HopConfig.isInMemoryMode());
     assertNotNull(ProjectsConfigSingleton.getConfig().findProjectConfig("my-proj"));
     assertNotNull(ProjectsConfigSingleton.getConfig().findEnvironment("my-env"));
+    assertEquals(
+        projectDir.toAbsolutePath().toString(),
+        variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+    assertEquals("test_val", variables.getVariable("TEST_ENV_VAR"));
+    assertEquals("my-env", variables.getVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME));
+  }
+
+  @Test
+  public void testAlreadyEnabledAppliesVariablesToASecondInstance() throws Exception {
+    Path projectDir = tempRoot.resolve("second-vars");
+    Files.createDirectories(projectDir);
+    Path confFile = tempRoot.resolve("second-env.json");
+    Files.writeString(
+        confFile,
+        "{ \"variables\" : [ {\"name\" : \"ENV_MARKER\", \"value\" : \"from-env\"} ] }\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        projectDir.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME),
+        "{ \"metadataBaseFolder\" : \"${PROJECT_HOME}/metadata\" }\n",
+        StandardCharsets.UTF_8);
+
+    ProjectsOptionPlugin first = new ProjectsOptionPlugin();
+    first.setProjectLocations(new String[] {"second-vars=" + projectDir.toAbsolutePath()});
+    first.setEnvironments(new String[] {"second-env=" + confFile.toAbsolutePath()});
+    first.setEnvironmentOption("second-env");
+    IVariables firstVars = new Variables();
+    first.handleOption(LogChannel.GENERAL, null, firstVars);
+    registeredProjects.add("second-vars");
+    registeredEnvironments.add("second-env");
+
+    assertEquals("from-env", firstVars.getVariable("ENV_MARKER"));
+
+    IVariables secondVars = new Variables();
+    ProjectsOptionPlugin second = new ProjectsOptionPlugin();
+    second.setEnvironmentOption("second-env");
+    TestMetadataHolder holder = new TestMetadataHolder();
+    second.handleOption(LogChannel.GENERAL, holder, secondVars);
+
+    assertEquals(
+        projectDir.toAbsolutePath().toString(),
+        secondVars.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+    assertEquals("from-env", secondVars.getVariable("ENV_MARKER"));
+    assertEquals("second-env", secondVars.getVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME));
+  }
+
+  @Test
+  public void testServerMixinInheritsEnvironmentNameFromVariables() throws Exception {
+    Path projectDir = tempRoot.resolve("inherit-env");
+    Files.createDirectories(projectDir);
+    Path confFile = tempRoot.resolve("inherit-env.json");
+    Files.writeString(
+        confFile,
+        "{ \"variables\" : [ {\"name\" : \"INHERITED_ENV\", \"value\" : \"kept\"} ] }\n",
+        StandardCharsets.UTF_8);
+    Files.writeString(
+        projectDir.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME),
+        "{ \"metadataBaseFolder\" : \"${PROJECT_HOME}/metadata\" }\n",
+        StandardCharsets.UTF_8);
+
+    ProjectsOptionPlugin root = new ProjectsOptionPlugin();
+    root.setProjectLocations(new String[] {"inherit-env=" + projectDir.toAbsolutePath()});
+    root.setEnvironments(new String[] {"inherit-env=" + confFile.toAbsolutePath()});
+    root.setEnvironmentOption("inherit-env");
+    IVariables variables = new Variables();
+    root.handleOption(LogChannel.GENERAL, null, variables);
+    registeredProjects.add("inherit-env");
+    registeredEnvironments.add("inherit-env");
+
+    // hop-server mixin: no -e on this command, but HOP_ENVIRONMENT_NAME is already set.
+    ProjectsOptionPlugin serverMixin = new ProjectsOptionPlugin();
+    TestMetadataHolder holder = new TestMetadataHolder();
+    serverMixin.handleOption(LogChannel.GENERAL, holder, variables);
+
+    assertEquals("kept", variables.getVariable("INHERITED_ENV"));
+    assertEquals(
+        projectDir.toAbsolutePath().toString(),
+        variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
   }
 
   @Test

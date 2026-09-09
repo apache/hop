@@ -81,6 +81,34 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <name>Make mapped output writable by hop-server</name>
+      <description>output-0015/extraction is a git-tracked 775 directory owned by the test
+        runner. hop-server used to run as uid 501 and then could not recreate the file the
+        cleanup step just deleted (AccessDeniedException). World-writable so a cached image
+        with a different uid can still write.</description>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>mkdir -p "${PROJECT_HOME}/output-0015/extraction"
+chmod -R a+rwx "${PROJECT_HOME}/output-0015"
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>350</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>Run pipeline on the server with exported resources</name>
       <description/>
       <type>PIPELINE</type>
@@ -130,10 +158,17 @@ limitations under the License.
     </hop>
     <hop>
       <from>Cleanup expected path</from>
-      <to>Run pipeline on the server with exported resources</to>
+      <to>Make mapped output writable by hop-server</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Make mapped output writable by hop-server</from>
+      <to>Run pipeline on the server with exported resources</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>Run pipeline on the server with exported resources</from>

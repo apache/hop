@@ -56,7 +56,7 @@ public class BaseHttpServlet extends HttpServlet {
 
   @Setter @Getter protected WorkflowMap workflowMap;
 
-  @Setter @Getter protected HopServerConfig serverConfig;
+  @Setter protected HopServerConfig serverConfig;
   protected IVariables variables;
 
   @Setter @Getter protected boolean supportGraphicEnvironment;
@@ -383,8 +383,52 @@ public class BaseHttpServlet extends HttpServlet {
   public void setup(PipelineMap pipelineMap, WorkflowMap workflowMap) {
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
-    this.serverConfig = pipelineMap.getHopServerConfig();
-    this.variables = serverConfig.getVariables();
+    this.serverConfig = pipelineMap != null ? pipelineMap.getHopServerConfig() : null;
+    HopServerConfig config = getServerConfig();
+    this.variables =
+        config != null && config.getVariables() != null
+            ? config.getVariables()
+            : Variables.getADefaultVariableSpace();
+  }
+
+  /**
+   * The config the pipeline or workflow map currently holds. Read back on every call so replacing
+   * the config after {@link #setup(PipelineMap, WorkflowMap)} (as hop-server does when it loads
+   * hop-server.xml) is visible to servlets. Same idea as {@code HopServerApiContext}.
+   */
+  public HopServerConfig getServerConfig() {
+    if (pipelineMap != null && pipelineMap.getHopServerConfig() != null) {
+      return pipelineMap.getHopServerConfig();
+    }
+    if (workflowMap != null && workflowMap.getHopServerConfig() != null) {
+      return workflowMap.getHopServerConfig();
+    }
+    return serverConfig;
+  }
+
+  /**
+   * Live variable space of this server. Project and environment variables such as {@code
+   * PROJECT_HOME} live here after {@code -j}/{@code -e} at startup.
+   */
+  protected IVariables getServletVariables() {
+    HopServerConfig config = getServerConfig();
+    if (config != null && config.getVariables() != null) {
+      return config.getVariables();
+    }
+    if (variables != null) {
+      return variables;
+    }
+    return Variables.getADefaultVariableSpace();
+  }
+
+  /**
+   * A per-request copy of {@link #getServletVariables()} so query parameters cannot leak into the
+   * server-wide space.
+   */
+  protected IVariables copyServletVariables() {
+    IVariables copy = new Variables();
+    copy.copyFrom(getServletVariables());
+    return copy;
   }
 
   private String getContentEncoding(String contentTypeValue) {

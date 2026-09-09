@@ -1546,7 +1546,7 @@ public class PipelineMeta extends AbstractMeta
     // OK, try to load using the VFS stuff...
     Document doc;
     try {
-      final FileObject pipelineFile = HopVfs.getFileObject(filename);
+      final FileObject pipelineFile = HopVfs.getFileObject(filename, parentVariableSpace);
       if (!pipelineFile.exists()) {
         throw new HopXmlException(
             BaseMessages.getString(PKG, "PipelineMeta.Exception.InvalidXMLPath", filename));
