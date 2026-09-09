@@ -21,10 +21,17 @@ limitations under the License.
 == Functionality
 
 This variable resolver can retrieve secrets from an https://openbao.org/[OpenBAO] instance.
+The editor is the same as the xref:metadata-types/variable-resolver/hashicorp-vault-variable-resolver.adoc[HashiCorp Vault variable resolver]: options are grouped into **Connection**, **Authentication** and **Secrets**, and the Authentication tab only shows the fields that belong to the authentication type you picked.
+
 Here are the options to use:
 
 * OpenBAO address: The base address and port of the OpenBAO server (for example: https://openbao-server:8200)
-* OpenBAO token: The token to use to authenticate
+* Authentication type: How Hop proves its identity to OpenBAO. `TOKEN` is the default and keeps existing resolvers working. `KUBERNETES` is intended for Hop Server (or Hop Gui) running in a Kubernetes pod.
+* OpenBAO token: The token to use to authenticate. Shown only when the authentication type is `TOKEN`.
+* Kubernetes role: The OpenBAO Kubernetes auth role bound to this workload's ServiceAccount. Shown only when the authentication type is `KUBERNETES`.
+* Kubernetes JWT file path: File that holds the ServiceAccount JWT. Defaults to `/var/run/secrets/kubernetes.io/serviceaccount/token` when left empty. Shown only for `KUBERNETES`.
+* Kubernetes JWT: Optional JWT string used instead of the file when set (a variable such as `'${KUBERNETES_JWT}'` is typical). Shown only for `KUBERNETES`.
+* Kubernetes auth mount path: OpenBAO auth mount without the leading `auth/`. Defaults to `kubernetes`. Shown only for `KUBERNETES`.
 * Namespace: The namespace to use (optional, primarily used in enterprise/multi-tenant setups)
 * Path prefix: an optional path prefix which gets added before the key paths in the resolver expressions.  For example, if you put `kv-other/data` in here, expression
 
@@ -64,3 +71,9 @@ We can define a connection called `openbao` and retrieve values with expressions
 * `{openvar}openbao:hop/data/some-db:hostname{closevar}` : localhost
 * `{openvar}openbao:hop/data/some-db:username{closevar}` : john
 * `{openvar}openbao:hop/data/some-db{closevar}` : `{"db":"test","hostname":"localhost","password":"some-password","port":"3306","username":"john"}`
+
+== Kubernetes authentication
+
+When Hop runs inside a Kubernetes pod, prefer `KUBERNETES` over a long-lived OpenBAO token. Hop reads the pod ServiceAccount JWT, logs in to OpenBAO's Kubernetes auth backend, and uses the short-lived client token OpenBAO returns. That token is kept in memory, renewed when OpenBAO says it is renewable, and replaced by a fresh login when it expires. It is never stored in the resolver metadata.
+
+On the OpenBAO side, enable Kubernetes auth and bind a role to the ServiceAccount Hop runs as, then set Authentication type to `KUBERNETES` and Kubernetes role to that role name. Leave the JWT file path empty to use the token Kubernetes mounts at `/var/run/secrets/kubernetes.io/serviceaccount/token`.
