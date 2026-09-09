@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.compress.gzip;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
@@ -88,12 +90,28 @@ class GzipCompressionInputStreamTest {
     assertEquals(0, read);
   }
 
+  @Test
+  void unexpectedZlibEofAfterPayloadIsEndOfStream() throws Exception {
+    byte[] gz = gzip("line1\nline2\n");
+    // Drop the gzip trailer (CRC32 + ISIZE). The inflater has already produced every row; the
+    // next fill() then throws EOFException instead of returning -1.
+    byte[] cut = new byte[gz.length - 8];
+    System.arraycopy(gz, 0, cut, 0, cut.length);
+    GzipCompressionInputStream stream =
+        new GzipCompressionInputStream(new ByteArrayInputStream(cut), provider);
+    byte[] data = stream.readAllBytes();
+    assertArrayEquals("line1\nline2\n".getBytes(StandardCharsets.UTF_8), data);
+  }
+
   protected InputStream createGZIPInputStream() throws IOException {
-    // Create an in-memory GZIP output stream for use by the input stream (to avoid exceptions)
+    return new ByteArrayInputStream(gzip("Test"));
+  }
+
+  private static byte[] gzip(String text) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    GZIPOutputStream gos = new GZIPOutputStream(baos);
-    byte[] testBytes = "Test".getBytes();
-    gos.write(testBytes);
-    return new ByteArrayInputStream(baos.toByteArray());
+    try (GZIPOutputStream gos = new GZIPOutputStream(baos)) {
+      gos.write(text.getBytes(StandardCharsets.UTF_8));
+    }
+    return baos.toByteArray();
   }
 }

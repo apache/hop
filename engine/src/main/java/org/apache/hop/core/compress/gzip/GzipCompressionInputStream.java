@@ -17,6 +17,8 @@
 
 package org.apache.hop.core.compress.gzip;
 
+import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
@@ -25,30 +27,48 @@ import org.apache.hop.core.compress.ICompressionProvider;
 
 public class GzipCompressionInputStream extends CompressionInputStream {
 
+  private static final int GZIP_BUFFER = 64 * 1024;
+
   public GzipCompressionInputStream(InputStream in, ICompressionProvider provider)
       throws IOException {
     super(getDelegate(in), provider);
   }
 
   protected static GZIPInputStream getDelegate(InputStream in) throws IOException {
-    GZIPInputStream delegate = null;
     if (in instanceof GZIPInputStream gzipInputStream) {
-      delegate = gzipInputStream;
-    } else {
-      delegate = new GZIPInputStream(in);
+      return gzipInputStream;
     }
-    return delegate;
+    InputStream buffered =
+        in instanceof BufferedInputStream ? in : new BufferedInputStream(in, GZIP_BUFFER);
+    return new GZIPInputStream(buffered, GZIP_BUFFER);
   }
 
   @Override
   public void close() throws IOException {
-    GZIPInputStream gis = (GZIPInputStream) delegate;
-    gis.close();
+    delegate.close();
   }
 
   @Override
   public int read() throws IOException {
-    GZIPInputStream gis = (GZIPInputStream) delegate;
-    return gis.read();
+    try {
+      return delegate.read();
+    } catch (EOFException e) {
+      // Network/VFS streams often end with -1 while the inflater still wants the gzip trailer.
+      return -1;
+    }
+  }
+
+  @Override
+  public int read(byte[] b) throws IOException {
+    return read(b, 0, b.length);
+  }
+
+  @Override
+  public int read(byte[] b, int off, int len) throws IOException {
+    try {
+      return delegate.read(b, off, len);
+    } catch (EOFException e) {
+      return -1;
+    }
   }
 }
