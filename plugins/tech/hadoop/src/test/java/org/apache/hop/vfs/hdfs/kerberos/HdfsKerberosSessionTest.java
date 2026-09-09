@@ -1,0 +1,53 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.hop.vfs.hdfs.kerberos;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+class HdfsKerberosSessionTest {
+
+  private static final String KRB5_CONF = "java.security.krb5.conf";
+  private String previousKrb5;
+
+  @AfterEach
+  void tearDown() {
+    HdfsKerberosRenewer.getInstance().shutdown();
+    if (previousKrb5 == null) {
+      System.clearProperty(KRB5_CONF);
+    } else {
+      System.setProperty(KRB5_CONF, previousKrb5);
+    }
+  }
+
+  @Test
+  void windowsKrb5AndKeytabPathsUseForwardSlashes() {
+    previousKrb5 = System.getProperty(KRB5_CONF);
+    HdfsMeta meta = new HdfsMeta();
+    meta.setName("cdp");
+    meta.setPrincipal("hop@EXAMPLE.COM");
+    meta.setKeytabPath("C:\\Users\\hop\\hop.keytab");
+    meta.setKrb5ConfPath("C:\\Users\\hop\\krb5.conf");
+    HdfsKerberosSession session = new HdfsKerberosSession(new Variables(), meta);
+    assertEquals("C:/Users/hop/krb5.conf", System.getProperty(KRB5_CONF));
+    assertEquals("C:/Users/hop/hop.keytab", session.keytabPath());
+  }
+}

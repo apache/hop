@@ -689,6 +689,23 @@ public class HopVfs {
     return getFilename(getFileObject(filename));
   }
 
+  /**
+   * Replace backslashes with forward slashes.
+   *
+   * <p>Windows file dialogs and {@link #getFilename(FileObject)} emit {@code \}. JAAS {@code
+   * keyTab} / {@code java.security.krb5.conf} treat backslash as an escape ({@code C:\Users} is not
+   * a path), and VFS prefers {@code /}. Java {@code File} accepts forward slashes on Windows.
+   *
+   * @param filename a local path, VFS URI, or {@code null}
+   * @return the same string with {@code \} replaced by {@code /}, or {@code null} if the input was
+   */
+  public static String separatorsToUnix(String filename) {
+    if (filename == null || filename.indexOf('\\') < 0) {
+      return filename;
+    }
+    return filename.replace('\\', '/');
+  }
+
   public static String getFilename(FileObject fileObject) {
     FileName fileName = fileObject.getName();
     String root = fileName.getRootURI();

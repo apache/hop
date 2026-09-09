@@ -20,6 +20,7 @@ package org.apache.hop.core.vfs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.OutputStream;
@@ -74,6 +75,15 @@ class HopVfsTest {
     assertTrue(HopVfs.isAbsolutePath("~\\test.hpl"));
     assertTrue(HopVfs.isAbsolutePath("file://~/test.hpl"));
     assertTrue(HopVfs.isAbsolutePath("file:~/test.hpl"));
+  }
+
+  @Test
+  void separatorsToUnixReplacesBackslashes() {
+    assertEquals("C:/Users/me/hop.keytab", HopVfs.separatorsToUnix("C:\\Users\\me\\hop.keytab"));
+    assertEquals("//host/share/krb5.conf", HopVfs.separatorsToUnix("\\\\host\\share\\krb5.conf"));
+    assertEquals("/already/unix", HopVfs.separatorsToUnix("/already/unix"));
+    assertEquals("", HopVfs.separatorsToUnix(""));
+    assertNull(HopVfs.separatorsToUnix(null));
   }
 
   @Test

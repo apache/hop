@@ -46,6 +46,7 @@ import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -1070,7 +1071,9 @@ public class GuiCompositeWidgets {
                         typeFilename.getFilterNames(),
                         true);
                 if (StringUtils.isNotEmpty(filename)) {
-                  text.setText(filename);
+                  // Windows dialogs emit '\'. JAAS keytab/krb5.conf treat '\' as an escape;
+                  // VFS and java.io.File accept '/'.
+                  text.setText(HopVfs.separatorsToUnix(filename));
                 }
               });
         }
@@ -1084,7 +1087,7 @@ public class GuiCompositeWidgets {
               e -> {
                 String folder = BaseDialog.presentDirectoryDialog(parent.getShell());
                 if (StringUtils.isNotEmpty(folder)) {
-                  text.setText(folder);
+                  text.setText(HopVfs.separatorsToUnix(folder));
                 }
               });
         }

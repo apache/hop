@@ -29,6 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.auth.kerberos.KerberosUtil;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.vfs.hdfs.HdfsTransport;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
@@ -58,7 +59,8 @@ public class HdfsKerberosSession {
   HdfsKerberosSession(IVariables variables, HdfsMeta meta, KerberosUtil kerberosUtil) {
     this.connectionName = meta.getName();
     this.principal = variables.resolve(Const.NVL(meta.getPrincipal(), ""));
-    this.keytabPath = variables.resolve(Const.NVL(meta.getKeytabPath(), ""));
+    this.keytabPath =
+        HopVfs.separatorsToUnix(variables.resolve(Const.NVL(meta.getKeytabPath(), "")));
     this.useTicketCache = meta.isUseTicketCache();
     long minutes = Const.toLong(variables.resolve(meta.getRenewalIntervalMinutes()), 360L);
     if (minutes < 1) {
@@ -120,6 +122,10 @@ public class HdfsKerberosSession {
     return principal;
   }
 
+  String keytabPath() {
+    return keytabPath;
+  }
+
   public String getConnectionName() {
     return connectionName;
   }
@@ -157,7 +163,7 @@ public class HdfsKerberosSession {
 
   static void applyJvmKerberosConfig(IVariables variables, HdfsMeta meta) {
     System.setProperty("javax.security.auth.useSubjectCredsOnly", "true");
-    String krb5 = variables.resolve(Const.NVL(meta.getKrb5ConfPath(), ""));
+    String krb5 = HopVfs.separatorsToUnix(variables.resolve(Const.NVL(meta.getKrb5ConfPath(), "")));
     if (!krb5.isEmpty()) {
       System.setProperty("java.security.krb5.conf", krb5);
     }
