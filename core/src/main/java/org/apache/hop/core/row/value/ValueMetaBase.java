@@ -4406,7 +4406,10 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_NONE, TYPE_STRING -> meta2.getString(data2);
       case TYPE_NUMBER -> meta2.getNumber(data2);
       case TYPE_INTEGER -> meta2.getInteger(data2);
-      case TYPE_DATE -> meta2.getDate(data2);
+      case TYPE_DATE -> {
+        Date date = meta2.getDate(data2);
+        yield date == null || date.getClass() == Date.class ? date : new Date(date.getTime());
+      }
       case TYPE_BIGNUMBER -> meta2.getBigNumber(data2);
       case TYPE_BOOLEAN -> meta2.getBoolean(data2);
       case TYPE_BINARY -> meta2.getBinary(data2);

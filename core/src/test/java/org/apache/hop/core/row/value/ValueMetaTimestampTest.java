@@ -18,12 +18,16 @@ package org.apache.hop.core.row.value;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -40,9 +44,69 @@ import org.mockito.stubbing.Answer;
 class ValueMetaTimestampTest {
 
   @Test
+  void testConvertTimestampToDateReturnsDateInsteadOfTimestamp() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+
+    for (String value :
+        new String[] {
+          "1960-01-02 03:04:05.987654321",
+          "1970-01-01 00:00:00.000000000",
+          "2025-08-28 08:14:13.123456789"
+        }) {
+      Timestamp timestamp = Timestamp.valueOf(value);
+
+      Date date = (Date) valueMetaDate.convertData(valueMetaTimestamp, timestamp);
+
+      assertEquals(Date.class, date.getClass());
+      assertEquals(timestamp.getTime(), date.getTime());
+      assertNotSame(timestamp, date);
+    }
+  }
+
+  @Test
+  void testConvertNullTimestampToDateReturnsNull() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+
+    assertNull(valueMetaDate.convertData(valueMetaTimestamp, null));
+  }
+
+  @Test
+  void testConvertDateToDateKeepsPlainDateInstance() throws Exception {
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    Date date = new Date(1_756_369_253_123L);
+
+    assertSame(date, valueMetaDate.convertData(valueMetaDate, date));
+  }
+
+  @Test
+  void testConvertSqlDateToDateReturnsPlainDate() throws Exception {
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    java.sql.Date sqlDate = new java.sql.Date(1_756_369_253_123L);
+
+    Date date = (Date) valueMetaDate.convertData(valueMetaDate, sqlDate);
+
+    assertEquals(Date.class, date.getClass());
+    assertEquals(sqlDate.getTime(), date.getTime());
+    assertNotSame(sqlDate, date);
+  }
+
+  @Test
+  void testTimestampConversionRemainsUnchanged() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
+
+    assertSame(timestamp, valueMetaTimestamp.getDate(timestamp));
+    assertSame(timestamp, valueMetaTimestamp.convertData(valueMetaTimestamp, timestamp));
+    assertEquals(123456789, timestamp.getNanos());
+  }
+
+  @Test
   void testSetPreparedStatementValue() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();
     PreparedStatement ps = mock(PreparedStatement.class);
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
     doAnswer(
             (Answer<Object>)
                 invocationOnMock -> {
@@ -53,7 +117,10 @@ class ValueMetaTimestampTest {
         .setTimestamp(anyInt(), (Timestamp) any());
 
     try {
-      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 0, null);
+      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 1, timestamp);
+      verify(ps).setTimestamp(1, timestamp);
+      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 2, null);
+      verify(ps).setNull(2, java.sql.Types.TIMESTAMP);
     } catch (HopDatabaseException ex) {
       fail("Error setting value on prepared statement ");
     }
