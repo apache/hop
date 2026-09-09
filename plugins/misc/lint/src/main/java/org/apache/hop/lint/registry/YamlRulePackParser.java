@@ -258,7 +258,10 @@ public final class YamlRulePackParser {
       String ruleId = entry.getKey();
       @SuppressWarnings("unchecked")
       Map<String, Object> ruleData = (Map<String, Object>) entry.getValue();
-      if (isCustomRuleDefinition(ruleData)) {
+      if (isNativeRuleDefinition(ruleData)) {
+        projectRules.add(
+            parseNativeRule(ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT));
+      } else if (isCustomRuleDefinition(ruleData)) {
         CustomLintRule rule =
             parseCustomRule(ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT);
         projectRules.add(rule);
@@ -375,6 +378,10 @@ public final class YamlRulePackParser {
       String ruleId = entry.getKey();
       @SuppressWarnings("unchecked")
       Map<String, Object> ruleData = (Map<String, Object>) entry.getValue();
+      if (isNativeRuleDefinition(ruleData)) {
+        rules.add(parseNativeRule(ruleId, ruleData, metadata.packId(), metadata.owner()));
+        continue;
+      }
       if (!isCustomRuleDefinition(ruleData)) {
         continue;
       }
@@ -393,6 +400,34 @@ public final class YamlRulePackParser {
       return true;
     }
     return ruleData.containsKey("target") && ruleData.containsKey("condition");
+  }
+
+  public static boolean isNativeRuleDefinition(Map<String, Object> ruleData) {
+    return ruleData != null && CustomLintRule.TYPE_NATIVE.equals(ruleData.get("type"));
+  }
+
+  /**
+   * Read a rule that says how the linter should report one of Hop's own verify remarks.
+   *
+   * <p>A native rule has no target or condition: Hop's {@code check()} has already decided what to
+   * look at, and the rule only decides whether the answer is reported and at what severity. It
+   * narrows with {@code appliesTo}, on the plugin id of the transform or action the remark is
+   * about, and with {@code messageKey}, on the message the check prints.
+   */
+  public static CustomLintRule parseNativeRule(
+      String ruleId, Map<String, Object> ruleData, String packId, RulePackOwner owner) {
+    CustomLintRule rule = new CustomLintRule();
+    rule.setId(ruleId);
+    rule.setPackId(packId);
+    rule.setPackOwner(owner);
+    rule.setType(CustomLintRule.TYPE_NATIVE);
+    rule.setName(stringValue(ruleData.get("name"), ruleId));
+    rule.setDescription(stringValue(ruleData.get("description"), ""));
+    rule.setEnabled(booleanValue(ruleData.get("enabled"), true));
+    rule.setSeverity(stringValue(ruleData.get("severity"), "WARNING"));
+    rule.setAppliesTo(stringListValue(ruleData.get("appliesTo")));
+    rule.setMessageKey(stringValue(ruleData.get("messageKey"), ""));
+    return rule;
   }
 
   public static CustomLintRule parseCustomRule(

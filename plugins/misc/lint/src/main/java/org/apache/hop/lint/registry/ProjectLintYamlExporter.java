@@ -91,6 +91,8 @@ public final class ProjectLintYamlExporter {
         || !Objects.equals(desired.getTargetField(), packDefault.getTargetField())
         || !Objects.equals(desired.getCondition(), packDefault.getCondition())
         || !Objects.equals(desired.getAppliesTo(), packDefault.getAppliesTo())
+        || !Objects.equals(desired.getType(), packDefault.getType())
+        || !Objects.equals(desired.getMessageKey(), packDefault.getMessageKey())
         || !Objects.equals(desired.getName(), packDefault.getName())
         || !Objects.equals(desired.getDescription(), packDefault.getDescription());
   }
@@ -130,6 +132,9 @@ public final class ProjectLintYamlExporter {
   }
 
   private static Map<String, Object> toFullCustomRuleMap(CustomLintRule rule) {
+    if (rule.isNativeVerify()) {
+      return toFullNativeRuleMap(rule);
+    }
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
     ruleConfig.put("enabled", rule.isEnabled());
     ruleConfig.put("severity", rule.getSeverity());
@@ -161,6 +166,29 @@ public final class ProjectLintYamlExporter {
       ruleConfig.put("appliesTo", new ArrayList<>(rule.getAppliesTo()));
     }
     ruleConfig.put("parameters", new HashMap<>(rule.getAdditionalParameters()));
+    return ruleConfig;
+  }
+
+  /**
+   * A native rule written out in full.
+   *
+   * <p>It has no target, field or condition — it says how a remark Hop's own {@code check()}
+   * produced is reported — so the custom form would write a null target and read back as a rule
+   * that checks nothing.
+   */
+  private static Map<String, Object> toFullNativeRuleMap(CustomLintRule rule) {
+    Map<String, Object> ruleConfig = new LinkedHashMap<>();
+    ruleConfig.put("type", CustomLintRule.TYPE_NATIVE);
+    ruleConfig.put("enabled", rule.isEnabled());
+    ruleConfig.put("severity", rule.getSeverity());
+    if (!rule.getAppliesTo().isEmpty()) {
+      ruleConfig.put("appliesTo", new ArrayList<>(rule.getAppliesTo()));
+    }
+    if (rule.getMessageKey() != null && !rule.getMessageKey().isEmpty()) {
+      ruleConfig.put("messageKey", rule.getMessageKey());
+    }
+    ruleConfig.put("name", rule.getName());
+    ruleConfig.put("description", rule.getDescription());
     return ruleConfig;
   }
 }

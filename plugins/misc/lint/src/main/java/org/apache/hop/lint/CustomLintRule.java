@@ -62,6 +62,27 @@ public class CustomLintRule {
   /** How the clauses combine. Meaningless, and ignored, for a rule with a single clause. */
   private RuleCombinator combinator = RuleCombinator.ALL_OF;
 
+  /**
+   * What kind of rule this is: {@link #TYPE_CUSTOM}, which the linter evaluates itself, or {@link
+   * #TYPE_NATIVE}, which classifies a remark Hop's own {@code check()} produced.
+   */
+  private String type = TYPE_CUSTOM;
+
+  /**
+   * For a native rule, the single check it speaks about, named by the message it prints as {@code
+   * <i18n package>:<key>}. Empty means every native remark.
+   */
+  private String messageKey;
+
+  /** A rule the linter evaluates against a pipeline, workflow or metadata object. */
+  public static final String TYPE_CUSTOM = "custom";
+
+  /**
+   * A rule that says how to report a remark from Hop's own transform and action {@code check()}
+   * methods, rather than one the linter evaluates itself.
+   */
+  public static final String TYPE_NATIVE = "native";
+
   public CustomLintRule() {
     this.id = UUID.randomUUID().toString();
     this.enabled = true;
@@ -247,6 +268,33 @@ public class CustomLintRule {
    *
    * @return the clauses, in the order they were written
    */
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public String getMessageKey() {
+    return messageKey;
+  }
+
+  public void setMessageKey(String messageKey) {
+    this.messageKey = messageKey;
+  }
+
+  /**
+   * Whether this rule classifies Hop's own verify remarks instead of being evaluated by the linter.
+   *
+   * <p>The two kinds share this class, and the rule registry, so that a native rule is merged,
+   * overridden by a project's {@code hop-lint.yml} and listed in the rule manager on exactly the
+   * same terms as any other rule.
+   */
+  public boolean isNativeVerify() {
+    return TYPE_NATIVE.equalsIgnoreCase(type);
+  }
+
   public List<RuleClause> getClauses() {
     List<RuleClause> clauses = new ArrayList<>();
     clauses.add(new RuleClause(targetField, condition, conditionValue));
@@ -270,6 +318,8 @@ public class CustomLintRule {
     copy.additionalParameters = new HashMap<>(this.additionalParameters);
     copy.appliesTo = new ArrayList<>(this.appliesTo);
     copy.combinator = this.combinator;
+    copy.type = this.type;
+    copy.messageKey = this.messageKey;
     copy.additionalClauses = new ArrayList<>();
     for (RuleClause clause : this.additionalClauses) {
       copy.additionalClauses.add(clause.copy());

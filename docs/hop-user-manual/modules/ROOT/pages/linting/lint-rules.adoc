@@ -220,6 +220,51 @@ A rule aimed at `TRANSFORM` runs against every transform in the pipeline.
 
 A scoped rule naming a field the transform does not have is reported as a configuration error rather than passing quietly, so that a typo in a field name is visible instead of looking like a clean result.
 
+== Hop's own verify remarks
+
+Every transform and action has a `check()` method of its own, the one behind the *Verify* button, and the linter reports what those find alongside its own rules.
+They are not the same kind of claim.
+Verify is a question somebody asked, and reads the answers to in context; the linter asks it on every save and every build, and a remark it repeats is a remark it stands behind.
+`check()` also works from the row stream Hop infers at design time, which is right for a plain pipeline and wrong wherever fields arrive at runtime — through metadata injection, a mapping, or a transform filled in by a parameter.
+
+A `native` rule says how those remarks are reported. It checks nothing itself:
+
+[source,yaml]
+----
+rules:
+  HOP-CHECK:
+    type: native
+    enabled: true
+    severity: WARNING
+----
+
+`severity` is what the linter reports the remark as, whatever severity the transform gave it, and `enabled: false` drops it.
+Two optional keys narrow a rule to less than every remark:
+
+* `appliesTo` — the plugin ids of the transforms or actions it covers, as for any other rule.
+* `messageKey` — one single check, named as `<i18n package>:<key>` for the message it prints, the same form Hop's plugin annotations use. The key is resolved through the plugin's own message bundle, so the rule keeps matching in every language rather than depending on the English wording. A key that no longer resolves matches nothing rather than everything.
+
+The most specific rule wins — one naming the check beats one naming only the plugin, which beats the blanket rule — so a pack can hold a general policy and an exception to it, and the order of the file does not decide which applies.
+
+To have the linter treat Hop's remarks exactly as the transform meant them, put the severity back in your project's `hop-lint.yml`:
+
+[source,yaml]
+----
+rules:
+  HOP-CHECK:
+    severity: ERROR
+----
+
+Findings from a native rule carry that rule's id, so they suppress by id like any other:
+
+[source,yaml]
+----
+suppress:
+  - rule: HOP-CHECK
+    path: "templates/**"
+    reason: "Fields in these templates arrive through metadata injection"
+----
+
 == The rules Hop ships
 
 Hop's core rule pack is deliberately small. A rule is enabled by default only when a violation is defensible as a defect in any project, whatever the house style.
@@ -251,7 +296,18 @@ Hop's core rule pack is deliberately small. A rule is enabled by default only wh
 |`NAMING-004`
 |WARNING
 |A transform still carrying its auto-generated name
+
+|`HOP-CHECK`
+|WARNING
+|Every remark from Hop's own transform and action checks
 |===
+
+`TRANS-002` and `WORKFLOW-002` report on the transform or action itself, so the finding names it and the canvas can point at it.
+The only element in a file is not an orphan — there is nothing for it to be disconnected from — and neither is one whose hops are all disabled: it has hops, and whether a disabled hop is a problem is what `STRUCT-003` asks.
+
+Hop ships no narrowed `native` rule of its own.
+A check that is simply wrong is fixed in the transform rather than silenced from a rule pack, which would leave it firing for everyone who presses *Verify*.
+`appliesTo` and `messageKey` are there for a project that disagrees with a check the platform is right to ship.
 
 A further set ships *disabled*, as worked examples of the format. Switch one on by id in your project's `hop-lint.yml`.
 
