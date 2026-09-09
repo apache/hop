@@ -48,6 +48,9 @@ import org.apache.poi.ss.usermodel.FormulaError;
 public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   private static final Class<?> PKG = Formula.class; // for i18n purposes
 
+  private static final boolean ENABLE_FAST_PATH =
+      !Boolean.getBoolean("org.apache.hop.pipeline.transforms.formula.disableFastPath");
+
   private FormulaPoi[] poi;
   private List<String>[] formulaFieldLists;
   private CompiledFormula[] fastCompiled;
@@ -153,8 +156,10 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         List<String> effectiveFields = getFormulaFieldList(effective);
         fastFieldLists[i] = effectiveFields;
         fastCompiled[i] =
-            FastFormulaCompiler.compile(
-                effective, effectiveFields, data.outputRowMeta, fn.isSetNa());
+            ENABLE_FAST_PATH
+                ? FastFormulaCompiler.compile(
+                    effective, effectiveFields, data.outputRowMeta, fn.isSetNa())
+                : null;
       }
     }
 
