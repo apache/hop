@@ -88,10 +88,16 @@ It does not call the `kinit` binary and does not use Hadoop `UserGroupInformatio
 
 |===
 |Option |Description
-|Truststore |Optional Java truststore for CDP Auto-TLS
-|Truststore password |Password
+|Trust material |Optional CA file for HTTPS. A PEM/CRT bundle (CDP Auto-TLS `ca.pem`) or a Java keystore (JKS/PKCS12)
+|Keystore password |Password for JKS/PKCS12. Leave empty for PEM
 |Verify TLS hostname |Disable only when the gateway certificate does not match the hostname
 |===
+
+Each tab has a **Test** button that uses the values currently in the editor (including the other tabs):
+
+* Cluster: `GETFILESTATUS` on the default HDFS root (or `/`)
+* Kerberos: JAAS login from the keytab or ticket cache
+* TLS: load the PEM/keystore, then TLS handshake when HTTPS and a host are set
 
 == Tips
 

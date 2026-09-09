@@ -23,13 +23,20 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.vfs.hdfs.HdfsConnectionTester;
 import org.apache.hop.vfs.hdfs.HdfsTransport;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 
 @Getter
 @Setter
@@ -45,6 +52,8 @@ import org.apache.hop.vfs.hdfs.HdfsTransport;
     classLoaderGroup = "vfs-hdfs")
 public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetadata {
 
+  private static final Class<?> PKG = HdfsMeta.class;
+
   public static final String GROUP_CLUSTER = "Cluster";
   public static final String GROUP_KERBEROS = "Kerberos";
   public static final String GROUP_TLS = "TLS";
@@ -56,7 +65,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Description.Label",
       toolTip = "i18n::HdfsVFS.Description.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -70,7 +79,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       label = "i18n::HdfsVFS.Transport.Label",
       toolTip = "i18n::HdfsVFS.Transport.Tooltip",
       variables = false,
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -83,7 +92,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Hostname.Label",
       toolTip = "i18n::HdfsVFS.Hostname.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -96,7 +105,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Port.Label",
       toolTip = "i18n::HdfsVFS.Port.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -109,7 +118,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.CHECKBOX,
       label = "i18n::HdfsVFS.Https.Label",
       toolTip = "i18n::HdfsVFS.Https.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -122,7 +131,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.BasePath.Label",
       toolTip = "i18n::HdfsVFS.BasePath.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -136,7 +145,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       multiLineTextHeight = 3,
       label = "i18n::HdfsVFS.HaNamenodes.Label",
       toolTip = "i18n::HdfsVFS.HaNamenodes.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -149,7 +158,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.DefaultRoot.Label",
       toolTip = "i18n::HdfsVFS.DefaultRoot.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
@@ -162,11 +171,30 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.SimpleUser.Label",
       toolTip = "i18n::HdfsVFS.SimpleUser.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_CLUSTER,
       groupOrder = "010")
   @HopMetadataProperty
   private String simpleUser = "hop";
+
+  @GuiWidgetElement(
+      id = "10900-test-cluster",
+      order = "0910",
+      parentId = HdfsMetaEditor.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.BUTTON,
+      label = "i18n::HdfsVFS.TestCluster.Label",
+      toolTip = "i18n::HdfsVFS.TestCluster.Tooltip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CLUSTER,
+      groupOrder = "010")
+  public void testClusterButton(Object object) {
+    runTest(
+        (HdfsMeta) object,
+        HdfsConnectionTester::testCluster,
+        "HdfsVFS.TestCluster.Success.Title",
+        "HdfsVFS.TestCluster.Error.Title",
+        "HdfsVFS.TestCluster.Error.Message");
+  }
 
   @GuiWidgetElement(
       id = "20000-kerberos-enabled",
@@ -175,7 +203,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.CHECKBOX,
       label = "i18n::HdfsVFS.KerberosEnabled.Label",
       toolTip = "i18n::HdfsVFS.KerberosEnabled.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -188,7 +216,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Principal.Label",
       toolTip = "i18n::HdfsVFS.Principal.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -201,7 +229,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.FILENAME,
       label = "i18n::HdfsVFS.Keytab.Label",
       toolTip = "i18n::HdfsVFS.Keytab.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -214,7 +242,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.FILENAME,
       label = "i18n::HdfsVFS.Krb5.Label",
       toolTip = "i18n::HdfsVFS.Krb5.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -227,7 +255,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Realm.Label",
       toolTip = "i18n::HdfsVFS.Realm.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -240,7 +268,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Kdc.Label",
       toolTip = "i18n::HdfsVFS.Kdc.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -253,7 +281,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.TEXT,
       label = "i18n::HdfsVFS.Renewal.Label",
       toolTip = "i18n::HdfsVFS.Renewal.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
@@ -266,20 +294,40 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.CHECKBOX,
       label = "i18n::HdfsVFS.TicketCache.Label",
       toolTip = "i18n::HdfsVFS.TicketCache.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_KERBEROS,
       groupOrder = "020")
   @HopMetadataProperty
   private boolean useTicketCache;
 
   @GuiWidgetElement(
+      id = "20800-test-kerberos",
+      order = "1710",
+      parentId = HdfsMetaEditor.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.BUTTON,
+      label = "i18n::HdfsVFS.TestKerberos.Label",
+      toolTip = "i18n::HdfsVFS.TestKerberos.Tooltip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_KERBEROS,
+      groupOrder = "020")
+  public void testKerberosButton(Object object) {
+    runTest(
+        (HdfsMeta) object,
+        HdfsConnectionTester::testKerberos,
+        "HdfsVFS.TestKerberos.Success.Title",
+        "HdfsVFS.TestKerberos.Error.Title",
+        "HdfsVFS.TestKerberos.Error.Message");
+  }
+
+  @GuiWidgetElement(
       id = "30000-truststore",
       order = "1800",
       parentId = HdfsMetaEditor.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FILENAME,
+      typeFilename = HdfsTrustFilename.class,
       label = "i18n::HdfsVFS.Truststore.Label",
       toolTip = "i18n::HdfsVFS.Truststore.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_TLS,
       groupOrder = "030")
   @HopMetadataProperty
@@ -293,7 +341,7 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       password = true,
       label = "i18n::HdfsVFS.TruststorePassword.Label",
       toolTip = "i18n::HdfsVFS.TruststorePassword.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_TLS,
       groupOrder = "030")
   @HopMetadataProperty(password = true)
@@ -306,11 +354,53 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
       type = GuiElementType.CHECKBOX,
       label = "i18n::HdfsVFS.HostnameVerification.Label",
       toolTip = "i18n::HdfsVFS.HostnameVerification.Tooltip",
-      groupType = GuiWidgetGroupType.BOXES,
+      groupType = GuiWidgetGroupType.TABS,
       group = GROUP_TLS,
       groupOrder = "030")
   @HopMetadataProperty
   private boolean hostnameVerification = true;
+
+  @GuiWidgetElement(
+      id = "30300-test-tls",
+      order = "2010",
+      parentId = HdfsMetaEditor.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.BUTTON,
+      label = "i18n::HdfsVFS.TestTls.Label",
+      toolTip = "i18n::HdfsVFS.TestTls.Tooltip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_TLS,
+      groupOrder = "030")
+  public void testTlsButton(Object object) {
+    runTest(
+        (HdfsMeta) object,
+        HdfsConnectionTester::testTls,
+        "HdfsVFS.TestTls.Success.Title",
+        "HdfsVFS.TestTls.Error.Title",
+        "HdfsVFS.TestTls.Error.Message");
+  }
+
+  @FunctionalInterface
+  private interface Probe {
+    String run(IVariables variables, HdfsMeta meta) throws Exception;
+  }
+
+  private void runTest(
+      HdfsMeta meta, Probe probe, String successTitle, String errorTitle, String errorMessage) {
+    HopGui hopGui = HopGui.getInstance();
+    try {
+      String result = probe.run(hopGui.getVariables(), meta);
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, successTitle));
+      box.setMessage(result);
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, errorTitle),
+          BaseMessages.getString(PKG, errorMessage),
+          e);
+    }
+  }
 
   public HdfsMeta() {
     this.transport = HdfsTransport.HttpFS;

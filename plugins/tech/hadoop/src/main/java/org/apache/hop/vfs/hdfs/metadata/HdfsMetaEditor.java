@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeButtonsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -104,6 +105,14 @@ public class HdfsMetaEditor extends MetadataEditor<HdfsMeta> {
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
             setChanged();
+          }
+        });
+    guiCompositeWidgets.setCompositeButtonsListener(
+        new IGuiPluginCompositeButtonsListener() {
+          @Override
+          public void buttonPressed(Object sourceObject) {
+            Object model = sourceObject != null ? sourceObject : metadata;
+            getWidgetsContent((HdfsMeta) model);
           }
         });
 

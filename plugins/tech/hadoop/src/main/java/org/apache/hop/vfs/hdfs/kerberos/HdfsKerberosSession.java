@@ -124,6 +124,11 @@ public class HdfsKerberosSession {
     return connectionName;
   }
 
+  public Date ticketEndTime() {
+    long millis = ticketEndMillis();
+    return millis == 0 ? null : new Date(millis);
+  }
+
   long nextRenewalMillis() {
     long fromTicket = ticketEndMillis();
     if (fromTicket > 0) {

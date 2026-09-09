@@ -44,7 +44,7 @@ Create metadata `HdfsConnectionDefinition` named for example `cdp`:
 
 * Transport: HttpFS
 * Endpoint: `'${HDFS_HTTPFS_HOST}'` / `'${HDFS_HTTPFS_PORT}'`
-* HTTPS as required by Auto-TLS, truststore if needed
+* HTTPS as required by Auto-TLS; trust material can be the CDP `ca.pem` (or a JKS/PKCS12)
 * Kerberos enabled, principal `'${HDFS_PRINCIPAL}'`, keytab `/var/run/secrets/hdfs/hop.keytab`
 
 == 4. Pipeline
