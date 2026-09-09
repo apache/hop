@@ -75,6 +75,17 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
+        <!-- Commons FileUpload is a runtime dependency of RAP's file upload service. -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.commons:commons-fileupload2-core</include>
+                <include>org.apache.commons:commons-fileupload2-jakarta-servlet6</include>
+                <include>commons-io:commons-io</include>
+            </includes>
+            <outputDirectory>WEB-INF/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-ui-rap:jar</include>

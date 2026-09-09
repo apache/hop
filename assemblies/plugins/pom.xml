@@ -644,6 +644,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-import</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-mail</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1662,12 +1668,6 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-misc-documentation</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-misc-import</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

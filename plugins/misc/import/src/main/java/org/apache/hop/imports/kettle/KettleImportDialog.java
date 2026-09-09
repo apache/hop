@@ -19,6 +19,7 @@ package org.apache.hop.imports.kettle;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -42,6 +43,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -79,12 +81,19 @@ public class KettleImportDialog extends Dialog {
   public static final String CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE =
       "KettleImportDialog.Button.Browse";
 
+  /**
+   * Directory prefix used by Hop Web File Browser uploads. Keep in sync with {@code
+   * HopWebUserFilePlugin} session temp directories.
+   */
+  static final String WEB_USER_FILE_TEMP_DIRECTORY_PREFIX = "hop-web-user-files-";
+
   private final IVariables variables;
 
   private Shell shell;
   private final PropsUi props;
 
   private final KettleImport kettleImport;
+  private final String configuredSourceFolder;
   private final List<String> projectNames;
 
   private TextVar wImportFrom;
@@ -111,6 +120,7 @@ public class KettleImportDialog extends Dialog {
 
     this.variables = variables;
     this.kettleImport = kettleImport;
+    this.configuredSourceFolder = kettleImport.getInputFolderName();
 
     try {
       projectNames =
@@ -516,9 +526,9 @@ public class KettleImportDialog extends Dialog {
     // See if we need to remember previous settings...
     //
     wImportFrom.setText(
-        Const.NVL(
-            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER),
-            Const.NVL(kettleImport.getInputFolderName(), "")));
+        initialSourceFolder(
+            kettleImport.getInputFolderName(),
+            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER)));
     wImportInExisting.setSelection(
         !CONST_FALSE.equalsIgnoreCase(
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_INTO_PROJECT)));
@@ -561,7 +571,10 @@ public class KettleImportDialog extends Dialog {
 
   public void dispose() {
     props.setScreen(new WindowProperty(shell));
-    AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER, wImportFrom.getText());
+    String sourceFolder = wImportFrom.getText();
+    if (shouldRememberSourceFolder(configuredSourceFolder, sourceFolder)) {
+      AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER, sourceFolder);
+    }
     AuditManagerGuiUtil.addLastUsedValue(
         LAST_USED_IMPORT_INTO_PROJECT, wImportInExisting.getSelection() ? "true" : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_TARGET_PROJECT, wImportProject.getText());
@@ -581,6 +594,48 @@ public class KettleImportDialog extends Dialog {
     AuditManagerGuiUtil.addLastUsedValue(
         LAST_USED_IMPORT_SKIP_FOLDERS, wSkipFolders.getSelection() ? "true" : CONST_FALSE);
     shell.dispose();
+  }
+
+  static String initialSourceFolder(String configuredSourceFolder, String lastUsedSourceFolder) {
+    if (StringUtils.isNotBlank(configuredSourceFolder)) {
+      return configuredSourceFolder;
+    }
+    if (StringUtils.isBlank(lastUsedSourceFolder)
+        || isEphemeralWebUploadFolder(lastUsedSourceFolder)) {
+      return "";
+    }
+    return lastUsedSourceFolder;
+  }
+
+  /**
+   * File Browser ZIP uploads extract into a session temp folder that is deleted when the dialog
+   * closes. Do not persist that path, and ignore it if it was already stored as last-used.
+   */
+  static boolean shouldRememberSourceFolder(
+      String configuredSourceFolder, String currentSourceFolder) {
+    if (isEphemeralWebUploadFolder(currentSourceFolder)) {
+      return false;
+    }
+    if (StringUtils.isBlank(configuredSourceFolder)) {
+      return true;
+    }
+    return StringUtils.isNotBlank(currentSourceFolder)
+        && !sameSourceFolder(configuredSourceFolder, currentSourceFolder);
+  }
+
+  static boolean isEphemeralWebUploadFolder(String folder) {
+    if (StringUtils.isBlank(folder)) {
+      return false;
+    }
+    String normalized = folder.replace('\\', '/');
+    return normalized.contains("/" + WEB_USER_FILE_TEMP_DIRECTORY_PREFIX)
+        || normalized.startsWith(WEB_USER_FILE_TEMP_DIRECTORY_PREFIX);
+  }
+
+  private static boolean sameSourceFolder(String left, String right) {
+    return StringUtils.equals(
+        StringUtils.removeEnd(left.replace('\\', '/'), "/"),
+        StringUtils.removeEnd(right.replace('\\', '/'), "/"));
   }
 
   private void browseHomeFolder(Event event) {
@@ -725,7 +780,14 @@ public class KettleImportDialog extends Dialog {
         box.open();
       }
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error importing", e);
+      String title = BaseMessages.getString(PKG, "KettleImportDialog.Error.Title");
+      boolean web = EnvironmentUtils.getInstance().isWeb();
+      String message =
+          BaseMessages.getString(
+              PKG,
+              web ? "KettleImportDialog.Error.Web.Message" : "KettleImportDialog.Error.Message");
+      LogChannel.UI.logError(message, e);
+      new ErrorDialog(shell, title, message, web ? new HopException(message) : e);
     }
   }
 

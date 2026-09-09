@@ -37,6 +37,11 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.rap</groupId>
+            <artifactId>org.eclipse.rap.filedialog</artifactId>
+            <version>${rap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.rap</groupId>
             <artifactId>org.eclipse.rap.rwt</artifactId>
             <version>${rap.version}</version>
         </dependency>

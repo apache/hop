@@ -35,6 +35,9 @@ import org.apache.hop.core.exception.HopException;
  */
 public final class HopHome {
 
+  private static final String HOP_CONFIG_FOLDER = "HOP_CONFIG_FOLDER";
+  private static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
+
   private HopHome() {}
 
   public static Path resolve() throws HopException {
@@ -61,7 +64,36 @@ public final class HopHome {
     if (parent != null) {
       paths.add(parent);
     }
+
+    // Web deployments can keep the writable plugins and configuration outside the binaries.
+    // Resolve those configured locations without changing the launcher behavior above.
+    addConfiguredParent(paths, System.getProperty(HOP_CONFIG_FOLDER), "config");
+    addConfiguredParent(paths, System.getenv(HOP_CONFIG_FOLDER), "config");
+    addConfiguredPluginParents(paths, System.getProperty(HOP_PLUGIN_BASE_FOLDERS));
+    addConfiguredPluginParents(paths, System.getenv(HOP_PLUGIN_BASE_FOLDERS));
     return paths;
+  }
+
+  private static void addConfiguredPluginParents(Set<Path> paths, String configured) {
+    if (configured == null || configured.isBlank()) {
+      return;
+    }
+    for (String folder : configured.split(",")) {
+      addConfiguredParent(paths, folder, "plugins");
+    }
+  }
+
+  private static void addConfiguredParent(Set<Path> paths, String configured, String childName) {
+    if (configured == null || configured.isBlank()) {
+      return;
+    }
+    Path path = Paths.get(configured.trim()).toAbsolutePath().normalize();
+    if (path.getFileName() != null && childName.equalsIgnoreCase(path.getFileName().toString())) {
+      path = path.getParent();
+    }
+    if (path != null) {
+      paths.add(path);
+    }
   }
 
   /** True if path is a directory that looks like a Hop install (has {@code plugins/}). */

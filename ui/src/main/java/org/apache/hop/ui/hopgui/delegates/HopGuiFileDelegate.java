@@ -55,6 +55,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
@@ -309,30 +310,40 @@ public class HopGuiFileDelegate {
 
   public void closeAllFiles() {
     this.isClosing = true;
-    for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
-      List<TabItemHandler> tabItemHandlers = perspective.getItems();
-      if (tabItemHandlers != null) {
-        // Copy the list to avoid changing the list we're editing (closing items)
-        //
-        List<TabItemHandler> handlers = new ArrayList<>(tabItemHandlers);
-        for (TabItemHandler tabItemHandler : handlers) {
-          IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
-          typeHandler.close();
+    try {
+      for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
+        List<TabItemHandler> tabItemHandlers = perspective.getItems();
+        if (tabItemHandlers != null) {
+          // Copy the list to avoid changing the list we're editing (closing items)
+          //
+          List<TabItemHandler> handlers = new ArrayList<>(tabItemHandlers);
+          for (TabItemHandler tabItemHandler : handlers) {
+            IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
+            typeHandler.close();
+          }
         }
       }
-    }
 
-    // Execution Information tabs are not IHopFileTypeHandlers, so they never appear in
-    // getItems(). Close them explicitly so project switches (and File → Close All) do not leave
-    // viewers from the previous project open. Callers that need to remember tabs (project switch)
-    // must call ExecutionPerspective.saveState() first.
-    //
-    ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
-    if (executionPerspective != null) {
-      executionPerspective.closeAllTabs();
-    }
+      // Execution Information tabs are not IHopFileTypeHandlers, so they never appear in
+      // getItems(). Close them explicitly so project switches (and File → Close All) do not leave
+      // viewers from the previous project open. Callers that need to remember tabs (project switch)
+      // must call ExecutionPerspective.saveState() first.
+      //
+      ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
+      if (executionPerspective != null) {
+        executionPerspective.closeAllTabs();
+      }
+    } finally {
+      this.isClosing = false;
 
-    this.isClosing = false;
+      IHopFileTypeHandler activeHandler = hopGui.getActiveFileTypeHandler();
+      if (activeHandler == null) {
+        hopGui.handleFileCapabilities(new EmptyFileType(), false, false, false);
+      } else {
+        hopGui.handleFileCapabilities(
+            activeHandler.getFileType(), activeHandler, activeHandler.hasChanged(), false, false);
+      }
+    }
   }
 
   /** When the app exits we need to see if all open files are saved in all perspectives... */

@@ -95,6 +95,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
@@ -209,6 +210,20 @@ public class HopGui
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
   public static final String ID_MAIN_MENU_FILE_LOG_OFF = "10850-menu-file-log-off";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
+
+  public static final String ID_MAIN_MENU_FILE_USER_NEW = "15010-menu-file-user-new";
+  public static final String ID_MAIN_MENU_FILE_USER_OPEN = "15020-menu-file-user-open";
+  public static final String ID_MAIN_MENU_FILE_USER_SAVE = "15030-menu-file-user-save";
+  public static final String ID_MAIN_MENU_FILE_USER_SAVE_AS = "15040-menu-file-user-save-as";
+  public static final String ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG =
+      "15050-menu-file-user-export-svg";
+  public static final String ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT =
+      "15060-menu-file-user-export-project";
+  public static final String ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE =
+      "15070-menu-file-user-import-kettle-zip";
+
+  private static final String ID_MAIN_MENU_PROJECT_EXPORT_PLUGIN = "10055-menu-file-export-to-svg";
+  private static final String ID_MAIN_MENU_KETTLE_IMPORT_PLUGIN = "10060-menu-tools-import";
 
   public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "20000-menu-edit";
   public static final String ID_MAIN_MENU_EDIT_UNDO = "20010-menu-edit-undo";
@@ -1256,7 +1271,14 @@ public class HopGui
 
     mainMenu = new Menu(shell, SWT.BAR);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
+    updateWebUserFileMenuItems();
     mainMenuWidgets.ensureShortcutPluginInstancesRegistered();
+
+    eventsHandler.addEventListener(
+        getClass().getName() + "WebProjectMenuItems",
+        event -> updateWebUserFileMenuItems(),
+        HopGuiEvents.ProjectActivated.name(),
+        HopGuiEvents.ProjectDeactivated.name());
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
@@ -2331,6 +2353,7 @@ public class HopGui
         fileType, handler, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_EXPORT_TO_SVG, IHopFileType.CAPABILITY_EXPORT_TO_SVG);
     mainMenuWidgets.enableMenuItem(
@@ -2390,6 +2413,60 @@ public class HopGui
         HopSecurity.allows(Permission.FILE_CREATE) || HopSecurity.allows(Permission.METADATA_WRITE);
     mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_NEW, canCreate);
     mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_NEW, canCreate);
+
+    updateWebUserFileMenuItems();
+  }
+
+  private void updateWebUserFileMenuItems() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+
+    boolean projectExportAvailable =
+        GuiRegistry.getInstance().findGuiMenuItem(ID_MAIN_MENU, ID_MAIN_MENU_PROJECT_EXPORT_PLUGIN)
+            != null;
+    boolean kettleImportAvailable =
+        GuiRegistry.getInstance().findGuiMenuItem(ID_MAIN_MENU, ID_MAIN_MENU_KETTLE_IMPORT_PLUGIN)
+            != null;
+
+    boolean showProjectExport =
+        HopWebUserFileMenuState.shouldShowProjectExport(
+            variables.resolve(Const.VAR_PROJECT_HOME),
+            projectExportAvailable,
+            HopSecurity.allows(Permission.FILE_EXPORT));
+    boolean showKettleImport =
+        HopWebUserFileMenuState.shouldShowKettleImport(
+            kettleImportAvailable,
+            HopSecurity.allows(Permission.FILE_CREATE),
+            HopSecurity.allows(Permission.METADATA_WRITE));
+    boolean showSvgExport =
+        HopWebUserFileMenuState.shouldShowSvgExport(
+            getActivePipelineGraph() != null,
+            getActiveWorkflowGraph() != null,
+            HopSecurity.allows(Permission.FILE_EXPORT));
+
+    boolean canDownload =
+        HopWebUserFileMenuState.canDownload(
+            getActiveFileTypeHandler(), HopSecurity.allows(Permission.FILE_SAVE));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE, canDownload);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE_AS, canDownload);
+
+    // Keep the enabled-state map in sync for keyboard/menu dispatch and hide unavailable actions.
+    // File Server keeps the same actions, but shares the web-only visibility rules for SVG.
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(
+        ID_MAIN_MENU_FILE_USER_NEW,
+        HopSecurity.allows(Permission.FILE_CREATE)
+            || HopSecurity.allows(Permission.METADATA_WRITE));
+    mainMenuWidgets.enableMenuItem(
+        ID_MAIN_MENU_FILE_USER_OPEN, HopSecurity.allows(Permission.FILE_VIEW));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT, showProjectExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE, showKettleImport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT, showProjectExport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE, showKettleImport);
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {

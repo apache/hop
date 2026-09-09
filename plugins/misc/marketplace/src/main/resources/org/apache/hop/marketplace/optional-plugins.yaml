@@ -238,12 +238,6 @@ plugins:
     description: Generate Hop documentation
     installPath: plugins/misc/documentation
     modulePath: plugins/misc/documentation
-  - artifactId: hop-misc-import
-    name: Import
-    category: Miscellaneous
-    description: Import Kettle / Pentaho Data Integration metadata
-    installPath: plugins/misc/import
-    modulePath: plugins/misc/import
   - artifactId: hop-misc-lint
     name: Lint
     category: Miscellaneous

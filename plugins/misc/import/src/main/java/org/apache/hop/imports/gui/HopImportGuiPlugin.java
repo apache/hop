@@ -17,17 +17,24 @@
 
 package org.apache.hop.imports.gui;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.security.Permission;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.imports.kettle.KettleImport;
 import org.apache.hop.imports.kettle.KettleImportDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 
 @GuiPlugin(name = "Import", description = "Import Kettle projects")
 public class HopImportGuiPlugin {
+
+  private static final Class<?> PKG = HopImportGuiPlugin.class;
 
   public static final String ID_MAIN_MENU_FILE_IMPORT = "10060-menu-tools-import";
 
@@ -44,23 +51,39 @@ public class HopImportGuiPlugin {
       root = HopGui.ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_IMPORT,
       label = "i18n::HopGuiImport.Menu.Item",
-      image = "kettle-logo.svg",
+      image = "ui/images/kettle-logo.svg",
       parentId = HopGui.ID_MAIN_MENU_FILE,
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'i', global = true)
   @GuiOsxKeyboardShortcut(command = true, key = 'i', global = true)
   public void menuToolsImport() {
+    menuToolsImport(null);
+  }
+
+  /** Opens the Kettle/PDI import dialog with an optional source folder selected up front. */
+  public void menuToolsImport(String sourceFolder) {
+    if (!HopSecurityUi.check(Permission.FILE_CREATE)
+        || !HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     HopGui hopGui = HopGui.getInstance();
     try {
       // Import using this Kettle import plugin...
       //
       KettleImport kettleImport = new KettleImport();
       kettleImport.init(hopGui.getVariables(), hopGui.getLog());
+      kettleImport.setInputFolderName(sourceFolder);
       KettleImportDialog dialog =
           new KettleImportDialog(hopGui.getShell(), hopGui.getVariables(), kettleImport);
       dialog.open();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error importing from Kettle", e);
+      String title = BaseMessages.getString(PKG, "HopGuiImport.Error.Title");
+      boolean web = EnvironmentUtils.getInstance().isWeb();
+      String message =
+          BaseMessages.getString(
+              PKG, web ? "HopGuiImport.Error.Web.Message" : "HopGuiImport.Error.Message");
+      hopGui.getLog().logError(message, e);
+      new ErrorDialog(hopGui.getShell(), title, message, web ? new HopException(message) : e);
     }
   }
 }

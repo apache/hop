@@ -50,6 +50,31 @@ You'll feel right at home!
 
 image:hop-web.png[Hop Web,width="90%"]
 
+== Working with server files and browser files
+
+The *File* menu opens and saves files on the Hop server or its configured virtual file systems.
+The toolbar Save button and keyboard Save shortcut use this same server-side behavior.
+*Close* and *Close All* are available in this menu.
+
+The *File Browser* menu transfers files between Hop Web and your computer:
+
+* *Open* uploads a `.hpl` pipeline or `.hwf` workflow and opens an unsaved copy.
+  Use *File → Save* to choose a permanent server location for that copy.
+  Uploaded temporary paths are not added to recent files or restored when the session ends.
+* *Save* downloads the active pipeline or workflow using its suggested filename, even when it has no changes.
+* *Save As* asks for a download filename first. The browser controls where the download is stored on your computer.
+* *Export project ZIP* downloads the active project.
+* *Import Kettle/PDI ZIP* uploads a ZIP and opens the existing Kettle/PDI import dialog.
+  The extracted folder is temporary and is not stored as the last import source.
+  The standard distribution includes the import plugin; custom distributions must include `hop-misc-import`.
+
+*Export SVG* appears in both menus only while a pipeline or workflow is active.
+In *File Browser*, it downloads the SVG to your computer.
+
+A completed browser download clears the unsaved indicator of an untitled document only if its content has not changed during the transfer.
+Downloading a copy of an existing server file leaves any pending server changes marked as unsaved.
+Save or download your work before logging off or allowing the web session to expire.
+
 == Starting Hop Web with a project and environment
 
 Hop Web accepts the same variables as the default Apache Hop container image to allow Hop Web users to specify their project and environment when starting a Hop Web container:

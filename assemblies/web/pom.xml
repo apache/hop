@@ -29,10 +29,29 @@
     <name>Hop Assemblies Web</name>
 
     <properties>
-        <rap.version>4.4.0</rap.version>
+        <commons.fileupload2.version>2.0.0-M5</commons.fileupload2.version>
+        <commons.io.version>2.22.0</commons.io.version>
+        <rap.version>4.7.0</rap.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+        </dependency>
+        <!-- RAP file upload uses Commons FileUpload 2 at runtime. The web assembly
+             intentionally excludes transitive dependencies, so declare them here. -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-core</artifactId>
+            <version>${commons.fileupload2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+            <version>${commons.fileupload2.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-assemblies-static</artifactId>
