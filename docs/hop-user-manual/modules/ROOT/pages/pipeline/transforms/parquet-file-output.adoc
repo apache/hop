@@ -44,6 +44,8 @@ For more information on this see: http://parquet.apache.org/[Apache Parquet].
 
 == Options
 
+The dialog is split across four tabs so it fits a 1080p screen at 100% zoom: **File**, **Options**, **Partitioning**, and **Fields**.
+
 Notes:
 
 * The date optionally referenced in the output file name(s) will be the start of the pipeline execution.
@@ -52,6 +54,10 @@ Notes:
 * Compression of data into columnar format is being done in memory.
 This happens when all rows are written.
 To not run out of memory make sure to specify a split size.
+
+=== File
+
+image:tech/parquet/parquet-output-dialog-file-tab.png[Parquet file output File tab, width="90%"]
 
 [options="header"]
 |===
@@ -71,7 +77,7 @@ Write to a local folder : `/my/folder/customer-data`
 
 |Extension
 |This is the extension of the file.
-Usually this is simply `snappy`
+Usually this is simply `parquet`
 
 |Include date?
 |Check this box if you want to include the date in the filename with mask `yyyMMdd`
@@ -92,14 +98,26 @@ Specify a split size larger than 0 and this is then the number of rows per file.
 The file part (split) number will be included in the filename to make sure that the same file is not being overwritten.
 The split number is formatted with mask `0000`
 
+|Create parent folders?
+|Create missing parent folders of the output path.
+
 |Include compression codec before extension?
 |When enabled (the default for new transforms), the compression codec is placed before the file extension (for example `file.snappy.parquet`), which matches the naming used by Spark and other Parquet tools.
 When disabled, the compression codec is appended after the extension (for example `file.parquet.snappy`).
 Existing pipelines that do not have this option set keep the previous behavior.
+|===
+
+=== Options
+
+image:tech/parquet/parquet-output-dialog-options-tab.png[Parquet file output Options tab, width="90%"]
+
+[options="header"]
+|===
+|Option|Description
 
 |Compression codec
 |Here you can indicate which compression codec you want to use.
-The default is SNAPPY for Apache Snappy compression.
+The default is UNCOMPRESSED.
 
 |Version
 |Choose the protocol version of Parquet (1.0 or 2.0)
@@ -112,9 +130,45 @@ The default is SNAPPY for Apache Snappy compression.
 
 |Dictionary page size
 |The data dictionary page size on a 1kB boundary (default is 1048576)
+|===
+
+=== Partitioning
+
+image:tech/parquet/parquet-output-dialog-partitioning-tab.png[Parquet file output Partitioning tab, width="90%"]
+
+Leave **Partition by** empty to write a single file set, as before.
+
+When one or more fields are listed, the transform writes Hive-style `name=value` folders under the base file name, and those fields are not stored inside the Parquet files.
+
+[options="header"]
+|===
+|Option|Description
+
+|Existing data
+|What to do when a partition folder already exists: append, overwrite that partition, fail if it exists, or overwrite the whole base folder.
+This option is enabled when at least one partition field is set.
+
+|Maximum open partitions
+|How many partition files may be written at the same time.
+Each open file buffers up to one row group in memory, so a lower number uses less memory but writes more files.
+This option is enabled when at least one partition field is set.
+
+|Partition by
+|Incoming fields used as directory levels.
+Leave empty to write a single file set.
+|===
+
+=== Fields
+
+image:tech/parquet/parquet-output-dialog-fields-tab.png[Parquet file output Fields tab, width="90%"]
+
+[options="header"]
+|===
+|Option|Description
 
 |Fields
 |You can specify which fields to write and in which order.
 You can use the "Get Fields" button to populate the dialog.
+Leave empty to output all input fields.
 
 |===
