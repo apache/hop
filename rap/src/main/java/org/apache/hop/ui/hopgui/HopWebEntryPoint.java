@@ -36,8 +36,10 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
+import org.apache.hop.ui.hopgui.explorer.RapExplorerFileService;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.notifications.NotificationService;
+import org.apache.hop.ui.hopgui.perspective.explorer.web.HopWebExplorerFileHelper;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -253,6 +255,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     HopGui.getInstance().setCommandLineArguments(new ArrayList<>());
 
     HopWebUrlHelper.setUrlUpdater(new RapHopWebUrlUpdater());
+    HopWebExplorerFileHelper.setService(new RapExplorerFileService());
 
     // Persist open tabs when the session ends (browser close, timeout, etc.).
     // We use the session-cached audit manager so no request is needed.
