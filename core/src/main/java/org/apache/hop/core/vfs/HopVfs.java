@@ -47,6 +47,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -171,11 +172,82 @@ public class HopVfs {
     // namespace, with its own named VFS connections. Everything else uses the process wide
     // manager below, exactly as before. See issue #8106.
     HopVfsNamespace namespace = HopVfsNamespaces.resolve(variables);
-    if (namespace != null) {
-      return namespace.getFileSystemManager();
+    DefaultFileSystemManager namespaceManager = managerOf(namespace);
+    if (namespaceManager != null) {
+      return namespaceManager;
     }
     bootstrapWith(variables);
     return getFileSystemManager();
+  }
+
+  /**
+   * The file system manager of this namespace, or null when there is nothing usable to resolve
+   * with.
+   *
+   * <p>A namespace is closed once the last user lets go of it, and a closed {@link
+   * DefaultFileSystemManager} has dropped every provider it had - the local one included. Handing
+   * it a path afterwards fails as {@code "because it is a relative path, and no base URI was
+   * provided"}, even for an absolute local path, because there is no longer a provider to claim it.
+   *
+   * <p>Whoever inherited the namespace is never told that it closed: the binding is copied when a
+   * thread is created and never looked at again, and Hop GUI lets go of the previous project's
+   * namespace while background work - the linter - is still running on it. See issue #8295.
+   *
+   * <p>What to do about it depends on who else is in this JVM. With one tenant, the process wide
+   * manager is the right answer and not merely a salvage: the work that outlived the namespace
+   * belongs to the project that is open now, which is exactly what that manager holds. With several
+   * tenants ({@link HopVfsNamespaces#isIsolated()}) it is the wrong answer - the named connections
+   * on it are somebody else's - so the namespace builds its own connections again instead. If even
+   * that fails, the closed manager is handed back and the caller gets the error it would have got
+   * before: silently resolving one tenant's files through another's is worse than failing.
+   *
+   * @param namespace the namespace to resolve with, may be null
+   * @return its manager, or null when the process wide manager should be used instead
+   */
+  private static DefaultFileSystemManager managerOf(HopVfsNamespace namespace) {
+    if (namespace == null) {
+      return null;
+    }
+    DefaultFileSystemManager manager = namespace.getFileSystemManager();
+    if (manager != null && manager.hasProvider("file")) {
+      return manager;
+    }
+
+    if (HopVfsNamespaces.isIsolated()) {
+      try {
+        namespace.rebuild();
+      } catch (Exception e) {
+        // Only the rebuild belongs in this try. Logging is what runs before the log store exists,
+        // and a failure to say something must not be read as a failure to rebuild.
+        if (HopLogStore.isInitialized()) {
+          LogChannel.GENERAL.logError(
+              "The VFS namespace of "
+                  + namespace.getDescription()
+                  + " was closed while still in use and could not be built again. Files resolved"
+                  + " through it keep failing: the process wide manager holds the named connections"
+                  + " of another tenant and is not used in its place.",
+              e);
+        }
+        return manager;
+      }
+      if (HopLogStore.isInitialized()) {
+        LogChannel.GENERAL.logBasic(
+            "The VFS namespace of "
+                + namespace.getDescription()
+                + " was closed while still in use. Its named connections were read again.");
+      }
+      return namespace.getFileSystemManager();
+    }
+
+    // Resolving a file is one of the first things Hop does, long before there is anywhere to log
+    // to, so never let saying this out loud be the thing that fails.
+    if (HopLogStore.isInitialized()) {
+      LogChannel.GENERAL.logDebug(
+          "The VFS namespace of "
+              + namespace.getDescription()
+              + " is closed. Resolving with the process wide file system manager instead.");
+    }
+    return null;
   }
 
   /**
@@ -361,11 +433,9 @@ public class HopVfs {
 
   public static synchronized FileObject getFileObject(String vfsFilename) throws HopFileException {
     // Nothing to go on but the thread: the namespace of the execution running on it, if any.
-    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    DefaultFileSystemManager namespaceManager = managerOf(HopVfsNamespaces.getCurrent());
     return resolveWith(
-        vfsFilename,
-        namespace == null ? getFileSystemManager() : namespace.getFileSystemManager(),
-        null);
+        vfsFilename, namespaceManager == null ? getFileSystemManager() : namespaceManager, null);
   }
 
   /**

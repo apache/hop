@@ -321,6 +321,16 @@ public class ProjectsGuiPlugin {
       hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectActivated.name());
       hopGui.getEventsHandler().fire(projectName, HopGuiEvents.MetadataChanged.name());
 
+      // The project that just opened has its own VFS connections: take its namespace, and let go
+      // of the one of the project we came from. Not a full reset - in Hop Web that would empty the
+      // file system manager of every other session as well.
+      //
+      // Before the extension point below, not after: letting go of the previous namespace closes
+      // it, and a listener that starts background work - the linter walks the whole project - would
+      // otherwise be handed a file system manager that is about to be closed underneath it. See
+      // issue #8295.
+      hopGui.useVfsNamespaceOfOpenProject();
+
       // Inform the outside world that we're enabled another project
       //
       ExtensionPointHandler.callExtensionPoint(
@@ -328,11 +338,6 @@ public class ProjectsGuiPlugin {
           hopGuiVariables,
           HopExtensionPoint.HopGuiProjectAfterEnabled.name(),
           project);
-
-      // The project that just opened has its own VFS connections: take its namespace, and let go
-      // of the one of the project we came from. Not a full reset - in Hop Web that would empty the
-      // file system manager of every other session as well.
-      hopGui.useVfsNamespaceOfOpenProject();
 
       // Finally, warn about metadata elements in this project which we can't load.
       // They're ignored so the project itself opens just fine.
