@@ -33,7 +33,6 @@ public class HdfsFileObject extends AbstractFileObject<HdfsFileSystem> {
   private static final Class<?> PKG = HdfsTransport.class;
 
   private HdfsFileStatus status;
-  private boolean attached;
 
   protected HdfsFileObject(AbstractFileName name, HdfsFileSystem fileSystem) {
     super(name, fileSystem);
@@ -53,10 +52,6 @@ public class HdfsFileObject extends AbstractFileObject<HdfsFileSystem> {
 
   @Override
   protected void doAttach() throws Exception {
-    if (attached) {
-      return;
-    }
-    attached = true;
     try {
       status = client().getFileStatus(hdfsPath());
       injectType(status.isDirectory() ? FileType.FOLDER : FileType.FILE);
@@ -72,24 +67,30 @@ public class HdfsFileObject extends AbstractFileObject<HdfsFileSystem> {
 
   @Override
   protected void doDetach() {
-    attached = false;
     status = null;
   }
 
-  private static boolean isNotFound(Exception e) {
-    String message = e.getMessage();
-    return message != null
-        && (message.contains("FileNotFoundException")
-            || message.contains("File does not exist")
-            || message.contains("HTTP 404"));
+  private static boolean isNotFound(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      String message = current.getMessage();
+      if (message != null
+          && (message.contains("FileNotFoundException")
+              || message.contains("File does not exist")
+              || message.contains("HTTP 404"))) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   @Override
-  protected FileType doGetType() throws Exception {
-    if (!attached) {
-      doAttach();
+  protected FileType doGetType() {
+    if (status == null) {
+      return FileType.IMAGINARY;
     }
-    return getType();
+    return status.isDirectory() ? FileType.FOLDER : FileType.FILE;
   }
 
   @Override

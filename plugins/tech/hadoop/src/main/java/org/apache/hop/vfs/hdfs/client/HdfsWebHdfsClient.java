@@ -18,6 +18,7 @@ package org.apache.hop.vfs.hdfs.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -171,6 +172,10 @@ public class HdfsWebHdfsClient {
       } catch (IOException e) {
         last = e;
         logEndpointFailure(endpoint, e);
+        if (!shouldTryNextEndpoint(e)) {
+          rememberWorkingEndpoint(endpoint);
+          throw e;
+        }
       } catch (Exception e) {
         last = new IOException(e);
       } finally {
@@ -331,16 +336,20 @@ public class HdfsWebHdfsClient {
       response.close();
       throw new IOException("No entity");
     }
-    return new FilterInputStream(entity.getContent()) {
-      @Override
-      public void close() throws IOException {
-        try {
-          super.close();
-        } finally {
-          response.close();
-        }
-      }
-    };
+    // Buffer DataNode bytes so GZIP can see the trailer; a raw 512-byte inflater read on an HTTP
+    // entity often hits EOF one packet short ("Unexpected end of ZLIB input stream").
+    return new BufferedInputStream(
+        new FilterInputStream(entity.getContent()) {
+          @Override
+          public void close() throws IOException {
+            try {
+              super.close();
+            } finally {
+              response.close();
+            }
+          }
+        },
+        64 * 1024);
   }
 
   private String executeString(String method, String path, Map<String, String> params, byte[] body)
@@ -363,6 +372,10 @@ public class HdfsWebHdfsClient {
       } catch (IOException e) {
         last = e;
         logEndpointFailure(endpoint, e);
+        if (!shouldTryNextEndpoint(e)) {
+          rememberWorkingEndpoint(endpoint);
+          throw e;
+        }
       }
     }
     throw last == null ? new IOException("No HDFS endpoints configured") : last;
@@ -622,6 +635,28 @@ public class HdfsWebHdfsClient {
 
   private void rememberWorkingEndpoint(String endpoint) {
     preferredEndpoint = endpoint;
+  }
+
+  /**
+   * Only HA standby and dead sockets should move to the next NameNode. A 404 from the active node
+   * means the file is missing, not that this host is wrong — remember it so CREATE does not go back
+   * to the standby.
+   */
+  private boolean shouldTryNextEndpoint(IOException error) {
+    if (isStandbyNameNode(error)) {
+      return true;
+    }
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof java.net.ConnectException
+          || current instanceof java.net.UnknownHostException
+          || current instanceof java.net.NoRouteToHostException
+          || current instanceof java.net.SocketTimeoutException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   private void logEndpointFailure(String endpoint, IOException error) {

@@ -94,6 +94,10 @@ public class WebHdfsTestServer {
       hdfsPath = normalize(hdfsPath);
       Map<String, String> query = parseQuery(exchange.getRequestURI().getRawQuery());
       String op = query.getOrDefault("op", "");
+      if (standby && !"GETFILESTATUS".equals(op)) {
+        sendStandby(exchange);
+        return;
+      }
       switch (op) {
         case "GETFILESTATUS" -> getFileStatus(exchange, hdfsPath);
         case "LISTSTATUS" -> listStatus(exchange, hdfsPath);
@@ -109,12 +113,16 @@ public class WebHdfsTestServer {
     }
   }
 
+  private void sendStandby(HttpExchange exchange) throws IOException {
+    send(
+        exchange,
+        403,
+        "{\"RemoteException\":{\"exception\":\"StandbyException\",\"javaClassName\":\"org.apache.hadoop.ipc.StandbyException\",\"message\":\"Operation category READ is not supported in state standby. Visit https://s.apache.org/sbnn-error\"}}");
+  }
+
   private void getFileStatus(HttpExchange exchange, String path) throws IOException {
     if (standby) {
-      send(
-          exchange,
-          403,
-          "{\"RemoteException\":{\"exception\":\"StandbyException\",\"javaClassName\":\"org.apache.hadoop.ipc.StandbyException\",\"message\":\"Operation category READ is not supported in state standby. Visit https://s.apache.org/sbnn-error\"}}");
+      sendStandby(exchange);
       return;
     }
     if (dirs.containsKey(path)) {
