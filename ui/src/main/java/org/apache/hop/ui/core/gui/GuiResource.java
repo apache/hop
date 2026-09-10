@@ -231,6 +231,7 @@ public class GuiResource {
   @Getter private Image imageLocation;
   @Getter private Image imageMaximizePanel;
   @Getter private Image imageMinimizePanel;
+  @Getter private Image imageNotification;
   @Getter private Image imageDetachPanel;
   @Getter private Image imageDockPanel;
   @Getter private Image imageMarketplace;
@@ -551,6 +552,7 @@ public class GuiResource {
     disposeImage(imageNavigateForward);
     disposeImage(imageNavigateUp);
     disposeImage(imageNote);
+    disposeImage(imageNotification);
     disposeImage(imagePaste);
     disposeImage(imagePause);
     disposeImage(imagePlugin);
@@ -793,6 +795,8 @@ public class GuiResource {
     imageDockPanel = loadAsResource(display, "ui/images/dock-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageNew = loadAsResource(display, "ui/images/new.svg", ConstUi.SMALL_ICON_SIZE);
     imageNote = loadAsResource(display, "ui/images/note.svg", ConstUi.SMALL_ICON_SIZE);
+    imageNotification =
+        loadAsResource(display, "ui/images/notification-bell.svg", ConstUi.SMALL_ICON_SIZE);
     imagePlugin = loadAsResource(display, "ui/images/plugin.svg", ConstUi.SMALL_ICON_SIZE);
     imagePrint = loadAsResource(display, "ui/images/print.svg", ConstUi.SMALL_ICON_SIZE);
     imageRefresh = loadAsResource(display, "ui/images/refresh.svg", ConstUi.SMALL_ICON_SIZE);

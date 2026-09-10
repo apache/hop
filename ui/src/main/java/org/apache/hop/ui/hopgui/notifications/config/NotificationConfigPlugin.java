@@ -78,7 +78,6 @@ public class NotificationConfigPlugin {
   private org.apache.hop.ui.core.widget.TextVar wGlobalDaysToGoBack;
   private Button wShowReadNotifications;
   private List<NotificationSourceConfig> sources;
-  private PropsUi props = PropsUi.getInstance();
 
   @GuiTab(
       id = "10200-config-perspective-notifications-tab",
@@ -93,7 +92,7 @@ public class NotificationConfigPlugin {
       wNotificationsTab.setFont(GuiResource.getInstance().getFontDefault());
       wNotificationsTab.setText(
           BaseMessages.getString(PKG, "NotificationConfigPlugin.Tab.Notifications"));
-      wNotificationsTab.setImage(GuiResource.getInstance().getImagePlugin());
+      wNotificationsTab.setImage(GuiResource.getInstance().getImageNotification());
 
       ScrolledComposite sNotificationsComp =
           new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -119,7 +118,7 @@ public class NotificationConfigPlugin {
       Label wlEnableNotifications = new Label(wNotificationsTabComp, SWT.RIGHT);
       wlEnableNotifications.setText(
           BaseMessages.getString(PKG, "NotificationConfigPlugin.EnableNotificationSystem"));
-      props.setLook(wlEnableNotifications);
+      PropsUi.setLook(wlEnableNotifications);
       FormData fdlEnableNotifications = new FormData();
       fdlEnableNotifications.left = new FormAttachment(0, 0);
       fdlEnableNotifications.right = new FormAttachment(middle, -margin);
@@ -127,7 +126,7 @@ public class NotificationConfigPlugin {
       wlEnableNotifications.setLayoutData(fdlEnableNotifications);
 
       wEnableNotifications = new Button(wNotificationsTabComp, SWT.CHECK);
-      props.setLook(wEnableNotifications);
+      PropsUi.setLook(wEnableNotifications);
       FormData fdEnableNotifications = new FormData();
       fdEnableNotifications.left = new FormAttachment(middle, 0);
       fdEnableNotifications.top = new FormAttachment(0, margin);
@@ -154,7 +153,7 @@ public class NotificationConfigPlugin {
       Label wlGlobalPollInterval = new Label(wNotificationsTabComp, SWT.RIGHT);
       wlGlobalPollInterval.setText(
           BaseMessages.getString(PKG, "NotificationConfigPlugin.DefaultPollInterval"));
-      props.setLook(wlGlobalPollInterval);
+      PropsUi.setLook(wlGlobalPollInterval);
       FormData fdlGlobalPollInterval = new FormData();
       fdlGlobalPollInterval.left = new FormAttachment(0, 0);
       fdlGlobalPollInterval.right = new FormAttachment(middle, -margin);
@@ -164,7 +163,7 @@ public class NotificationConfigPlugin {
       wGlobalPollInterval =
           new org.apache.hop.ui.core.widget.TextVar(
               variables, wNotificationsTabComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wGlobalPollInterval);
+      PropsUi.setLook(wGlobalPollInterval);
       FormData fdGlobalPollInterval = new FormData();
       fdGlobalPollInterval.left = new FormAttachment(middle, 0);
       fdGlobalPollInterval.right = new FormAttachment(100, 0);
@@ -175,7 +174,7 @@ public class NotificationConfigPlugin {
       Label wlGlobalDaysToGoBack = new Label(wNotificationsTabComp, SWT.RIGHT);
       wlGlobalDaysToGoBack.setText(
           BaseMessages.getString(PKG, "NotificationConfigPlugin.DefaultDaysToGoBack"));
-      props.setLook(wlGlobalDaysToGoBack);
+      PropsUi.setLook(wlGlobalDaysToGoBack);
       FormData fdlGlobalDaysToGoBack = new FormData();
       fdlGlobalDaysToGoBack.left = new FormAttachment(0, 0);
       fdlGlobalDaysToGoBack.right = new FormAttachment(middle, -margin);
@@ -185,7 +184,7 @@ public class NotificationConfigPlugin {
       wGlobalDaysToGoBack =
           new org.apache.hop.ui.core.widget.TextVar(
               variables, wNotificationsTabComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wGlobalDaysToGoBack);
+      PropsUi.setLook(wGlobalDaysToGoBack);
       FormData fdGlobalDaysToGoBack = new FormData();
       fdGlobalDaysToGoBack.left = new FormAttachment(middle, 0);
       fdGlobalDaysToGoBack.right = new FormAttachment(100, 0);
@@ -196,7 +195,7 @@ public class NotificationConfigPlugin {
       wShowReadNotifications = new Button(wNotificationsTabComp, SWT.CHECK);
       wShowReadNotifications.setText(
           BaseMessages.getString(PKG, "NotificationConfigPlugin.ShowReadNotifications"));
-      props.setLook(wShowReadNotifications);
+      PropsUi.setLook(wShowReadNotifications);
       FormData fdShowReadNotifications = new FormData();
       fdShowReadNotifications.left = new FormAttachment(middle, 0);
       fdShowReadNotifications.top = new FormAttachment(wGlobalDaysToGoBack, margin);
@@ -296,7 +295,7 @@ public class NotificationConfigPlugin {
       // Buttons
       Button wAdd = new Button(wNotificationsTabComp, SWT.PUSH);
       wAdd.setText(BaseMessages.getString(PKG, "NotificationConfigPlugin.Add"));
-      props.setLook(wAdd);
+      PropsUi.setLook(wAdd);
       FormData fdAdd = new FormData();
       fdAdd.left = new FormAttachment(0, 0);
       fdAdd.top = new FormAttachment(wSourcesTable, margin);
@@ -311,7 +310,7 @@ public class NotificationConfigPlugin {
 
       Button wEdit = new Button(wNotificationsTabComp, SWT.PUSH);
       wEdit.setText(BaseMessages.getString(PKG, "NotificationConfigPlugin.Edit"));
-      props.setLook(wEdit);
+      PropsUi.setLook(wEdit);
       FormData fdEdit = new FormData();
       fdEdit.left = new FormAttachment(wAdd, margin);
       fdEdit.top = new FormAttachment(wSourcesTable, margin);
@@ -326,7 +325,7 @@ public class NotificationConfigPlugin {
 
       Button wDelete = new Button(wNotificationsTabComp, SWT.PUSH);
       wDelete.setText(BaseMessages.getString(PKG, "NotificationConfigPlugin.Delete"));
-      props.setLook(wDelete);
+      PropsUi.setLook(wDelete);
       FormData fdDelete = new FormData();
       fdDelete.left = new FormAttachment(wEdit, margin);
       fdDelete.top = new FormAttachment(wSourcesTable, margin);
@@ -341,7 +340,7 @@ public class NotificationConfigPlugin {
 
       Button wSave = new Button(wNotificationsTabComp, SWT.PUSH);
       wSave.setText(BaseMessages.getString(PKG, "NotificationConfigPlugin.Save"));
-      props.setLook(wSave);
+      PropsUi.setLook(wSave);
       BaseTransformDialog.positionBottomButtons(
           wNotificationsTabComp, new Button[] {wSave}, margin, null);
       wSave.addSelectionListener(
