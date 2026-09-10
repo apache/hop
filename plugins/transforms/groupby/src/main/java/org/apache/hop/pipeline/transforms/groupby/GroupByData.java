@@ -47,6 +47,12 @@ public class GroupByData extends BaseTransformData implements ITransformData {
   public int aggregateIgnoredFieldIndex = -1;
 
   /**
+   * Per-aggregation flag for {@code FIRST_INCL_NULL}: true once the first non-ignored row of the
+   * current group has been applied.
+   */
+  public boolean[] firstInclNullSet;
+
+  /**
    * array, length is equal to aggMeta value meta list size and metadata subject fields length.
    * Values corresponds to input values used to calculate target results.
    */

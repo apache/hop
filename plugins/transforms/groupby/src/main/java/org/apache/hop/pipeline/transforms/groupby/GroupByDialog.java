@@ -448,7 +448,15 @@ public class GroupByDialog extends BaseTransformDialog {
               for (int i = 0; i < row.size(); i++) {
                 inputFields.add(row.getValueMeta(i).getName());
               }
-              setComboBoxes();
+              // ComboVar.setItems must run on the UI thread
+              shell
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!shell.isDisposed()) {
+                          setComboBoxes();
+                        }
+                      });
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }

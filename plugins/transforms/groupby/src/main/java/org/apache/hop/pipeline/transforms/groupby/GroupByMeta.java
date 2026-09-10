@@ -303,6 +303,34 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
               transformMeta);
       remarks.add(cr);
     }
+
+    if (aggregateIgnored) {
+      if (Utils.isEmpty(aggregateIgnoredField)) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "GroupByMeta.CheckResult.IgnoreAggregateFieldMissing"),
+                transformMeta));
+      } else if (prev != null && !prev.isEmpty()) {
+        String ignoreField = variables.resolve(aggregateIgnoredField);
+        int idx = prev.indexOfValue(ignoreField);
+        if (idx < 0) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "GroupByMeta.CheckResult.IgnoreAggregateFieldNotFound", ignoreField),
+                  transformMeta));
+        } else if (!prev.getValueMeta(idx).isBoolean()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "GroupByMeta.CheckResult.IgnoreAggregateFieldNotBoolean", ignoreField),
+                  transformMeta));
+        }
+      }
+    }
   }
 
   @Override

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.groupby;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -202,7 +203,161 @@ class IgnoreAggregateTest {
     assertEquals(1, rows.size());
     Object[] result = rows.getFirst();
     assertEquals("A", result[0]);
+    assertNull(result[1]); // sum stays null when every row is ignored
     assertEquals(0L, ((Number) result[2]).longValue());
+  }
+
+  @Test
+  void processRowSkipsFirstRowWhenFlaggedForMinMaxFirstLast() throws Exception {
+    configureAggregations(
+        Aggregation.TYPE_GROUP_MIN,
+        Aggregation.TYPE_GROUP_MAX,
+        Aggregation.TYPE_GROUP_FIRST,
+        Aggregation.TYPE_GROUP_LAST,
+        Aggregation.TYPE_GROUP_FIRST_INCL_NULL,
+        Aggregation.TYPE_GROUP_LAST_INCL_NULL);
+
+    // Group A: ignored first row holds extreme values; valid rows are 10 and 20
+    // Group B: ignored first row holds extremes; valid rows are 10 and 20
+    List<Object[]> rows =
+        runPipeline(
+            new Object[] {"A", 999.0, Boolean.TRUE},
+            new Object[] {"A", 10.0, Boolean.FALSE},
+            new Object[] {"A", 20.0, Boolean.FALSE},
+            new Object[] {"B", 1.0, Boolean.TRUE},
+            new Object[] {"B", 10.0, Boolean.FALSE},
+            new Object[] {"B", 20.0, Boolean.FALSE});
+
+    assertEquals(2, rows.size());
+
+    Object[] groupA = rows.getFirst();
+    assertEquals("A", groupA[0]);
+    assertEquals(10.0, ((Number) groupA[1]).doubleValue(), 1e-9); // min
+    assertEquals(20.0, ((Number) groupA[2]).doubleValue(), 1e-9); // max
+    assertEquals(10.0, ((Number) groupA[3]).doubleValue(), 1e-9); // first
+    assertEquals(20.0, ((Number) groupA[4]).doubleValue(), 1e-9); // last
+    assertEquals(10.0, ((Number) groupA[5]).doubleValue(), 1e-9); // first incl null
+    assertEquals(20.0, ((Number) groupA[6]).doubleValue(), 1e-9); // last incl null
+
+    Object[] groupB = rows.get(1);
+    assertEquals("B", groupB[0]);
+    assertEquals(10.0, ((Number) groupB[1]).doubleValue(), 1e-9); // min (not 1.0)
+    assertEquals(20.0, ((Number) groupB[2]).doubleValue(), 1e-9); // max
+    assertEquals(10.0, ((Number) groupB[3]).doubleValue(), 1e-9); // first (not 1.0)
+    assertEquals(20.0, ((Number) groupB[4]).doubleValue(), 1e-9); // last
+    assertEquals(10.0, ((Number) groupB[5]).doubleValue(), 1e-9); // first incl null
+    assertEquals(20.0, ((Number) groupB[6]).doubleValue(), 1e-9); // last incl null
+  }
+
+  @Test
+  void processRowAllIgnoredLeavesMinMaxFirstNull() throws Exception {
+    configureAggregations(
+        Aggregation.TYPE_GROUP_MIN,
+        Aggregation.TYPE_GROUP_MAX,
+        Aggregation.TYPE_GROUP_FIRST,
+        Aggregation.TYPE_GROUP_FIRST_INCL_NULL,
+        Aggregation.TYPE_GROUP_COUNT_ALL);
+
+    List<Object[]> rows =
+        runPipeline(
+            new Object[] {"A", 100.0, Boolean.TRUE}, new Object[] {"A", 200.0, Boolean.TRUE});
+
+    assertEquals(1, rows.size());
+    Object[] result = rows.getFirst();
+    assertEquals("A", result[0]);
+    assertNull(result[1]); // min
+    assertNull(result[2]); // max
+    assertNull(result[3]); // first
+    assertNull(result[4]); // first incl null
+    assertEquals(0L, ((Number) result[5]).longValue()); // count
+  }
+
+  @Test
+  void processRowPassAllRowsSkipsIgnoredInCumulativeSum() throws Exception {
+    meta.setPassAllRows(true);
+    meta.getAggregations().clear();
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "cum_sum",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_CUMULATIVE_SUM),
+                null));
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "sum_amount",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_SUM),
+                null));
+
+    List<Object[]> rows =
+        runPipeline(
+            new Object[] {"A", 10.0, Boolean.FALSE},
+            new Object[] {"A", 100.0, Boolean.TRUE},
+            new Object[] {"A", 20.0, Boolean.FALSE});
+
+    assertEquals(3, rows.size());
+
+    // output: grp, amount, skip, cum_sum, sum_amount
+    assertEquals(10.0, ((Number) rows.get(0)[3]).doubleValue(), 1e-9);
+    assertEquals(10.0, ((Number) rows.get(1)[3]).doubleValue(), 1e-9); // ignored: carry previous
+    assertEquals(30.0, ((Number) rows.get(2)[3]).doubleValue(), 1e-9);
+
+    assertEquals(30.0, ((Number) rows.get(0)[4]).doubleValue(), 1e-9); // group sum on every row
+    assertEquals(30.0, ((Number) rows.get(1)[4]).doubleValue(), 1e-9);
+    assertEquals(30.0, ((Number) rows.get(2)[4]).doubleValue(), 1e-9);
+  }
+
+  @Test
+  void processRowPassAllRowsSkipsIgnoredInMovingAverage() throws Exception {
+    meta.setPassAllRows(true);
+    meta.getAggregations().clear();
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "mov_avg",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_MOVING_AVERAGE),
+                "2",
+                null));
+
+    List<Object[]> rows =
+        runPipeline(
+            new Object[] {"A", 10.0, Boolean.FALSE},
+            new Object[] {"A", 100.0, Boolean.TRUE},
+            new Object[] {"A", 20.0, Boolean.FALSE});
+
+    assertEquals(3, rows.size());
+    // window size 2: after first valid row incomplete; ignored does not enter window;
+    // after second valid row window is [10, 20] -> 15
+    assertNull(rows.get(0)[3]);
+    assertNull(rows.get(1)[3]); // ignored: still incomplete window
+    assertEquals(15.0, ((Number) rows.get(2)[3]).doubleValue(), 1e-9);
+  }
+
+  @Test
+  void processRowFailsWhenIgnoreEnabledButFieldBlank() throws Exception {
+    meta.setAggregateIgnoredField("");
+
+    QueueRowSet input = new QueueRowSet();
+    input.putRow(inputRowMeta, new Object[] {"A", 10.0, Boolean.FALSE});
+    input.setDone();
+    groupBy.addRowSetToInputRowSets(input);
+    groupBy.addRowSetToOutputRowSets(new QueueRowSet());
+
+    assertFalse(groupBy.processRow());
+    assertTrue(groupBy.getErrors() > 0);
+  }
+
+  private void configureAggregations(int... types) {
+    meta.getAggregations().clear();
+    for (int i = 0; i < types.length; i++) {
+      meta.getAggregations()
+          .add(
+              new Aggregation(
+                  "agg" + i, "amount", Aggregation.getTypeDescLongFromCode(types[i]), null));
+    }
   }
 
   private List<Object[]> runPipeline(Object[]... inputRows) throws HopException {
