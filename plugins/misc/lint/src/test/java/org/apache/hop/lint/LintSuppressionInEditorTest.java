@@ -103,8 +103,16 @@ public class LintSuppressionInEditorTest {
 
     assertEquals(
         0,
-        results.stream().filter(r -> "Fonte Sql".equals(sourceName(r))).count(),
+        results.stream()
+            .filter(r -> "Fonte Sql".equals(sourceName(r)) && "HOP-CHECK".equals(r.getRuleId()))
+            .count(),
         "the accepted finding should be gone from the editor: " + results);
+    // The suppression named one rule, so the linter's own rules still have their say about that
+    // transform. Silencing everything on it would be a different entry, without a rule id.
+    assertTrue(
+        results.stream()
+            .anyMatch(r -> "Fonte Sql".equals(sourceName(r)) && "TRANS-002".equals(r.getRuleId())),
+        "a suppression naming one rule must not silence the others: " + results);
     assertTrue(
         results.stream().anyMatch(r -> "Salva S3".equals(sourceName(r))),
         "a suppression naming one transform must not silence the other: " + results);

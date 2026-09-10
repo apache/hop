@@ -63,6 +63,17 @@ public class CustomRuleExecutor {
       ThreadLocal.withInitial(LintProjectIndex::empty);
 
   /**
+   * The pipeline or workflow the transform or action being evaluated belongs to.
+   *
+   * <p>Rules are handed one transform at a time and a {@link TransformMeta} does not know its
+   * pipeline, so a question about how a transform is connected has nowhere to look. Holding the
+   * file being linted here is what lets a finding name the transform rather than the file: the
+   * alternative is a rule on the pipeline reporting "something here is orphaned", which is not a
+   * thing anyone can click on.
+   */
+  private static final ThreadLocal<Object> SUBJECT = new ThreadLocal<>();
+
+  /**
    * Make a project index available to the rules evaluated on this thread.
    *
    * @param index the index, or null to clear it
@@ -72,6 +83,19 @@ public class CustomRuleExecutor {
       PROJECT_INDEX.remove();
     } else {
       PROJECT_INDEX.set(index);
+    }
+  }
+
+  /**
+   * Make the file being linted available to the rules evaluated on this thread.
+   *
+   * @param subject the pipeline or workflow, or null to clear it
+   */
+  public static void setSubject(Object subject) {
+    if (subject == null) {
+      SUBJECT.remove();
+    } else {
+      SUBJECT.set(subject);
     }
   }
 
@@ -472,6 +496,10 @@ public class CustomRuleExecutor {
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
           return hasDefaultGeneratedName(transformMeta.getName());
+        case "isOrphaned":
+          return SUBJECT.get() instanceof PipelineMeta pipeline
+              ? isOrphaned(transformMeta, pipeline.getPipelineHops(), pipeline.getTransforms())
+              : null;
         case "isBlockingTransform":
           return isBlockingTransformPlugin(transformMeta.getTransformPluginId(), rule);
         default:
@@ -501,6 +529,10 @@ public class CustomRuleExecutor {
           return actionMeta.getAction().getPluginId();
         case "hasDefaultName":
           return hasDefaultGeneratedName(actionMeta.getName());
+        case "isOrphaned":
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? isOrphaned(actionMeta, workflow.getWorkflowHops(), workflow.getActions())
+              : null;
         default:
           // Try to get from the action implementation
           Object action = actionMeta.getAction();
@@ -573,92 +605,72 @@ public class CustomRuleExecutor {
   }
 
   /** Check if a pipeline has orphaned transforms (transforms with no incoming or outgoing hops) */
-  private static boolean hasOrphanedTransforms(PipelineMeta pipeline) {
-    if (pipeline == null
-        || pipeline.getTransforms() == null
-        || pipeline.getTransforms().isEmpty()) {
+  /**
+   * Whether this element is connected to nothing in the file it lives in.
+   *
+   * <p>Two things it deliberately does not count as orphaned, both of which put a warning on
+   * projects that had nothing wrong with them:
+   *
+   * <ul>
+   *   <li>the only element in the file. A one-transform pipeline is a normal thing to write, which
+   *       is why the core pack does not ship a rule on transform counts either. With nothing to be
+   *       disconnected from, it cannot be disconnected.
+   *   <li>an element whose hops are all disabled. It has hops; they are switched off, which is a
+   *       different observation and one the core pack ships switched off (STRUCT-003), because a
+   *       disabled hop is work in progress to most teams. Reporting it here as "never executes"
+   *       made that opinion the default through the back door.
+   * </ul>
+   */
+  private static <T> boolean isOrphaned(T element, List<? extends Object> hops, List<T> elements) {
+    if (element == null || elements == null || elements.size() < 2) {
       return false;
     }
-
-    List<PipelineHopMeta> hops = pipeline.getPipelineHops();
     if (hops == null || hops.isEmpty()) {
-      // If no hops exist, all transforms with more than 0 transforms are orphaned
-      return pipeline.getTransforms().size() > 0;
+      return true;
     }
-
-    // Build sets of transforms that have incoming and outgoing connections
-    java.util.Set<TransformMeta> transformsWithIncoming = new java.util.HashSet<>();
-    java.util.Set<TransformMeta> transformsWithOutgoing = new java.util.HashSet<>();
-
-    for (PipelineHopMeta hop : hops) {
-      if (hop.isEnabled()) {
-        TransformMeta fromTransform = hop.getFromTransform();
-        TransformMeta toTransform = hop.getToTransform();
-
-        if (fromTransform != null) {
-          transformsWithOutgoing.add(fromTransform);
-        }
-        if (toTransform != null) {
-          transformsWithIncoming.add(toTransform);
-        }
+    for (Object hop : hops) {
+      if (connects(hop, element)) {
+        return false;
       }
     }
+    return true;
+  }
 
-    // A transform is orphaned if it has no incoming AND no outgoing hops
-    for (TransformMeta transform : pipeline.getTransforms()) {
-      boolean hasIncoming = transformsWithIncoming.contains(transform);
-      boolean hasOutgoing = transformsWithOutgoing.contains(transform);
-
-      if (!hasIncoming && !hasOutgoing) {
-        return true; // Found at least one orphaned transform
-      }
+  /** Whether the hop has this element at either end, enabled or not. */
+  private static boolean connects(Object hop, Object element) {
+    if (hop instanceof PipelineHopMeta pipelineHop) {
+      return element.equals(pipelineHop.getFromTransform())
+          || element.equals(pipelineHop.getToTransform());
     }
-
+    if (hop instanceof WorkflowHopMeta workflowHop) {
+      return element.equals(workflowHop.getFromAction())
+          || element.equals(workflowHop.getToAction());
+    }
     return false;
   }
 
-  /**
-   * Check if a workflow has orphaned actions (actions with no incoming or outgoing workflow hops)
-   */
-  private static boolean hasOrphanedActions(WorkflowMeta workflow) {
-    if (workflow == null || workflow.getActions() == null || workflow.getActions().isEmpty()) {
+  private static boolean hasOrphanedTransforms(PipelineMeta pipeline) {
+    if (pipeline == null || pipeline.getTransforms() == null) {
       return false;
     }
-
-    List<WorkflowHopMeta> hops = workflow.getWorkflowHops();
-    if (hops == null || hops.isEmpty()) {
-      // If no hops exist, all actions with more than 0 actions are orphaned
-      return workflow.getActions().size() > 0;
-    }
-
-    // Build sets of actions that have incoming and outgoing connections
-    java.util.Set<ActionMeta> actionsWithIncoming = new java.util.HashSet<>();
-    java.util.Set<ActionMeta> actionsWithOutgoing = new java.util.HashSet<>();
-
-    for (WorkflowHopMeta hop : hops) {
-      if (hop.isEnabled()) {
-        ActionMeta fromAction = hop.getFromAction();
-        ActionMeta toAction = hop.getToAction();
-
-        if (fromAction != null) {
-          actionsWithOutgoing.add(fromAction);
-        }
-        if (toAction != null) {
-          actionsWithIncoming.add(toAction);
-        }
+    for (TransformMeta transform : pipeline.getTransforms()) {
+      if (isOrphaned(transform, pipeline.getPipelineHops(), pipeline.getTransforms())) {
+        return true;
       }
     }
+    return false;
+  }
 
-    // An action is orphaned if it has no incoming AND no outgoing hops
+  /** Whether a workflow has actions connected to nothing. */
+  private static boolean hasOrphanedActions(WorkflowMeta workflow) {
+    if (workflow == null || workflow.getActions() == null) {
+      return false;
+    }
     for (ActionMeta action : workflow.getActions()) {
-      boolean hasIncoming = actionsWithIncoming.contains(action);
-      boolean hasOutgoing = actionsWithOutgoing.contains(action);
-
-      if (!hasIncoming && !hasOutgoing) {
-        return true; // Found at least one orphaned action
+      if (isOrphaned(action, workflow.getWorkflowHops(), workflow.getActions())) {
+        return true;
       }
     }
-
     return false;
   }
 
@@ -864,9 +876,8 @@ public class CustomRuleExecutor {
       // Check all password-related fields
       Class<?> clazz = transformOrAction.getClass();
       for (Field field : getAllFields(clazz)) {
-        String fieldName = field.getName().toLowerCase();
         for (String pattern : fieldPatterns) {
-          if (fieldName.contains(pattern.toLowerCase())) {
+          if (namesASecret(field, pattern)) {
             try {
               field.setAccessible(true);
               Object value = field.get(transformOrAction);
@@ -898,6 +909,30 @@ public class CustomRuleExecutor {
     return results;
   }
 
+  /**
+   * Whether this field holds the secret the pattern names, rather than merely mentioning it.
+   *
+   * <p>Two narrowings, both of which cost nothing in coverage and remove findings that were simply
+   * wrong. A substring match reported every Token Replacement transform in the project three times
+   * over — {@code tokenStartString} defaults to {@code "${"}, {@code tokenEndString} to {@code "}"}
+   * — and every Get Data From XML transform once, for the boolean {@code useToken}. Neither is a
+   * credential, and a rule that cries wolf on a stock transform is one people switch off.
+   *
+   * <ul>
+   *   <li>the name has to <em>end</em> with the pattern, so {@code sessionToken} and {@code
+   *       trustStorePassword} match while {@code tokenStartString}, {@code oauth2TokenUrl} and
+   *       {@code credentialsFile} do not: a secret is what the field is, not what it is about;
+   *   <li>the field has to hold a string, because a flag, a count or a list of columns is never a
+   *       credential however it is named.
+   * </ul>
+   */
+  private static boolean namesASecret(Field field, String pattern) {
+    if (Utils.isEmpty(pattern) || !String.class.equals(field.getType())) {
+      return false;
+    }
+    return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
+  }
+
   /** Get password field patterns from rule parameters or return defaults */
   private static List<String> getPasswordFieldPatterns(CustomLintRule rule) {
     List<String> defaultPatterns =
@@ -911,6 +946,7 @@ public class CustomRuleExecutor {
             "credentials",
             "apiKey",
             "apikey",
+            "secretAccessKey",
             "token",
             "accessToken",
             "authToken");
