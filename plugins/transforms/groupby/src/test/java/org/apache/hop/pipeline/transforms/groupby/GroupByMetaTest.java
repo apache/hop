@@ -13,26 +13,40 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.hop.pipeline.transforms;
+package org.apache.hop.pipeline.transforms.groupby;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
-import org.apache.hop.pipeline.transforms.groupby.Aggregation;
-import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
-import org.apache.hop.pipeline.transforms.groupby.GroupingField;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class GroupByMetaTest {
 
+  @BeforeAll
+  static void setUpClass() throws Exception {
+    HopEnvironment.init();
+  }
+
   @Test
-  void testClone() throws Exception {
+  void testClone() {
     GroupByMeta meta1 = generateTestMeta();
     GroupByMeta meta2 = (GroupByMeta) meta1.clone();
 
@@ -53,24 +67,100 @@ class GroupByMetaTest {
     compareMetas(meta1, meta2);
   }
 
-  public void compareMetas(GroupByMeta meta1, GroupByMeta meta2) {
+  @Test
+  void testSetDefault() {
+    GroupByMeta meta = new GroupByMeta();
+    meta.setDefault();
+
+    assertEquals("${java.io.tmpdir}", meta.getDirectory());
+    assertEquals("grp", meta.getPrefix());
+    assertFalse(meta.isPassAllRows());
+    assertFalse(meta.isAggregateIgnored());
+    assertNull(meta.getAggregateIgnoredField());
+    assertNotNull(meta.getGroupingFields());
+    assertNotNull(meta.getAggregations());
+  }
+
+  @Test
+  void testGetFieldsWithoutPassAllRows() {
+    GroupByMeta meta = new GroupByMeta();
+    meta.setDefault();
+    meta.getGroupingFields().add(new GroupingField("grp"));
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "sum_amount",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_SUM),
+                null));
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "cnt",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_COUNT_ALL),
+                null));
+
+    IRowMeta rowMeta = inputRowMeta();
+    meta.getFields(rowMeta, "Group by", null, null, new Variables(), null);
+
+    assertEquals(3, rowMeta.size());
+    assertEquals("grp", rowMeta.getValueMeta(0).getName());
+    assertEquals("sum_amount", rowMeta.getValueMeta(1).getName());
+    assertEquals(IValueMeta.TYPE_NUMBER, rowMeta.getValueMeta(1).getType());
+    assertEquals("cnt", rowMeta.getValueMeta(2).getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, rowMeta.getValueMeta(2).getType());
+  }
+
+  @Test
+  void testGetFieldsWithPassAllRowsAndLineNr() {
+    GroupByMeta meta = new GroupByMeta();
+    meta.setDefault();
+    meta.setPassAllRows(true);
+    meta.setAddingLineNrInGroup(true);
+    meta.setLineNrInGroupField("linenr");
+    meta.getGroupingFields().add(new GroupingField("grp"));
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "sum_amount",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_SUM),
+                null));
+
+    IRowMeta rowMeta = inputRowMeta();
+    meta.getFields(rowMeta, "Group by", null, null, new Variables(), null);
+
+    assertTrue(rowMeta.indexOfValue("grp") >= 0);
+    assertTrue(rowMeta.indexOfValue("amount") >= 0);
+    assertTrue(rowMeta.indexOfValue("skip") >= 0);
+    assertTrue(rowMeta.indexOfValue("sum_amount") >= 0);
+    assertTrue(rowMeta.indexOfValue("linenr") >= 0);
+    assertEquals(IValueMeta.TYPE_INTEGER, rowMeta.searchValueMeta("linenr").getType());
+  }
+
+  @Test
+  void testSupportsMultiCopyExecution() {
+    assertFalse(new GroupByMeta().supportsMultiCopyExecution());
+  }
+
+  private void compareMetas(GroupByMeta meta1, GroupByMeta meta2) {
     assertEquals(meta1.getGroupingFields().size(), meta2.getGroupingFields().size());
     for (int i = 0; i < meta1.getGroupingFields().size(); i++) {
-      GroupingField field1 = meta1.getGroupingFields().get(i);
-      GroupingField field2 = meta2.getGroupingFields().get(i);
-      assertEquals(field1, field2);
+      assertEquals(meta1.getGroupingFields().get(i), meta2.getGroupingFields().get(i));
     }
     assertEquals(meta1.getAggregations().size(), meta2.getAggregations().size());
     for (int i = 0; i < meta1.getAggregations().size(); i++) {
-      Aggregation agg1 = meta1.getAggregations().get(i);
-      Aggregation agg2 = meta2.getAggregations().get(i);
-      assertEquals(agg1, agg2);
+      assertEquals(meta1.getAggregations().get(i), meta2.getAggregations().get(i));
     }
     assertEquals(meta1.isPassAllRows(), meta2.isPassAllRows());
     assertEquals(meta1.isAddingLineNrInGroup(), meta2.isAddingLineNrInGroup());
     assertEquals(meta1.getLineNrInGroupField(), meta2.getLineNrInGroupField());
     assertEquals(meta1.getDirectory(), meta2.getDirectory());
     assertEquals(meta1.getPrefix(), meta2.getPrefix());
+    assertEquals(meta1.isAlwaysGivingBackOneRow(), meta2.isAlwaysGivingBackOneRow());
+    assertEquals(meta1.isAggregateIgnored(), meta2.isAggregateIgnored());
+    assertEquals(meta1.getAggregateIgnoredField(), meta2.getAggregateIgnoredField());
   }
 
   private GroupByMeta generateTestMeta() {
@@ -108,7 +198,17 @@ class GroupByMetaTest {
     meta.setPrefix("prefix");
     meta.setAddingLineNrInGroup(true);
     meta.setLineNrInGroupField("lineNr");
+    meta.setAggregateIgnored(true);
+    meta.setAggregateIgnoredField("skip");
     return meta;
+  }
+
+  private IRowMeta inputRowMeta() {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("grp"));
+    rowMeta.addValueMeta(new ValueMetaNumber("amount"));
+    rowMeta.addValueMeta(new ValueMetaBoolean("skip"));
+    return rowMeta;
   }
 
   private String getDesc(String label) {

@@ -206,6 +206,20 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         }
       }
 
+      data.aggregateIgnoredFieldIndex = -1;
+      if (meta.isAggregateIgnored() && !Utils.isEmpty(meta.getAggregateIgnoredField())) {
+        String ignoreField = resolve(meta.getAggregateIgnoredField());
+        data.aggregateIgnoredFieldIndex = data.inputRowMeta.indexOfValue(ignoreField);
+        if ((r != null) && (data.aggregateIgnoredFieldIndex < 0)) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "GroupBy.Log.AggregateIgnoredFieldCouldNotFound", ignoreField));
+          setErrors(1);
+          stopAll();
+          return false;
+        }
+      }
+
       // Create a metadata value for the counter Integers
       //
       data.valueMetaInteger = new ValueMetaInteger("count");
@@ -242,7 +256,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
       data.previous = data.inputRowMeta.cloneRow(r); // copy the row to previous
     } else {
-      calcAggregate(data.previous);
+      if (!isRowAggregateIgnored(data.previous)) {
+        calcAggregate(data.previous);
+      }
 
       if (meta.isPassAllRows()) {
         addToBuffer(data.previous);
@@ -302,7 +318,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       // ALL ROWS
 
       if (data.previous != null) {
-        calcAggregate(data.previous);
+        if (!isRowAggregateIgnored(data.previous)) {
+          calcAggregate(data.previous);
+        }
         addToBuffer(data.previous);
       }
       data.groupResult = getAggregateResult();
@@ -334,7 +352,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
       // Don't forget the last set of rows...
       if (data.previous != null) {
-        calcAggregate(data.previous);
+        if (!isRowAggregateIgnored(data.previous)) {
+          calcAggregate(data.previous);
+        }
       }
       Object[] result = buildResult(data.previous);
       if (result != null) {
@@ -469,6 +489,18 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
   // Is the row r of the same group as previous?
   boolean sameGroup(Object[] previous, Object[] r) throws HopValueException {
     return data.inputRowMeta.compare(previous, r, data.groupnrs) == 0;
+  }
+
+  /**
+   * Returns true when the row should be excluded from aggregation because {@code ignore_aggregate}
+   * is enabled and the configured boolean field is true.
+   */
+  boolean isRowAggregateIgnored(Object[] row) throws HopValueException {
+    if (data.aggregateIgnoredFieldIndex < 0 || row == null) {
+      return false;
+    }
+    Boolean ignore = data.inputRowMeta.getBoolean(row, data.aggregateIgnoredFieldIndex);
+    return ignore != null && ignore;
   }
 
   /**

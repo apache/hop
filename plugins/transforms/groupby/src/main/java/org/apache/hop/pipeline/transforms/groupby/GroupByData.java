@@ -43,6 +43,9 @@ public class GroupByData extends BaseTransformData implements ITransformData {
   public IRowMeta groupAggMeta; // for speed: groupMeta+aggMeta
   public int[] groupnrs;
 
+  /** Index of the boolean field that marks rows to exclude from aggregation, or -1 when unused. */
+  public int aggregateIgnoredFieldIndex = -1;
+
   /**
    * array, length is equal to aggMeta value meta list size and metadata subject fields length.
    * Values corresponds to input values used to calculate target results.
