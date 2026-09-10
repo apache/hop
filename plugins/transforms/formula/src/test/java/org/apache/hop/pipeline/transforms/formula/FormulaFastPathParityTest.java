@@ -178,6 +178,20 @@ class FormulaFastPathParityTest {
                 List.of(
                     new Field(new ValueMetaString("prefix"), "id"),
                     new Field(new ValueMetaInteger("num"), 7L)),
+                false),
+            new Scenario(
+                "[amount] * [factor]",
+                IValueMeta.TYPE_NUMBER,
+                "scaled",
+                List.of(
+                    new Field(new ValueMetaInteger("amount"), null),
+                    new Field(new ValueMetaNumber("factor"), 2.0)),
+                false),
+            new Scenario(
+                "IF([score] >= 60, \"Pass\")",
+                IValueMeta.TYPE_STRING,
+                "grade2",
+                List.of(new Field(new ValueMetaInteger("score"), 40L)),
                 false));
 
     for (Scenario scenario : scenarios) {

@@ -202,6 +202,69 @@ class FastFormulaCompilerTest {
   }
 
   @Test
+  void missingFieldIsNotEligibleInsteadOfCrashing() {
+    add(new ValueMetaInteger("present"));
+    CompiledFormula compiled =
+        FastFormulaCompiler.compile(
+            "[present] + [typo]", List.of("present", "typo"), rowMeta, false);
+    assertFalse(compiled.fastPath());
+  }
+
+  @Test
+  void nullInArithmeticIsTreatedAsZero() {
+    add(new ValueMetaInteger("amount"));
+    Object result = evaluate("[amount] + 10", List.of("amount"), false, new Object[] {null});
+    assertEquals(10.0d, result);
+  }
+
+  @Test
+  void booleanAndNumberAreNeverEqual() {
+    add(new ValueMetaBoolean("on"));
+    assertEquals(
+        Boolean.FALSE, evaluate("[on] = 1", List.of("on"), false, new Object[] {Boolean.TRUE}));
+    assertEquals(
+        Boolean.FALSE, evaluate("[on] = 0", List.of("on"), false, new Object[] {Boolean.FALSE}));
+  }
+
+  @Test
+  void numberAndStringAreNeverEqual() {
+    add(new ValueMetaInteger("n"));
+    assertEquals(
+        Boolean.FALSE, evaluate("[n] = \"200\"", List.of("n"), false, new Object[] {200L}));
+  }
+
+  @Test
+  void twoArgumentIfReturnsFalseWhenConditionIsFalse() {
+    add(new ValueMetaInteger("score"));
+    assertEquals(
+        Boolean.FALSE,
+        evaluate("IF([score] >= 60, \"Pass\")", List.of("score"), false, new Object[] {40L}));
+    assertEquals(
+        "Pass",
+        evaluate("IF([score] >= 60, \"Pass\")", List.of("score"), false, new Object[] {85L}));
+  }
+
+  @Test
+  void concatWithNaOptionYieldsNaInsteadOfRenderingHash() {
+    add(new ValueMetaString("prefix"));
+    add(new ValueMetaString("comment"));
+    Object result =
+        evaluate(
+            "[prefix] & \"-\" & [comment]",
+            List.of("prefix", "comment"),
+            false,
+            new Object[] {"pre", FastFormulaCompiler.NA});
+    assertEquals(FastFormulaCompiler.NA, result);
+    Object nullResult =
+        evaluate(
+            "[prefix] & \"-\" & [comment]",
+            List.of("prefix", "comment"),
+            false,
+            new Object[] {"pre", null});
+    assertEquals("pre-", nullResult);
+  }
+
+  @Test
   void disabledFastPathReportsNotEligible() {
     add(new ValueMetaInteger("amount"));
     boolean previous = FastFormulaCompiler.isEnabled();
@@ -268,11 +331,12 @@ class FastFormulaCompilerTest {
   }
 
   @Test
-  void cacheEntryCountsSetNaOptionSeparately() {
+  void cacheEntryIsSharedAcrossSetNaOptions() {
     add(new ValueMetaInteger("amount"));
     FastFormulaCompiler.compile("[amount] + 1", List.of("amount"), rowMeta, false);
     FastFormulaCompiler.compile("[amount] + 1", List.of("amount"), rowMeta, true);
-    assertEquals(2, FastFormulaCompiler.cacheSize());
+    // setNa only affects per-row argument building, not the compiled AST, so it shares one entry.
+    assertEquals(1, FastFormulaCompiler.cacheSize());
   }
 
   @Test
