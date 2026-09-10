@@ -29,10 +29,13 @@ import static org.mockito.Mockito.when;
 
 import io.github.jopenlibs.vault.Vault;
 import io.github.jopenlibs.vault.VaultConfig;
+import io.github.jopenlibs.vault.VaultException;
 import io.github.jopenlibs.vault.api.Logical;
+import io.github.jopenlibs.vault.response.AuthResponse;
 import io.github.jopenlibs.vault.response.LogicalResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -102,6 +105,17 @@ class VaultVariableResolverTest {
   void testAuthTypeIsCaseInsensitive() throws Exception {
     assertEquals(VaultAuthType.KUBERNETES, resolver.parseAuthType("kubernetes"));
     assertEquals(VaultAuthType.TOKEN, resolver.parseAuthType("Token"));
+  }
+
+  @Test
+  void testAuthTypeParseUsesRootLocale() throws Exception {
+    Locale previous = Locale.getDefault();
+    try {
+      Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+      assertEquals(VaultAuthType.KUBERNETES, resolver.parseAuthType("kubernetes"));
+    } finally {
+      Locale.setDefault(previous);
+    }
   }
 
   @Test
@@ -225,18 +239,121 @@ class VaultVariableResolverTest {
     assertEquals(2, counting.builds);
   }
 
+  @Test
+  void testNonRenewableTokenRefreshesBeforeExpiry() throws Exception {
+    CountingResolver counting = new CountingResolver(vault);
+    counting.setVaultAddress("http://vault:8200");
+    counting.setVaultToken("s.token");
+
+    counting.resolve("secret/data/hop", variables);
+    counting.setCachedLeaseForTest(System.currentTimeMillis() + 10_000L, false);
+    counting.resolve("secret/data/hop", variables);
+
+    assertEquals(2, counting.builds);
+  }
+
+  @Test
+  void testKubernetesAuthFailureRetriesOnce() throws Exception {
+    when(logical.read(anyString()))
+        .thenThrow(new VaultException("permission denied", 403))
+        .thenReturn(response("{\"password\":\"secret\"}"));
+
+    CountingResolver kubernetes = new CountingResolver(vault, true);
+    kubernetes.setVaultAddress("http://vault:8200");
+    kubernetes.setAuthenticationType(VaultAuthType.KUBERNETES.name());
+    kubernetes.setKubernetesRole("hop");
+    kubernetes.setKubernetesJwt("header.payload.sig");
+
+    assertEquals("{\"password\":\"secret\"}", kubernetes.resolve("secret/data/hop", variables));
+    assertEquals(2, kubernetes.builds);
+    verify(logical, times(2)).read("secret/data/hop");
+  }
+
+  @Test
+  void testTokenAuthFailureDoesNotRetry() throws Exception {
+    when(logical.read(anyString())).thenThrow(new VaultException("permission denied", 403));
+
+    CountingResolver counting = new CountingResolver(vault);
+    counting.setVaultAddress("http://vault:8200");
+    counting.setVaultToken("s.token");
+
+    assertNull(counting.resolve("secret/data/hop", variables));
+    assertEquals(1, counting.builds);
+    verify(logical, times(1)).read("secret/data/hop");
+  }
+
+  @Test
+  void testClearUnusedCredentialsDropsVaultTokenForKubernetes() {
+    resolver.setAuthenticationType(VaultAuthType.KUBERNETES.name());
+    resolver.setVaultToken("s.leftover");
+    resolver.setKubernetesJwt("inline-jwt");
+    resolver.clearUnusedCredentials();
+    assertEquals("", resolver.getVaultToken());
+    assertEquals("inline-jwt", resolver.getKubernetesJwt());
+  }
+
+  @Test
+  void testClearUnusedCredentialsDropsJwtForToken() {
+    resolver.setAuthenticationType(VaultAuthType.TOKEN.name());
+    resolver.setVaultToken("s.token");
+    resolver.setKubernetesJwt("inline-jwt");
+    resolver.clearUnusedCredentials();
+    assertEquals("s.token", resolver.getVaultToken());
+    assertEquals("", resolver.getKubernetesJwt());
+  }
+
+  @Test
+  void testClearUnusedCredentialsKeepsBothWhenAuthTypeIsAVariable() {
+    resolver.setAuthenticationType("${VAULT_AUTH_TYPE}");
+    resolver.setVaultToken("s.token");
+    resolver.setKubernetesJwt("inline-jwt");
+    resolver.clearUnusedCredentials();
+    assertEquals("s.token", resolver.getVaultToken());
+    assertEquals("inline-jwt", resolver.getKubernetesJwt());
+  }
+
+  private static LogicalResponse response(String data) {
+    LogicalResponse logicalResponse = mock(LogicalResponse.class);
+    when(logicalResponse.getData()).thenReturn(Map.of("data", data));
+    return logicalResponse;
+  }
+
   private static final class CountingResolver extends VaultVariableResolver {
     private final Vault vault;
+    private final boolean kubernetesLogin;
     private int builds;
 
     private CountingResolver(Vault vault) {
+      this(vault, false);
+    }
+
+    private CountingResolver(Vault vault, boolean kubernetesLogin) {
       this.vault = vault;
+      this.kubernetesLogin = kubernetesLogin;
+    }
+
+    @Override
+    protected Vault buildVault(IVariables variables) throws HopException {
+      builds++;
+      return super.buildVault(variables);
     }
 
     @Override
     protected Vault createVault(VaultConfig vaultConfig) {
-      builds++;
       return vault;
+    }
+
+    @Override
+    protected AuthResponse loginByKubernetes(Vault vault, String role, String jwt, String loginPath)
+        throws HopException {
+      if (!kubernetesLogin) {
+        return super.loginByKubernetes(vault, role, jwt, loginPath);
+      }
+      AuthResponse response = mock(AuthResponse.class);
+      when(response.getAuthClientToken()).thenReturn("s.k8s");
+      when(response.getAuthLeaseDuration()).thenReturn(3600L);
+      when(response.isAuthRenewable()).thenReturn(false);
+      return response;
     }
   }
 }

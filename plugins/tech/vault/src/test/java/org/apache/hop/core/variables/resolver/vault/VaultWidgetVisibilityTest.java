@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.variables.resolver.vault;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,11 +28,13 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.variables.resolver.VariableResolver;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -84,6 +87,45 @@ class VaultWidgetVisibilityTest extends SwtBotTestBase {
           assertVisible(widgets, BaseVaultVariableResolver.ID_KUBERNETES_AUTH_PATH);
 
           assertHidden(widgets, BaseVaultVariableResolver.ID_VAULT_TOKEN);
+        });
+  }
+
+  @Test
+  @DisplayName("switching to KUBERNETES clears a leftover Vault token from the hidden widget")
+  void kubernetesClearsLeftoverVaultToken() {
+    withWidgets(
+        resolver -> {
+          resolver.setAuthenticationType(VaultAuthType.KUBERNETES.name());
+          resolver.setVaultToken("s.leftover");
+        },
+        (resolver, widgets) -> {
+          resolver.persistContents(widgets);
+          assertEquals("", resolver.getVaultToken());
+          assertEquals("", textOf(widgets, BaseVaultVariableResolver.ID_VAULT_TOKEN));
+        });
+  }
+
+  @Test
+  @DisplayName("a variable auth type keeps every credential field visible and intact")
+  void variableAuthTypeShowsAllCredentialFields() {
+    withWidgets(
+        resolver -> {
+          resolver.setAuthenticationType("${VAULT_AUTH_TYPE}");
+          resolver.setVaultToken("s.token");
+          resolver.setKubernetesJwt("inline-jwt");
+          resolver.setKubernetesRole("hop");
+        },
+        (resolver, widgets) -> {
+          assertVisible(widgets, BaseVaultVariableResolver.ID_VAULT_TOKEN);
+          assertVisible(widgets, BaseVaultVariableResolver.ID_KUBERNETES_ROLE);
+          assertVisible(widgets, BaseVaultVariableResolver.ID_KUBERNETES_JWT_PATH);
+          assertVisible(widgets, BaseVaultVariableResolver.ID_KUBERNETES_JWT);
+          assertVisible(widgets, BaseVaultVariableResolver.ID_KUBERNETES_AUTH_PATH);
+
+          resolver.persistContents(widgets);
+          assertEquals("s.token", resolver.getVaultToken());
+          assertEquals("inline-jwt", resolver.getKubernetesJwt());
+          assertEquals("hop", resolver.getKubernetesRole());
         });
   }
 
@@ -154,5 +196,16 @@ class VaultWidgetVisibilityTest extends SwtBotTestBase {
     if (label != null) {
       assertFalse(label.getVisible(), "the label of " + id + " should be hidden");
     }
+  }
+
+  private static String textOf(GuiCompositeWidgets widgets, String id) {
+    Control control = widgets.getWidgetsMap().get(id);
+    if (control instanceof TextVar textVar) {
+      return textVar.getText();
+    }
+    if (control instanceof Text text) {
+      return text.getText();
+    }
+    return null;
   }
 }

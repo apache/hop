@@ -21,6 +21,7 @@ package org.apache.hop.core.variables.resolver.vault;
 import io.github.jopenlibs.vault.SslConfig;
 import io.github.jopenlibs.vault.Vault;
 import io.github.jopenlibs.vault.VaultConfig;
+import io.github.jopenlibs.vault.VaultException;
 import io.github.jopenlibs.vault.response.AuthResponse;
 import io.github.jopenlibs.vault.response.LogicalResponse;
 import java.io.BufferedReader;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,8 +53,10 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Text;
 
 @Getter
 @Setter
@@ -276,34 +280,47 @@ public abstract class BaseVaultVariableResolver
 
   @Override
   public String resolve(String secretPath, IVariables variables) throws HopException {
-    try {
-      if (StringUtils.isEmpty(secretPath)) {
-        return null;
-      }
-
-      Vault vault = getVault(variables);
-
-      String path;
-      if (StringUtils.isNotEmpty(pathPrefix)) {
-        path = variables.resolve(pathPrefix) + secretPath;
-      } else {
-        path = secretPath;
-      }
-
-      LogicalResponse logicalResponse = vault.logical().read(path);
-      if (logicalResponse == null) {
-        LogChannel.GENERAL.logDetailed(
-            "The secret with path '" + secretPath + "' was not found in the vault");
-        return null;
-      }
-      // If we don't have a value to retrieve, simply return the "data" value.
-      //
-      return logicalResponse.getData().get("data");
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError(
-          "Error looking up secret '" + secretPath + "' in the Variable resolver", e);
+    if (StringUtils.isEmpty(secretPath)) {
       return null;
     }
+    try {
+      return lookupSecret(secretPath, variables);
+    } catch (Exception first) {
+      if (shouldRetryAuth(first, variables)) {
+        invalidateCachedClient();
+        try {
+          return lookupSecret(secretPath, variables);
+        } catch (Exception retry) {
+          LogChannel.GENERAL.logError(
+              "Error looking up secret '" + secretPath + "' in the Variable resolver", retry);
+          return null;
+        }
+      }
+      LogChannel.GENERAL.logError(
+          "Error looking up secret '" + secretPath + "' in the Variable resolver", first);
+      return null;
+    }
+  }
+
+  private String lookupSecret(String secretPath, IVariables variables) throws Exception {
+    Vault vault = getVault(variables);
+
+    String path;
+    if (StringUtils.isNotEmpty(pathPrefix)) {
+      path = variables.resolve(pathPrefix) + secretPath;
+    } else {
+      path = secretPath;
+    }
+
+    LogicalResponse logicalResponse = vault.logical().read(path);
+    if (logicalResponse == null) {
+      LogChannel.GENERAL.logDetailed(
+          "The secret with path '" + secretPath + "' was not found in the vault");
+      return null;
+    }
+    // If we don't have a value to retrieve, simply return the "data" value.
+    //
+    return logicalResponse.getData().get("data");
   }
 
   /**
@@ -442,7 +459,7 @@ public abstract class BaseVaultVariableResolver
       return VaultAuthType.TOKEN;
     }
     try {
-      return VaultAuthType.valueOf(actualAuthType.trim().toUpperCase());
+      return VaultAuthType.valueOf(actualAuthType.trim().toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException e) {
       throw new HopException(
           "Unknown Vault authentication type '"
@@ -535,11 +552,7 @@ public abstract class BaseVaultVariableResolver
     if (tokenExpiryMillis <= 0L) {
       return false;
     }
-    long remaining = tokenExpiryMillis - System.currentTimeMillis();
-    if (remaining <= 0L) {
-      return true;
-    }
-    return tokenRenewable && remaining <= REFRESH_MARGIN_MILLIS;
+    return System.currentTimeMillis() >= tokenExpiryMillis - REFRESH_MARGIN_MILLIS;
   }
 
   private boolean tryRenew() {
@@ -562,12 +575,71 @@ public abstract class BaseVaultVariableResolver
     }
     long leaseSeconds = response.getAuthLeaseDuration();
     tokenRenewable = response.isAuthRenewable();
-    tokenExpiryMillis = leaseSeconds <= 0L ? 0L : System.currentTimeMillis() + leaseSeconds * 1000L;
+    // A missing lease would otherwise cache the token forever. Use the refresh margin so a
+    // Kubernetes login without TTL is retried instead of being kept until it 403s.
+    tokenExpiryMillis =
+        System.currentTimeMillis()
+            + (leaseSeconds <= 0L ? REFRESH_MARGIN_MILLIS : leaseSeconds * 1000L);
   }
 
   void expireCachedToken() {
     tokenExpiryMillis = System.currentTimeMillis();
     tokenRenewable = false;
+  }
+
+  void setCachedLeaseForTest(long expiryMillis, boolean renewable) {
+    tokenExpiryMillis = expiryMillis;
+    tokenRenewable = renewable;
+  }
+
+  void invalidateCachedClient() {
+    synchronized (clientLock) {
+      vaultClient = null;
+      clientSignature = null;
+      tokenExpiryMillis = 0L;
+      tokenRenewable = false;
+    }
+  }
+
+  boolean shouldRetryAuth(Exception error, IVariables variables) {
+    if (!isAuthFailure(error)) {
+      return false;
+    }
+    try {
+      return parseAuthType(variables.resolve(authenticationType)) == VaultAuthType.KUBERNETES;
+    } catch (HopException e) {
+      return false;
+    }
+  }
+
+  static boolean isAuthFailure(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      if (current instanceof VaultException vaultException) {
+        int status = vaultException.getHttpStatusCode();
+        if (status == 401 || status == 403) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  void clearUnusedCredentials() {
+    if (authenticationType != null && authenticationType.contains("${")) {
+      return;
+    }
+    VaultAuthType authType;
+    try {
+      authType = parseAuthType(authenticationType);
+    } catch (HopException e) {
+      return;
+    }
+    if (authType != VaultAuthType.TOKEN) {
+      vaultToken = "";
+    }
+    if (authType != VaultAuthType.KUBERNETES) {
+      kubernetesJwt = "";
+    }
   }
 
   // Read the PEM or JWT file content in UTF8 from an input stream.
@@ -617,37 +689,64 @@ public abstract class BaseVaultVariableResolver
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {
-    // Not needed, the editor reads the widgets back itself.
+    clearUnusedCredentials();
   }
 
   private void hideFieldsThatDoNotApply(GuiCompositeWidgets compositeWidgets) {
     VaultAuthType authType = readAuthType(compositeWidgets);
+    if (authType == null) {
+      // A variable or unknown type: keep every credential visible so we do not wipe values
+      // that might still be needed once the expression is resolved.
+      compositeWidgets.setWidgetsHidden(this, Set.of());
+      return;
+    }
     Set<String> hidden = new HashSet<>();
     if (authType != VaultAuthType.TOKEN) {
       hidden.add(ID_VAULT_TOKEN);
+      clearTextWidget(compositeWidgets, ID_VAULT_TOKEN);
     }
     if (authType != VaultAuthType.KUBERNETES) {
       hidden.add(ID_KUBERNETES_ROLE);
       hidden.add(ID_KUBERNETES_JWT_PATH);
       hidden.add(ID_KUBERNETES_JWT);
       hidden.add(ID_KUBERNETES_AUTH_PATH);
+      clearTextWidget(compositeWidgets, ID_KUBERNETES_JWT);
     }
     compositeWidgets.setWidgetsHidden(this, hidden);
   }
 
+  private static void clearTextWidget(GuiCompositeWidgets compositeWidgets, String id) {
+    Control control = compositeWidgets.getWidgetsMap().get(id);
+    if (control instanceof TextVar textVar) {
+      if (StringUtils.isNotEmpty(textVar.getText())) {
+        textVar.setText("");
+      }
+    } else if (control instanceof Text text) {
+      if (StringUtils.isNotEmpty(text.getText())) {
+        text.setText("");
+      }
+    }
+  }
+
+  /**
+   * @return the selected auth type, or {@code null} when the value is a variable / unknown so the
+   *     editor must not hide or clear credentials
+   */
   private VaultAuthType readAuthType(GuiCompositeWidgets compositeWidgets) {
     Control control = compositeWidgets.getWidgetsMap().get(ID_AUTHENTICATION_TYPE);
     String text = comboText(control);
-    if (StringUtils.isNotEmpty(text)) {
-      try {
-        return VaultAuthType.valueOf(text.trim().toUpperCase());
-      } catch (IllegalArgumentException e) {
-        // A variable reference or nothing picked yet, so fall through to metadata.
-      }
+    if (StringUtils.isEmpty(text)) {
+      text = authenticationType;
+    }
+    if (StringUtils.isEmpty(text)) {
+      return VaultAuthType.TOKEN;
+    }
+    if (text.contains("${")) {
+      return null;
     }
     try {
-      return parseAuthType(authenticationType);
-    } catch (HopException e) {
+      return VaultAuthType.valueOf(text.trim().toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
       return VaultAuthType.TOKEN;
     }
   }
