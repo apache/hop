@@ -20,14 +20,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+@ExtendWith(RestoreHopEnvironmentExtension.class)
 class HdfsTlsTest {
 
   // Self-signed CA generated for unit tests only (CN=Hop HDFS test CA).
@@ -81,6 +90,27 @@ class HdfsTlsTest {
     assertEquals(1, material.certificateCount());
     String report = HdfsConnectionTester.testTls(new Variables(), meta);
     assertTrue(report.contains("PEM"));
+  }
+
+  @Test
+  void decryptsEncryptedKeystorePassword() throws Exception {
+    CertificateFactory factory = CertificateFactory.getInstance("X.509");
+    Certificate cert =
+        factory.generateCertificate(
+            new ByteArrayInputStream(TEST_CA_PEM.getBytes(StandardCharsets.US_ASCII)));
+    KeyStore keyStore = KeyStore.getInstance("PKCS12");
+    keyStore.load(null, "secret".toCharArray());
+    keyStore.setCertificateEntry("ca", cert);
+    Path p12 = tempDir.resolve("trust.p12");
+    try (OutputStream out = Files.newOutputStream(p12)) {
+      keyStore.store(out, "secret".toCharArray());
+    }
+    HdfsMeta meta = new HdfsMeta();
+    meta.setTruststorePath(p12.toString());
+    meta.setTruststorePassword(Encr.encryptPasswordIfNotUsingVariables("secret"));
+    HdfsTls.TrustMaterial material = HdfsTls.load(new Variables(), meta);
+    assertTrue(material.kind().startsWith(HdfsTls.KIND_KEYSTORE));
+    assertTrue(material.certificateCount() >= 1);
   }
 
   @Test

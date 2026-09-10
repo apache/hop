@@ -17,6 +17,9 @@
 package org.apache.hop.vfs.hdfs.kerberos;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
@@ -26,28 +29,52 @@ import org.junit.jupiter.api.Test;
 class HdfsKerberosSessionTest {
 
   private static final String KRB5_CONF = "java.security.krb5.conf";
+  private static final String KRB5_REALM = "java.security.krb5.realm";
   private String previousKrb5;
+  private String previousRealm;
 
   @AfterEach
   void tearDown() {
     HdfsKerberosRenewer.getInstance().shutdown();
-    if (previousKrb5 == null) {
-      System.clearProperty(KRB5_CONF);
-    } else {
-      System.setProperty(KRB5_CONF, previousKrb5);
-    }
+    restore(KRB5_CONF, previousKrb5);
+    restore(KRB5_REALM, previousRealm);
   }
 
   @Test
   void windowsKrb5AndKeytabPathsUseForwardSlashes() {
     previousKrb5 = System.getProperty(KRB5_CONF);
+    previousRealm = System.getProperty(KRB5_REALM);
     HdfsMeta meta = new HdfsMeta();
     meta.setName("cdp");
     meta.setPrincipal("hop@EXAMPLE.COM");
     meta.setKeytabPath("C:\\Users\\hop\\hop.keytab");
     meta.setKrb5ConfPath("C:\\Users\\hop\\krb5.conf");
+    meta.setRealm("OTHER.COM");
     HdfsKerberosSession session = new HdfsKerberosSession(new Variables(), meta);
+    HdfsKerberosSession.applyJvmKerberosConfig(new Variables(), meta);
     assertEquals("C:/Users/hop/krb5.conf", System.getProperty(KRB5_CONF));
+    assertNotEquals("OTHER.COM", System.getProperty(KRB5_REALM));
     assertEquals("C:/Users/hop/hop.keytab", session.keytabPath());
+  }
+
+  @Test
+  void unregisterDropsSessionFromRenewer() {
+    HdfsMeta meta = new HdfsMeta();
+    meta.setName("cdp");
+    meta.setPrincipal("hop@EXAMPLE.COM");
+    meta.setKeytabPath("/tmp/hop.keytab");
+    HdfsKerberosSession session = new HdfsKerberosSession(new Variables(), meta);
+    HdfsKerberosRenewer.getInstance().register(session);
+    assertTrue(HdfsKerberosRenewer.getInstance().sessions().contains(session));
+    session.close();
+    assertFalse(HdfsKerberosRenewer.getInstance().sessions().contains(session));
+  }
+
+  private static void restore(String key, String previous) {
+    if (previous == null) {
+      System.clearProperty(key);
+    } else {
+      System.setProperty(key, previous);
+    }
   }
 }

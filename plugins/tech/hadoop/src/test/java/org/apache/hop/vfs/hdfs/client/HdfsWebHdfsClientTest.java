@@ -194,6 +194,54 @@ class HdfsWebHdfsClientTest {
   }
 
   @Test
+  void spnegoIsSkippedForDatanodeLocation() {
+    HdfsMeta meta = new HdfsMeta();
+    meta.setPrincipal("hop@EXAMPLE.COM");
+    meta.setKeytabPath("/tmp/hop.keytab");
+    TrackingSession session = new TrackingSession(meta);
+    var executor = Executors.newCachedThreadPool();
+    try {
+      HdfsWebHdfsClient client =
+          new HdfsWebHdfsClient(
+              HttpClientBuilder.create().build(),
+              HdfsTransport.WebHDFS,
+              List.of("master1.example.com:9871"),
+              "https",
+              "/webhdfs/v1",
+              "hop",
+              true,
+              session,
+              executor);
+      assertTrue(client.shouldSpnegoForLocation("https://master1.example.com:9871/webhdfs/v1/x"));
+      assertFalse(client.shouldSpnegoForLocation("http://datanode.example.com:9864/webhdfs/v1/x"));
+      assertFalse(session.doAsCalled);
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  void httpsConnectionRejectsHttpDatanodeLocation() {
+    IOException error =
+        assertThrows(
+            IOException.class,
+            () ->
+                HdfsWebHdfsClient.rejectHttpDowngrade(
+                    "https", false, "http://datanode.example.com:9864/webhdfs/v1/file"));
+    assertTrue(error.getMessage().contains("http://datanode.example.com:9864"));
+  }
+
+  @Test
+  void httpsConnectionAllowsHttpDatanodeLocationWhenOptedIn() throws Exception {
+    HdfsWebHdfsClient.rejectHttpDowngrade(
+        "https", true, "http://datanode.example.com:9864/webhdfs/v1/file");
+    HdfsWebHdfsClient.rejectHttpDowngrade(
+        "https", false, "https://datanode.example.com:9865/webhdfs/v1/file");
+    HdfsWebHdfsClient.rejectHttpDowngrade(
+        "http", false, "http://datanode.example.com:9864/webhdfs/v1/file");
+  }
+
+  @Test
   void spnegoTokenIsBuiltInsideDoAs() {
     HdfsMeta meta = new HdfsMeta();
     meta.setName("t");

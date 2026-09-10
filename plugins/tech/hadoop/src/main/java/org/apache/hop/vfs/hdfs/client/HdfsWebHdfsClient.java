@@ -74,6 +74,7 @@ public class HdfsWebHdfsClient {
   private final boolean kerberos;
   private final HdfsKerberosSession kerberosSession;
   private final ExecutorService executor;
+  private final boolean allowHttpDatanodeRedirects;
   private final ObjectMapper mapper = HopJson.newMapper();
 
   public HdfsWebHdfsClient(
@@ -86,6 +87,30 @@ public class HdfsWebHdfsClient {
       boolean kerberos,
       HdfsKerberosSession kerberosSession,
       ExecutorService executor) {
+    this(
+        httpClient,
+        transport,
+        endpoints,
+        httpScheme,
+        basePath,
+        simpleUser,
+        kerberos,
+        kerberosSession,
+        executor,
+        false);
+  }
+
+  public HdfsWebHdfsClient(
+      CloseableHttpClient httpClient,
+      HdfsTransport transport,
+      List<String> endpoints,
+      String httpScheme,
+      String basePath,
+      String simpleUser,
+      boolean kerberos,
+      HdfsKerberosSession kerberosSession,
+      ExecutorService executor,
+      boolean allowHttpDatanodeRedirects) {
     this.httpClient = httpClient;
     this.transport = transport;
     this.endpoints = List.copyOf(endpoints);
@@ -102,6 +127,18 @@ public class HdfsWebHdfsClient {
     this.kerberos = kerberos;
     this.kerberosSession = kerberosSession;
     this.executor = executor;
+    this.allowHttpDatanodeRedirects = allowHttpDatanodeRedirects;
+  }
+
+  public void close() {
+    if (kerberosSession != null) {
+      kerberosSession.close();
+    }
+    try {
+      httpClient.close();
+    } catch (IOException ignored) {
+      // Best effort on filesystem close.
+    }
   }
 
   public HdfsFileStatus getFileStatus(String path) throws IOException {
@@ -234,14 +271,18 @@ public class HdfsWebHdfsClient {
   }
 
   private void putStream(String uri, InputStream body) throws IOException {
+    rejectHttpDowngrade(uri);
     HttpPut put = new HttpPut(uri);
     put.setEntity(new InputStreamEntity(body, ContentType.APPLICATION_OCTET_STREAM));
     put.setHeader("Content-Type", "application/octet-stream");
-    addSpnego(put, uri);
+    if (shouldSpnegoForLocation(uri)) {
+      addSpnego(put, uri);
+    }
     executeRequest(put);
   }
 
   private InputStream getAbsoluteStream(String location, boolean redirected) throws IOException {
+    rejectHttpDowngrade(location);
     HttpGet get = new HttpGet(location);
     if (shouldSpnegoForLocation(location)) {
       addSpnego(get, location);
@@ -289,7 +330,33 @@ public class HdfsWebHdfsClient {
    * SPNEGO belongs on the NameNode / HttpFS / Knox host. DataNode OPEN URLs carry a delegation
    * token in the query string; a NameNode ticket sent there is rejected.
    */
-  private boolean shouldSpnegoForLocation(String location) {
+  /**
+   * When the connection is HTTPS, refuse {@code http://} DataNode Location URLs unless the user
+   * opted in. {@code https://} starts with {@code http} so compare the URI scheme, not a prefix.
+   */
+  static void rejectHttpDowngrade(
+      String httpScheme, boolean allowHttpDatanodeRedirects, String location) throws IOException {
+    if (!"https".equalsIgnoreCase(httpScheme) || allowHttpDatanodeRedirects || location == null) {
+      return;
+    }
+    URI uri;
+    try {
+      uri = new URI(location);
+    } catch (URISyntaxException e) {
+      throw new IOException("Invalid HDFS Location URL: " + location, e);
+    }
+    if ("http".equalsIgnoreCase(uri.getScheme())) {
+      throw new IOException(
+          "HTTPS HDFS connection refused HTTP Location (enable Allow HTTP DataNode redirects if the cluster uses HTTP DataNodes): "
+              + location);
+    }
+  }
+
+  private void rejectHttpDowngrade(String location) throws IOException {
+    rejectHttpDowngrade(httpScheme, allowHttpDatanodeRedirects, location);
+  }
+
+  boolean shouldSpnegoForLocation(String location) {
     if (!kerberos || kerberosSession == null) {
       return false;
     }

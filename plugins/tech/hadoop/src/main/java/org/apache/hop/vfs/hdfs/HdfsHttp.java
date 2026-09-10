@@ -117,7 +117,8 @@ public final class HdfsHttp {
         simpleUser,
         meta.isKerberosEnabled(),
         session,
-        executor);
+        executor,
+        meta.isAllowHttpDatanodeRedirects());
   }
 
   static void logMissingHost(HdfsMeta meta) {

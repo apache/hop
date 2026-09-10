@@ -357,6 +357,19 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
   private boolean hostnameVerification = true;
 
   @GuiWidgetElement(
+      id = "30250-allow-http-datanode-redirects",
+      order = "2005",
+      parentId = HdfsMetaEditor.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::HdfsVFS.AllowHttpDatanodeRedirects.Label",
+      toolTip = "i18n::HdfsVFS.AllowHttpDatanodeRedirects.Tooltip",
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_TLS,
+      groupOrder = "030")
+  @HopMetadataProperty
+  private boolean allowHttpDatanodeRedirects;
+
+  @GuiWidgetElement(
       id = "30300-test-tls",
       order = "2010",
       parentId = HdfsMetaEditor.GUI_WIDGETS_PARENT_ID,

@@ -31,6 +31,7 @@ class HdfsMetaTest {
     assertEquals(HdfsTransport.HttpFS, meta.getTransport());
     assertEquals("hop", meta.getSimpleUser());
     assertTrue(meta.isHostnameVerification());
+    assertFalse(meta.isAllowHttpDatanodeRedirects());
     assertFalse(meta.isKerberosEnabled());
     assertEquals("360", meta.getRenewalIntervalMinutes());
   }

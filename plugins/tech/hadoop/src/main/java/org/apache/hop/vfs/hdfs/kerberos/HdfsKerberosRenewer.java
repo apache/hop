@@ -47,6 +47,10 @@ public final class HdfsKerberosRenewer {
     start();
   }
 
+  public void unregister(HdfsKerberosSession session) {
+    sessions.remove(session);
+  }
+
   synchronized void start() {
     if (scheduler != null) {
       return;

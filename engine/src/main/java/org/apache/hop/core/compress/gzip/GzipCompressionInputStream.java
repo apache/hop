@@ -18,7 +18,6 @@
 package org.apache.hop.core.compress.gzip;
 
 import java.io.BufferedInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
@@ -46,29 +45,5 @@ public class GzipCompressionInputStream extends CompressionInputStream {
   @Override
   public void close() throws IOException {
     delegate.close();
-  }
-
-  @Override
-  public int read() throws IOException {
-    try {
-      return delegate.read();
-    } catch (EOFException e) {
-      // Network/VFS streams often end with -1 while the inflater still wants the gzip trailer.
-      return -1;
-    }
-  }
-
-  @Override
-  public int read(byte[] b) throws IOException {
-    return read(b, 0, b.length);
-  }
-
-  @Override
-  public int read(byte[] b, int off, int len) throws IOException {
-    try {
-      return delegate.read(b, off, len);
-    } catch (EOFException e) {
-      return -1;
-    }
   }
 }

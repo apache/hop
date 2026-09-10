@@ -104,6 +104,10 @@ public class HdfsFileSystem extends AbstractFileSystem {
 
   @Override
   protected void doCloseCommunicationLink() {
+    if (client != null) {
+      client.close();
+      client = null;
+    }
     if (executor != null) {
       executor.shutdownNow();
       executor = null;

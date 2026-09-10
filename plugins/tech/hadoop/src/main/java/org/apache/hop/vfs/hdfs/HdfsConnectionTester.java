@@ -85,46 +85,51 @@ public final class HdfsConnectionTester {
     }
 
     HdfsKerberosSession session = null;
-    if (meta.isKerberosEnabled()) {
-      try {
-        session = loginSession(variables, meta);
-        succeeded.add(kerberosOk(session));
-      } catch (Exception e) {
-        throw failed(succeeded, "Kerberos", probeHost, e);
-      }
-      try {
-        session.doAs(() -> HdfsSpnego.authorizationHeader(probeHost));
-        succeeded.add(BaseMessages.getString(PKG, "Hdfs.Test.Ok.Spnego", probeHost));
-      } catch (Exception e) {
-        throw failed(succeeded, "SPNEGO", "HTTP@" + probeHost, e);
-      }
-    } else {
-      succeeded.add(
-          BaseMessages.getString(
-              PKG,
-              "Hdfs.Test.Ok.Simple",
-              variables.resolve(Const.NVL(meta.getSimpleUser(), "hop"))));
-    }
-
     ExecutorService executor = Executors.newCachedThreadPool();
-    try (CloseableHttpClient http = HdfsHttp.createClient(variables, meta)) {
-      HdfsWebHdfsClient client =
-          HdfsHttp.createWebHdfsClient(variables, meta, http, executor, session);
-      HdfsFileStatus status;
-      try {
-        status = client.getFileStatus(path);
-      } catch (Exception e) {
-        throw failed(succeeded, "GETFILESTATUS", path, e);
+    try {
+      if (meta.isKerberosEnabled()) {
+        try {
+          session = loginSession(variables, meta);
+          succeeded.add(kerberosOk(session));
+        } catch (Exception e) {
+          throw failed(succeeded, "Kerberos", probeHost, e);
+        }
+        try {
+          session.doAs(() -> HdfsSpnego.authorizationHeader(probeHost));
+          succeeded.add(BaseMessages.getString(PKG, "Hdfs.Test.Ok.Spnego", probeHost));
+        } catch (Exception e) {
+          throw failed(succeeded, "SPNEGO", "HTTP@" + probeHost, e);
+        }
+      } else {
+        succeeded.add(
+            BaseMessages.getString(
+                PKG,
+                "Hdfs.Test.Ok.Simple",
+                variables.resolve(Const.NVL(meta.getSimpleUser(), "hop"))));
       }
-      succeeded.add(
-          BaseMessages.getString(
-              PKG,
-              "Hdfs.Test.Ok.Status",
-              path,
-              status.isDirectory() ? "DIRECTORY" : "FILE",
-              Long.toString(status.getLength())));
+
+      try (CloseableHttpClient http = HdfsHttp.createClient(variables, meta)) {
+        HdfsWebHdfsClient client =
+            HdfsHttp.createWebHdfsClient(variables, meta, http, executor, session);
+        HdfsFileStatus status;
+        try {
+          status = client.getFileStatus(path);
+        } catch (Exception e) {
+          throw failed(succeeded, "GETFILESTATUS", path, e);
+        }
+        succeeded.add(
+            BaseMessages.getString(
+                PKG,
+                "Hdfs.Test.Ok.Status",
+                path,
+                status.isDirectory() ? "DIRECTORY" : "FILE",
+                Long.toString(status.getLength())));
+      }
     } finally {
       executor.shutdownNow();
+      if (session != null) {
+        session.close();
+      }
     }
 
     StringBuilder report = new StringBuilder();
@@ -144,8 +149,12 @@ public final class HdfsConnectionTester {
 
   public static String testKerberos(IVariables variables, HdfsMeta meta) throws Exception {
     HdfsKerberosSession session = loginSession(variables, meta);
-    return BaseMessages.getString(
-        PKG, "Hdfs.Test.Kerberos.Success", session.getPrincipal(), ticketUntil(session));
+    try {
+      return BaseMessages.getString(
+          PKG, "Hdfs.Test.Kerberos.Success", session.getPrincipal(), ticketUntil(session));
+    } finally {
+      session.close();
+    }
   }
 
   public static String testTls(IVariables variables, HdfsMeta meta) throws Exception {

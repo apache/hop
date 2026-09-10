@@ -21,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -91,16 +93,36 @@ class GzipCompressionInputStreamTest {
   }
 
   @Test
-  void unexpectedZlibEofAfterPayloadIsEndOfStream() throws Exception {
+  void truncatedGzipFailsInsteadOfSilentSuccess() throws Exception {
     byte[] gz = gzip("line1\nline2\n");
-    // Drop the gzip trailer (CRC32 + ISIZE). The inflater has already produced every row; the
-    // next fill() then throws EOFException instead of returning -1.
     byte[] cut = new byte[gz.length - 8];
     System.arraycopy(gz, 0, cut, 0, cut.length);
     GzipCompressionInputStream stream =
         new GzipCompressionInputStream(new ByteArrayInputStream(cut), provider);
-    byte[] data = stream.readAllBytes();
-    assertArrayEquals("line1\nline2\n".getBytes(StandardCharsets.UTF_8), data);
+    assertThrows(IOException.class, stream::readAllBytes);
+  }
+
+  @Test
+  void completeGzipReadsFullyFromChunkedStream() throws Exception {
+    byte[] gz = gzip("line1\nline2\n");
+    GzipCompressionInputStream stream =
+        new GzipCompressionInputStream(new TinyChunksInputStream(gz), provider);
+    assertArrayEquals("line1\nline2\n".getBytes(StandardCharsets.UTF_8), stream.readAllBytes());
+  }
+
+  /** One byte per read, like an HTTP entity that ends mid-packet relative to the gzip trailer. */
+  private static final class TinyChunksInputStream extends FilterInputStream {
+    TinyChunksInputStream(byte[] data) {
+      super(new ByteArrayInputStream(data));
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      if (len <= 0) {
+        return 0;
+      }
+      return super.read(b, off, 1);
+    }
   }
 
   protected InputStream createGZIPInputStream() throws IOException {

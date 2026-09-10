@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
@@ -63,7 +64,10 @@ public final class HdfsTls {
     if (looksLikePem(path, bytes)) {
       return loadPem(bytes);
     }
-    return loadKeyStore(bytes, variables.resolve(Const.NVL(meta.getTruststorePassword(), "")));
+    return loadKeyStore(
+        bytes,
+        Encr.decryptPasswordOptionallyEncrypted(
+            variables.resolve(Const.NVL(meta.getTruststorePassword(), ""))));
   }
 
   public static SSLContext sslContext(IVariables variables, HdfsMeta meta) throws Exception {

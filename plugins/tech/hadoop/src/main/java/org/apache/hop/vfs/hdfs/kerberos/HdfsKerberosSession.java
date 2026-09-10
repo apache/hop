@@ -42,12 +42,17 @@ public class HdfsKerberosSession {
   private static final Class<?> PKG = HdfsTransport.class;
   private static final double RENEW_AT_FRACTION = 0.80;
 
+  /** Java Kerberos config is process-wide; serialize apply + login + SPNEGO. */
+  static final Object JVM_KERBEROS = new Object();
+
   private final String connectionName;
   private final String principal;
   private final String keytabPath;
   private final boolean useTicketCache;
   private final long fallbackRenewalMillis;
   private final KerberosUtil kerberosUtil;
+  private final IVariables variables;
+  private final HdfsMeta meta;
 
   private volatile LoginContext loginContext;
   private volatile long loginTimeMillis;
@@ -68,21 +73,25 @@ public class HdfsKerberosSession {
     }
     this.fallbackRenewalMillis = TimeUnit.MINUTES.toMillis(minutes);
     this.kerberosUtil = kerberosUtil;
-    applyJvmKerberosConfig(variables, meta);
+    this.variables = variables;
+    this.meta = meta;
   }
 
-  public synchronized void login() throws LoginException {
-    LoginContext context;
-    if (useTicketCache) {
-      context = kerberosUtil.getLoginContextFromKerberosCache(principal);
-    } else {
-      context = kerberosUtil.getLoginContextFromKeytab(principal, keytabPath);
+  public void login() throws LoginException {
+    synchronized (JVM_KERBEROS) {
+      applyJvmKerberosConfig(variables, meta);
+      LoginContext context;
+      if (useTicketCache) {
+        context = kerberosUtil.getLoginContextFromKerberosCache(principal);
+      } else {
+        context = kerberosUtil.getLoginContextFromKeytab(principal, keytabPath);
+      }
+      context.login();
+      this.loginContext = context;
+      this.loginTimeMillis = System.currentTimeMillis();
+      LogChannel.GENERAL.logBasic(BaseMessages.getString(PKG, "Hdfs.Log.KerberosLogin", principal));
+      HdfsKerberosRenewer.getInstance().register(this);
     }
-    context.login();
-    this.loginContext = context;
-    this.loginTimeMillis = System.currentTimeMillis();
-    LogChannel.GENERAL.logBasic(BaseMessages.getString(PKG, "Hdfs.Log.KerberosLogin", principal));
-    HdfsKerberosRenewer.getInstance().register(this);
   }
 
   public synchronized void renewIfNeeded() throws LoginException {
@@ -104,18 +113,24 @@ public class HdfsKerberosSession {
 
   @SuppressWarnings("removal")
   public <T> T doAs(PrivilegedExceptionAction<T> action) throws Exception {
-    if (loginContext == null) {
-      login();
-    }
-    try {
-      return Subject.doAs(loginContext.getSubject(), action);
-    } catch (PrivilegedActionException e) {
-      Throwable cause = e.getCause() != null ? e.getCause() : e;
-      if (cause instanceof Exception exception) {
-        throw exception;
+    synchronized (JVM_KERBEROS) {
+      if (loginContext == null) {
+        login();
       }
-      throw new Exception(cause);
+      try {
+        return Subject.doAs(loginContext.getSubject(), action);
+      } catch (PrivilegedActionException e) {
+        Throwable cause = e.getCause() != null ? e.getCause() : e;
+        if (cause instanceof Exception exception) {
+          throw exception;
+        }
+        throw new Exception(cause);
+      }
     }
+  }
+
+  public void close() {
+    HdfsKerberosRenewer.getInstance().unregister(this);
   }
 
   public String getPrincipal() {
@@ -166,6 +181,8 @@ public class HdfsKerberosSession {
     String krb5 = HopVfs.separatorsToUnix(variables.resolve(Const.NVL(meta.getKrb5ConfPath(), "")));
     if (!krb5.isEmpty()) {
       System.setProperty("java.security.krb5.conf", krb5);
+      // realm/kdc system properties override the file and caused checksum failures.
+      return;
     }
     String realm = variables.resolve(Const.NVL(meta.getRealm(), ""));
     if (!realm.isEmpty()) {
