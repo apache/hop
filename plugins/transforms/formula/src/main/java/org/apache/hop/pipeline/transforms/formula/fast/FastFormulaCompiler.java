@@ -23,15 +23,15 @@ import java.util.function.Function;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaEvaluator.Node;
-import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaEvaluator.UnsupportedFormulaException;
 
 /**
  * Decides whether a formula can run on the plain-Java fast path and, when it can, compiles it once
  * into a reusable {@link Function} and caches the result.
  *
  * <p>The cache is a fixed-size LRU keyed on the resolved formula together with the value types of
- * the fields it references and its {@code setNa} flag. Both the compile cost and the eligibility
- * decision are cached, so a pipeline only pays the parse once per distinct formula.
+ * the fields it references. The {@code setNa} flag is deliberately not part of the key because it
+ * only affects per-row argument building, not the compiled AST. Both the compile cost and the
+ * eligibility decision are cached, so a pipeline only pays the parse once per distinct formula.
  *
  * <p>The maximum number of cached entries is a {@code -D} property, {@value #MAX_SIZE_PROPERTY},
  * and defaults to {@value #DEFAULT_MAX_SIZE}. The whole fast path can be disabled with {@value
@@ -79,25 +79,27 @@ public final class FastFormulaCompiler {
     if (!isEnabled()) {
       return CompiledFormula.NOT_ELIGIBLE;
     }
-    String key = key(resolvedFormula, fieldNames, rowMeta, setNa);
+    int[] indices = eligibleIndices(fieldNames, rowMeta);
+    if (indices == null) {
+      return CompiledFormula.NOT_ELIGIBLE;
+    }
+    // The setNa flag does not influence the compiled AST: it is only applied when building the
+    // arguments per row, so it is deliberately kept out of the cache key.
+    String key = key(resolvedFormula, fieldNames, rowMeta, indices);
     synchronized (CACHE) {
       CompiledFormula cached = CACHE.get(key);
       if (cached != null) {
         return cached;
       }
     }
-    CompiledFormula compiled = compileUncached(resolvedFormula, fieldNames, rowMeta, setNa);
+    CompiledFormula compiled = compileUncached(resolvedFormula, fieldNames);
     synchronized (CACHE) {
       CACHE.put(key, compiled);
     }
     return compiled;
   }
 
-  private static CompiledFormula compileUncached(
-      String resolvedFormula, List<String> fieldNames, IRowMeta rowMeta, boolean setNa) {
-    if (!eligibleTypes(fieldNames, rowMeta)) {
-      return CompiledFormula.NOT_ELIGIBLE;
-    }
+  private static CompiledFormula compileUncached(String resolvedFormula, List<String> fieldNames) {
     Map<String, Integer> fieldIndex = new LinkedHashMap<>();
     for (int i = 0; i < fieldNames.size(); i++) {
       fieldIndex.putIfAbsent(fieldNames.get(i), i);
@@ -105,7 +107,9 @@ public final class FastFormulaCompiler {
     final Node root;
     try {
       root = FastFormulaEvaluator.parse(resolvedFormula, fieldIndex);
-    } catch (UnsupportedFormulaException e) {
+    } catch (RuntimeException e) {
+      // Any parse-time failure (unsupported construct, malformed literal, etc.) means the formula
+      // is not eligible; fall back to the POI path instead of crashing initialization.
       return CompiledFormula.NOT_ELIGIBLE;
     }
     // The function is a thin closure over the already-parsed tree: calling it only runs the tree.
@@ -113,15 +117,23 @@ public final class FastFormulaCompiler {
     return new CompiledFormula(true, function);
   }
 
-  /** Fields of these value types can be read natively by the fast path. */
-  private static boolean eligibleTypes(List<String> fieldNames, IRowMeta rowMeta) {
-    for (String fieldName : fieldNames) {
-      int type = rowMeta.getValueMeta(rowMeta.indexOfValue(fieldName)).getType();
-      if (!isFastType(type)) {
-        return false;
+  /**
+   * Resolves every referenced field to its position in the row metadata, or returns {@code null}
+   * when any field is missing from the row or holds a value type the fast path can not read
+   * natively. Field typos and bracketed string literals (whose content is also seen as a field by
+   * the shared extractor) must never crash with an index error, so a missing field simply makes the
+   * formula not eligible.
+   */
+  private static int[] eligibleIndices(List<String> fieldNames, IRowMeta rowMeta) {
+    int[] indices = new int[fieldNames.size()];
+    for (int i = 0; i < fieldNames.size(); i++) {
+      int fieldNumber = rowMeta.indexOfValue(fieldNames.get(i));
+      if (fieldNumber < 0 || !isFastType(rowMeta.getValueMeta(fieldNumber).getType())) {
+        return null;
       }
+      indices[i] = fieldNumber;
     }
-    return true;
+    return indices;
   }
 
   private static boolean isFastType(int type) {
@@ -138,12 +150,12 @@ public final class FastFormulaCompiler {
   }
 
   private static String key(
-      String resolvedFormula, List<String> fieldNames, IRowMeta rowMeta, boolean setNa) {
-    StringBuilder key = new StringBuilder(resolvedFormula.length() + fieldNames.size() * 12 + 8);
-    key.append(setNa ? "na" : "plain").append('=').append(resolvedFormula);
-    for (String fieldName : fieldNames) {
-      key.append('|').append(fieldName);
-      key.append(':').append(rowMeta.getValueMeta(rowMeta.indexOfValue(fieldName)).getType());
+      String resolvedFormula, List<String> fieldNames, IRowMeta rowMeta, int[] indices) {
+    StringBuilder key = new StringBuilder(resolvedFormula.length() + fieldNames.size() * 12 + 3);
+    key.append(resolvedFormula);
+    for (int i = 0; i < fieldNames.size(); i++) {
+      key.append('|').append(fieldNames.get(i));
+      key.append(':').append(rowMeta.getValueMeta(indices[i]).getType());
     }
     return key.toString();
   }

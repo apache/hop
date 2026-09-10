@@ -148,7 +148,13 @@ final class FastFormulaEvaluator {
           }
           return toNumber(left.eval(args)) / divisor;
         case CONCAT:
-          return TextValue.of(left.eval(args)) + TextValue.of(right.eval(args));
+          Object concatLeft = left.eval(args);
+          Object concatRight = right.eval(args);
+          if (concatLeft == FastFormulaCompiler.NA || concatRight == FastFormulaCompiler.NA) {
+            // Excel propagates an error cell through concatenation instead of rendering it.
+            return FastFormulaCompiler.NA;
+          }
+          return TextValue.of(concatLeft) + TextValue.of(concatRight);
         case AND:
           return toBoolean(left.eval(args)) && toBoolean(right.eval(args));
         case OR:
@@ -185,12 +191,13 @@ final class FastFormulaEvaluator {
     Object eval(Object[] args) {
       switch (name) {
         case "IF":
-          if (arguments.size() != 3) {
-            throw new UnsupportedFormulaException("IF requires 3 arguments");
+          // Excel allows a 2-argument IF: the (omitted) false branch evaluates to FALSE.
+          if (arguments.size() != 2 && arguments.size() != 3) {
+            throw new UnsupportedFormulaException("IF requires 2 or 3 arguments");
           }
           return toBoolean(arguments.get(0).eval(args))
               ? arguments.get(1).eval(args)
-              : arguments.get(2).eval(args);
+              : (arguments.size() == 3 ? arguments.get(2).eval(args) : Boolean.FALSE);
         case "AND":
           for (Node argument : arguments) {
             if (!toBoolean(argument.eval(args))) {
@@ -247,17 +254,18 @@ final class FastFormulaEvaluator {
     return value == null;
   }
 
-  /** Excel TRIM: trims the ends and collapses runs of internal spaces to a single space. */
+  /**
+   * Excel TRIM: trims leading/trailing whitespace and collapses any run of whitespace to a single
+   * space. Uses a single consistent whitespace definition so tabs/newlines are handled the same way
+   * whether the text contains a space or not.
+   */
   private static String trim(Object value) {
     String text = TextValue.of(value);
-    if (text.indexOf(' ') < 0) {
-      return text.trim();
-    }
     StringBuilder out = new StringBuilder(text.length());
     boolean lastWasSpace = true;
     for (int i = 0; i < text.length(); i++) {
       char c = text.charAt(i);
-      if (c == ' ') {
+      if (Character.isWhitespace(c)) {
         if (!lastWasSpace) {
           out.append(' ');
         }
@@ -274,10 +282,23 @@ final class FastFormulaEvaluator {
   }
 
   private static boolean compareEqual(Object left, Object right) {
-    if (left instanceof Boolean || right instanceof Boolean) {
-      return toBoolean(left) == toBoolean(right);
+    boolean leftBoolean = left instanceof Boolean;
+    boolean rightBoolean = right instanceof Boolean;
+    if (leftBoolean || rightBoolean) {
+      // Excel and POI treat booleans as strictly distinct from numbers and strings: TRUE is not
+      // equal to 1, and FALSE is not equal to 0 or "Y".
+      if (leftBoolean != rightBoolean) {
+        return false;
+      }
+      return (Boolean) left == (Boolean) right;
     }
-    if (left instanceof Number && right instanceof Number) {
+    boolean leftNumber = left instanceof Number;
+    boolean rightNumber = right instanceof Number;
+    if (leftNumber || rightNumber) {
+      // Excel and POI never compare a number with a string as equal, even when they look the same.
+      if (leftNumber != rightNumber) {
+        return false;
+      }
       return toNumber(left) == toNumber(right);
     }
     return TextValue.of(left).equalsIgnoreCase(TextValue.of(right));
@@ -310,7 +331,11 @@ final class FastFormulaEvaluator {
     if (value instanceof Number number) {
       return number.doubleValue();
     }
-    if (value == null || value == FastFormulaCompiler.NA) {
+    if (value == null) {
+      // In Excel and POI a blank/null cell in an arithmetic expression is treated as 0.
+      return 0.0d;
+    }
+    if (value == FastFormulaCompiler.NA) {
       throw new UnsupportedFormulaException("Cannot use " + value + " as a number");
     }
     if (value instanceof String string) {
@@ -340,6 +365,11 @@ final class FastFormulaEvaluator {
     private static String of(Object value) {
       if (value == null) {
         return "";
+      }
+      if (value == FastFormulaCompiler.NA) {
+        // An error cell must not be rendered as a Java object hash; report it as an error so the
+        // expression can not silently produce garbage like "prefix-java.lang.Object@4f023fd2".
+        throw new UnsupportedFormulaException("Cannot render #N/A as text");
       }
       if (value instanceof Boolean booleanValue) {
         return booleanValue ? "TRUE" : "FALSE";

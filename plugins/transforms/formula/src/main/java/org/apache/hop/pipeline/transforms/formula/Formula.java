@@ -51,7 +51,8 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   private FormulaPoi[] poi;
   private List<String>[] formulaFieldLists;
   private CompiledFormula[] fastCompiled;
-  private List<String>[] fastFieldLists;
+  private int[][] fastFieldIndices;
+  private Object[][] fastArgs;
   private final HashMap<String, String> replaceMap = new HashMap<>();
 
   @Override
@@ -76,8 +77,10 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   @Override
   public void batchComplete() throws HopException {
     super.batchComplete();
-    for (final var it : poi) {
-      it.reset();
+    if (poi != null) {
+      for (final var it : poi) {
+        it.reset();
+      }
     }
   }
 
@@ -127,18 +130,6 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         }
       }
 
-      // create one backing row per formula
-      poi =
-          IntStream.range(0, meta.getFormulas().size())
-              .mapToObj(it -> new FormulaPoi(this::logDebug))
-              .toArray(FormulaPoi[]::new);
-      // compute only once for all rows the default field list
-      formulaFieldLists =
-          meta.getFormulas().stream()
-              .map(FormulaMetaFunction::getFormula)
-              .map(f -> getFormulaFieldList(resolve(f)))
-              .toArray(List[]::new);
-
       // compile each formula for the fast path when it is within the supported subset: the
       // resolved formula goes through the same variable resolution and field replacement as the
       // regular POI path, so both evaluate exactly the same expression. The compiler returns
@@ -149,16 +140,43 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       //
       int formulaCount = meta.getFormulas().size();
       fastCompiled = new CompiledFormula[formulaCount];
-      fastFieldLists = new List[formulaCount];
+      fastFieldIndices = new int[formulaCount][];
+      fastArgs = new Object[formulaCount][];
+      boolean anyPoi = false;
       for (int i = 0; i < formulaCount; i++) {
         FormulaMetaFunction fn = meta.getFormulas().get(i);
         String resolved = resolve(fn.getFormula());
         String effective = applyReplaceMap(resolved, replaceMap);
         List<String> effectiveFields = getFormulaFieldList(effective);
-        fastFieldLists[i] = effectiveFields;
-        fastCompiled[i] =
+        CompiledFormula compiled =
             FastFormulaCompiler.compile(
                 effective, effectiveFields, data.outputRowMeta, fn.isSetNa());
+        fastCompiled[i] = compiled;
+        if (compiled.fastPath()) {
+          int[] indices = new int[effectiveFields.size()];
+          for (int j = 0; j < effectiveFields.size(); j++) {
+            int fieldNumber = data.outputRowMeta.indexOfValue(effectiveFields.get(j));
+            indices[j] = fieldNumber;
+          }
+          fastFieldIndices[i] = indices;
+          fastArgs[i] = new Object[effectiveFields.size()];
+        } else {
+          anyPoi = true;
+        }
+      }
+
+      // POI workbooks are only needed for the formulas that did not take the fast path.
+      if (anyPoi) {
+        poi =
+            IntStream.range(0, meta.getFormulas().size())
+                .mapToObj(it -> new FormulaPoi(this::logDebug))
+                .toArray(FormulaPoi[]::new);
+        // compute only once for all rows the default field list
+        formulaFieldLists =
+            meta.getFormulas().stream()
+                .map(FormulaMetaFunction::getFormula)
+                .map(f -> getFormulaFieldList(resolve(f)))
+                .toArray(List[]::new);
       }
     }
 
@@ -176,8 +194,12 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       CompiledFormula compiled = fastCompiled[i];
       try {
         if (compiled != null && compiled.fastPath()) {
-          // Fast path: no POI workbook or worksheet, just run the compiled plain-Java tree.
-          Object[] args = buildFastArguments(fastFieldLists[i], outputRowData, formula.isSetNa());
+          // Fast path: no POI workbook or worksheet, just run the compiled plain-Java tree. The
+          // argument array and the field indices are reused for every row to avoid per-row lookups
+          // and allocations.
+          Object[] args =
+              buildFastArguments(
+                  fastArgs[i], fastFieldIndices[i], outputRowData, formula.isSetNa());
           Object formulaResult = compiled.function().apply(args);
           outputValue = mapFastResult(formulaResult, outputValueType, i, formula);
         } else {
@@ -419,14 +441,21 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   }
 
   /**
-   * Builds the argument array handed to a fast-path function in the order of its field list. A null
-   * field bound with the "#N/A" option is passed as the {@link FastFormulaCompiler#NA} marker so
-   * the functions can tell a blank cell from an error cell, exactly like the POI path.
+   * Fills the reusable argument array for a fast-path formula from the row data. A null field bound
+   * with the "#N/A" option is passed as the {@link FastFormulaCompiler#NA} marker so the functions
+   * can tell a blank cell from an error cell, exactly like the POI path. The field indices were
+   * pre-computed in {@code first}, so no per-row metadata lookup is needed.
+   *
+   * @param args the reusable argument array to fill
+   * @param fieldIndices the pre-computed position of each referenced field in the output row
+   * @param sourceRow the output row data
+   * @param setNa whether null fields are turned into {@code #N/A}
+   * @return the {@code args} array, filled for this row
    */
-  private Object[] buildFastArguments(List<String> fieldList, Object[] sourceRow, boolean setNa) {
-    Object[] args = new Object[fieldList.size()];
-    for (int i = 0; i < fieldList.size(); i++) {
-      int fieldIndex = data.outputRowMeta.indexOfValue(fieldList.get(i));
+  private Object[] buildFastArguments(
+      Object[] args, int[] fieldIndices, Object[] sourceRow, boolean setNa) {
+    for (int i = 0; i < fieldIndices.length; i++) {
+      int fieldIndex = fieldIndices[i];
       Object value = fieldIndex < 0 ? null : sourceRow[fieldIndex];
       args[i] = (value == null && setNa) ? FastFormulaCompiler.NA : value;
     }
