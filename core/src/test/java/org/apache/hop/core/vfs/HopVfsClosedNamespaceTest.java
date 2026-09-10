@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import org.apache.commons.vfs2.FileObject;
@@ -119,5 +120,17 @@ class HopVfsClosedNamespaceTest {
         namespace.getFileSystemManager(),
         resolved.getFileSystem().getFileSystemManager(),
         "The file was resolved outside this tenant's own namespace");
+  }
+
+  @Test
+  @DisplayName("startsWithScheme also survives a closed namespace")
+  void startsWithSchemeSurvivesAClosedNamespace() throws Exception {
+    HopVfsNamespace namespace = new HopVfsNamespace("project being closed");
+    HopVfsNamespaces.bindThread(namespace);
+    namespace.close();
+
+    assertTrue(
+        HopVfs.startsWithScheme("file:///tmp/test.hwf"),
+        "The scheme must still be recognized using the fallback file system manager");
   }
 }

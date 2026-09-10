@@ -906,9 +906,9 @@ public class HopVfs {
    */
   public static boolean startsWithScheme(String vfsFileName) {
     // Nothing to go on but the thread: the namespace of the execution running on it, if any.
-    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    DefaultFileSystemManager namespaceManager = managerOf(HopVfsNamespaces.getCurrent());
     return startsWithScheme(
-        vfsFileName, namespace == null ? getFileSystemManager() : namespace.getFileSystemManager());
+        vfsFileName, namespaceManager == null ? getFileSystemManager() : namespaceManager);
   }
 
   private static boolean startsWithScheme(String vfsFileName, DefaultFileSystemManager fsManager) {
