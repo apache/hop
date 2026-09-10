@@ -22,6 +22,8 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -49,7 +51,16 @@ public final class ReferencedDatabaseConnectionChecker {
   public static final String ERROR_NOT_ASSIGNED = "CONNECTION_NOT_ASSIGNED";
   public static final String ERROR_DOES_NOT_EXIST = "CONNECTION_DOES_NOT_EXIST";
 
+  /**
+   * The connection could not be looked up at all, so nothing is known about it. Reported at INFO:
+   * it says something about the metadata being unreadable, not about the file being linted.
+   */
+  public static final String INFO_NOT_VERIFIED = "CONNECTION_NOT_VERIFIED";
+
   private static final Class<?> PKG = ReferencedDatabaseConnectionChecker.class;
+
+  /** How much of a failure reason fits in the problems list before it stops being readable. */
+  private static final int MAX_REASON_LENGTH = 200;
 
   private ReferencedDatabaseConnectionChecker() {}
 
@@ -148,6 +159,31 @@ public final class ReferencedDatabaseConnectionChecker {
     return remarks;
   }
 
+  /**
+   * Why the lookup failed, in one line fit for a table cell.
+   *
+   * <p>A Hop exception carries the message of everything it wrapped, over several lines and with
+   * the root cause repeated once per level. That reads badly in the problems list, so this takes
+   * the root cause alone, on a single line, and caps it.
+   *
+   * @param e the failure
+   * @return a short single line reason, never null
+   */
+  private static String reason(Throwable e) {
+    Throwable root = e;
+    while (root.getCause() != null && root.getCause() != root) {
+      root = root.getCause();
+    }
+    String message = root.getMessage();
+    if (message == null || message.isBlank()) {
+      message = root.getClass().getSimpleName();
+    }
+    String oneLine = message.replaceAll("\\s+", " ").trim();
+    return oneLine.length() > MAX_REASON_LENGTH
+        ? oneLine.substring(0, MAX_REASON_LENGTH - 3) + "..."
+        : oneLine;
+  }
+
   private static ICheckResult checkConnectionName(
       String rawName,
       String ownerKind,
@@ -182,15 +218,32 @@ public final class ReferencedDatabaseConnectionChecker {
         return null;
       }
     } catch (Exception e) {
+      // Reaching the metadata failed, which says nothing about whether this connection is in it.
+      // Reporting it as missing turns one unreachable metadata folder into a warning on every
+      // connection in the project - see issue #8295. Saying nothing at all would be worse still:
+      // an unreadable metadata folder would produce a clean report that means nothing. So say
+      // what is actually known - that the connection could not be checked - at INFO.
+      if (HopLogStore.isInitialized()) {
+        LogChannel.GENERAL.logDebug(
+            "Unable to look up database connection '"
+                + resolved
+                + "' referenced by "
+                + ownerKind
+                + " '"
+                + ownerName
+                + "' : "
+                + e.getMessage());
+      }
       return new CheckResult(
-          ICheckResult.TYPE_RESULT_WARNING,
-          ERROR_DOES_NOT_EXIST,
+          ICheckResult.TYPE_RESULT_COMMENT,
+          INFO_NOT_VERIFIED,
           BaseMessages.getString(
               PKG,
-              "ReferencedDatabaseConnectionChecker.DoesNotExist",
+              "ReferencedDatabaseConnectionChecker.NotVerified",
               resolved,
               ownerKind,
-              ownerName),
+              ownerName,
+              reason(e)),
           source);
     }
 

@@ -17,6 +17,7 @@
 package org.apache.hop.metadata.validation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -225,6 +227,81 @@ class ReferencedDatabaseConnectionCheckerTest {
     assertEquals(1, remarks.size());
     assertEquals(
         ReferencedDatabaseConnectionChecker.ERROR_DOES_NOT_EXIST, remarks.get(0).getErrorCode());
+  }
+
+  /**
+   * Issue #8295. The GUI linter reported CONNECTION_DOES_NOT_EXIST for connections that were in the
+   * project metadata all along. It ran on a background thread whose VFS file system manager had
+   * been closed underneath it, so {@code JsonMetadataSerializer.exists()} threw instead of
+   * answering - and a failed lookup was reported as a missing connection.
+   *
+   * <p>An error reaching the metadata says nothing about whether the object is there. Reporting it
+   * as missing turns every transient metadata problem into a warning on every connection in the
+   * project. Saying nothing at all is no better: an unreadable metadata folder would then produce a
+   * clean report. So it is reported for what it is, at INFO.
+   */
+  @Test
+  @SuppressWarnings("unchecked")
+  void aFailedLookupIsReportedAsUnverifiedRatherThanMissing() throws Exception {
+    IHopMetadataProvider throwingProvider = mock(IHopMetadataProvider.class);
+    IHopMetadataSerializer<DatabaseMeta> throwingSerializer = mock(IHopMetadataSerializer.class);
+    when(throwingProvider.getSerializer(DatabaseMeta.class)).thenReturn(throwingSerializer);
+    when(throwingSerializer.exists(anyString()))
+        .thenThrow(
+            new HopException(
+                "Unable to get VFS File object for filename "
+                    + "'/project/metadata/rdbms/OPS.json' : Could not find file with URI ... "
+                    + "because it is a relative path, and no base URI was provided."));
+
+    List<ICheckResult> remarks =
+        ReferencedDatabaseConnectionChecker.checkObject(
+            new ConnMeta("OPS"),
+            "Action",
+            "Check DB connections",
+            null,
+            variables,
+            throwingProvider);
+
+    assertEquals(1, remarks.size());
+    ICheckResult remark = remarks.get(0);
+    assertEquals(
+        ReferencedDatabaseConnectionChecker.INFO_NOT_VERIFIED,
+        remark.getErrorCode(),
+        "A lookup that fails is not evidence the connection is missing");
+    assertEquals(
+        ICheckResult.TYPE_RESULT_COMMENT,
+        remark.getType(),
+        "Being unable to read the metadata is not a defect in the file being checked");
+    assertTrue(remark.getText().contains("OPS"));
+    assertTrue(remark.getText().contains("could not be checked"));
+  }
+
+  /**
+   * A Hop exception repeats the message of everything it wrapped, over several lines. The problems
+   * list is a table, so the reason has to survive as one readable line.
+   */
+  @Test
+  @SuppressWarnings("unchecked")
+  void theReasonForAFailedLookupIsOneReadableLine() throws Exception {
+    IHopMetadataProvider throwingProvider = mock(IHopMetadataProvider.class);
+    IHopMetadataSerializer<DatabaseMeta> throwingSerializer = mock(IHopMetadataSerializer.class);
+    when(throwingProvider.getSerializer(DatabaseMeta.class)).thenReturn(throwingSerializer);
+    when(throwingSerializer.exists(anyString()))
+        .thenThrow(
+            new HopException(
+                "\n\nUnable to get VFS File object for filename 'x' :"
+                    + " Invalid URI escape sequence.\nInvalid URI escape sequence.\n",
+                new IllegalStateException("Invalid URI escape sequence \"%te\".")));
+
+    List<ICheckResult> remarks =
+        ReferencedDatabaseConnectionChecker.checkObject(
+            new ConnMeta("OPS"), "Action", "Check DB", null, variables, throwingProvider);
+
+    String text = remarks.get(0).getText();
+    assertFalse(text.contains("\n"), "The reason must not wrap over several lines: " + text);
+    assertTrue(
+        text.contains("Invalid URI escape sequence \"%te\"."),
+        "The root cause is what says why it failed: " + text);
   }
 
   /** A Dummy transform that also carries an annotated connection name, for pipeline-level tests. */
