@@ -279,10 +279,13 @@ List<HopLoggingEvent> events = getLogBufferFromTo( logChannelId, false, 0, lastN
 
 The details allow you to see which line was an error, what the timestamp was, to which executable it belonged and so on.
 
-If you just want to see the flattened logging text you can ask the appender for the information:
+If you just want to see the flattened logging text for a channel you can use the read facade:
 
 [source,java]
 ----
-StringBuffer loggingText = HopLogStore.getAppender().getBuffer(logChannelId);
+int lastNr = HopLogStore.getMaxNrLines();
+List<String> loggingText = HopLogStore.getLogBufferText( logChannelId, false, 0, lastNr);
 ----
+
+Use `HopLogStore.getLogBufferText(...)` instead of the deprecated `HopLogStore.getAppender()`, which exposes an internal implementation detail.
 

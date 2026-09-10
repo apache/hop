@@ -1276,7 +1276,7 @@ public abstract class Pipeline
       // what went wrong.
       //
       if (preview) {
-        String logText = HopLogStore.getAppender().getBuffer(getLogChannelId(), true).toString();
+        String logText = HopLogStore.getBuffer(getLogChannelId(), true).toString();
         throw new HopException(
             BaseMessages.getString(PKG, "Pipeline.Log.FailToInitializeAtLeastOneTransform")
                 + Const.CR
@@ -3575,7 +3575,7 @@ public abstract class Pipeline
       return null;
     }
     StringBuffer logBuffer =
-        HopLogStore.getAppender().getBuffer(transform.getLogChannel().getLogChannelId(), false);
+        HopLogStore.getBuffer(transform.getLogChannel().getLogChannelId(), false);
     if (logBuffer == null) {
       return null;
     }

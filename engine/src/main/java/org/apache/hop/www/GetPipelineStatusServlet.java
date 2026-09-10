@@ -620,8 +620,8 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
   private String getLogText(IPipelineEngine pipeline, int startLineNr, int lastLineNr)
       throws HopException {
     try {
-      return HopLogStore.getAppender()
-          .getBuffer(pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
+      return HopLogStore.getBuffer(
+              pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
           .toString();
     } catch (OutOfMemoryError error) {
       throw new HopException("Log string is too long", error);

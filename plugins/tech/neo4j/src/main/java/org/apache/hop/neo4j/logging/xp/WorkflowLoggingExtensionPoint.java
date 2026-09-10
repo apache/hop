@@ -286,7 +286,7 @@ public class WorkflowLoggingExtensionPoint
                   Result workflowResult = workflow.getResult();
                   String workflowLogChannelId = workflow.getLogChannelId();
                   String workflowLoggingText =
-                      HopLogStore.getAppender().getBuffer(workflowLogChannelId, true).toString();
+                      HopLogStore.getBuffer(workflowLogChannelId, true).toString();
 
                   Date endDate = new Date();
                   workflow.getExtensionDataMap().put(WORKFLOW_END_DATE, new Date());
@@ -342,7 +342,7 @@ public class WorkflowLoggingExtensionPoint
                   for (ActionResult actionResult : actionResults) {
                     String actionLogChannelId = actionResult.getLogChannelId();
                     String transformLoggingText =
-                        HopLogStore.getAppender().getBuffer(actionLogChannelId, true).toString();
+                        HopLogStore.getBuffer(actionLogChannelId, true).toString();
                     Result result = actionResult.getResult();
                     Map<String, Object> actionPars = new HashMap<>();
                     actionPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());

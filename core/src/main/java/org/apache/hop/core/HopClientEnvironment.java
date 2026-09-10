@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.types.DatabaseTypeRulesPluginType;
 import org.apache.hop.core.encryption.Encr;
@@ -31,11 +30,10 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
-import org.apache.hop.core.logging.ConsoleLoggingEventListener;
+import org.apache.hop.core.logging.HopLogConfig;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingPlugin;
 import org.apache.hop.core.logging.LoggingPluginType;
-import org.apache.hop.core.logging.Slf4jLoggingEventListener;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -105,14 +103,9 @@ public class HopClientEnvironment {
     //
     HopLogStore.init();
 
-    // Add console output so that folks see what's going on...
+    // Wire the log4j2 backend: feed the in-memory buffer and honor HOP_DISABLE_CONSOLE_LOGGING.
     //
-    String disableConsoleLogging =
-        HopResolvedSettings.resolveString(Const.HOP_DISABLE_CONSOLE_LOGGING, "N");
-    if (!"Y".equalsIgnoreCase(disableConsoleLogging)) {
-      HopLogStore.getAppender().addLoggingEventListener(new ConsoleLoggingEventListener());
-    }
-    HopLogStore.getAppender().addLoggingEventListener(new Slf4jLoggingEventListener());
+    HopLogConfig.init();
 
     // Load plugins
     //

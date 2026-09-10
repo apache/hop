@@ -453,8 +453,7 @@ public class SqlEditor {
     } finally {
       int endLogLine = HopLogStore.getLastBufferLineNr();
       sql.setLoggingText(
-          HopLogStore.getAppender()
-              .getLogBufferFromTo(db.getLogChannelId(), true, startLogLine, endLogLine)
+          HopLogStore.getLogBufferFromTo(db.getLogChannelId(), true, startLogLine, endLogLine)
               .toString());
       sql.setComplete(true);
       shell.getDisplay().asyncExec(this::refreshExecutionResults);

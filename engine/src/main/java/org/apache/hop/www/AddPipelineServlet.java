@@ -28,7 +28,7 @@ import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelFileWriter;
+import org.apache.hop.core.logging.HopFileAppender;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
@@ -139,26 +139,20 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
       if (pipelineExecutionConfiguration.isSetLogfile()) {
         realLogFilename = pipelineExecutionConfiguration.getLogFileName();
-        final LogChannelFileWriter logChannelFileWriter;
         try {
           FileUtil.createParentFolder(
               AddPipelineServlet.class,
               realLogFilename,
               pipelineExecutionConfiguration.isCreateParentFolder(),
               pipeline.getLogChannel());
-          logChannelFileWriter =
-              new LogChannelFileWriter(
+          final HopFileAppender logFileAppender =
+              HopFileAppender.create(
                   servletLoggingObject.getLogChannelId(),
                   HopVfs.getFileObject(realLogFilename),
                   pipelineExecutionConfiguration.isSetAppendLogfile());
-          logChannelFileWriter.startLogging();
+          logFileAppender.attach();
 
-          pipeline.addExecutionFinishedListener(
-              pipelineEngine -> {
-                if (logChannelFileWriter != null) {
-                  logChannelFileWriter.stopLogging();
-                }
-              });
+          pipeline.addExecutionFinishedListener(pipelineEngine -> logFileAppender.stop());
 
         } catch (HopException e) {
           logError(Const.getStackTracker(e));

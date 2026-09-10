@@ -97,7 +97,7 @@ public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, Pipeline
 
     // Logging text of the pipeline
     pipelineRow[index++] =
-        HopLogStore.getAppender().getBuffer(loggingPipeline.getLogChannelId(), false).toString();
+        HopLogStore.getBuffer(loggingPipeline.getLogChannelId(), false).toString();
 
     // Number of errors in the pipeline
     pipelineRow[index++] = (long) loggingPipeline.getErrors();
