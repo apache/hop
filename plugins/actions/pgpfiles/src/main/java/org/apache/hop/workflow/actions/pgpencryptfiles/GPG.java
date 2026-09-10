@@ -24,9 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
@@ -42,7 +43,11 @@ public class GPG {
 
   private ILogChannel log;
 
-  private final String gnuPGCommand = "--batch --armor ";
+  /** Options prepended when GnuPG reads the data to process from stdin instead of a file. */
+  private static final List<String> GNU_PG_COMMAND = List.of("--batch", "--armor");
+
+  /** Options prepended to the file based operations. */
+  private static final List<String> BATCH_YES = List.of("--batch", "--yes");
 
   /** gpg program location */
   private String gpgexe = "/usr/local/bin/gpg";
@@ -149,31 +154,36 @@ public class GPG {
   }
 
   /**
-   * Runs GnuPG external program
+   * Runs GnuPG external program.
    *
-   * @param commandArgs command line arguments
-   * @param inputStr key ID of the key in GnuPG's key database
-   * @param fileMode
+   * <p>The arguments are handed to the process as a list, never as a single command line: they are
+   * passed to GnuPG verbatim and are never interpreted by a shell. Filenames reach this method from
+   * directory scans, so any character a filesystem accepts has to survive unchanged.
+   *
+   * @param args command line arguments
+   * @param inputStr data written to the standard input of the process, or null
+   * @param fileMode true when GnuPG reads the data to process from a file rather than stdin
    * @return result
    * @throws HopException
    */
-  private String execGnuPG(String commandArgs, String inputStr, boolean fileMode)
+  private String execGnuPG(List<String> args, String inputStr, boolean fileMode)
       throws HopException {
     Process p;
-    String command = getGpgExeFile() + " " + (fileMode ? "" : gnuPGCommand + " ") + commandArgs;
+    List<String> command = new ArrayList<>();
+    command.add(getGpgExeFile());
+    if (!fileMode) {
+      command.addAll(GNU_PG_COMMAND);
+    }
+    command.addAll(args);
 
     if (log.isDebug()) {
-      log.logDebug(BaseMessages.getString(PKG, "GPG.RunningCommand", command));
+      // Secrets are handed to GnuPG over stdin, so the argument list is safe to log.
+      log.logDebug(BaseMessages.getString(PKG, "GPG.RunningCommand", String.join(" ", command)));
     }
     String retval;
 
     try {
-      if (Const.isWindows()) {
-        p = Runtime.getRuntime().exec(command);
-      } else {
-        ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", command);
-        p = processBuilder.start();
-      }
+      p = new ProcessBuilder(command).start();
     } catch (IOException io) {
       throw new HopException(BaseMessages.getString(PKG, "GPG.IOException"), io);
     }
@@ -226,6 +236,41 @@ public class GPG {
   }
 
   /**
+   * Asks GnuPG to read the passphrase from standard input.
+   *
+   * <p>On the command line a passphrase is readable by every other user on the machine through the
+   * process table, so it travels over stdin instead. GnuPG 2.1 and later ignore a passphrase given
+   * this way unless the loopback pinentry is requested as well: without it the agent tries to
+   * prompt and the operation fails with "Inappropriate ioctl for device".
+   *
+   * @param args argument list to append to
+   */
+  private static void addPassPhraseFromStdin(List<String> args) {
+    args.add("--pinentry-mode");
+    args.add("loopback");
+    args.add("--passphrase-fd");
+    args.add("0");
+  }
+
+  /** Arguments for signing the given file with a passphrase supplied over stdin. */
+  private static List<String> signArgs(String filename) {
+    List<String> args = new ArrayList<>();
+    addPassPhraseFromStdin(args);
+    args.add("--sign");
+    args.add(filename);
+    return args;
+  }
+
+  /** Arguments for decrypting the given file with a passphrase supplied over stdin. */
+  private static List<String> decryptArgs(String filename) {
+    List<String> args = new ArrayList<>();
+    addPassPhraseFromStdin(args);
+    args.add("--decrypt");
+    args.add(filename);
+    return args;
+  }
+
+  /**
    * Decrypt a file
    *
    * @param cryptedFilename crypted filename
@@ -253,19 +298,17 @@ public class GPG {
       throws HopException {
 
     try {
-      execGnuPG(
-          "--batch --yes "
-              + (Utils.isEmpty(passPhrase) ? "" : "--passphrase " + "\"" + passPhrase + "\" ")
-              + "--output "
-              + "\""
-              + decryptedFilename
-              + "\" "
-              + "--decrypt "
-              + "\""
-              + cryptedFilename
-              + "\"",
-          null,
-          true);
+      List<String> args = new ArrayList<>(BATCH_YES);
+      boolean withPassPhrase = !Utils.isEmpty(passPhrase);
+      if (withPassPhrase) {
+        addPassPhraseFromStdin(args);
+      }
+      args.add("--output");
+      args.add(decryptedFilename);
+      args.add("--decrypt");
+      args.add(cryptedFilename);
+
+      execGnuPG(args, withPassPhrase ? passPhrase : null, true);
 
     } catch (Exception e) {
       throw new HopException(e);
@@ -300,23 +343,20 @@ public class GPG {
   public void encryptFile(String filename, String userID, String cryptedFilename, boolean asciiMode)
       throws HopException {
     try {
-      execGnuPG(
-          CONST_BATCH_YES
-              + (asciiMode ? " -a" : "")
-              + " -r "
-              + "\""
-              + Const.NVL(userID, "")
-              + "\" "
-              + "--output "
-              + "\""
-              + cryptedFilename
-              + "\" "
-              + "--encrypt  "
-              + "\""
-              + filename
-              + "\"",
-          null,
-          true);
+      List<String> args = new ArrayList<>(BATCH_YES);
+      if (asciiMode) {
+        args.add("-a");
+      }
+      if (!Utils.isEmpty(userID)) {
+        args.add("-r");
+        args.add(userID);
+      }
+      args.add("--output");
+      args.add(cryptedFilename);
+      args.add("--encrypt");
+      args.add(filename);
+
+      execGnuPG(args, null, true);
 
     } catch (Exception e) {
       throw new HopException(e);
@@ -353,22 +393,21 @@ public class GPG {
       throws HopException {
 
     try {
+      List<String> args = new ArrayList<>(BATCH_YES);
+      if (asciiMode) {
+        args.add("-a");
+      }
+      if (!Utils.isEmpty(userID)) {
+        args.add("-r");
+        args.add(userID);
+      }
+      args.add("--output");
+      args.add(cryptedFilename);
+      args.add("--encrypt");
+      args.add("--sign");
+      args.add(filename);
 
-      execGnuPG(
-          CONST_BATCH_YES
-              + (asciiMode ? " -a" : "")
-              + (Utils.isEmpty(userID) ? "" : " -r " + "\"" + userID + "\"")
-              + " "
-              + "--output "
-              + "\""
-              + cryptedFilename
-              + "\" "
-              + "--encrypt --sign "
-              + "\""
-              + filename
-              + "\"",
-          null,
-          true);
+      execGnuPG(args, null, true);
     } catch (Exception e) {
       throw new HopException(e);
     }
@@ -386,21 +425,20 @@ public class GPG {
   public void signFile(String filename, String userID, String signedFilename, boolean asciiMode)
       throws HopException {
     try {
-      execGnuPG(
-          CONST_BATCH_YES
-              + (asciiMode ? " -a" : "")
-              + (Utils.isEmpty(userID) ? "" : " -r " + "\"" + userID + "\"")
-              + " "
-              + "--output "
-              + "\""
-              + signedFilename
-              + "\" "
-              + (asciiMode ? "--clearsign " : "--sign ")
-              + "\""
-              + filename
-              + "\"",
-          null,
-          true);
+      List<String> args = new ArrayList<>(BATCH_YES);
+      if (asciiMode) {
+        args.add("-a");
+      }
+      if (!Utils.isEmpty(userID)) {
+        args.add("-r");
+        args.add(userID);
+      }
+      args.add("--output");
+      args.add(signedFilename);
+      args.add(asciiMode ? "--clearsign" : "--sign");
+      args.add(filename);
+
+      execGnuPG(args, null, true);
 
     } catch (Exception e) {
       throw new HopException(e);
@@ -444,7 +482,7 @@ public class GPG {
    */
   public void verifySignature(String filename) throws HopException {
 
-    execGnuPG("--batch --verify " + "\"" + filename + "\"", null, true);
+    execGnuPG(List.of("--batch", "--verify", filename), null, true);
   }
 
   /**
@@ -456,10 +494,7 @@ public class GPG {
    */
   public void verifyDetachedSignature(String signatureFilename, String originalFilename)
       throws HopException {
-    execGnuPG(
-        "--batch --verify " + "\"" + signatureFilename + "\" " + "\"" + originalFilename + "\"",
-        null,
-        true);
+    execGnuPG(List.of("--batch", "--verify", signatureFilename, originalFilename), null, true);
   }
 
   /**
@@ -483,7 +518,14 @@ public class GPG {
    * @throws HopException
    */
   public String encrypt(String plainText, String keyID) throws HopException {
-    return execGnuPG("-r \"" + keyID + "\" --encrypt ", plainText, false);
+    List<String> args = new ArrayList<>();
+    if (!Utils.isEmpty(keyID)) {
+      args.add("-r");
+      args.add(keyID);
+    }
+    args.add("--encrypt");
+
+    return execGnuPG(args, plainText, false);
   }
 
   /**
@@ -500,10 +542,16 @@ public class GPG {
     try {
       createTempFile(plainText);
 
-      return execGnuPG(
-          "-r \"" + userID + "\" --passphrase-fd 0 -se \"" + getTempFileName() + "\"",
-          passPhrase,
-          false);
+      List<String> args = new ArrayList<>();
+      if (!Utils.isEmpty(userID)) {
+        args.add("-r");
+        args.add(userID);
+      }
+      addPassPhraseFromStdin(args);
+      args.add("-se");
+      args.add(getTempFileName());
+
+      return execGnuPG(args, passPhrase, false);
     } finally {
 
       deleteTempFile();
@@ -523,8 +571,7 @@ public class GPG {
 
       createTempFile(stringToSign);
 
-      retval =
-          execGnuPG("--passphrase-fd 0 --sign \"" + getTempFileName() + "\"", passPhrase, false);
+      retval = execGnuPG(signArgs(getTempFileName()), passPhrase, false);
 
     } finally {
       deleteTempFile();
@@ -544,8 +591,7 @@ public class GPG {
     try {
       createTempFile(cryptedText);
 
-      return execGnuPG(
-          "--passphrase-fd 0 --decrypt \"" + getTempFileName() + "\"", passPhrase, false);
+      return execGnuPG(decryptArgs(getTempFileName()), passPhrase, false);
 
     } finally {
       deleteTempFile();
