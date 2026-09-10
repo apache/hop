@@ -211,6 +211,12 @@ plugins:
     description: MinIO
     installPath: plugins/tech/minio
     modulePath: plugins/tech/minio
+  - artifactId: hop-tech-hadoop
+    name: Hadoop HDFS
+    category: Technology
+    description: HDFS via WebHDFS, HttpFS or Knox (Kerberos). No Hadoop client libraries.
+    installPath: plugins/tech/hadoop
+    modulePath: plugins/tech/hadoop
   - artifactId: hop-tech-databricks
     name: Databricks
     category: Technology

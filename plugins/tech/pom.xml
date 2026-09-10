@@ -40,6 +40,7 @@
         <module>elastic</module>
         <module>ftp</module>
         <module>google</module>
+        <module>hadoop</module>
         <module>minio</module>
         <module>mongodb</module>
         <module>neo4j</module>

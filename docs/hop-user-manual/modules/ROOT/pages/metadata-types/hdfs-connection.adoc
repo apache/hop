@@ -1,0 +1,108 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Named HDFS connection over WebHDFS, HttpFS or Knox
+
+= HDFS Connection
+
+== Description
+
+This metadata type registers an HDFS cluster as a named VFS connection.
+The connection name becomes the URL scheme, for example `cdp:///warehouse/db/table/file.parquet`.
+
+The plugin talks HTTP to **HttpFS**, **Knox** or **WebHDFS**.
+It does **not** load Hadoop client libraries, so it does not have to match the Hadoop version on the cluster (Cloudera 7.1.8 Hadoop 3.1.1 and 7.3.2 Hadoop 3.4.2 both work).
+
+This plugin is installed from the marketplace (`hop-tech-hadoop`).
+Parquet File Output already writes through VFS, so a named HDFS connection is enough to land Parquet on the cluster.
+
+[IMPORTANT]
+====
+Do **not** use `hdfs://namenode:8020/...` as a Hop VFS path.
+Native Spark treats `hdfs://` as a Hadoop FileSystem URI.
+Use the connection name (`cdp:///...`) on the Hop engine, and keep `hdfs://` for Spark File Output on YARN.
+====
+
+== Transports
+
+|===
+|Transport |When to use |What the pod must reach
+|HttpFS (recommended from OpenShift) |Remote container, no DataNode network |One HttpFS host (CDP default port 14000)
+|Knox |CDP with Knox as the only ingress |One Knox HTTPS topology
+|WebHDFS |Client can reach every DataNode HTTP port |NameNode 9870 **and** DataNode 9864
+|===
+
+Native HDFS RPC (port 8020 plus every DataNode data port) is not supported.
+That is the library-conflict and OpenShift-network path this plugin exists to avoid.
+
+== Options
+
+=== Cluster
+
+|===
+|Option |Description
+|Name |VFS scheme: `name:///path`
+|Description |Optional
+|Transport |HttpFS, Knox or WebHDFS
+|Endpoint hostname |One host, or two HA hosts separated by commas (Impala JDBC style): `master1.example.com,master2.example.com`. Example: `'${HDFS_HTTPFS_HOST}'`
+|Port |Defaults: HttpFS 14000, Knox 8443, WebHDFS 9870 (HTTPS WebHDFS is often 9871)
+|HTTPS |Use HTTPS
+|HTTP base path |Empty uses `/webhdfs/v1`. Knox example: `/gateway/cdp-proxy/webhdfs/v1`
+|Extra NameNode HTTP endpoints |Optional extra `host:port` lines when ports differ. WebHDFS fails over here (and to the second hostname) when a NameNode is standby.
+|Default HDFS root |Optional prefix, for example `/user/hop`
+|Simple-auth user |`user.name` query parameter when Kerberos is off
+|===
+
+=== Kerberos
+
+|===
+|Option |Description
+|Enable Kerberos |SPNEGO on every request
+|Principal |For example `hop/hop@EXAMPLE.COM` or `'${HDFS_PRINCIPAL}'`
+|Keytab |Keytab path (OpenShift Secret mount). Prefer this over a ticket cache in containers. On Windows, Browse stores forward slashes (`C:/Users/...`); JAAS treats `\` as an escape.
+|krb5.conf |JVM-wide; one file per Hop process. When set, Realm and KDC are ignored. Same forward-slash rule as the keytab on Windows.
+|Realm / KDC |Optional if krb5.conf is not set. Do not fill these if krb5.conf is set.
+|Re-login interval (minutes) |Fallback when the TGT end time cannot be read (default 360). Tickets are renewed at 80% of remaining lifetime when known.
+|Use existing ticket cache |Laptop / developer machines. Not for OpenShift.
+|===
+
+The plugin re-logs from the keytab in Java (JAAS).
+It does not call the `kinit` binary and does not use Hadoop `UserGroupInformation`.
+
+=== TLS
+
+|===
+|Option |Description
+|Trust material |Optional CA file for HTTPS. A PEM/CRT bundle (CDP Auto-TLS `ca.pem`) or a Java keystore (JKS/PKCS12)
+|Keystore password |Password for JKS/PKCS12. Leave empty for PEM
+|Verify TLS hostname |Disable only when the gateway certificate does not match the hostname
+|Allow HTTP DataNode redirects |Default off. When HTTPS is on, a WebHDFS `Location: http://...` is rejected so file bytes and delegation tokens are not sent in the clear. Enable only if DataNodes still speak HTTP.
+|===
+
+Each tab has a **Test** button that uses the values currently in the editor (including the other tabs):
+
+* Cluster: TLS (when HTTPS), Kerberos login, SPNEGO token for `HTTP@host`, then `GETFILESTATUS` on the default HDFS root (or `/`). The result lists each step that succeeded; a failure names the step and a short hint. A WebHDFS `403` `state standby` means that NameNode is HA standby — put both hosts in Endpoint hostname.
+* Kerberos: JAAS login from the keytab or ticket cache
+* TLS: load the PEM/keystore, then handshake with the HTTPS endpoint when host and HTTPS are set
+
+== Tips
+
+* Test the connection from Hop GUI: File - Open, type `ChosenName:///` and list `/`.
+* Give the connection a short functional name. Do not name it `hdfs`, `file`, `http` or another existing VFS scheme.
+* From OpenShift, point the connection at HttpFS or Knox and open NetworkPolicy only to that gateway.
+* A 7.1.8 to 7.3.2 cluster upgrade does not require a new plugin version; only host, TLS and principal may change.

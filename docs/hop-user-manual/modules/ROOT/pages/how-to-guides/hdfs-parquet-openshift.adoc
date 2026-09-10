@@ -1,0 +1,63 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images
+:description: Write Parquet from a Hop container on OpenShift to a Cloudera HDFS cluster
+
+= Write Parquet to Cloudera HDFS from OpenShift
+
+A Hop pipeline in a remote container should **not** ship Cloudera Hadoop client JARs.
+Parquet File Output already writes through Hop VFS.
+Install the marketplace plugin `hop-tech-hadoop` and point a named connection at **HttpFS** or **Knox**.
+
+This works on Cloudera 7.1.8 (Hadoop 3.1.1) and 7.3.2 (Hadoop 3.4.2) without changing the plugin.
+
+== 1. Cluster side
+
+Enable HttpFS (port 14000) or a Knox topology that fronts WebHDFS.
+Ranger still applies: the Kerberos principal on the keytab must be allowed to write the target path.
+
+== 2. OpenShift side
+
+* Marketplace-install `hop-tech-hadoop` and `hop-tech-parquet` in the Hop image (or bake them).
+* Mount a **Secret** with the keytab and a **ConfigMap** with `krb5.conf`, readable by the random non-root UID.
+* `JAVA_TOOL_OPTIONS=-Djava.security.krb5.conf=/etc/krb5.conf`
+* NetworkPolicy: egress to HttpFS or Knox only. Do not open DataNode RPC/HTTP if you use a gateway.
+* Do not copy Hadoop parcels or `hadoop-common` into the image.
+
+== 3. HDFS connection
+
+Create metadata `HdfsConnectionDefinition` named for example `cdp`:
+
+* Transport: HttpFS
+* Endpoint: `'${HDFS_HTTPFS_HOST}'` / `'${HDFS_HTTPFS_PORT}'`
+* HTTPS as required by Auto-TLS; trust material can be the CDP `ca.pem` (or a JKS/PKCS12)
+* Kerberos enabled, principal `'${HDFS_PRINCIPAL}'`, keytab `/var/run/secrets/hdfs/hop.keytab`
+
+== 4. Pipeline
+
+Parquet File Output filename base:
+
+`cdp:///warehouse/db/table/part`
+
+Create parent folders as needed.
+The same connection works for Text File, Avro, and any other VFS-aware transform.
+
+== 5. Upgrade 7.1.8 → 7.3.2
+
+Keep the plugin.
+Update host, TLS material and principal if the gateway moved.
+No Hadoop client version bump in Hop.

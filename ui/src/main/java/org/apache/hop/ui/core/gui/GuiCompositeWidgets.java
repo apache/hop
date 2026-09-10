@@ -41,10 +41,12 @@ import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroups;
+import org.apache.hop.core.gui.plugin.GuiWidgetMethodInvoker;
 import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -774,7 +776,6 @@ public class GuiCompositeWidgets {
         SWT.Selection,
         event -> {
           // This widget annotation was on top of a method.
-          // We need to instantiate the method using the provided classloader.
           //
           Method buttonMethod = guiElements.getButtonMethod();
           Class<?> methodClass = buttonMethod.getDeclaringClass();
@@ -789,11 +790,10 @@ public class GuiCompositeWidgets {
               compositeButtonsListener.buttonPressed(sourceObject);
             }
 
-            Object guiObject = methodClass.getDeclaredConstructor().newInstance();
-
-            // Invoke the button method (mutations apply to sourceObject)
-            //
-            buttonMethod.invoke(guiObject, sourceObject);
+            // The scanned Method can belong to a second copy of the class (GuiPluginType vs
+            // HopMetadata classLoaderGroup). Invoke on the live source object's class so the
+            // method body can cast the argument without ClassCastException.
+            GuiWidgetMethodInvoker.invoke(buttonMethod, sourceObject);
 
             // Re-bind form fields from the (possibly mutated) source object. Template-load and
             // similar buttons open modal dialogs; refresh both immediately and on the next UI
@@ -1071,7 +1071,9 @@ public class GuiCompositeWidgets {
                         typeFilename.getFilterNames(),
                         true);
                 if (StringUtils.isNotEmpty(filename)) {
-                  text.setText(filename);
+                  // Windows dialogs emit '\'. JAAS keytab/krb5.conf treat '\' as an escape;
+                  // VFS and java.io.File accept '/'.
+                  text.setText(HopVfs.separatorsToUnix(filename));
                 }
               });
         }
@@ -1085,7 +1087,7 @@ public class GuiCompositeWidgets {
               e -> {
                 String folder = BaseDialog.presentDirectoryDialog(parent.getShell());
                 if (StringUtils.isNotEmpty(folder)) {
-                  text.setText(folder);
+                  text.setText(HopVfs.separatorsToUnix(folder));
                 }
               });
         }
