@@ -134,6 +134,15 @@ The *Type* combo lists every registered naming-scheme kind. Built-in kinds inclu
 
 Other plugins can add kinds without changing Hop. For example hop-data-vault can register `dv-hub`, `dv-satellite`, `dv-link`, `dm-dimension`, `dm-fact`, and so on. Create one Naming Scheme metadata object per kind (or one General scheme). Use one scheme per type in a project so CI has a single expected spelling.
 
+== Kettle / PDI import
+
+When you import a Kettle/PDI folder, Hop looks for naming schemes in the *target* project's `metadata/naming-scheme/` folder (the same Json metadata provider the import writes connections into).
+
+* In Hop Gui the import dialog has a *Naming scheme for connections* line on the Metadata tab. New and Edit stay in memory until you click Import, which writes the selected scheme to the target project's `metadata/naming-scheme/` folder if it is not there yet. The line also lists schemes already in that folder and in the current project.
+* From the command line, put the JSON files in `<output>/metadata/naming-scheme/` first, or pass `--naming-scheme <name>`.
+
+The selected (or unique Hop-metadata / General) scheme is applied to every imported relational connection name and to every transform/action field annotated `RDBMS_CONNECTION`. Names that only differ by case are always collapsed to one spelling, even when no scheme is present.
+
 == Checking names in CI
 
 A name is valid when applying the matching scheme leaves the string unchanged. Empty values, `<null>`, and values that contain `${...}` are skipped.

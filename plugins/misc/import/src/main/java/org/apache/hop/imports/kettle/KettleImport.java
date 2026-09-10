@@ -63,6 +63,7 @@ import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.imp.ConnectionNameMap;
 import org.apache.hop.imp.HopImportBase;
 import org.apache.hop.imp.IHopImport;
 import org.apache.hop.imp.ImportPlugin;
@@ -315,6 +316,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
               try (OutputStream fileStream = HopVfs.getOutputStream(targetFilename, false)) {
                 fileStream.write(xml.getBytes(StandardCharsets.UTF_8));
               }
+              writtenHopFileNames.add(targetFilename);
             }
           }
         }
@@ -329,6 +331,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
     collectConnectionsFromSharedXml();
     collectConnectionsFromJdbcProperties();
     importCollectedConnections();
+  }
+
+  @Override
+  protected void afterConnectionRewrite() throws HopException {
     saveConnectionsReport();
   }
 
@@ -338,16 +344,53 @@ public class KettleImport extends HopImportBase implements IHopImport {
       this.connectionsReportFileName = getOutputFolderName() + "/connections.csv";
       try (OutputStream outputStream =
           HopVfs.getOutputStream(this.connectionsReportFileName, false)) {
+        writeCsvRow(outputStream, "file", "original_name", "target_name", "note");
+        ConnectionNameMap nameMap =
+            connectionRewriteResult != null ? connectionRewriteResult.getNameMap() : null;
         for (Map.Entry<String, String> entry : connectionFileMap.entrySet()) {
-          outputStream.write(entry.getKey().getBytes(StandardCharsets.UTF_8));
-          outputStream.write(",".getBytes(StandardCharsets.UTF_8));
-          outputStream.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
-          outputStream.write(Const.CR.getBytes(StandardCharsets.UTF_8));
+          String original = entry.getValue();
+          String target = nameMap != null ? nameMap.targetFor(original) : original;
+          writeCsvRow(outputStream, entry.getKey(), original, target, "");
+        }
+        if (nameMap != null) {
+          for (ConnectionNameMap.Collision collision : nameMap.getCollisions()) {
+            writeCsvRow(
+                outputStream,
+                "",
+                "",
+                collision.targetName(),
+                "collision: '"
+                    + collision.leftOriginal()
+                    + "' and '"
+                    + collision.rightOriginal()
+                    + "'");
+          }
         }
       } catch (IOException e) {
         throw new HopException("Error writing connections.csv file to project", e);
       }
     }
+  }
+
+  static void writeCsvRow(OutputStream outputStream, String... fields) throws IOException {
+    for (int i = 0; i < fields.length; i++) {
+      if (i > 0) {
+        outputStream.write(',');
+      }
+      outputStream.write(csvField(fields[i]).getBytes(StandardCharsets.UTF_8));
+    }
+    outputStream.write(Const.CR.getBytes(StandardCharsets.UTF_8));
+  }
+
+  static String csvField(String value) {
+    String field = Const.NVL(value, "");
+    if (field.indexOf(',') >= 0
+        || field.indexOf('"') >= 0
+        || field.indexOf('\n') >= 0
+        || field.indexOf('\r') >= 0) {
+      return '"' + field.replace("\"", "\"\"") + '"';
+    }
+    return field;
   }
 
   private void importCollectedConnections() throws HopException {
@@ -364,8 +407,13 @@ public class KettleImport extends HopImportBase implements IHopImport {
     if (StringUtils.isEmpty(sharedXmlFilename)) {
       return;
     }
-    Document doc = getDocFromFile(HopVfs.getFileObject(sharedXmlFilename));
-    importDbConnections(doc, HopVfs.getFileObject(sharedXmlFilename));
+    collectingFromSharedXml = true;
+    try {
+      Document doc = getDocFromFile(HopVfs.getFileObject(sharedXmlFilename));
+      importDbConnections(doc, HopVfs.getFileObject(sharedXmlFilename));
+    } finally {
+      collectingFromSharedXml = false;
+    }
   }
 
   public void collectConnectionsFromJdbcProperties() throws HopException {
@@ -1165,6 +1213,30 @@ public class KettleImport extends HopImportBase implements IHopImport {
       messageString +=
           "Connections with the same name and different configurations have only been saved once."
               + eol;
+      if (appliedNamingSchemeName != null) {
+        messageString +=
+            "Relational connection names were rewritten with naming scheme '"
+                + appliedNamingSchemeName
+                + "'."
+                + eol;
+      } else {
+        messageString +=
+            "Relational connection names were aligned to a single case-sensitive spelling." + eol;
+      }
+      if (connectionRewriteResult != null) {
+        messageString +=
+            connectionRewriteResult.getConnectionsRenamed()
+                + " connection metadata object(s) renamed, "
+                + connectionRewriteResult.getFilesRewritten()
+                + " pipeline/workflow file(s) updated."
+                + eol;
+        if (!connectionRewriteResult.getNameMap().getCollisions().isEmpty()) {
+          messageString +=
+              connectionRewriteResult.getNameMap().getCollisions().size()
+                  + " name collision(s) were recorded (distinct connections mapping to the same target name)."
+                  + eol;
+        }
+      }
       messageString +=
           "Check the following file for a list of connections that might need extra attention: "
               + getConnectionsReportFileName();
