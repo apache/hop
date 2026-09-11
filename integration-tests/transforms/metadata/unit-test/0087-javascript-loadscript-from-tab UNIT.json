@@ -1,0 +1,32 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Start script loads Lib via LoadScriptFromTab; transform uses helper()",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "value"
+      ],
+      "data_set_name": "golden-javascript-loadscript-from-tab",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0087-javascript-loadscript-from-tab UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0087-javascript-loadscript-from-tab.hpl"
+}

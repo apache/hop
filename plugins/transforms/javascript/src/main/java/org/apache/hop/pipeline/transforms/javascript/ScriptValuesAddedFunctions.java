@@ -1772,14 +1772,21 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   // Adding the ScriptsItemTab to the actual running Context
   public static void LoadScriptFromTab(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
-    try {
-      for (Object o : argList) { // don't worry about "undefined" arguments
-        String strToLoad = Context.toString(o);
-        String strScript = actualObject.get(strToLoad, actualObject).toString();
-        actualContext.evaluateString(actualObject, strScript, "_" + strToLoad + "_", 0, null);
+    for (Object o : argList) { // don't worry about "undefined" arguments
+      String strToLoad = Context.toString(o);
+      Object scriptObj = actualObject.get(strToLoad, actualObject);
+      if (scriptObj == Scriptable.NOT_FOUND
+          || scriptObj == null
+          || scriptObj == Context.getUndefinedValue()) {
+        throw Context.reportRuntimeError("Unable to find script tab \"" + strToLoad + "\"");
       }
-    } catch (Exception e) {
-      // TODO: DON'T EAT EXCEPTION
+      try {
+        String strScript = Context.toString(scriptObj);
+        actualContext.evaluateString(actualObject, strScript, "_" + strToLoad + "_", 0, null);
+      } catch (Exception e) {
+        throw Context.reportRuntimeError(
+            "Unable to load script from tab \"" + strToLoad + "\": " + e.getMessage());
+      }
     }
   }
 

@@ -221,4 +221,39 @@ class ScriptValuesAddedFunctionsRhinoIntegrationTest {
     assertNotNull(ScriptValuesAddedFunctions.getDayNumber(cx, scope, args(js, "m"), null));
     assertNotNull(ScriptValuesAddedFunctions.getDayNumber(cx, scope, args(js, "w"), null));
   }
+
+  @Test
+  void loadScriptFromTab_loadsFunctionsIntoScope() {
+    // Same shape as ScriptValues: tab name -> script source on the scope.
+    scope.put("Lib", scope, Context.toObject("function helper() { return 42; }", scope));
+
+    ScriptValuesAddedFunctions.LoadScriptFromTab(cx, scope, args("Lib"), null);
+
+    Object result = cx.evaluateString(scope, "helper()", "script", 1, null);
+    assertEquals(42.0, Context.toNumber(result), 1e-9);
+  }
+
+  @Test
+  void loadScriptFromTab_missingTabThrows() {
+    Object[] doesNotExists = args("DoesNotExist");
+    EvaluatorException ex =
+        assertThrows(
+            EvaluatorException.class,
+            () -> ScriptValuesAddedFunctions.LoadScriptFromTab(cx, scope, doesNotExists, null));
+    assertTrue(ex.getMessage().contains("Unable to find script tab"));
+    assertTrue(ex.getMessage().contains("DoesNotExist"));
+  }
+
+  @Test
+  void loadScriptFromTab_invalidScriptThrows() {
+    scope.put("Broken", scope, Context.toObject("function {", scope));
+    Object[] broken = args("Broken");
+
+    EvaluatorException ex =
+        assertThrows(
+            EvaluatorException.class,
+            () -> ScriptValuesAddedFunctions.LoadScriptFromTab(cx, scope, broken, null));
+    assertTrue(ex.getMessage().contains("Unable to load script from tab"));
+    assertTrue(ex.getMessage().contains("Broken"));
+  }
 }
