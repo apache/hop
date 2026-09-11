@@ -195,4 +195,14 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
   public ITransformIOMeta getTransformIOMeta() {
     return new TransformIOMeta(false, true, false, false, false, false);
   }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
 }

@@ -29,6 +29,8 @@ under the License.
 a|
 == Description
 
+include::../../snippets/pipeline/source-and-consumes.adoc[]
+
 The Table Input transform is one of the most frequently used transforms in Apache Hop. It reads data from a relational database using a connection and an SQL query, and introduces that data into a pipeline.
 
 This transform supports parameterization using:

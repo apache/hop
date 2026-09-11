@@ -357,6 +357,22 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
   public void setInFields(boolean inFields) {
     this.inFields = inFields;
     fileInput.setAcceptingFilenames(inFields);
+    resetTransformIoMeta();
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isInFields();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isInFields();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "JsonInputDialog.wlSourceStreamField.Label");
   }
 
   public boolean includeFilename() {
@@ -471,23 +487,13 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (!isInFields()) {
-      // See if we get input...
-      if (input.length <= 0) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInputExpected"),
-                transformMeta);
-        remarks.add(cr);
-      } else {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInput"),
-                transformMeta);
-        remarks.add(cr);
-      }
+    if (isInFields() && input.length <= 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta);
+      remarks.add(cr);
     }
 
     if (getInputFields().isEmpty()) {

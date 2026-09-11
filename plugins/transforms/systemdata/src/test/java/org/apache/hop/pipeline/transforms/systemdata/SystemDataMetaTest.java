@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,6 +41,13 @@ import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link SystemDataMeta} */
 class SystemDataMetaTest {
+  @Test
+  void canStartWithoutInputAndStillConsumesHops() {
+    SystemDataMeta meta = new SystemDataMeta();
+    assertTrue(meta.canStartWithoutInput());
+    assertTrue(meta.consumesMainInput());
+  }
+
   @Test
   void testLoadSave() throws Exception {
     Path path = Paths.get(Objects.requireNonNull(getClass().getResource("/transform.xml")).toURI());

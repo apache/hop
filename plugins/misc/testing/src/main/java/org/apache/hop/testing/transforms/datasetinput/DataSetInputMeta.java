@@ -50,6 +50,16 @@ public class DataSetInputMeta extends BaseTransformMeta<DataSetInput, DataSetInp
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,

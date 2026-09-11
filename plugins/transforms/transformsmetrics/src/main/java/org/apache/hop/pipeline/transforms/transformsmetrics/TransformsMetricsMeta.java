@@ -237,6 +237,16 @@ public class TransformsMetricsMeta
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void setDefault() {
     metricTransforms = new ArrayList<>();
     transformNameField = DEFAULT_TRANSFORM_NAME_FIELD;

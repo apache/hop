@@ -165,6 +165,21 @@ public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, Property
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isFileField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFileField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "PropertyInputDialog.FileField.Label");
+  }
+
+  @Override
   public void setDefault() {
     shortFileFieldName = null;
     pathFieldName = null;

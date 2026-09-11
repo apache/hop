@@ -25,6 +25,8 @@ under the License.
 |
 == Description
 
+include::../../snippets/pipeline/source-always.adoc[]
+
 The Data Grid transform allows you to enter a static list of rows in a grid, similar to an in-pipeline spreadsheet.
 This is usually done for testing, reference or demo purposes.
 

@@ -201,6 +201,21 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     this.bufferSize = "50000";
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return !Utils.isEmpty(getFilenameField());
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "CsvInputDialog.FilenameField.Label");
+  }
+
   public void getFields(
       IRowMeta rowMeta,
       String origin,

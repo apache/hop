@@ -28,10 +28,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -590,11 +592,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         envSubFailed = true;
       }
 
-      // if we failed and environment subsutitue
-      return !envSubFailed;
+      // if we failed and environment substitute
+      if (envSubFailed) {
+        return false;
+      }
     }
 
-    return true;
+    return !hasDisallowedMainInputHops();
   }
 
   @Override
@@ -2355,6 +2359,88 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     } finally {
       lastRowWrittenDate = new Date();
       outputRowSetsLock.readLock().unlock();
+    }
+
+    if (!isStopped() && hasUnreadMainInput()) {
+      logDisallowedMainInput();
+      stopAll();
+    }
+  }
+
+  /**
+   * @return true if this transform is configured not to drain main input but has main predecessor
+   *     hops. Logs the error and increments the error count.
+   */
+  private boolean hasDisallowedMainInputHops() {
+    if (!hasMainPredecessorsThatAreNotConsumed()) {
+      return false;
+    }
+    logDisallowedMainInput();
+    return true;
+  }
+
+  private boolean hasMainPredecessorsThatAreNotConsumed() {
+    if (meta == null || meta.consumesMainInput() || pipelineMeta == null || transformMeta == null) {
+      return false;
+    }
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousTransforms(transformMeta, false);
+    return mainPrev != null && !mainPrev.isEmpty();
+  }
+
+  private void logDisallowedMainInput() {
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousTransforms(transformMeta, false);
+    String fromNames = "";
+    if (mainPrev != null && !mainPrev.isEmpty()) {
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < mainPrev.size(); i++) {
+        if (i > 0) {
+          builder.append(", ");
+        }
+        builder.append(mainPrev.get(i).getName());
+      }
+      fromNames = builder.toString();
+    }
+    String hint = meta.getMainInputRequirementHint();
+    if (Utils.isEmpty(hint)) {
+      logError(
+          BaseMessages.getString(
+              PKG, "BaseTransform.Log.DoesNotConsumeMainInput", getTransformName(), fromNames));
+    } else {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "BaseTransform.Log.DoesNotConsumeMainInput.Hint",
+              getTransformName(),
+              fromNames,
+              hint));
+    }
+    setErrors(1);
+  }
+
+  @VisibleForTesting
+  boolean hasUnreadMainInput() {
+    if (!hasMainPredecessorsThatAreNotConsumed()) {
+      return false;
+    }
+    Set<String> names = new HashSet<>();
+    for (TransformMeta prev : pipelineMeta.findPreviousTransforms(transformMeta, false)) {
+      if (prev != null && prev.getName() != null) {
+        names.add(prev.getName());
+      }
+    }
+    inputRowSetsLock.readLock().lock();
+    try {
+      for (IRowSet rs : inputRowSets) {
+        if (rs == null || !names.contains(rs.getOriginTransformName())) {
+          continue;
+        }
+        if (rs.size() > 0 || !rs.isDone()) {
+          return true;
+        }
+      }
+      return false;
+    } finally {
+      inputRowSetsLock.readLock().unlock();
     }
   }
 

@@ -89,6 +89,16 @@ public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, Goog
     this.googleAnalyticsFields = new ArrayList<>();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   public String getOAuthServiceAccount() {
     return oAuthServiceAccount;
   }

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -87,5 +90,22 @@ class MongoDbInputMetaTest {
                 Arrays.asList("fieldName", "fieldPath", "hopType", "indexedValues"))));
 
     tester.testXmlRoundTrip();
+  }
+
+  @Test
+  void defaultDoesNotConsumeMainInput() {
+    MongoDbInputMeta meta = new MongoDbInputMeta();
+    meta.setDefault();
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+  }
+
+  @Test
+  void executeForEachRowConsumesMainInput() {
+    MongoDbInputMeta meta = new MongoDbInputMeta();
+    meta.setDefault();
+    meta.setExecuteForEachIncomingRow(true);
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
   }
 }

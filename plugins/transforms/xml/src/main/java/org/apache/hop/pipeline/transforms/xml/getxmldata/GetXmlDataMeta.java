@@ -264,6 +264,21 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     }
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return isInFields();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isInFields();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetXMLDataDialog.wlXmlStreamField.Label");
+  }
+
   public String getRequiredFilesDesc(String tt) {
     if (Utils.isEmpty(tt)) {
       return RequiredFilesDesc[0];
@@ -491,19 +506,11 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    // See if we get input...
-    if (input.length <= 0) {
+    if (isInFields() && input.length <= 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInput"),
+              BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.IncomingHopsRequired"),
               transformMeta);
       remarks.add(cr);
     }

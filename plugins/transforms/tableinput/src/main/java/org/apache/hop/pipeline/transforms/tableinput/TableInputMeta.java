@@ -144,6 +144,11 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   }
 
   @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void setDefault() {
     sql = "SELECT <values> FROM <table name> WHERE <conditions>";
     rowLimit = "0";

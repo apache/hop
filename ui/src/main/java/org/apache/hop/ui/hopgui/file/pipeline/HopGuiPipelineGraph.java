@@ -2486,11 +2486,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           if (startHopTransform != null) {
 
-            // Check if the transform accepts input. If not, we can't create a new hop...
+            // Check if the transform accepts main input. Info streams are still allowed; the hop
+            // dialog / stream menu handles that case. If not, we can't create a new hop...
             //
-            if (!ioMeta.isInputAcceptor()) {
+            boolean allowsInfoHop = !ioMeta.getInfoStreams().isEmpty();
+            PipelineHopMeta probe = new PipelineHopMeta(startHopTransform, transformMeta);
+            if (pipelineMeta.isDisallowedMainInputHop(probe) && !allowsInfoHop) {
               forbiddenTransform = transformMeta;
-              toolTip.setText("This transform does not accept any input from other transforms");
+              toolTip.setText(
+                  BaseMessages.getString(
+                      PKG, "PipelineGraph.Dialog.TransformDoesNotAcceptInput.Tooltip"));
               showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
             }
             // Check if the hop already exists
@@ -4104,6 +4109,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       guiAction.getKeywords().add(plugin.getCategory());
       // Also search on the English name/category/keywords for non-English locales (issue #2633)
       guiAction.getKeywords().addAll(Arrays.asList(plugin.getEnglishKeywords()));
+      TransformSourceGui.labelCreateAction(guiAction, plugin);
       guiAction.setCategory(plugin.getCategory());
       guiAction.setCategoryOrder(plugin.getCategory());
       try {
@@ -4640,6 +4646,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             tipImage = GuiResource.getInstance().getImageDeprecated();
           } else if (!Utils.isEmpty(iconTransformMeta.getDescription())) {
             tip.append(iconTransformMeta.getDescription());
+          }
+          ITransformMeta sourceMeta = iconTransformMeta.getTransform();
+          if (sourceMeta != null && sourceMeta.canStartWithoutInput()) {
+            if (tip.length() > 0) {
+              tip.append(Const.CR);
+            }
+            tip.append(
+                BaseMessages.getString(PKG, "HopGuiPipelineGraph.PipelineSource.TooltipSuffix"));
           }
           break;
         case TRANSFORM_OUTPUT_DATA:

@@ -16,4 +16,5 @@ under the License.
 ////
 Pipelines are the actual data workers.
 Operations in a Pipeline read, modify, enrich, clean and write data.
+A pipeline starts with one or more xref:pipeline/pipeline-sources.adoc[pipeline sources] and runs every transform in parallel.
 Orchestration of Pipelines is done through othere Pipelines and/or Workflows.

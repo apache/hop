@@ -83,6 +83,16 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
     super();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   /**
    * This method is called every time a new transform is created and should allocate/set the
    * transform configuration to sensible defaults. The values set here will be used by Hop Gui when

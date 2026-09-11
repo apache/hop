@@ -27,6 +27,8 @@ under the License.
 |
 == Description
 
+include::../../snippets/pipeline/needs-input.adoc[]
+
 The REST Client transform enables you to consume RESTfull services. Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
 
 The REST client transform can use a pre-defined xref:metadata-types/rest-connection.adoc[REST connection] or use full URLs directly. +

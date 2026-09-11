@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.sql;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -184,6 +187,22 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  @Test
+  void executeOnceDoesNotConsumeMainInput() {
+    ExecSqlMeta meta = new ExecSqlMeta();
+    assertFalse(meta.isExecutedEachInputRow());
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+  }
+
+  @Test
+  void executeEachRowConsumesMainInput() {
+    ExecSqlMeta meta = new ExecSqlMeta();
+    meta.setExecutedEachInputRow(true);
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
   }
 
   @Test

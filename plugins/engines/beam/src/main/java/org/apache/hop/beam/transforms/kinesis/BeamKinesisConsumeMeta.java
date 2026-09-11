@@ -136,6 +136,16 @@ public class BeamKinesisConsumeMeta extends BaseTransformMeta<BeamKinesisConsume
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return BeamKinesisConsumeDialog.class.getName();
   }

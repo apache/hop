@@ -76,6 +76,15 @@ class TransformsMetricsMetaTest {
   }
 
   @Test
+  void doesNotConsumeMainInput() {
+    TransformsMetricsMeta meta = new TransformsMetricsMeta();
+    meta.setDefault();
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+    assertFalse(meta.getTransformIOMeta().isInputAcceptor());
+  }
+
+  @Test
   void testGetFieldsClearsIncomingAndOmitsEmptyNames() throws Exception {
     TransformsMetricsMeta meta = new TransformsMetricsMeta();
     meta.setDefault();

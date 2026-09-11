@@ -404,6 +404,23 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isDynamicSearch() || isDynamicFilter();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "LdapInputDialog.dynamicBase.Label")
+        + " / "
+        + BaseMessages.getString(PKG, "LdapInputDialog.dynamicFilter.Label");
+  }
+
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -493,21 +510,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     }
     remarks.add(cr);
 
-    // See if we get input...
-    if (input.length > 0) {
-      cr =
+    if (consumesMainInput() && input.length <= 0) {
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInput"),
-              transformMeta);
+              BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta));
     }
-    remarks.add(cr);
 
     // Check hostname
     if (Utils.isEmpty(host)) {
