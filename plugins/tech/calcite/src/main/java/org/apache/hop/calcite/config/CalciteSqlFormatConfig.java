@@ -20,6 +20,8 @@ package org.apache.hop.calcite.config;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.calcite.sql.SqlWriterConfig;
+import org.apache.calcite.sql.SqlWriterConfig.LineFolding;
 import org.apache.calcite.sql.pretty.SqlFormatOptions;
 import org.apache.hop.core.Const;
 
@@ -38,12 +40,23 @@ public class CalciteSqlFormatConfig {
   private boolean alwaysUseParentheses;
   private boolean caseClausesOnNewLines = true;
   private boolean clauseStartsLine = true;
+  private boolean clauseEndsLine = false;
   private boolean keywordsLowercase;
   private boolean quoteAllIdentifiers;
   private boolean selectListItemsOnSeparateLines = true;
+  private boolean fromListItemsOnSeparateLines = true;
   private boolean whereListItemsOnSeparateLines = true;
   private boolean windowDeclarationStartsLine = true;
   private boolean windowListItemsOnSeparateLines = true;
+  private boolean groupByListItemsOnSeparateLines = true;
+  private boolean orderByListItemsOnSeparateLines = true;
+
+  /**
+   * Returns whether commas in SELECT, GROUP BY and ORDER clauses should appear at the start of the
+   * line. Default is false.
+   */
+  private boolean leadingComma = false;
+
   private int indentation = 2;
   private int lineLength;
 
@@ -53,14 +66,19 @@ public class CalciteSqlFormatConfig {
     this.alwaysUseParentheses = other.alwaysUseParentheses;
     this.caseClausesOnNewLines = other.caseClausesOnNewLines;
     this.clauseStartsLine = other.clauseStartsLine;
+    this.clauseEndsLine = other.clauseEndsLine;
     this.keywordsLowercase = other.keywordsLowercase;
     this.quoteAllIdentifiers = other.quoteAllIdentifiers;
     this.selectListItemsOnSeparateLines = other.selectListItemsOnSeparateLines;
+    this.fromListItemsOnSeparateLines = other.fromListItemsOnSeparateLines;
     this.whereListItemsOnSeparateLines = other.whereListItemsOnSeparateLines;
+    this.groupByListItemsOnSeparateLines = other.groupByListItemsOnSeparateLines;
+    this.orderByListItemsOnSeparateLines = other.orderByListItemsOnSeparateLines;
     this.windowDeclarationStartsLine = other.windowDeclarationStartsLine;
     this.windowListItemsOnSeparateLines = other.windowListItemsOnSeparateLines;
     this.indentation = other.indentation;
     this.lineLength = other.lineLength;
+    this.leadingComma = other.leadingComma;
   }
 
   /**
@@ -75,6 +93,8 @@ public class CalciteSqlFormatConfig {
     changed |= applyBoolean(plugin.getAlwaysUseParentheses(), v -> alwaysUseParentheses = v);
     changed |= applyBoolean(plugin.getCaseClausesOnNewLines(), v -> caseClausesOnNewLines = v);
     changed |= applyBoolean(plugin.getClauseStartsLine(), v -> clauseStartsLine = v);
+    changed |= applyBoolean(plugin.getClauseEndsLine(), v -> clauseEndsLine = v);
+    changed |= applyBoolean(plugin.getLeadingComma(), v -> leadingComma = v);
     changed |= applyBoolean(plugin.getKeywordsLowercase(), v -> keywordsLowercase = v);
     changed |= applyBoolean(plugin.getQuoteAllIdentifiers(), v -> quoteAllIdentifiers = v);
     changed |=
@@ -82,7 +102,16 @@ public class CalciteSqlFormatConfig {
             plugin.getSelectListItemsOnSeparateLines(), v -> selectListItemsOnSeparateLines = v);
     changed |=
         applyBoolean(
+            plugin.getFromListItemsOnSeparateLines(), v -> fromListItemsOnSeparateLines = v);
+    changed |=
+        applyBoolean(
             plugin.getWhereListItemsOnSeparateLines(), v -> whereListItemsOnSeparateLines = v);
+    changed |=
+        applyBoolean(
+            plugin.getGroupByListItemsOnSeparateLines(), v -> groupByListItemsOnSeparateLines = v);
+    changed |=
+        applyBoolean(
+            plugin.getOrderByListItemsOnSeparateLines(), v -> orderByListItemsOnSeparateLines = v);
     changed |=
         applyBoolean(plugin.getWindowDeclarationStartsLine(), v -> windowDeclarationStartsLine = v);
     changed |=
@@ -105,19 +134,24 @@ public class CalciteSqlFormatConfig {
     return changed;
   }
 
-  public SqlFormatOptions toSqlFormatOptions() {
-    return new SqlFormatOptions(
-        alwaysUseParentheses,
-        caseClausesOnNewLines,
-        clauseStartsLine,
-        keywordsLowercase,
-        quoteAllIdentifiers,
-        selectListItemsOnSeparateLines,
-        whereListItemsOnSeparateLines,
-        windowDeclarationStartsLine,
-        windowListItemsOnSeparateLines,
-        indentation,
-        lineLength);
+  public SqlWriterConfig applySqlFormat(SqlWriterConfig config) {
+    return config
+        .withClauseStartsLine(clauseStartsLine)
+        .withClauseEndsLine(clauseEndsLine)
+        .withAlwaysUseParentheses(alwaysUseParentheses)
+        .withCaseClausesOnNewLines(caseClausesOnNewLines)
+        .withKeywordsLowerCase(keywordsLowercase)
+        .withQuoteAllIdentifiers(quoteAllIdentifiers)
+        .withLeadingComma(leadingComma)
+        .withIndentation(indentation)
+        .withLineLength(lineLength)
+        .withSelectFolding(selectListItemsOnSeparateLines ? LineFolding.TALL : LineFolding.FOLD)
+        .withWindowFolding(windowListItemsOnSeparateLines ? LineFolding.TALL : LineFolding.FOLD)
+        .withOverFolding(windowDeclarationStartsLine ? LineFolding.TALL : LineFolding.FOLD)
+        .withFromFolding(fromListItemsOnSeparateLines ? LineFolding.TALL : LineFolding.FOLD)
+        .withWhereFolding(whereListItemsOnSeparateLines ? LineFolding.TALL : LineFolding.FOLD)
+        .withGroupByFolding(groupByListItemsOnSeparateLines ? LineFolding.TALL : LineFolding.FOLD)
+        .withOrderByFolding(orderByListItemsOnSeparateLines ? LineFolding.TALL : LineFolding.FOLD);
   }
 
   /**

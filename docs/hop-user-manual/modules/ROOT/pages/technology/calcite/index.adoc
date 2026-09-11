@@ -38,6 +38,8 @@ In a Database SQL editor the formatter picks a Calcite dialect from the tab's re
 Quoted identifiers are accepted in PostgreSQL/ANSI double quotes (`"public".table`), MySQL backticks, and SQL Server brackets.
 Hop variable expressions such as `'${TABLE_NAME}'` are preserved.
 
+IMPORTANT: Comments are removed during formatting, unless you select all text except for the comments.
+
 == Options
 
 Open the xref:hop-gui/perspective-configuration.adoc[Configuration perspective], then **Plugins → Apache Calcite SQL formatter**.

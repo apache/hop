@@ -59,6 +59,6 @@ class CalciteSqlFormatConfigPluginTest {
       assertTrue(
           element.type() == GuiElementType.CHECKBOX || element.type() == GuiElementType.TEXT);
     }
-    assertEquals(11, widgets, "SqlFormatOptions has 11 fields");
+    assertEquals(16, widgets, "SqlFormatOptions has 11 fields");
   }
 }

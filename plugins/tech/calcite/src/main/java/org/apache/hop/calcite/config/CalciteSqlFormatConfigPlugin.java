@@ -108,6 +108,19 @@ public class CalciteSqlFormatConfigPlugin
   private Boolean clauseStartsLine;
 
   @GuiWidgetElement(
+      id = "0121sql-format-clause-ends-line",
+      order = "0121",
+      parentId = PARENT,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::CalciteSqlFormatConfigPlugin.ClauseEndsLine.Label",
+      toolTip = "i18n::CalciteSqlFormatConfigPlugin.ClauseEndsLine.Tooltip",
+      group = GROUP_LAYOUT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  private Boolean clauseEndsLine;
+
+  @GuiWidgetElement(
       id = "0130-sql-format-always-use-parentheses",
       order = "0130",
       parentId = PARENT,
@@ -123,6 +136,19 @@ public class CalciteSqlFormatConfigPlugin
       description = "Always wrap expressions in parentheses",
       negatable = true)
   private Boolean alwaysUseParentheses;
+
+  @GuiWidgetElement(
+      id = "0135-sql-format-leading-comma",
+      order = "0135",
+      parentId = PARENT,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::CalciteSqlFormatConfigPlugin.LeadingComma.Label",
+      toolTip = "i18n::CalciteSqlFormatConfigPlugin.LeadingComma.Tooltip",
+      group = GROUP_LAYOUT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  private Boolean leadingComma;
 
   @GuiWidgetElement(
       id = "0140-sql-format-select-list-items-on-separate-lines",
@@ -142,8 +168,21 @@ public class CalciteSqlFormatConfigPlugin
   private Boolean selectListItemsOnSeparateLines;
 
   @GuiWidgetElement(
-      id = "0150-sql-format-where-list-items-on-separate-lines",
-      order = "0150",
+      id = "0141-sql-format-from-list-items-on-separate-lines",
+      order = "0141",
+      parentId = PARENT,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::CalciteSqlFormatConfigPlugin.FromListItemsOnSeparateLines.Label",
+      toolTip = "i18n::CalciteSqlFormatConfigPlugin.FromListItemsOnSeparateLines.Tooltip",
+      group = GROUP_LAYOUT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  private Boolean fromListItemsOnSeparateLines;
+
+  @GuiWidgetElement(
+      id = "0142-sql-format-where-list-items-on-separate-lines",
+      order = "0142",
       parentId = PARENT,
       type = GuiElementType.CHECKBOX,
       variables = false,
@@ -157,6 +196,32 @@ public class CalciteSqlFormatConfigPlugin
       description = "Put each WHERE condition on its own line",
       negatable = true)
   private Boolean whereListItemsOnSeparateLines;
+
+  @GuiWidgetElement(
+      id = "0143-sql-format-group-by-list-items-on-separate-lines",
+      order = "0143",
+      parentId = PARENT,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::CalciteSqlFormatConfigPlugin.GroupByListItemsOnSeparateLines.Label",
+      toolTip = "i18n::CalciteSqlFormatConfigPlugin.GroupByListItemsOnSeparateLines.Tooltip",
+      group = GROUP_LAYOUT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  private Boolean groupByListItemsOnSeparateLines;
+
+  @GuiWidgetElement(
+      id = "0144-sql-format-order-by-list-items-on-separate-lines",
+      order = "0144",
+      parentId = PARENT,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::CalciteSqlFormatConfigPlugin.OrderByListItemsOnSeparateLines.Label",
+      toolTip = "i18n::CalciteSqlFormatConfigPlugin.OrderByListItemsOnSeparateLines.Tooltip",
+      group = GROUP_LAYOUT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  private Boolean orderByListItemsOnSeparateLines;
 
   @GuiWidgetElement(
       id = "0160-sql-format-case-clauses-on-new-lines",
@@ -253,12 +318,17 @@ public class CalciteSqlFormatConfigPlugin
     this.indentation = Integer.toString(config.getIndentation());
     this.lineLength = Integer.toString(config.getLineLength());
     this.clauseStartsLine = config.isClauseStartsLine();
+    this.clauseEndsLine = config.isClauseEndsLine();
     this.alwaysUseParentheses = config.isAlwaysUseParentheses();
     this.selectListItemsOnSeparateLines = config.isSelectListItemsOnSeparateLines();
+    this.fromListItemsOnSeparateLines = config.isFromListItemsOnSeparateLines();
     this.whereListItemsOnSeparateLines = config.isWhereListItemsOnSeparateLines();
+    this.groupByListItemsOnSeparateLines = config.isGroupByListItemsOnSeparateLines();
+    this.orderByListItemsOnSeparateLines = config.isOrderByListItemsOnSeparateLines();
     this.caseClausesOnNewLines = config.isCaseClausesOnNewLines();
     this.windowDeclarationStartsLine = config.isWindowDeclarationStartsLine();
     this.windowListItemsOnSeparateLines = config.isWindowListItemsOnSeparateLines();
+    this.leadingComma = config.isLeadingComma();
     this.keywordsLowercase = config.isKeywordsLowercase();
     this.quoteAllIdentifiers = config.isQuoteAllIdentifiers();
   }
