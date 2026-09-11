@@ -83,14 +83,25 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
                 + rowMeta.getString(rowData));
       }
 
-      data.keynrs = new int[meta.getParameters().size()];
+      DatabaseJoinMeta.SqlParameterSpec parameterSpec =
+          data.parameterSpec == null
+              ? DatabaseJoinMeta.parseSqlParameterSpec(meta.getEffectiveSql(variables))
+              : data.parameterSpec;
+      data.keynrs = new int[parameterSpec.getParameterCount()];
 
-      for (int i = 0; i < data.keynrs.length; i++) {
-        ParameterField field = meta.getParameters().get(i);
-        data.keynrs[i] = rowMeta.indexOfValue(field.getName());
+      int positionalIndex = 0;
+      for (int i = 0; i < parameterSpec.getParameterCount(); i++) {
+        String parameterReference = parameterSpec.getParameterReferences().get(i);
+        String sourceFieldName = parameterReference;
+        if (sourceFieldName == null) {
+          sourceFieldName = meta.getPositionalParameterFieldName(positionalIndex);
+          positionalIndex++;
+        }
+
+        data.keynrs[i] = rowMeta.indexOfValue(sourceFieldName);
         if (data.keynrs[i] < 0) {
           throw new HopTransformException(
-              BaseMessages.getString(PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
+              BaseMessages.getString(PKG, "DatabaseJoin.Exception.FieldNotFound", sourceFieldName));
         }
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
@@ -277,10 +288,17 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           if (meta.isReplaceVariables()) {
             sql = resolve(sql);
           }
+
+          // Parse SQL parameter spec (supports ?{name}) and prepare statement with prepared SQL
+          DatabaseJoinMeta.SqlParameterSpec parameterSpec =
+              DatabaseJoinMeta.parseSqlParameterSpec(sql);
+          data.parameterSpec = parameterSpec;
+          String preparedSql = parameterSpec.getPreparedSql();
+
           // Prepare the SQL statement
-          data.pstmt = data.db.prepareSql(sql);
+          data.pstmt = data.db.prepareSql(preparedSql);
           if (isDebug()) {
-            logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", sql));
+            logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", preparedSql));
           }
           data.db.setQueryLimit(meta.getRowLimit());
 

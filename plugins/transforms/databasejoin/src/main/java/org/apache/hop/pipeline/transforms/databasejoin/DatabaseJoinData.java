@@ -33,6 +33,9 @@ public class DatabaseJoinData extends BaseTransformData implements ITransformDat
   IRowMeta outputRowMeta;
   IRowMeta lookupRowMeta;
 
+  // If SQL contains named and/or positional parameters, this spec describes them
+  public DatabaseJoinMeta.SqlParameterSpec parameterSpec;
+
   public int[] keynrs; // parameter value index in an input row...
   public Object[] notfound; // Values in case nothing is found...
   public boolean isCanceled;

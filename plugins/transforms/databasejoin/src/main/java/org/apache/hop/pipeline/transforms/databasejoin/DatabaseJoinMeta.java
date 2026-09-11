@@ -176,6 +176,161 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     return param;
   }
 
+  /**
+   * SQL parameter specification parsed from source SQL. Supports named ?{name} and positional ?
+   * placeholders.
+   */
+  static final class SqlParameterSpec {
+    private final String preparedSql;
+    private final List<String> parameterReferences;
+    private final int positionalParameterCount;
+
+    SqlParameterSpec(
+        String preparedSql, List<String> parameterReferences, int positionalParameterCount) {
+      this.preparedSql = preparedSql;
+      this.parameterReferences = parameterReferences;
+      this.positionalParameterCount = positionalParameterCount;
+    }
+
+    String getPreparedSql() {
+      return preparedSql;
+    }
+
+    List<String> getParameterReferences() {
+      return parameterReferences;
+    }
+
+    int getParameterCount() {
+      return parameterReferences.size();
+    }
+
+    int getPositionalParameterCount() {
+      return positionalParameterCount;
+    }
+
+    boolean hasNamedParameters() {
+      for (String parameterReference : parameterReferences) {
+        if (parameterReference != null) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  public IRowMeta createQueryParameterRowMeta(IRowMeta sourceMeta, SqlParameterSpec parameterSpec)
+      throws HopTransformException {
+    IRowMeta queryParametersMeta = new RowMeta();
+
+    int positionalIndex = 0;
+    for (String parameterReference : parameterSpec.getParameterReferences()) {
+      String sourceFieldName = parameterReference;
+      if (sourceFieldName == null) {
+        sourceFieldName = getPositionalParameterFieldName(positionalIndex);
+        positionalIndex++;
+      }
+
+      if (Utils.isEmpty(sourceFieldName)) {
+        throw new HopTransformException(
+            "Unable to find input field for positional SQL parameter #"
+                + positionalIndex
+                + ". Configure parameter fields or use ?{fieldName}.");
+      }
+
+      int sourceIndex = sourceMeta == null ? -1 : sourceMeta.indexOfValue(sourceFieldName);
+      if (sourceIndex < 0 || sourceIndex >= sourceMeta.size()) {
+        throw new HopTransformException(
+            "Unable to find input field [" + sourceFieldName + "] referenced in SQL parameter.");
+      }
+
+      queryParametersMeta.addValueMeta(sourceMeta.getValueMeta(sourceIndex).clone());
+    }
+
+    return queryParametersMeta;
+  }
+
+  /**
+   * Parse SQL with support for ?{name} named placeholders. Returns prepared SQL (with '?' markers)
+   * and a list of parameter references (null for positional parameters).
+   */
+  static SqlParameterSpec parseSqlParameterSpec(String sourceSql) {
+    String sql = Const.NVL(sourceSql, "");
+    StringBuilder preparedSql = new StringBuilder(sql.length());
+    List<String> parameterReferences = new ArrayList<>();
+
+    boolean inSingleQuotes = false;
+    int positionalParameterCount = 0;
+
+    for (int i = 0; i < sql.length(); i++) {
+      char c = sql.charAt(i);
+
+      if (c == '\'') {
+        preparedSql.append(c);
+        if (inSingleQuotes && i + 1 < sql.length() && sql.charAt(i + 1) == '\'') {
+          preparedSql.append(sql.charAt(i + 1));
+          i++;
+        } else {
+          inSingleQuotes = !inSingleQuotes;
+        }
+        continue;
+      }
+
+      if (!inSingleQuotes && c == '?') {
+        if (i + 1 < sql.length() && sql.charAt(i + 1) == '{') {
+          int end = sql.indexOf('}', i + 2);
+          if (end > i + 2) {
+            String fieldName = sql.substring(i + 2, end).trim();
+            if (!fieldName.isEmpty()) {
+              parameterReferences.add(fieldName);
+              preparedSql.append('?');
+              i = end;
+              continue;
+            }
+          }
+        }
+
+        positionalParameterCount++;
+        parameterReferences.add(null);
+      }
+
+      preparedSql.append(c);
+    }
+
+    return new SqlParameterSpec(
+        preparedSql.toString(), parameterReferences, positionalParameterCount);
+  }
+
+  static java.util.Set<String> getMissingNamedParameters(
+      IRowMeta sourceMeta, SqlParameterSpec parameterSpec) {
+    java.util.Set<String> missingFields = new java.util.LinkedHashSet<>();
+
+    for (String parameterReference : parameterSpec.getParameterReferences()) {
+      if (parameterReference != null
+          && (sourceMeta == null || sourceMeta.indexOfValue(parameterReference) < 0)) {
+        missingFields.add(parameterReference);
+      }
+    }
+
+    return missingFields;
+  }
+
+  java.util.Set<String> getMissingPositionalParameterFields(SqlParameterSpec parameterSpec) {
+    java.util.Set<String> missingFields = new java.util.LinkedHashSet<>();
+    for (int i = 0; i < parameterSpec.getPositionalParameterCount(); i++) {
+      if (Utils.isEmpty(getPositionalParameterFieldName(i))) {
+        missingFields.add("#" + (i + 1));
+      }
+    }
+    return missingFields;
+  }
+
+  String getPositionalParameterFieldName(int positionalIndex) {
+    if (parameters == null || positionalIndex < 0 || positionalIndex >= parameters.size()) {
+      return null;
+    }
+    return parameters.get(positionalIndex).getName();
+  }
+
   @Override
   public void getFields(
       IRowMeta row,
@@ -207,8 +362,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       // Which fields are parameters?
       // info[0] comes from the database connection.
       //
-      IRowMeta param = getParameterRow(row);
-
       String sqlToUse;
       try {
         sqlToUse = resolveSql(variables);
@@ -216,17 +369,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         throw new HopTransformException(e.getMessage(), e);
       }
 
+      SqlParameterSpec parameterSpec = parseSqlParameterSpec(sqlToUse);
+      IRowMeta param = createQueryParameterRowMeta(row, parameterSpec);
+
       // First try without connecting to the database... (can be S L O W)
       // See if it's in the cache...
       //
       IRowMeta add = null;
       try {
-        add = db.getQueryFields(sqlToUse, true, param, new Object[param.size()]);
+        add =
+            db.getQueryFields(
+                parameterSpec.getPreparedSql(), true, param, new Object[param.size()]);
       } catch (HopDatabaseException dbe) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields")
                 + Const.CR
-                + sqlToUse,
+                + parameterSpec.getPreparedSql(),
             dbe);
       }
 
@@ -241,7 +399,9 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         //
         try {
           db.connect();
-          add = db.getQueryFields(sqlToUse, true, param, new Object[param.size()]);
+          add =
+              db.getQueryFields(
+                  parameterSpec.getPreparedSql(), true, param, new Object[param.size()]);
           for (int i = 0; i < add.size(); i++) {
             IValueMeta v = add.getValueMeta(i);
             v.setOrigin(name);
@@ -294,11 +454,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         db.connect();
         String sqlToUse = resolveSql(variables);
         if (!Utils.isEmpty(sqlToUse)) {
-          IRowMeta param = getParameterRow(prev);
+          SqlParameterSpec parameterSpec = parseSqlParameterSpec(sqlToUse);
 
           errorMessage = "";
 
-          IRowMeta r = db.getQueryFields(sqlToUse, true, param, new Object[param.size()]);
+          IRowMeta param;
+          try {
+            param = createQueryParameterRowMeta(prev, parameterSpec);
+          } catch (HopTransformException e) {
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta);
+            remarks.add(cr);
+            param = new RowMeta();
+          }
+
+          IRowMeta r =
+              db.getQueryFields(
+                  parameterSpec.getPreparedSql(), true, param, new Object[param.size()]);
           if (r != null) {
             cr =
                 new CheckResult(
@@ -313,8 +484,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
             remarks.add(cr);
           }
 
-          int q = db.countParameters(sqlToUse);
-          if (q != parameters.size()) {
+          int q = db.countParameters(parameterSpec.getPreparedSql());
+          if (q != parameterSpec.getParameterCount()) {
             errorMessage =
                 BaseMessages.getString(
                         PKG, "DatabaseJoinMeta.CheckResult.DismatchBetweenParametersAndQuestion")
@@ -327,7 +498,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
             errorMessage +=
                 BaseMessages.getString(
                         PKG, "DatabaseJoinMeta.CheckResult.DismatchBetweenParametersAndQuestion3")
-                    + parameters.size();
+                    + parameterSpec.getParameterCount();
 
             cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
@@ -341,17 +512,19 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
                     transformMeta);
             remarks.add(cr);
           }
-        }
 
-        // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
-          boolean first = true;
-          errorMessage = "";
-          boolean errorFound = false;
+          // Look up fields in the input stream <prev>
+          if (prev != null && !prev.isEmpty()) {
+            java.util.Set<String> missingNamedParameters =
+                getMissingNamedParameters(prev, parameterSpec);
+            java.util.Set<String> missingPositionalParameterFields =
+                getMissingPositionalParameterFields(parameterSpec);
 
-          for (ParameterField field : this.parameters) {
-            IValueMeta v = prev.searchValueMeta(field.getName());
-            if (v == null) {
+            boolean first = true;
+            errorMessage = "";
+            boolean errorFound = false;
+
+            for (String parameterName : missingNamedParameters) {
               if (first) {
                 first = false;
                 errorMessage +=
@@ -359,25 +532,37 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + field.getName() + Const.CR;
+              errorMessage += "\t\t" + parameterName + Const.CR;
             }
-          }
-          if (errorFound) {
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+
+            for (String positionalReference : missingPositionalParameterFields) {
+              if (first) {
+                first = false;
+                errorMessage +=
+                    BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.MissingFields")
+                        + Const.CR;
+              }
+              errorFound = true;
+              errorMessage += "\t\t" + "positional parameter " + positionalReference + Const.CR;
+            }
+
+            if (errorFound) {
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            } else {
+              cr =
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_OK,
+                      BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.AllFieldsFound"),
+                      transformMeta);
+            }
+            remarks.add(cr);
           } else {
-            cr =
-                new CheckResult(
-                    ICheckResult.TYPE_RESULT_OK,
-                    BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.AllFieldsFound"),
-                    transformMeta);
+            errorMessage =
+                BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.CounldNotReadFields")
+                    + Const.CR;
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            remarks.add(cr);
           }
-          remarks.add(cr);
-        } else {
-          errorMessage =
-              BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.CounldNotReadFields")
-                  + Const.CR;
-          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
-          remarks.add(cr);
         }
       } catch (HopException e) {
         errorMessage =
