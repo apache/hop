@@ -19,12 +19,19 @@ package org.apache.hop.core.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 class HopServerEndpointPermissionMapperTest {
+
+  @AfterEach
+  void clearPluginOverlay() {
+    HopServerEndpointPermissionMapper.clearPluginRegistrations();
+  }
 
   @Test
   void readEndpointsRequireFileView() {
@@ -320,5 +327,80 @@ class HopServerEndpointPermissionMapperTest {
   @Test
   void unmappedApiEndpointsStayUnknown() {
     assertFalse(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/api/v1/nope"));
+  }
+
+  @Test
+  void jdbcTokenIsARead() {
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/jdbcToken"));
+  }
+
+  @Test
+  void pluginOverlayIsConsultedWhenNotBuiltIn() {
+    HopServerEndpointPermissionMapper.register("/hop/sourceModelData", Permission.RUN_EXECUTE);
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/sourceModelData"));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("POST", "/hop/sourceModelData"));
+    assertTrue(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/sourceModelData"));
+  }
+
+  @Test
+  void pluginOverlayAcceptsPermissionId() {
+    HopServerEndpointPermissionMapper.register("/hop/sourceModelData", "run.execute");
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/sourceModelData"));
+  }
+
+  @Test
+  void unregisterDropsTheOverlay() {
+    HopServerEndpointPermissionMapper.register("/hop/sourceModelData", Permission.RUN_EXECUTE);
+    HopServerEndpointPermissionMapper.unregister("/hop/sourceModelData");
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/sourceModelData").isEmpty());
+    assertFalse(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/sourceModelData"));
+  }
+
+  @Test
+  void overlayDoesNotReplaceABuiltInPathWithADifferentPermission() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            HopServerEndpointPermissionMapper.register("/hop/startPipeline", Permission.FILE_VIEW));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/startPipeline"));
+  }
+
+  @Test
+  void overlayIsIdempotentForTheSameBuiltInPermission() {
+    HopServerEndpointPermissionMapper.register("/hop/jdbcToken", Permission.FILE_VIEW);
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/jdbcToken"));
+  }
+
+  @Test
+  void overlayRefusesTheJsonApiPrefixAndBareHop() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> HopServerEndpointPermissionMapper.register("/hop", Permission.FILE_VIEW));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            HopServerEndpointPermissionMapper.register(
+                "/hop/api/v1/metadata", Permission.METADATA_READ));
+  }
+
+  @Test
+  void builtInPathsStillWinOverAShorterPluginPrefix() {
+    HopServerEndpointPermissionMapper.register("/hop/sourceModelData", Permission.RUN_EXECUTE);
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status"));
   }
 }

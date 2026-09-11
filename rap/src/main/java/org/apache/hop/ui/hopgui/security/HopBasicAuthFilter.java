@@ -235,6 +235,11 @@ public class HopBasicAuthFilter implements Filter {
       return authenticateHeader(header);
     }
 
+    // Hop-issued JDBC HMAC token (same Bearer as OAUTH2 mode)
+    if (HopBearerSupport.bearerToken(request) != null) {
+      return HopBearerSupport.authenticate(request, HopSecurityConfig.load());
+    }
+
     return null;
   }
 

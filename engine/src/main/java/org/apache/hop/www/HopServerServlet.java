@@ -169,8 +169,9 @@ public class HopServerServlet extends HttpServlet {
           @Override
           public void pluginRemoved(Object serviceObject) {
             try {
-              String key = getServletKey(loadServlet((IPlugin) serviceObject));
-              hopServerPluginRegistry.remove(key);
+              IHopServerPlugin plugin = loadServlet((IPlugin) serviceObject);
+              hopServerPluginRegistry.remove(getServletKey(plugin));
+              HopServerPluginPermissions.unregister(plugin);
             } catch (HopPluginException e) {
               log.logError(MessageFormat.format("Unable to load plugin: {0}", serviceObject), e);
             }
@@ -194,5 +195,6 @@ public class HopServerServlet extends HttpServlet {
     hopServerPluginRegistry.put(getServletKey(servlet), servlet);
     servlet.setup(pipelineMap, workflowMap);
     servlet.setJettyMode(false);
+    HopServerPluginPermissions.register(servlet, log);
   }
 }

@@ -130,6 +130,16 @@ public class HopOidcAuthFilter implements Filter {
       return;
     }
 
+    if (HopBearerSupport.bearerToken(httpRequest) != null) {
+      HopAuthenticatedPrincipal bearer = HopBearerSupport.authenticate(httpRequest, config);
+      if (bearer != null) {
+        chain.doFilter(new HopAuthenticatedRequest(httpRequest, bearer), response);
+        return;
+      }
+      HopBearerSupport.challenge(httpResponse);
+      return;
+    }
+
     // Unauthenticated
     if (wantsHtml(httpRequest)) {
       String redirect =
@@ -141,9 +151,7 @@ public class HopOidcAuthFilter implements Filter {
           contextPath + HopLoginPage.PATH_LOGIN + "?redirect=" + urlEncode(redirect));
       return;
     }
-    httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    httpResponse.setContentType("text/plain; charset=UTF-8");
-    httpResponse.getWriter().write("Authentication required (OIDC)");
+    HopBearerSupport.challenge(httpResponse);
   }
 
   private void handleStart(
