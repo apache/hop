@@ -67,6 +67,11 @@ You must specify the name of the flag field in that case (the type is boolean).
 |Always give back a row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row.
 This can be useful if you want to count the number of rows.
 Without this option you would never get a count of zero (0).
+|Ignore rows for aggregation|Enable to exclude rows from aggregation when the selected boolean field is `true`.
+Ignored rows still participate in group detection.
+When *Include all rows* is enabled, ignored rows are still written to the output and receive the group aggregate values, but they do not contribute to cumulative sum, cumulative average, or moving average.
+|Ignore field name|Name of the boolean field that marks rows to exclude from aggregation.
+This field is required when *Ignore rows for aggregation* is enabled.
 |Group fields table|Specify the fields over which you want to group.
 Click Get Fields to add all fields from the input stream(s).
 |Aggregates table a|Specify the fields that must be aggregated, the method and the name of the resulting new field.

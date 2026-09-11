@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -84,6 +85,14 @@ public class GroupByDialog extends BaseTransformDialog {
   private Text wLineNrField;
 
   private Button wAlwaysAddResult;
+
+  private Label wlIgnoreAggregate;
+
+  private Button wIgnoreAggregate;
+
+  private Label wlIgnoreAggregateField;
+
+  private ComboVar wIgnoreAggregateField;
 
   private GroupByMeta input;
 
@@ -261,12 +270,64 @@ public class GroupByDialog extends BaseTransformDialog {
           }
         });
 
+    // Ignore rows for aggregation when a boolean field is true
+    //
+    wlIgnoreAggregate = new Label(shell, SWT.RIGHT);
+    wlIgnoreAggregate.setText(BaseMessages.getString(PKG, "GroupByDialog.IgnoreAggregate.Label"));
+    wlIgnoreAggregate.setToolTipText(
+        BaseMessages.getString(PKG, "GroupByDialog.IgnoreAggregate.ToolTip"));
+    PropsUi.setLook(wlIgnoreAggregate);
+    FormData fdlIgnoreAggregate = new FormData();
+    fdlIgnoreAggregate.left = new FormAttachment(0, 0);
+    fdlIgnoreAggregate.top = new FormAttachment(wAlwaysAddResult, margin);
+    fdlIgnoreAggregate.right = new FormAttachment(middle, -margin);
+    wlIgnoreAggregate.setLayoutData(fdlIgnoreAggregate);
+    wIgnoreAggregate = new Button(shell, SWT.CHECK);
+    wIgnoreAggregate.setToolTipText(
+        BaseMessages.getString(PKG, "GroupByDialog.IgnoreAggregate.ToolTip"));
+    PropsUi.setLook(wIgnoreAggregate);
+    FormData fdIgnoreAggregate = new FormData();
+    fdIgnoreAggregate.left = new FormAttachment(middle, 0);
+    fdIgnoreAggregate.top = new FormAttachment(wlIgnoreAggregate, 0, SWT.CENTER);
+    fdIgnoreAggregate.right = new FormAttachment(100, 0);
+    wIgnoreAggregate.setLayoutData(fdIgnoreAggregate);
+    wIgnoreAggregate.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            setFlags();
+          }
+        });
+
+    wlIgnoreAggregateField = new Label(shell, SWT.RIGHT);
+    wlIgnoreAggregateField.setText(
+        BaseMessages.getString(PKG, "GroupByDialog.IgnoreAggregateField.Label"));
+    wlIgnoreAggregateField.setToolTipText(
+        BaseMessages.getString(PKG, "GroupByDialog.IgnoreAggregateField.ToolTip"));
+    PropsUi.setLook(wlIgnoreAggregateField);
+    FormData fdlIgnoreAggregateField = new FormData();
+    fdlIgnoreAggregateField.left = new FormAttachment(0, 0);
+    fdlIgnoreAggregateField.top = new FormAttachment(wIgnoreAggregate, margin);
+    fdlIgnoreAggregateField.right = new FormAttachment(middle, -margin);
+    wlIgnoreAggregateField.setLayoutData(fdlIgnoreAggregateField);
+    wIgnoreAggregateField = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wIgnoreAggregateField.setToolTipText(
+        BaseMessages.getString(PKG, "GroupByDialog.IgnoreAggregateField.ToolTip"));
+    PropsUi.setLook(wIgnoreAggregateField);
+    wIgnoreAggregateField.addModifyListener(lsMod);
+    FormData fdIgnoreAggregateField = new FormData();
+    fdIgnoreAggregateField.left = new FormAttachment(middle, 0);
+    fdIgnoreAggregateField.top = new FormAttachment(wIgnoreAggregate, margin);
+    fdIgnoreAggregateField.right = new FormAttachment(100, 0);
+    wIgnoreAggregateField.setLayoutData(fdIgnoreAggregateField);
+
     Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText(BaseMessages.getString(PKG, "GroupByDialog.Group.Label"));
     PropsUi.setLook(wlGroup);
     FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment(0, 0);
-    fdlGroup.top = new FormAttachment(wAlwaysAddResult, margin);
+    fdlGroup.top = new FormAttachment(wIgnoreAggregateField, margin);
     wlGroup.setLayoutData(fdlGroup);
 
     int nrKeyCols = 1;
@@ -387,7 +448,15 @@ public class GroupByDialog extends BaseTransformDialog {
               for (int i = 0; i < row.size(); i++) {
                 inputFields.add(row.getValueMeta(i).getName());
               }
-              setComboBoxes();
+              // ComboVar.setItems must run on the UI thread
+              shell
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!shell.isDisposed()) {
+                          setComboBoxes();
+                        }
+                      });
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
@@ -421,6 +490,7 @@ public class GroupByDialog extends BaseTransformDialog {
     ciKey[0].setComboValues(fieldNames);
     ciReturn[1].setComboValues(fieldNames);
     ciReturn[4].setComboValues(fieldNames);
+    wIgnoreAggregateField.setItems(fieldNames);
   }
 
   public void setFlags() {
@@ -434,6 +504,9 @@ public class GroupByDialog extends BaseTransformDialog {
 
     wlLineNrField.setEnabled(wAllRows.getSelection() && wAddLineNr.getSelection());
     wLineNrField.setEnabled(wAllRows.getSelection() && wAddLineNr.getSelection());
+
+    wlIgnoreAggregateField.setEnabled(wIgnoreAggregate.getSelection());
+    wIgnoreAggregateField.setEnabled(wIgnoreAggregate.getSelection());
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -453,6 +526,10 @@ public class GroupByDialog extends BaseTransformDialog {
       wLineNrField.setText(input.getLineNrInGroupField());
     }
     wAlwaysAddResult.setSelection(input.isAlwaysGivingBackOneRow());
+    wIgnoreAggregate.setSelection(input.isAggregateIgnored());
+    if (input.getAggregateIgnoredField() != null) {
+      wIgnoreAggregateField.setText(input.getAggregateIgnoredField());
+    }
 
     if (input.getGroupingFields() != null) {
       for (int i = 0; i < input.getGroupingFields().size(); i++) {
@@ -502,6 +579,8 @@ public class GroupByDialog extends BaseTransformDialog {
     input.setLineNrInGroupField(wLineNrField.getText());
     input.setAlwaysGivingBackOneRow(wAlwaysAddResult.getSelection());
     input.setPassAllRows(wAllRows.getSelection());
+    input.setAggregateIgnored(wIgnoreAggregate.getSelection());
+    input.setAggregateIgnoredField(wIgnoreAggregateField.getText());
 
     input.getGroupingFields().clear();
     for (int i = 0; i < sizegroup; i++) {
