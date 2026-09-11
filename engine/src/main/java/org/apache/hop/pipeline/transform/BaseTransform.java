@@ -2361,7 +2361,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       outputRowSetsLock.readLock().unlock();
     }
 
-    if (!isStopped() && hasUnreadMainInput()) {
+    if (!isStopped() && !isUnconsumedMainInputAllowed() && hasUnreadMainInput()) {
       logDisallowedMainInput();
       stopAll();
     }
@@ -2372,7 +2372,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *     hops. Logs the error and increments the error count.
    */
   private boolean hasDisallowedMainInputHops() {
-    if (!hasMainPredecessorsThatAreNotConsumed()) {
+    if (isUnconsumedMainInputAllowed() || !hasMainPredecessorsThatAreNotConsumed()) {
       return false;
     }
     logDisallowedMainInput();
@@ -2383,12 +2383,16 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     if (meta == null || meta.consumesMainInput() || pipelineMeta == null || transformMeta == null) {
       return false;
     }
-    List<TransformMeta> mainPrev = pipelineMeta.findPreviousTransforms(transformMeta, false);
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousMainTransforms(transformMeta);
     return mainPrev != null && !mainPrev.isEmpty();
   }
 
+  private boolean isUnconsumedMainInputAllowed() {
+    return Const.toBoolean(getVariable(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT, "N"));
+  }
+
   private void logDisallowedMainInput() {
-    List<TransformMeta> mainPrev = pipelineMeta.findPreviousTransforms(transformMeta, false);
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousMainTransforms(transformMeta);
     String fromNames = "";
     if (mainPrev != null && !mainPrev.isEmpty()) {
       StringBuilder builder = new StringBuilder();
@@ -2414,7 +2418,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
               fromNames,
               hint));
     }
-    setErrors(1);
+    setErrors(getErrors() + 1);
   }
 
   @VisibleForTesting
@@ -2423,7 +2427,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       return false;
     }
     Set<String> names = new HashSet<>();
-    for (TransformMeta prev : pipelineMeta.findPreviousTransforms(transformMeta, false)) {
+    for (TransformMeta prev : pipelineMeta.findPreviousMainTransforms(transformMeta)) {
       if (prev != null && prev.getName() != null) {
         names.add(prev.getName());
       }

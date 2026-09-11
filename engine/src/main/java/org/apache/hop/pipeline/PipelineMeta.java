@@ -772,6 +772,28 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
+   * Previous transforms on enabled main hops into {@code transformMeta}: not info, not error.
+   * {@link #findPreviousTransforms(TransformMeta, boolean)} with {@code info=false} still includes
+   * error-hop predecessors.
+   */
+  public List<TransformMeta> findPreviousMainTransforms(TransformMeta transformMeta) {
+    List<TransformMeta> previousTransforms = new ArrayList<>();
+    if (transformMeta == null) {
+      return previousTransforms;
+    }
+    for (PipelineHopMeta hi : hops) {
+      if (hi.getToTransform() != null
+          && hi.isEnabled()
+          && !hi.isErrorHop()
+          && hi.getToTransform().equals(transformMeta)
+          && !isTransformInformative(transformMeta, hi.getFromTransform())) {
+        previousTransforms.add(hi.getFromTransform());
+      }
+    }
+    return previousTransforms;
+  }
+
+  /**
    * Main (non-info, non-error) hops into {@code to} that {@link ITransformMeta#consumesMainInput()}
    * says will not be drained.
    */
@@ -794,7 +816,7 @@ public class PipelineMeta extends AbstractMeta
     if (iMeta == null || iMeta.consumesMainInput()) {
       return;
     }
-    List<TransformMeta> mainPrev = findPreviousTransforms(transformMeta, false);
+    List<TransformMeta> mainPrev = findPreviousMainTransforms(transformMeta);
     if (mainPrev.isEmpty()) {
       return;
     }

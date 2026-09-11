@@ -44,8 +44,9 @@ public final class TransformSourceSupport {
   }
 
   /**
-   * Whether a newly dropped instance of this plugin (after {@code setDefault()}) can start without
-   * incoming hops. Cached per plugin id.
+   * Whether a newly loaded instance of this plugin can start without incoming hops. Uses field
+   * defaults (no {@code setDefault()}), which for the dual-mode flags matches a transform just
+   * dropped on the canvas. Cached per plugin id.
    */
   public static boolean isPipelineSourceAtDefault(IPlugin plugin) {
     if (plugin == null || plugin.getIds() == null || plugin.getIds().length == 0) {
@@ -65,7 +66,6 @@ public final class TransformSourceSupport {
       if (meta == null) {
         return false;
       }
-      meta.setDefault();
       return meta.canStartWithoutInput();
     } catch (Exception e) {
       return false;

@@ -20,14 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -64,6 +66,7 @@ class TransformInputConsumptionTest {
         .when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
     lenient().when(mockHelper.iLogChannel.isDebug()).thenReturn(false);
+    lenient().doReturn(null).when(mockHelper.pipeline).findRowSet(any(), anyInt(), any(), anyInt());
   }
 
   @AfterEach
@@ -122,6 +125,17 @@ class TransformInputConsumptionTest {
   }
 
   @Test
+  void findPreviousMainTransformsExcludesErrorHops() {
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    TransformMeta to = pipelineMeta.findTransform("to");
+    assertEquals(1, pipelineMeta.findPreviousMainTransforms(to).size());
+    assertEquals(1, pipelineMeta.findPreviousTransforms(to, false).size());
+    pipelineMeta.getPipelineHop(0).setErrorHop(true);
+    assertTrue(pipelineMeta.findPreviousMainTransforms(to).isEmpty());
+    assertEquals(1, pipelineMeta.findPreviousTransforms(to, false).size());
+  }
+
+  @Test
   void checkTransformsCommentsOnPipelineSource() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("source-comment-test");
@@ -161,64 +175,129 @@ class TransformInputConsumptionTest {
     List<ICheckResult> remarks = new ArrayList<>();
     pipelineMeta.checkTransforms(
         remarks, false, null, new Variables(), new MemoryMetadataProvider());
+    ICheckResult error =
+        remarks.stream()
+            .filter(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText() != null
+                        && r.getText().contains("not reading rows"))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new AssertionError(
+                        "expected a Verify error that the target does not consume main input"));
     assertTrue(
+        error.getText().contains(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT),
+        "Verify error should name the opt-out variable without MessageFormat failing on '{HOP_...}'");
+  }
+
+  @Test
+  void checkTransformsAllowsErrorHopIntoNonConsumer() {
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    pipelineMeta.getPipelineHop(0).setErrorHop(true);
+    List<ICheckResult> remarks = new ArrayList<>();
+    pipelineMeta.checkTransforms(
+        remarks, false, null, new Variables(), new MemoryMetadataProvider());
+    assertFalse(
         remarks.stream()
             .anyMatch(
                 r ->
                     r.getType() == ICheckResult.TYPE_RESULT_ERROR
                         && r.getText() != null
-                        && r.getText().contains("not reading rows")),
-        "expected a Verify error that the target does not consume main input");
+                        && r.getText().contains("not reading rows")));
   }
 
   @Test
   void initFailsWhenNonConsumerHasMainHop() {
-    stubNonConsumingMetaWithMainPredecessor();
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    stubRunConfigAndNonConsumingMeta();
     BaseTransform<NonConsumingSourceMeta, DummyData> transform =
-        new BaseTransform<>(
-            mockHelper.transformMeta,
-            mockHelper.iTransformMeta,
-            mockHelper.iTransformData,
-            0,
-            mockHelper.pipelineMeta,
-            mockHelper.pipeline);
+        newTransform(pipelineMeta.findTransform("to"), pipelineMeta);
 
     assertFalse(transform.init());
     assertEquals(1L, transform.getErrors());
   }
 
   @Test
-  void setOutputDoneStopsPipelineWhenLeftoverMainInputExists() {
-    stubNonConsumingMetaWithMainPredecessor();
+  void initAllowsErrorHopIntoNonConsumer() {
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    pipelineMeta.getPipelineHop(0).setErrorHop(true);
+    stubRunConfigAndNonConsumingMeta();
     BaseTransform<NonConsumingSourceMeta, DummyData> transform =
-        new BaseTransform<>(
-            mockHelper.transformMeta,
-            mockHelper.iTransformMeta,
-            mockHelper.iTransformData,
-            0,
-            mockHelper.pipelineMeta,
-            mockHelper.pipeline);
+        newTransform(pipelineMeta.findTransform("to"), pipelineMeta);
 
-    QueueRowSet rowSet = new QueueRowSet();
-    rowSet.setThreadNameFromToCopy("from", 0, "to", 0);
+    assertTrue(transform.init());
+    assertEquals(0L, transform.getErrors());
+  }
+
+  @Test
+  void initAllowsUnconsumedMainInputWhenVariableSet() {
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    stubRunConfigAndNonConsumingMeta();
+    BaseTransform<NonConsumingSourceMeta, DummyData> transform =
+        newTransform(pipelineMeta.findTransform("to"), pipelineMeta);
+    transform.setVariable(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT, "Y");
+
+    assertTrue(transform.init());
+    assertEquals(0L, transform.getErrors());
+  }
+
+  @Test
+  void setOutputDoneStopsPipelineWhenLeftoverMainInputExists() {
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    QueueRowSet rowSet = stubRunConfigAndNonConsumingMeta();
     rowSet.putRow(new RowMeta(), new Object[0]);
-    transform.addRowSetToInputRowSets(rowSet);
+    BaseTransform<NonConsumingSourceMeta, DummyData> transform =
+        newTransform(pipelineMeta.findTransform("to"), pipelineMeta);
+    transform.setErrors(4);
 
     transform.setOutputDone();
 
-    assertEquals(1L, transform.getErrors());
+    assertEquals(5L, transform.getErrors());
     verify(mockHelper.pipeline).stopAll();
   }
 
-  private void stubNonConsumingMetaWithMainPredecessor() {
+  @Test
+  void setOutputDoneDoesNotStopWhenUnconsumedAllowed() {
+    PipelineMeta pipelineMeta = pipelineWithHopIntoNonConsumer();
+    QueueRowSet rowSet = stubRunConfigAndNonConsumingMeta();
+    rowSet.putRow(new RowMeta(), new Object[0]);
+    BaseTransform<NonConsumingSourceMeta, DummyData> transform =
+        newTransform(pipelineMeta.findTransform("to"), pipelineMeta);
+    transform.setVariable(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT, "Y");
+
+    transform.setOutputDone();
+
+    assertEquals(0L, transform.getErrors());
+    verify(mockHelper.pipeline, never()).stopAll();
+  }
+
+  /** Real rowset so {@link BaseTransform} dispatch does not fail before the consumption checks. */
+  private QueueRowSet stubRunConfigAndNonConsumingMeta() {
     when(mockHelper.iTransformMeta.consumesMainInput()).thenReturn(false);
-    TransformMeta from = new TransformMeta("from", new DummyMeta());
-    when(mockHelper.pipelineMeta.findPreviousTransforms(any(TransformMeta.class), eq(false)))
-        .thenReturn(List.of(from));
     PipelineRunConfiguration runConfig = mock(PipelineRunConfiguration.class);
     when(runConfig.getEngineRunConfiguration())
         .thenReturn(mock(IPipelineEngineRunConfiguration.class));
     when(mockHelper.pipeline.getPipelineRunConfiguration()).thenReturn(runConfig);
+    QueueRowSet rowSet = new QueueRowSet();
+    rowSet.setThreadNameFromToCopy("from", 0, "to", 0);
+    lenient()
+        .doReturn(rowSet)
+        .when(mockHelper.pipeline)
+        .findRowSet(any(), anyInt(), any(), anyInt());
+    return rowSet;
+  }
+
+  private BaseTransform<NonConsumingSourceMeta, DummyData> newTransform(
+      TransformMeta transformMeta, PipelineMeta pipelineMeta) {
+    return new BaseTransform<>(
+        transformMeta,
+        mockHelper.iTransformMeta,
+        mockHelper.iTransformData,
+        0,
+        pipelineMeta,
+        mockHelper.pipeline);
   }
 
   private static PipelineMeta pipelineWithHopIntoNonConsumer() {
