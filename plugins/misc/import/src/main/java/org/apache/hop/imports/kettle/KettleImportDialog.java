@@ -33,7 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -773,12 +772,6 @@ public class KettleImportDialog extends Dialog {
               }
             });
 
-        // Files and metadata were written to disk. Refresh the metadata perspective (category
-        // tree) and explorer so imported objects are not file-only. Do not activate a newly
-        // created import project — PROJECT_HOME stays with the session that started the import
-        // (issue #2865).
-        notifyGuiAfterImport(HopGui.getInstance(), projectName);
-
         // Show some statistics after the import...
         //
         MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
@@ -795,24 +788,6 @@ public class KettleImportDialog extends Dialog {
               web ? "KettleImportDialog.Error.Web.Message" : "KettleImportDialog.Error.Message");
       LogChannel.UI.logError(message, e);
       new ErrorDialog(shell, title, message, web ? new HopException(message) : e);
-    }
-  }
-
-  /**
-   * Reload metadata (including the category presentation tree) and the explorer after a Kettle
-   * import. Does not switch the active project.
-   */
-  static void notifyGuiAfterImport(HopGui hopGui, String projectName) {
-    if (hopGui == null || hopGui.getEventsHandler() == null) {
-      return;
-    }
-    try {
-      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
-      if (StringUtils.isNotEmpty(projectName)) {
-        hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectUpdated.name());
-      }
-    } catch (Exception e) {
-      LogChannel.UI.logError("Error refreshing the GUI after Kettle import", e);
     }
   }
 

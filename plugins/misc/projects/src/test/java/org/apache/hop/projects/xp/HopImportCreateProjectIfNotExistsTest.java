@@ -46,6 +46,7 @@ class HopImportCreateProjectIfNotExistsTest {
 
   private Path tempRoot;
   private ProjectConfig previousImportProject;
+  private String previousDefaultProjectConfigFile;
 
   @BeforeAll
   static void beforeAll() {
@@ -56,10 +57,11 @@ class HopImportCreateProjectIfNotExistsTest {
   void setUp() throws Exception {
     tempRoot = Files.createTempDirectory("hop-import-create-project");
     HopConfig.setInMemoryMode(true);
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    previousDefaultProjectConfigFile = config.getDefaultProjectConfigFile();
+    config.setDefaultProjectConfigFile(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
     previousImportProject =
-        copyOf(
-            ProjectsConfigSingleton.getConfig()
-                .findProjectConfig(HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME));
+        copyOf(config.findProjectConfig(HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME));
   }
 
   @AfterEach
@@ -69,6 +71,7 @@ class HopImportCreateProjectIfNotExistsTest {
     if (previousImportProject != null) {
       config.addProjectConfig(previousImportProject);
     }
+    config.setDefaultProjectConfigFile(previousDefaultProjectConfigFile);
     HopConfig.setInMemoryMode(false);
     if (tempRoot != null && Files.exists(tempRoot)) {
       try (Stream<Path> walk = Files.walk(tempRoot)) {
@@ -109,6 +112,22 @@ class HopImportCreateProjectIfNotExistsTest {
     assertNotNull(
         ProjectsConfigSingleton.getConfig()
             .findProjectConfig(HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME));
+  }
+
+  @Test
+  void emptyDefaultProjectConfigFileFallsBackToProjectConfigJson() throws Exception {
+    Path importHome = tempRoot.resolve("empty-config-name");
+    Files.createDirectories(importHome);
+    ProjectsConfigSingleton.getConfig().setDefaultProjectConfigFile("");
+
+    ProjectConfig created =
+        HopImportCreateProjectIfNotExists.createImportProject(
+            new Variables(), importHome.toString(), false);
+
+    assertNotNull(created);
+    assertEquals(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME, created.getConfigFilename());
+    assertTrue(
+        Files.isRegularFile(importHome.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME)));
   }
 
   @Test

@@ -41,8 +41,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.imports.gui.HopImportGuiPlugin;
-import org.apache.hop.ui.core.bus.HopGuiEvents;
-import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -128,26 +126,6 @@ class KettleImportDialogTest {
     assertFalse(KettleImportDialog.isEphemeralWebUploadFolder("/home/kettle/project"));
     assertFalse(KettleImportDialog.isEphemeralWebUploadFolder(null));
     assertFalse(KettleImportDialog.isEphemeralWebUploadFolder(""));
-  }
-
-  @Test
-  void notifyGuiAfterImportRefreshesMetadataAndExplorer() throws Exception {
-    HopGui hopGui = mock(HopGui.class);
-    HopGuiEventsHandler events = mock(HopGuiEventsHandler.class);
-    when(hopGui.getEventsHandler()).thenReturn(events);
-
-    KettleImportDialog.notifyGuiAfterImport(hopGui, "current-project");
-
-    verify(events).fire(HopGuiEvents.MetadataChanged.name());
-    verify(events).fire("current-project", HopGuiEvents.ProjectUpdated.name());
-  }
-
-  @Test
-  void notifyGuiAfterImportIgnoresMissingGui() {
-    KettleImportDialog.notifyGuiAfterImport(null, "x");
-    HopGui hopGui = mock(HopGui.class);
-    when(hopGui.getEventsHandler()).thenReturn(null);
-    KettleImportDialog.notifyGuiAfterImport(hopGui, "x");
   }
 
   @ParameterizedTest

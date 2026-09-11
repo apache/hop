@@ -17,8 +17,8 @@
 
 package org.apache.hop.projects.xp;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -62,10 +62,10 @@ public class HopImportCreateProjectIfNotExists implements IExtensionPoint<String
     }
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    String defaultProjectConfigFilename =
-        Const.NVL(
-            variables.resolve(config.getDefaultProjectConfigFile()),
-            ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    String defaultProjectConfigFilename = variables.resolve(config.getDefaultProjectConfigFile());
+    if (StringUtils.isEmpty(defaultProjectConfigFilename)) {
+      defaultProjectConfigFilename = ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+    }
     ProjectConfig projectConfig =
         new ProjectConfig(IMPORT_PROJECT_NAME, projectPath, defaultProjectConfigFilename);
     Project project = new Project();
