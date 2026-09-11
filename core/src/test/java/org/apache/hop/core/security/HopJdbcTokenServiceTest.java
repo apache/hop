@@ -74,6 +74,15 @@ class HopJdbcTokenServiceTest {
   }
 
   @Test
+  void verifyCanBeRepeatedWithoutReloadingTheSecret() throws Exception {
+    HopJdbcTokenService.IssuedToken issued =
+        HopJdbcTokenService.issue("user", List.of("user"), Duration.ofMinutes(5));
+    HopJdbcTokenService.verify(issued.token());
+    JWTClaimsSet again = HopJdbcTokenService.verify(issued.token());
+    assertEquals("user", again.getSubject());
+  }
+
+  @Test
   void blankUsernameIsRejected() {
     assertThrows(
         IllegalArgumentException.class,

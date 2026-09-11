@@ -61,6 +61,9 @@ public final class HopJdbcTokenService {
 
   private static volatile byte[] secretOverride;
 
+  /** Cached HMAC key loaded from the security folder (not env / test override). */
+  private static volatile byte[] cachedFileSecret;
+
   private HopJdbcTokenService() {}
 
   /**
@@ -190,6 +193,7 @@ public final class HopJdbcTokenService {
       throw new IllegalArgumentException("HMAC secret must be at least " + SECRET_BYTES + " bytes");
     }
     secretOverride = secret;
+    cachedFileSecret = null;
   }
 
   private static byte[] loadSecret() {
@@ -211,7 +215,17 @@ public final class HopJdbcTokenService {
       throw new IllegalStateException(
           ENV_SECRET + " must be at least " + SECRET_BYTES + " bytes (or base64 of that)");
     }
-    return loadOrCreateFileSecret();
+    byte[] cached = cachedFileSecret;
+    if (cached != null) {
+      return cached;
+    }
+    synchronized (HopJdbcTokenService.class) {
+      if (cachedFileSecret != null) {
+        return cachedFileSecret;
+      }
+      cachedFileSecret = loadOrCreateFileSecret();
+      return cachedFileSecret;
+    }
   }
 
   private static byte[] loadOrCreateFileSecret() {

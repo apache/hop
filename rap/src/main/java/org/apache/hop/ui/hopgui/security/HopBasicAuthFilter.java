@@ -122,14 +122,22 @@ public class HopBasicAuthFilter implements Filter {
             contextPath + HopLoginPage.PATH_LOGIN + "?redirect=" + urlEncode(redirect));
         return;
       }
+      if (HopBearerSupport.bearerToken(httpRequest) != null) {
+        HopBearerSupport.challenge(httpResponse);
+        return;
+      }
       challengeBasic(httpResponse);
       return;
     }
 
-    HttpSession session = httpRequest.getSession(true);
-    session.setAttribute(SESSION_PRINCIPAL, principal);
-    session.removeAttribute(SESSION_FORCE_REAUTH);
-    session.removeAttribute(SESSION_REJECT_AUTH);
+    // Bearer is stateless: do not allocate an HttpSession per JDBC/API call.
+    boolean bearer = HopBearerSupport.bearerToken(httpRequest) != null;
+    if (!bearer) {
+      HttpSession session = httpRequest.getSession(true);
+      session.setAttribute(SESSION_PRINCIPAL, principal);
+      session.removeAttribute(SESSION_FORCE_REAUTH);
+      session.removeAttribute(SESSION_REJECT_AUTH);
+    }
 
     chain.doFilter(new HopAuthenticatedRequest(httpRequest, principal), response);
   }
@@ -212,34 +220,26 @@ public class HopBasicAuthFilter implements Filter {
       if (session != null) {
         session.removeAttribute(SESSION_PRINCIPAL);
       }
-      // Only accept a fresh Authorization header (API) after force reauth; form login clears flag
-      String header = request.getHeader("Authorization");
-      if (header != null && header.regionMatches(true, 0, "Basic ", 0, 6)) {
-        HopAuthenticatedPrincipal p = authenticateHeader(header);
-        if (p != null) {
-          return p;
-        }
-      }
-      return null;
+      return principalFromAuthorization(request);
     }
 
-    // Session principal from form login
-    HopAuthenticatedPrincipal sessionPrincipal = resolveSessionPrincipal(request);
-    if (sessionPrincipal != null) {
-      return sessionPrincipal;
+    // Explicit Authorization wins over an ambient form-login session.
+    HopAuthenticatedPrincipal fromHeader = principalFromAuthorization(request);
+    if (fromHeader != null) {
+      return fromHeader;
     }
 
-    // Optional HTTP Basic for API / automation clients
+    return resolveSessionPrincipal(request);
+  }
+
+  private HopAuthenticatedPrincipal principalFromAuthorization(HttpServletRequest request) {
     String header = request.getHeader("Authorization");
     if (header != null && header.regionMatches(true, 0, "Basic ", 0, 6)) {
       return authenticateHeader(header);
     }
-
-    // Hop-issued JDBC HMAC token (same Bearer as OAUTH2 mode)
     if (HopBearerSupport.bearerToken(request) != null) {
       return HopBearerSupport.authenticate(request, HopSecurityConfig.load());
     }
-
     return null;
   }
 

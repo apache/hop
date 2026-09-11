@@ -35,6 +35,10 @@ import org.apache.hop.core.security.oidc.HopOidcClient;
 /**
  * Shared Bearer handling for Hop Web filters: Hop-issued JDBC HMAC JWTs, then (in OAUTH2 mode) IdP
  * JWTs via JWKS.
+ *
+ * <p>IdP fallback validates an <em>ID token</em> (audience is typically the OAuth client id).
+ * Opaque Google access tokens will not pass JWKS. JDBC clients should use a Hop-issued token from
+ * {@code File → Copy JDBC token} / {@code GET /hop/jdbcToken}.
  */
 public final class HopBearerSupport {
 

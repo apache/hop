@@ -16,7 +16,12 @@
  */
 package org.apache.hop.www;
 
+import java.util.List;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.HopServerPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.security.HopServerEndpointPermissionMapper;
 import org.apache.hop.core.util.Utils;
 
@@ -68,5 +73,29 @@ public final class HopServerPluginPermissions {
       return;
     }
     HopServerEndpointPermissionMapper.unregister(servlet.getContextPath());
+  }
+
+  /**
+   * Scan the plugin registry and register each Hop Server servlet's required permission. Safe to
+   * call before {@code HopServerServlet.init()} so Hop Web RBAC knows plugin paths on the first
+   * request.
+   *
+   * @param log log channel
+   */
+  public static void registerLoadedPlugins(ILogChannel log) {
+    PluginRegistry pluginRegistry = PluginRegistry.getInstance();
+    List<IPlugin> plugins = pluginRegistry.getPlugins(HopServerPluginType.class);
+    if (plugins == null) {
+      return;
+    }
+    for (IPlugin plugin : plugins) {
+      try {
+        register(pluginRegistry.loadClass(plugin, IHopServerPlugin.class), log);
+      } catch (HopPluginException e) {
+        if (log != null) {
+          log.logError("Unable to register Hop Web permission for servlet plugin " + plugin, e);
+        }
+      }
+    }
   }
 }
