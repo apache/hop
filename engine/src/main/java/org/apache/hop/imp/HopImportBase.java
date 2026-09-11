@@ -21,17 +21,24 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.function.UnaryOperator;
 import javax.xml.transform.dom.DOMSource;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -71,6 +78,14 @@ public abstract class HopImportBase implements IHopImport {
   protected MultiMetadataProvider metadataProvider;
   protected IProgressMonitor monitor;
   protected String metadataTargetFolder;
+  @Getter @Setter protected boolean collectingFromSharedXml;
+  @Getter @Setter protected Set<String> sharedConnectionNames;
+  @Getter @Setter protected List<String> writtenHopFileNames;
+  @Getter @Setter protected boolean applyNamingSchemes;
+  @Getter @Setter protected String namingSchemeName;
+  @Getter @Setter protected String appliedNamingSchemeName;
+  @Setter protected UnaryOperator<String> connectionNameMapper;
+  @Getter @Setter protected ImportedConnectionRewriter.Result connectionRewriteResult;
 
   public HopImportBase() {
     this.variables = new Variables();
@@ -81,6 +96,10 @@ public abstract class HopImportBase implements IHopImport {
     connectionFileMap = new TreeMap<>();
     migratedFilesMap = new HashMap<>();
     collectedVariables = new Variables();
+    sharedConnectionNames = new LinkedHashSet<>();
+    writtenHopFileNames = new ArrayList<>();
+    applyNamingSchemes = true;
+    connectionNameMapper = UnaryOperator.identity();
   }
 
   @Override
@@ -96,7 +115,7 @@ public abstract class HopImportBase implements IHopImport {
     // Create a new metadata provider for the target folder...
     //
     if (metadataProvider == null) {
-      this.metadataTargetFolder = outputFolder.getName().getURI() + "/metadata";
+      this.metadataTargetFolder = metadataFolderFor(outputFolder.getName().getURI());
       metadataProvider =
           new MultiMetadataProvider(
               Encr.getEncoder(),
@@ -105,6 +124,11 @@ public abstract class HopImportBase implements IHopImport {
                       Encr.getEncoder(), this.metadataTargetFolder, variables)),
               variables);
     }
+    if (StringUtils.isEmpty(metadataTargetFolder) && outputFolder != null) {
+      this.metadataTargetFolder = metadataFolderFor(outputFolder.getName().getURI());
+    }
+    ExtensionPointHandler.callExtensionPoint(
+        log, variables, HopExtensionPoint.HopImportTargetMetadataReady.id, this);
     if (monitor != null) {
       monitor.setTaskName("Finding files to import");
     }
@@ -126,6 +150,17 @@ public abstract class HopImportBase implements IHopImport {
       monitor.setTaskName("Importing connections");
     }
     importConnections();
+    if (monitor != null) {
+      if (monitor.isCanceled()) {
+        return;
+      }
+      monitor.worked(1);
+      monitor.setTaskName("Normalizing connection names");
+    }
+    ExtensionPointHandler.callExtensionPoint(
+        log, variables, HopExtensionPoint.HopImportRewriteMetadata.id, this);
+    connectionRewriteResult = ImportedConnectionRewriter.rewrite(this);
+    afterConnectionRewrite();
     if (monitor != null) {
       if (monitor.isCanceled()) {
         return;
@@ -172,11 +207,16 @@ public abstract class HopImportBase implements IHopImport {
     // build a list of all jobs, transformations with their connections
     connectionFileMap.put(filename, databaseMeta.getName());
 
-    // only add new connection names to the list
+    if (collectingFromSharedXml && databaseMeta.getName() != null) {
+      sharedConnectionNames.add(databaseMeta.getName());
+    }
+
+    // Kettle names are case-insensitive: keep the first spelling we saw.
     if (connectionsList.stream()
-        .filter(dbMeta -> dbMeta.getName().equals(databaseMeta.getName()))
-        .collect(Collectors.toList())
-        .isEmpty()) {
+        .noneMatch(
+            dbMeta ->
+                dbMeta.getName() != null
+                    && dbMeta.getName().equalsIgnoreCase(databaseMeta.getName()))) {
       connectionsList.add(databaseMeta);
       connectionCounter++;
     }
@@ -572,6 +612,29 @@ public abstract class HopImportBase implements IHopImport {
   @Override
   public void setSkippingFolders(boolean skippingFolders) {
     this.skippingFolders = skippingFolders;
+  }
+
+  public UnaryOperator<String> getConnectionNameMapper() {
+    return connectionNameMapper != null ? connectionNameMapper : UnaryOperator.identity();
+  }
+
+  /**
+   * {@code <folder>/metadata}, with trailing slashes and backslashes normalized so VFS URIs do not
+   * pick up a double slash.
+   */
+  public static String metadataFolderFor(String targetFolder) {
+    if (StringUtils.isBlank(targetFolder)) {
+      return null;
+    }
+    return StringUtils.removeEnd(targetFolder.replace('\\', '/'), "/") + "/metadata";
+  }
+
+  /**
+   * Called after imported connection names have been normalized. Override to write reports that
+   * include the final names.
+   */
+  protected void afterConnectionRewrite() throws HopException {
+    // nothing
   }
 
   /**

@@ -36,11 +36,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.imports.gui.HopImportGuiPlugin;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -56,8 +59,42 @@ import org.mockito.MockedStatic;
 class KettleImportDialogTest {
 
   @BeforeAll
-  static void initializeLogging() {
+  static void initializeLogging() throws Exception {
     HopLogStore.init();
+    HopClientEnvironment.init();
+  }
+
+  @Test
+  void metadataFolderIsUnderTheTargetProject() {
+    assertEquals(
+        "/projects/sales/metadata", KettleImportDialog.metadataFolderFor("/projects/sales"));
+    assertEquals(
+        "/projects/sales/metadata", KettleImportDialog.metadataFolderFor("/projects/sales/"));
+    assertEquals("C:/data/hop/metadata", KettleImportDialog.metadataFolderFor("C:\\data\\hop"));
+    assertNull(KettleImportDialog.metadataFolderFor(""));
+    assertNull(KettleImportDialog.metadataFolderFor(null));
+    assertEquals(
+        "file:///tmp/project/metadata",
+        KettleImportDialog.metadataFolderFor("file:///tmp/project/"));
+  }
+
+  @Test
+  void copyNamedWritesOnlyMissingObjects() throws Exception {
+    MemoryMetadataProvider from = new MemoryMetadataProvider();
+    MemoryMetadataProvider to = new MemoryMetadataProvider();
+    DatabaseMeta databaseMeta = new DatabaseMeta();
+    databaseMeta.setName("local");
+    from.getSerializer(DatabaseMeta.class).save(databaseMeta);
+
+    KettleImportDialog.copyNamed(from, to, DatabaseMeta.class, "local");
+    DatabaseMeta stored = to.getSerializer(DatabaseMeta.class).load("local");
+    assertEquals("local", stored.getName());
+
+    DatabaseMeta replacement = new DatabaseMeta();
+    replacement.setName("local");
+    from.getSerializer(DatabaseMeta.class).save(replacement);
+    KettleImportDialog.copyNamed(from, to, DatabaseMeta.class, "local");
+    assertSame(stored, to.getSerializer(DatabaseMeta.class).load("local"));
   }
 
   @Test

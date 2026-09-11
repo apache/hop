@@ -192,6 +192,10 @@ public enum HopExtensionPoint {
   HopGuiSearchMarketplace("Open the marketplace, searching for a plugin id (String)"),
 
   HopImportStart("Executed at the start of the 'hop-import' command line tool"),
+  HopImportTargetMetadataReady(
+      "The import target metadata provider has been created (HopImportBase)"),
+  HopImportRewriteMetadata(
+      "Imported files and connections have been written; rewrite metadata names (HopImportBase)"),
   HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
   ;
 

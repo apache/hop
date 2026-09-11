@@ -73,6 +73,14 @@ class HopMetadataPropertyWalkerTest {
     String connection = "hidden";
   }
 
+  static class SftpAndRdbmsMeta {
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    String rdbms = "Warehouse";
+
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.VFS_SFTP_CONNECTION)
+    String sftp = "sftp-server";
+  }
+
   @Test
   void collectsAnnotatedConnectionStrings() {
     List<StringProperty> found =
@@ -120,5 +128,84 @@ class HopMetadataPropertyWalkerTest {
     assertTrue(
         HopMetadataPropertyWalker.collectStrings(null, HopMetadataPropertyType.RDBMS_CONNECTION)
             .isEmpty());
+  }
+
+  @Test
+  void rewriteChangesAnnotatedStrings() {
+    SimpleMeta meta = new SimpleMeta();
+
+    int changed =
+        HopMetadataPropertyWalker.rewriteStrings(
+            meta, HopMetadataPropertyType.RDBMS_CONNECTION, String::toUpperCase);
+
+    assertEquals(1, changed);
+    assertEquals("WAREHOUSE", meta.connection);
+    assertEquals("SELECT 1", meta.sql);
+    assertEquals("ignored", meta.unannotated);
+  }
+
+  @Test
+  void rewriteDescendsIntoNestedLists() {
+    NestedMeta meta = new NestedMeta();
+
+    int changed =
+        HopMetadataPropertyWalker.rewriteStrings(
+            meta, HopMetadataPropertyType.RDBMS_CONNECTION, value -> value + "-x");
+
+    assertEquals(3, changed);
+    assertEquals("primary-x", meta.connection);
+    assertEquals("second-x", meta.items.get(0).name);
+    assertEquals("third-x", meta.items.get(1).name);
+  }
+
+  @Test
+  void rewriteLeavesUnannotatedConnectionFields() {
+    UnannotatedConnectionMeta meta = new UnannotatedConnectionMeta();
+
+    int changed =
+        HopMetadataPropertyWalker.rewriteStrings(
+            meta, HopMetadataPropertyType.RDBMS_CONNECTION, String::toUpperCase);
+
+    assertEquals(0, changed);
+    assertEquals("hidden", meta.connection);
+  }
+
+  @Test
+  void rewriteSkipsWhenMapperReturnsTheSameValue() {
+    SimpleMeta meta = new SimpleMeta();
+
+    int changed =
+        HopMetadataPropertyWalker.rewriteStrings(
+            meta, HopMetadataPropertyType.RDBMS_CONNECTION, value -> value);
+
+    assertEquals(0, changed);
+    assertEquals("warehouse", meta.connection);
+  }
+
+  @Test
+  void rewriteDoesNotTouchNonRdbmsConnectionFields() {
+    SftpAndRdbmsMeta meta = new SftpAndRdbmsMeta();
+
+    int changed =
+        HopMetadataPropertyWalker.rewriteStrings(
+            meta, HopMetadataPropertyType.RDBMS_CONNECTION, String::toLowerCase);
+
+    assertEquals(1, changed);
+    assertEquals("warehouse", meta.rdbms);
+    assertEquals("sftp-server", meta.sftp);
+  }
+
+  @Test
+  void rewriteNullMapperOrRootDoesNothing() {
+    SimpleMeta meta = new SimpleMeta();
+    assertEquals(
+        0,
+        HopMetadataPropertyWalker.rewriteStrings(
+            meta, HopMetadataPropertyType.RDBMS_CONNECTION, null));
+    assertEquals(
+        0,
+        HopMetadataPropertyWalker.rewriteStrings(
+            null, HopMetadataPropertyType.RDBMS_CONNECTION, String::toUpperCase));
+    assertEquals("warehouse", meta.connection);
   }
 }

@@ -59,12 +59,20 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
   -s, --shared-xml=<sharedXmlFilename>
                         The shared.xml file to read from
   -t, --type=<type>     The type of import plugin to use (e.g. kettle)
+  -n, --naming-scheme=<name>
+                        Naming scheme metadata name in the target folder
+                        to apply to relational connections
+      --no-apply-naming-schemes
+                        Do not apply a naming scheme; connection names are
+                        still aligned to one spelling
   -v, --version         Print version information and exit   
 ----
 
 =====
 
 &nbsp; +
+
+Place naming-scheme JSON files in `<output>/metadata/naming-scheme/` before running the command (or create them in the target project in Hop Gui). The unique *Hop metadata* scheme, or a unique *General* scheme, is applied to imported relational connection names. Use `--naming-scheme` to pick one by name.
 
 == Examples
 
