@@ -96,6 +96,9 @@ public enum HopMetadataPropertyType {
   // MAIL
   MAIL_SERVER_CONNECTION,
 
+  // GIT
+  GIT_CONNECTION,
+
   // GRAPH
   GRAPH_CONNECTION,
   GRAPH_MODEL,

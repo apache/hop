@@ -1,0 +1,88 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:page-pagination:
+:description: A Git connection points at the REST API of a Git hosting provider and holds the credentials to read from it.
+
+= Git connection
+
+image:icons/git.svg[Git Connection, width=24px]
+
+A Git connection points at the REST API of a Git hosting provider and holds the credentials used to read from it. It is used by the xref:pipeline/transforms/gitinput.adoc[Git Input] transform.
+
+Supported providers are GitHub (cloud and Enterprise), GitLab, Bitbucket, Forgejo and Gitea. Because the Git Input transform normalizes every provider to the same output row, switching a pipeline from one provider to another is a matter of pointing it at a different connection.
+
+A connection is only needed to read through a provider API. The Git Input transform can also read commit history straight from a clone on disk, which needs no connection and no token.
+
+== Related Plugins
+
+xref:pipeline/transforms/gitinput.adoc[Git Input] transform
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Connection name|The name to use for this Git connection.
+|Provider|GitHub.com, GitHub Enterprise, GitLab, Bitbucket, Forgejo or Gitea.
+|API base URL|Overrides the provider default. Required for a self-hosted GitLab, Forgejo, Gitea or GitHub Enterprise instance. Leave it empty to use the default for the selected provider.
+|Authentication|How to authenticate to the API: **Personal access token**, **Username and password**, or **OAuth 2 access token**. Only the mechanisms the selected provider accepts are offered.
+|Username / Password|Used by **Username and password**. Bitbucket authenticates this way with an app password; Gitea and Forgejo also accept it for an account that has a local password.
+|Personal access token|Used by **Personal access token**, and sent in whichever header the provider expects.
+|OAuth 2 access token|Used by **OAuth 2 access token**, and sent as a bearer token. Obtain it outside Hop; the connection does not run an OAuth flow itself.
+|===
+
+=== Which mechanism each provider accepts
+
+[options="header"]
+|===
+|Provider|Personal access token|Username and password|OAuth 2
+|GitHub, GitHub Enterprise|Yes|No|Yes
+|GitLab|Yes|No|Yes
+|Bitbucket|No|Yes (app password)|No
+|Gitea, Forgejo|Yes|Yes|Yes
+|===
+
+A personal access token works in the widest set of cases, and is the default everywhere except Bitbucket, whose API has no token mechanism.
+
+NOTE: The header matters. A GitLab personal access token is sent as `PRIVATE-TOKEN`, an OAuth 2 token as `Authorization: Bearer`. Choosing the wrong mechanism sends the credential in a header the provider does not read it from, and the request fails to authenticate.
+
+=== Signing in with an external provider
+
+How you sign in to a provider's **web interface** is unrelated to how Hop authenticates to its **API**.
+
+If your Forgejo or Gitea instance lets you sign in with GitHub, Google or SSO, there is no way to present that external credential to the instance's API. Sign in however you normally do, then create a personal access token in the instance (Settings -> Applications) and use that. It authenticates the same way whichever method the account signs in with.
+
+It also means **Username and password** is not an option for such an account: one that only ever signs in through an external provider usually has no local password at all. Use a token.
+
+The token and the app password are stored encrypted in the connection's json file. Both fields accept a variable, so the secret itself can stay out of the project, for example `${GIT_TOKEN}`.
+
+Reading a public repository from GitHub works without any credentials at all, but anonymous requests are rate limited to 60 per hour. Set a token for a higher limit, and for any private repository.
+
+== Anonymous connections
+
+Reading a public repository works without any credentials on every provider except Bitbucket, whose API has no anonymous entry point. Anonymous GitHub requests are rate limited to 60 per hour, so set a token for a higher limit and for any private repository.
+
+A connection without a credential is still worth testing, and **Test connection** adapts to what it was given:
+
+* With a token or app password it lists the organizations the account can see, which also proves the credential works.
+* Without one it makes a public read instead, which is enough to tell a reachable API from a typo in the base URL.
+
+Listing organizations is the one thing a credential is really needed for, because every provider reports the organizations of the *signed-in* account and an anonymous connection has none. The **Browse...** button in the xref:pipeline/transforms/gitinput.adoc[Git Input] transform therefore needs a token; type the repository owner and name in directly to read a public repository anonymously.
+
+== Samples
+
+The samples project contains a `github` connection with an empty token, used by `transforms/git-input-github-pull-requests.hpl`.

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>git-input-github-pull-requests</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/09/10 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/09/10 12:00:00.000</modified_date>
+    <key_for_session_key/>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Read the most recent pull requests from the apache/hop repository on GitHub.
+
+The 'github' connection has no token, so this uses the anonymous GitHub API:
+enough for a public repository, but limited to 60 requests per hour. Add a
+personal access token for higher limits, or to read a private repository.
+
+Every provider returns the same row layout, so pointing this at a GitLab,
+Bitbucket, Forgejo or Gitea connection needs no other change.</note>
+      <xloc>64</xloc>
+      <yloc>48</yloc>
+      <width>560</width>
+      <heigth>200</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>apache/hop pull requests</from>
+      <to>merged or open</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>merged or open</from>
+      <to>pull requests</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>apache/hop pull requests</name>
+    <type>GitInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>github</connection>
+    <source>REMOTE</source>
+    <local_repository_path/>
+    <resource_type>PULL_REQUESTS</resource_type>
+    <owner>apache</owner>
+    <repository>hop</repository>
+    <state>all</state>
+    <since/>
+    <branch/>
+    <page_size>25</page_size>
+    <max_pages>1</max_pages>
+    <include_raw_json>N</include_raw_json>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>merged or open</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <select_unspecified>N</select_unspecified>
+      <field>
+        <name>number</name>
+      </field>
+      <field>
+        <name>title</name>
+      </field>
+      <field>
+        <name>author</name>
+      </field>
+      <field>
+        <name>state</name>
+      </field>
+      <field>
+        <name>merged</name>
+      </field>
+      <field>
+        <name>created_at</name>
+      </field>
+      <field>
+        <name>closed_at</name>
+      </field>
+      <field>
+        <name>source_branch</name>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>368</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>pull requests</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <loglevel>log_level_basic</loglevel>
+    <displayHeader>Y</displayHeader>
+    <limitRows>Y</limitRows>
+    <limitRowsNumber>5</limitRowsNumber>
+    <logmessage/>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
