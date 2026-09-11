@@ -23,11 +23,43 @@ under the License.
 == Functionality
 
 This variable resolver can retrieve secrets from a https://www.vaultproject.io/[Hashicorp Vault].
-Here are the options to use:
+The editor groups the options into **Connection**, **Authentication** and **Secrets**. The Authentication tab only shows the fields that belong to the authentication type you picked.
+
+=== Connection
+
+image::metadata-types/variable-resolver/vault-variable-resolver-connection-tab.png[Connection tab of the HashiCorp Vault variable resolver]
 
 * Vault address: The base address and port of the Vault server (for example: https://vault-server:8200)
-* Vault token: The token to use to authenticate
 * Namespace: The Vault namespace to use (optional, primarily used in enterprise/multi-tenant setups)
+* Validate HTTPS connections?: It's recommended to enable connection validation in production. This secures the connection with the X.509 certificate specified in one of either next option.
+* PEM file path: The name of the file (VFS) containing the X.509 certificate string
+* PEM string: The X.509 string itself in case you're not using a file
+* Open connection timeout: The connection timeout when getting a http(s) connection in milliseconds.
+* Read timeout: The timeout in milliseconds when reading.
+
+=== Authentication
+
+How Hop proves its identity to Vault. `TOKEN` is the default and keeps existing resolvers working. `KUBERNETES` is intended for Hop Server (or Hop Gui) running in a Kubernetes pod.
+
+When the authentication type is `TOKEN`, only the Vault token field is shown:
+
+image::metadata-types/variable-resolver/vault-variable-resolver-authentication-tab-token.png[Authentication tab with type TOKEN]
+
+* Vault token: The token to use to authenticate.
+
+When the authentication type is `KUBERNETES`, the token field is replaced by the Kubernetes options:
+
+image::metadata-types/variable-resolver/vault-variable-resolver-authentication-tab-k8s.png[Authentication tab with type KUBERNETES]
+
+* Kubernetes role: The Vault Kubernetes auth role bound to this workload's ServiceAccount.
+* Kubernetes JWT file path: File that holds the ServiceAccount JWT. Defaults to `/var/run/secrets/kubernetes.io/serviceaccount/token` when left empty.
+* Kubernetes JWT: Optional JWT string used instead of the file when set (a variable such as `'${KUBERNETES_JWT}'` is typical).
+* Kubernetes auth mount path: Vault auth mount without the leading `auth/`. Defaults to `kubernetes`.
+
+=== Secrets
+
+image::metadata-types/variable-resolver/vault-variable-resolver-secrets-tab.png[Secrets tab of the HashiCorp Vault variable resolver]
+
 * Path prefix: an optional path prefix which gets added before the key paths in the resolver expressions.  For example, if you put `kv-other/data` in here, expression
 
 [source]
@@ -41,13 +73,6 @@ will resolve internally to:
 ----
 #{vault:kv-other/data/db:password}
 ----
-
-
-* Validate HTTPS connections?: It's recommended to enable connection validation in production. This secures the connection with the X.509 certificate specified in one of either next option.
-* PEM file path: The name of the file (VFS) containing the X.509 certificate string
-* PEM string: The X.509 string itself in case you're not using a file
-* Open connection timeout: The connection timeout when getting a http(s) connection in milliseconds.
-* Read connection timeout: The timeout in milliseconds when reading.
 
 The variable expression you can resolve with this plugin type is (as always) in the following format:
 
@@ -63,11 +88,30 @@ In case we don't specify a `value-key`, you will give back the complete JSON str
 
 Suppose we have a secret defined in the Vault, in a KV secrets engine:
 
-image:metadata-types/variable-resolver/vault-variable-resolver-server.png
+image::metadata-types/variable-resolver/vault-variable-resolver-server.png[Secret stored in a HashiCorp Vault KV engine]
 
 We can define a connection called `vault` and retrieve values with expressions:
 
 * `{openvar}vault:hop/data/some-db:hostname{closevar}` : localhost
 * `{openvar}vault:hop/data/some-db:username{closevar}` : john
 * `{openvar}vault:hop/data/some-db{closevar}` : `{"db":"test","hostname":"localhost","password":"some-password","port":"3306","username":"john"}`
+
+== Kubernetes authentication
+
+When Hop runs inside a Kubernetes pod, prefer `KUBERNETES` over a long-lived Vault token. Hop reads the pod ServiceAccount JWT, logs in to Vault's Kubernetes auth backend, and uses the short-lived client token Vault returns. That token is kept in memory, renewed when Vault says it is renewable, and replaced by a fresh login when it expires. It is never stored in the resolver metadata.
+
+On the Vault side, enable Kubernetes auth and bind a role to the ServiceAccount Hop runs as:
+
+[source,bash]
+----
+vault auth enable kubernetes
+vault write auth/kubernetes/config kubernetes_host=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT
+vault write auth/kubernetes/role/hop \
+    bound_service_account_names=hop \
+    bound_service_account_namespaces=hop \
+    policies=hop \
+    ttl=1h
+----
+
+In the variable resolver metadata, set Authentication type to `KUBERNETES` on the Authentication tab, Kubernetes role to `hop`, and Vault address on the Connection tab to the in-cluster Vault URL. Leave the JWT file path empty to use the token Kubernetes mounts at `/var/run/secrets/kubernetes.io/serviceaccount/token`.
 
