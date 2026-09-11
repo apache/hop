@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "INFORMIX",
     typeDescription = "Informix",
+    image = "informix.svg",
     documentationUrl = "/database/databases/informix.html",
     classLoaderGroup = "informix-db")
 @GuiPlugin(id = "GUI-InformixDatabaseMeta")

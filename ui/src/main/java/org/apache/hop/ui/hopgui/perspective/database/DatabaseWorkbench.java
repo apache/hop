@@ -350,7 +350,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         }
         TreeItem connectionItem = new TreeItem(tree, SWT.NONE);
         connectionItem.setText(state.getDatabaseMeta().getName());
-        connectionItem.setImage(GuiResource.getInstance().getImageDatabase());
+        connectionItem.setImage(
+            GuiResource.getInstance().getImage(state.getDatabaseMeta().getIDatabase()));
         connectionItem.setData(
             DatabaseTreeNode.connection(state.getDatabaseMeta().getName(), state.isConnected()));
         if (state.isConnected() && state.getInformation() != null) {

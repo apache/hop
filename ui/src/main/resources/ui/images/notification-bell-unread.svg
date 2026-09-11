@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        height="24"
-        width="24"
-        version="1.1">
-    <!-- Bell with an unread dot. Used where the badge cannot be painted over the toolbar,
-         which is every RAP client: only a Canvas takes a paint listener there. -->
-    <path
-            style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-            d="M 12 2 C 8.13 2 5 5.13 5 9 c 0 5.25 -2.5 7.9 -2.5 7.9 h 15 c 0 0 -2.5 -2.65 -2.5 -7.9 C 15 5.13 11.87 2 12 2 Z M 9.21 18.9 c 0.19 0.39 0.53 0.63 0.89 0.63 h 3.8 c 0.36 0 0.7 -0.24 0.89 -0.63 C 14.69 19.2 14.5 19 14.3 19 h -4.6 C 9.5 19 9.31 19.2 9.21 18.9 Z"/>
-    <circle cx="18" cy="6" r="5" style="fill:#FF3B30;fill-opacity:1;stroke:#FFFFFF;stroke-width:1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
+    <path fill="#0F3B5A" d="M10,20h4c0,1.1-0.9,2-2,2C10.9,22,10,21.1,10,20 M14,9c0,2.61,1.67,4.83,4,5.66V17h2v2H4v-2h2v-7c0-2.79,1.91-5.14,4.5-5.8
+	V3.5C10.5,2.67,11.17,2,12,2s1.5,0.67,1.5,1.5v0.7c0.71,0.18,1.359,0.49,1.95,0.9C14.51,6.181,13.994,7.567,14,9"/>
+    <circle cx="20" cy="9" r="4" fill="#FF3B30"/>
 </svg>
