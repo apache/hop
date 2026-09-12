@@ -31,7 +31,8 @@ class HopAiConfigTest {
     assertFalse(config.isAiEnabled());
     assertEquals("", config.getDefaultProviderName());
     assertFalse(config.isAllowSendFullXml());
-    assertEquals("", config.getExtraContext());
+    assertEquals(HopAiConfig.DEFAULT_EXTRA_CONTEXT, config.getExtraContext());
+    assertTrue(config.getExtraContext().contains("case-sensitive"));
     assertEquals(HopAiConfig.DEFAULT_EXTRA_CONTEXT_FILES, config.getExtraContextFiles());
   }
 

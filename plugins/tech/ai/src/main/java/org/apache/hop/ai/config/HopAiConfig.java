@@ -30,6 +30,19 @@ public class HopAiConfig {
   /** Default context-file list: include a project AGENTS.md when it exists. */
   public static final String DEFAULT_EXTRA_CONTEXT_FILES = "${PROJECT_HOME}/AGENTS.md";
 
+  /**
+   * Hop-wide standing notes sent with every advisor. Short facts models otherwise get wrong
+   * (case-sensitive metadata names, run-configuration types, terminology).
+   */
+  public static final String DEFAULT_EXTRA_CONTEXT =
+      """
+      Hop metadata names are case-sensitive.
+      Pipeline run configurations and workflow run configurations are different metadata types.
+      Do not invent metadata, transform, or action names that are not in the prompt context.
+      Variables use ${NAME}. Prefer variables or a resolver for secrets.
+      Hop uses pipelines (.hpl) and workflows (.hwf) with transforms and actions, not Kettle transformations, jobs, steps, or job entries.
+      """;
+
   /** Master switch. Default false so privacy-sensitive installs stay dark. */
   private boolean aiEnabled;
 
@@ -42,7 +55,7 @@ public class HopAiConfig {
   /**
    * Standing notes appended to every advisor system prompt (conventions, case-sensitivity, naming).
    */
-  private String extraContext = "";
+  private String extraContext = DEFAULT_EXTRA_CONTEXT;
 
   /**
    * One VFS path per line. Existing files are appended to the system prompt; missing files are

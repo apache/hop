@@ -46,7 +46,7 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
 . Open the Configuration perspective → *Plugins* → *AI Assistant*.
 . Check *Enable AI advisory*.
 . Optionally pick a *Default AI provider*.
-. Optionally add *Extra context* — standing notes sent with every question (for example that metadata names are case-sensitive: a run configuration named `local` is not `Local`).
+. *Extra context* is sent with every question. The default includes that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different metadata types, and that Hop uses pipelines/workflows (not Kettle transformations/jobs). Add project conventions here.
 . *Context files* defaults to `{openvar}PROJECT_HOME{closevar}/AGENTS.md`. Existing files are appended automatically; missing files are skipped. Add more VFS paths, one per line.
 . Leave *Allow sending full XML* unchecked unless you explicitly want the first prompt of a session to include the full pipeline or workflow XML.
   This is a second gate: the session checkbox cannot send XML until this option is on.

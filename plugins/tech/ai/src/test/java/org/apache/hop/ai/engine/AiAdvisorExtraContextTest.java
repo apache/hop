@@ -37,6 +37,15 @@ import org.junit.jupiter.api.Test;
 class AiAdvisorExtraContextTest {
 
   @Test
+  void defaultExtraContextIncludesCaseSensitivity() {
+    HopAiConfig config = new HopAiConfig();
+    config.setExtraContextFiles("");
+    String extra = AiAdvisorExtraContext.buildSystemAppendix(config, new Variables());
+    assertTrue(extra.contains("Hop metadata names are case-sensitive."));
+    assertTrue(extra.contains("Pipeline run configurations and workflow run configurations"));
+  }
+
+  @Test
   void notesAreAppendedToSystemPrompt() {
     HopAiConfig config = new HopAiConfig();
     config.setExtraContext("Metadata names are case-sensitive.");
