@@ -108,7 +108,7 @@ public class CalciteSqlFormatConfigPlugin
   private Boolean clauseStartsLine;
 
   @GuiWidgetElement(
-      id = "0121sql-format-clause-ends-line",
+      id = "0121-sql-format-clause-ends-line",
       order = "0121",
       parentId = PARENT,
       type = GuiElementType.CHECKBOX,
