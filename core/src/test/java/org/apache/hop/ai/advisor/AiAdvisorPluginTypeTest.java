@@ -73,6 +73,7 @@ class AiAdvisorPluginTypeTest {
     advisor.afterApply(new AiAdvisorRequest(), List.of());
     assertTrue(advisor.isAvailable());
     assertTrue(advisor.listInclusionChoices("catalog", new AiAdvisorRequest()).isEmpty());
+    assertTrue(advisor.getStandingContext().isEmpty());
   }
 
   @Test

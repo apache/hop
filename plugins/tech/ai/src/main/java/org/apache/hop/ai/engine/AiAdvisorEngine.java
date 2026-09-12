@@ -78,6 +78,7 @@ public final class AiAdvisorEngine {
       throw new HopException("AI request was cancelled");
     }
     AiAdvisorPrompt prompt = advisor.buildPrompt(request);
+    AiAdvisorExtraContext.apply(prompt, advisor, variables);
     List<ChatMessage> history = historyFrom(session);
     String raw =
         AiChatFactory.generate(

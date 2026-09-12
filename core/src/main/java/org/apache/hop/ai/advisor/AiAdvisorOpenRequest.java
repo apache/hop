@@ -57,8 +57,8 @@ public class AiAdvisorOpenRequest {
   private boolean reuseExisting = true;
 
   /**
-   * Session-scoped extras copied onto {@link AiAdvisorRequest#attributes} for {@code
-   * buildPrompt} / {@code applyProposals}. Do not put SWT objects here.
+   * Session-scoped extras copied onto {@link AiAdvisorRequest#attributes} for {@code buildPrompt} /
+   * {@code applyProposals}. Do not put SWT objects here.
    */
   private Map<String, Object> attributes = new LinkedHashMap<>();
 }

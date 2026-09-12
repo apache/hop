@@ -46,6 +46,8 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
 . Open the Configuration perspective → *Plugins* → *AI Assistant*.
 . Check *Enable AI advisory*.
 . Optionally pick a *Default AI provider*.
+. Optionally add *Extra context* — standing notes sent with every question (for example that metadata names are case-sensitive: a run configuration named `local` is not `Local`).
+. *Context files* defaults to `{openvar}PROJECT_HOME{closevar}/AGENTS.md`. Existing files are appended automatically; missing files are skipped. Add more VFS paths, one per line.
 . Leave *Allow sending full XML* unchecked unless you explicitly want the first prompt of a session to include the full pipeline or workflow XML.
   This is a second gate: the session checkbox cannot send XML until this option is on.
 
@@ -98,6 +100,8 @@ Regardless of the checkboxes, every turn includes:
 
 * your question
 * a compact *structure JSON* (transform or action names, plugin ids, hops, optional focus node)
+* *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `{openvar}PROJECT_HOME{closevar}/AGENTS.md` exist)
+* plugin notes from `ai-context.md` in the advisor plugin folder (Hop ships case-sensitivity and run-configuration facts here; other plugins can add their own)
 
 The first turn of a session also includes a short *summary JSON* (file name, counts, parameter *names* — not values).
 

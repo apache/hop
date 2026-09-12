@@ -64,8 +64,19 @@ public interface IAiAdvisor {
 
   /**
    * Assemble system and user prompts, including redacted context. Must not call the language model.
+   *
+   * <p>Do not load plugin-folder notes here. The workbench appends {@code ai-context.md} and {@code
+   * ai-context/<id>.md} from this plugin's folder (or classpath) after {@code buildPrompt}.
    */
   AiAdvisorPrompt buildPrompt(AiAdvisorRequest request) throws HopException;
+
+  /**
+   * Optional computed standing notes for the system prompt. Prefer shipping {@code ai-context.md}
+   * in the plugin folder. Default empty.
+   */
+  default String getStandingContext() {
+    return "";
+  }
 
   /**
    * Parse raw assistant text into advice and optional proposals. Chat-only advisors can return the

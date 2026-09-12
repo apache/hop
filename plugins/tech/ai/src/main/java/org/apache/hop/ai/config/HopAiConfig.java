@@ -27,6 +27,9 @@ public class HopAiConfig {
 
   public static final String HOP_CONFIG_KEY = "hopAiConfig";
 
+  /** Default context-file list: include a project AGENTS.md when it exists. */
+  public static final String DEFAULT_EXTRA_CONTEXT_FILES = "${PROJECT_HOME}/AGENTS.md";
+
   /** Master switch. Default false so privacy-sensitive installs stay dark. */
   private boolean aiEnabled;
 
@@ -35,6 +38,17 @@ public class HopAiConfig {
 
   /** When true, advisors may send full pipeline/workflow XML on the first turn. */
   private boolean allowSendFullXml;
+
+  /**
+   * Standing notes appended to every advisor system prompt (conventions, case-sensitivity, naming).
+   */
+  private String extraContext = "";
+
+  /**
+   * One VFS path per line. Existing files are appended to the system prompt; missing files are
+   * skipped. Default picks up a project {@code AGENTS.md}.
+   */
+  private String extraContextFiles = DEFAULT_EXTRA_CONTEXT_FILES;
 
   public HopAiConfig() {}
 
@@ -45,5 +59,7 @@ public class HopAiConfig {
     this.aiEnabled = other.aiEnabled;
     this.defaultProviderName = other.defaultProviderName;
     this.allowSendFullXml = other.allowSendFullXml;
+    this.extraContext = other.extraContext;
+    this.extraContextFiles = other.extraContextFiles;
   }
 }

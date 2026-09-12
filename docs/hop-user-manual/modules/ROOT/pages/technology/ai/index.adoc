@@ -32,7 +32,7 @@ AI is *disabled until you turn it on*.
 == What ships
 
 * xref:metadata-types/ai-provider.adoc[AI Provider] metadata — named model + credentials
-* Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, optional full XML
+* Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, extra context notes, context files (default `{openvar}PROJECT_HOME{closevar}/AGENTS.md`), optional full XML
 * xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] workbench — perspective, floating window, and bottom dock
 * Pipeline AI Help and Workflow AI Help — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits
 * Language Model Chat can optionally use a named AI Provider for connection fields; inline keys remain as fallback
@@ -48,6 +48,8 @@ A prompt that leaves your machine is billed and may be retained by the provider:
 * API keys stay on xref:metadata-types/ai-provider.adoc[AI Provider] metadata and are never copied into advisor prompts. Still prefer `{openvar}AI_API_KEY{closevar}` or a resolver expression instead of a pasted key.
 * Prompts redact XML/JSON fields named password, token, api-key and similar. That does not catch literals in SQL, notes or logs.
 * Session *context inclusion* checkboxes control extra payload (check results, plugin catalog, execution log, full XML, selected metadata). Use only what the question needs: xref:hop-gui/perspective-ai-advisor.adoc#context-inclusions[Context inclusions].
+* Extra context notes and listed context files (for example a project `AGENTS.md`) are sent on every turn when present. Keep secrets out of those files.
+* Advisor plugins may also ship `ai-context.md` next to the plugin JAR (Hop's AI plugin does). Those notes are always sent for that advisor.
 * Full pipeline or workflow XML is not sent unless both the session checkbox *and* Configuration → *Allow sending full XML* are on.
 * Delete `plugins/tech/ai` to remove the GUI, metadata type and advisors.
 * Hide individual widgets with xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml].

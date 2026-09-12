@@ -20,8 +20,8 @@ package org.apache.hop.ai.advisor;
 /**
  * Well-known location ids Hop itself uses when opening an AI session. These are ordinary strings:
  * other plugins (Data Vault, Business Vault, dimensional modelers, lineage, metadata editors, …)
- * define their own ids and pass them on {@link AiAdvisorOpenRequest#location}. Hop never
- * enumerates the full set.
+ * define their own ids and pass them on {@link AiAdvisorOpenRequest#location}. Hop never enumerates
+ * the full set.
  */
 public final class AiAdvisorLocations {
 

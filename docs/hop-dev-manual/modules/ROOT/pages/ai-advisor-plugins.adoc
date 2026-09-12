@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:openvar: ${
+:closevar: }
 :description: How to add an AI advisor for a new file type, metadata editor or other GUI location without changing Hop core.
 [[AiAdvisorPlugins]]
 = AI advisor plugins
@@ -398,6 +400,18 @@ Large context (catalog, XML, logs) is usually first-turn only; you decide.
 |What the user applied from earlier proposal blocks (`summarizeApplied`).
 |===
 
+After `buildPrompt` returns, the workbench appends standing notes to the *system* prompt, in this order:
+
+. Plugin files (no Hop-tech-ai dependency):
+  * `{plugin-folder}/ai-context.md` — every advisor in that plugin
+  * `{plugin-folder}/ai-context/<advisor-id>.md` — one advisor (for example `ai-context/data-vault-advisor.md`)
+  * The same paths on the plugin classpath (JAR root) if the folder file is missing
+  * The folder file *wins* when both exist, so an install can edit notes without rebuilding
+. `IAiAdvisor.getStandingContext()` when non-empty (computed notes; prefer files)
+. Configuration → *Extra context* and *Context files* (default `{openvar}PROJECT_HOME{closevar}/AGENTS.md`)
+
+Missing files are skipped. Your `buildPrompt` does not load these.
+
 === Proposals (optional)
 
 `parseResponse` owns the fence name.
@@ -461,5 +475,6 @@ The assistant sends whatever you put in the prompt to an external service.
 . Honour inclusions in `buildPrompt`; use id `metadata` for Hop metadata, `picker = true` + `listInclusionChoices` for anything else (catalog names, …).
 . Keep `defaultSelected = false`. Set `summary` and `listBaselineSharing()` so the collapsed Sharing line is accurate.
 . Keep SWT and langchain4j off `IAiAdvisor`.
+. Ship standing notes as `ai-context.md` and/or `ai-context/<id>.md` in the plugin folder (or JAR root).
 . Implement `afterApply` and `summarizeApplied` if you apply custom proposal types.
 . Verify AI still disappears when `plugins/tech/ai` is removed, and that your advisor JAR still loads.

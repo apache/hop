@@ -96,6 +96,8 @@ public class HopAiConfigSingleton {
       raw.put("aiEnabled", config.isAiEnabled());
       raw.put("defaultProviderName", config.getDefaultProviderName());
       raw.put("allowSendFullXml", config.isAllowSendFullXml());
+      raw.put("extraContext", config.getExtraContext());
+      raw.put("extraContextFiles", config.getExtraContextFiles());
     }
     return raw;
   }

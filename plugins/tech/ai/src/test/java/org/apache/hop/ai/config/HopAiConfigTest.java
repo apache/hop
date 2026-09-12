@@ -31,6 +31,8 @@ class HopAiConfigTest {
     assertFalse(config.isAiEnabled());
     assertEquals("", config.getDefaultProviderName());
     assertFalse(config.isAllowSendFullXml());
+    assertEquals("", config.getExtraContext());
+    assertEquals(HopAiConfig.DEFAULT_EXTRA_CONTEXT_FILES, config.getExtraContextFiles());
   }
 
   @Test
@@ -39,9 +41,13 @@ class HopAiConfigTest {
     original.setAiEnabled(true);
     original.setDefaultProviderName("prod-openai");
     original.setAllowSendFullXml(true);
+    original.setExtraContext("Metadata names are case-sensitive.");
+    original.setExtraContextFiles("${PROJECT_HOME}/AGENTS.md\n${PROJECT_HOME}/HOP.md");
     HopAiConfig copy = new HopAiConfig(original);
     assertTrue(copy.isAiEnabled());
     assertEquals("prod-openai", copy.getDefaultProviderName());
     assertTrue(copy.isAllowSendFullXml());
+    assertEquals("Metadata names are case-sensitive.", copy.getExtraContext());
+    assertEquals("${PROJECT_HOME}/AGENTS.md\n${PROJECT_HOME}/HOP.md", copy.getExtraContextFiles());
   }
 }

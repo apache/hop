@@ -99,6 +99,32 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       negatable = true)
   private Boolean allowSendFullXml;
 
+  @GuiWidgetElement(
+      id = "0400-ai-extra-context",
+      order = "0400",
+      parentId = PARENT,
+      type = GuiElementType.MULTI_LINE_TEXT,
+      multiLineTextHeight = 6,
+      variables = true,
+      label = "i18n::HopAiConfigOptionPlugin.ExtraContext.Label",
+      toolTip = "i18n::HopAiConfigOptionPlugin.ExtraContext.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "AI Advisory")
+  private String extraContext;
+
+  @GuiWidgetElement(
+      id = "0500-ai-extra-context-files",
+      order = "0500",
+      parentId = PARENT,
+      type = GuiElementType.MULTI_LINE_TEXT,
+      multiLineTextHeight = 4,
+      variables = true,
+      label = "i18n::HopAiConfigOptionPlugin.ExtraContextFiles.Label",
+      toolTip = "i18n::HopAiConfigOptionPlugin.ExtraContextFiles.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "AI Advisory")
+  private String extraContextFiles;
+
   public static HopAiConfigOptionPlugin getInstance() {
     HopAiConfigOptionPlugin instance = new HopAiConfigOptionPlugin();
     try {
@@ -113,6 +139,8 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
     instance.aiEnabled = config.isAiEnabled();
     instance.defaultProviderName = config.getDefaultProviderName();
     instance.allowSendFullXml = config.isAllowSendFullXml();
+    instance.extraContext = config.getExtraContext();
+    instance.extraContextFiles = config.getExtraContextFiles();
     return instance;
   }
 
@@ -177,6 +205,12 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
     }
     if (allowSendFullXml != null) {
       config.setAllowSendFullXml(allowSendFullXml);
+    }
+    if (extraContext != null) {
+      config.setExtraContext(extraContext);
+    }
+    if (extraContextFiles != null) {
+      config.setExtraContextFiles(extraContextFiles);
     }
     try {
       HopAiConfigSingleton.saveConfig();

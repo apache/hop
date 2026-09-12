@@ -36,6 +36,7 @@ import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.config.HopAiConfig;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
+import org.apache.hop.ai.engine.AiAdvisorExtraContext;
 import org.apache.hop.ai.engine.AiM2PromptSupport;
 import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.ai.metadata.AiProvider;
@@ -461,6 +462,17 @@ public class AiAdvisorSessionPane extends Composite {
       for (String baseline : advisor.listBaselineSharing()) {
         if (!Utils.isEmpty(baseline)) {
           parts.add(baseline);
+        }
+      }
+    }
+    if (host != null) {
+      for (String extra :
+          AiAdvisorExtraContext.sharingPhrases(
+              advisor,
+              host.getVariables(),
+              BaseMessages.getString(PKG, "AiAdvisor.Sharing.ExtraNotes"))) {
+        if (!Utils.isEmpty(extra)) {
+          parts.add(extra);
         }
       }
     }

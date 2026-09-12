@@ -30,6 +30,16 @@
             <filtered>true</filtered>
         </file>
     </files>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources</directory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
+            <includes>
+                <include>ai-context.md</include>
+                <include>ai-context/*.md</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 
     <!-- Project jar only. Do not copy provided langchain4j / Language Model Chat jars to lib/core:
          they already ship in the languagemodelchat plugin (classLoaderGroup hop-ai). A second copy
