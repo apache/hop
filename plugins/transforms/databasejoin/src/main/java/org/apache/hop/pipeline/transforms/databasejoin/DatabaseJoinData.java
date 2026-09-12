@@ -39,4 +39,7 @@ public class DatabaseJoinData extends BaseTransformData implements ITransformDat
   public int[] keynrs; // parameter value index in an input row...
   public Object[] notfound; // Values in case nothing is found...
   public boolean isCanceled;
+
+  // The output metadata has been initialized.
+  public boolean outputMetadataInitialized;
 }
