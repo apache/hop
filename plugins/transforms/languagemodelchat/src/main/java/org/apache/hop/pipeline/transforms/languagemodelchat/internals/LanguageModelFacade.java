@@ -21,10 +21,9 @@ import static com.squareup.moshi.Types.newParameterizedType;
 import static dev.langchain4j.data.message.UserMessage.userMessage;
 import static java.lang.String.format;
 import static java.lang.System.getenv;
-import static java.net.Proxy.Type.HTTP;
 import static java.time.Duration.ofSeconds;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notNull;
@@ -32,23 +31,24 @@ import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.Mes
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
 import dev.langchain4j.model.anthropic.AnthropicChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.huggingface.DedicatedEndpointHuggingFaceChatModel;
-import dev.langchain4j.model.huggingface.HuggingFaceChatModel;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.output.Response;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
+import org.apache.hop.pipeline.transforms.languagemodelchat.internals.huggingface.HuggingFaceChatModel;
 
 public class LanguageModelFacade {
 
@@ -57,7 +57,7 @@ public class LanguageModelFacade {
   private final JsonAdapter<List<BaseMessage>> outputJsonAdapter;
   private final LanguageModel lm;
   private final IVariables variables;
-  private ChatLanguageModel model;
+  private ChatModel model;
 
   public LanguageModelFacade(IVariables variables, LanguageModelChatMeta meta) {
     this.variables = variables;
@@ -93,7 +93,7 @@ public class LanguageModelFacade {
     return variables.resolve(trimToNull(param));
   }
 
-  private ChatLanguageModel createOpenAiModel() {
+  private ChatModel createOpenAiModel() {
 
     String baseUrl = resolve(meta.getOpenAiBaseUrl());
     String apiKey = trimToNull(resolve(meta.getOpenAiApiKey()));
@@ -124,7 +124,7 @@ public class LanguageModelFacade {
             .maxTokens(maxTokens)
             .presencePenalty(presencePenalty)
             .frequencyPenalty(frequencyPenalty)
-            .responseFormat(responseFormat)
+            .responseFormat(toResponseFormat(responseFormat))
             .seed(seed)
             .user(user)
             .timeout(timeout == null ? null : ofSeconds(timeout))
@@ -133,19 +133,21 @@ public class LanguageModelFacade {
             .logResponses(logResponses);
 
     if (meta.isOpenAiUseProxy()) {
-      builder.proxy(
-          new Proxy(
-              HTTP, new InetSocketAddress(meta.getOpenAiProxyHost(), meta.getOpenAiProxyPort())));
+      builder.httpClientBuilder(
+          new JdkHttpClientBuilder()
+              .httpClientBuilder(
+                  HttpClient.newBuilder()
+                      .proxy(
+                          ProxySelector.of(
+                              new InetSocketAddress(
+                                  meta.getOpenAiProxyHost(), meta.getOpenAiProxyPort())))));
     }
 
     return builder.build();
   }
 
-  private ChatLanguageModel createHuggingFaceModel() {
+  private ChatModel createHuggingFaceModel() {
     String modelResource = resolve(meta.getHuggingFaceModelId());
-    boolean dedicated =
-        startsWithIgnoreCase(modelResource, "http://")
-            || startsWithIgnoreCase(modelResource, "https://");
 
     String accessToken = trimToNull(resolve(meta.getHuggingFaceAccessToken()));
     accessToken =
@@ -157,30 +159,18 @@ public class LanguageModelFacade {
     boolean returnFullText = meta.isHuggingFaceReturnFullText();
     boolean waitForModel = meta.isHuggingFaceWaitForModel();
 
-    if (dedicated) {
-      return DedicatedEndpointHuggingFaceChatModel.builder()
-          .accessToken(accessToken)
-          .endpointUrl(modelResource)
-          .timeout(timeout == null ? null : ofSeconds(timeout))
-          .temperature(temperature)
-          .maxNewTokens(maxNewTokens)
-          .returnFullText(returnFullText)
-          .waitForModel(waitForModel)
-          .build();
-    } else {
-      return HuggingFaceChatModel.builder()
-          .accessToken(accessToken)
-          .modelId(modelResource)
-          .timeout(timeout == null ? null : ofSeconds(timeout))
-          .temperature(temperature)
-          .maxNewTokens(maxNewTokens)
-          .returnFullText(returnFullText)
-          .waitForModel(waitForModel)
-          .build();
-    }
+    return HuggingFaceChatModel.builder()
+        .accessToken(accessToken)
+        .modelResource(modelResource)
+        .timeout(timeout == null ? null : ofSeconds(timeout))
+        .temperature(temperature)
+        .maxNewTokens(maxNewTokens)
+        .returnFullText(returnFullText)
+        .waitForModel(waitForModel)
+        .build();
   }
 
-  private ChatLanguageModel createOllamaModel() {
+  private ChatModel createOllamaModel() {
     String modelName = resolve(meta.getOllamaModelName());
 
     if (isBlank(modelName)) {
@@ -218,13 +208,13 @@ public class LanguageModelFacade {
         .seed(seed)
         .numPredict(numPredict)
         .numCtx(numCtx)
-        .format(format)
+        .responseFormat(toResponseFormat(format))
         .timeout(timeout == null ? null : ofSeconds(timeout))
         .maxRetries(maxRetries)
         .build();
   }
 
-  private ChatLanguageModel createAnthropicModel() {
+  private ChatModel createAnthropicModel() {
 
     String baseUrl = resolve(meta.getAnthropicBaseUrl());
     String apiKey = trimToNull(resolve(meta.getAnthropicApiKey()));
@@ -257,7 +247,7 @@ public class LanguageModelFacade {
         .build();
   }
 
-  private ChatLanguageModel createMistralModel() {
+  private ChatModel createMistralModel() {
     String baseUrl = resolve(meta.getMistralBaseUrl());
     String apiKey = trimToNull(resolve(meta.getMistralApiKey()));
     apiKey = isBlank(apiKey) ? trimToNull(getenv(meta.getMistralApiKey())) : apiKey;
@@ -283,12 +273,25 @@ public class LanguageModelFacade {
         .maxTokens(maxTokens)
         .safePrompt(safePrompt)
         .randomSeed(randomSeed)
-        .responseFormat(responseFormat)
+        .responseFormat(toResponseFormat(responseFormat))
         .timeout(timeout == null ? null : ofSeconds(timeout))
         .logRequests(logRequests)
         .logResponses(logResponses)
         .maxRetries(maxRetries)
         .build();
+  }
+
+  /**
+   * The providers take a response format object instead of the free format string the dialogs ask
+   * for. Anything mentioning json asks for json, anything else for text. Open AI does read a string
+   * as well, but only recognises "json_object" there and drops every other value.
+   */
+  private static ResponseFormat toResponseFormat(String format) {
+    String value = trimToNull(format);
+    if (value == null) {
+      return null;
+    }
+    return containsIgnoreCase(value, "json") ? ResponseFormat.JSON : ResponseFormat.TEXT;
   }
 
   @SuppressWarnings("java:S131")
@@ -300,7 +303,7 @@ public class LanguageModelFacade {
 
     List<BaseMessage> messages = new ArrayList<>();
     for (ChatMessage c : chat) {
-      String text = c.text();
+      String text = ChatMessages.text(c);
       switch (c.type()) {
         case SYSTEM -> messages.add(new BaseMessage(systemRoleName, text));
         case USER -> messages.add(new BaseMessage(userRoleName, text));
@@ -337,11 +340,11 @@ public class LanguageModelFacade {
     return messageList;
   }
 
-  public Response<AiMessage> generate(List<ChatMessage> messages) {
-    return model().generate(messages);
+  public ChatResponse chat(List<ChatMessage> messages) {
+    return model().chat(messages);
   }
 
-  public ChatLanguageModel model() {
+  public ChatModel model() {
     if (model == null) {
       createModel();
     }

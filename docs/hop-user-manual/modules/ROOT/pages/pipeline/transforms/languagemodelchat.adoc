@@ -121,7 +121,7 @@ Below is a table detailing parameters specific to individual language model APIs
 |Option |Description
 
 |API/Endpoint URL
-|Specifies the identifier (e.g., URL, model ID, or image ID) used to access and interact with models provided by services like OpenAI, Anthropic, Mistral, Ollama, or Hugging Face.
+|Specifies the identifier (e.g., URL, model ID, or image ID) used to access and interact with models provided by services like OpenAI, Anthropic, Mistral, Ollama, or Hugging Face. For Hugging Face, a model id is sent to the Hugging Face inference router, a URL is called as a dedicated inference endpoint.
 
 |Temperature
 |Controls the randomness of the output: high values lead to more diverse text (creative/inventive), while low values produce more focused and deterministic responses. The value typically ranges between 0 and 1 but can exceed this range depending on the model. Note: Unless intentional, it is generally best to adjust only one parameter; either temperature or Top-P/K, rather than multiple simultaneously.
@@ -136,7 +136,9 @@ Below is a table detailing parameters specific to individual language model APIs
 |Determines how long to wait for a response before giving up.
 
 |API Key/AccessToken
-| Unique access value used to authenticate and authorise access to the endpoint service.
+| Unique access value used to authenticate and authorise access to the endpoint service. The value
+is masked in the dialog and stored encrypted in the pipeline, unless it is a variable such as
+`'${OPENAI_API_KEY}'`, which is stored as it stands so it can be resolved at run time.
 
 |Model Name
 |Identifies which specific model to use.
@@ -148,7 +150,7 @@ Below is a table detailing parameters specific to individual language model APIs
 |The maximum number of retry attempts for failed API requests.
 
 |Response Format
-|Defines the structure used for the model's responses. Note: While some APIs support this option, not all models are compatible with it. Additionally, the API may require explicitly instructing the model to produce JSON to ensure proper functionality.
+|Defines the structure used for the model's responses. A value mentioning json asks the model for JSON, any other value asks for text. Note: While some APIs support this option, not all models are compatible with it. Additionally, the API may require explicitly instructing the model to produce JSON to ensure proper functionality.
 
 |Seed
 |Attempts to sample deterministically, ensuring consistent results for repeated requests with the same seed, prompt, and parameters.

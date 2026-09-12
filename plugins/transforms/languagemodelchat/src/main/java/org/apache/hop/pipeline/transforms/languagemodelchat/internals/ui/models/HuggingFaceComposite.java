@@ -47,7 +47,7 @@ public class HuggingFaceComposite extends AbstractModelComposite {
 
     // Access Token
     accessTokenLabel = createLabel();
-    accessTokenInput = createTextVar();
+    accessTokenInput = createPasswordTextVar();
     prepare("AccessToken", accessTokenLabel, accessTokenInput);
 
     // Temperature

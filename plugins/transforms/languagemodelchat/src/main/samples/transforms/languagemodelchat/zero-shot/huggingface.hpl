@@ -82,7 +82,7 @@ limitations under the License.
     <openAiLogRequests>false</openAiLogRequests>
     <openAiLogResponses>false</openAiLogResponses>
     <huggingFaceAccessToken>${HF_TOKEN}</huggingFaceAccessToken>
-    <huggingFaceModelId>meta-llama/Llama-3.1-70B-Instruct</huggingFaceModelId>
+    <huggingFaceModelId>meta-llama/Llama-3.3-70B-Instruct</huggingFaceModelId>
     <huggingFaceTemperature>0.1</huggingFaceTemperature>
     <huggingFaceMaxNewTokens>50</huggingFaceMaxNewTokens>
     <huggingFaceReturnFullText>false</huggingFaceReturnFullText>

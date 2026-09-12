@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMet
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ModelType;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.CompositeParameters;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.FormDataBuilder;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -85,6 +86,11 @@ public abstract class AbstractModelComposite implements IModelComposite {
 
   protected TextVar createTextVar() {
     return new TextVar(parameters.variables(), composite, SINGLE | LEFT | BORDER);
+  }
+
+  /** Api keys and access tokens are masked, the way every other secret in Hop is. */
+  protected TextVar createPasswordTextVar() {
+    return new PasswordTextVar(parameters.variables(), composite, SINGLE | LEFT | BORDER);
   }
 
   protected Button createButton() {
