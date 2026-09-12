@@ -119,6 +119,8 @@ public class HopEnvironment {
       System.setProperties(ConcurrentMapProperties.convertProperties(System.getProperties()));
 
       try {
+        silenceVerboseThirdPartyLoggers();
+
         // This creates .hop and hop.properties...
         //
         if (!HopClientEnvironment.isInitialized()) {
@@ -245,5 +247,46 @@ public class HopEnvironment {
     LineageHub.getInstance().shutdown();
     HopClientEnvironment.reset();
     initialized.set(null);
+  }
+
+  /**
+   * Strong reference to prevent java.util.logging.LogManager from garbage-collecting the logger.
+   */
+  @SuppressWarnings("java:S3985")
+  private static final java.util.logging.Logger JUL_WIRE_LOGGER =
+      java.util.logging.Logger.getLogger("org.apache.hc.client5.http.wire");
+
+  /**
+   * Default verbose third-party loggers to a non-debug level to prevent dumping raw network bytes
+   * to the console while preserving explicitly configured debug settings.
+   */
+  private static void silenceVerboseThirdPartyLoggers() {
+    String wireLoggerName = "org.apache.hc.client5.http.wire";
+
+    // Silence JUL logger to prevent verbose byte dumps on backends printing via java.util.logging
+    try {
+      if (JUL_WIRE_LOGGER.getLevel() == null) {
+        JUL_WIRE_LOGGER.setLevel(java.util.logging.Level.WARNING);
+      }
+    } catch (Exception ignored) {
+      // Ignore if JUL cannot be configured
+    }
+
+    // Configure Log4j2 if present on the classpath, preserving any explicit configuration
+    try {
+      org.apache.logging.log4j.core.LoggerContext context =
+          org.apache.logging.log4j.core.LoggerContext.getContext(false);
+      org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+      org.apache.logging.log4j.core.config.LoggerConfig loggerConfig =
+          configuration.getLoggerConfig(wireLoggerName);
+      boolean isExplicitlyConfigured =
+          wireLoggerName.equals(loggerConfig.getName()) && loggerConfig.getExplicitLevel() != null;
+      if (!isExplicitlyConfigured) {
+        org.apache.logging.log4j.core.config.Configurator.setLevel(
+            wireLoggerName, org.apache.logging.log4j.Level.INFO);
+      }
+    } catch (LinkageError | Exception ignored) {
+      // Ignore if Log4j2 core is not available or configuration fails
+    }
   }
 }
