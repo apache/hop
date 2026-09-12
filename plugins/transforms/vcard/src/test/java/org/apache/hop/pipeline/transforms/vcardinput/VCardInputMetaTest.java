@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.vcardinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
@@ -31,5 +32,21 @@ class VCardInputMetaTest {
     assertEquals(6, meta.getFieldMappings().size());
     assertEquals("fn", meta.getFieldMappings().get(0).getHopField());
     assertEquals(1, meta.getFileInput().getInputFiles().size());
+  }
+
+  /**
+   * The settings for reading filenames from an incoming stream used to be excluded from
+   * serialization, so they silently disappeared when a pipeline was saved.
+   */
+  @Test
+  void testSerializationOfAcceptingFilenames() throws Exception {
+    VCardInputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/vcard-input-transform.xml", VCardInputMeta.class);
+    assertTrue(meta.getFileInput().isAcceptingFilenames());
+    assertEquals("get filenames", meta.getFileInput().getAcceptingTransformName());
+    assertEquals("filename", meta.getFileInput().getAcceptingField());
+    assertTrue(meta.getFileInput().isPassingThruFields());
+    assertTrue(meta.getFileInput().isAddingResult());
   }
 }

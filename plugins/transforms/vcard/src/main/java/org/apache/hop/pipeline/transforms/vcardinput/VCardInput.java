@@ -74,7 +74,10 @@ public class VCardInput extends BaseTransform<VCardInputMeta, VCardInputData> {
 
   @Override
   public boolean processRow() throws HopException {
-    if (first) {
+    // When we accept filenames from an incoming stream the input row metadata only becomes
+    // available after the first getRow(), so the output row metadata is prepared there instead.
+    //
+    if (first && !meta.getFileInput().isAcceptingFilenames()) {
       first = false;
       prepareOutputRowMeta();
     }
@@ -116,6 +119,10 @@ public class VCardInput extends BaseTransform<VCardInputMeta, VCardInputData> {
       if (row == null) {
         setOutputDone();
         return false;
+      }
+      if (first) {
+        first = false;
+        prepareOutputRowMeta();
       }
       data.currentInputRow = meta.getFileInput().isPassingThruFields() ? row : null;
       String path = resolve(getInputRowMeta().getString(row, data.acceptFieldIndex));
