@@ -31,8 +31,11 @@ import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -218,6 +221,12 @@ public final class AiMetadataProposalSupport {
       }
       pluginId = resolveDatabasePluginId(pluginId);
       inner.put("pluginId", pluginId);
+      if (!inner.has("pluginName") || Utils.isEmpty(text(inner, "pluginName"))) {
+        String resolvedPluginName = resolveDatabasePluginName(pluginId);
+        if (!Utils.isEmpty(resolvedPluginName)) {
+          inner.put("pluginName", resolvedPluginName);
+        }
+      }
       if (!inner.has("accessType")) {
         inner.put("accessType", 0);
       }
@@ -384,12 +393,14 @@ public final class AiMetadataProposalSupport {
     if (Utils.isEmpty(port)) {
       port = defaultPort(pluginId);
     }
+    String pluginName = resolveDatabasePluginName(pluginId);
     return "{\"name\":\""
         + escapeJson(name)
         + "\",\"rdbms\":{\""
         + escapeJson(pluginId)
         + "\":{\"pluginId\":\""
         + escapeJson(pluginId)
+        + (!Utils.isEmpty(pluginName) ? "\",\"pluginName\":\"" + escapeJson(pluginName) : "")
         + "\",\"accessType\":0,\"hostname\":\""
         + escapeJson(hostname)
         + "\",\"port\":\""
@@ -483,6 +494,44 @@ public final class AiMetadataProposalSupport {
       return "";
     }
     return normalized;
+  }
+
+  static String resolveDatabasePluginName(String pluginId) {
+    if (Utils.isEmpty(pluginId)) {
+      return "";
+    }
+    try {
+      IPlugin plugin =
+          PluginRegistry.getInstance().findPluginWithId(DatabasePluginType.class, pluginId);
+      if (plugin != null && !Utils.isEmpty(plugin.getName())) {
+        return plugin.getName();
+      }
+    } catch (Exception e) {
+      // Registry might not be fully initialized in some unit test contexts
+    }
+    String upper = pluginId.trim().toUpperCase();
+    if ("POSTGRESQL".equals(upper)) {
+      return "PostgreSQL";
+    }
+    if ("MYSQL".equals(upper)) {
+      return "MySQL";
+    }
+    if ("MARIADB".equals(upper)) {
+      return "MariaDB";
+    }
+    if ("ORACLE".equals(upper)) {
+      return "Oracle";
+    }
+    if ("SNOWFLAKE".equals(upper)) {
+      return "Snowflake";
+    }
+    if ("MSSQL".equals(upper)) {
+      return "MS SQL Server";
+    }
+    if ("MSSQLNATIVE".equals(upper)) {
+      return "MS SQL Server (Native)";
+    }
+    return "";
   }
 
   static String firstParameter(AiProposal proposal, String... names) {

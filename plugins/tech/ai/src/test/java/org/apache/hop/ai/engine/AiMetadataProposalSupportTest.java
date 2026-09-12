@@ -109,6 +109,7 @@ class AiMetadataProposalSupportTest {
     String json = AiMetadataProposalSupport.jsonParam(proposal);
     assertTrue(json.contains("\"rdbms\":{\"POSTGRESQL\""), json);
     assertTrue(json.contains("\"pluginId\":\"POSTGRESQL\""), json);
+    assertTrue(json.contains("\"pluginName\":\"PostgreSQL\""), json);
   }
 
   @Test
@@ -117,6 +118,7 @@ class AiMetadataProposalSupportTest {
     proposal.setDescription("Save PostgreSQL RDBMS connection test_edw (localhost:54320)");
     String json = AiMetadataProposalSupport.jsonParam(proposal);
     assertTrue(json.contains("POSTGRESQL"), json);
+    assertTrue(json.contains("\"pluginName\":\"PostgreSQL\""), json);
     assertTrue(json.contains("\"hostname\":\"localhost\""), json);
     assertTrue(json.contains("\"port\":\"54320\""), json);
     assertTrue(json.contains("\"databaseName\":\"test_edw\""), json);
@@ -148,6 +150,7 @@ class AiMetadataProposalSupportTest {
     assertTrue(json.contains("\"hostname\":\"localhost\""));
     assertTrue(json.contains("\"port\":\"54320\""));
     assertTrue(json.contains("POSTGRESQL"));
+    assertTrue(json.contains("\"pluginName\":\"PostgreSQL\""), json);
     assertTrue(json.contains("${DB_PASSWORD}"));
   }
 

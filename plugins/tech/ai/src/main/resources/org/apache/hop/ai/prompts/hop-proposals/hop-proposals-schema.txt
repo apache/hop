@@ -52,7 +52,7 @@ Rules:
 - CLIPBOARD_METADATA copies json to the clipboard. SAVE_METADATA writes the object (create or overwrite by name). typeKey must match an available metadata type (rdbms for relational connections). json is the object body or {"content":{...}}. New names the user asked for are allowed. Use HIGH risk.
 - SAVE_METADATA for PostgreSQL (the rdbms key MUST be POSTGRESQL, not hostname/pluginId at the top level):
   type SAVE_METADATA, typeKey rdbms, name test_edw,
-  json {"name":"test_edw","rdbms":{"POSTGRESQL":{"pluginId":"POSTGRESQL","accessType":0,"hostname":"localhost","port":"5432","databaseName":"test_edw","username":"test","password":"${DB_PASSWORD}"}}}
+  json {"name":"test_edw","rdbms":{"POSTGRESQL":{"pluginId":"POSTGRESQL","pluginName":"PostgreSQL","accessType":0,"hostname":"localhost","port":"5432","databaseName":"test_edw","username":"test","password":"${DB_PASSWORD}"}}}
   Wrong (saves as type NONE): {"name":"test_edw","hostname":"localhost","pluginId":"POSTGRESQL"}
   Wrong: {"rdbms":{"hostname":"localhost","pluginId":"POSTGRESQL"}}
 - Names of new transforms/actions must be unique in the open graph. Hops must reference existing names (including names added earlier in the same proposal list).

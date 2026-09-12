@@ -226,10 +226,14 @@ public class AiAdvisorTranscriptPanel extends Composite {
 
   private Font usageFont() {
     if (usageFont == null || usageFont.isDisposed()) {
-      Font base = GuiResource.getInstance().getFontSmall();
+      Font base = GuiResource.getInstance().getFontDefault();
       FontData[] data = base.getFontData();
       for (FontData fontData : data) {
-        fontData.setHeight(Math.max(1, fontData.getHeight() * 2));
+        int height =
+            Math.min(
+                fontData.getHeight() - 1,
+                Math.max(1, (int) Math.round(fontData.getHeight() * 0.85)));
+        fontData.setHeight(height);
         fontData.setStyle(SWT.ITALIC);
       }
       usageFont = new Font(getDisplay(), data);

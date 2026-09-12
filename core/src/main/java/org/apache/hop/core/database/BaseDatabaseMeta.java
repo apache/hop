@@ -44,6 +44,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
@@ -212,6 +214,11 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     if (getAccessTypeList() != null && getAccessTypeList().length > 0) {
       accessType = getAccessTypeList()[0];
     }
+    DatabaseMetaPlugin annotation = getClass().getAnnotation(DatabaseMetaPlugin.class);
+    if (annotation != null) {
+      pluginId = annotation.type();
+      pluginName = annotation.typeDescription();
+    }
   }
 
   /**
@@ -219,6 +226,24 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @Override
   public String getPluginId() {
+    if (Utils.isEmpty(pluginId)) {
+      if (!Utils.isEmpty(pluginName)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithName(DatabasePluginType.class, pluginName);
+        if (plugin != null) {
+          pluginId = plugin.getIds()[0];
+        }
+      }
+      if (Utils.isEmpty(pluginId)) {
+        DatabaseMetaPlugin annotation = getClass().getAnnotation(DatabaseMetaPlugin.class);
+        if (annotation != null) {
+          pluginId = annotation.type();
+          if (Utils.isEmpty(pluginName)) {
+            pluginName = annotation.typeDescription();
+          }
+        }
+      }
+    }
     return pluginId;
   }
 
@@ -235,6 +260,24 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @Override
   public String getPluginName() {
+    if (Utils.isEmpty(pluginName)) {
+      if (!Utils.isEmpty(pluginId)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithId(DatabasePluginType.class, pluginId);
+        if (plugin != null) {
+          pluginName = plugin.getName();
+        }
+      }
+      if (Utils.isEmpty(pluginName)) {
+        DatabaseMetaPlugin annotation = getClass().getAnnotation(DatabaseMetaPlugin.class);
+        if (annotation != null) {
+          pluginName = annotation.typeDescription();
+          if (Utils.isEmpty(pluginId)) {
+            pluginId = annotation.type();
+          }
+        }
+      }
+    }
     return pluginName;
   }
 
