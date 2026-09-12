@@ -94,4 +94,54 @@ class HopEnvironmentSystemPropertyTest {
         actualValue,
         "Config file property should be applied when not set via command-line");
   }
+
+  @Test
+  void testThirdPartyWireLoggingSilencedByDefault() throws Exception {
+    org.apache.logging.log4j.core.LoggerContext context =
+        org.apache.logging.log4j.core.LoggerContext.getContext(false);
+    org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+    String wireLogger = "org.apache.hc.client5.http.wire";
+
+    try {
+      configuration.removeLogger(wireLogger);
+      context.updateLoggers();
+
+      HopEnvironment.init();
+
+      org.apache.logging.log4j.core.config.LoggerConfig lc =
+          configuration.getLoggerConfig(wireLogger);
+      assertEquals(
+          org.apache.logging.log4j.Level.INFO,
+          lc.getLevel(),
+          "HttpClient 5 wire logger should default to INFO to suppress verbose dumps");
+    } finally {
+      configuration.removeLogger(wireLogger);
+      context.updateLoggers();
+    }
+  }
+
+  @Test
+  void testThirdPartyWireLoggingPreservesExplicitDebug() throws Exception {
+    org.apache.logging.log4j.core.LoggerContext context =
+        org.apache.logging.log4j.core.LoggerContext.getContext(false);
+    org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+    String wireLogger = "org.apache.hc.client5.http.wire";
+
+    try {
+      org.apache.logging.log4j.core.config.Configurator.setLevel(
+          wireLogger, org.apache.logging.log4j.Level.DEBUG);
+
+      HopEnvironment.init();
+
+      org.apache.logging.log4j.core.config.LoggerConfig lc =
+          configuration.getLoggerConfig(wireLogger);
+      assertEquals(
+          org.apache.logging.log4j.Level.DEBUG,
+          lc.getLevel(),
+          "Explicitly configured DEBUG level should not be overridden by HopEnvironment.init()");
+    } finally {
+      configuration.removeLogger(wireLogger);
+      context.updateLoggers();
+    }
+  }
 }
