@@ -35,6 +35,7 @@ Since metadata types are plugin types too, the available metadata types in your 
 By default, Hop contains the following metadata types:
 
 
+* xref:metadata-types/ai-provider.adoc[AI Provider]: Named language-model endpoint (credentials and model) used by the AI Assistant and optionally by Language Model Chat
 * xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
 * xref:metadata-types/azure-authentication.adoc[Azure Connection]: An Azure Blob Storage connection type.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline

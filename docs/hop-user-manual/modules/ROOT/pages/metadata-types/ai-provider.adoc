@@ -1,0 +1,119 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /metadata-types/
+:language: en_US
+:openvar: ${
+:closevar: }
+:description: Named AI provider (model and credentials) used by the AI Assistant and optionally by Language Model Chat.
+
+= AI Provider
+
+== Description
+
+An AI Provider is a named connection to a language-model endpoint: provider type, base URL, model name, API key, timeout and temperature.
+Objects are managed in the Metadata perspective and stored as JSON under:
+
+`metadata/ai-provider/`
+
+Use the *Test* button in the editor to send a short health-check prompt.
+
+The xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] uses these objects as the credential source of truth.
+Global configuration only stores the enable flag and the default provider *name*.
+
+Do *not* paste a live API key into this metadata object.
+Set `{openvar}AI_API_KEY{closevar}` (or a similar name containing `PASSWORD`, `SECRET` or `TOKEN`) in an xref:projects/projects-environments.adoc[environment] configuration file, or better a xref:metadata-types/variable-resolver/index.adoc[variable resolver] expression such as `#{vault:secret/data/ai:api-key}`.
+The same pattern applies to every other secret in the project: never hard-code it in pipelines, workflows or metadata.
+See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information].
+
+The xref:pipeline/transforms/languagemodelchat.adoc[Language model chat] transform can optionally select a named AI Provider.
+Connection fields from the provider overlay the transform's inline values; empty provider fields keep the inline values.
+Input/output mapping, mock mode, proxy and retries stay on the transform.
+
+== Provider types
+
+|===
+|Type |Default base URL |Default model |API key
+
+|OpenAI
+|`https://api.openai.com/v1`
+|`gpt-4o-mini`
+|Yes
+
+|Grok (xAI)
+|`https://api.x.ai/v1`
+|`grok-4`
+|Yes
+
+|Gemini (OpenAI-compatible)
+|`https://generativelanguage.googleapis.com/v1beta/openai`
+|`gemini-2.5-flash`
+|Yes
+
+|Custom (OpenAI-compatible)
+|(you set it)
+|(you set it)
+|Usually
+
+|Anthropic
+|(plugin default)
+|`claude-3-5-sonnet-20241022`
+|Yes
+
+|Ollama
+|`http://localhost:11434`
+|`llama3.2`
+|No
+
+|Mistral
+|`https://api.mistral.ai/v1`
+|`mistral-small-latest`
+|Yes
+
+|Hugging Face
+|Dedicated inference endpoint URL, if you use one. Leave empty for the public inference router.
+|Router model id (for example `meta-llama/Llama-3.3-70B-Instruct`), or a dedicated endpoint URL if Base URL is empty
+|Yes (token)
+|===
+
+OpenAI, Grok, Gemini and Custom share the OpenAI Chat Completions API.
+A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
+
+== Options
+
+|===
+|Option |Description
+
+|Provider
+|Plugin implementation (OpenAI, Grok, …)
+
+|Base URL
+|Override the type's default endpoint. Variables such as `'${AI_BASE_URL}'` are resolved at send time. For Hugging Face, a URL here is used as the dedicated inference endpoint when Model name is empty.
+
+|API key
+|Secret stored as a Hop password field. Not sent in advisor prompts. Prefer `{openvar}AI_API_KEY{closevar}` from an environment file or a keystore resolver expression, not a pasted key.
+
+|Model name
+|Model identifier for the chosen provider. For Hugging Face, a model id is sent to the inference router; an `http(s)` URL is called as a dedicated endpoint. If this field is empty, Base URL is used instead.
+
+|Timeout (seconds)
+|HTTP timeout for completions.
+
+|Temperature
+|Sampling temperature, when the provider supports it.
+|===
+
+When Language Model Chat points at an AI Provider, extra transform options (proxy, retries, mock, I/O fields) are not taken from the provider.

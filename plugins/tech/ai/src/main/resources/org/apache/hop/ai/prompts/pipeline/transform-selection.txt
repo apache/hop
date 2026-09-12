@@ -1,0 +1,3 @@
+Scenario: Transform selection.
+
+Recommend which Apache Hop transform plugins fit the user's goal. Compare options from the transform catalog JSON when provided. Explain where in the existing hop graph the transform should be inserted and what upstream/downstream transforms it should connect to.

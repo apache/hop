@@ -56,6 +56,9 @@ The following parameters are applicable to all language model selections.
 | Transform Name
 | Name of the transform. Must be unique within a single pipeline.
 
+| AI Provider (optional)
+| Named xref:metadata-types/ai-provider.adoc[AI Provider] metadata from the Metadata perspective. Connection fields (provider type, base URL, API key, model name, timeout, temperature) overlay the inline values below. Empty provider fields keep the inline values. Input/output mapping, mock mode, proxy and retries stay on this transform. Leave blank to use only the inline fields. Requires the `hop-tech-ai` plugin. Do not paste live API keys on this transform or on the provider: use an environment variable or a xref:metadata-types/variable-resolver/index.adoc[variable resolver].
+
 | Input JSON Chat
 | When enabled, uses the chat completion JSON format (system, assistant, user messages). When disabled, treats the input as plain text. See "Chat Completion" section for more details.
 

@@ -37,6 +37,7 @@ under the License.
 *** xref:plugin-types/metadata-configuration.adoc[Metadata and configuration]
 *** xref:plugin-types/execution-observability.adoc[Execution and observability]
 *** xref:plugin-types/gui.adoc[GUI]
+** xref:ai-advisor-plugins.adoc[AI advisor plugins]
 ** xref:metadata-plugins.adoc[Metadata plugins]
 ** xref:metadata-serialization.adoc[Metadata serialization]
 ** xref:metadata-injection.adoc[Metadata injection]

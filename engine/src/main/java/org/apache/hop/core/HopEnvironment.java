@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.ai.advisor.AiAdvisorPluginType;
+import org.apache.hop.ai.provider.AiProviderPluginType;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
@@ -104,7 +106,9 @@ public class HopEnvironment {
         HopCommandPluginType.getInstance(),
         org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),
         DataStreamPluginType.getInstance(),
-        NotificationProviderPluginType.getInstance());
+        NotificationProviderPluginType.getInstance(),
+        AiProviderPluginType.getInstance(),
+        AiAdvisorPluginType.getInstance());
   }
 
   public static void init(List<IPluginType> pluginTypes) throws HopException {

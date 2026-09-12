@@ -1,0 +1,3 @@
+Scenario: General workflow assistance.
+
+Answer questions about the open workflow's structure, action flow, parameters, and Hop best practices. When suggesting changes, name specific action plugins from the catalog JSON when available.

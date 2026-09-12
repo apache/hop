@@ -53,6 +53,35 @@ An editor class extending `MetadataEditor` gives it a GUI.
 Metadata classes and the code using them must share a `classLoaderGroup` when they live in different plugins, otherwise a metadata object loaded by one classloader will not cast to the class the other one knows.
 ====
 
+== AI provider
+
+An AI provider plugin is one backend behind the named *AI Provider* metadata object: OpenAI-compatible, Anthropic, Ollama, and so on.
+The metadata object holds credentials; the plugin supplies defaults (base URL, model name, auth kind) and maps onto Language Model Chat.
+
+Annotation:: `@AiProviderPlugin`
+Implement:: `IAiProvider`, in practice by extending `BaseAiProvider`
+Plugin type:: `AiProviderPluginType`, id `AI_PROVIDERS`
+Examples:: `plugins/tech/ai`
+
+Keep langchain4j off this interface — it lives in `hop-core`.
+Implementations belong in a plugin JAR and should set `classLoaderGroup = "hop-ai"` so they share a classloader with Language Model Chat.
+
+Language Model Chat stores only the provider *name* (`aiProviderName`) and overlays connection fields at runtime through `AiChatFactory.overlayNamedProvider`.
+The transform dialog uses `@GuiWidgetElement(metadataKey = "ai-provider")` so it does not compile against `hop-tech-ai`.
+
+== AI advisor
+
+An AI advisor plugin is one kind of help the AI Assistant workbench can run: pipeline design, workflow error diagnosis, or a third-party modeler (Data Vault, Business Vault, dimensional, lineage, …).
+
+Annotation:: `@AiAdvisorPlugin`
+Implement:: `IAiAdvisor`
+Plugin type:: `AiAdvisorPluginType`, id `AI_ADVISORS`
+Examples:: `plugins/tech/ai` (`PipelineAiAdvisor`, `WorkflowAiAdvisor`)
+
+Locations are free-form strings, not a closed enum.
+GUI entry points are separate toolbar / context-action plugins that call `HopGui.openAiAdvisorSession`.
+The full pattern — location ids, the open-session request, inclusions, proposals, classloading and a worked Data Vault-style example — is on xref:ai-advisor-plugins.adoc[AI advisor plugins].
+
 == Configuration options
 
 A configuration plugin adds options to an *existing* Hop command line tool, and — with one extra annotation — a tab in the GUI options dialog.

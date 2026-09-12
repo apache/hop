@@ -28,7 +28,7 @@ If you already know which type you need, jump straight to its group:
 
 * xref:plugin-types/pipeline-workflow.adoc[Pipelines and workflows] — transforms, actions, engines, partitioners, row distribution
 * xref:plugin-types/data-connectivity.adoc[Data and connectivity] — value types, databases, compression, VFS, data streams
-* xref:plugin-types/metadata-configuration.adoc[Metadata and configuration] — metadata objects, CLI commands and options, variable resolvers, password encoders, authentication
+* xref:plugin-types/metadata-configuration.adoc[Metadata and configuration] — metadata objects, CLI commands and options, variable resolvers, password encoders, authentication, AI providers and advisors
 * xref:plugin-types/execution-observability.adoc[Execution and observability] — extension points, logging, execution information, data samplers, lineage sinks, server servlets
 * xref:plugin-types/gui.adoc[GUI] — GUI plugins, perspectives, file types, search analysers, dialog tabs
 
@@ -270,6 +270,16 @@ See xref:internationalisation.adoc[Internationalisation] for the message bundles
 |`@AuthenticationConsumerPlugin`
 |`IAuthenticationConsumerType`
 |Something that consumes such a credential.
+
+|`AiProviderPluginType`
+|`@AiProviderPlugin`
+|`IAiProvider`
+|A language-model backend behind named AI Provider metadata.
+
+|`AiAdvisorPluginType`
+|`@AiAdvisorPlugin`
+|`IAiAdvisor`
+|A kind of AI Assistant help. Locations are free-form; see xref:ai-advisor-plugins.adoc[AI advisor plugins].
 
 4+^s|xref:plugin-types/execution-observability.adoc[Execution and observability]
 

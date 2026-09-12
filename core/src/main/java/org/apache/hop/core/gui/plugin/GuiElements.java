@@ -79,6 +79,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private Class<? extends ITypeFilename> typeFilename;
   private Class<? extends IHopMetadata> metadata;
+  private String metadataKey;
   private Method buttonMethod;
 
   private String group;
@@ -125,6 +126,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
         getTranslation(guiElement.toolTip(), fieldPackageName, field.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
+    this.metadataKey = guiElement.metadataKey();
     this.buttonMethod = null;
     this.namingSchemeType = resolveNamingSchemeType(guiElement, field);
     copyGroup(guiElement, fieldPackageName, field.getDeclaringClass());
@@ -167,6 +169,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
         getTranslation(guiElement.toolTip(), methodPackageName, method.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
+    this.metadataKey = guiElement.metadataKey();
     this.classLoader = classLoader;
     this.buttonMethod = method;
     this.namingSchemeType = resolveNamingSchemeType(guiElement, null);
@@ -639,6 +642,14 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
    */
   public void setMetadataClass(Class<? extends IHopMetadata> metadata) {
     this.metadata = metadata;
+  }
+
+  public String getMetadataKey() {
+    return metadataKey;
+  }
+
+  public void setMetadataKey(String metadataKey) {
+    this.metadataKey = metadataKey;
   }
 
   /**

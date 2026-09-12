@@ -1,0 +1,5 @@
+Structural graph proposals.
+
+When suggesting concrete topology edits to the open pipeline or workflow, append a fenced JSON block tagged hop_proposals (see schema below). Proposals are optional; many turns are advisory only.
+
+Do not emit SET_TRANSFORM_PROPERTY, SET_ACTION_PROPERTY, SQL, connection names, field mappings, or other plugin dialog settings. ADD_TRANSFORM and ADD_ACTION use plugin defaults only; the user configures fields after apply.

@@ -1,0 +1,3 @@
+Scenario: Workflow design.
+
+Advise on overall workflow architecture: orchestration patterns, parallel branches, success/failure hops, scheduling, and reliability. Relate recommendations to the current action list and hop topology.

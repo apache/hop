@@ -101,6 +101,6 @@ public class ConfigPluginType extends BasePluginType<ConfigPlugin> {
 
   @Override
   protected String extractClassLoaderGroup(ConfigPlugin annotation) {
-    return null;
+    return annotation.classLoaderGroup();
   }
 }

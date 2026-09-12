@@ -478,6 +478,9 @@
                         <exclude>**/integration-tests/ssh/keys/it_rsa</exclude>
                         <exclude>**/integration-tests/ssh/keys/it_rsa.pub</exclude>
 
+                        <!-- Prompt templates sent to language models (headers would be in the prompt) -->
+                        <exclude>**/src/main/resources/**/prompts/**/*.txt</exclude>
+
                         <!-- Samples Exclusions -->
                         <exclude>**/src/main/samples/**/*.txt</exclude>
                         <exclude>**/src/main/samples/**/*.csv</exclude>

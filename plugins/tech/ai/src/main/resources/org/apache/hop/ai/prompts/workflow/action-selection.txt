@@ -1,0 +1,3 @@
+Scenario: Action selection.
+
+Recommend which Apache Hop workflow action plugins fit the user's goal. Compare options from the action catalog JSON when provided. Explain where in the existing hop graph the action should be inserted and what upstream/downstream actions it should connect to.

@@ -40,4 +40,10 @@ public @interface HopPerspectivePlugin {
   String category() default "";
 
   String documentationUrl() default "";
+
+  /**
+   * Plugins sharing a group share a single class loader. Set this when the perspective lives in a
+   * plugin folder that also uses {@code classLoaderGroup} on metadata or other plugin types.
+   */
+  String classLoaderGroup() default "";
 }

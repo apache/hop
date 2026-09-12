@@ -1,0 +1,246 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
+:description: Multi-session AI advisory for pipelines and workflows, hosted as a perspective, floating window, or bottom-dock tab.
+
+= AI Assistant
+
+Icon: image:icons/ai-provider.svg[width="24px"]
+
+Keyboard shortcut: `CTRL-SHIFT-A` (macOS: `Cmd-Shift-A`)
+
+== Description
+
+The AI Assistant is a multi-session workbench for asking questions about the pipeline or workflow you have open.
+Sessions stay available while you move between files.
+Open it as:
+
+* a left-toolbar *perspective*
+* a floating window (*Tools → AI Assistant window*, or the Float toolbar button)
+* a bottom-dock tab (the Dock toolbar button)
+
+It is *off by default*. Nothing is sent to a language model until you enable it and create an xref:metadata-types/ai-provider.adoc[AI Provider].
+
+See xref:technology/ai/index.adoc[AI technology] for providers, privacy, and how other plugins add advisors.
+
+image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspective: session list, advisor and provider, transcript, and question field,width="90%"]
+
+== Enable AI advisory
+
+. Open the Configuration perspective → *Plugins* → *AI Assistant*.
+. Check *Enable AI advisory*.
+. Optionally pick a *Default AI provider*.
+. Leave *Allow sending full XML* unchecked unless you explicitly want the first prompt of a session to include the full pipeline or workflow XML.
+  This is a second gate: the session checkbox cannot send XML until this option is on.
+
+Create at least one named provider in the Metadata perspective (*AI Provider*) and use *Test* on the editor to confirm the endpoint responds.
+Put the API key in an xref:projects/projects-environments.adoc[environment] variable or a xref:metadata-types/variable-resolver/index.adoc[variable resolver], not as a literal in the metadata JSON. See <<secrets-and-personal-information>>.
+
+== Open a session
+
+From a pipeline or workflow graph:
+
+* toolbar *AI Help*
+* right-click the canvas → *Basic* → *AI Help*
+* right-click a transform or action → *Basic* → *AI Help* (sets that node as the focus)
+
+Those actions open a *floating window* so the pipeline or workflow stays on screen.
+If the assistant is already docked or already floating, that layout is reused.
+
+The workbench reuses an existing session for the same advisor and file when one is already open.
+`CTRL-SHIFT-A` opens the perspective without binding a file; use *New session* for a general conversation.
+
+== Using the workbench
+
+Each session has:
+
+* *Advisor* — Pipeline AI Help or Workflow AI Help (other plugins can add more)
+* *Scenario* — General, transform/action selection, error diagnosis, or design
+* *Provider* — named xref:metadata-types/ai-provider.adoc[AI Provider] metadata
+* *Sharing* — a one-line summary of what this send includes. Expand it to opt in to extra context (see <<context-inclusions>>). Nothing extra is shared until you check it. *Select metadata…* chooses which named metadata objects to send.
+* a transcript and a question field at the bottom (question-mark icon, pastel input, Hop logo to send; `Ctrl-Enter` / `Cmd-Enter` also sends)
+
+The first turn of a session can include the larger context (summary, catalog, optional XML and logs).
+Follow-up turns send the structure JSON plus your question so token use stays down.
+
+[[context-inclusions]]
+== Context inclusions: send the minimum
+
+The advisor plugin decides *what can be shared*.
+By default *nothing extra is shared* — the collapsed *Sharing* line is the short version of the current send.
+
+Click the line (or the arrow) to expand the checkboxes.
+Every checked inclusion is copied into the prompt that goes to the language-model service.
+That has two costs: *tokens* (money and latency) and *exposure* (anything in the prompt leaves your machine).
+Turn on only what the current question needs, then collapse the panel.
+
+Hover a checkbox for a short reminder of cost and risk.
+
+=== Always sent
+
+Regardless of the checkboxes, every turn includes:
+
+* your question
+* a compact *structure JSON* (transform or action names, plugin ids, hops, optional focus node)
+
+The first turn of a session also includes a short *summary JSON* (file name, counts, parameter *names* — not values).
+
+That is usually enough for "what does this graph do?", hop problems, and naming questions.
+
+=== Optional inclusions
+
+[cols="18%,10%,18%,54%",options="header"]
+|===
+|Checkbox |Default |When it is sent |What it adds, and when to use it
+
+|Include pipeline / workflow check results
+|Off
+|Every turn while checked
+|Validation messages for the open file. Useful for most questions. Can mention file paths and connection names.
+
+|Include transform / action plugin catalog
+|Off
+|First turn of the session only
+|Names of installed plugins (capped). Helps with "which transform or action should I use?". Large token cost.
+
+|Include full pipeline / workflow XML
+|Off
+|First turn only, and only if Configuration → *Plugins* → *AI Assistant* → *Allow sending full XML* is also on
+|The saved topology XML (SQL, filenames, notes, field mappings). Highest token cost and highest leak risk. Use only when the structure JSON is not enough to answer, and only after secrets are variables rather than literals.
+
+|Include execution log excerpt
+|Off
+|First turn only
+|A truncated excerpt of the last execution log. Needed for runtime errors. Logs can contain row samples, paths and *resolved* values. Leave *off* unless you are diagnosing a failed run.
+
+|Include selected metadata
+|Off
+|Every turn while checked
+|JSON of metadata objects you pick with *Select metadata…* (connections, run configurations, and so on). Default is none. Use this when the question is about a named connection or similar. Passwords and API keys are redacted; still prefer variables over literals. Do not select objects that hold personal data unless the question needs them.
+|===
+
+Redaction (see <<secrets-and-personal-information>>) runs on check results, XML, logs and selected metadata.
+It is a last line of defence, not a reason to send more than you need.
+
+Checking *Include selected metadata* with nothing chosen opens the picker.
+The tree lists metadata types that have at least one object.
+Check only the elements the current question needs, then OK.
+*None* clears the selection.
+
+=== Recommended combinations
+
+[cols="28%,18%,18%,18%,18%",options="header"]
+|===
+|Question |Checks |Catalog |Logs |XML
+
+|What does this graph do? / hop or naming issue
+|On
+|Off
+|Off
+|Off
+
+|Which transform or action should I add?
+|On
+|On
+|Off
+|Off
+
+|Why did the last run fail?
+|On
+|Off
+|On
+|Off
+
+|SQL, field mapping or options *inside* a transform or action
+|On
+|Off
+|Off
+|On (only if needed)
+
+|Follow-up after the first answer
+|Leave as-is
+|Ignored
+|Ignored
+|Ignored
+|===
+
+Follow-up turns already drop the catalog, XML and log excerpt even if those boxes stay checked.
+Uncheck them anyway so the next *new* session does not send them by accident.
+
+[[secrets-and-personal-information]]
+== Secrets and personal information
+
+The assistant is only as safe as the project you point it at.
+If a password, token or personal record is hard-coded in a pipeline, workflow, metadata object, note, SQL statement or Data Grid sample, it can appear in XML, check results or logs and be sent to the AI service.
+
+Set this up *before* you enable AI advisory:
+
+. *Never hard-code secrets.* Not in pipelines, workflows, metadata (including xref:metadata-types/ai-provider.adoc[AI Provider] API keys), notes, SQL, or sample rows.
+. Put values in an xref:projects/projects-environments.adoc[environment] configuration file as variables, for example `{openvar}DB_PASSWORD{closevar}` or `{openvar}AI_API_KEY{closevar}`. Keep those files *outside* the project folder and out of the project git repository. See xref:best-practices/index.adoc[Best practices: security].
+. *Better:* store the secret in a keystore or vault and reference it with a xref:metadata-types/variable-resolver/index.adoc[variable resolver], for example `#{vault:secret/data/database:password}`. The environment file then holds only the resolver expression.
+. Give secret variable names a recognizable pattern (`PASSWORD`, `SECRET`, `TOKEN`, `PASSWD`). Hop Gui masks those values in the `Ctrl-Space` picker. The advisor also redacts XML tags, attributes and JSON keys whose names match `password`, `pass`, `pwd`, `secret`, `apikey` / `api-key`, `token` and `access-token`.
+. Keep *personal information* out of anything the assistant might send: no customer names, emails, national ids or row samples in notes, Data Grids, log messages, or transform names.
+
+Redaction does *not* catch literals in SQL, notes, oddly named fields, or free-text logs.
+The checkboxes above are the real control.
+
+The AI Provider API key is never copied into advisor prompts.
+It is still project metadata if you paste it: use `{openvar}AI_API_KEY{closevar}` or a resolver there too.
+
+== Floating window and bottom dock
+
+The same workbench can run outside the perspective, like the Database perspective and Search:
+
+* *AI Help* on a pipeline or workflow toolbar (and canvas *Basic → AI Help*) opens that floating window so the graph stays visible.
+* *Float* on the session toolbar (or **Tools → AI Assistant window**) opens a non-modal window you can put beside the canvas and the execution log.
+* *Dock* opens it as a tab in the bottom dock.
+
+image::hop-gui/ai-advisor/ai-advisor-floating-window.jpg[AI Assistant floating over a failed workflow and its execution log,width="90%"]
+
+The example above is a typical error-diagnosis session: the workflow graph and Logging tab stay visible while the assistant explains that the failure is a missing execution-information cache folder, not a broken hop.
+
+== Review and apply graph edits
+
+When the model suggests concrete topology changes it appends a `hop_proposals` JSON block.
+The transcript then shows **Review N proposed change(s)**.
+
+. Check or uncheck individual proposals. Blocked items stay unchecked and show the validation reason.
+. Read the preview pane for type, risk, and parameters.
+. Click **Apply selected**. The open pipeline or workflow updates and registers undo on the graph.
+. Follow-up turns include summaries of what you applied.
+
+Supported pipeline types: add/delete/rename transform, add/delete hop, set location, add note.
+Supported workflow types: add/delete/rename action, add/delete hop, set location, add note.
+
+`ADD_TRANSFORM` and `ADD_ACTION` load the plugin with **defaults only**. Field mappings, SQL and connection names are not applied; configure those in the transform or action dialog after apply.
+
+Malformed `hop_proposals` blocks are ignored; the advice text is still shown.
+
+== Privacy and removal
+
+* Credentials live on AI Provider metadata and are never copied into prompts. Still prefer a variable or resolver for the key itself.
+* Passwords, API keys and similar *named* values are redacted from check results, logs and XML before send. See <<secrets-and-personal-information>>.
+* Full XML is included only when both the session checkbox *and* the configuration option are on.
+* To hide the UI without deleting the plugin, add ids to `disabledGuiElements.xml` (see xref:hop-gui/disable-ui-elements.adoc[Customize the UI]):
+** perspective `175-HopAiAdvisorPerspective`
+** pipeline toolbar `HopGuiPipelineGraph-ToolBar-10048-ai-help`
+** workflow toolbar `HopGuiWorkflowGraph-ToolBar-10048-ai-help`
+** menu `40027-menu-tools-ai-window`
+** metadata type `ai-provider`
+* To remove AI entirely, delete the `plugins/tech/ai` plugin folder (and disable or remove Language Model Chat if you also want no LLM client).

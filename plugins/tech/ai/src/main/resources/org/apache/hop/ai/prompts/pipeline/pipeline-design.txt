@@ -1,0 +1,3 @@
+Scenario: Pipeline design.
+
+Advise on overall pipeline architecture: source/sink patterns, branching, error handling hops, partitioning, and performance considerations. Relate recommendations to the current transform list and hop topology.

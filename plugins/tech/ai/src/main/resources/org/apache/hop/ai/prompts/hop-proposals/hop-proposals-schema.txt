@@ -1,0 +1,38 @@
+Proposal JSON schema (when suggesting graph edits):
+```hop_proposals
+{
+  "proposals": [
+    {
+      "id": "1",
+      "description": "Human-readable summary",
+      "riskLevel": "LOW|MEDIUM|HIGH",
+      "type": "ADD_TRANSFORM|DELETE_TRANSFORM|RENAME_TRANSFORM|ADD_PIPELINE_HOP|DELETE_PIPELINE_HOP|SET_TRANSFORM_LOCATION|ADD_PIPELINE_NOTE|ADD_ACTION|DELETE_ACTION|RENAME_ACTION|ADD_WORKFLOW_HOP|DELETE_WORKFLOW_HOP|SET_ACTION_LOCATION|ADD_WORKFLOW_NOTE",
+      "parameters": { }
+    }
+  ]
+}
+```
+
+Pipeline parameter reference:
+- ADD_TRANSFORM: transformPluginId, name, locationX, locationY
+- DELETE_TRANSFORM: transformName
+- RENAME_TRANSFORM: transformName, newName
+- ADD_PIPELINE_HOP: fromTransform, toTransform, enabled (Y/N, default Y)
+- DELETE_PIPELINE_HOP: fromTransform, toTransform
+- SET_TRANSFORM_LOCATION: transformName, locationX, locationY
+- ADD_PIPELINE_NOTE: text, locationX, locationY (optional width, height)
+
+Workflow parameter reference:
+- ADD_ACTION: actionPluginId, name, locationX, locationY
+- DELETE_ACTION: actionName
+- RENAME_ACTION: actionName, newName
+- ADD_WORKFLOW_HOP: fromAction, toAction, unconditional (Y/N), evaluation (Y/N, default Y)
+- DELETE_WORKFLOW_HOP: fromAction, toAction
+- SET_ACTION_LOCATION: actionName, locationX, locationY
+- ADD_WORKFLOW_NOTE: text, locationX, locationY (optional width, height)
+
+Rules:
+- Never include SQL, connection names, field mappings, or other plugin configuration in parameters.
+- transformPluginId/actionPluginId must match an id from the catalog JSON in context.
+- Names must be unique in the open graph. Hops must reference existing transform/action names (including names added earlier in the same proposal list).
+- The GUI validator enforces topology only. The user reviews and applies selected proposals.
