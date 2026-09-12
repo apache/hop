@@ -80,9 +80,11 @@ class ExplorerFileServletTest {
     root.createFolder();
     write(ramRoot + "/docs/index.html", HTML);
     write(ramRoot + "/docs/assets/css/site.css", CSS);
+    write(ramRoot + "/docs/100%25 done.html", HTML);
+    write(ramRoot + "/report:2026-09-11.html", HTML);
     write(ramRoot + "/secret.hpl", "<pipeline/>".getBytes(StandardCharsets.UTF_8));
 
-    lease = ExplorerFileRegistry.getOrCreate(uiSession, "http-session", root.getName().getURI());
+    lease = ExplorerFileRegistry.getOrCreate(uiSession, root.getName().getURI());
   }
 
   @AfterEach
@@ -105,7 +107,36 @@ class ExplorerFileServletTest {
     verify(response).setContentType("text/html; charset=UTF-8");
     verify(response).setHeader("X-Content-Type-Options", "nosniff");
     verify(response).setHeader("Cache-Control", "private, no-store");
+    verify(response)
+        .setHeader("Content-Security-Policy", ExplorerFileServlet.CONTENT_SECURITY_POLICY);
     assertArrayEquals(HTML, output.bytes.toByteArray());
+  }
+
+  @Test
+  void sessionRotationAllowsAccess() throws Exception {
+    when(httpSession.getId()).thenReturn("rotated-session");
+    TestOutputStream output = new TestOutputStream();
+    HttpServletResponse response = response(output);
+
+    servlet.doGet(request("/" + lease.getToken() + "/docs/index.html"), response);
+
+    verify(response).setStatus(HttpServletResponse.SC_OK);
+    assertArrayEquals(HTML, output.bytes.toByteArray());
+  }
+
+  @Test
+  void servesFilesWithPercentAndColon() throws Exception {
+    TestOutputStream output1 = new TestOutputStream();
+    HttpServletResponse response1 = response(output1);
+    servlet.doGet(request("/" + lease.getToken() + "/docs/100% done.html"), response1);
+    verify(response1).setStatus(HttpServletResponse.SC_OK);
+    assertArrayEquals(HTML, output1.bytes.toByteArray());
+
+    TestOutputStream output2 = new TestOutputStream();
+    HttpServletResponse response2 = response(output2);
+    servlet.doGet(request("/" + lease.getToken() + "/report:2026-09-11.html"), response2);
+    verify(response2).setStatus(HttpServletResponse.SC_OK);
+    assertArrayEquals(HTML, output2.bytes.toByteArray());
   }
 
   @Test

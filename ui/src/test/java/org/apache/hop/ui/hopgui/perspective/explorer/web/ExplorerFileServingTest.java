@@ -45,6 +45,8 @@ class ExplorerFileServingTest {
     write(ramRoot + "/docs/assets/css/site.css", "body{}");
     write(ramRoot + "/workflows/workflows/page.html", "<html></html>");
     write(ramRoot + "/assets/css/x.css", "h1{}");
+    write(ramRoot + "/docs/100%25 done.html", "<html></html>");
+    write(ramRoot + "/report:2026-09-11.html", "<html></html>");
     write(ramRoot + "/secret.hpl", "<pipeline/>");
   }
 
@@ -80,6 +82,20 @@ class ExplorerFileServingTest {
   }
 
   @Test
+  void resolveUnderRootAllowsPercentAndColon() throws Exception {
+    FileObject root = HopVfs.getFileObject(ramRoot);
+    Optional<FileObject> percentFile =
+        ExplorerFileServing.resolveUnderRoot(root, "docs/100% done.html");
+    assertTrue(percentFile.isPresent());
+    assertTrue(percentFile.get().exists());
+
+    Optional<FileObject> colonFile =
+        ExplorerFileServing.resolveUnderRoot(root, "report:2026-09-11.html");
+    assertTrue(colonFile.isPresent());
+    assertTrue(colonFile.get().exists());
+  }
+
+  @Test
   void resolveUnderRootRejectsUnknownExtension() throws Exception {
     FileObject root = HopVfs.getFileObject(ramRoot);
     assertTrue(ExplorerFileServing.resolveUnderRoot(root, "secret.hpl").isEmpty());
@@ -102,6 +118,9 @@ class ExplorerFileServingTest {
     assertTrue(ExplorerFileServing.sanitizeRelativePath("%2e%2e/etc/passwd").isEmpty());
     assertTrue(ExplorerFileServing.sanitizeRelativePath("docs/%2e%2e/%2e%2e/etc/passwd").isEmpty());
     assertTrue(ExplorerFileServing.sanitizeRelativePath("C:/Windows/win.ini").isEmpty());
+    assertTrue(ExplorerFileServing.sanitizeRelativePath("C:win.ini").isEmpty());
+    assertTrue(ExplorerFileServing.sanitizeRelativePath("file:secret.html").isEmpty());
+    assertTrue(ExplorerFileServing.sanitizeRelativePath("http://evil.com/x.html").isEmpty());
   }
 
   @Test
@@ -114,7 +133,19 @@ class ExplorerFileServingTest {
         ExplorerFileServing.sanitizeRelativePath("./docs/index.html").orElseThrow());
     assertEquals(
         "docs/My File.html",
-        ExplorerFileServing.sanitizeRelativePath("docs/My%20File.html").orElseThrow());
+        ExplorerFileServing.sanitizeRelativePath("docs/My File.html").orElseThrow());
+    assertEquals(
+        "docs/100% done.html",
+        ExplorerFileServing.sanitizeRelativePath("docs/100% done.html").orElseThrow());
+    assertEquals(
+        "docs/a%20b.html",
+        ExplorerFileServing.sanitizeRelativePath("docs/a%20b.html").orElseThrow());
+    assertEquals(
+        "report:2026-09-11.html",
+        ExplorerFileServing.sanitizeRelativePath("report:2026-09-11.html").orElseThrow());
+    assertEquals(
+        "docs/report:2026-09-11.html",
+        ExplorerFileServing.sanitizeRelativePath("docs/report:2026-09-11.html").orElseThrow());
   }
 
   @Test

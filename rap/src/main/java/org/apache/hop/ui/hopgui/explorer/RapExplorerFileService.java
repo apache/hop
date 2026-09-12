@@ -63,7 +63,7 @@ public final class RapExplorerFileService implements IHopWebExplorerFileService 
         return null;
       }
       ExplorerFileLease lease =
-          ExplorerFileRegistry.getOrCreate(uiSession, httpSession.getId(), root.getName().getURI());
+          ExplorerFileRegistry.getOrCreate(uiSession, root.getName().getURI());
       return ExplorerFileServing.buildPublicPath(
           request.getContextPath(), lease.getToken(), relative.get());
     } catch (Exception e) {

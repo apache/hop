@@ -42,6 +42,9 @@ import org.eclipse.rap.rwt.service.UISession;
  */
 public class ExplorerFileServlet extends HttpServlet {
 
+  public static final String CONTENT_SECURITY_POLICY =
+      "connect-src 'none'; form-action 'none'; base-uri 'none'";
+
   static final long DEFAULT_MAX_BYTES = 16L * 1024L * 1024L;
 
   @Override
@@ -97,6 +100,7 @@ public class ExplorerFileServlet extends HttpServlet {
     response.setContentType(result.contentType);
     response.setHeader("X-Content-Type-Options", "nosniff");
     response.setHeader("Cache-Control", "private, no-store");
+    response.setHeader("Content-Security-Policy", CONTENT_SECURITY_POLICY);
     if (result.contentType != null && result.contentType.startsWith("application/pdf")) {
       response.setHeader("Content-Disposition", "inline");
     }
@@ -134,7 +138,8 @@ public class ExplorerFileServlet extends HttpServlet {
 
   private static boolean sessionMatches(HttpServletRequest request, ExplorerFileLease lease) {
     HttpSession session = request.getSession(false);
-    return session != null && lease.getHttpSessionId().equals(session.getId());
+    String leaseSessionId = lease.getHttpSessionId();
+    return session != null && leaseSessionId != null && leaseSessionId.equals(session.getId());
   }
 
   private static IVariables variables() {

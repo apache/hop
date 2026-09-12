@@ -30,10 +30,9 @@ public final class ExplorerFileRegistry {
 
   private ExplorerFileRegistry() {}
 
-  public static synchronized ExplorerFileLease getOrCreate(
-      UISession uiSession, String httpSessionId, String rootVfsUri) {
-    if (uiSession == null || httpSessionId == null || rootVfsUri == null) {
-      throw new IllegalArgumentException("uiSession, httpSessionId and rootVfsUri are required");
+  public static synchronized ExplorerFileLease getOrCreate(UISession uiSession, String rootVfsUri) {
+    if (uiSession == null || rootVfsUri == null) {
+      throw new IllegalArgumentException("uiSession and rootVfsUri are required");
     }
     String uiId = uiSession.getId();
     String existingToken = TOKEN_BY_UI_SESSION.get(uiId);
@@ -46,7 +45,7 @@ public final class ExplorerFileRegistry {
       TOKEN_BY_UI_SESSION.remove(uiId, existingToken);
     }
     String token = UUID.randomUUID().toString();
-    ExplorerFileLease lease = new ExplorerFileLease(token, httpSessionId, uiSession, rootVfsUri);
+    ExplorerFileLease lease = new ExplorerFileLease(token, uiSession, rootVfsUri);
     BY_TOKEN.put(token, lease);
     TOKEN_BY_UI_SESSION.put(uiId, token);
     uiSession.addUISessionListener(event -> remove(token, uiId));

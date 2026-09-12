@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.explorer;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.rap.rwt.service.UISession;
@@ -26,15 +27,25 @@ import org.eclipse.rap.rwt.service.UISession;
 public final class ExplorerFileLease {
 
   private final String token;
-  private final String httpSessionId;
   private final UISession uiSession;
 
   @Setter private volatile String rootVfsUri;
 
-  ExplorerFileLease(String token, String httpSessionId, UISession uiSession, String rootVfsUri) {
+  ExplorerFileLease(String token, UISession uiSession, String rootVfsUri) {
     this.token = token;
-    this.httpSessionId = httpSessionId;
     this.uiSession = uiSession;
     this.rootVfsUri = rootVfsUri;
+  }
+
+  public String getHttpSessionId() {
+    if (uiSession == null) {
+      return null;
+    }
+    try {
+      HttpSession httpSession = uiSession.getHttpSession();
+      return httpSession != null ? httpSession.getId() : null;
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

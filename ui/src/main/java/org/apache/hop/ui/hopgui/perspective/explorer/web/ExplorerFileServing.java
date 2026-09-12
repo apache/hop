@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.util.Utils;
@@ -38,6 +39,9 @@ import org.apache.hop.core.util.Utils;
 public final class ExplorerFileServing {
 
   public static final String SERVLET_PATH = "/explorer-file";
+
+  private static final Pattern WINDOWS_DRIVE = Pattern.compile("^[a-zA-Z]:.*");
+  private static final Pattern SCHEME_PREFIX = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+.-]*:");
 
   static final Set<String> ALLOWED_EXTENSIONS =
       Set.of(
@@ -96,7 +100,7 @@ public final class ExplorerFileServing {
     if (clean.isEmpty() || !isAllowedExtension(clean.get())) {
       return Optional.empty();
     }
-    FileObject resolved = root.resolveFile(clean.get());
+    FileObject resolved = root.resolveFile(clean.get().replace("%", "%25"));
     if (resolved == null || !root.getName().isDescendent(resolved.getName())) {
       return Optional.empty();
     }
@@ -107,34 +111,28 @@ public final class ExplorerFileServing {
   }
 
   /**
-   * Decode and normalize a request path segment list into a relative path under the explorer root.
+   * Normalize a relative path under the explorer root. Input is treated as already URL-decoded
+   * (e.g. from {@code HttpServletRequest.getPathInfo()} or VFS {@code FileName.getRelativeName()}).
    * Rejects absolute paths, schemes, {@code ..} segments, and NUL.
    */
-  public static Optional<String> sanitizeRelativePath(String rawPath) {
-    if (Utils.isEmpty(rawPath) || rawPath.indexOf('\0') >= 0) {
+  public static Optional<String> sanitizeRelativePath(String path) {
+    if (Utils.isEmpty(path) || path.indexOf('\0') >= 0) {
       return Optional.empty();
     }
-    String decoded;
-    try {
-      // Paths use %20 for space; do not treat '+' as space.
-      decoded = URLDecoder.decode(rawPath.replace("+", "%2B"), StandardCharsets.UTF_8);
-    } catch (IllegalArgumentException e) {
+    String normalized = path.replace('\\', '/');
+    if (normalized.startsWith("/")) {
       return Optional.empty();
     }
-    if (decoded.indexOf('\0') >= 0) {
+    String[] parts = normalized.split("/");
+    if (parts.length > 0 && hasSchemeOrDrivePrefix(parts[0])) {
       return Optional.empty();
     }
-    decoded = decoded.replace('\\', '/');
-    if (decoded.startsWith("/") || decoded.startsWith("//") || decoded.contains(":")) {
-      return Optional.empty();
-    }
-    String[] parts = decoded.split("/");
     List<String> out = new ArrayList<>(parts.length);
     for (String part : parts) {
       if (part.isEmpty() || ".".equals(part)) {
         continue;
       }
-      if ("..".equals(part)) {
+      if ("..".equals(part) || "%2e%2e".equalsIgnoreCase(part)) {
         return Optional.empty();
       }
       out.add(part);
@@ -143,6 +141,23 @@ public final class ExplorerFileServing {
       return Optional.empty();
     }
     return Optional.of(String.join("/", out));
+  }
+
+  public static boolean hasSchemeOrDrivePrefix(String firstSegment) {
+    if (firstSegment == null || firstSegment.isEmpty()) {
+      return false;
+    }
+    if (WINDOWS_DRIVE.matcher(firstSegment).matches()) {
+      return true;
+    }
+    if (firstSegment.endsWith(":") && SCHEME_PREFIX.matcher(firstSegment).matches()) {
+      return true;
+    }
+    String lower = firstSegment.toLowerCase(Locale.ROOT);
+    return lower.startsWith("file:")
+        || lower.startsWith("http:")
+        || lower.startsWith("https:")
+        || lower.startsWith("ftp:");
   }
 
   /**
@@ -161,7 +176,11 @@ public final class ExplorerFileServing {
       return Optional.empty();
     }
     decodedHref = decodedHref.replace('\\', '/');
-    if (decodedHref.startsWith("/") || decodedHref.startsWith("//") || decodedHref.contains(":")) {
+    if (decodedHref.startsWith("/")) {
+      return Optional.empty();
+    }
+    String[] hrefParts = decodedHref.split("/");
+    if (hrefParts.length > 0 && hasSchemeOrDrivePrefix(hrefParts[0])) {
       return Optional.empty();
     }
     String combined = parentOf(document.get());
@@ -175,7 +194,7 @@ public final class ExplorerFileServing {
       if (part.isEmpty() || ".".equals(part)) {
         continue;
       }
-      if ("..".equals(part)) {
+      if ("..".equals(part) || "%2e%2e".equalsIgnoreCase(part)) {
         if (stack.isEmpty()) {
           return Optional.empty();
         }
