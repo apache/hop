@@ -17,6 +17,8 @@
 
 package org.apache.hop.ai.advisor;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,4 +55,10 @@ public class AiAdvisorOpenRequest {
   private Object artifact;
   private Supplier<String> logSupplier;
   private boolean reuseExisting = true;
+
+  /**
+   * Session-scoped extras copied onto {@link AiAdvisorRequest#attributes} for {@code
+   * buildPrompt} / {@code applyProposals}. Do not put SWT objects here.
+   */
+  private Map<String, Object> attributes = new LinkedHashMap<>();
 }

@@ -33,7 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @Getter
 @Setter
 public class AiAdvisorRequest {
-  /** Free-form location id from {@link AiAdvisorOpenRequest#getLocation()}. */
+  /** Free-form location id from {@link AiAdvisorOpenRequest#location}. */
   private String location;
 
   private String scenarioId;
@@ -48,6 +48,9 @@ public class AiAdvisorRequest {
   private Map<String, Object> attributes = new LinkedHashMap<>();
   private List<AiAdvisorMetadataSelection> metadataSelections = new ArrayList<>();
 
+  /** inclusion id → selected {@link AiAdvisorInclusionChoice} ids (order preserved). */
+  private Map<String, List<String>> inclusionSelections = new LinkedHashMap<>();
+
   /** True when this is not the first turn of the session. */
   private boolean followUp;
 
@@ -56,5 +59,13 @@ public class AiAdvisorRequest {
 
   public boolean inclusionEnabled(String id) {
     return Boolean.TRUE.equals(inclusions.get(id));
+  }
+
+  public List<String> selectedInclusionIds(String inclusionId) {
+    if (inclusionSelections == null || inclusionId == null) {
+      return List.of();
+    }
+    List<String> selected = inclusionSelections.get(inclusionId);
+    return selected == null ? List.of() : List.copyOf(selected);
   }
 }

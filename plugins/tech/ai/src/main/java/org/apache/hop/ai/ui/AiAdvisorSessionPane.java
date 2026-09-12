@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.hop.ai.advisor.AiAdvisorInclusion;
+import org.apache.hop.ai.advisor.AiAdvisorInclusionChoice;
+import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisor.AiAdvisorResponse;
@@ -48,6 +50,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -93,6 +96,7 @@ public class AiAdvisorSessionPane extends Composite {
   private boolean sharingExpanded;
   private final List<AiAdvisorInclusion> currentInclusions = new ArrayList<>();
   private final Map<String, Button> inclusionButtons = new LinkedHashMap<>();
+  private final Map<String, Button> inclusionPickers = new LinkedHashMap<>();
   private Label wlStatus;
   private AiAdvisorTranscriptPanel transcript;
   private Text wPrompt;
@@ -498,6 +502,18 @@ public class AiAdvisorSessionPane extends Composite {
             PKG, "AiAdvisor.Sharing.MetadataCount", Integer.toString(count));
       }
     }
+    if (inclusion.isPicker() && !AiAdvisorInclusions.METADATA.equals(inclusion.getId())) {
+      int count =
+          session != null
+              ? session.getInclusionSelections().getOrDefault(inclusion.getId(), List.of()).size()
+              : 0;
+      if (count > 0) {
+        String phrase =
+            !Utils.isEmpty(inclusion.getSummary()) ? inclusion.getSummary() : inclusion.getLabel();
+        return BaseMessages.getString(
+            PKG, "AiAdvisor.Sharing.InclusionCount", Integer.toString(count), phrase);
+      }
+    }
     if (!Utils.isEmpty(inclusion.getSummary())) {
       return inclusion.getSummary();
     }
@@ -523,6 +539,7 @@ public class AiAdvisorSessionPane extends Composite {
       selectScenario(session.getScenarioId());
       applyInclusionsFromSession();
       updateMetadataSelectButton();
+      updateInclusionPickerButtons();
       wlStatus.setText(Const.NVL(session.getStatusMessage(), ""));
       transcript.showSession(session, this::reviewProposalsForTurn);
       updateSendButton();
@@ -552,12 +569,28 @@ public class AiAdvisorSessionPane extends Composite {
 
   private void reloadAdvisors() {
     advisorPlugins.clear();
-    advisorPlugins.addAll(AiAdvisorPlugins.list());
+    String location = session != null ? session.getLocation() : AiAdvisorLocations.PERSPECTIVE;
+    advisorPlugins.addAll(AiAdvisorPlugins.listForLocation(location));
     String[] names = new String[advisorPlugins.size()];
     for (int i = 0; i < advisorPlugins.size(); i++) {
       names[i] = advisorPlugins.get(i).getName();
     }
     wAdvisor.setItems(names);
+    if (session != null && !advisorPlugins.isEmpty()) {
+      boolean present = false;
+      String current = session.getAdvisorPluginId();
+      for (IPlugin plugin : advisorPlugins) {
+        if (plugin.getIds()[0].equals(current)) {
+          present = true;
+          break;
+        }
+      }
+      if (!present) {
+        session.setAdvisorPluginId(advisorPlugins.get(0).getIds()[0]);
+      }
+    } else if (session != null && advisorPlugins.isEmpty()) {
+      session.setAdvisorPluginId("");
+    }
   }
 
   private void reloadProviders() {
@@ -583,6 +616,7 @@ public class AiAdvisorSessionPane extends Composite {
       child.dispose();
     }
     inclusionButtons.clear();
+    inclusionPickers.clear();
     currentInclusions.clear();
     wMetadataSelect = null;
     IAiAdvisor advisor = loadSelectedAdvisor();
@@ -622,14 +656,19 @@ public class AiAdvisorSessionPane extends Composite {
             if (session != null) {
               session.getInclusions().put(id, check.getSelection());
             }
-            if (AiAdvisorInclusions.METADATA.equals(id) && check.getSelection()) {
-              if (session != null
+            if (check.getSelection() && session != null) {
+              if (AiAdvisorInclusions.METADATA.equals(id)
                   && (session.getMetadataSelections() == null
                       || session.getMetadataSelections().isEmpty())) {
                 openMetadataPicker();
+              } else if (inclusion.isPicker()
+                  && !AiAdvisorInclusions.METADATA.equals(id)
+                  && session.getInclusionSelections().getOrDefault(id, List.of()).isEmpty()) {
+                openInclusionPicker(inclusion);
               }
             }
             updateMetadataSelectButton();
+            updateInclusionPickerButtons();
             updateSharingSummary();
           });
       inclusionButtons.put(id, check);
@@ -642,9 +681,16 @@ public class AiAdvisorSessionPane extends Composite {
             BaseMessages.getString(PKG, "AiAdvisor.Metadata.Select.Tooltip"));
         PropsUi.setLook(wMetadataSelect);
         wMetadataSelect.addListener(SWT.Selection, e -> openMetadataPicker());
+      } else if (inclusion.isPicker()) {
+        Button picker = new Button(inclusionsComposite, SWT.PUSH);
+        picker.setToolTipText(inclusion.getDescription());
+        PropsUi.setLook(picker);
+        picker.addListener(SWT.Selection, e -> openInclusionPicker(inclusion));
+        inclusionPickers.put(id, picker);
       }
     }
     updateMetadataSelectButton();
+    updateInclusionPickerButtons();
     updateSharingSummary();
     applySharingPanelExpanded();
   }
@@ -679,6 +725,140 @@ public class AiAdvisorSessionPane extends Composite {
     store.fireChanged();
     updateMetadataSelectButton();
     updateSharingSummary();
+  }
+
+  private void openInclusionPicker(AiAdvisorInclusion inclusion) {
+    if (session == null || inclusion == null) {
+      return;
+    }
+    IAiAdvisor advisor = loadSelectedAdvisor();
+    if (advisor == null) {
+      return;
+    }
+    List<AiAdvisorInclusionChoice> choices =
+        advisor.listInclusionChoices(inclusion.getId(), pickerRequest());
+    if (choices == null || choices.isEmpty()) {
+      wlStatus.setText(BaseMessages.getString(PKG, "AiAdvisor.Inclusion.Select.Empty"));
+      Button check = inclusionButtons.get(inclusion.getId());
+      if (check != null) {
+        check.setSelection(false);
+      }
+      session.getInclusions().put(inclusion.getId(), false);
+      updateSharingSummary();
+      return;
+    }
+    String[] labels = labelsOf(choices);
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            getShell(),
+            labels,
+            BaseMessages.getString(PKG, "AiAdvisor.Inclusion.Select.Title"),
+            BaseMessages.getString(PKG, "AiAdvisor.Inclusion.Select.Message"));
+    dialog.setMulti(inclusion.isMultiSelect());
+    List<String> previously =
+        session.getInclusionSelections().getOrDefault(inclusion.getId(), List.of());
+    dialog.setSelectedNrs(indexesOf(choices, previously));
+    String result = dialog.open();
+    if (result == null) {
+      Button check = inclusionButtons.get(inclusion.getId());
+      if (check != null
+          && check.getSelection()
+          && session
+              .getInclusionSelections()
+              .getOrDefault(inclusion.getId(), List.of())
+              .isEmpty()) {
+        check.setSelection(false);
+        session.getInclusions().put(inclusion.getId(), false);
+      }
+      updateSharingSummary();
+      return;
+    }
+    List<String> ids = selectedChoiceIds(choices, dialog.getSelectionIndeces());
+    session.getInclusionSelections().put(inclusion.getId(), ids);
+    Button check = inclusionButtons.get(inclusion.getId());
+    boolean send = !ids.isEmpty();
+    if (check != null) {
+      check.setSelection(send);
+    }
+    session.getInclusions().put(inclusion.getId(), send);
+    store.fireChanged();
+    updateInclusionPickerButtons();
+    updateSharingSummary();
+  }
+
+  private AiAdvisorRequest pickerRequest() {
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    request.setArtifact(session.getArtifact());
+    request.setVariables(host.getVariables());
+    request.setMetadataProvider(host.getMetadataProvider());
+    request.setLocation(session.getLocation());
+    request.setAttributes(
+        session.getAttributes() == null
+            ? new LinkedHashMap<>()
+            : new LinkedHashMap<>(session.getAttributes()));
+    return request;
+  }
+
+  static String[] labelsOf(List<AiAdvisorInclusionChoice> choices) {
+    if (choices == null || choices.isEmpty()) {
+      return new String[0];
+    }
+    String[] labels = new String[choices.size()];
+    for (int i = 0; i < choices.size(); i++) {
+      String label = choices.get(i).getLabel();
+      labels[i] = Utils.isEmpty(label) ? Const.NVL(choices.get(i).getId(), "") : label;
+    }
+    return labels;
+  }
+
+  static List<String> selectedChoiceIds(List<AiAdvisorInclusionChoice> choices, int[] indexes) {
+    List<String> ids = new ArrayList<>();
+    if (choices == null || indexes == null) {
+      return ids;
+    }
+    for (int index : indexes) {
+      if (index >= 0 && index < choices.size() && !Utils.isEmpty(choices.get(index).getId())) {
+        ids.add(choices.get(index).getId());
+      }
+    }
+    return ids;
+  }
+
+  static int[] indexesOf(List<AiAdvisorInclusionChoice> choices, List<String> ids) {
+    if (choices == null || ids == null || ids.isEmpty()) {
+      return new int[0];
+    }
+    List<Integer> indexes = new ArrayList<>();
+    for (int i = 0; i < choices.size(); i++) {
+      if (ids.contains(choices.get(i).getId())) {
+        indexes.add(i);
+      }
+    }
+    int[] result = new int[indexes.size()];
+    for (int i = 0; i < indexes.size(); i++) {
+      result[i] = indexes.get(i);
+    }
+    return result;
+  }
+
+  private void updateInclusionPickerButtons() {
+    for (Map.Entry<String, Button> entry : inclusionPickers.entrySet()) {
+      Button button = entry.getValue();
+      if (button == null || button.isDisposed()) {
+        continue;
+      }
+      int count =
+          session != null
+              ? session.getInclusionSelections().getOrDefault(entry.getKey(), List.of()).size()
+              : 0;
+      if (count == 0) {
+        button.setText(BaseMessages.getString(PKG, "AiAdvisor.Inclusion.Select.Label"));
+      } else {
+        button.setText(
+            BaseMessages.getString(
+                PKG, "AiAdvisor.Inclusion.Select.Count", Integer.toString(count)));
+      }
+    }
   }
 
   private void updateMetadataSelectButton() {
@@ -863,6 +1043,11 @@ public class AiAdvisorSessionPane extends Composite {
     request.setArtifact(session.getArtifact());
     request.setVariables(host.getVariables());
     request.setMetadataProvider(host.getMetadataProvider());
+    request.setLocation(session.getLocation());
+    request.setAttributes(
+        session.getAttributes() == null
+            ? new LinkedHashMap<>()
+            : new LinkedHashMap<>(session.getAttributes()));
     request.getAttributes().put(AiM2PromptSupport.ATTR_HOP_GUI, host.getHopGui());
 
     List<AiProposalValidation> validation = advisor.validateProposals(request, proposals);
@@ -878,7 +1063,8 @@ public class AiAdvisorSessionPane extends Composite {
     }
     try {
       advisor.applyProposals(request, selected);
-      session.recordApplied(turn, selected);
+      session.recordApplied(turn, selected, advisor);
+      advisor.afterApply(request, selected);
       refreshBoundGraph();
       session.setStatusMessage(
           BaseMessages.getString(PKG, "AiAdvisor.Transcript.Applied", selected.size()));

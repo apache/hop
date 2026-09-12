@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
+import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.Test;
@@ -65,5 +67,13 @@ class WorkflowAiAdvisorTest {
     assertTrue(prompt.getUserPrompt().contains("How do I add a success hop?"));
     assertTrue(prompt.getUserPrompt().contains("\"name\":\"orders\""));
     assertTrue(prompt.getSystemPrompt().contains("hop_proposals"));
+  }
+
+  @Test
+  void summarizeAppliedUsesPreview() {
+    AiProposal proposal = new AiProposal();
+    proposal.setType("ADD_ACTION");
+    proposal.setParameters(Map.of("name", "Check", "actionPluginId", "DUMMY"));
+    assertEquals("ADD_ACTION: Check (DUMMY)", new WorkflowAiAdvisor().summarizeApplied(proposal));
   }
 }

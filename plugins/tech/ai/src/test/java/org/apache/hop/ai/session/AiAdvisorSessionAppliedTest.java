@@ -22,7 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.ai.advisor.AiAdvisorPrompt;
+import org.apache.hop.ai.advisor.AiAdvisorRequest;
+import org.apache.hop.ai.advisor.AiAdvisorScenario;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.junit.jupiter.api.Test;
 
 class AiAdvisorSessionAppliedTest {
@@ -43,5 +47,37 @@ class AiAdvisorSessionAppliedTest {
     List<String> first = session.consumePendingAppliedSummaries();
     assertEquals(1, first.size());
     assertTrue(session.consumePendingAppliedSummaries().isEmpty());
+  }
+
+  @Test
+  void recordAppliedUsesAdvisorSummarize() {
+    AiAdvisorSession session = new AiAdvisorSession();
+    AiProposal proposal = new AiProposal();
+    proposal.setType("ADD_HUB");
+    proposal.setDescription("Create H_CUSTOMER");
+    IAiAdvisor advisor =
+        new IAiAdvisor() {
+          @Override
+          public String getId() {
+            return "dv";
+          }
+
+          @Override
+          public String getName() {
+            return "dv";
+          }
+
+          @Override
+          public List<AiAdvisorScenario> listScenarios() {
+            return List.of();
+          }
+
+          @Override
+          public AiAdvisorPrompt buildPrompt(AiAdvisorRequest request) {
+            return new AiAdvisorPrompt("", "");
+          }
+        };
+    session.recordApplied(null, List.of(proposal), advisor);
+    assertEquals(List.of("ADD_HUB: Create H_CUSTOMER"), session.consumePendingAppliedSummaries());
   }
 }

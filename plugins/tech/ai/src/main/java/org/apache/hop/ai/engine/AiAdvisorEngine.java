@@ -21,7 +21,9 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisor.AiAdvisorResponse;
@@ -70,30 +72,7 @@ public final class AiAdvisorEngine {
       throw new HopException("Select an AI advisor for this session.");
     }
     AiProvider provider = loadProvider(session, metadataProvider);
-    AiAdvisorRequest request = new AiAdvisorRequest();
-    request.setLocation(session.getLocation());
-    request.setScenarioId(session.getScenarioId());
-    request.setUserPrompt(
-        session.isEmpty()
-            ? ""
-            : session.getTurns().get(session.getTurns().size() - 1).getUserPrompt());
-    request.setFocusNodeName(session.getFocusNodeName());
-    request.setAiProviderName(session.getProviderName());
-    request.setVariables(variables);
-    request.setMetadataProvider(metadataProvider);
-    request.setArtifact(session.getArtifact());
-    request.setInclusions(session.getInclusions());
-    request.setMetadataSelections(
-        session.getMetadataSelections() == null
-            ? new ArrayList<>()
-            : new ArrayList<>(session.getMetadataSelections()));
-    request.setFollowUp(hasSuccessfulPriorTurn(session));
-    request.setAppliedChangeSummaries(session.consumePendingAppliedSummaries());
-    if (logExcerpt != null) {
-      request.setLogExcerpt(logExcerpt);
-    } else if (session.getLogSupplier() != null) {
-      request.setLogExcerpt(session.getLogSupplier().get());
-    }
+    AiAdvisorRequest request = toRequest(session, variables, metadataProvider, logExcerpt);
 
     if (session.isCancelled()) {
       throw new HopException("AI request was cancelled");
@@ -107,6 +86,63 @@ public final class AiAdvisorEngine {
       throw new HopException("AI request was cancelled");
     }
     return advisor.parseResponse(raw);
+  }
+
+  static AiAdvisorRequest toRequest(
+      AiAdvisorSession session,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      String logExcerpt) {
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    if (session == null) {
+      return request;
+    }
+    request.setLocation(session.getLocation());
+    request.setScenarioId(session.getScenarioId());
+    request.setUserPrompt(
+        session.isEmpty()
+            ? ""
+            : session.getTurns().get(session.getTurns().size() - 1).getUserPrompt());
+    request.setFocusNodeName(session.getFocusNodeName());
+    request.setAiProviderName(session.getProviderName());
+    request.setVariables(variables);
+    request.setMetadataProvider(metadataProvider);
+    request.setArtifact(session.getArtifact());
+    request.setInclusions(
+        session.getInclusions() == null
+            ? new LinkedHashMap<>()
+            : new LinkedHashMap<>(session.getInclusions()));
+    request.setMetadataSelections(
+        session.getMetadataSelections() == null
+            ? new ArrayList<>()
+            : new ArrayList<>(session.getMetadataSelections()));
+    request.setAttributes(copyAttributes(session.getAttributes()));
+    request.setInclusionSelections(copyInclusionSelections(session.getInclusionSelections()));
+    request.setFollowUp(hasSuccessfulPriorTurn(session));
+    request.setAppliedChangeSummaries(session.consumePendingAppliedSummaries());
+    if (logExcerpt != null) {
+      request.setLogExcerpt(logExcerpt);
+    } else if (session.getLogSupplier() != null) {
+      request.setLogExcerpt(session.getLogSupplier().get());
+    }
+    return request;
+  }
+
+  static Map<String, Object> copyAttributes(Map<String, Object> source) {
+    return source == null ? new LinkedHashMap<>() : new LinkedHashMap<>(source);
+  }
+
+  static Map<String, List<String>> copyInclusionSelections(Map<String, List<String>> source) {
+    Map<String, List<String>> copy = new LinkedHashMap<>();
+    if (source == null) {
+      return copy;
+    }
+    for (Map.Entry<String, List<String>> entry : source.entrySet()) {
+      copy.put(
+          entry.getKey(),
+          entry.getValue() == null ? new ArrayList<>() : new ArrayList<>(entry.getValue()));
+    }
+    return copy;
   }
 
   public static AiProvider loadProvider(

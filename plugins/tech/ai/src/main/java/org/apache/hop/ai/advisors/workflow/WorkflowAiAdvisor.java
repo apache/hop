@@ -31,6 +31,7 @@ import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.engine.AiM2PromptSupport;
 import org.apache.hop.ai.engine.AiProposalParser;
+import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -150,6 +151,11 @@ public class WorkflowAiAdvisor implements IAiAdvisor {
     }
     HopGui hopGui = hopGuiFrom(request);
     WorkflowAiProposalApplier.apply(workflowMeta, selected, hopGui);
+  }
+
+  @Override
+  public String summarizeApplied(AiProposal proposal) {
+    return AiProposalPreview.appliedSummary(proposal);
   }
 
   private static HopGui hopGuiFrom(AiAdvisorRequest request) {

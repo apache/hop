@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
+import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.jupiter.api.Test;
@@ -65,5 +67,14 @@ class PipelineAiAdvisorTest {
     assertTrue(prompt.getUserPrompt().contains("How do I add a filter?"));
     assertTrue(prompt.getUserPrompt().contains("\"name\":\"orders\""));
     assertTrue(prompt.getSystemPrompt().contains("hop_proposals"));
+  }
+
+  @Test
+  void summarizeAppliedUsesPreview() {
+    AiProposal proposal = new AiProposal();
+    proposal.setType("ADD_TRANSFORM");
+    proposal.setParameters(Map.of("name", "Check", "transformPluginId", "Dummy"));
+    assertEquals(
+        "ADD_TRANSFORM: Check (Dummy)", new PipelineAiAdvisor().summarizeApplied(proposal));
   }
 }

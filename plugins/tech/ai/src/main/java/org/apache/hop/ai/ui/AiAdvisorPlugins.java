@@ -20,6 +20,7 @@ package org.apache.hop.ai.ui;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorPluginType;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.core.exception.HopException;
@@ -37,6 +38,43 @@ public final class AiAdvisorPlugins {
         new ArrayList<>(PluginRegistry.getInstance().getPlugins(AiAdvisorPluginType.class));
     plugins.sort(Comparator.comparing(IPlugin::getName, String.CASE_INSENSITIVE_ORDER));
     return plugins;
+  }
+
+  /**
+   * Advisors for this session location. Empty {@code locations()} means any session. The unbound
+   * perspective lists every advisor.
+   */
+  public static List<IPlugin> listForLocation(String location) {
+    List<IPlugin> all = list();
+    if (Utils.isEmpty(location) || AiAdvisorLocations.PERSPECTIVE.equals(location)) {
+      return all;
+    }
+    List<IPlugin> matching = new ArrayList<>();
+    for (IPlugin plugin : all) {
+      if (offersLocation(plugin, location)) {
+        matching.add(plugin);
+      }
+    }
+    return matching;
+  }
+
+  public static boolean offersLocation(IPlugin plugin, String location) {
+    return keywordsOfferLocation(plugin == null ? null : plugin.getKeywords(), location);
+  }
+
+  static boolean keywordsOfferLocation(String[] keywords, String location) {
+    if (keywords == null || keywords.length == 0) {
+      return true;
+    }
+    if (Utils.isEmpty(location)) {
+      return true;
+    }
+    for (String keyword : keywords) {
+      if (location.equals(keyword)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static IAiAdvisor load(String pluginId) throws HopException {

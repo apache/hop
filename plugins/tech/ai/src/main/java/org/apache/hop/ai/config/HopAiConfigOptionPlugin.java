@@ -101,6 +101,14 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
 
   public static HopAiConfigOptionPlugin getInstance() {
     HopAiConfigOptionPlugin instance = new HopAiConfigOptionPlugin();
+    try {
+      HopGui hopGui = HopGui.getInstance();
+      if (hopGui != null) {
+        HopAiLegacyConfigMigrator.migrate(hopGui.getMetadataProvider());
+      }
+    } catch (Throwable ignored) {
+      // CLI / tests may have no GUI.
+    }
     HopAiConfig config = HopAiConfigSingleton.getConfig();
     instance.aiEnabled = config.isAiEnabled();
     instance.defaultProviderName = config.getDefaultProviderName();
@@ -113,6 +121,9 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
       throws HopException {
     try {
+      if (hasHopMetadataProvider != null && hasHopMetadataProvider.getMetadataProvider() != null) {
+        HopAiLegacyConfigMigrator.migrate(hasHopMetadataProvider.getMetadataProvider());
+      }
       HopAiConfig config = HopAiConfigSingleton.getConfig();
       boolean changed = false;
       if (aiEnabled != null && config.isAiEnabled() != aiEnabled) {

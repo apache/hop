@@ -25,6 +25,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
+import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorTurn;
 import org.junit.jupiter.api.Test;
@@ -65,5 +66,30 @@ class AiAdvisorEngineTest {
     session.addTurn(current);
     assertFalse(AiAdvisorEngine.hasSuccessfulPriorTurn(session));
     assertTrue(AiAdvisorEngine.historyFrom(session).isEmpty());
+  }
+
+  @Test
+  void toRequestCopiesSessionAttributesAndInclusionSelections() {
+    AiAdvisorSession session = new AiAdvisorSession();
+    session.setLocation("data-vault-graph");
+    session.getAttributes().put("modelId", "sales");
+    session.getInclusionSelections().put("catalog", List.of("SRC_ORDERS", "SRC_CUSTOMER"));
+    session.getInclusions().put("catalog", true);
+    AiAdvisorTurn turn = new AiAdvisorTurn();
+    turn.setUserPrompt("hub grain?");
+    session.addTurn(turn);
+
+    AiAdvisorRequest request = AiAdvisorEngine.toRequest(session, null, null, "log");
+    assertEquals("data-vault-graph", request.getLocation());
+    assertEquals("sales", request.getAttributes().get("modelId"));
+    assertEquals(List.of("SRC_ORDERS", "SRC_CUSTOMER"), request.selectedInclusionIds("catalog"));
+    assertTrue(request.inclusionEnabled("catalog"));
+    assertEquals("log", request.getLogExcerpt());
+    assertEquals("hub grain?", request.getUserPrompt());
+    request.getAttributes().put("mutated", true);
+    request.getInclusionSelections().get("catalog").add("SRC_EXTRA");
+    assertFalse(session.getAttributes().containsKey("mutated"));
+    assertEquals(
+        List.of("SRC_ORDERS", "SRC_CUSTOMER"), session.getInclusionSelections().get("catalog"));
   }
 }

@@ -18,7 +18,9 @@
 package org.apache.hop.ai.session;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
@@ -128,6 +130,7 @@ public class AiAdvisorSessionStore {
       if (request.getLogSupplier() != null) {
         existing.setLogSupplier(request.getLogSupplier());
       }
+      mergeAttributes(existing, request);
       activeSessionId = existing.getId();
       fireChanged();
       return existing;
@@ -144,8 +147,23 @@ public class AiAdvisorSessionStore {
       session.setFocusNodeName(nvl(request.getFocusNodeName()));
       session.setArtifact(request.getArtifact());
       session.setLogSupplier(request.getLogSupplier());
+      session.setAttributes(copyAttributes(request.getAttributes()));
     }
     return add(session);
+  }
+
+  static void mergeAttributes(AiAdvisorSession session, AiAdvisorOpenRequest request) {
+    if (session == null || request == null || request.getAttributes() == null) {
+      return;
+    }
+    if (session.getAttributes() == null) {
+      session.setAttributes(new LinkedHashMap<>());
+    }
+    session.getAttributes().putAll(request.getAttributes());
+  }
+
+  static Map<String, Object> copyAttributes(Map<String, Object> source) {
+    return source == null ? new LinkedHashMap<>() : new LinkedHashMap<>(source);
   }
 
   public void addListener(Runnable listener) {

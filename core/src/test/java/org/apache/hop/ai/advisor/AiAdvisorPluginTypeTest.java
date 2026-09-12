@@ -70,7 +70,31 @@ class AiAdvisorPluginTypeTest {
     FakeAdvisor advisor = new FakeAdvisor();
     assertTrue(advisor.validateProposals(new AiAdvisorRequest(), List.of()).isEmpty());
     advisor.applyProposals(new AiAdvisorRequest(), List.of());
+    advisor.afterApply(new AiAdvisorRequest(), List.of());
     assertTrue(advisor.isAvailable());
+    assertTrue(advisor.listInclusionChoices("catalog", new AiAdvisorRequest()).isEmpty());
+  }
+
+  @Test
+  void selectedInclusionIdsRoundTrip() {
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    assertTrue(request.selectedInclusionIds("catalog").isEmpty());
+    request.getInclusionSelections().put("catalog", List.of("SRC_ORDERS"));
+    assertEquals(List.of("SRC_ORDERS"), request.selectedInclusionIds("catalog"));
+    assertTrue(request.selectedInclusionIds(null).isEmpty());
+  }
+
+  @Test
+  void summarizeAppliedUsesTypeAndDescription() {
+    FakeAdvisor advisor = new FakeAdvisor();
+    AiProposal proposal = new AiProposal();
+    proposal.setType("ADD_HUB");
+    proposal.setDescription("Create H_CUSTOMER");
+    assertEquals("ADD_HUB: Create H_CUSTOMER", advisor.summarizeApplied(proposal));
+    AiProposal typeOnly = new AiProposal();
+    typeOnly.setType("ADD_HUB");
+    assertEquals("ADD_HUB", advisor.summarizeApplied(typeOnly));
+    assertEquals("unknown change", advisor.summarizeApplied(null));
   }
 
   @AiAdvisorPlugin(

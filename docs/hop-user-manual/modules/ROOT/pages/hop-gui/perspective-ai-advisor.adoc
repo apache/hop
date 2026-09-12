@@ -70,10 +70,10 @@ The workbench reuses an existing session for the same advisor and file when one 
 
 Each session has:
 
-* *Advisor* — Pipeline AI Help or Workflow AI Help (other plugins can add more)
+* *Advisor* — Pipeline AI Help or Workflow AI Help (other plugins add advisors for their own file types; the combo only lists advisors that match this session)
 * *Scenario* — General, transform/action selection, error diagnosis, or design
 * *Provider* — named xref:metadata-types/ai-provider.adoc[AI Provider] metadata
-* *Sharing* — a one-line summary of what this send includes. Expand it to opt in to extra context (see <<context-inclusions>>). Nothing extra is shared until you check it. *Select metadata…* chooses which named metadata objects to send.
+* *Sharing* — a one-line summary of what this send includes. Expand it to opt in to extra context (see <<context-inclusions>>). Nothing extra is shared until you check it. *Select metadata…* chooses which named metadata objects to send. Other plugins may add a *Select…* button beside an inclusion (for example catalog sources).
 * a transcript and a question field at the bottom (question-mark icon, pastel input, Hop logo to send; `Ctrl-Enter` / `Cmd-Enter` also sends)
 
 The first turn of a session can include the larger context (summary, catalog, optional XML and logs).

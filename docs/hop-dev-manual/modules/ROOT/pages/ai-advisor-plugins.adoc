@@ -43,10 +43,10 @@ Your file type / metadata editor
                     └── extension point HopGuiAiAdvisorOpenSession
                             └── hop-tech-ai workbench (no-op if the plugin is absent)
 
-Your IAiAdvisor  (@AiAdvisorPlugin, classLoaderGroup = "hop-ai")
+Your IAiAdvisor  (@AiAdvisorPlugin)            // omit classLoaderGroup
     └── locations = { "data-vault-graph" }     // same string
     └── buildPrompt(AiAdvisorRequest)          // cast artifact, honour inclusions
-    └── optional parseResponse / validate / apply
+    └── optional parseResponse / validate / apply / afterApply / summarizeApplied
 ----
 
 Three JARs stay decoupled:
@@ -65,8 +65,7 @@ Still no `hop-tech-ai`.
 
 |`hop-tech-ai`
 |The workbench, Language Model Chat, langchain4j.
-Your advisor JAR sets `classLoaderGroup = "hop-ai"` so it shares that classloader.
-Do *not* compile GUI open-session code against this module.
+Third-party advisor JARs must *not* set `classLoaderGroup = "hop-ai"` and must *not* compile against this module.
 |===
 
 If `plugins/tech/ai` is missing, `openAiAdvisorSession` is a silent no-op.
@@ -114,7 +113,7 @@ Replace them with your file type's graph, context id and toolbar root.
 
 [source,java]
 ----
-@GuiPlugin(classLoaderGroup = "hop-ai")
+@GuiPlugin
 public class VaultAiGuiPlugin {
 
   public static final String LOCATION = "data-vault-graph";
@@ -209,6 +208,11 @@ Use it for execution logs that live in SWT widgets.
 |`reuseExisting`
 |Default `true`.
 The store reuses a session with the same advisor id, location and artifact name.
+
+|`attributes`
+|A `Map<String,Object>` copied onto the session (new session: replace; reuse: merge, incoming keys win).
+The engine copies it onto every `AiAdvisorRequest` for `buildPrompt`.
+Do *not* put SWT / `HopGui` here.
 |===
 
 If a dialog or dock is already open, that layout is reused even when `preferFloatingWindow` is true.
@@ -225,8 +229,7 @@ Keep langchain4j and SWT off this class.
     name = "i18n::DataVaultAiAdvisor.Name",
     description = "i18n::DataVaultAiAdvisor.Description",
     image = "ai-provider.svg",
-    locations = {"data-vault-graph"},
-    classLoaderGroup = "hop-ai")
+    locations = {"data-vault-graph"})
 public class DataVaultAiAdvisor implements IAiAdvisor {
 
   public static final String ID = "data-vault-advisor";
@@ -267,12 +270,37 @@ public class DataVaultAiAdvisor implements IAiAdvisor {
             false,
             "Validation messages for this model",
             "check results"),
+        catalogInclusion(),
         new AiAdvisorInclusion(
             "metadata",
             "Include selected metadata",
             false,
             "JSON of metadata objects the user picks",
             "metadata"));
+  }
+
+  private static AiAdvisorInclusion catalogInclusion() {
+    AiAdvisorInclusion inclusion =
+        new AiAdvisorInclusion(
+            "catalog",
+            "Include catalog sources",
+            false,
+            "Record definitions the user picks",
+            "catalog sources");
+    inclusion.setPicker(true);
+    inclusion.setMultiSelect(true);
+    return inclusion;
+  }
+
+  @Override
+  public List<AiAdvisorInclusionChoice> listInclusionChoices(
+      String inclusionId, AiAdvisorRequest request) {
+    if (!"catalog".equals(inclusionId)) {
+      return List.of();
+    }
+    return List.of(
+        new AiAdvisorInclusionChoice("SRC_ORDERS", "Orders"),
+        new AiAdvisorInclusionChoice("SRC_CUSTOMER", "Customer"));
   }
 
   @Override
@@ -286,6 +314,11 @@ public class DataVaultAiAdvisor implements IAiAdvisor {
     user.append("Model structure JSON:\n").append(serializeStructure(model)).append("\n\n");
     if (request.inclusionEnabled("checks")) {
       user.append("Check results JSON:\n").append(serializeChecks(model, request)).append("\n\n");
+    }
+    if (request.inclusionEnabled("catalog")) {
+      user.append("Catalog sources: ")
+          .append(request.selectedInclusionIds("catalog"))
+          .append("\n\n");
     }
     // Workbench appends selected metadata when inclusion id is "metadata".
     return new AiAdvisorPrompt(system, user.toString());
@@ -312,8 +345,15 @@ Leave it empty if the question is the only baseline.
 |Checkbox only.
 You honour `request.inclusionEnabled(id)` in `buildPrompt`.
 
+|any string with `picker = true`
+|Checkbox *and* a *Select…* button.
+The workbench calls `listInclusionChoices(id, request)` (no SWT).
+Chosen *ids* are on `request.selectedInclusionIds(id)` and persist on the session.
+Empty choices → the workbench shows a short message and unchecks the inclusion.
+
 |`metadata`
-|Checkbox *and* a *Select metadata…* picker.
+|Checkbox *and* a *Select metadata…* picker of Hop `@HopMetadata` objects.
+Not routed through `listInclusionChoices`.
 Selected type-key/name pairs are on `request.getMetadataSelections()`.
 `hop-tech-ai` serialises those objects (secrets redacted) when the box is checked.
 Default should be off.
@@ -337,8 +377,8 @@ Default-off inclusions (full XML, logs, metadata) are the ones that can leak sec
 |`artifact`, `focusNodeName`, `logExcerpt`
 |The session (log excerpt is captured on the UI thread).
 
-|`inclusions`, `metadataSelections`
-|The session pane checkboxes and picker.
+|`inclusions`, `metadataSelections`, `inclusionSelections`
+|The session pane checkboxes, Hop metadata picker, and generic Select… pickers.
 
 |`scenarioId`, `userPrompt`
 |The combo and the question field.
@@ -348,38 +388,57 @@ Default-off inclusions (full XML, logs, metadata) are the ones that can leak sec
 Large context (catalog, XML, logs) is usually first-turn only; you decide.
 
 |`attributes`
-|A free map for extra structured context you stash on the session if you need it.
+|Copied from the session (which came from `AiAdvisorOpenRequest.attributes`).
+`HopGui` is injected only on the *apply* request, never on `buildPrompt`.
 
 |`variables`, `metadataProvider`
 |The Hop GUI session.
 
 |`appliedChangeSummaries`
-|What the user applied from earlier `hop_proposals` blocks.
+|What the user applied from earlier proposal blocks (`summarizeApplied`).
 |===
 
 === Proposals (optional)
 
-If the model returns a `hop_proposals` JSON block, implement `parseResponse`, `validateProposals` and `applyProposals`.
-Proposal `type` is a free string (`ADD_TRANSFORM`, `CREATE_HUB`, …) so a Data Vault advisor can invent types the pipeline advisor does not know.
-Unknown types must not be dropped on the floor — validate them as blocked with a reason, or apply them in your own applier.
+`parseResponse` owns the fence name.
+Bundled advisors look for ` ```hop_proposals `; yours may parse ` ```dv_proposals ` or anything else.
+The workbench never parses proposals itself.
 
-The workbench registers undo on the open pipeline/workflow for the bundled types.
-For a custom model, apply to `request.getArtifact()` and refresh your graph yourself.
+Proposal `type` is a free string (`ADD_TRANSFORM`, `CREATE_HUB`, …).
+Unknown types must not be dropped — validate them as blocked with a reason, or apply them in your own applier.
 
-Chat-only advisors leave the three methods as the defaults.
+Override `summarizeApplied` so follow-up turns get `ADD_HUB: Create H_CUSTOMER` instead of `unknown change`.
+The default is `type: description`.
+Pipeline/workflow advisors already produce the richer `ADD_TRANSFORM: name (pluginId)` wording.
+
+After `applyProposals` succeeds the workbench calls `afterApply` on the UI thread, then refreshes *pipeline and workflow* Explorer graphs only.
+Custom file types *must* implement `afterApply` (undo, `setChanged`, redraw) using `request.getAttributes().get("hopGui")` and `request.getArtifact()`.
+Do not add your file type to the workbench refresh list.
+
+Chat-only advisors leave apply / afterApply / summarize as the defaults.
 
 == Classloading
 
-Set `classLoaderGroup = "hop-ai"` on:
+`IAiAdvisor` lives in *hop-core*.
+Two plugin classloaders both see the same interface.
+`PluginRegistry.loadClass(..., IAiAdvisor.class)` does *not* require a shared group.
 
-* `@AiAdvisorPlugin`
-* `@GuiPlugin` classes that live in the same JAR as the advisor
-* `@AiProviderPlugin` implementations (already required)
+Set `classLoaderGroup = "hop-ai"` *only* on classes that live in `plugins/tech/ai` (or that must load langchain4j / `org.apache.hop.ai.engine.*`).
 
-Without the group, `hop-tech-ai` and your plugin load `IAiAdvisor` twice and the cast fails.
+Third-party advisor plugins:
 
-Do not put langchain4j on your advisor classpath.
-Completions go through Language Model Chat.
+* `@AiAdvisorPlugin` — *omit* `classLoaderGroup` (empty default).
+* `@GuiPlugin` toolbar/context that only builds `AiAdvisorOpenRequest` and calls `HopGui.openAiAdvisorSession` — *omit* `classLoaderGroup`.
+* Compile against `hop-core` + `hop-ui` only. Never compile against `hop-tech-ai`.
+* Do not bundle langchain4j.
+
+If `plugins/tech/ai` is removed, `openAiAdvisorSession` is still a silent no-op; the third-party advisor plugin still loads.
+
+The workbench combo lists advisors whose `locations()` match the session (plus advisors with empty locations).
+A `data-vault-graph` session does not offer Pipeline AI Help.
+The unbound perspective lists every advisor.
+
+Do not put hopper-edw location ids in `AiAdvisorLocations`.
 
 == Privacy
 
@@ -395,11 +454,12 @@ The assistant sends whatever you put in the prompt to an external service.
 == Checklist
 
 . Invent a location id. Do not add it to `AiAdvisorLocations`.
-. Implement `IAiAdvisor` with that id on `locations`, `classLoaderGroup = "hop-ai"`.
-. Add toolbar and/or context-menu plugins on the editor that owns the subject.
-. Build `AiAdvisorOpenRequest` (location, area label, artifact, `preferFloatingWindow` when the subject should stay visible).
+. Implement `IAiAdvisor` with that id on `locations`. Omit `classLoaderGroup`.
+. Add toolbar and/or context-menu plugins on the editor that owns the subject (also omit `classLoaderGroup`).
+. Build `AiAdvisorOpenRequest` (location, area label, artifact, attributes, `preferFloatingWindow` when the subject should stay visible).
 . Call `hopGui.openAiAdvisorSession(request)` — not `AiAdvisorViews`.
-. Honour inclusions in `buildPrompt`; use id `metadata` if you want the picker.
+. Honour inclusions in `buildPrompt`; use id `metadata` for Hop metadata, `picker = true` + `listInclusionChoices` for anything else (catalog names, …).
 . Keep `defaultSelected = false`. Set `summary` and `listBaselineSharing()` so the collapsed Sharing line is accurate.
 . Keep SWT and langchain4j off `IAiAdvisor`.
-. Verify AI still disappears when `plugins/tech/ai` is removed.
+. Implement `afterApply` and `summarizeApplied` if you apply custom proposal types.
+. Verify AI still disappears when `plugins/tech/ai` is removed, and that your advisor JAR still loads.

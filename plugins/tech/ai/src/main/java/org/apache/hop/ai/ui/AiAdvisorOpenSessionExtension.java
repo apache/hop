@@ -18,6 +18,7 @@
 package org.apache.hop.ai.ui;
 
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
+import org.apache.hop.ai.config.HopAiLegacyConfigMigrator;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -38,6 +39,7 @@ public class AiAdvisorOpenSessionExtension implements IExtensionPoint<AiAdvisorO
     if (hopGui == null || request == null) {
       return;
     }
+    HopAiLegacyConfigMigrator.migrate(hopGui.getMetadataProvider());
     AiAdvisorViews.openSession(hopGui, request);
   }
 }

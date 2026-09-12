@@ -89,6 +89,47 @@ public interface IAiAdvisor {
   }
 
   /**
+   * Choices for an inclusion with {@code picker = true}. Called on the UI thread when the user
+   * clicks Select…. Must not open SWT. Empty list → the workbench shows a short message and
+   * unchecks the inclusion. Id {@code metadata} is workbench-owned and is not routed here.
+   */
+  default List<AiAdvisorInclusionChoice> listInclusionChoices(
+      String inclusionId, AiAdvisorRequest request) {
+    return List.of();
+  }
+
+  /**
+   * One-line summary of an applied proposal for the next user prompt. Default is {@code type:
+   * description} or whichever of those is present.
+   */
+  default String summarizeApplied(AiProposal proposal) {
+    if (proposal == null) {
+      return "unknown change";
+    }
+    String type = proposal.getType() == null ? "" : proposal.getType().trim();
+    String description = proposal.getDescription() == null ? "" : proposal.getDescription().trim();
+    if (type.isEmpty() && description.isEmpty()) {
+      return "unknown change";
+    }
+    if (type.isEmpty()) {
+      return description;
+    }
+    if (description.isEmpty()) {
+      return type;
+    }
+    return type + ": " + description;
+  }
+
+  /**
+   * Called on the UI thread after {@link #applyProposals} succeeds. Pipeline/workflow advisors may
+   * no-op (the workbench refreshes those graphs). Other advisors should mark undo, setChanged, and
+   * redraw using {@code request.getAttributes().get("hopGui")} and {@code request.getArtifact()}.
+   */
+  default void afterApply(AiAdvisorRequest request, List<AiProposal> applied) {
+    // no-op
+  }
+
+  /**
    * @return false when this advisor must not be offered (master switch off, missing GUI, …)
    */
   default boolean isAvailable() {

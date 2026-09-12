@@ -113,6 +113,29 @@ class AiAdvisorSessionStoreTest {
   }
 
   @Test
+  void openCopiesAttributesAndReuseMerges() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
+    request.setAdvisorPluginId("data-vault-advisor");
+    request.setLocation("data-vault-graph");
+    request.setArtifactName("sales.dv");
+    request.getAttributes().put("catalog", "sales");
+    AiAdvisorSession session = store.open(request);
+    assertEquals("sales", session.getAttributes().get("catalog"));
+
+    AiAdvisorOpenRequest reuse = new AiAdvisorOpenRequest();
+    reuse.setAdvisorPluginId("data-vault-advisor");
+    reuse.setLocation("data-vault-graph");
+    reuse.setArtifactName("sales.dv");
+    reuse.getAttributes().put("focusHub", "H_CUSTOMER");
+    reuse.getAttributes().put("catalog", "marketing");
+    AiAdvisorSession same = store.open(reuse);
+    assertSame(session, same);
+    assertEquals("marketing", same.getAttributes().get("catalog"));
+    assertEquals("H_CUSTOMER", same.getAttributes().get("focusHub"));
+  }
+
+  @Test
   void nestedFireChangedDoesNotRecurse() {
     AiAdvisorSessionStore store = new AiAdvisorSessionStore();
     int[] count = {0};

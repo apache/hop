@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.engine.AiProposalPreview;
 
 /**
@@ -54,6 +55,8 @@ public class AiAdvisorSession {
   private Supplier<String> logSupplier;
   private Map<String, Boolean> inclusions = new LinkedHashMap<>();
   private List<AiAdvisorMetadataSelection> metadataSelections = new ArrayList<>();
+  private Map<String, Object> attributes = new LinkedHashMap<>();
+  private Map<String, List<String>> inclusionSelections = new LinkedHashMap<>();
   private final List<AiAdvisorTurn> turns = new ArrayList<>();
   private final List<String> pendingAppliedSummaries = new ArrayList<>();
   private String statusMessage = "";
@@ -90,12 +93,19 @@ public class AiAdvisorSession {
   }
 
   public void recordApplied(AiAdvisorTurn turn, List<AiProposal> applied) {
+    recordApplied(turn, applied, null);
+  }
+
+  public void recordApplied(AiAdvisorTurn turn, List<AiProposal> applied, IAiAdvisor advisor) {
     if (applied == null || applied.isEmpty()) {
       return;
     }
     List<String> summaries = new ArrayList<>();
     for (AiProposal proposal : applied) {
-      summaries.add(AiProposalPreview.appliedSummary(proposal));
+      summaries.add(
+          advisor != null
+              ? advisor.summarizeApplied(proposal)
+              : AiProposalPreview.appliedSummary(proposal));
     }
     pendingAppliedSummaries.addAll(summaries);
     if (turn != null) {

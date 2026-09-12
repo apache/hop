@@ -45,11 +45,22 @@ public class AiAdvisorInclusion {
    */
   private String summary;
 
+  /** When true, the workbench shows a Select… button next to the checkbox. */
+  private boolean picker;
+
+  /** When {@link #picker} is true, allow multiple choices. Default true. */
+  private boolean multiSelect = true;
+
   public AiAdvisorInclusion(String id, String label, boolean defaultSelected) {
-    this(id, label, defaultSelected, null, null);
+    this(id, label, defaultSelected, null, null, false, true);
   }
 
   public AiAdvisorInclusion(String id, String label, boolean defaultSelected, String description) {
-    this(id, label, defaultSelected, description, null);
+    this(id, label, defaultSelected, description, null, false, true);
+  }
+
+  public AiAdvisorInclusion(
+      String id, String label, boolean defaultSelected, String description, String summary) {
+    this(id, label, defaultSelected, description, summary, false, true);
   }
 }

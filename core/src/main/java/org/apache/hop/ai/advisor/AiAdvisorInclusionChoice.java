@@ -17,22 +17,20 @@
 
 package org.apache.hop.ai.advisor;
 
-/**
- * Well-known location ids Hop itself uses when opening an AI session. These are ordinary strings:
- * other plugins (Data Vault, Business Vault, dimensional modelers, lineage, metadata editors, …)
- * define their own ids and pass them on {@link AiAdvisorOpenRequest#location}. Hop never
- * enumerates the full set.
- */
-public final class AiAdvisorLocations {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-  /** Pipeline canvas / toolbar AI Help. */
-  public static final String PIPELINE_GRAPH = "pipeline-graph";
+/** One choice for an inclusion with {@code picker = true}. The id is stored on the session. */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class AiAdvisorInclusionChoice {
+  /** Stored and sent on {@link AiAdvisorRequest#inclusionSelections}. */
+  private String id;
 
-  /** Workflow canvas / toolbar AI Help. */
-  public static final String WORKFLOW_GRAPH = "workflow-graph";
-
-  /** Perspective, Tools menu, or an unbound new session. */
-  public static final String PERSPECTIVE = "perspective";
-
-  private AiAdvisorLocations() {}
+  /** Shown in the workbench Select… dialog. */
+  private String label;
 }

@@ -59,6 +59,8 @@ Two plugin types are registered from `HopEnvironment`:
 * `@AiProviderPlugin` / `IAiProvider` — another backend (including a future OAuth Copilot plugin)
 * `@AiAdvisorPlugin` / `IAiAdvisor` — another advisor. Location ids are free-form strings (pipeline graph, Data Vault graph, lineage view, a metadata editor, …). hopper-edw adds Data Vault, Business Vault, dimensional and lineage advisors this way, with their own toolbar and context-menu plugins.
 
-Use `classLoaderGroup = "hop-ai"` so the advisor shares a classloader with Language Model Chat.
 Keep langchain4j and SWT off the `IAiAdvisor` / `IAiProvider` interfaces; those live in `hop-core`.
+Third-party advisor plugins omit `classLoaderGroup` and compile against `hop-core` + `hop-ui` only.
 Plugin authors: see the xref:dev-manual::ai-advisor-plugins.adoc[AI advisor plugins] page in the development manual.
+
+Keys that older plugins stored under Configuration → AI Assistant (`hopAiConfig` with `aiApiKey` / `aiProviderPreset`) are imported as an xref:metadata-types/ai-provider.adoc[AI Provider] the first time the GUI starts with a metadata provider, then removed from `hop-config.json`.
