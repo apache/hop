@@ -18,6 +18,7 @@
 package org.apache.hop.ai.engine;
 
 import java.util.List;
+import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 
@@ -26,7 +27,7 @@ public final class AiM2PromptSupport {
 
   static final String PROMPT_ROOT = "/org/apache/hop/ai/prompts/hop-proposals/";
 
-  public static final String ATTR_HOP_GUI = "hopGui";
+  public static final String ATTR_HOP_GUI = AiAdvisorRequest.ATTR_HOP_GUI;
 
   private AiM2PromptSupport() {}
 

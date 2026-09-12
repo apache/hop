@@ -48,7 +48,7 @@ Your file type / metadata editor
 Your IAiAdvisor  (@AiAdvisorPlugin)            // omit classLoaderGroup
     └── locations = { "data-vault-graph" }     // same string
     └── buildPrompt(AiAdvisorRequest)          // cast artifact, honour inclusions
-    └── optional parseResponse / validate / apply / afterApply / summarizeApplied
+    └── optional parseResponse / previewProposal / validate / apply / afterApply / summarizeApplied
 ----
 
 Three JARs stay decoupled:
@@ -414,20 +414,22 @@ Missing files are skipped. Your `buildPrompt` does not load these.
 
 === Proposals (optional)
 
-`parseResponse` owns the fence name.
-Bundled advisors look for ` ```hop_proposals `; yours may parse ` ```dv_proposals ` or anything else.
+The default `parseResponse` extracts ` ```hop_proposals ` JSON blocks (`AiProposalParser` in hop-core).
+Override `parseResponse` only when you use a different fence (for example ` ```dv_proposals `).
 The workbench never parses proposals itself.
 
 Proposal `type` is a free string (`ADD_TRANSFORM`, `CREATE_HUB`, …).
 Unknown types must not be dropped — validate them as blocked with a reason, or apply them in your own applier.
 
+Override `previewProposal` to show domain text (DDL, diffs) in the review dialog.
+Return null to keep the default parameter list.
+
 Override `summarizeApplied` so follow-up turns get `ADD_HUB: Create H_CUSTOMER` instead of `unknown change`.
 The default is `type: description`.
 Pipeline/workflow advisors already produce the richer `ADD_TRANSFORM: name (pluginId)` wording.
 
-After `applyProposals` succeeds the workbench calls `afterApply` on the UI thread, then refreshes *pipeline and workflow* Explorer graphs only.
-Custom file types *must* implement `afterApply` (undo, `setChanged`, redraw) using `request.getAttributes().get("hopGui")` and `request.getArtifact()`.
-Do not add your file type to the workbench refresh list.
+After `applyProposals` succeeds the workbench calls `afterApply` on the UI thread, then refreshes any Explorer tab whose `IHopFileTypeHandler.getSubject()` is the session artifact (`setChanged` on Hop graphs, `redraw` / `updateGui` on other handlers).
+Custom file types should still implement `afterApply` for undo using `request.getAttributes().get(AiAdvisorRequest.ATTR_HOP_GUI)` and `request.getArtifact()`.
 
 Chat-only advisors leave apply / afterApply / summarize as the defaults.
 
@@ -476,5 +478,6 @@ The assistant sends whatever you put in the prompt to an external service.
 . Keep `defaultSelected = false`. Set `summary` and `listBaselineSharing()` so the collapsed Sharing line is accurate.
 . Keep SWT and langchain4j off `IAiAdvisor`.
 . Ship standing notes as `ai-context.md` and/or `ai-context/<id>.md` in the plugin folder (or JAR root).
+. Emit `hop_proposals` unless you override `parseResponse`. Override `previewProposal` for custom review text.
 . Implement `afterApply` and `summarizeApplied` if you apply custom proposal types.
 . Verify AI still disappears when `plugins/tech/ai` is removed, and that your advisor JAR still loads.

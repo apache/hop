@@ -79,14 +79,20 @@ public interface IAiAdvisor {
   }
 
   /**
-   * Parse raw assistant text into advice and optional proposals. Chat-only advisors can return the
-   * trimmed text with an empty proposal list.
+   * Parse raw assistant text into advice and optional {@code hop_proposals} blocks. Override to
+   * parse a different fence (for example {@code dv_proposals}). Chat-only advisors that never emit
+   * a fence can leave this default.
    */
   default AiAdvisorResponse parseResponse(String raw) {
-    AiAdvisorResponse response = new AiAdvisorResponse();
-    response.setRawResponse(raw);
-    response.setMarkdownAdvice(raw != null ? raw.trim() : "");
-    return response;
+    return AiProposalParser.parse(raw);
+  }
+
+  /**
+   * Optional custom preview text for a proposal in the review dialog. Return null or blank to use
+   * the workbench parameter list.
+   */
+  default String previewProposal(AiProposal proposal) {
+    return null;
   }
 
   default List<AiProposalValidation> validateProposals(
@@ -134,7 +140,8 @@ public interface IAiAdvisor {
   /**
    * Called on the UI thread after {@link #applyProposals} succeeds. Pipeline/workflow advisors may
    * no-op (the workbench refreshes those graphs). Other advisors should mark undo, setChanged, and
-   * redraw using {@code request.getAttributes().get("hopGui")} and {@code request.getArtifact()}.
+   * redraw using {@code request.getAttributes().get(AiAdvisorRequest.ATTR_HOP_GUI)} and {@code
+   * request.getArtifact()}.
    */
   default void afterApply(AiAdvisorRequest request, List<AiProposal> applied) {
     // no-op

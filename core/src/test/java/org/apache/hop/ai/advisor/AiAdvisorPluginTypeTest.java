@@ -66,6 +66,24 @@ class AiAdvisorPluginTypeTest {
   }
 
   @Test
+  void parseResponseDefaultExtractsHopProposals() {
+    FakeAdvisor advisor = new FakeAdvisor();
+    AiAdvisorResponse response =
+        advisor.parseResponse(
+            """
+            Advice.
+
+            ```hop_proposals
+            {"proposals":[{"type":"CREATE_HUB","description":"Create H_CUSTOMER"}]}
+            ```
+            """);
+    assertEquals("Advice.", response.getMarkdownAdvice());
+    assertEquals(1, response.getProposals().size());
+    assertEquals("CREATE_HUB", response.getProposals().get(0).getType());
+    assertEquals(null, advisor.previewProposal(response.getProposals().get(0)));
+  }
+
+  @Test
   void validateAndApplyDefaultsAreNoOps() throws HopException {
     FakeAdvisor advisor = new FakeAdvisor();
     assertTrue(advisor.validateProposals(new AiAdvisorRequest(), List.of()).isEmpty());

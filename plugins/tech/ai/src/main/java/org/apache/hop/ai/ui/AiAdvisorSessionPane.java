@@ -37,7 +37,6 @@ import org.apache.hop.ai.config.HopAiConfig;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiAdvisorExtraContext;
-import org.apache.hop.ai.engine.AiM2PromptSupport;
 import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.session.AiAdvisorSession;
@@ -57,8 +56,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
-import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
@@ -1060,12 +1059,18 @@ public class AiAdvisorSessionPane extends Composite {
         session.getAttributes() == null
             ? new LinkedHashMap<>()
             : new LinkedHashMap<>(session.getAttributes()));
-    request.getAttributes().put(AiM2PromptSupport.ATTR_HOP_GUI, host.getHopGui());
+    request.getAttributes().put(AiAdvisorRequest.ATTR_HOP_GUI, host.getHopGui());
 
     List<AiProposalValidation> validation = advisor.validateProposals(request, proposals);
     AiAdvisorProposalReviewDialog reviewDialog =
         new AiAdvisorProposalReviewDialog(
-            host.getShell(), proposals, validation, AiProposalPreview::format);
+            host.getShell(),
+            proposals,
+            validation,
+            proposal -> {
+              String custom = advisor.previewProposal(proposal);
+              return !Utils.isEmpty(custom) ? custom : AiProposalPreview.format(proposal);
+            });
     if (!reviewDialog.open()) {
       return;
     }
@@ -1103,15 +1108,15 @@ public class AiAdvisorSessionPane extends Composite {
     }
     Object artifact = session.getArtifact();
     for (TabItemHandler item : explorer.getItems()) {
-      if (item.getTypeHandler() instanceof HopGuiPipelineGraph graph
-          && graph.getPipelineMeta() == artifact) {
-        graph.setChanged();
-        graph.updateGui();
-      } else if (item.getTypeHandler() instanceof HopGuiWorkflowGraph graph
-          && graph.getWorkflowMeta() == artifact) {
-        graph.setChanged();
-        graph.updateGui();
+      IHopFileTypeHandler handler = item.getTypeHandler();
+      if (handler == null || handler.getSubject() != artifact) {
+        continue;
       }
+      if (handler instanceof HopGuiAbstractGraph graph) {
+        graph.setChanged();
+      }
+      handler.redraw();
+      handler.updateGui();
     }
   }
 

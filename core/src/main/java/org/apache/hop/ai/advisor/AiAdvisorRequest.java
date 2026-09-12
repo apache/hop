@@ -33,6 +33,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @Getter
 @Setter
 public class AiAdvisorRequest {
+
+  /**
+   * Attribute key for the Hop GUI instance injected on apply requests. Do not put this on {@link
+   * AiAdvisorOpenRequest#attributes}.
+   */
+  public static final String ATTR_HOP_GUI = "hopGui";
+
   /** Free-form location id from {@link AiAdvisorOpenRequest#location}. */
   private String location;
 

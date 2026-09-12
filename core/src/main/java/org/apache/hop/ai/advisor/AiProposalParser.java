@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ai.engine;
+package org.apache.hop.ai.advisor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,12 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.hop.ai.advisor.AiAdvisorResponse;
-import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.util.Utils;
 
-/** Parses advisory text and extracts hop_proposals JSON blocks. */
+/**
+ * Parses advisory text and extracts {@code hop_proposals} JSON blocks. Third-party advisors that
+ * use a different fence override {@link IAiAdvisor#parseResponse(String)}.
+ */
 public final class AiProposalParser {
 
   private static final Pattern PROPOSAL_BLOCK =

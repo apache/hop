@@ -52,7 +52,22 @@ public final class AiProposalPreview {
   public static String appliedSummary(AiProposal proposal) {
     AiProposalTypes type = AiProposalTypes.of(proposal);
     if (type == null) {
-      return "unknown change";
+      if (proposal == null) {
+        return "unknown change";
+      }
+      String summaryType = proposal.getType() == null ? "" : proposal.getType().trim();
+      String description =
+          proposal.getDescription() == null ? "" : proposal.getDescription().trim();
+      if (summaryType.isEmpty() && description.isEmpty()) {
+        return "unknown change";
+      }
+      if (summaryType.isEmpty()) {
+        return description;
+      }
+      if (description.isEmpty()) {
+        return summaryType;
+      }
+      return summaryType + ": " + description;
     }
     return switch (type) {
       case ADD_TRANSFORM ->

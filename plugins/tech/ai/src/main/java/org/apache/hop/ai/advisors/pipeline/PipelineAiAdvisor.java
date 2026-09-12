@@ -23,14 +23,11 @@ import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorPlugin;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
-import org.apache.hop.ai.advisor.AiAdvisorResponse;
 import org.apache.hop.ai.advisor.AiAdvisorScenario;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
-import org.apache.hop.ai.engine.AiM2PromptSupport;
-import org.apache.hop.ai.engine.AiProposalParser;
 import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -132,11 +129,6 @@ public class PipelineAiAdvisor implements IAiAdvisor {
   }
 
   @Override
-  public AiAdvisorResponse parseResponse(String raw) {
-    return AiProposalParser.parse(raw);
-  }
-
-  @Override
   public List<AiProposalValidation> validateProposals(
       AiAdvisorRequest request, List<AiProposal> proposals) {
     PipelineMeta pipelineMeta =
@@ -163,7 +155,7 @@ public class PipelineAiAdvisor implements IAiAdvisor {
     if (request == null || request.getAttributes() == null) {
       return null;
     }
-    Object value = request.getAttributes().get(AiM2PromptSupport.ATTR_HOP_GUI);
+    Object value = request.getAttributes().get(AiAdvisorRequest.ATTR_HOP_GUI);
     return value instanceof HopGui hopGui ? hopGui : null;
   }
 }
