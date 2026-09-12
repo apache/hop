@@ -171,7 +171,7 @@ You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=
 |
 |If you specify a value for this variable, they will be used to execute `hop-conf.sh` right before execution of the short- or long-lived container.
 You can use it for example to configure values for keys, plugins, and so on.
-Specify multiple options separated by spaces, for example `--set-variable=FOO=bar --describe-variable=FOO=Example`.
+Specify multiple options separated by spaces. Enclose values containing spaces in quotes, for example `--set-variable=FOO=bar --describe-variable=FOO="An example variable"`.
 
 |```HOP_COMMAND```
 |

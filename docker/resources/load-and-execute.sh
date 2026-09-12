@@ -305,9 +305,9 @@ if [ -n "${HOP_CONFIG_OPTIONS}" ]; then
   # We have a hop-config to run with the given options
   #
   echo "Configuring Hop with : ${HOP_CONFIG_OPTIONS}"
-  # Docker env vars cannot carry a bash array, so word-split into arguments.
-  # shellcheck disable=SC2206
-  HOP_CONFIG_OPTION_ARRAY=(${HOP_CONFIG_OPTIONS})
+  # Docker env vars cannot carry a bash array; split like a shell would,
+  # honouring quotes so option values may contain spaces.
+  mapfile -t HOP_CONFIG_OPTION_ARRAY < <(xargs -n1 printf '%s\n' <<< "${HOP_CONFIG_OPTIONS}")
   "${DEPLOYMENT_PATH}"/hop-conf.sh \
     "${HOP_CONFIG_OPTION_ARRAY[@]}" \
     2>&1 | tee ${HOP_LOG_PATH}
