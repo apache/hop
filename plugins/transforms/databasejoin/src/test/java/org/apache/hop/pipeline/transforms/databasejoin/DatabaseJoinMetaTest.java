@@ -224,6 +224,82 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     Assertions.assertTrue(param.isEmpty());
   }
 
+  @Test
+  void parseSqlParameterSpecSupportsMixedNamedAndPositionalPlaceholders() {
+    String sql =
+        "SELECT order_id, total FROM orders WHERE customer_id = ?{customer_id} AND status = ?";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(
+        "SELECT order_id, total FROM orders WHERE customer_id = ? AND status = ?",
+        spec.getPreparedSql());
+    Assertions.assertEquals(2, spec.getParameterCount());
+    Assertions.assertEquals(1, spec.getPositionalParameterCount());
+    Assertions.assertEquals("customer_id", spec.getParameterReferences().get(0));
+    Assertions.assertNull(spec.getParameterReferences().get(1));
+  }
+
+  @Test
+  void parseSqlParameterSpecForSqlServerExecUsesJdbcPositionalMarkers() {
+    String sql = "exec usp_WOAvgCycleTimeByOp @OrderNumber = ?{order}, @RouteName = ?{route};";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(
+        "exec usp_WOAvgCycleTimeByOp @OrderNumber = ?, @RouteName = ?;", spec.getPreparedSql());
+    Assertions.assertEquals(List.of("order", "route"), spec.getParameterReferences());
+    Assertions.assertEquals(0, spec.getPositionalParameterCount());
+  }
+
+  @Test
+  void createQueryParameterRowMetaResolvesNamedAndPositionalOrder() throws Exception {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField positional = new ParameterField();
+    positional.setName("status");
+    positional.setType(IValueMeta.TYPE_STRING);
+    meta.setParameters(List.of(positional));
+
+    IRowMeta source = new RowMeta();
+    source.addValueMeta(new ValueMetaInteger("customer_id"));
+    source.addValueMeta(new ValueMetaString("status"));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec(
+            "SELECT 1 FROM dual WHERE customer_id = ?{customer_id} AND status = ?");
+
+    IRowMeta queryParamMeta = meta.createQueryParameterRowMeta(source, spec);
+    Assertions.assertEquals(2, queryParamMeta.size());
+    Assertions.assertEquals("customer_id", queryParamMeta.getValueMeta(0).getName());
+    Assertions.assertEquals("status", queryParamMeta.getValueMeta(1).getName());
+  }
+
+  @Test
+  void createMetadataLookupParameterRowDataBuildsTypedDefaults() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField intField = new ParameterField();
+    intField.setName("order");
+    intField.setType(IValueMeta.TYPE_INTEGER);
+    ParameterField boolField = new ParameterField();
+    boolField.setName("active");
+    boolField.setType(IValueMeta.TYPE_BOOLEAN);
+    ParameterField textField = new ParameterField();
+    textField.setName("route");
+    textField.setType(IValueMeta.TYPE_STRING);
+    meta.setParameters(List.of(intField, boolField, textField));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec(
+            "exec usp_WOAvgCycleTimeByOp @OrderNumber = ?{order}, @Active = ?{active}, @RouteName = ?{route}");
+    IRowMeta queryParamMeta = meta.createMetadataLookupParameterRowMeta(spec);
+    Object[] rowData = meta.createMetadataLookupParameterRowData(queryParamMeta);
+
+    Assertions.assertEquals(3, rowData.length);
+    Assertions.assertEquals(Long.valueOf(0L), rowData[0]);
+    Assertions.assertEquals(Boolean.FALSE, rowData[1]);
+    Assertions.assertEquals("metadata", rowData[2]);
+  }
+
   public class ParameterFieldLoadSaveValidator implements IFieldLoadSaveValidator<ParameterField> {
 
     @Override
