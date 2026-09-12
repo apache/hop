@@ -23,9 +23,14 @@ import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.engine.AiActionPluginSupport;
 import org.apache.hop.ai.engine.AiProposalParamSupport;
 import org.apache.hop.ai.engine.AiProposalTypes;
+import org.apache.hop.ai.engine.AiProposalXmlSupport;
+import org.apache.hop.ai.engine.AiTransformConfigSupport;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -43,23 +48,55 @@ public final class WorkflowAiProposalApplier {
 
   public static void apply(WorkflowMeta workflowMeta, List<AiProposal> proposals, HopGui hopGui)
       throws HopException {
+    apply(
+        workflowMeta,
+        proposals,
+        hopGui,
+        workflowMeta != null ? workflowMeta.getMetadataProvider() : null,
+        null);
+  }
+
+  public static void apply(
+      WorkflowMeta workflowMeta,
+      List<AiProposal> proposals,
+      HopGui hopGui,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
+    apply(workflowMeta, proposals, hopGui, metadataProvider, null);
+  }
+
+  public static void apply(
+      WorkflowMeta workflowMeta,
+      List<AiProposal> proposals,
+      HopGui hopGui,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables)
+      throws HopException {
     if (workflowMeta == null) {
       throw new HopException("No workflow is open");
     }
     if (proposals == null || proposals.isEmpty()) {
       return;
     }
+    IHopMetadataProvider provider =
+        metadataProvider != null ? metadataProvider : workflowMeta.getMetadataProvider();
+    IVariables vars = variables != null ? variables : Variables.getADefaultVariableSpace();
     for (int i = 0; i < proposals.size(); i++) {
       boolean chainUndo = hopGui != null && i < proposals.size() - 1;
-      applyOne(workflowMeta, proposals.get(i), hopGui, chainUndo);
+      applyOne(workflowMeta, proposals.get(i), hopGui, chainUndo, provider, vars);
     }
   }
 
   private static void applyOne(
-      WorkflowMeta workflowMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
+      WorkflowMeta workflowMeta,
+      AiProposal proposal,
+      HopGui hopGui,
+      boolean chainUndo,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables)
       throws HopException {
     AiProposalTypes type = AiProposalTypes.of(proposal);
-    if (type == null) {
+    if (type == null || type.isWorkbenchOwned()) {
       return;
     }
     switch (type) {
@@ -70,6 +107,9 @@ public final class WorkflowAiProposalApplier {
       case DELETE_WORKFLOW_HOP -> deleteWorkflowHop(workflowMeta, proposal, hopGui, chainUndo);
       case SET_ACTION_LOCATION -> setActionLocation(workflowMeta, proposal, hopGui, chainUndo);
       case ADD_WORKFLOW_NOTE -> addWorkflowNote(workflowMeta, proposal, hopGui, chainUndo);
+      case CONFIGURE_ACTION -> configureAction(workflowMeta, proposal, hopGui, chainUndo);
+      case REPLACE_ACTION ->
+          replaceAction(workflowMeta, proposal, hopGui, chainUndo, metadataProvider, variables);
       default -> throw new HopException("Unsupported proposal type: " + type);
     }
   }
@@ -81,6 +121,9 @@ public final class WorkflowAiProposalApplier {
     String name = proposal.parameter("name");
     AiProposalParamSupport.Location location = AiProposalParamSupport.parseLocation(proposal);
     ActionMeta actionMeta = AiActionPluginSupport.newActionMeta(pluginId, name);
+    if (actionMeta.getAction() != null) {
+      AiTransformConfigSupport.apply(actionMeta.getAction(), proposal);
+    }
     actionMeta.setLocation(new Point(location.x(), location.y()));
     workflowMeta.addAction(actionMeta);
     if (hopGui != null) {
@@ -90,6 +133,26 @@ public final class WorkflowAiProposalApplier {
           new int[] {workflowMeta.indexOfAction(actionMeta)},
           chainUndo);
     }
+  }
+
+  private static void configureAction(
+      WorkflowMeta workflowMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
+      throws HopException {
+    ActionMeta existing = requireAction(workflowMeta, proposal.parameter("actionName"));
+    if (existing.getAction() == null) {
+      throw new HopException("Action has no metadata: " + existing.getName());
+    }
+    ActionMeta before = (ActionMeta) existing.clone();
+    AiTransformConfigSupport.apply(existing.getAction(), proposal);
+    if (hopGui != null) {
+      hopGui.undoDelegate.addUndoChange(
+          workflowMeta,
+          new ActionMeta[] {before},
+          new ActionMeta[] {existing},
+          new int[] {workflowMeta.indexOfAction(existing)},
+          chainUndo);
+    }
+    workflowMeta.setChanged();
   }
 
   private static void deleteAction(
@@ -188,6 +251,40 @@ public final class WorkflowAiProposalApplier {
           new int[] {workflowMeta.indexOfAction(action)},
           new Point[] {previous},
           new Point[] {action.getLocation()},
+          chainUndo);
+    }
+    workflowMeta.setChanged();
+  }
+
+  private static void replaceAction(
+      WorkflowMeta workflowMeta,
+      AiProposal proposal,
+      HopGui hopGui,
+      boolean chainUndo,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables)
+      throws HopException {
+    ActionMeta existing = requireAction(workflowMeta, proposal.parameter("actionName"));
+    ActionMeta parsed =
+        AiProposalXmlSupport.parseFirstAction(
+            AiProposalXmlSupport.requireXml(proposal), metadataProvider, variables);
+    ActionMeta before = (ActionMeta) existing.clone();
+    Point location =
+        existing.getLocation() == null
+            ? null
+            : new Point(existing.getLocation().x, existing.getLocation().y);
+    String name = existing.getName();
+    existing.replaceMeta(parsed);
+    existing.setName(name);
+    if (location != null) {
+      existing.setLocation(location);
+    }
+    if (hopGui != null) {
+      hopGui.undoDelegate.addUndoChange(
+          workflowMeta,
+          new ActionMeta[] {before},
+          new ActionMeta[] {existing},
+          new int[] {workflowMeta.indexOfAction(existing)},
           chainUndo);
     }
     workflowMeta.setChanged();

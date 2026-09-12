@@ -78,6 +78,14 @@ public class AiAdvisorMetadataContextTest {
   }
 
   @Test
+  void serializeTypeKeysIncludesEmptyTypes() {
+    TestMetadataProvider provider = new TestMetadataProvider();
+    String json = AiAdvisorMetadataContext.serializeTypeKeys(provider);
+    assertTrue(json.contains("ai-provider"));
+    assertTrue(json.contains("\"key\""));
+  }
+
+  @Test
   void missingObjectIsReported() {
     TestMetadataProvider provider = new TestMetadataProvider();
     String json =

@@ -31,6 +31,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -60,6 +62,7 @@ public class AiAdvisorTranscriptPanel extends Composite {
   private final Composite content;
   private final List<Control> bodies = new ArrayList<>();
   private boolean scrollToBottom;
+  private Font usageFont;
 
   public AiAdvisorTranscriptPanel(Composite parent) {
     super(parent, SWT.NONE);
@@ -98,6 +101,7 @@ public class AiAdvisorTranscriptPanel extends Composite {
       Composite block = appendBlock(Role.SYSTEM);
       appendHeading(
           block, Role.SYSTEM, BaseMessages.getString(PKG, "AiAdvisor.Transcript.Empty"), null);
+      appendNote(block, Role.SYSTEM, BaseMessages.getString(PKG, "AiAdvisor.GitWarning"));
     } else {
       List<AiAdvisorTurn> turns = session.getTurns();
       for (int i = 0; i < turns.size(); i++) {
@@ -123,7 +127,9 @@ public class AiAdvisorTranscriptPanel extends Composite {
               responseBlock,
               Role.ASSISTANT,
               BaseMessages.getString(PKG, "AiAdvisor.Transcript.Assistant"),
-              turn.getAssistantAdvice());
+              turn.getAssistantAdvice(),
+              formatUsage(
+                  turn.getInputTokenCount(), turn.getOutputTokenCount(), turn.getDurationMs()));
           appendBody(responseBlock, Role.ASSISTANT, turn.getAssistantAdvice());
         }
         if (turn.getProposals() != null && !turn.getProposals().isEmpty()) {
@@ -171,10 +177,23 @@ public class AiAdvisorTranscriptPanel extends Composite {
   }
 
   private void appendHeading(Composite block, Role role, String text, String copyText) {
+    appendHeading(block, role, text, copyText, "");
+  }
+
+  private void appendHeading(
+      Composite block, Role role, String text, String copyText, String usageText) {
     Composite row = new Composite(block, SWT.NONE);
-    GridLayout rowLayout = new GridLayout(copyText != null ? 2 : 1, false);
+    int columns = 1;
+    if (!Utils.isEmpty(usageText)) {
+      columns++;
+    }
+    if (copyText != null) {
+      columns++;
+    }
+    GridLayout rowLayout = new GridLayout(columns, false);
     rowLayout.marginWidth = 0;
     rowLayout.marginHeight = 0;
+    rowLayout.horizontalSpacing = PropsUi.getMargin();
     row.setLayout(rowLayout);
     row.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     applyRoleLook(row, role);
@@ -185,6 +204,17 @@ public class AiAdvisorTranscriptPanel extends Composite {
     label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     applyRoleLook(label, role);
 
+    if (!Utils.isEmpty(usageText)) {
+      Label usage = new Label(row, SWT.RIGHT);
+      usage.setText(usageText);
+      usage.setFont(usageFont());
+      usage.setAlignment(SWT.RIGHT);
+      usage.setToolTipText(usageText);
+      GridData usageLayout = new GridData(SWT.END, SWT.CENTER, false, false);
+      usage.setLayoutData(usageLayout);
+      applyRoleLook(usage, role);
+    }
+
     if (copyText != null) {
       Button copy = new Button(row, SWT.PUSH | SWT.FLAT);
       copy.setImage(GuiResource.getInstance().getImageCopy());
@@ -192,6 +222,75 @@ public class AiAdvisorTranscriptPanel extends Composite {
       final String payload = copyText;
       copy.addListener(SWT.Selection, e -> GuiResource.getInstance().toClipboard(payload));
     }
+  }
+
+  private Font usageFont() {
+    if (usageFont == null || usageFont.isDisposed()) {
+      Font base = GuiResource.getInstance().getFontSmall();
+      FontData[] data = base.getFontData();
+      for (FontData fontData : data) {
+        fontData.setHeight(Math.max(1, fontData.getHeight() * 2));
+        fontData.setStyle(SWT.ITALIC);
+      }
+      usageFont = new Font(getDisplay(), data);
+      addDisposeListener(
+          event -> {
+            if (usageFont != null && !usageFont.isDisposed()) {
+              usageFont.dispose();
+            }
+          });
+    }
+    return usageFont;
+  }
+
+  static String formatUsage(Integer inputTokens, Integer outputTokens, Long durationMs) {
+    boolean hasTokens = inputTokens != null || outputTokens != null;
+    boolean hasTime = durationMs != null && durationMs > 0;
+    if (!hasTokens && !hasTime) {
+      return "";
+    }
+    String time = hasTime ? formatDuration(durationMs) : "";
+    if (hasTokens) {
+      String in = formatTokenCount(inputTokens);
+      String out = formatTokenCount(outputTokens);
+      if (hasTime) {
+        return usageMessage(
+            "AiAdvisor.Transcript.Usage", in + " in · " + out + " out · " + time, in, out, time);
+      }
+      return usageMessage(
+          "AiAdvisor.Transcript.UsageTokens", in + " in · " + out + " out", in, out);
+    }
+    return time;
+  }
+
+  private static String usageMessage(String key, String fallback, String... args) {
+    String formatted = BaseMessages.getString(PKG, key, (Object[]) args);
+    if (Utils.isEmpty(formatted) || formatted.contains(key)) {
+      return fallback;
+    }
+    return formatted;
+  }
+
+  static String formatTokenCount(Integer count) {
+    if (count == null) {
+      return "—";
+    }
+    return String.format("%,d", count);
+  }
+
+  static String formatDuration(long durationMs) {
+    if (durationMs < 1000) {
+      return durationMs + " ms";
+    }
+    if (durationMs < 60_000) {
+      double seconds = durationMs / 1000.0;
+      if (durationMs % 1000 == 0) {
+        return (durationMs / 1000) + " s";
+      }
+      return String.format("%.1f s", seconds);
+    }
+    long totalSeconds = Math.round(durationMs / 1000.0);
+    return (totalSeconds / 60) + " m " + String.format("%02d", totalSeconds % 60) + " s";
   }
 
   private void appendNote(Composite block, Role role, String text) {

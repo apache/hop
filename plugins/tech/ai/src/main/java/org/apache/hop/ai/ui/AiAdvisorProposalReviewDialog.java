@@ -74,11 +74,20 @@ public class AiAdvisorProposalReviewDialog {
 
     Button wApply = new Button(shell, SWT.PUSH);
     wApply.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Apply.Label"));
+    wApply.setToolTipText(
+        BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Apply.Tooltip"));
     wApply.addListener(SWT.Selection, e -> applySelected());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Cancel.Label"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wApply, wCancel}, margin, null);
+
+    Label wlGit = new Label(shell, SWT.WRAP | SWT.LEFT);
+    wlGit.setText(BaseMessages.getString(PKG, "AiAdvisor.GitWarning"));
+    wlGit.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.GitWarning.Tooltip"));
+    PropsUi.setLook(wlGit);
+    wlGit.setLayoutData(
+        new FormDataBuilder().left(0, margin).right(100, -margin).bottom(wApply, -margin).result());
 
     Label wlList = new Label(shell, SWT.LEFT);
     wlList.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Proposals.Label"));
@@ -140,7 +149,7 @@ public class AiAdvisorProposalReviewDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wlPreview, margin)
-            .bottom(wApply, -margin)
+            .bottom(wlGit, -margin)
             .right(100, -margin)
             .result());
 

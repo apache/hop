@@ -30,7 +30,17 @@ class AiM2PromptSupportTest {
     assertTrue(supplement.contains("hop_proposals"));
     assertTrue(supplement.contains("ADD_TRANSFORM"));
     assertTrue(supplement.contains("ADD_ACTION"));
+    assertTrue(supplement.contains("CLIPBOARD_TRANSFORMS"));
+    assertTrue(supplement.contains("REPLACE_TRANSFORM"));
+    assertTrue(supplement.contains("CLIPBOARD_ACTIONS"));
+    assertTrue(supplement.contains("REPLACE_ACTION"));
+    assertTrue(supplement.contains("CLIPBOARD_METADATA"));
+    assertTrue(supplement.contains("SAVE_METADATA"));
+    assertTrue(supplement.contains("CONFIGURE_TRANSFORM"));
     assertTrue(supplement.contains("Do not emit SET_TRANSFORM_PROPERTY"));
+    assertTrue(supplement.contains("sql"));
+    assertTrue(supplement.contains("MUST append a fenced JSON block"));
+    assertTrue(supplement.contains("typeKey rdbms"));
   }
 
   @Test

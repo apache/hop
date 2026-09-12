@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
+import org.apache.hop.ai.engine.AiProposalXmlSupportTest;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -75,6 +78,69 @@ class PipelineAiProposalValidatorTest {
     assertFalse(results.get(0).isBlocked());
     assertFalse(results.get(1).isBlocked());
     assertTrue(results.get(2).isBlocked());
+  }
+
+  @Test
+  void configureTransformRequiresExistingNameAndFields() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta input = new TransformMeta("TableInput", "Read current customers", null);
+    pipelineMeta.addTransform(input);
+
+    AiProposal configure =
+        proposal(
+            "CONFIGURE_TRANSFORM",
+            Map.of(
+                "transformName",
+                "Read current customers",
+                "sql",
+                "SELECT customer_id FROM d_customer",
+                "connection",
+                "test_edw"));
+    AiProposal missing =
+        proposal("CONFIGURE_TRANSFORM", Map.of("transformName", "Read current customers"));
+    AiProposal unknown =
+        proposal("CONFIGURE_TRANSFORM", Map.of("transformName", "Missing", "sql", "SELECT 1"));
+
+    java.util.List<AiProposalValidation> results =
+        PipelineAiProposalValidator.validate(pipelineMeta, List.of(configure, missing, unknown));
+    assertFalse(results.get(0).isBlocked());
+    assertTrue(results.get(1).isBlocked());
+    assertTrue(results.get(2).isBlocked());
+  }
+
+  @Test
+  void validatesClipboardAndReplaceTransform() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    DummyMeta dummy = new DummyMeta();
+    dummy.setDefault();
+    TransformMeta existing = new TransformMeta("Dummy", "Check", dummy);
+    existing.setTransformPluginId("Dummy");
+    existing.setLocation(new Point(50, 60));
+    pipelineMeta.addTransform(existing);
+    String xml = AiProposalXmlSupportTest.dummyTransformXml("Other");
+
+    AiProposal clipboard = proposal("CLIPBOARD_TRANSFORMS", Map.of("xml", xml));
+    AiProposal replace =
+        proposal("REPLACE_TRANSFORM", Map.of("transformName", "Check", "xml", xml));
+    AiProposal missing =
+        proposal("REPLACE_TRANSFORM", Map.of("transformName", "Missing", "xml", xml));
+    AiProposal mismatch =
+        proposal(
+            "REPLACE_TRANSFORM",
+            Map.of(
+                "transformName",
+                "Check",
+                "xml",
+                "<transform><name>Check</name><type>Injector</type></transform>"));
+
+    List<AiProposalValidation> results =
+        PipelineAiProposalValidator.validate(
+            pipelineMeta, List.of(clipboard, replace, missing, mismatch));
+    assertFalse(results.get(0).isBlocked(), results.get(0).getReason());
+    assertFalse(results.get(1).isBlocked(), results.get(1).getReason());
+    assertTrue(results.get(2).isBlocked(), results.get(2).getReason());
+    assertTrue(results.get(3).isBlocked(), results.get(3).getReason());
+    assertTrue(results.get(3).getReason().contains("does not match"), results.get(3).getReason());
   }
 
   private static AiProposal proposal(String type, Map<String, String> parameters) {

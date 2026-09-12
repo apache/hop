@@ -45,9 +45,9 @@ public interface IAiAdvisor {
   List<AiAdvisorScenario> listScenarios();
 
   /**
-   * Optional extra context the user may attach to a prompt. Best practice: every item has {@code
-   * defaultSelected = false} so the session starts sharing nothing beyond {@link
-   * #listBaselineSharing()}.
+   * Optional extra context the user may attach to a prompt. Best practice: sensitive items have
+   * {@code defaultSelected = false}. A plugin-id catalog may default on so proposals can use real
+   * ids.
    */
   default List<AiAdvisorInclusion> listInclusions() {
     return List.of();

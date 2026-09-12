@@ -19,7 +19,9 @@ package org.apache.hop.ai.metadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.apache.hop.ai.providers.OllamaProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
 import org.junit.jupiter.api.Test;
@@ -55,5 +57,16 @@ class AiProviderTest {
     assertEquals("http://localhost:11434", provider.getBaseUrl());
     assertEquals("llama3.2", provider.getModelName());
     assertFalse(provider.getProvider().requiresApiKey());
+  }
+
+  @Test
+  void modelNameChoicesIncludeCurrentAndDefault() {
+    AiProvider provider = new AiProvider();
+    OpenAiProvider backend = new OpenAiProvider();
+    provider.setProvider(backend);
+    provider.setModelName("gpt-4o");
+    List<String> choices = provider.getModelNameChoices(null, null);
+    assertTrue(choices.contains("gpt-4o"));
+    assertTrue(choices.contains("gpt-4o-mini"));
   }
 }

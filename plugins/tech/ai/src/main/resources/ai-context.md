@@ -6,7 +6,8 @@
     Pipeline run configurations and workflow run configurations are different metadata types.
     A Pipeline action that runs a pipeline must name a Pipeline Run Configuration, not a workflow one.
     
-    Do not invent metadata, transform plugins, or action plugins that are not listed in the prompt context.
+    Do not guess names of existing metadata, transforms, or actions that are not listed in the prompt context.
+    New objects the user asked to create should use the names they gave. Plugin ids must come from the catalog JSON when it is present.
     
     Variable expressions use `${NAME}`. Prefer variables or a resolver for secrets; never ask the user to paste a live API key.
     

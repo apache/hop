@@ -24,9 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.engine.AiProposalXmlSupportTest;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -74,6 +77,30 @@ class PipelineAiProposalApplierTest {
         proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "Input", "toTransform", "Missing"));
     assertThrows(
         Exception.class, () -> PipelineAiProposalApplier.apply(pipelineMeta, List.of(hop)));
+  }
+
+  @Test
+  void replaceKeepsNameAndLocationAndSkipsClipboard() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    DummyMeta dummy = new DummyMeta();
+    dummy.setDefault();
+    TransformMeta existing = new TransformMeta("Dummy", "Check", dummy);
+    existing.setLocation(new Point(50, 60));
+    pipelineMeta.addTransform(existing);
+
+    String xml = AiProposalXmlSupportTest.dummyTransformXml("Other");
+    AiProposal replace =
+        proposal("REPLACE_TRANSFORM", Map.of("transformName", "Check", "xml", xml));
+    AiProposal clipboard = proposal("CLIPBOARD_TRANSFORMS", Map.of("xml", xml));
+
+    PipelineAiProposalApplier.apply(pipelineMeta, List.of(clipboard, replace));
+
+    assertEquals(1, pipelineMeta.getTransforms().size());
+    TransformMeta updated = pipelineMeta.findTransform("Check");
+    assertNotNull(updated);
+    assertEquals(50, updated.getLocation().x);
+    assertEquals(60, updated.getLocation().y);
+    assertEquals("Dummy", updated.getTransformPluginId());
   }
 
   private static AiProposal proposal(String type, Map<String, String> parameters) {

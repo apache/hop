@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
+import org.apache.hop.ai.engine.AiProposalXmlSupportTest;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -73,6 +74,24 @@ class WorkflowAiProposalValidatorTest {
 
     assertFalse(results.get(0).isBlocked());
     assertFalse(results.get(1).isBlocked());
+    assertTrue(results.get(2).isBlocked());
+  }
+
+  @Test
+  void validatesClipboardAndReplaceAction() throws Exception {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    ActionMeta existing = new ActionMeta(new ActionDummy("Check"));
+    workflowMeta.addAction(existing);
+    String xml = AiProposalXmlSupportTest.dummyActionXml("Other");
+
+    AiProposal clipboard = proposal("CLIPBOARD_ACTIONS", Map.of("xml", xml));
+    AiProposal replace = proposal("REPLACE_ACTION", Map.of("actionName", "Check", "xml", xml));
+    AiProposal missing = proposal("REPLACE_ACTION", Map.of("actionName", "Missing", "xml", xml));
+
+    List<AiProposalValidation> results =
+        WorkflowAiProposalValidator.validate(workflowMeta, List.of(clipboard, replace, missing));
+    assertFalse(results.get(0).isBlocked(), results.get(0).getReason());
+    assertFalse(results.get(1).isBlocked(), results.get(1).getReason());
     assertTrue(results.get(2).isBlocked());
   }
 

@@ -17,13 +17,17 @@
 
 package org.apache.hop.ai.metadata;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.ai.engine.AiModelCatalog;
 import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -143,6 +147,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
       if (selected != null && !selected.isEmpty()) {
         meta.setProviderType(selected);
       }
+      applyModelNameChoices(meta.getModelNameChoices(null, null));
       widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
       updateVisibility();
       setChanged();
@@ -219,11 +224,51 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
 
   @Override
   public Button[] createButtonsForButtonBar(Composite composite) {
+    Button wbRefresh = new Button(composite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbRefresh);
+    wbRefresh.setText(BaseMessages.getString(PKG, "AiProviderEditor.RefreshModels.Label"));
+    wbRefresh.addListener(SWT.Selection, e -> refreshModels());
     Button wbTest = new Button(composite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTest);
     wbTest.setText(BaseMessages.getString(PKG, "AiProviderEditor.Test.Label"));
     wbTest.addListener(SWT.Selection, e -> test());
-    return new Button[] {wbTest};
+    return new Button[] {wbRefresh, wbTest};
+  }
+
+  public void refreshModels() {
+    try {
+      AiProvider meta = new AiProvider(getMetadata());
+      getWidgetsContent(meta);
+      List<String> names =
+          new ArrayList<>(AiModelCatalog.listModelNames(meta, manager.getVariables()));
+      String current = Const.NVL(meta.getModelName(), "");
+      if (!Utils.isEmpty(current) && names.stream().noneMatch(current::equals)) {
+        names.add(0, current);
+      }
+      applyModelNameChoices(names);
+      widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
+      MessageBox box = new MessageBox(parent.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "AiProviderEditor.RefreshModels.Success.Title"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "AiProviderEditor.RefreshModels.Success.Message",
+              Integer.toString(names.size())));
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          parent.getShell(),
+          BaseMessages.getString(PKG, "AiProviderEditor.RefreshModels.Error.Title"),
+          BaseMessages.getString(PKG, "AiProviderEditor.RefreshModels.Error.Message"),
+          e);
+    }
+  }
+
+  private void applyModelNameChoices(List<String> names) {
+    if (widgets == null || names == null) {
+      return;
+    }
+    widgets.setComboValues(AiProvider.WIDGET_MODEL_NAME, names.toArray(String[]::new));
   }
 
   public void test() {

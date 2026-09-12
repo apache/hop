@@ -38,7 +38,7 @@ public class HopAiConfig {
       """
       Hop metadata names are case-sensitive.
       Pipeline run configurations and workflow run configurations are different metadata types.
-      Do not invent metadata, transform, or action names that are not in the prompt context.
+      Do not guess names of existing metadata, transforms, or actions that are not in the prompt context. New objects the user asked to create should use the names they gave.
       Variables use ${NAME}. Prefer variables or a resolver for secrets.
       Hop uses pipelines (.hpl) and workflows (.hwf) with transforms and actions, not Kettle transformations, jobs, steps, or job entries.
       """;

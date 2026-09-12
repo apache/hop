@@ -17,6 +17,8 @@
 
 package org.apache.hop.ai.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.ai.engine.AiChatFactory;
@@ -26,6 +28,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -34,6 +37,7 @@ import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /** Named AI provider (model + credentials) stored as project metadata. */
 @Getter
@@ -105,7 +109,8 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   @GuiWidgetElement(
       id = WIDGET_MODEL_NAME,
       order = "0400",
-      type = GuiElementType.TEXT,
+      type = GuiElementType.COMBO,
+      comboValuesMethod = "getModelNameChoices",
       parentId = GUI_WIDGETS_PARENT_ID,
       groupType = GuiWidgetGroupType.BOXES,
       group = "Model",
@@ -191,5 +196,21 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
 
   public String test(IVariables variables) throws HopException {
     return AiChatFactory.healthCheck(this, variables);
+  }
+
+  /**
+   * Initial combo items only (current value and plugin default). Live ids are loaded with Refresh
+   * models in the editor.
+   */
+  public List<String> getModelNameChoices(ILogChannel log, IHopMetadataProvider metadataProvider) {
+    List<String> items = new ArrayList<>();
+    if (!Utils.isEmpty(modelName)) {
+      items.add(modelName);
+    }
+    String fallback = provider != null ? provider.getDefaultModelName() : "";
+    if (!Utils.isEmpty(fallback) && items.stream().noneMatch(fallback::equals)) {
+      items.add(fallback);
+    }
+    return items;
   }
 }

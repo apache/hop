@@ -21,8 +21,10 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.TokenUsage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.exception.HopException;
@@ -206,6 +208,17 @@ public final class AiChatFactory {
       String userPrompt,
       List<ChatMessage> conversationHistory)
       throws HopException {
+    return generateResult(provider, variables, systemPrompt, userPrompt, conversationHistory)
+        .getText();
+  }
+
+  public static AiChatResult generateResult(
+      AiProvider provider,
+      IVariables variables,
+      String systemPrompt,
+      String userPrompt,
+      List<ChatMessage> conversationHistory)
+      throws HopException {
     validate(provider);
     LanguageModelChatMeta meta = toLanguageModelChatMeta(provider, variables);
     LanguageModelFacade facade = new LanguageModelFacade(variables, meta);
@@ -215,15 +228,31 @@ public final class AiChatFactory {
       messages.addAll(conversationHistory);
     }
     messages.add(new UserMessage(userPrompt));
+    long started = System.nanoTime();
     try {
       ChatResponse response = facade.chat(messages);
-      return response != null && response.aiMessage() != null ? response.aiMessage().text() : "";
+      long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+      String text =
+          response != null && response.aiMessage() != null ? response.aiMessage().text() : "";
+      TokenUsage usage = response != null ? response.tokenUsage() : null;
+      return new AiChatResult(
+          text == null ? "" : text,
+          positive(usage != null ? usage.inputTokenCount() : null),
+          positive(usage != null ? usage.outputTokenCount() : null),
+          durationMs);
     } catch (Exception e) {
       throw new HopException("AI request failed: " + e.getMessage(), e);
     } catch (Error e) {
       // ServiceConfigurationError (langchain4j SPI) is an Error, not an Exception.
       throw new HopException("AI request failed: " + e.getMessage(), e);
     }
+  }
+
+  static Integer positive(Integer value) {
+    if (value == null || value < 0) {
+      return null;
+    }
+    return value;
   }
 
   public static String healthCheck(AiProvider provider, IVariables variables) throws HopException {

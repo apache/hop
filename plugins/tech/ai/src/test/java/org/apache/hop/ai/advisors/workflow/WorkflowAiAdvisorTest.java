@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,11 @@ class WorkflowAiAdvisorTest {
               assertTrue(
                   inclusion.getDescription() != null && !inclusion.getDescription().isBlank(),
                   inclusion.getId());
-              assertFalse(inclusion.isDefaultSelected(), inclusion.getId());
+              if (AiAdvisorInclusions.CATALOG.equals(inclusion.getId())) {
+                assertTrue(inclusion.isDefaultSelected(), inclusion.getId());
+              } else {
+                assertFalse(inclusion.isDefaultSelected(), inclusion.getId());
+              }
               assertTrue(
                   inclusion.getSummary() != null && !inclusion.getSummary().isBlank(),
                   inclusion.getId());

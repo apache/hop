@@ -26,10 +26,12 @@ import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.engine.AiAdvisorMetadataContextTest.TestMetadataProvider;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.Test;
 
 class PipelineAiContextBuilderTest {
@@ -50,6 +52,27 @@ class PipelineAiContextBuilderTest {
     assertTrue(json.contains("\"from\":\"Input\""));
     assertTrue(json.contains("\"to\":\"Output\""));
     assertTrue(json.contains("\"focusTransform\":\"Input\""));
+  }
+
+  @Test
+  void userPromptIncludesFocusTransformXml() throws Exception {
+    DummyMeta dummy = new DummyMeta();
+    dummy.setDefault();
+    TransformMeta input = new TransformMeta("Dummy", "Input", dummy);
+    input.setLocation(new Point(10, 20));
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(input);
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    request.setUserPrompt("Configure this transform");
+    request.setArtifact(pipelineMeta);
+    request.setVariables(new Variables());
+    request.setFocusNodeName("Input");
+
+    String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
+    assertTrue(prompt.contains("Focus transform:\nInput"));
+    assertTrue(prompt.contains("Focus transform XML:"));
+    assertTrue(prompt.contains("<transform>"));
+    assertTrue(prompt.contains("Dummy"));
   }
 
   @Test
@@ -84,6 +107,25 @@ class PipelineAiContextBuilderTest {
   }
 
   @Test
+  void firstTurnIncludesCatalogWhenRequestedAndMetadataTypeKeys() throws Exception {
+    TestMetadataProvider provider = new TestMetadataProvider();
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("demo");
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    request.setUserPrompt("Read a table into Excel");
+    request.setArtifact(pipelineMeta);
+    request.setVariables(new Variables());
+    request.setMetadataProvider(provider);
+    request.getInclusions().put(AiAdvisorInclusions.CATALOG, true);
+
+    String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
+    assertTrue(prompt.contains("Available transform plugins JSON"));
+    assertTrue(prompt.contains("Available metadata types JSON"));
+    assertTrue(prompt.contains("Available database plugins JSON"));
+    assertTrue(prompt.contains("ai-provider"));
+  }
+
+  @Test
   void followUpOmitsCatalogAndSummary() throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("demo");
@@ -98,6 +140,8 @@ class PipelineAiContextBuilderTest {
     assertTrue(prompt.contains("Pipeline structure JSON"));
     assertFalse(prompt.contains("Pipeline summary JSON"));
     assertFalse(prompt.contains("Available transform plugins JSON"));
+    assertFalse(prompt.contains("Available metadata types JSON"));
+    assertFalse(prompt.contains("Available database plugins JSON"));
   }
 
   @Test

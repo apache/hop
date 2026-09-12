@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import picocli.CommandLine;
 
 @Getter
@@ -51,6 +52,19 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
 
   private static final Class<?> PKG = HopAiConfigOptionPlugin.class;
   private static final String PARENT = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID;
+
+  @GuiWidgetElement(
+      id = "0050-ai-git-warning",
+      order = "0050",
+      parentId = PARENT,
+      type = GuiElementType.LINK,
+      label = "i18n::HopAiConfigOptionPlugin.GitWarning.Label",
+      toolTip = "i18n::HopAiConfigOptionPlugin.GitWarning.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "AI Advisory")
+  public void gitWarning(Event event) {
+    // Notice text only; LINK is the widget type this form can show without a value field.
+  }
 
   @GuiWidgetElement(
       id = "0100-ai-enabled",

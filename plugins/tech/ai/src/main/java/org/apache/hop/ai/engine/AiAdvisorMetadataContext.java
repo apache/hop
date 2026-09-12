@@ -26,6 +26,9 @@ import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -129,6 +132,91 @@ public final class AiAdvisorMetadataContext {
       element.put("error", Const.NVL(e.getMessage(), e.getClass().getSimpleName()));
     }
     return element;
+  }
+
+  /**
+   * Compact type-key list for the prompt, including types that have no objects yet (so
+   * SAVE_METADATA can use {@code rdbms} on a greenfield project).
+   */
+  @SuppressWarnings("unchecked")
+  public static String serializeTypeKeys(IHopMetadataProvider metadataProvider) {
+    List<JSONObject> listed = new ArrayList<>();
+    if (metadataProvider != null) {
+      for (Class<IHopMetadata> metadataClass : metadataProvider.getMetadataClasses()) {
+        HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(metadataClass);
+        if (annotation == null || Utils.isEmpty(annotation.key())) {
+          continue;
+        }
+        JSONObject type = new JSONObject();
+        type.put("key", annotation.key());
+        type.put("name", typeLabel(metadataClass, annotation));
+        listed.add(type);
+      }
+    }
+    listed.sort(
+        Comparator.comparing(
+            type -> String.valueOf(type.get("name")), String.CASE_INSENSITIVE_ORDER));
+    JSONArray types = new JSONArray();
+    types.addAll(listed);
+    JSONObject root = new JSONObject();
+    root.put("types", types);
+    return root.toJSONString();
+  }
+
+  public static void appendTypeKeys(StringBuilder prompt, IHopMetadataProvider metadataProvider) {
+    if (prompt == null || metadataProvider == null) {
+      return;
+    }
+    prompt
+        .append("Available metadata types JSON:\n")
+        .append(serializeTypeKeys(metadataProvider))
+        .append("\n\n");
+  }
+
+  /**
+   * Database plugin ids for SAVE_METADATA rdbms JSON ({@code rdbms.POSTGRESQL.{...}}). Skips the
+   * empty NONE placeholder.
+   */
+  @SuppressWarnings("unchecked")
+  public static String serializeDatabaseCatalog() {
+    JSONArray databases = new JSONArray();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    List<IPlugin> plugins = new ArrayList<>(registry.getPlugins(DatabasePluginType.class));
+    plugins.sort(
+        Comparator.comparing(
+            IPlugin::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+    for (IPlugin plugin : plugins) {
+      if (plugin.getIds() == null || plugin.getIds().length == 0) {
+        continue;
+      }
+      String id = plugin.getIds()[0];
+      if (Utils.isEmpty(id) || "NONE".equalsIgnoreCase(id)) {
+        continue;
+      }
+      JSONObject entry = new JSONObject();
+      entry.put("id", id);
+      entry.put("name", plugin.getName());
+      databases.add(entry);
+    }
+    JSONObject root = new JSONObject();
+    root.put("databases", databases);
+    return root.toJSONString();
+  }
+
+  public static void appendDatabaseCatalog(StringBuilder prompt) {
+    if (prompt == null) {
+      return;
+    }
+    prompt
+        .append("Available database plugins JSON:\n")
+        .append(serializeDatabaseCatalog())
+        .append("\n\n");
+    prompt.append(
+        "SAVE_METADATA for a relational connection: typeKey rdbms, json shape "
+            + "{\"name\":\"my-db\",\"rdbms\":{\"POSTGRESQL\":{\"pluginId\":\"POSTGRESQL\","
+            + "\"accessType\":0,\"hostname\":\"localhost\",\"port\":\"5432\","
+            + "\"databaseName\":\"db\",\"username\":\"user\",\"password\":\"${DB_PASSWORD}\"}}}."
+            + " The rdbms key must be the catalog id (POSTGRESQL, MYSQL, …), not a flat object.\n\n");
   }
 
   public static List<TypeCatalog> listTypes(IHopMetadataProvider metadataProvider) {

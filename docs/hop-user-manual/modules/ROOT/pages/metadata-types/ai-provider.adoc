@@ -29,6 +29,8 @@ Objects are managed in the Metadata perspective and stored as JSON under:
 
 `metadata/ai-provider/`
 
+Use *Refresh models* to load model ids from the provider (OpenAI-compatible `/models`, Anthropic and Mistral catalogs, Ollama `/api/tags`). Hugging Face has no list API; type a router model id. The combo stays editable so you can enter a name that is not in the list.
+
 Use the *Test* button in the editor to send a short health-check prompt.
 
 The xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] uses these objects as the credential source of truth.
@@ -107,7 +109,7 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 |Secret stored as a Hop password field. Not sent in advisor prompts. Prefer `{openvar}AI_API_KEY{closevar}` from an environment file or a keystore resolver expression, not a pasted key.
 
 |Model name
-|Model identifier for the chosen provider. For Hugging Face, a model id is sent to the inference router; an `http(s)` URL is called as a dedicated endpoint. If this field is empty, Base URL is used instead.
+|Model identifier for the chosen provider. *Refresh models* fills the combo from the live catalog when the provider supports it. For Hugging Face, a model id is sent to the inference router; an `http(s)` URL is called as a dedicated endpoint. If this field is empty, Base URL is used instead.
 
 |Timeout (seconds)
 |HTTP timeout for completions.

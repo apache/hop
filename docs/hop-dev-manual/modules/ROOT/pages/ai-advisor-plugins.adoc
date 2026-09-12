@@ -334,7 +334,8 @@ The workbench shows a collapsible *Sharing* line: a short summary of what this s
 Expand it to see the checkboxes.
 
 Each `AiAdvisorInclusion` is one optional extra.
-Best practice: `defaultSelected = false` so a new session shares nothing extra.
+Best practice: `defaultSelected = false` for sensitive extras (logs, full XML, selected metadata).
+A plugin-id catalog may default on so `hop_proposals` can use real plugin ids.
 
 `listBaselineSharing()` supplies the short phrases for context you always put in the prompt (for example `graph structure`).
 Leave it empty if the question is the only baseline.
@@ -418,8 +419,12 @@ The default `parseResponse` extracts ` ```hop_proposals ` JSON blocks (`AiPropos
 Override `parseResponse` only when you use a different fence (for example ` ```dv_proposals `).
 The workbench never parses proposals itself.
 
-Proposal `type` is a free string (`ADD_TRANSFORM`, `CREATE_HUB`, …).
+Proposal `type` is a free string (`ADD_TRANSFORM`, `CREATE_HUB`, `CLIPBOARD_TRANSFORMS`, `SAVE_METADATA`, …).
 Unknown types must not be dropped — validate them as blocked with a reason, or apply them in your own applier.
+
+The workbench itself copies `CLIPBOARD_TRANSFORMS`, `CLIPBOARD_ACTIONS`, and `CLIPBOARD_METADATA` to the system clipboard after `applyProposals`, and saves `SAVE_METADATA` through the metadata serializer.
+Pipeline and workflow appliers skip those types so a mixed selection still applies graph edits (`REPLACE_TRANSFORM` / `REPLACE_ACTION` keep name and location).
+Third-party advisors can emit the same type names without depending on hop-tech-ai appliers.
 
 Override `previewProposal` to show domain text (DDL, diffs) in the review dialog.
 Return null to keep the default parameter list.
@@ -475,7 +480,7 @@ The assistant sends whatever you put in the prompt to an external service.
 . Build `AiAdvisorOpenRequest` (location, area label, artifact, attributes, `preferFloatingWindow` when the subject should stay visible).
 . Call `hopGui.openAiAdvisorSession(request)` — not `AiAdvisorViews`.
 . Honour inclusions in `buildPrompt`; use id `metadata` for Hop metadata, `picker = true` + `listInclusionChoices` for anything else (catalog names, …).
-. Keep `defaultSelected = false`. Set `summary` and `listBaselineSharing()` so the collapsed Sharing line is accurate.
+. Keep `defaultSelected = false` for sensitive extras. A plugin-id catalog may default on. Set `summary` and `listBaselineSharing()` so the collapsed Sharing line is accurate.
 . Keep SWT and langchain4j off `IAiAdvisor`.
 . Ship standing notes as `ai-context.md` and/or `ai-context/<id>.md` in the plugin folder (or JAR root).
 . Emit `hop_proposals` unless you override `parseResponse`. Override `previewProposal` for custom review text.

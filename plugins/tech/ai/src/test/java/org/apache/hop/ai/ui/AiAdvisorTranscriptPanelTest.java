@@ -17,8 +17,10 @@
 
 package org.apache.hop.ai.ui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
@@ -37,5 +39,23 @@ class AiAdvisorTranscriptPanelTest {
     assertFalse(Arrays.equals(darkUser, darkAssistant));
     assertNotEquals(
         lightUser[0] + lightUser[1] + lightUser[2], darkUser[0] + darkUser[1] + darkUser[2]);
+  }
+
+  @Test
+  void formatUsageIncludesTokensAndDuration() {
+    String usage = AiAdvisorTranscriptPanel.formatUsage(1234, 56, 12_400L);
+    assertTrue(usage.contains("1,234") || usage.contains("1234"), usage);
+    assertTrue(usage.contains("56"), usage);
+    assertTrue(usage.contains("12.4 s"), usage);
+    assertTrue(usage.contains("in"), usage);
+    assertTrue(usage.contains("out"), usage);
+  }
+
+  @Test
+  void formatUsageOmitsMissingParts() {
+    assertEquals("", AiAdvisorTranscriptPanel.formatUsage(null, null, null));
+    assertEquals("850 ms", AiAdvisorTranscriptPanel.formatDuration(850));
+    assertEquals("3 s", AiAdvisorTranscriptPanel.formatDuration(3000));
+    assertEquals("1 m 05 s", AiAdvisorTranscriptPanel.formatDuration(65_000));
   }
 }

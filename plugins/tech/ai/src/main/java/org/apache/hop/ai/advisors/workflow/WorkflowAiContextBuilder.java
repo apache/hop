@@ -45,6 +45,7 @@ public final class WorkflowAiContextBuilder {
 
   static final String PROMPT_ROOT = "/org/apache/hop/ai/prompts/workflow/";
   private static final int MAX_TOPOLOGY_XML_CHARS = 120_000;
+  private static final int MAX_FOCUS_XML_CHARS = 40_000;
   private static final int MAX_LOG_CHARS = 20_000;
   private static final int MAX_CATALOG_ENTRIES = 120;
 
@@ -84,6 +85,8 @@ public final class WorkflowAiContextBuilder {
           .append("Workflow summary JSON:\n")
           .append(serializeSummary(workflowMeta))
           .append("\n\n");
+      AiAdvisorMetadataContext.appendTypeKeys(prompt, metadataProvider);
+      AiAdvisorMetadataContext.appendDatabaseCatalog(prompt);
       if (request.inclusionEnabled(AiAdvisorInclusions.CATALOG)) {
         prompt
             .append("Available action plugins JSON:\n")
@@ -109,9 +112,7 @@ public final class WorkflowAiContextBuilder {
       }
     }
     AiAdvisorMetadataContext.appendToPrompt(prompt, request);
-    if (!Utils.isEmpty(request.getFocusNodeName())) {
-      prompt.append("Focus action:\n").append(request.getFocusNodeName()).append("\n\n");
-    }
+    appendFocusAction(prompt, workflowMeta, request.getFocusNodeName());
     if (request.inclusionEnabled(AiAdvisorInclusions.CHECKS) && metadataProvider != null) {
       List<ICheckResult> results = new ArrayList<>();
       workflowMeta.checkActions(results, false, null, variables, metadataProvider);
@@ -122,6 +123,29 @@ public final class WorkflowAiContextBuilder {
     }
     AiM2PromptSupport.appendAppliedSummaries(prompt, request.getAppliedChangeSummaries());
     return prompt.toString();
+  }
+
+  static void appendFocusAction(StringBuilder prompt, WorkflowMeta workflowMeta, String focusName) {
+    if (Utils.isEmpty(focusName)) {
+      return;
+    }
+    prompt.append("Focus action:\n").append(focusName).append("\n\n");
+    ActionMeta action = workflowMeta.findAction(focusName);
+    if (action == null) {
+      return;
+    }
+    try {
+      String xml = action.getXml();
+      if (Utils.isEmpty(xml)) {
+        return;
+      }
+      prompt
+          .append("Focus action XML:\n")
+          .append(AiTextUtil.redactSecrets(AiTextUtil.truncate(xml, MAX_FOCUS_XML_CHARS)))
+          .append("\n\n");
+    } catch (Exception e) {
+      // Skip unreadable action XML rather than failing the whole prompt.
+    }
   }
 
   public static String serializeStructure(WorkflowMeta workflowMeta, String focusActionName) {

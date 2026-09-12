@@ -32,4 +32,13 @@ public class AiAdvisorResponse {
 
   /** True when the raw text contained a {@code hop_proposals} fence, even if it did not parse. */
   private boolean proposalBlockPresent;
+
+  /** Prompt tokens reported by the provider, if any. */
+  private Integer inputTokenCount;
+
+  /** Completion tokens reported by the provider, if any. */
+  private Integer outputTokenCount;
+
+  /** Wall-clock time of the chat call in milliseconds. */
+  private Long durationMs;
 }

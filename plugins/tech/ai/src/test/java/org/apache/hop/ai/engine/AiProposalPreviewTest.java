@@ -35,4 +35,23 @@ class AiProposalPreviewTest {
     assertEquals("CREATE_HUB", AiProposalPreview.appliedSummary(typeOnly));
     assertEquals("unknown change", AiProposalPreview.appliedSummary(null));
   }
+
+  @Test
+  void appliedSummaryCoversClipboardReplaceAndMetadata() {
+    AiProposal replace = new AiProposal();
+    replace.setType("REPLACE_TRANSFORM");
+    replace.setParameters(java.util.Map.of("transformName", "Check"));
+    assertEquals("REPLACE_TRANSFORM: Check", AiProposalPreview.appliedSummary(replace));
+
+    AiProposal clipboard = new AiProposal();
+    clipboard.setType("CLIPBOARD_ACTIONS");
+    assertEquals(
+        "CLIPBOARD_ACTIONS: copied action XML to clipboard",
+        AiProposalPreview.appliedSummary(clipboard));
+
+    AiProposal save = new AiProposal();
+    save.setType("SAVE_METADATA");
+    save.setParameters(java.util.Map.of("typeKey", "ai-provider", "name", "prod"));
+    assertEquals("SAVE_METADATA: ai-provider/prod", AiProposalPreview.appliedSummary(save));
+  }
 }

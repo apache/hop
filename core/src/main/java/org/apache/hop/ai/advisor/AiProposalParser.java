@@ -111,11 +111,32 @@ public final class AiProposalParser {
       Iterator<Map.Entry<String, JsonNode>> fields = parameters.fields();
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> entry = fields.next();
-        map.put(entry.getKey(), entry.getValue().asText(""));
+        map.put(entry.getKey(), parameterValue(entry.getValue()));
       }
       proposal.setParameters(map);
     }
     return proposal;
+  }
+
+  /**
+   * Object and array parameter values (typical for {@code json} / {@code config}) must be kept as
+   * JSON text. {@link JsonNode#asText()} returns empty for those nodes.
+   */
+  public static String parameterValue(JsonNode value) {
+    if (value == null || value.isNull() || value.isMissingNode()) {
+      return "";
+    }
+    if (value.isTextual() || value.isNumber() || value.isBoolean()) {
+      return value.asText("");
+    }
+    if (value.isObject() || value.isArray()) {
+      try {
+        return HopJson.newMapper().writeValueAsString(value);
+      } catch (Exception e) {
+        return "";
+      }
+    }
+    return value.asText("");
   }
 
   private static String parseRisk(String value) {

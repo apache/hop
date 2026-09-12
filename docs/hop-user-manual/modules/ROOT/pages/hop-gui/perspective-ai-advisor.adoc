@@ -54,6 +54,21 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
 Create at least one named provider in the Metadata perspective (*AI Provider*) and use *Test* on the editor to confirm the endpoint responds.
 Put the API key in an xref:projects/projects-environments.adoc[environment] variable or a xref:metadata-types/variable-resolver/index.adoc[variable resolver], not as a literal in the metadata JSON. See <<secrets-and-personal-information>>.
 
+[[version-control]]
+== Version control
+
+AI-applied edits can change pipelines, workflows and metadata.
+Graph *Undo* only reverses some canvas edits.
+Metadata saves and pasted transforms or actions are not undone that way.
+
+Before you apply proposals:
+
+. Keep the project in Git (or similar version control).
+. Create a *feature branch*.
+. Apply and review. Revert selected files, or the whole branch, if the result is not what you wanted.
+
+The assistant shows this reminder on an empty session, in Configuration → *Plugins* → *AI Assistant*, and on the review dialog above *Apply selected*.
+
 == Open a session
 
 From a pipeline or workflow graph:
@@ -75,7 +90,7 @@ Each session has:
 * *Advisor* — Pipeline AI Help or Workflow AI Help (other plugins add advisors for their own file types; the combo only lists advisors that match this session)
 * *Scenario* — General, transform/action selection, error diagnosis, or design
 * *Provider* — named xref:metadata-types/ai-provider.adoc[AI Provider] metadata
-* *Sharing* — a one-line summary of what this send includes. Expand it to opt in to extra context (see <<context-inclusions>>). Nothing extra is shared until you check it. *Select metadata…* chooses which named metadata objects to send. Other plugins may add a *Select…* button beside an inclusion (for example catalog sources).
+* *Sharing* — a one-line summary of what this send includes. Expand it to opt in to extra context (see <<context-inclusions>>). Most extras start off; the *plugin catalog* is on for the first turn so proposed transform/action ids match installed plugins. *Select metadata…* chooses which named metadata objects to send. Other plugins may add a *Select…* button beside an inclusion (for example catalog sources).
 * a transcript and a question field at the bottom (question-mark icon, pastel input, Hop logo to send; `Ctrl-Enter` / `Cmd-Enter` also sends)
 
 The first turn of a session can include the larger context (summary, catalog, optional XML and logs).
@@ -85,7 +100,7 @@ Follow-up turns send the structure JSON plus your question so token use stays do
 == Context inclusions: send the minimum
 
 The advisor plugin decides *what can be shared*.
-By default *nothing extra is shared* — the collapsed *Sharing* line is the short version of the current send.
+By default *little extra is shared* — the collapsed *Sharing* line is the short version of the current send. The plugin catalog is on for the first turn so apply-able proposals can use real plugin ids.
 
 Click the line (or the arrow) to expand the checkboxes.
 Every checked inclusion is copied into the prompt that goes to the language-model service.
@@ -103,7 +118,7 @@ Regardless of the checkboxes, every turn includes:
 * *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `{openvar}PROJECT_HOME{closevar}/AGENTS.md` exist)
 * plugin notes from `ai-context.md` in the advisor plugin folder (Hop ships case-sensitivity and run-configuration facts here; other plugins can add their own)
 
-The first turn of a session also includes a short *summary JSON* (file name, counts, parameter *names* — not values).
+The first turn of a session also includes a short *summary JSON* (file name, counts, parameter *names* — not values), *metadata type keys* (for example `rdbms`), and *database plugin ids* (`POSTGRESQL`, `MYSQL`, …) so `SAVE_METADATA` can set the connection type.
 
 That is usually enough for "what does this graph do?", hop problems, and naming questions.
 
@@ -119,9 +134,9 @@ That is usually enough for "what does this graph do?", hop problems, and naming 
 |Validation messages for the open file. Useful for most questions. Can mention file paths and connection names.
 
 |Include transform / action plugin catalog
-|Off
+|On
 |First turn of the session only
-|Names of installed plugins (capped). Helps with "which transform or action should I use?". Large token cost.
+|Ids and names of installed plugins (capped). Needed so `hop_proposals` use real plugin ids (for example `TableInput`, `TypeExitExcelWriterTransform`). Uncheck to save tokens.
 
 |Include full pipeline / workflow XML
 |Off
@@ -226,13 +241,16 @@ The transcript then shows **Review N proposed change(s)**.
 
 . Check or uncheck individual proposals. Blocked items stay unchecked and show the validation reason.
 . Read the preview pane for type, risk, and parameters.
-. Click **Apply selected**. The open pipeline or workflow updates and registers undo on the graph.
+. Click **Apply selected**. Graph edits update the open pipeline or workflow and register undo. Clipboard proposals copy Hop XML/JSON so you can paste on the canvas (Ctrl-V). `SAVE_METADATA` writes the metadata object. Work on a Git feature branch first so you can revert if needed.
 . Follow-up turns include summaries of what you applied.
 
-Supported pipeline types: add/delete/rename transform, add/delete hop, set location, add note.
-Supported workflow types: add/delete/rename action, add/delete hop, set location, add note.
+Supported pipeline types: add/delete/rename transform, add/delete hop, set location, add note, copy transform XML to the clipboard, replace an existing transform from XML.
+Supported workflow types: add/delete/rename action, add/delete hop, set location, add note, copy action XML to the clipboard, replace an existing action from XML.
+Both sessions also accept copy-metadata-JSON and save-metadata proposals.
 
-`ADD_TRANSFORM` and `ADD_ACTION` load the plugin with **defaults only**. Field mappings, SQL and connection names are not applied; configure those in the transform or action dialog after apply.
+`ADD_TRANSFORM` and `ADD_ACTION` load the plugin with **defaults only**. Field mappings, SQL and connection names are not applied that way.
+
+To change an existing node's configuration, apply `REPLACE_TRANSFORM` / `REPLACE_ACTION` (plugin type must match; name and canvas location stay). To add a fully configured node, apply `CLIPBOARD_TRANSFORMS` / `CLIPBOARD_ACTIONS` and paste on the canvas. `SAVE_METADATA` creates or overwrites a named metadata object; it is not undone with graph Undo.
 
 Malformed `hop_proposals` blocks are ignored; the advice text is still shown.
 

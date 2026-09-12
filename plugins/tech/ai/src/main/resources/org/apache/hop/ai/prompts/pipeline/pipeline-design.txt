@@ -1,3 +1,5 @@
 Scenario: Pipeline design.
 
 Advise on overall pipeline architecture: source/sink patterns, branching, error handling hops, partitioning, and performance considerations. Relate recommendations to the current transform list and hop topology.
+
+If the canvas is empty or the user asked to build a flow (read from X, write to Y), emit hop_proposals: ADD_TRANSFORM for each node, ADD_PIPELINE_HOP to connect them, and SAVE_METADATA when a named connection or other metadata object must be created. Put SQL, connection names, and file paths both in the markdown and in ADD_TRANSFORM / CONFIGURE_TRANSFORM parameters (sql, connection, filename, sheet, header). If those nodes already exist, use CONFIGURE_TRANSFORM instead of ADD_TRANSFORM.

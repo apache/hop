@@ -34,13 +34,17 @@ AI is *disabled until you turn it on*.
 * xref:metadata-types/ai-provider.adoc[AI Provider] metadata — named model + credentials
 * Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, extra context notes, context files (default `{openvar}PROJECT_HOME{closevar}/AGENTS.md`), optional full XML
 * xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] workbench — perspective, floating window, and bottom dock
-* Pipeline AI Help and Workflow AI Help — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits
+* Pipeline AI Help and Workflow AI Help — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits, clipboard XML/JSON, and metadata saves
 * Language Model Chat can optionally use a named AI Provider for connection fields; inline keys remain as fallback
 
 == Privacy
 
 AI is *off until you turn it on*.
 A prompt that leaves your machine is billed and may be retained by the provider: send the *minimum* needed to answer the question.
+
+Keep the project in Git (or similar) and create a feature branch *before* applying AI-driven changes.
+Graph Undo is not a substitute: metadata saves and pasted transforms or actions cannot be reverted that way.
+See xref:hop-gui/perspective-ai-advisor.adoc#version-control[Version control] on the AI Assistant page.
 
 * Do not hard-code secrets or personal information in pipelines, workflows, metadata, notes, SQL or sample rows.
   Put them in xref:projects/projects-environments.adoc[environment] configuration files as variables, or better in a keystore read with a xref:metadata-types/variable-resolver/index.adoc[variable resolver].

@@ -95,7 +95,7 @@ public class PipelineAiAdvisor implements IAiAdvisor {
         new AiAdvisorInclusion(
             AiAdvisorInclusions.CATALOG,
             BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Catalog"),
-            false,
+            true,
             BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Catalog.Tooltip"),
             BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Catalog.Summary")),
         new AiAdvisorInclusion(
@@ -120,7 +120,10 @@ public class PipelineAiAdvisor implements IAiAdvisor {
 
   @Override
   public List<String> listBaselineSharing() {
-    return List.of(BaseMessages.getString(PKG, "PipelineAiAdvisor.Sharing.Baseline"));
+    return List.of(
+        BaseMessages.getString(PKG, "PipelineAiAdvisor.Sharing.Baseline"),
+        BaseMessages.getString(PKG, "PipelineAiAdvisor.Sharing.MetadataTypes"),
+        BaseMessages.getString(PKG, "PipelineAiAdvisor.Sharing.DatabasePlugins"));
   }
 
   @Override
@@ -133,7 +136,8 @@ public class PipelineAiAdvisor implements IAiAdvisor {
       AiAdvisorRequest request, List<AiProposal> proposals) {
     PipelineMeta pipelineMeta =
         request != null && request.getArtifact() instanceof PipelineMeta meta ? meta : null;
-    return PipelineAiProposalValidator.validate(pipelineMeta, proposals);
+    return PipelineAiProposalValidator.validate(
+        pipelineMeta, proposals, request != null ? request.getMetadataProvider() : null);
   }
 
   @Override
@@ -143,7 +147,8 @@ public class PipelineAiAdvisor implements IAiAdvisor {
       throw new HopException("No pipeline is bound to this session.");
     }
     HopGui hopGui = hopGuiFrom(request);
-    PipelineAiProposalApplier.apply(pipelineMeta, selected, hopGui);
+    PipelineAiProposalApplier.apply(
+        pipelineMeta, selected, hopGui, request != null ? request.getMetadataProvider() : null);
   }
 
   @Override

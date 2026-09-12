@@ -15,25 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ai.session;
+package org.apache.hop.ai.engine;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.hop.ai.advisor.AiProposal;
 
-/** One user/assistant exchange in an {@link AiAdvisorSession}. */
+/** Text plus optional provider usage from one chat completion. */
 @Getter
-@Setter
-public class AiAdvisorTurn {
-  private String userPrompt = "";
-  private String assistantAdvice = "";
-  private String errorMessage;
-  private List<AiProposal> proposals = new ArrayList<>();
-  private List<String> appliedSummaries = new ArrayList<>();
-  private boolean proposalBlockPresent;
-  private Integer inputTokenCount;
-  private Integer outputTokenCount;
-  private Long durationMs;
+@AllArgsConstructor
+public final class AiChatResult {
+  private final String text;
+  private final Integer inputTokenCount;
+  private final Integer outputTokenCount;
+  private final long durationMs;
 }

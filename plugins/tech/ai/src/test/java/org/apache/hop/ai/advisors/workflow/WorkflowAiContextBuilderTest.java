@@ -19,6 +19,9 @@ package org.apache.hop.ai.advisors.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.ai.advisor.AiAdvisorRequest;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -43,5 +46,23 @@ class WorkflowAiContextBuilderTest {
     assertTrue(json.contains("\"from\":\"Start\""));
     assertTrue(json.contains("\"to\":\"Dummy\""));
     assertTrue(json.contains("\"focusAction\":\"Start\""));
+  }
+
+  @Test
+  void userPromptIncludesFocusActionXml() throws Exception {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    ActionMeta start = new ActionMeta(new ActionDummy("Start"));
+    start.setLocation(new Point(10, 20));
+    workflowMeta.addAction(start);
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    request.setUserPrompt("Configure this action");
+    request.setArtifact(workflowMeta);
+    request.setVariables(new Variables());
+    request.setFocusNodeName("Start");
+
+    String prompt = WorkflowAiContextBuilder.buildUserPrompt(workflowMeta, request);
+    assertTrue(prompt.contains("Focus action:\nStart"));
+    assertTrue(prompt.contains("Focus action XML:"));
+    assertTrue(prompt.contains("<action>"));
   }
 }

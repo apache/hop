@@ -44,7 +44,7 @@ public final class AiProposalPreview {
       sb.append("\nParameters:");
       proposal
           .getParameters()
-          .forEach((k, v) -> sb.append("\n  ").append(k).append(" = ").append(v));
+          .forEach((k, v) -> sb.append("\n  ").append(k).append(" = ").append(previewValue(k, v)));
     }
     return sb.toString();
   }
@@ -100,6 +100,7 @@ public final class AiProposalPreview {
               + ","
               + proposal.parameter("locationY");
       case ADD_PIPELINE_NOTE -> "ADD_PIPELINE_NOTE: " + truncate(proposal.parameter("text"), 120);
+      case CONFIGURE_TRANSFORM -> "CONFIGURE_TRANSFORM: " + proposal.parameter("transformName");
       case ADD_ACTION ->
           "ADD_ACTION: "
               + proposal.parameter("name")
@@ -130,7 +131,26 @@ public final class AiProposalPreview {
               + ","
               + proposal.parameter("locationY");
       case ADD_WORKFLOW_NOTE -> "ADD_WORKFLOW_NOTE: " + truncate(proposal.parameter("text"), 120);
+      case CONFIGURE_ACTION -> "CONFIGURE_ACTION: " + proposal.parameter("actionName");
+      case CLIPBOARD_TRANSFORMS -> "CLIPBOARD_TRANSFORMS: copied transform XML to clipboard";
+      case REPLACE_TRANSFORM -> "REPLACE_TRANSFORM: " + proposal.parameter("transformName");
+      case CLIPBOARD_ACTIONS -> "CLIPBOARD_ACTIONS: copied action XML to clipboard";
+      case REPLACE_ACTION -> "REPLACE_ACTION: " + proposal.parameter("actionName");
+      case CLIPBOARD_METADATA ->
+          "CLIPBOARD_METADATA: " + proposal.parameter("typeKey") + "/" + proposal.parameter("name");
+      case SAVE_METADATA ->
+          "SAVE_METADATA: " + proposal.parameter("typeKey") + "/" + proposal.parameter("name");
     };
+  }
+
+  private static String previewValue(String key, String value) {
+    if (value == null) {
+      return "";
+    }
+    if (("xml".equals(key) || "json".equals(key)) && value.length() > 1500) {
+      return truncate(value, 1500);
+    }
+    return value;
   }
 
   private static String truncate(String value, int max) {

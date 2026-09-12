@@ -80,13 +80,21 @@ public final class AiAdvisorEngine {
     AiAdvisorPrompt prompt = advisor.buildPrompt(request);
     AiAdvisorExtraContext.apply(prompt, advisor, variables);
     List<ChatMessage> history = historyFrom(session);
-    String raw =
-        AiChatFactory.generate(
+    AiChatResult chat =
+        AiChatFactory.generateResult(
             provider, variables, prompt.getSystemPrompt(), prompt.getUserPrompt(), history);
     if (session.isCancelled() || Thread.currentThread().isInterrupted()) {
       throw new HopException("AI request was cancelled");
     }
-    return advisor.parseResponse(raw);
+    AiAdvisorResponse parsed = advisor.parseResponse(chat.getText());
+    if (parsed == null) {
+      parsed = new AiAdvisorResponse();
+      parsed.setMarkdownAdvice("");
+    }
+    parsed.setInputTokenCount(chat.getInputTokenCount());
+    parsed.setOutputTokenCount(chat.getOutputTokenCount());
+    parsed.setDurationMs(chat.getDurationMs());
+    return parsed;
   }
 
   static AiAdvisorRequest toRequest(

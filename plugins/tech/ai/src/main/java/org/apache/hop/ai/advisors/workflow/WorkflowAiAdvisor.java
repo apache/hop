@@ -94,7 +94,7 @@ public class WorkflowAiAdvisor implements IAiAdvisor {
         new AiAdvisorInclusion(
             AiAdvisorInclusions.CATALOG,
             BaseMessages.getString(PKG, "WorkflowAiAdvisor.Inclusion.Catalog"),
-            false,
+            true,
             BaseMessages.getString(PKG, "WorkflowAiAdvisor.Inclusion.Catalog.Tooltip"),
             BaseMessages.getString(PKG, "WorkflowAiAdvisor.Inclusion.Catalog.Summary")),
         new AiAdvisorInclusion(
@@ -119,7 +119,10 @@ public class WorkflowAiAdvisor implements IAiAdvisor {
 
   @Override
   public List<String> listBaselineSharing() {
-    return List.of(BaseMessages.getString(PKG, "WorkflowAiAdvisor.Sharing.Baseline"));
+    return List.of(
+        BaseMessages.getString(PKG, "WorkflowAiAdvisor.Sharing.Baseline"),
+        BaseMessages.getString(PKG, "WorkflowAiAdvisor.Sharing.MetadataTypes"),
+        BaseMessages.getString(PKG, "WorkflowAiAdvisor.Sharing.DatabasePlugins"));
   }
 
   @Override
@@ -132,7 +135,8 @@ public class WorkflowAiAdvisor implements IAiAdvisor {
       AiAdvisorRequest request, List<AiProposal> proposals) {
     WorkflowMeta workflowMeta =
         request != null && request.getArtifact() instanceof WorkflowMeta meta ? meta : null;
-    return WorkflowAiProposalValidator.validate(workflowMeta, proposals);
+    return WorkflowAiProposalValidator.validate(
+        workflowMeta, proposals, request != null ? request.getMetadataProvider() : null);
   }
 
   @Override
@@ -142,7 +146,12 @@ public class WorkflowAiAdvisor implements IAiAdvisor {
       throw new HopException("No workflow is bound to this session.");
     }
     HopGui hopGui = hopGuiFrom(request);
-    WorkflowAiProposalApplier.apply(workflowMeta, selected, hopGui);
+    WorkflowAiProposalApplier.apply(
+        workflowMeta,
+        selected,
+        hopGui,
+        request != null ? request.getMetadataProvider() : null,
+        request != null ? request.getVariables() : null);
   }
 
   @Override

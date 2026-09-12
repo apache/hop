@@ -37,7 +37,10 @@ import org.apache.hop.ai.config.HopAiConfig;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiAdvisorExtraContext;
+import org.apache.hop.ai.engine.AiClipboardProposals;
+import org.apache.hop.ai.engine.AiMetadataProposalSupport;
 import org.apache.hop.ai.engine.AiProposalPreview;
+import org.apache.hop.ai.engine.AiProposalTypes;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorSessionStore;
@@ -50,6 +53,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -1012,6 +1016,9 @@ public class AiAdvisorSessionPane extends Composite {
     } else if (response != null) {
       turn.setAssistantAdvice(response.getMarkdownAdvice());
       turn.setProposalBlockPresent(response.isProposalBlockPresent());
+      turn.setInputTokenCount(response.getInputTokenCount());
+      turn.setOutputTokenCount(response.getOutputTokenCount());
+      turn.setDurationMs(response.getDurationMs());
       if (response.getProposals() != null) {
         turn.getProposals().addAll(response.getProposals());
       }
@@ -1080,11 +1087,15 @@ public class AiAdvisorSessionPane extends Composite {
     }
     try {
       advisor.applyProposals(request, selected);
+      int copied = AiClipboardProposals.copy(selected);
+      int saved = AiMetadataProposalSupport.saveAll(selected, host.getMetadataProvider());
       session.recordApplied(turn, selected, advisor);
       advisor.afterApply(request, selected);
       refreshBoundGraph();
-      session.setStatusMessage(
-          BaseMessages.getString(PKG, "AiAdvisor.Transcript.Applied", selected.size()));
+      if (saved > 0) {
+        fireMetadataChanged();
+      }
+      session.setStatusMessage(appliedStatusMessage(selected, copied, saved));
       wlStatus.setText(Const.NVL(session.getStatusMessage(), ""));
       transcript.showSession(session, this::reviewProposalsForTurn);
       store.fireChanged();
@@ -1095,6 +1106,43 @@ public class AiAdvisorSessionPane extends Composite {
           BaseMessages.getString(PKG, "AiAdvisor.Apply.Error.Message"),
           ex instanceof HopException ? ex : new HopException(ex));
     }
+  }
+
+  private String appliedStatusMessage(List<AiProposal> selected, int copied, int saved) {
+    int graph = 0;
+    for (AiProposal proposal : selected) {
+      AiProposalTypes type = AiProposalTypes.of(proposal);
+      if (type != null && !type.isWorkbenchOwned()) {
+        graph++;
+      }
+    }
+    if (copied <= 0 && saved <= 0) {
+      return BaseMessages.getString(PKG, "AiAdvisor.Transcript.Applied", selected.size());
+    }
+    StringBuilder message = new StringBuilder();
+    if (graph > 0) {
+      message.append(BaseMessages.getString(PKG, "AiAdvisor.Transcript.AppliedGraph", graph));
+    }
+    if (copied > 0) {
+      if (!message.isEmpty()) {
+        message.append(' ');
+      }
+      message.append(BaseMessages.getString(PKG, "AiAdvisor.Transcript.CopiedClipboard"));
+    }
+    if (saved > 0) {
+      if (!message.isEmpty()) {
+        message.append(' ');
+      }
+      message.append(BaseMessages.getString(PKG, "AiAdvisor.Transcript.SavedMetadata", saved));
+    }
+    return message.toString();
+  }
+
+  private void fireMetadataChanged() throws HopException {
+    if (host.getHopGui() == null || host.getHopGui().getEventsHandler() == null) {
+      return;
+    }
+    host.getHopGui().getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
   }
 
   private void refreshBoundGraph() {

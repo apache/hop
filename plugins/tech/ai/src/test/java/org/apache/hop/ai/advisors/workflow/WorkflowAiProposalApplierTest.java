@@ -24,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.engine.AiProposalXmlSupportTest;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
@@ -74,6 +76,26 @@ class WorkflowAiProposalApplierTest {
         proposal("ADD_WORKFLOW_HOP", Map.of("fromAction", "Start", "toAction", "Missing"));
     assertThrows(
         Exception.class, () -> WorkflowAiProposalApplier.apply(workflowMeta, List.of(hop)));
+  }
+
+  @Test
+  void replaceKeepsNameAndLocationAndSkipsClipboard() throws Exception {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    ActionMeta existing = new ActionMeta(new ActionDummy("Check"));
+    existing.setLocation(new Point(40, 70));
+    workflowMeta.addAction(existing);
+
+    String xml = AiProposalXmlSupportTest.dummyActionXml("Other");
+    AiProposal replace = proposal("REPLACE_ACTION", Map.of("actionName", "Check", "xml", xml));
+    AiProposal clipboard = proposal("CLIPBOARD_ACTIONS", Map.of("xml", xml));
+
+    WorkflowAiProposalApplier.apply(workflowMeta, List.of(clipboard, replace));
+
+    assertEquals(1, workflowMeta.getActions().size());
+    ActionMeta updated = workflowMeta.findAction("Check");
+    assertNotNull(updated);
+    assertEquals(40, updated.getLocation().x);
+    assertEquals(70, updated.getLocation().y);
   }
 
   private static AiProposal proposal(String type, Map<String, String> parameters) {

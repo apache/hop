@@ -24,8 +24,8 @@ import lombok.Setter;
 
 /**
  * One optional piece of context the workbench can send. Advisors list these via {@link
- * IAiAdvisor#listInclusions()}. Best practice: {@link #defaultSelected} is {@code false} so nothing
- * extra is shared until the user opts in.
+ * IAiAdvisor#listInclusions()}. Sensitive extras should keep {@link #defaultSelected} {@code
+ * false}. A plugin-id catalog may default on.
  */
 @Getter
 @Setter

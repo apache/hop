@@ -1,4 +1,4 @@
-Proposal JSON schema (when suggesting graph edits):
+Proposal JSON schema (when suggesting graph edits, clipboard XML/JSON, or metadata saves):
 ```hop_proposals
 {
   "proposals": [
@@ -6,7 +6,7 @@ Proposal JSON schema (when suggesting graph edits):
       "id": "1",
       "description": "Human-readable summary",
       "riskLevel": "LOW|MEDIUM|HIGH",
-      "type": "ADD_TRANSFORM|DELETE_TRANSFORM|RENAME_TRANSFORM|ADD_PIPELINE_HOP|DELETE_PIPELINE_HOP|SET_TRANSFORM_LOCATION|ADD_PIPELINE_NOTE|ADD_ACTION|DELETE_ACTION|RENAME_ACTION|ADD_WORKFLOW_HOP|DELETE_WORKFLOW_HOP|SET_ACTION_LOCATION|ADD_WORKFLOW_NOTE",
+      "type": "ADD_TRANSFORM|DELETE_TRANSFORM|RENAME_TRANSFORM|ADD_PIPELINE_HOP|DELETE_PIPELINE_HOP|SET_TRANSFORM_LOCATION|ADD_PIPELINE_NOTE|CONFIGURE_TRANSFORM|CLIPBOARD_TRANSFORMS|REPLACE_TRANSFORM|ADD_ACTION|DELETE_ACTION|RENAME_ACTION|ADD_WORKFLOW_HOP|DELETE_WORKFLOW_HOP|SET_ACTION_LOCATION|ADD_WORKFLOW_NOTE|CONFIGURE_ACTION|CLIPBOARD_ACTIONS|REPLACE_ACTION|CLIPBOARD_METADATA|SAVE_METADATA",
       "parameters": { }
     }
   ]
@@ -14,25 +14,46 @@ Proposal JSON schema (when suggesting graph edits):
 ```
 
 Pipeline parameter reference:
-- ADD_TRANSFORM: transformPluginId, name, locationX, locationY
+- ADD_TRANSFORM: transformPluginId, name, locationX, locationY, plus plugin fields (sql, connection, filename or file.name, sheet or file.sheetname, header, …). Optional xml. Optional config JSON object.
+- CONFIGURE_TRANSFORM: transformName plus the same plugin fields as ADD_TRANSFORM (use when the node already exists)
 - DELETE_TRANSFORM: transformName
 - RENAME_TRANSFORM: transformName, newName
 - ADD_PIPELINE_HOP: fromTransform, toTransform, enabled (Y/N, default Y)
 - DELETE_PIPELINE_HOP: fromTransform, toTransform
 - SET_TRANSFORM_LOCATION: transformName, locationX, locationY
 - ADD_PIPELINE_NOTE: text, locationX, locationY (optional width, height)
+- CLIPBOARD_TRANSFORMS: xml (Hop transform clipboard XML; a <transform> element or pipeline-transforms envelope)
+- REPLACE_TRANSFORM: transformName, xml (same XML as CLIPBOARD_TRANSFORMS; plugin type must match the existing transform)
 
 Workflow parameter reference:
-- ADD_ACTION: actionPluginId, name, locationX, locationY
+- ADD_ACTION: actionPluginId, name, locationX, locationY, plus plugin fields the action dialog needs. Optional xml. Optional config JSON object.
+- CONFIGURE_ACTION: actionName plus plugin fields (use when the node already exists)
 - DELETE_ACTION: actionName
 - RENAME_ACTION: actionName, newName
 - ADD_WORKFLOW_HOP: fromAction, toAction, unconditional (Y/N), evaluation (Y/N, default Y)
 - DELETE_WORKFLOW_HOP: fromAction, toAction
 - SET_ACTION_LOCATION: actionName, locationX, locationY
 - ADD_WORKFLOW_NOTE: text, locationX, locationY (optional width, height)
+- CLIPBOARD_ACTIONS: xml (Hop action clipboard XML; an <action> element or workflow-actions envelope)
+- REPLACE_ACTION: actionName, xml (same XML as CLIPBOARD_ACTIONS; plugin type must match the existing action)
+
+Metadata parameter reference (pipeline or workflow session):
+- CLIPBOARD_METADATA: typeKey, json, optional name (JSON is copied to the clipboard)
+- SAVE_METADATA: typeKey, json (string or nested object), optional name (JSON is saved through the metadata serializer; name overrides the object name). For rdbms you may instead send hostname, port, databaseName, username, password, pluginId (POSTGRESQL, MYSQL, …).
 
 Rules:
-- Never include SQL, connection names, field mappings, or other plugin configuration in parameters.
-- transformPluginId/actionPluginId must match an id from the catalog JSON in context.
-- Names must be unique in the open graph. Hops must reference existing transform/action names (including names added earlier in the same proposal list).
-- The GUI validator enforces topology only. The user reviews and applies selected proposals.
+- If you tell the user to add, connect, or create something, also emit the matching hop_proposals items. Prose-only steps are not enough.
+- Topology types still need hops and unique names. Plugin configuration belongs in ADD_TRANSFORM / ADD_ACTION / CONFIGURE_* parameters (and in the markdown). Apply writes those @HopMetadataProperty keys onto the plugin (sql, connection, file.name, …). Unknown keys are ignored.
+- ADD_TRANSFORM and ADD_ACTION load the plugin, then overlay those extra parameters. Still emit them on an empty canvas. If the SQL or filename is known, include it so the dialog is not left at defaults.
+- transformPluginId/actionPluginId must be the catalog JSON "id" (for example TableInput, TypeExitExcelWriterTransform), not the human-readable name. When the catalog is in context, only use ids from it.
+- CLIPBOARD_TRANSFORMS, REPLACE_TRANSFORM, CLIPBOARD_ACTIONS, and REPLACE_ACTION may include Hop XML in the xml parameter. Copy a focus XML template from context. Do not invent plugin tags. If there is no template, use ADD_TRANSFORM / ADD_ACTION instead of skipping proposals.
+- REPLACE_TRANSFORM / REPLACE_ACTION keep the existing name and canvas location. The XML plugin id (type) must match the existing node. Use HIGH risk.
+- CLIPBOARD_TRANSFORMS / CLIPBOARD_ACTIONS copy XML to the clipboard. They do not add nodes. The user pastes on the canvas (Ctrl-V). Use HIGH risk.
+- CLIPBOARD_METADATA copies json to the clipboard. SAVE_METADATA writes the object (create or overwrite by name). typeKey must match an available metadata type (rdbms for relational connections). json is the object body or {"content":{...}}. New names the user asked for are allowed. Use HIGH risk.
+- SAVE_METADATA for PostgreSQL (the rdbms key MUST be POSTGRESQL, not hostname/pluginId at the top level):
+  type SAVE_METADATA, typeKey rdbms, name test_edw,
+  json {"name":"test_edw","rdbms":{"POSTGRESQL":{"pluginId":"POSTGRESQL","accessType":0,"hostname":"localhost","port":"5432","databaseName":"test_edw","username":"test","password":"${DB_PASSWORD}"}}}
+  Wrong (saves as type NONE): {"name":"test_edw","hostname":"localhost","pluginId":"POSTGRESQL"}
+  Wrong: {"rdbms":{"hostname":"localhost","pluginId":"POSTGRESQL"}}
+- Names of new transforms/actions must be unique in the open graph. Hops must reference existing names (including names added earlier in the same proposal list).
+- The GUI validator enforces topology, XML/JSON parse, and plugin-id match. The user reviews and applies selected proposals.

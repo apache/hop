@@ -45,6 +45,7 @@ public final class PipelineAiContextBuilder {
 
   static final String PROMPT_ROOT = "/org/apache/hop/ai/prompts/pipeline/";
   private static final int MAX_TOPOLOGY_XML_CHARS = 120_000;
+  private static final int MAX_FOCUS_XML_CHARS = 40_000;
   private static final int MAX_LOG_CHARS = 20_000;
   private static final int MAX_CATALOG_ENTRIES = 180;
 
@@ -84,6 +85,8 @@ public final class PipelineAiContextBuilder {
           .append("Pipeline summary JSON:\n")
           .append(serializeSummary(pipelineMeta))
           .append("\n\n");
+      AiAdvisorMetadataContext.appendTypeKeys(prompt, metadataProvider);
+      AiAdvisorMetadataContext.appendDatabaseCatalog(prompt);
       if (request.inclusionEnabled(AiAdvisorInclusions.CATALOG)) {
         prompt
             .append("Available transform plugins JSON:\n")
@@ -109,9 +112,7 @@ public final class PipelineAiContextBuilder {
       }
     }
     AiAdvisorMetadataContext.appendToPrompt(prompt, request);
-    if (!Utils.isEmpty(request.getFocusNodeName())) {
-      prompt.append("Focus transform:\n").append(request.getFocusNodeName()).append("\n\n");
-    }
+    appendFocusTransform(prompt, pipelineMeta, request.getFocusNodeName());
     if (request.inclusionEnabled(AiAdvisorInclusions.CHECKS) && metadataProvider != null) {
       List<ICheckResult> results = new ArrayList<>();
       pipelineMeta.checkTransforms(results, false, null, variables, metadataProvider);
@@ -122,6 +123,30 @@ public final class PipelineAiContextBuilder {
     }
     AiM2PromptSupport.appendAppliedSummaries(prompt, request.getAppliedChangeSummaries());
     return prompt.toString();
+  }
+
+  static void appendFocusTransform(
+      StringBuilder prompt, PipelineMeta pipelineMeta, String focusName) {
+    if (Utils.isEmpty(focusName)) {
+      return;
+    }
+    prompt.append("Focus transform:\n").append(focusName).append("\n\n");
+    TransformMeta transform = pipelineMeta.findTransform(focusName);
+    if (transform == null) {
+      return;
+    }
+    try {
+      String xml = transform.getXml();
+      if (Utils.isEmpty(xml)) {
+        return;
+      }
+      prompt
+          .append("Focus transform XML:\n")
+          .append(AiTextUtil.redactSecrets(AiTextUtil.truncate(xml, MAX_FOCUS_XML_CHARS)))
+          .append("\n\n");
+    } catch (Exception e) {
+      // Skip unreadable transform XML rather than failing the whole prompt.
+    }
   }
 
   public static String serializeStructure(PipelineMeta pipelineMeta, String focusTransformName) {

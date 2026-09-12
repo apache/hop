@@ -23,11 +23,15 @@ import java.util.List;
 import java.util.Set;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
+import org.apache.hop.ai.engine.AiMetadataProposalSupport;
 import org.apache.hop.ai.engine.AiProposalParamSupport;
 import org.apache.hop.ai.engine.AiProposalTypes;
+import org.apache.hop.ai.engine.AiProposalXmlSupport;
+import org.apache.hop.ai.engine.AiTransformConfigSupport;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -38,19 +42,29 @@ public final class PipelineAiProposalValidator {
 
   public static List<AiProposalValidation> validate(
       PipelineMeta pipelineMeta, List<AiProposal> proposals) {
+    return validate(pipelineMeta, proposals, null);
+  }
+
+  public static List<AiProposalValidation> validate(
+      PipelineMeta pipelineMeta,
+      List<AiProposal> proposals,
+      IHopMetadataProvider metadataProvider) {
     List<AiProposalValidation> results = new ArrayList<>();
     if (proposals == null) {
       return results;
     }
     Set<String> reservedNames = new HashSet<>();
     for (AiProposal proposal : proposals) {
-      results.add(validateOne(pipelineMeta, proposal, reservedNames));
+      results.add(validateOne(pipelineMeta, proposal, reservedNames, metadataProvider));
     }
     return results;
   }
 
   private static AiProposalValidation validateOne(
-      PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames) {
+      PipelineMeta pipelineMeta,
+      AiProposal proposal,
+      Set<String> reservedNames,
+      IHopMetadataProvider metadataProvider) {
     AiProposalTypes type = AiProposalTypes.of(proposal);
     if (type == null) {
       return blocked(proposal, "Missing or unknown proposal type");
@@ -69,6 +83,11 @@ public final class PipelineAiProposalValidator {
       case DELETE_PIPELINE_HOP -> validateDeletePipelineHop(pipelineMeta, proposal);
       case SET_TRANSFORM_LOCATION -> validateSetTransformLocation(pipelineMeta, proposal);
       case ADD_PIPELINE_NOTE -> validateAddPipelineNote(proposal);
+      case CONFIGURE_TRANSFORM -> validateConfigureTransform(pipelineMeta, proposal);
+      case CLIPBOARD_TRANSFORMS -> validateClipboardTransforms(proposal);
+      case REPLACE_TRANSFORM -> validateReplaceTransform(pipelineMeta, proposal);
+      case CLIPBOARD_METADATA, SAVE_METADATA ->
+          AiMetadataProposalSupport.validate(proposal, metadataProvider);
       default -> blocked(proposal, "Unsupported proposal type");
     };
   }
@@ -94,6 +113,28 @@ public final class PipelineAiProposalValidator {
       return blocked(proposal, "locationX and locationY must be integers");
     }
     reservedNames.add(name.trim());
+    String xml = AiProposalXmlSupport.xmlParam(proposal);
+    if (!Utils.isEmpty(xml)) {
+      String xmlError = AiProposalXmlSupport.validatePipelineXml(xml);
+      if (xmlError != null) {
+        return blocked(proposal, xmlError);
+      }
+    }
+    return ok(proposal);
+  }
+
+  private static AiProposalValidation validateConfigureTransform(
+      PipelineMeta pipelineMeta, AiProposal proposal) {
+    String transformName = proposal.parameter("transformName");
+    if (Utils.isEmpty(transformName)) {
+      return blocked(proposal, "transformName is required");
+    }
+    if (pipelineMeta.findTransform(transformName) == null) {
+      return blocked(proposal, "Transform not found: " + transformName);
+    }
+    if (!AiTransformConfigSupport.hasConfig(proposal)) {
+      return blocked(proposal, "No configuration parameters");
+    }
     return ok(proposal);
   }
 
@@ -190,6 +231,54 @@ public final class PipelineAiProposalValidator {
       return blocked(proposal, "locationX and locationY must be integers");
     }
     return ok(proposal);
+  }
+
+  private static AiProposalValidation validateClipboardTransforms(AiProposal proposal) {
+    String xml = AiProposalXmlSupport.xmlParam(proposal);
+    String error = AiProposalXmlSupport.validatePipelineXml(xml);
+    if (error != null) {
+      return blocked(proposal, error);
+    }
+    if (AiProposalXmlSupport.containsSecrets(xml)) {
+      return warning(proposal, "XML contains password-like fields");
+    }
+    return warning(proposal, "Copies XML to the clipboard. Paste on the canvas (Ctrl-V).");
+  }
+
+  private static AiProposalValidation validateReplaceTransform(
+      PipelineMeta pipelineMeta, AiProposal proposal) {
+    String transformName = proposal.parameter("transformName");
+    if (Utils.isEmpty(transformName)) {
+      return blocked(proposal, "transformName is required");
+    }
+    TransformMeta existing = pipelineMeta.findTransform(transformName);
+    if (existing == null) {
+      return blocked(proposal, "Transform not found: " + transformName);
+    }
+    String xml = AiProposalXmlSupport.xmlParam(proposal);
+    String error = AiProposalXmlSupport.validatePipelineXml(xml);
+    if (error != null) {
+      return blocked(proposal, error);
+    }
+    try {
+      List<String> ids = AiProposalXmlSupport.transformPluginIds(xml);
+      if (!ids.isEmpty()
+          && !Utils.isEmpty(existing.getTransformPluginId())
+          && !existing.getTransformPluginId().equals(ids.get(0))) {
+        return blocked(
+            proposal,
+            "XML plugin id "
+                + ids.get(0)
+                + " does not match existing transform "
+                + existing.getTransformPluginId());
+      }
+    } catch (Exception e) {
+      return blocked(proposal, "Invalid transform XML");
+    }
+    if (AiProposalXmlSupport.containsSecrets(xml)) {
+      return warning(proposal, "Replaces transform XML; payload contains password-like fields");
+    }
+    return warning(proposal, "Replaces the configuration of " + transformName);
   }
 
   private static AiProposalValidation validateAddPipelineNote(AiProposal proposal) {

@@ -92,4 +92,41 @@ class AiProposalParserTest {
     assertEquals("CREATE_HUB", response.getProposals().get(0).getType());
     assertEquals("HUB_CUSTOMER", response.getProposals().get(0).parameter("name"));
   }
+
+  @Test
+  void nestedJsonParameterIsKeptAsJsonText() {
+    String raw =
+        """
+        ```hop_proposals
+        {
+          "proposals": [
+            {
+              "type": "SAVE_METADATA",
+              "parameters": {
+                "typeKey": "rdbms",
+                "name": "test_edw",
+                "json": {
+                  "name": "test_edw",
+                  "rdbms": {
+                    "POSTGRESQL": {
+                      "pluginId": "POSTGRESQL",
+                      "hostname": "localhost",
+                      "port": "54320",
+                      "databaseName": "test_edw"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+        ```
+        """;
+    AiAdvisorResponse response = AiProposalParser.parse(raw);
+    assertEquals(1, response.getProposals().size());
+    String json = response.getProposals().get(0).parameter("json");
+    assertTrue(json.contains("\"hostname\":\"localhost\""));
+    assertTrue(json.contains("POSTGRESQL"));
+    assertEquals("test_edw", response.getProposals().get(0).parameter("name"));
+  }
 }
