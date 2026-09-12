@@ -21,13 +21,13 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 import static org.apache.hop.core.util.Utils.isEmpty;
 import static org.apache.hop.i18n.BaseMessages.getString;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.ANTHROPIC_CLAUDE_3_HAIKU_20240307;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.ANTHROPIC_CLAUDE_3_OPUS_20240229;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.HUGGING_FACE_LLAMA3_70B_INSTRUCT;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.ANTHROPIC_CLAUDE_HAIKU_4_5;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.ANTHROPIC_CLAUDE_SONNET_5;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.HUGGING_FACE_LLAMA3_3_70B_INSTRUCT;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.MISTRAL_LARGE_LATEST;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.OLLAMA_PHI3_3_8B;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.OPENAI_GPT_4O;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.OPENAI_GPT_4O_MINI;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.OLLAMA_QWEN3;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.OPENAI_GPT_5_6_LUNA;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelChatModelName.OPENAI_GPT_6_ASTRA;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ModelType.OPEN_AI;
 
 import java.util.List;
@@ -74,9 +74,12 @@ public class LanguageModelChatMeta
 
   // OpenAI
   @HopMetadataProperty private String openAiBaseUrl = "https://api.openai.com/v1";
-  @HopMetadataProperty private String openAiApiKey = "OPENAI_API_KEY}";
+
+  @HopMetadataProperty(password = true)
+  private String openAiApiKey = "OPENAI_API_KEY";
+
   @HopMetadataProperty private String openAiOrganizationId;
-  @HopMetadataProperty private String openAiModelName = OPENAI_GPT_4O.toString();
+  @HopMetadataProperty private String openAiModelName = OPENAI_GPT_6_ASTRA.toString();
   @HopMetadataProperty private Double openAiTemperature = 0.7;
   @HopMetadataProperty private Double openAiTopP;
   // TODO private List<String> openAiStop;
@@ -94,13 +97,15 @@ public class LanguageModelChatMeta
   @HopMetadataProperty private Integer openAiProxyPort = 30000;
   @HopMetadataProperty private boolean openAiLogRequests = false;
   @HopMetadataProperty private boolean openAiLogResponses = false;
+
   // TODO private Tokenizer openAiTokenizer = new OpenAiTokenizer();
 
   // HuggingFace
-  @HopMetadataProperty private String huggingFaceAccessToken = "HF_ACCESS_TOKEN";
+  @HopMetadataProperty(password = true)
+  private String huggingFaceAccessToken = "HF_ACCESS_TOKEN";
 
   @HopMetadataProperty
-  private String huggingFaceModelId = HUGGING_FACE_LLAMA3_70B_INSTRUCT.toString();
+  private String huggingFaceModelId = HUGGING_FACE_LLAMA3_3_70B_INSTRUCT.toString();
 
   @HopMetadataProperty private Integer huggingFaceTimeout = 15;
   @HopMetadataProperty private Double huggingFaceTemperature;
@@ -110,7 +115,10 @@ public class LanguageModelChatMeta
 
   // Mistral
   @HopMetadataProperty private String mistralBaseUrl = "https://api.mistral.ai/v1";
-  @HopMetadataProperty private String mistralApiKey = "MISTRAL_API_KEY";
+
+  @HopMetadataProperty(password = true)
+  private String mistralApiKey = "MISTRAL_API_KEY";
+
   @HopMetadataProperty private String mistralModelName = MISTRAL_LARGE_LATEST.toString();
   @HopMetadataProperty private Double mistralTemperature;
   @HopMetadataProperty private Double mistralTopP;
@@ -125,7 +133,7 @@ public class LanguageModelChatMeta
 
   // Ollama
   @HopMetadataProperty private String ollamaImageEndpoint;
-  @HopMetadataProperty private String ollamaModelName = OLLAMA_PHI3_3_8B.toString();
+  @HopMetadataProperty private String ollamaModelName = OLLAMA_QWEN3.toString();
   @HopMetadataProperty private Double ollamaTemperature;
   @HopMetadataProperty private Integer ollamaTopK;
   @HopMetadataProperty private Double ollamaTopP;
@@ -140,11 +148,13 @@ public class LanguageModelChatMeta
 
   // Anthropic
   @HopMetadataProperty private String anthropicBaseUrl = "https://api.anthropic.com/v1/";
-  @HopMetadataProperty private String anthropicApiKey = "ANTHROPIC_API_KEY";
+
+  @HopMetadataProperty(password = true)
+  private String anthropicApiKey = "ANTHROPIC_API_KEY";
+
   @HopMetadataProperty private String anthropicVersion = "2023-06-01";
 
-  @HopMetadataProperty
-  private String anthropicModelName = ANTHROPIC_CLAUDE_3_OPUS_20240229.toString();
+  @HopMetadataProperty private String anthropicModelName = ANTHROPIC_CLAUDE_SONNET_5.toString();
 
   @HopMetadataProperty private Double anthropicTemperature;
   @HopMetadataProperty private Double anthropicTopP;
@@ -174,7 +184,7 @@ public class LanguageModelChatMeta
 
     openAiBaseUrl = "https://api.openai.com/v1";
     openAiApiKey = "OPENAI_API_KEY";
-    openAiModelName = OPENAI_GPT_4O_MINI.toString();
+    openAiModelName = OPENAI_GPT_5_6_LUNA.toString();
     openAiResponseFormat = "text";
     openAiTemperature = 0.7;
     openAiTimeout = 60;
@@ -186,7 +196,7 @@ public class LanguageModelChatMeta
     openAiLogResponses = false;
 
     huggingFaceAccessToken = "HF_ACCESS_TOKEN";
-    huggingFaceModelId = HUGGING_FACE_LLAMA3_70B_INSTRUCT.toString();
+    huggingFaceModelId = HUGGING_FACE_LLAMA3_3_70B_INSTRUCT.toString();
     huggingFaceTimeout = 15;
     huggingFaceReturnFullText = false;
     huggingFaceWaitForModel = true;
@@ -201,14 +211,14 @@ public class LanguageModelChatMeta
     mistralMaxRetries = 3;
 
     ollamaImageEndpoint = "";
-    ollamaModelName = OLLAMA_PHI3_3_8B.toString();
+    ollamaModelName = OLLAMA_QWEN3.toString();
     ollamaTimeout = 60;
     ollamaMaxRetries = 3;
 
     anthropicBaseUrl = "https://api.anthropic.com/v1/";
     anthropicApiKey = "ANTHROPIC_API_KEY";
     anthropicVersion = "2023-06-01";
-    anthropicModelName = ANTHROPIC_CLAUDE_3_HAIKU_20240307.toString();
+    anthropicModelName = ANTHROPIC_CLAUDE_HAIKU_4_5.toString();
     anthropicMaxTokens = 1024;
     anthropicTimeout = 15;
     anthropicMaxRetries = 3;

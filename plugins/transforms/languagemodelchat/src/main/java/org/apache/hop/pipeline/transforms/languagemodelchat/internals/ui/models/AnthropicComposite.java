@@ -65,7 +65,7 @@ public class AnthropicComposite extends AbstractModelComposite {
 
     // API Key
     apiKeyLabel = createLabel();
-    apiKeyInput = createTextVar();
+    apiKeyInput = createPasswordTextVar();
     prepare("ApiKey", apiKeyLabel, apiKeyInput);
 
     // Version

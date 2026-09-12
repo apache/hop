@@ -19,34 +19,35 @@ package org.apache.hop.pipeline.transforms.languagemodelchat.internals;
 
 public enum LanguageModelChatModelName {
 
-  // https://platform.openai.com/docs/models/continuous-model-upgrades
-  OPENAI_GPT_4O("gpt-4o"),
-  OPENAI_GPT_4O_MINI("gpt-4o-mini"),
-  OPENAI_GPT_O1_MINI("o1-mini"),
-  OPENAI_GPT_O1_PREVIEW("o1-preview"),
-  OPENAI_GPT_4_TURBO("gpt-4-turbo"),
+  // https://platform.openai.com/docs/models
+  OPENAI_GPT_6_ASTRA("gpt-6-astra"),
+  OPENAI_GPT_5_6_TERRA("gpt-5.6-terra"),
+  OPENAI_GPT_5_6_LUNA("gpt-5.6-luna"),
+  OPENAI_GPT_5_6_SOL("gpt-5.6-sol"),
 
   // https://docs.mistral.ai/getting-started/models/
-  OPEN_MISTRAL_7B("open-mistral-7b"),
-  OPEN_MIXTRAL_8X7B("open-mixtral-8x7b"),
-  MISTRAL_SMALL_LATEST("mistral-small-latest"),
-  MISTRAL_MEDIUM_LATEST("mistral-medium-latest"),
   MISTRAL_LARGE_LATEST("mistral-large-latest"),
+  MISTRAL_MEDIUM_LATEST("mistral-medium-latest"),
+  MISTRAL_SMALL_LATEST("mistral-small-latest"),
+  MAGISTRAL_MEDIUM_2509("magistral-medium-2509"),
 
   // https://ollama.com/library
-  OLLAMA_LLAMA3_8B("llama3"),
-  OLLAMA_LLAMA3_70B("llama3:70b"),
-  OLLAMA_PHI3_3_8B("phi3"),
-  OLLAMA_PHI3_14B("phi3:medium"),
+  OLLAMA_LLAMA3_3("llama3.3"),
+  OLLAMA_QWEN3("qwen3"),
+  OLLAMA_PHI4("phi4"),
+  OLLAMA_GEMMA3("gemma3"),
+  OLLAMA_DEEPSEEK_R1("deepseek-r1"),
 
-  // https://ui.endpoints.huggingface.co/catalog
-  HUGGING_FACE_LLAMA3_70B_INSTRUCT("meta-llama/Meta-Llama-3-70B-Instruct"),
+  // https://huggingface.co/models
+  HUGGING_FACE_QWEN3_8B("Qwen/Qwen3-8B"),
+  HUGGING_FACE_LLAMA3_3_70B_INSTRUCT("meta-llama/Llama-3.3-70B-Instruct"),
   HUGGING_FACE_MISTRAL_7B_INSTRUCT("mistralai/Mistral-7B-Instruct-v0.3"),
+  HUGGING_FACE_GPT_OSS_20B("openai/gpt-oss-20b"),
 
-  // https://docs.anthropic.com/en/docs/models-overview
-  ANTHROPIC_CLAUDE_3_OPUS_20240229("claude-3-opus-20240229"),
-  ANTHROPIC_CLAUDE_3_SONNET_20240229("claude-3-sonnet-20240229"),
-  ANTHROPIC_CLAUDE_3_HAIKU_20240307("claude-3-haiku-20240307");
+  // https://docs.claude.com/en/docs/about-claude/models/overview
+  ANTHROPIC_CLAUDE_OPUS_5("claude-opus-5"),
+  ANTHROPIC_CLAUDE_SONNET_5("claude-sonnet-5"),
+  ANTHROPIC_CLAUDE_HAIKU_4_5("claude-haiku-4-5");
 
   private final String stringValue;
 

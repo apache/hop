@@ -76,7 +76,7 @@ public class OpenAiComposite extends AbstractModelComposite {
 
     // API Key
     apiKeyLabel = createLabel();
-    apiKeyInput = createTextVar();
+    apiKeyInput = createPasswordTextVar();
     prepare("ApiKey", apiKeyLabel, apiKeyInput);
 
     // Model Name

@@ -1,0 +1,14 @@
+{
+  "variables": [
+    {
+      "name": "OLLAMA_BASE_URL",
+      "value": "http://ollama:11434",
+      "description": "Ollama endpoint on the docker integration-test network"
+    },
+    {
+      "name": "OLLAMA_MODEL",
+      "value": "smollm2:135m",
+      "description": "Model pulled by the ollama service in docker/integration-tests/integration-tests-languagemodelchat.yaml"
+    }
+  ]
+}
