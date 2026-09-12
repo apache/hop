@@ -124,6 +124,7 @@ Those are explained once in xref:pipeline/formatting-values.adoc[Formatting numb
 * xref:pipeline/transforms/getsystemdata.adoc[Get System Info]
 * xref:pipeline/transforms/gettablenames.adoc[Get table names]
 * xref:pipeline/transforms/getvariable.adoc[Get variables]
+* xref:pipeline/transforms/gitinput.adoc[Git Input]
 * xref:pipeline/transforms/google-analytics.adoc[Google Analytics Input]
 * xref:pipeline/transforms/google-sheets-input.adoc[Google Sheets input]
 * xref:pipeline/transforms/google-sheets-output.adoc[Google Sheets output]
