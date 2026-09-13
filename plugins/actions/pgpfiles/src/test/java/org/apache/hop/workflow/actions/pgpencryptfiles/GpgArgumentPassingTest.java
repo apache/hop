@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.pgpencryptfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -42,14 +44,8 @@ import org.junit.jupiter.api.condition.OS;
 
 /**
  * Asserts what {@link GPG} actually hands to the GnuPG process, by standing a recorder script in
- * for the binary and reading back the argument vector it was given.
- *
- * <p>Observing the arguments rather than whether an operation succeeded is what makes these tests
- * meaningful in both directions: they describe a property ("the filename arrives as one literal
- * argument", "the passphrase is never on the command line") that can be checked against any
- * implementation, and they cover the methods whose real GnuPG operation cannot easily be made to
- * succeed in a unit test. Run them against the implementation that built a shell command string and
- * they fail; see https://github.com/apache/hop/issues/8311.
+ * for the binary and reading back the argument vector and standard input it was given. See
+ * https://github.com/apache/hop/issues/8311.
  *
  * <p>POSIX only: the recorder is a shell script. Argument passing on Windows is not covered here.
  */
@@ -81,6 +77,7 @@ class GpgArgumentPassingTest {
   private Path sandbox;
   private Path recorder;
   private Path record;
+  private Path stdinRecord;
   private ILogChannel log;
   private IVariables variables;
 
@@ -93,14 +90,19 @@ class GpgArgumentPassingTest {
   void createRecorder() throws Exception {
     sandbox = Files.createTempDirectory("hop-gpg-argv");
     record = sandbox.resolve("argv.txt");
+    stdinRecord = sandbox.resolve("stdin.txt");
     recorder = sandbox.resolve("gpg-recorder.sh");
 
-    // Writes one argument per line and succeeds, so the caller carries on as if GnuPG had run.
+    // Writes one argument per line, keeps whatever arrived on stdin, and succeeds, so the caller
+    // carries on as if GnuPG had run.
     Files.writeString(
         recorder,
         "#!/bin/sh\n"
             + "{ for a in \"$@\"; do printf '%s\\n' \"$a\"; done; } > '"
             + record
+            + "'\n"
+            + "cat > '"
+            + stdinRecord
             + "'\n"
             + "exit 0\n",
         StandardCharsets.UTF_8);
@@ -132,6 +134,7 @@ class GpgArgumentPassingTest {
       gpg().encryptFile(name, "user@example.org", "encrypted-" + name, false);
       assertPassedLiterally(name, "encryptFile source");
       assertPassedLiterally("encrypted-" + name, "encryptFile destination");
+      assertRecipient("user@example.org", "encryptFile");
     }
   }
 
@@ -141,6 +144,7 @@ class GpgArgumentPassingTest {
       gpg().signAndEncryptFile(name, "user@example.org", "sealed-" + name, true);
       assertPassedLiterally(name, "signAndEncryptFile source");
       assertPassedLiterally("sealed-" + name, "signAndEncryptFile destination");
+      assertRecipient("user@example.org", "signAndEncryptFile");
     }
   }
 
@@ -176,65 +180,109 @@ class GpgArgumentPassingTest {
     for (String keyId : HOSTILE_NAMES) {
       gpg().encrypt("some data", keyId);
       assertPassedLiterally(keyId, "encrypt key id");
+      assertRecipient(keyId, "encrypt");
     }
   }
 
   /** Used by the PGP decrypt stream transform in plugins/transforms/pgp. */
   @Test
-  void decryptStringKeepsThePassphraseOffTheCommandLine() throws Exception {
+  void decryptStringSendsThePassphraseOverStdin() throws Exception {
     gpg().decrypt("some data", PASSPHRASE);
-    assertPassphraseAbsent("decrypt");
+    assertPassphraseOnStdinOnly("decrypt");
   }
 
   @Test
-  void signStringKeepsThePassphraseOffTheCommandLine() throws Exception {
+  void signStringSendsThePassphraseOverStdin() throws Exception {
     gpg().sign("some data", PASSPHRASE);
-    assertPassphraseAbsent("sign");
+    assertPassphraseOnStdinOnly("sign");
   }
 
   @Test
-  void signAndEncryptStringKeepsThePassphraseOffTheCommandLine() throws Exception {
+  void signAndEncryptStringSendsThePassphraseOverStdin() throws Exception {
     gpg().signAndEncrypt("some data", "user@example.org", PASSPHRASE);
-    assertPassphraseAbsent("signAndEncrypt");
+    assertPassphraseOnStdinOnly("signAndEncrypt");
   }
 
-  /**
-   * The passphrase must travel over stdin. On the command line it is readable by every other user
-   * on the machine for as long as GnuPG runs.
-   */
   @Test
-  void decryptFileKeepsThePassphraseOffTheCommandLine() throws Exception {
+  void decryptFileSendsThePassphraseOverStdin() throws Exception {
     gpg().decryptFile("sealed.asc", PASSPHRASE, "opened.txt");
-    assertPassphraseAbsent("decryptFile");
-    assertTrue(
-        recordedArguments().contains("--passphrase-fd"),
-        "decryptFile must ask GnuPG to read the passphrase from a file descriptor");
+    assertPassphraseOnStdinOnly("decryptFile");
+  }
+
+  /** No passphrase means no file descriptor to read it from, and nothing on stdin. */
+  @Test
+  void decryptFileWithoutAPassphraseAsksForNoFileDescriptor() throws Exception {
+    gpg().decryptFile("sealed.asc", "", "opened.txt");
+    List<String> args = recordedArguments();
+    assertFalse(
+        args.contains("--passphrase-fd"),
+        "without a passphrase GnuPG must not be told to read one: " + args);
+    assertEquals("", recordedStdin(), "nothing must be written to stdin without a passphrase");
   }
 
   @Test
-  void anEmptyUserIdOmitsTheRecipientFlag() throws Exception {
+  void anEmptyUserIdOmitsTheRecipientFlagWhenSigning() throws Exception {
     gpg().signFile("plain.txt", "", "plain.txt.asc", true);
     assertFalse(
         recordedArguments().contains("-r"),
         "an empty user id must not be passed to GnuPG as an empty recipient");
 
     gpg().signFile("plain.txt", "user@example.org", "plain.txt.asc", true);
-    List<String> args = recordedArguments();
-    assertTrue(args.contains("-r"), "a user id must be passed as a recipient");
-    assertEquals(
-        "user@example.org",
-        args.get(args.indexOf("-r") + 1),
-        "the recipient must follow -r as its own argument");
+    assertRecipient("user@example.org", "signFile");
   }
 
   /**
-   * The one that matters: proves the defect was executable, not merely untidy.
-   *
-   * <p>A file name cannot contain a path separator, so the payload cannot name an absolute path. It
-   * does not need to: a command substitution runs with the working directory the Hop process
-   * happens to have, and creating a file there is evidence enough that the shell ran it. Against
-   * the implementation that built a command string this marker appears; the file being signed does
-   * not even have to exist, because the substitution happens before GnuPG is reached at all.
+   * Encrypting without a recipient would let GnuPG fall back to the {@code default-recipient} in
+   * {@code gpg.conf}, sealing the data to a key the workflow never named.
+   */
+  @Test
+  void anEmptyUserIdIsRefusedOnEveryEncryptPath() throws Exception {
+    GPG gpg = gpg();
+    assertThrows(
+        HopException.class,
+        () -> gpg.encryptFile("plain.txt", "", "sealed.asc", false),
+        "encryptFile must refuse an empty recipient");
+    assertThrows(
+        HopException.class,
+        () -> gpg.signAndEncryptFile("plain.txt", "", "sealed.asc", false),
+        "signAndEncryptFile must refuse an empty recipient");
+    assertThrows(
+        HopException.class,
+        () -> gpg.encrypt("some data", ""),
+        "encrypt must refuse an empty recipient");
+    assertThrows(
+        HopException.class,
+        () -> gpg.signAndEncrypt("some data", "", PASSPHRASE),
+        "signAndEncrypt must refuse an empty recipient");
+
+    assertFalse(Files.exists(record), "GnuPG must not be started without a recipient");
+  }
+
+  /**
+   * A file operand that starts with a dash is a legal name a scanned folder can produce. GnuPG
+   * option-parses it unless the argument list ends option processing first.
+   */
+  @Test
+  void filenamesThatLookLikeOptionsAreMarkedAsOperands() throws Exception {
+    gpg().verifySignature("--status-fd");
+    assertOperand("--status-fd", "verifySignature");
+
+    gpg().signFile("-o", "", "signed.asc", true);
+    assertOperand("-o", "signFile");
+
+    gpg().encryptFile("--output", "user@example.org", "sealed.asc", false);
+    assertOperand("--output", "encryptFile");
+
+    gpg().decryptFile("-r", "", "opened.txt");
+    assertOperand("-r", "decryptFile");
+
+    gpg().verifyDetachedSignature("-o.sig", "-o");
+    assertOperand("-o.sig", "verifyDetachedSignature");
+  }
+
+  /**
+   * A command substitution runs with whatever working directory the Hop process has, so a marker
+   * file appearing there is the evidence that a shell evaluated the name.
    */
   @Test
   void aCommandSubstitutionInAFilenameIsNeverExecuted() throws Exception {
@@ -263,10 +311,7 @@ class GpgArgumentPassingTest {
     assertPassedLiterally(payload, "the payload");
   }
 
-  /**
-   * The same proof for the key id, which reaches GnuPG through the string based methods that the
-   * PGP stream transforms call.
-   */
+  /** The same, for the key id the PGP stream transforms hand to the string based methods. */
   @Test
   void aCommandSubstitutionInAKeyIdIsNeverExecuted() throws Exception {
     Path marker = Path.of(System.getProperty("user.dir")).resolve(EXPLOIT_MARKER);
@@ -302,16 +347,63 @@ class GpgArgumentPassingTest {
             + args);
   }
 
-  private void assertPassphraseAbsent(String what) throws IOException {
+  /**
+   * The passphrase belongs on stdin and nowhere else: on the command line every other user on the
+   * machine can read it out of the process table. GnuPG 2.1 and later ignore a passphrase on a file
+   * descriptor unless the loopback pinentry is asked for, so both options have to be there.
+   */
+  private void assertPassphraseOnStdinOnly(String what) throws IOException {
     List<String> args = recordedArguments();
     assertTrue(
         args.stream().noneMatch(a -> a.contains(PASSPHRASE)),
         what + " must not put the passphrase on the command line.\nactual arguments: " + args);
+    assertTrue(
+        args.contains("--passphrase-fd"),
+        what + " must ask GnuPG to read the passphrase from a file descriptor: " + args);
+    assertEquals(
+        "0",
+        args.get(args.indexOf("--passphrase-fd") + 1),
+        what + " must point GnuPG at stdin for the passphrase: " + args);
+    assertTrue(
+        args.contains("--pinentry-mode"),
+        what + " must request a pinentry mode, or GnuPG 2.1+ ignores the passphrase: " + args);
+    assertEquals(
+        "loopback",
+        args.get(args.indexOf("--pinentry-mode") + 1),
+        what + " must request the loopback pinentry: " + args);
+    assertEquals(PASSPHRASE, recordedStdin(), what + " must write the passphrase to stdin");
+  }
+
+  private void assertRecipient(String expected, String what) throws IOException {
+    List<String> args = recordedArguments();
+    assertTrue(args.contains("-r"), what + " must pass a recipient: " + args);
+    assertEquals(
+        expected,
+        args.get(args.indexOf("-r") + 1),
+        what + " must pass the recipient as its own argument following -r: " + args);
+  }
+
+  /**
+   * The value has to sit after the {@code --} that ends GnuPG's option parsing. It may well also
+   * appear before it as a genuine switch, so only what follows the terminator is looked at.
+   */
+  private void assertOperand(String value, String what) throws IOException {
+    List<String> args = recordedArguments();
+    assertTrue(args.contains("--"), what + " must end option parsing before the file: " + args);
+    List<String> operands = args.subList(args.indexOf("--") + 1, args.size());
+    assertTrue(
+        operands.contains(value),
+        what + " must pass " + value + " as a file operand, not an option: " + args);
   }
 
   private List<String> recordedArguments() throws IOException {
     assertTrue(Files.exists(record), "GnuPG was never invoked");
     return Files.readAllLines(record, StandardCharsets.UTF_8);
+  }
+
+  private String recordedStdin() throws IOException {
+    assertTrue(Files.exists(stdinRecord), "GnuPG was never invoked");
+    return Files.readString(stdinRecord, StandardCharsets.UTF_8);
   }
 
   private static void deleteRecursively(Path root) throws IOException {

@@ -39,7 +39,6 @@ import org.apache.hop.i18n.BaseMessages;
 public class GPG {
 
   private static final Class<?> PKG = ActionPGPEncryptFiles.class;
-  public static final String CONST_BATCH_YES = "--batch --yes";
 
   private ILogChannel log;
 
@@ -48,6 +47,13 @@ public class GPG {
 
   /** Options prepended to the file based operations. */
   private static final List<String> BATCH_YES = List.of("--batch", "--yes");
+
+  /**
+   * Ends GnuPG's option parsing. Everything after it is a file operand, so a name that starts with
+   * a dash is opened rather than read as a switch. Scanned folders decide these names, and a
+   * relative one such as {@code -o} or {@code --status-fd} is a legal filename.
+   */
+  private static final String END_OF_OPTIONS = "--";
 
   /** gpg program location */
   private String gpgexe = "/usr/local/bin/gpg";
@@ -161,8 +167,10 @@ public class GPG {
    * directory scans, so any character a filesystem accepts has to survive unchanged.
    *
    * @param args command line arguments
-   * @param inputStr data written to the standard input of the process, or null
-   * @param fileMode true when GnuPG reads the data to process from a file rather than stdin
+   * @param inputStr data written to the standard input of the process, or null. This is the
+   *     passphrase for every caller except {@link #encrypt(String, String)}, which puts the data to
+   *     encrypt there instead.
+   * @param fileMode when false, {@code --batch --armor} is prepended to the argument list
    * @return result
    * @throws HopException
    */
@@ -192,20 +200,20 @@ public class GPG {
     ProcessStreamReader psrStdErr = new ProcessStreamReader(p.getErrorStream());
     psrStdOut.start();
     psrStdErr.start();
-    if (inputStr != null) {
-      BufferedWriter out = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
-      try {
+    // Standard input is closed either way: without data on it GnuPG must see end of file rather
+    // than wait for input that is never coming.
+    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
+    try {
+      if (inputStr != null) {
         out.write(inputStr);
-      } catch (IOException io) {
-        throw new HopException(BaseMessages.getString(PKG, "GPG.ExceptionWrite"), io);
-      } finally {
-        if (out != null) {
-          try {
-            out.close();
-          } catch (Exception e) {
-            // Ignore
-          }
-        }
+      }
+    } catch (IOException io) {
+      throw new HopException(BaseMessages.getString(PKG, "GPG.ExceptionWrite"), io);
+    } finally {
+      try {
+        out.close();
+      } catch (Exception e) {
+        // Ignore: GnuPG may have exited already.
       }
     }
 
@@ -252,11 +260,30 @@ public class GPG {
     args.add("0");
   }
 
+  /**
+   * Adds the recipient the data is encrypted to.
+   *
+   * <p>An empty user ID is refused rather than omitted. GnuPG would fall back to whatever {@code
+   * default-recipient} or {@code encrypt-to} is configured in {@code gpg.conf}, so the data would
+   * be sealed to a key nobody named and the caller would have no way to tell.
+   *
+   * @param args argument list to append to
+   * @param userID the recipient key, required
+   */
+  private static void addRecipient(List<String> args, String userID) throws HopException {
+    if (Utils.isEmpty(userID)) {
+      throw new HopException(BaseMessages.getString(PKG, "GPG.UserIDMissing"));
+    }
+    args.add("-r");
+    args.add(userID);
+  }
+
   /** Arguments for signing the given file with a passphrase supplied over stdin. */
   private static List<String> signArgs(String filename) {
     List<String> args = new ArrayList<>();
     addPassPhraseFromStdin(args);
     args.add("--sign");
+    args.add(END_OF_OPTIONS);
     args.add(filename);
     return args;
   }
@@ -266,6 +293,7 @@ public class GPG {
     List<String> args = new ArrayList<>();
     addPassPhraseFromStdin(args);
     args.add("--decrypt");
+    args.add(END_OF_OPTIONS);
     args.add(filename);
     return args;
   }
@@ -306,6 +334,7 @@ public class GPG {
       args.add("--output");
       args.add(decryptedFilename);
       args.add("--decrypt");
+      args.add(END_OF_OPTIONS);
       args.add(cryptedFilename);
 
       execGnuPG(args, withPassPhrase ? passPhrase : null, true);
@@ -319,7 +348,8 @@ public class GPG {
    * Encrypt a file
    *
    * @param filename file to encrypt
-   * @param userID specific user id key
+   * @param userID specific user id key, required: encrypting without one would let GnuPG fall back
+   *     to the default recipient in gpg.conf
    * @param cryptedFilename crypted filename
    * @param asciiMode output ASCII file
    * @throws HopException
@@ -335,7 +365,8 @@ public class GPG {
    * Encrypt a file
    *
    * @param filename file to encrypt
-   * @param userID specific user id key
+   * @param userID specific user id key, required: encrypting without one would let GnuPG fall back
+   *     to the default recipient in gpg.conf
    * @param cryptedFilename crypted filename
    * @param asciiMode output ASCII file
    * @throws HopException
@@ -347,13 +378,11 @@ public class GPG {
       if (asciiMode) {
         args.add("-a");
       }
-      if (!Utils.isEmpty(userID)) {
-        args.add("-r");
-        args.add(userID);
-      }
+      addRecipient(args, userID);
       args.add("--output");
       args.add(cryptedFilename);
       args.add("--encrypt");
+      args.add(END_OF_OPTIONS);
       args.add(filename);
 
       execGnuPG(args, null, true);
@@ -367,7 +396,8 @@ public class GPG {
    * Sign and encrypt a file
    *
    * @param file file to encrypt
-   * @param userID specific user id key
+   * @param userID specific user id key, required: encrypting without one would let GnuPG fall back
+   *     to the default recipient in gpg.conf
    * @param cryptedFile crypted filename
    * @param asciiMode output ASCII file
    * @throws HopException
@@ -383,7 +413,8 @@ public class GPG {
    * Sign and encrypt a file
    *
    * @param filename file to encrypt
-   * @param userID specific user id key
+   * @param userID specific user id key, required: encrypting without one would let GnuPG fall back
+   *     to the default recipient in gpg.conf
    * @param cryptedFilename crypted filename
    * @param asciiMode output ASCII file
    * @throws HopException
@@ -397,14 +428,12 @@ public class GPG {
       if (asciiMode) {
         args.add("-a");
       }
-      if (!Utils.isEmpty(userID)) {
-        args.add("-r");
-        args.add(userID);
-      }
+      addRecipient(args, userID);
       args.add("--output");
       args.add(cryptedFilename);
       args.add("--encrypt");
       args.add("--sign");
+      args.add(END_OF_OPTIONS);
       args.add(filename);
 
       execGnuPG(args, null, true);
@@ -436,6 +465,7 @@ public class GPG {
       args.add("--output");
       args.add(signedFilename);
       args.add(asciiMode ? "--clearsign" : "--sign");
+      args.add(END_OF_OPTIONS);
       args.add(filename);
 
       execGnuPG(args, null, true);
@@ -482,7 +512,7 @@ public class GPG {
    */
   public void verifySignature(String filename) throws HopException {
 
-    execGnuPG(List.of("--batch", "--verify", filename), null, true);
+    execGnuPG(List.of("--batch", "--verify", END_OF_OPTIONS, filename), null, true);
   }
 
   /**
@@ -494,7 +524,10 @@ public class GPG {
    */
   public void verifyDetachedSignature(String signatureFilename, String originalFilename)
       throws HopException {
-    execGnuPG(List.of("--batch", "--verify", signatureFilename, originalFilename), null, true);
+    execGnuPG(
+        List.of("--batch", "--verify", END_OF_OPTIONS, signatureFilename, originalFilename),
+        null,
+        true);
   }
 
   /**
@@ -513,16 +546,14 @@ public class GPG {
    * Encrypt a string
    *
    * @param plainText input string to encrypt
-   * @param keyID key ID of the key in GnuPG's key database to encrypt with
+   * @param keyID key ID of the key in GnuPG's key database to encrypt with, required: encrypting
+   *     without one would let GnuPG fall back to the default recipient in gpg.conf
    * @return encrypted string
    * @throws HopException
    */
   public String encrypt(String plainText, String keyID) throws HopException {
     List<String> args = new ArrayList<>();
-    if (!Utils.isEmpty(keyID)) {
-      args.add("-r");
-      args.add(keyID);
-    }
+    addRecipient(args, keyID);
     args.add("--encrypt");
 
     return execGnuPG(args, plainText, false);
@@ -532,7 +563,8 @@ public class GPG {
    * Signs and encrypts a string
    *
    * @param plainText input string to encrypt
-   * @param userID key ID of the key in GnuPG's key database to encrypt with
+   * @param userID key ID of the key in GnuPG's key database to encrypt with, required: encrypting
+   *     without one would let GnuPG fall back to the default recipient in gpg.conf
    * @param passPhrase passphrase for the personal private key to sign with
    * @return encrypted string
    * @throws HopException
@@ -543,12 +575,10 @@ public class GPG {
       createTempFile(plainText);
 
       List<String> args = new ArrayList<>();
-      if (!Utils.isEmpty(userID)) {
-        args.add("-r");
-        args.add(userID);
-      }
+      addRecipient(args, userID);
       addPassPhraseFromStdin(args);
       args.add("-se");
+      args.add(END_OF_OPTIONS);
       args.add(getTempFileName());
 
       return execGnuPG(args, passPhrase, false);
