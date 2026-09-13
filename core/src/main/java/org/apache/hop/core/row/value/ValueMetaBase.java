@@ -313,10 +313,13 @@ public class ValueMetaBase implements IValueMeta {
     this.storageType = STORAGE_TYPE_NORMAL;
     this.sortedDescending = false;
     this.outputPaddingEnabled = false;
-    this.decimalSymbol = "" + Const.DEFAULT_DECIMAL_SEPARATOR;
-    this.groupingSymbol = "" + Const.DEFAULT_GROUPING_SEPARATOR;
-    this.currencySymbol = "" + Const.DEFAULT_CURRENCY_SYMBOL;
-    this.dateFormatLocale = Locale.getDefault();
+    this.decimalSymbol = "" + Const.getDefaultDecimalSeparator();
+    this.groupingSymbol = "" + Const.getDefaultGroupingSeparator();
+    this.currencySymbol = "" + Const.getDefaultCurrencySymbol();
+    // FORMAT, not Locale.getDefault(): the latter is the interface language once DISPLAY and
+    // FORMAT are split, and a field with no explicit date locale must follow the regional
+    // settings rather than the GUI language.
+    this.dateFormatLocale = Locale.getDefault(Locale.Category.FORMAT);
     this.collatorDisabled = true;
     this.collatorLocale = Locale.getDefault();
     this.collator = Collator.getInstance(this.collatorLocale);
@@ -1296,7 +1299,13 @@ public class ValueMetaBase implements IValueMeta {
 
       // Do we have a locale?
       //
-      if (dateFormatLocale == null || dateFormatLocale.equals(Locale.getDefault())) {
+      // Compared against the FORMAT category, not against Locale.getDefault(): that one carries the
+      // interface language, so a locale deliberately picked on the field would be dismissed as "no
+      // locale set" whenever it happened to match the language, and the field would silently follow
+      // the regional settings instead of the choice.
+      //
+      if (dateFormatLocale == null
+          || dateFormatLocale.equals(Locale.getDefault(Locale.Category.FORMAT))) {
         if (mask != null) {
           dateFormat = new SimpleDateFormat(mask);
         }

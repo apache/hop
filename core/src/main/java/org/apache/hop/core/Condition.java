@@ -856,7 +856,7 @@ public class Condition implements Cloneable {
       IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, getHopType());
       valueMeta.setLength(length, precision);
       valueMeta.setConversionMask(mask);
-      valueMeta.setDecimalSymbol(String.valueOf(Const.DEFAULT_DECIMAL_SEPARATOR));
+      valueMeta.setDecimalSymbol(String.valueOf(Const.getDefaultDecimalSeparator()));
       valueMeta.setGroupingSymbol(null);
       valueMeta.setCurrencySymbol(null);
       return valueMeta;
