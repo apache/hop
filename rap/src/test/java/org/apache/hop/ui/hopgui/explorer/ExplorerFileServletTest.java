@@ -36,6 +36,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.apache.commons.vfs2.FileObject;
@@ -81,6 +82,7 @@ class ExplorerFileServletTest {
     write(ramRoot + "/docs/index.html", HTML);
     write(ramRoot + "/docs/assets/css/site.css", CSS);
     write(ramRoot + "/docs/100%25 done.html", HTML);
+    write(ramRoot + "/docs/a%2520b.html", HTML);
     write(ramRoot + "/report:2026-09-11.html", HTML);
     write(ramRoot + "/secret.hpl", "<pipeline/>".getBytes(StandardCharsets.UTF_8));
 
@@ -140,6 +142,13 @@ class ExplorerFileServletTest {
   }
 
   @Test
+  void servesPercentFileFromRelativePathUrl() throws Exception {
+    FileObject root = HopVfs.getFileObject(ramRoot);
+    serveFromFileObject(root, HopVfs.getFileObject(ramRoot + "/docs/100%25 done.html"));
+    serveFromFileObject(root, HopVfs.getFileObject(ramRoot + "/docs/a%2520b.html"));
+  }
+
+  @Test
   void servesCssNextToHtml() throws Exception {
     TestOutputStream output = new TestOutputStream();
     HttpServletResponse response = response(output);
@@ -192,6 +201,22 @@ class ExplorerFileServletTest {
     assertTrue(url.startsWith("/explorer-file/"));
     assertFalse(url.startsWith("http"));
     assertEquals("/explorer-file/" + lease.getToken() + "/docs/index.html", url);
+  }
+
+  /**
+   * Build the public URL from a real {@link FileObject} the way the explorer tab does, then
+   * simulate the container decoding path-info once before the servlet sees it.
+   */
+  private void serveFromFileObject(FileObject root, FileObject file) throws Exception {
+    String relative = ExplorerFileServing.relativePath(root, file).orElseThrow();
+    String publicPath = ExplorerFileServing.buildPublicPath("", lease.getToken(), relative);
+    String pathInfo =
+        URLDecoder.decode(publicPath.substring("/explorer-file".length()), StandardCharsets.UTF_8);
+    TestOutputStream output = new TestOutputStream();
+    HttpServletResponse response = response(output);
+    servlet.doGet(request(pathInfo), response);
+    verify(response).setStatus(HttpServletResponse.SC_OK);
+    assertArrayEquals(HTML, output.bytes.toByteArray());
   }
 
   private HttpServletRequest request(String pathInfo) {

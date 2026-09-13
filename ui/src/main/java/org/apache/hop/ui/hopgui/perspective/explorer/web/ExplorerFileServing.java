@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -84,7 +85,8 @@ public final class ExplorerFileServing {
     if (!root.getName().isDescendent(file.getName())) {
       return Optional.empty();
     }
-    return sanitizeRelativePath(root.getName().getRelativeName(file.getName()));
+    // getRelativeName() keeps '%' URI-escaped; sanitizeRelativePath() expects decoded input.
+    return sanitizeRelativePath(UriParser.decode(root.getName().getRelativeName(file.getName())));
   }
 
   /**

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +47,7 @@ class ExplorerFileServingTest {
     write(ramRoot + "/workflows/workflows/page.html", "<html></html>");
     write(ramRoot + "/assets/css/x.css", "h1{}");
     write(ramRoot + "/docs/100%25 done.html", "<html></html>");
+    write(ramRoot + "/docs/a%2520b.html", "<html></html>");
     write(ramRoot + "/report:2026-09-11.html", "<html></html>");
     write(ramRoot + "/secret.hpl", "<pipeline/>");
   }
@@ -63,6 +65,21 @@ class ExplorerFileServingTest {
     FileObject root = HopVfs.getFileObject(ramRoot);
     FileObject file = HopVfs.getFileObject(ramRoot + "/docs/index.html");
     assertEquals("docs/index.html", ExplorerFileServing.relativePath(root, file).orElseThrow());
+  }
+
+  @Test
+  void relativePathFromFileObjectDecodesPercentNames() throws Exception {
+    FileObject root = HopVfs.getFileObject(ramRoot);
+    FileObject percentSpace = HopVfs.getFileObject(ramRoot + "/docs/100%25 done.html");
+    FileObject percentTwenty = HopVfs.getFileObject(ramRoot + "/docs/a%2520b.html");
+
+    assertEquals(
+        "docs/100% done.html", ExplorerFileServing.relativePath(root, percentSpace).orElseThrow());
+    assertEquals(
+        "docs/a%20b.html", ExplorerFileServing.relativePath(root, percentTwenty).orElseThrow());
+
+    assertRoundTripFromFileObject(root, percentSpace);
+    assertRoundTripFromFileObject(root, percentTwenty);
   }
 
   @Test
@@ -221,6 +238,25 @@ class ExplorerFileServingTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> ExplorerFileServing.buildPublicPath("", "", "docs/a.html"));
+  }
+
+  /**
+   * Produce a public URL from a real {@link FileObject}, simulate the servlet container decoding
+   * path-info once, and resolve back to the same file.
+   */
+  private static void assertRoundTripFromFileObject(FileObject root, FileObject file)
+      throws Exception {
+    String relative = ExplorerFileServing.relativePath(root, file).orElseThrow();
+    String token = UUID.randomUUID().toString();
+    String publicPath = ExplorerFileServing.buildPublicPath("", token, relative);
+    String pathInfo =
+        URLDecoder.decode(publicPath.substring("/explorer-file".length()), StandardCharsets.UTF_8);
+    ExplorerFileServing.PathInfo parsed = ExplorerFileServing.parsePathInfo(pathInfo).orElseThrow();
+    Optional<FileObject> resolved =
+        ExplorerFileServing.resolveUnderRoot(root, parsed.relativePath());
+    assertTrue(resolved.isPresent());
+    assertTrue(resolved.get().exists());
+    assertEquals(file.getName().getURI(), resolved.get().getName().getURI());
   }
 
   private static void write(String path, String content) throws Exception {
