@@ -73,6 +73,16 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return BeamBQInputDialog.class.getName();
   }

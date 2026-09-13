@@ -89,6 +89,16 @@ public class ODataInputMeta extends BaseTransformMeta<ODataInput, ODataInputData
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void setDefault() {
     this.url = "";
     this.entitySet = "";

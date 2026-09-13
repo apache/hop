@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,6 +43,13 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 /** Unit test for {@link RandomValueMeta}. */
 class RandomValueMetaTest {
+
+  @Test
+  void canStartWithoutInputAndStillConsumesHops() {
+    RandomValueMeta meta = new RandomValueMeta();
+    assertTrue(meta.canStartWithoutInput());
+    assertTrue(meta.consumesMainInput());
+  }
 
   @Test
   void testSerialization() throws Exception {

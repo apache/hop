@@ -240,6 +240,21 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     arguments = new ArrayList<>();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return isExecutedEachInputRow();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isExecutedEachInputRow();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "ExecSqlDialog.EachRow.Label");
+  }
+
   /**
    * Returns the SQL to execute: either from the inline editor or loaded from the file specified by
    * sqlFromFile (using VFS). Variables are resolved in the file path.

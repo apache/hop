@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites.Kind;
+import org.apache.hop.ui.hopgui.file.pipeline.TransformSourceGui;
 
 /**
  * Categorized list of pipeline transforms or workflow actions for the Spoon-style palette tree.
@@ -118,6 +119,9 @@ public final class GraphPaletteModel {
       }
       if (StringUtils.isNotEmpty(plugin.getCategory())) {
         keywords.add(plugin.getCategory());
+      }
+      if (kind == Kind.TRANSFORM) {
+        TransformSourceGui.addSearchKeywords(keywords, plugin);
       }
       items.add(
           new Item(

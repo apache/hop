@@ -1,0 +1,96 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Which transforms can start a pipeline without incoming hops, how to find them in Hop Gui, and how that differs from transforms that still read rows when hops are present.
+[[PipelineSources]]
+:imagesdir: ../assets/images
+
+= Pipeline sources
+
+Every transform in a pipeline starts at the same time.
+Most of them wait for rows from a previous hop.
+A *pipeline source* does not need that hop: it produces rows on its own (from a file, a database, generated data, a stream, and so on).
+
+That is the beginner question behind this page: can this transform be the first icon on the canvas?
+
+== How to spot a source in Hop Gui
+
+These labels all use the same setting on the transform (`canStartWithoutInput()`), so they stay in sync with how the pipeline actually runs.
+
+* In the add-transform dialog (click the canvas) or the palette, search for `pipeline source`.
+Source transforms also show _Can start without incoming hops_ in the tooltip.
+* Hover a transform icon on the canvas: sources show the same tooltip line.
+* *Verify* the pipeline: each source gets a comment _This transform can start without incoming hops (pipeline source)._
+
+== Two independent behaviours
+
+Starting without a hop and *reading* hops are not the same thing.
+
+[cols="2,3,3",options="header"]
+|===
+|Kind|Starts without a hop?|Reads incoming hops?
+|Generate Rows, Data Grid, Cube Input, Kafka Consumer, \ldots|Yes|No. Hop Gui refuses a hop into these, and Verify reports an error if one is already there.
+|Get Variables, Get System Info, Random Value, Table Input|Yes|Yes. Incoming rows are drained and the extra fields are added.
+|JSON Input, Execute SQL script, Mail Input, \ldots|Yes *until* you enable the "from field" / "each row" option|Yes only in that configuration. File/static mode refuses hops.
+|REST Client, Dummy, Calculator, \ldots|No. Put a source in front.|Yes
+|===
+
+Third-party plugins that do not override these flags are treated as stream transforms: hops into them stay allowed.
+
+== Typical sources
+
+Use these as starting points; the search keyword above is the complete, up-to-date list for your installation.
+
+Always a source (no incoming hop)::
+xref:pipeline/transforms/rowgenerator.adoc[Generate Rows],
+xref:pipeline/transforms/datagrid.adoc[Data Grid],
+xref:pipeline/transforms/serialize-de-from-file.adoc[De-serialize from file],
+file readers in *file* mode (CSV, Text, Excel, JSON, XML, YAML, \ldots),
+stream consumers (Kafka, JMS, Beam/Spark inputs).
+
+Source that still reads hops::
+xref:pipeline/transforms/getvariable.adoc[Get Variables],
+xref:pipeline/transforms/getsystemdata.adoc[Get System Info],
+xref:pipeline/transforms/generaterandomvalue.adoc[Generate random values],
+xref:pipeline/transforms/tableinput.adoc[Table Input] (incoming rows parameterize SQL).
+
+Dual-mode (option on the dialog)::
+xref:pipeline/transforms/jsoninput.adoc[JSON Input] (*Source is from a previous transform*),
+xref:pipeline/transforms/execsql.adoc[Execute SQL script] (*Execute for each row*),
+xref:pipeline/transforms/emailinput.adoc[Mail Input] (*Get folder from field*),
+and other file/query inputs with a "from field" or "each incoming row" checkbox.
+
+Needs a hop::
+xref:pipeline/transforms/rest.adoc[REST Client],
+lookups, calculators, Dummy, most "do something to the row" transforms.
+
+== Hops into a source that does not read
+
+If you connect a hop into Generate Rows (or JSON Input with "source from field" off), the rowset fills and the pipeline never finishes.
+
+Hop Gui therefore refuses that hop when you draw it, offers to remove existing ones when you close the dialog after changing the option, and Verify reports an error.
+Enable the option named in that error if you really want the transform to read the previous stream.
+
+Error hops (red) and info hops are not treated as main input: they stay allowed.
+
+Pipelines that already have such a hop and whose upstream produces *no* rows used to finish. They now fail at init (and leftover rows stop the pipeline). To keep those files running, set `'${HOP_ALLOW_UNCONSUMED_MAIN_INPUT}'` to `Y` on the run (Verify still reports the error).
+
+== Related
+
+* xref:pipeline/pipelines.adoc[Pipelines]
+* xref:pipeline/create-pipeline.adoc[Create a pipeline]
+* xref:pipeline/transforms.adoc[Transforms]
+* xref:getting-started/hop-gui-pipelines.adoc[Getting started: pipelines]

@@ -107,4 +107,14 @@ public class DataGridMeta extends BaseTransformMeta<DataGrid, DataGridData> {
       }
     }
   }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
 }

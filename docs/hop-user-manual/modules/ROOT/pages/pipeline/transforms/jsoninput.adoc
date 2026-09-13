@@ -29,6 +29,11 @@ The JSON input transform reads data from JSON structures, files, or incoming fie
 
 [NOTE]
 ====
+xref:pipeline/pipeline-sources.adoc[Pipeline source] when reading files. Enable *Source is from a previous transform* to read JSON from an incoming field; hops are then required, and hops into file mode are refused.
+====
+
+[NOTE]
+====
 Use JSON Input when each column should come from its *own JsonPath* (or you are not *exploding* a list into many rows). For an *array of records* where each element becomes a row and *nested objects are flattened* into dotted column names, use xref:pipeline/transforms/jsonnormalizeinput.adoc[JSON Normalize Input] instead.
 ====
 

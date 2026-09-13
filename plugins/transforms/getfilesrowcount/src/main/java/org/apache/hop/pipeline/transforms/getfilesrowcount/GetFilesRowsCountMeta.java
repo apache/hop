@@ -118,6 +118,21 @@ public class GetFilesRowsCountMeta
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isFileFromField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFileFromField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FileField.Label");
+  }
+
+  @Override
   public void getFields(
       IRowMeta r,
       String name,

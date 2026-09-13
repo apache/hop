@@ -227,6 +227,18 @@ public class Const {
           "Set to 'Y' to bypass the engine-compatibility gate and run pipelines/workflows that contain transforms or actions marked UNSUPPORTED on the selected engine. Run-scoped, not persisted.")
   public static final String HOP_ALLOW_UNSUPPORTED = "HOP_ALLOW_UNSUPPORTED";
 
+  /**
+   * When a main hop feeds a transform that does not consume input, init fails and leftover rows
+   * stop the pipeline. Set to 'Y' to start anyway (Verify still reports an error). Use for existing
+   * files whose upstream produces no rows.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "N",
+      description =
+          "Set to 'Y' to start a pipeline that has main hops into transforms that do not consume input. Verify still reports an error. Default N fails init and stops on leftover input.")
+  public static final String HOP_ALLOW_UNCONSUMED_MAIN_INPUT = "HOP_ALLOW_UNCONSUMED_MAIN_INPUT";
+
   /** The operating system the hop platform runs on */
   @Variable(
       scope = VariableScope.SYSTEM,

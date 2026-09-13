@@ -233,6 +233,8 @@ public class HopGuiPipelineTransformDelegate {
         //
         transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
+        offerToRemoveUnconsumedMainInputHops(pipelineMeta, transformMeta);
+
         //
         // See if the new name the user enter, doesn't collide with
         // another transform.
@@ -288,6 +290,57 @@ public class HopGuiPipelineTransformDelegate {
     }
 
     return transformName;
+  }
+
+  /**
+   * After a dialog OK, if the transform no longer drains main input but still has incoming main
+   * hops, those hops would stall the pipeline. Offer to remove them.
+   */
+  void offerToRemoveUnconsumedMainInputHops(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    List<PipelineHopMeta> badHops = pipelineMeta.findDisallowedMainInputHops(transformMeta);
+    if (badHops.isEmpty()) {
+      return;
+    }
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < badHops.size(); i++) {
+      if (i > 0) {
+        builder.append(", ");
+      }
+      builder.append(badHops.get(i).getFromTransform().getName());
+    }
+    String fromNames = builder.toString();
+    ITransformMeta iMeta = transformMeta.getTransform();
+    String hint = iMeta == null ? null : iMeta.getMainInputRequirementHint();
+    String message;
+    if (Utils.isEmpty(hint)) {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Dialog.UnconsumedMainInput.Message",
+              transformMeta.getName(),
+              fromNames);
+    } else {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Dialog.UnconsumedMainInput.Hint.Message",
+              transformMeta.getName(),
+              fromNames,
+              hint);
+    }
+    MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    mb.setText(BaseMessages.getString(PKG, "PipelineGraph.Dialog.UnconsumedMainInput.Title"));
+    mb.setMessage(message);
+    if (mb.open() != SWT.YES) {
+      return;
+    }
+    for (int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i--) {
+      PipelineHopMeta hop = pipelineMeta.getPipelineHop(i);
+      if (badHops.contains(hop)) {
+        pipelineMeta.removePipelineHop(i);
+      }
+    }
   }
 
   /**

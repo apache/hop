@@ -219,6 +219,16 @@ public class SalesforceInputMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   @Injection(name = "RETRIEVE")
   public void setRecordsFilterDesc(String recordsFilterDesc) {
     this.recordsFilterCode = SalesforceConnectionUtils.getRecordsFilterByDesc(recordsFilterDesc);

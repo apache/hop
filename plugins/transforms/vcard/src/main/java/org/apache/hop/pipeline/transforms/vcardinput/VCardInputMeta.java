@@ -88,6 +88,21 @@ public class VCardInputMeta extends BaseTransformMeta<VCardInput, VCardInputData
     fieldMappings = new ArrayList<>();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return fileInput != null && fileInput.isAcceptingFilenames();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "VCardInputFileDialog.AcceptFilenames.Label");
+  }
+
   public FileInputList getFileInputList(IVariables variables) {
     return FileInputList.createFileList(variables, fileInput.getInputFiles());
   }

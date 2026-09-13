@@ -244,6 +244,16 @@ public class KafkaConsumerInputMeta
     headersField = new HeadersConsumerField("");
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   public RowMeta getRowMeta(String origin, IVariables variables) throws HopTransformException {
     RowMeta rowMeta = new RowMeta();
     putFieldOnRowMeta(getKeyField(), rowMeta, origin, variables);
