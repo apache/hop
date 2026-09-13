@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -46,6 +47,74 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   private static final Class<?> PKG = DatabaseJoinMeta.class;
 
   private final ReentrantLock dbLock = new ReentrantLock();
+
+  /**
+   * Checks if the given field name is already present in the output row metadata.
+   *
+   * @param outputRowMeta The output row metadata to check against.
+   * @param fieldName The field name to check for.
+   * @return true if the field name is already in use, false otherwise.
+   */
+  private boolean isOutputFieldNameInUse(IRowMeta outputRowMeta, String fieldName) {
+    if (outputRowMeta == null || fieldName == null) {
+      return false;
+    }
+    for (int i = 0; i < outputRowMeta.size(); i++) {
+      String existingName = outputRowMeta.getValueMeta(i).getName();
+      if (existingName != null && existingName.equalsIgnoreCase(fieldName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Creates a unique field name for the output row metadata by appending a suffix if necessary.
+   *
+   * @param outputRowMeta The output row metadata to check against.
+   * @param baseName The base name for the field.
+   * @return A unique field name.
+   */
+  private String createUniqueOutputFieldName(IRowMeta outputRowMeta, String baseName) {
+    String normalizedBaseName =
+        (baseName == null || baseName.trim().isEmpty()) ? "field" : baseName.trim();
+    String candidateName = normalizedBaseName;
+    int suffix = 1;
+    while (isOutputFieldNameInUse(outputRowMeta, candidateName)) {
+      candidateName = normalizedBaseName + "_dbj" + suffix;
+      suffix++;
+    }
+    return candidateName;
+  }
+
+  /**
+   * Appends runtime output metadata to the given DatabaseJoinData object.
+   *
+   * @param data The DatabaseJoinData object to update.
+   * @param addMeta The additional metadata to append.
+   */
+  private void appendRuntimeOutputMetadata(DatabaseJoinData data, IRowMeta addMeta) {
+    if (data.outputMetadataInitialized || addMeta == null) {
+      return;
+    }
+
+    for (int i = 0; i < addMeta.size(); i++) {
+      IValueMeta valueMeta = addMeta.getValueMeta(i).clone();
+      String valueName = valueMeta.getName();
+      if (valueName == null || valueName.trim().isEmpty()) {
+        valueName = "field" + (i + 1);
+      }
+      valueMeta.setName(createUniqueOutputFieldName(data.outputRowMeta, valueName));
+      valueMeta.setOrigin(getTransformName());
+      data.outputRowMeta.addValueMeta(valueMeta);
+    }
+    data.outputMetadataInitialized = true;
+
+    if (isDetailed()) {
+      logDetailed(
+          "Initialized Database Join runtime output metadata: " + data.outputRowMeta.toString());
+    }
+  }
 
   public DatabaseJoin(
       TransformMeta transformMeta,
@@ -74,6 +143,9 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           null,
           this,
           metadataProvider);
+      // mark whether getFields populated runtime output meta (for stored procs it may defer to
+      // runtime)
+      data.outputMetadataInitialized = data.outputRowMeta.size() > rowMeta.size();
 
       data.lookupRowMeta = new RowMeta();
 
@@ -83,14 +155,25 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
                 + rowMeta.getString(rowData));
       }
 
-      data.keynrs = new int[meta.getParameters().size()];
+      DatabaseJoinMeta.SqlParameterSpec parameterSpec =
+          data.parameterSpec == null
+              ? DatabaseJoinMeta.parseSqlParameterSpec(meta.getEffectiveSql(variables))
+              : data.parameterSpec;
+      data.keynrs = new int[parameterSpec.getParameterCount()];
 
-      for (int i = 0; i < data.keynrs.length; i++) {
-        ParameterField field = meta.getParameters().get(i);
-        data.keynrs[i] = rowMeta.indexOfValue(field.getName());
+      int positionalIndex = 0;
+      for (int i = 0; i < parameterSpec.getParameterCount(); i++) {
+        String parameterReference = parameterSpec.getParameterReferences().get(i);
+        String sourceFieldName = parameterReference;
+        if (sourceFieldName == null) {
+          sourceFieldName = meta.getPositionalParameterFieldName(positionalIndex);
+          positionalIndex++;
+        }
+
+        data.keynrs[i] = rowMeta.indexOfValue(sourceFieldName);
         if (data.keynrs[i] < 0) {
           throw new HopTransformException(
-              BaseMessages.getString(PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
+              BaseMessages.getString(PKG, "DatabaseJoin.Exception.FieldNotFound", sourceFieldName));
         }
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
@@ -106,6 +189,10 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
       List<Object[]> adds = getFromCacheOrFetch(lookupRowData);
 
       IRowMeta addMeta = data.db.getReturnRowMeta();
+
+      // If we couldn't determine output fields at design time, derive them from the runtime
+      // resultset
+      appendRuntimeOutputMetadata(data, addMeta);
 
       int counter = 0;
       for (Object[] add : adds) {
@@ -277,10 +364,17 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           if (meta.isReplaceVariables()) {
             sql = resolve(sql);
           }
+
+          // Parse SQL parameter spec (supports ?{name}) and prepare statement with prepared SQL
+          DatabaseJoinMeta.SqlParameterSpec parameterSpec =
+              DatabaseJoinMeta.parseSqlParameterSpec(sql);
+          data.parameterSpec = parameterSpec;
+          String preparedSql = parameterSpec.getPreparedSql();
+
           // Prepare the SQL statement
-          data.pstmt = data.db.prepareSql(sql);
+          data.pstmt = data.db.prepareSql(preparedSql);
           if (isDebug()) {
-            logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", sql));
+            logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", preparedSql));
           }
           data.db.setQueryLimit(meta.getRowLimit());
 
