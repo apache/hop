@@ -20,8 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.List;
@@ -29,6 +35,7 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class HopJdbcTokenServiceTest {
 
@@ -87,5 +94,19 @@ class HopJdbcTokenServiceTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> HopJdbcTokenService.issue(" ", List.of("user"), Duration.ofMinutes(1)));
+  }
+
+  @Test
+  void secretFilePermissionsAreOwnerOnly(@TempDir Path tmp) throws Exception {
+    assumeTrue(
+        FileSystems.getDefault().supportedFileAttributeViews().contains("posix"),
+        "POSIX file permissions are not supported on this platform");
+    Path secret = tmp.resolve("jdbc-token.secret");
+    Files.writeString(secret, "not-a-secret");
+    Files.setPosixFilePermissions(secret, PosixFilePermissions.fromString("rw-r--r--"));
+    HopJdbcTokenService.restrictOrWarnLocalPath(secret);
+    assertEquals(
+        Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE),
+        Files.getPosixFilePermissions(secret));
   }
 }

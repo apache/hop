@@ -124,12 +124,7 @@ public class HopOidcAuthFilter implements Filter {
       return;
     }
 
-    HopAuthenticatedPrincipal principal = sessionPrincipal(httpRequest);
-    if (principal != null) {
-      chain.doFilter(new HopAuthenticatedRequest(httpRequest, principal), response);
-      return;
-    }
-
+    // Explicit Authorization wins over an ambient SSO session, including a garbage Bearer.
     if (HopBearerSupport.bearerToken(httpRequest) != null) {
       HopAuthenticatedPrincipal bearer = HopBearerSupport.authenticate(httpRequest, config);
       if (bearer != null) {
@@ -137,6 +132,12 @@ public class HopOidcAuthFilter implements Filter {
         return;
       }
       HopBearerSupport.challenge(httpResponse);
+      return;
+    }
+
+    HopAuthenticatedPrincipal principal = sessionPrincipal(httpRequest);
+    if (principal != null) {
+      chain.doFilter(new HopAuthenticatedRequest(httpRequest, principal), response);
       return;
     }
 

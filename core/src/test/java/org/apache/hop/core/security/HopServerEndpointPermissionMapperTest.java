@@ -403,4 +403,40 @@ class HopServerEndpointPermissionMapperTest {
         Optional.of(Permission.FILE_VIEW),
         HopServerEndpointPermissionMapper.requiredPermission("/hop/status"));
   }
+
+  @Test
+  void pluginCannotRegisterUnderABuiltInPrefix() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            HopServerEndpointPermissionMapper.register(
+                "/hop/status/custom", Permission.RUN_EXECUTE));
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status/custom"));
+  }
+
+  @Test
+  void longerPluginPrefixWinsOverAShorterBuiltIn() {
+    HopServerEndpointPermissionMapper.putPluginRegistrationUnchecked(
+        "/hop/status/custom", Permission.RUN_EXECUTE);
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status/custom"));
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status"));
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status/other"));
+  }
+
+  @Test
+  void equalLengthKeysPreferTheBuiltIn() {
+    HopServerEndpointPermissionMapper.putPluginRegistrationUnchecked(
+        "/hop/status", Permission.RUN_EXECUTE);
+    assertEquals(
+        Optional.of(Permission.FILE_VIEW),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status"));
+  }
 }

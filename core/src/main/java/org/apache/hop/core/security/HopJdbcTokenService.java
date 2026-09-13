@@ -23,9 +23,14 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -33,9 +38,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
@@ -46,6 +53,10 @@ import org.apache.hop.core.vfs.HopVfs;
  * <p>Hop is not an OAuth2 authorization server. These tokens exist so a user who already signed in
  * (BASIC or OIDC) can paste a Bearer credential into a JDBC password field. Signature key is {@code
  * HOP_WEB_JDBC_TOKEN_SECRET} or a generated file under the security folder.
+ *
+ * <p>Tokens are not revoked on log off: they stay valid until expiry (default one hour) with the
+ * roles frozen at issue time. Rotating {@code HOP_WEB_JDBC_TOKEN_SECRET} (or deleting the secret
+ * file) invalidates every issued token.
  */
 public final class HopJdbcTokenService {
 
@@ -241,6 +252,7 @@ public final class HopJdbcTokenService {
           String text = new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
           byte[] decoded = decodeSecret(text);
           if (decoded.length >= SECRET_BYTES) {
+            restrictOrWarnSecretFile(path);
             return decoded;
           }
         }
@@ -257,11 +269,74 @@ public final class HopJdbcTokenService {
       try (OutputStream out = HopVfs.getOutputStream(path, false)) {
         out.write(encoded.getBytes(StandardCharsets.UTF_8));
       }
+      restrictOrWarnSecretFile(path);
       LogChannel.GENERAL.logBasic("Created Hop JDBC token secret at '" + path + "'");
       return generated;
     } catch (Exception e) {
       throw new IllegalStateException(
           "Unable to load or create JDBC token secret at '" + path + "'", e);
+    }
+  }
+
+  /**
+   * Owner-only (0600) on a local secret file. Anyone who can read this file can mint tokens for any
+   * user, so group/world readability is logged as an error when it cannot be stripped.
+   */
+  static void restrictOrWarnSecretFile(String vfsPath) {
+    try {
+      FileObject fileObject = HopVfs.getFileObject(vfsPath);
+      URI uri = fileObject.getURI();
+      if (uri == null || !"file".equalsIgnoreCase(uri.getScheme())) {
+        return;
+      }
+      restrictOrWarnLocalPath(Path.of(uri));
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Could not inspect permissions on JDBC token secret '" + vfsPath + "'", e);
+    }
+  }
+
+  static void restrictOrWarnLocalPath(Path path) {
+    if (path == null || !Files.exists(path)) {
+      return;
+    }
+    Set<PosixFilePermission> ownerOnly =
+        EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
+    try {
+      Files.setPosixFilePermissions(path, ownerOnly);
+    } catch (UnsupportedOperationException e) {
+      File file = path.toFile();
+      file.setReadable(false, false);
+      file.setWritable(false, false);
+      file.setExecutable(false, false);
+      file.setReadable(true, true);
+      file.setWritable(true, true);
+      return;
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Could not set owner-only permissions on JDBC token secret '" + path + "'", e);
+    }
+    try {
+      Set<PosixFilePermission> actual = Files.getPosixFilePermissions(path);
+      boolean shared =
+          actual.stream()
+              .anyMatch(
+                  permission ->
+                      permission != PosixFilePermission.OWNER_READ
+                          && permission != PosixFilePermission.OWNER_WRITE
+                          && permission != PosixFilePermission.OWNER_EXECUTE);
+      if (shared) {
+        LogChannel.GENERAL.logError(
+            "JDBC token secret '"
+                + path
+                + "' is group- or world-readable. Anyone who can read this file can mint tokens"
+                + " for any user. Set permissions to 0600.");
+      }
+    } catch (UnsupportedOperationException ignored) {
+      // Non-POSIX filesystem after a best-effort chmod above.
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Could not read permissions on JDBC token secret '" + path + "'", e);
     }
   }
 
