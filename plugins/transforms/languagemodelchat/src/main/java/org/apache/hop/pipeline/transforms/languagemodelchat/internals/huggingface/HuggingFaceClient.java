@@ -26,9 +26,9 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import dev.langchain4j.exception.HttpException;
 import dev.langchain4j.http.client.HttpClient;
-import dev.langchain4j.http.client.HttpClientBuilderLoader;
 import dev.langchain4j.http.client.HttpRequest;
 import dev.langchain4j.http.client.SuccessfulHttpResponse;
+import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
 import java.time.Duration;
 import java.util.List;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -50,10 +50,7 @@ public class HuggingFaceClient {
 
   public HuggingFaceClient(String modelResource, String accessToken, Duration timeout) {
     this.httpClient =
-        HttpClientBuilderLoader.loadHttpClientBuilder()
-            .connectTimeout(timeout)
-            .readTimeout(timeout)
-            .build();
+        new JdkHttpClientBuilder().connectTimeout(timeout).readTimeout(timeout).build();
     this.url = isDedicatedEndpoint(modelResource) ? modelResource : ROUTER_URL + modelResource;
     this.accessToken = accessToken;
 

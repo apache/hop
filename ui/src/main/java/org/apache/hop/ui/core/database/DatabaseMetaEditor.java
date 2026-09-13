@@ -555,12 +555,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     DatabaseMeta databaseMeta = this.getMetadata();
 
+    String newTypeName = wConnectionType.getText();
+    String oldTypeName = databaseMeta.getPluginName();
+    if (Utils.isEmpty(newTypeName) || newTypeName.equalsIgnoreCase(oldTypeName)) {
+      busyChangingConnectionType.set(false);
+      return;
+    }
+
     // Keep track of the old database type since this changes when getting the content
     //
     Class<? extends IDatabase> oldClass = databaseMeta.getIDatabase().getClass();
-    String oldTypeName = databaseMeta.getPluginName();
-    String newTypeName = wConnectionType.getText();
-    wConnectionType.setText(databaseMeta.getPluginName());
+    wConnectionType.setText(Const.NVL(oldTypeName, newTypeName));
 
     // Capture any information on the widgets
     //
@@ -1143,7 +1148,29 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     DatabaseMeta databaseMeta = this.getMetadata();
 
     wName.setText(Const.NVL(databaseMeta.getName(), ""));
-    wConnectionType.setText(Const.NVL(databaseMeta.getPluginName(), ""));
+    String connectionType = Const.NVL(databaseMeta.getPluginName(), "");
+    if (Utils.isEmpty(connectionType) && !Utils.isEmpty(databaseMeta.getPluginId())) {
+      IPlugin plugin =
+          PluginRegistry.getInstance()
+              .findPluginWithId(DatabasePluginType.class, databaseMeta.getPluginId());
+      if (plugin != null) {
+        connectionType = plugin.getName();
+      }
+    }
+    wConnectionType.setText(connectionType);
+    int typeIndex = Const.indexOfString(connectionType, wConnectionType.getItems());
+    if (typeIndex < 0) {
+      String[] items = wConnectionType.getItems();
+      for (int i = 0; i < items.length; i++) {
+        if (items[i].equalsIgnoreCase(connectionType)) {
+          typeIndex = i;
+          break;
+        }
+      }
+    }
+    if (typeIndex >= 0) {
+      wConnectionType.select(typeIndex);
+    }
 
     if (wUsername != null) {
       wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));

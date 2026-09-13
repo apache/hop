@@ -72,7 +72,8 @@ Click anywhere in the pipeline canvas, the area where you'll see the image below
 image::getting-started/getting-started-click-anywhere.png[Hop - Click Anywhere,45%,align="left"]
 
 Upon clicking, you'll be presented with the dialog shown below.
-The search box at the top of this dialog works for transform, name, tags (TODO) etc.
+The search box at the top of this dialog matches transform names, descriptions and keywords.
+Search for `pipeline source` to list transforms that can start without incoming hops (see xref:pipeline/pipeline-sources.adoc[Pipeline sources]).
 Once you've found the transform you're looking for, click on it to add it to your pipeline.
 An alternative to clicking is arrow key navigation + enter.
 Repeat this step now or whenever you want to add more transforms to your pipeline.

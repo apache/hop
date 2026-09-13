@@ -91,7 +91,8 @@ class GiteaResourceClientWireMockTest {
                     .withBody(
                         "[{\"sha\":\"cafe01\",\"html_url\":\"https://codeberg.org/bart/putki/commit/cafe01\","
                             + "\"commit\":{\"message\":\"a commit\","
-                            + "\"author\":{\"name\":\"Ada\",\"date\":\"2026-05-01T12:00:00Z\"}}}]")));
+                            + "\"author\":{\"name\":\"Ada\",\"email\":\"ada@example.com\","
+                            + "\"date\":\"2026-05-01T12:00:00Z\"}}}]")));
     wireMock.stubFor(
         get(urlPathEqualTo("/repos/bart/putki/commits"))
             .withQueryParam("page", equalTo("2"))
@@ -104,6 +105,7 @@ class GiteaResourceClientWireMockTest {
     assertEquals("gitea", records.get(0).getProvider());
     assertEquals("cafe01", records.get(0).getSha());
     assertEquals("Ada", records.get(0).getAuthor());
+    assertEquals("ada@example.com", records.get(0).getAuthorEmail());
   }
 
   @Test

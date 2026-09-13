@@ -510,6 +510,14 @@ After sign-in, your session should include the *Admin* role (`security.manage`) 
 Other users without a mapping fall back to the *User* role.
 ====
 
+=== JDBC and API Bearer tokens
+
+JDBC drivers and `curl` cannot complete an OIDC browser login. After you sign in to Hop Web (BASIC or OAUTH2), use *File → Copy JDBC token* or `GET /hop/jdbcToken` (`file.view`) to mint a short-lived HMAC JWT (`aud=hop-jdbc`). Send it as `Authorization: Bearer <token>`.
+
+IMPORTANT: These tokens are not revoked when you log off or when an administrator changes the user's roles. They stay valid until expiry (about one hour) with the roles frozen at issue time. The only way to invalidate outstanding tokens is to rotate `HOP_WEB_JDBC_TOKEN_SECRET` (or delete `HOP_CONFIG_FOLDER/security/jdbc-token.secret`), which invalidates *every* issued token.
+
+Hop creates `jdbc-token.secret` with owner-only permissions (`0600`) on local filesystems when it can. Anyone who can read that file can mint tokens for any user.
+
 ==== Full web.xml with Tomcat BASIC (single role, EXTERNAL)
 
 The following sample `web.xml` extends Hop Web's default `web.xml` with the `<security-constraint />` and `<login-config />` elements required for basic authentication.

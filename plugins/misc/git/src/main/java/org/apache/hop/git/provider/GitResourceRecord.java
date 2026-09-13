@@ -17,10 +17,20 @@
 
 package org.apache.hop.git.provider;
 
+import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
+import org.apache.hop.git.provider.GitInputFields.Field;
 
-/** Normalized row from a Git hosting provider API (commit, issue, or pull request). */
+/**
+ * Normalized row from a Git hosting provider or a local clone.
+ *
+ * <p>A record carries every value any resource type can report; {@link #toRow} then keeps the ones
+ * the type's layout actually asks for. A provider that does not report a field simply never sets
+ * it, and the field arrives in the row as an empty value rather than as a missing column.
+ */
 @Getter
+@Builder
 public class GitResourceRecord {
 
   private final String provider;
@@ -32,85 +42,78 @@ public class GitResourceRecord {
   private final String title;
   private final String state;
   private final String author;
+  private final String authorEmail;
+  private final String authorLogin;
+  private final String committer;
+  private final String committerEmail;
+  private final String labels;
+  private final String assignees;
   private final String createdAt;
   private final String updatedAt;
   private final String closedAt;
+  private final String mergedAt;
   private final String url;
   private final String body;
   private final String sha;
   private final String sourceBranch;
   private final String targetBranch;
-  private final String merged;
+
+  /** Whether a pull request was merged. Null when the row is not a pull request. */
+  private final Boolean merged;
+
+  /** Whether a commit has more than one parent. Null when the row is not a commit. */
+  private final Boolean isMerge;
+
   private final String rawJson;
 
-  public GitResourceRecord(
-      String provider,
-      String entityType,
-      String repoOwner,
-      String repoName,
-      String id,
-      long number,
-      String title,
-      String state,
-      String author,
-      String createdAt,
-      String updatedAt,
-      String closedAt,
-      String url,
-      String body,
-      String sha,
-      String sourceBranch,
-      String targetBranch,
-      String merged,
-      String rawJson) {
-    this.provider = provider;
-    this.entityType = entityType;
-    this.repoOwner = repoOwner;
-    this.repoName = repoName;
-    this.id = id;
-    this.number = number;
-    this.title = title;
-    this.state = state;
-    this.author = author;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.closedAt = closedAt;
-    this.url = url;
-    this.body = body;
-    this.sha = sha;
-    this.sourceBranch = sourceBranch;
-    this.targetBranch = targetBranch;
-    this.merged = merged;
-    this.rawJson = rawJson;
-  }
-
-  public Object[] toRow() {
-    return toRow(true);
-  }
-
-  public Object[] toRow(boolean includeRawJson) {
-    Object[] row = new Object[GitInputFields.fieldCount(includeRawJson)];
-    row[0] = provider;
-    row[1] = entityType;
-    row[2] = repoOwner;
-    row[3] = repoName;
-    row[4] = id;
-    row[5] = number;
-    row[6] = title;
-    row[7] = state;
-    row[8] = author;
-    row[9] = GitTimestamps.toDate(createdAt);
-    row[10] = GitTimestamps.toDate(updatedAt);
-    row[11] = GitTimestamps.toDate(closedAt);
-    row[12] = url;
-    row[13] = body;
-    row[14] = sha;
-    row[15] = sourceBranch;
-    row[16] = targetBranch;
-    row[17] = merged;
-    if (includeRawJson) {
-      row[GitInputFields.RAW_JSON_FIELD_INDEX] = rawJson;
+  /** Builds the output row for a resource type, in the order {@link GitInputFields} declares. */
+  public Object[] toRow(GitResourceType resourceType, boolean includeRawJson) {
+    List<Field> layout = GitInputFields.layout(resourceType, includeRawJson);
+    Object[] row = new Object[layout.size()];
+    for (int i = 0; i < layout.size(); i++) {
+      row[i] = valueOf(layout.get(i));
     }
     return row;
+  }
+
+  /**
+   * The value for one field. Strings are never null, so a provider that does not report a field
+   * yields a blank cell rather than a null; timestamps are parsed to real Dates, and an unparseable
+   * one becomes null with the original text left in {@code raw_json}.
+   */
+  private Object valueOf(Field field) {
+    return switch (field) {
+      case PROVIDER -> text(provider);
+      case ENTITY_TYPE -> text(entityType);
+      case REPO_OWNER -> text(repoOwner);
+      case REPO_NAME -> text(repoName);
+      case ID -> text(id);
+      case NUMBER -> number;
+      case TITLE -> text(title);
+      case STATE -> text(state);
+      case AUTHOR -> text(author);
+      case AUTHOR_EMAIL -> text(authorEmail);
+      case AUTHOR_LOGIN -> text(authorLogin);
+      case COMMITTER -> text(committer);
+      case COMMITTER_EMAIL -> text(committerEmail);
+      case LABELS -> text(labels);
+      case ASSIGNEES -> text(assignees);
+      case CREATED_AT -> GitTimestamps.toDate(createdAt);
+      case UPDATED_AT -> GitTimestamps.toDate(updatedAt);
+      case CLOSED_AT -> GitTimestamps.toDate(closedAt);
+      case MERGED_AT -> GitTimestamps.toDate(mergedAt);
+      case URL -> text(url);
+      case BODY -> text(body);
+      case SHA -> text(sha);
+      case SOURCE_BRANCH -> text(sourceBranch);
+      case TARGET_BRANCH -> text(targetBranch);
+      case MERGED -> merged;
+      case IS_MERGE -> isMerge;
+      case RAW_JSON -> text(rawJson);
+    };
+  }
+
+  private static String text(String value) {
+    return value == null ? "" : value;
   }
 }

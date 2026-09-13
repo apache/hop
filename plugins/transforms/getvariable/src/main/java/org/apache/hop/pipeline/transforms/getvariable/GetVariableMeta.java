@@ -60,6 +60,11 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
   }
 
   @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String name,

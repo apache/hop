@@ -1,0 +1,72 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/ai/
+:language: en_US
+:openvar: ${
+:closevar: }
+:description: Apache Hop AI advisory: named providers, pluggable advisors, and a multi-session workbench. Off by default.
+
+= AI
+
+Apache Hop can advise on pipeline and workflow design through a pluggable AI layer.
+Completions go through the Language Model Chat transform (`hop-transform-languagemodelchat`) and langchain4j.
+No language-model SDK is on the Hop core classpath.
+
+The technology plugin is `hop-tech-ai` (`plugins/tech/ai`).
+AI is *disabled until you turn it on*.
+
+== What ships
+
+* xref:metadata-types/ai-provider.adoc[AI Provider] metadata — named model + credentials
+* Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, extra context notes, context files (default `{openvar}PROJECT_HOME{closevar}/AGENTS.md`), optional full XML
+* xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] workbench — perspective, floating window, and bottom dock
+* Pipeline AI Help and Workflow AI Help — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits, clipboard XML/JSON, and metadata saves
+* Language Model Chat can optionally use a named AI Provider for connection fields; inline keys remain as fallback
+
+== Privacy
+
+AI is *off until you turn it on*.
+A prompt that leaves your machine is billed and may be retained by the provider: send the *minimum* needed to answer the question.
+
+Keep the project in Git (or similar) and create a feature branch *before* applying AI-driven changes.
+Graph Undo is not a substitute: metadata saves and pasted transforms or actions cannot be reverted that way.
+See xref:hop-gui/perspective-ai-advisor.adoc#version-control[Version control] on the AI Assistant page.
+
+* Do not hard-code secrets or personal information in pipelines, workflows, metadata, notes, SQL or sample rows.
+  Put them in xref:projects/projects-environments.adoc[environment] configuration files as variables, or better in a keystore read with a xref:metadata-types/variable-resolver/index.adoc[variable resolver].
+  See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information] and xref:best-practices/index.adoc[Best practices: security].
+* API keys stay on xref:metadata-types/ai-provider.adoc[AI Provider] metadata and are never copied into advisor prompts. Still prefer `{openvar}AI_API_KEY{closevar}` or a resolver expression instead of a pasted key.
+* Prompts redact XML/JSON fields named password, token, api-key and similar. That does not catch literals in SQL, notes or logs.
+* Session *context inclusion* checkboxes control extra payload (check results, plugin catalog, execution log, full XML, selected metadata). Use only what the question needs: xref:hop-gui/perspective-ai-advisor.adoc#context-inclusions[Context inclusions].
+* Extra context notes and listed context files (for example a project `AGENTS.md`) are sent on every turn when present. Keep secrets out of those files.
+* Advisor plugins may also ship `ai-context.md` next to the plugin JAR (Hop's AI plugin does). Those notes are always sent for that advisor.
+* Full pipeline or workflow XML is not sent unless both the session checkbox *and* Configuration → *Allow sending full XML* are on.
+* Delete `plugins/tech/ai` to remove the GUI, metadata type and advisors.
+* Hide individual widgets with xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml].
+
+== Extending
+
+Two plugin types are registered from `HopEnvironment`:
+
+* `@AiProviderPlugin` / `IAiProvider` — another backend (including a future OAuth Copilot plugin)
+* `@AiAdvisorPlugin` / `IAiAdvisor` — another advisor. Location ids are free-form strings (pipeline graph, Data Vault graph, lineage view, a metadata editor, …). hopper-edw adds Data Vault, Business Vault, dimensional and lineage advisors this way, with their own toolbar and context-menu plugins.
+
+Keep langchain4j and SWT off the `IAiAdvisor` / `IAiProvider` interfaces; those live in `hop-core`.
+Third-party advisor plugins omit `classLoaderGroup` and compile against `hop-core` + `hop-ui` only.
+Plugin authors: see the xref:dev-manual::ai-advisor-plugins.adoc[AI advisor plugins] page in the development manual.
+
+Keys that older plugins stored under Configuration → AI Assistant (`hopAiConfig` with `aiApiKey` / `aiProviderPreset`) are imported as an xref:metadata-types/ai-provider.adoc[AI Provider] the first time the GUI starts with a metadata provider, then removed from `hop-config.json`.

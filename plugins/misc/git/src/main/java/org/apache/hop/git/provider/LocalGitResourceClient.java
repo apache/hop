@@ -33,6 +33,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -389,7 +390,9 @@ public final class LocalGitResourceClient {
     String oldPath = realPath(entry.getOldPath());
     String newPath = realPath(entry.getNewPath());
     String filePath = pickFilePath(entry.getChangeType(), oldPath, newPath);
-    String author = commit.getAuthorIdent().getName();
+    PersonIdent authorIdent = commit.getAuthorIdent();
+    String author = identName(authorIdent);
+    String authorEmail = identEmail(authorIdent);
     String createdAt = Instant.ofEpochSecond(commit.getCommitTime()).toString();
     String sha = commit.getName();
     String url =
@@ -400,27 +403,25 @@ public final class LocalGitResourceClient {
     raw.put("change_type", changeType);
     raw.put("old_path", oldPath);
     raw.put("new_path", newPath);
+    raw.put("author", author);
+    raw.put("author_email", authorEmail);
 
-    return new GitResourceRecord(
-        PROVIDER,
-        GitResourceType.COMMIT_FILES.getEntityType(),
-        info.getOwner(),
-        info.getRepositoryName(),
-        sha + ":" + filePath,
-        0L,
-        filePath,
-        changeType,
-        author,
-        createdAt,
-        "",
-        "",
-        url,
-        oldPath,
-        sha,
-        "",
-        "",
-        "",
-        raw.toJSONString());
+    return GitResourceRecord.builder()
+        .provider(PROVIDER)
+        .entityType(GitResourceType.COMMIT_FILES.getEntityType())
+        .repoOwner(info.getOwner())
+        .repoName(info.getRepositoryName())
+        .id(sha + ":" + filePath)
+        .sha(sha)
+        .title(filePath)
+        .state(changeType)
+        .body(oldPath)
+        .author(author)
+        .authorEmail(authorEmail)
+        .createdAt(createdAt)
+        .url(url)
+        .rawJson(raw.toJSONString())
+        .build();
   }
 
   static String mapChangeType(DiffEntry.ChangeType changeType) {
@@ -443,9 +444,13 @@ public final class LocalGitResourceClient {
 
   private static GitResourceRecord toCommitRecord(LocalRepositoryInfo info, RevCommit commit) {
     String message = commit.getFullMessage() == null ? "" : commit.getFullMessage();
-    String author = commit.getAuthorIdent().getName();
+    PersonIdent authorIdent = commit.getAuthorIdent();
+    PersonIdent committerIdent = commit.getCommitterIdent();
+    String author = identName(authorIdent);
+    String authorEmail = identEmail(authorIdent);
     String createdAt = Instant.ofEpochSecond(commit.getCommitTime()).toString();
     String sha = commit.getName();
+    boolean isMerge = commit.getParentCount() > 1;
     String url =
         info.getRemoteUrl().isBlank() ? info.directory().getAbsolutePath() : info.getRemoteUrl();
 
@@ -453,28 +458,30 @@ public final class LocalGitResourceClient {
     raw.put("sha", sha);
     raw.put("message", message);
     raw.put("author", author);
+    raw.put("author_email", authorEmail);
+    raw.put("committer", identName(committerIdent));
+    raw.put("committer_email", identEmail(committerIdent));
     raw.put("date", createdAt);
+    raw.put("parent_count", (long) commit.getParentCount());
 
-    return new GitResourceRecord(
-        PROVIDER,
-        GitResourceType.COMMITS.getEntityType(),
-        info.getOwner(),
-        info.getRepositoryName(),
-        sha,
-        0L,
-        firstLine(message),
-        "",
-        author,
-        createdAt,
-        "",
-        "",
-        url,
-        message,
-        sha,
-        "",
-        "",
-        "",
-        raw.toJSONString());
+    return GitResourceRecord.builder()
+        .provider(PROVIDER)
+        .entityType(GitResourceType.COMMITS.getEntityType())
+        .repoOwner(info.getOwner())
+        .repoName(info.getRepositoryName())
+        .id(sha)
+        .sha(sha)
+        .title(firstLine(message))
+        .body(message)
+        .author(author)
+        .authorEmail(authorEmail)
+        .committer(identName(committerIdent))
+        .committerEmail(identEmail(committerIdent))
+        .createdAt(createdAt)
+        .isMerge(isMerge)
+        .url(url)
+        .rawJson(raw.toJSONString())
+        .build();
   }
 
   private static ObjectId resolveStart(Repository repo, String branch) throws Exception {
@@ -514,6 +521,15 @@ public final class LocalGitResourceClient {
               + " 2024-01-01T00:00:00Z",
           e);
     }
+  }
+
+  /** JGit leaves an unset ident, name or e-mail null; the output row wants a blank cell instead. */
+  private static String identName(PersonIdent ident) {
+    return ident == null || ident.getName() == null ? "" : ident.getName();
+  }
+
+  private static String identEmail(PersonIdent ident) {
+    return ident == null || ident.getEmailAddress() == null ? "" : ident.getEmailAddress();
   }
 
   private static String firstLine(String message) {

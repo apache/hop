@@ -61,26 +61,19 @@ public class PdfExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
   @Override
   public void reload() {
     try {
-      // Get the file URL and load it in the browser
-      // The browser widget will use its built-in PDF viewer to display the PDF
-      //
       String filename = explorerFile.getFilename();
 
-      // Check if file exists
       if (!HopVfs.fileExists(filename)) {
         showError("File not found: " + filename);
         return;
       }
 
-      // Convert the filename to a file URL
-      // For local files, we need to use the file:// protocol
-      String fileUrl = HopVfs.getFileObject(filename).getURL().toString();
+      if (ExplorerBrowserSupport.loadInBrowser(wBrowser, filename, hopGui.getVariables())) {
+        clearChanged();
+        return;
+      }
 
-      // Set the URL in the browser widget
-      wBrowser.setUrl(fileUrl);
-
-      // Clear any change flags since we just reloaded
-      clearChanged();
+      showError("Unable to display PDF file: " + filename);
     } catch (Exception e) {
       LogChannel.UI.logError("Error loading PDF file '" + explorerFile.getFilename() + "'", e);
       showError("Error loading PDF file: " + Const.NVL(e.getMessage(), "Unknown error"));

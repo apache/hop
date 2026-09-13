@@ -99,7 +99,7 @@ public class GitInput extends BaseTransform<GitInputMeta, GitInputData> {
 
     if (data.reader != null && data.reader.hasNext()) {
       GitResourceRecord record = data.reader.next();
-      Object[] outputRow = record.toRow(meta.isIncludeRawJson());
+      Object[] outputRow = record.toRow(data.resourceType, meta.isIncludeRawJson());
       incrementLinesInput();
       putRow(data.outputRowMeta, outputRow);
       return true;

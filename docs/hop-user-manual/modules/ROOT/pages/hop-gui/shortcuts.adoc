@@ -30,6 +30,9 @@ Widget-local shortcuts (they apply to the focused field, not the whole window) a
 |`CTRL-SPACE`|`TextVar` / `ComboVar` that accept variables|Insert a `${variable}`
 |`CTRL-SPACE`|Name fields that do *not* accept variables (transform/action/metadata names)|Apply a xref:metadata-types/naming-scheme.adoc[Naming Scheme] of the matching type
 |`CTRL-SHIFT-N`|Any name field, field-name cell, table name, file/folder field, or F2 tree rename|List and apply a Naming Scheme. Replaces the current identifier (values that contain `${...}` are left unchanged)
+|`CTRL-ENTER` / `Cmd-Enter`|AI Assistant question field|Send the question (same as the Hop logo button)
 |===
 
 See xref:metadata-types/naming-scheme.adoc[Naming Scheme] for the *N* indicator, types, and the TableView bulk toolbar.
+
+The AI Assistant perspective uses `CTRL-SHIFT-A` (`Cmd-Shift-A` on macOS). See xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant].

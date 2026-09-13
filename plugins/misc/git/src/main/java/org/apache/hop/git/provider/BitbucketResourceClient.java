@@ -21,6 +21,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -28,6 +30,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 class BitbucketResourceClient implements GitResourceClient {
+
+  /** Matches the e-mail inside a raw Git ident such as {@code Ada Lovelace <ada@example.com>}. */
+  private static final Pattern RAW_IDENT_EMAIL = Pattern.compile("<([^>]*)>");
 
   private static final String ACCEPT = "application/json";
   private static final String PROVIDER = "bitbucket";
@@ -314,26 +319,23 @@ class BitbucketResourceClient implements GitResourceClient {
       case COMMITS -> {
         JSONObject author = (JSONObject) json.get("author");
         JSONObject user = author != null ? (JSONObject) author.get("user") : null;
-        yield new GitResourceRecord(
-            PROVIDER,
-            entityType,
-            owner,
-            repository,
-            GitApiHttp.getString(json, "hash"),
-            0L,
-            firstLine(renderedText(json, "message")),
-            "",
-            user != null ? GitApiHttp.getString(user, "display_name") : "",
-            GitApiHttp.getString(json, "date"),
-            "",
-            "",
-            extractLink(json, "html"),
-            renderedText(json, "message"),
-            GitApiHttp.getString(json, "hash"),
-            "",
-            "",
-            "",
-            rawJson);
+        yield GitResourceRecord.builder()
+            .provider(PROVIDER)
+            .entityType(entityType)
+            .repoOwner(owner)
+            .repoName(repository)
+            .id(GitApiHttp.getString(json, "hash"))
+            .sha(GitApiHttp.getString(json, "hash"))
+            .title(firstLine(renderedText(json, "message")))
+            .body(renderedText(json, "message"))
+            .author(user != null ? GitApiHttp.getString(user, "display_name") : "")
+            .authorEmail(author != null ? rawEmail(GitApiHttp.getString(author, "raw")) : "")
+            .authorLogin(user != null ? GitApiHttp.getString(user, "nickname") : "")
+            .createdAt(GitApiHttp.getString(json, "date"))
+            .isMerge(GitJsonLists.mergeFlag(json, "parents"))
+            .url(extractLink(json, "html"))
+            .rawJson(rawJson)
+            .build();
       }
       case ISSUES, PULL_REQUESTS -> {
         JSONObject reporter =
@@ -346,26 +348,28 @@ class BitbucketResourceClient implements GitResourceClient {
             resourceType == GitResourceType.PULL_REQUESTS
                 ? (JSONObject) json.get("destination")
                 : null;
-        yield new GitResourceRecord(
-            PROVIDER,
-            entityType,
-            owner,
-            repository,
-            GitApiHttp.getString(json, "id"),
-            GitApiHttp.getLong(json, "id"),
-            GitApiHttp.getString(json, "title"),
-            GitApiHttp.getString(json, "state"),
-            reporter != null ? GitApiHttp.getString(reporter, "display_name") : "",
-            GitApiHttp.getString(json, "created_on"),
-            GitApiHttp.getString(json, "updated_on"),
-            "",
-            extractLink(json, "html"),
-            renderedText(json, "content"),
-            "",
-            branchName(source),
-            branchName(destination),
-            "MERGED".equalsIgnoreCase(GitApiHttp.getString(json, "state")) ? "Y" : "N",
-            rawJson);
+        yield GitResourceRecord.builder()
+            .provider(PROVIDER)
+            .entityType(entityType)
+            .repoOwner(owner)
+            .repoName(repository)
+            .id(GitApiHttp.getString(json, "id"))
+            .number(GitApiHttp.getLong(json, "id"))
+            .title(GitApiHttp.getString(json, "title"))
+            .state(GitApiHttp.getString(json, "state"))
+            .body(renderedText(json, "content"))
+            .author(reporter != null ? GitApiHttp.getString(reporter, "display_name") : "")
+            .authorLogin(reporter != null ? GitApiHttp.getString(reporter, "nickname") : "")
+            // Bitbucket has no labels, and carries a single assignee rather than a list.
+            .assignees(GitJsonLists.names(json, "assignee", "display_name"))
+            .sourceBranch(branchName(source))
+            .targetBranch(branchName(destination))
+            .merged("MERGED".equalsIgnoreCase(GitApiHttp.getString(json, "state")))
+            .createdAt(GitApiHttp.getString(json, "created_on"))
+            .updatedAt(GitApiHttp.getString(json, "updated_on"))
+            .url(extractLink(json, "html"))
+            .rawJson(rawJson)
+            .build();
       }
       case ISSUE_COMMENTS, PR_COMMENTS, ISSUE_EVENTS, COMMIT_FILES ->
           throw new IllegalStateException();
@@ -450,6 +454,19 @@ class BitbucketResourceClient implements GitResourceClient {
       query.append("&state=").append(encode(value));
     }
     return query.toString();
+  }
+
+  /**
+   * Bitbucket reports a commit author as the raw Git ident, {@code Name <mail@example.com>}, and
+   * only resolves the linked account under {@code user}. The address is pulled back out of the
+   * ident because an unlinked author has no {@code user} object at all.
+   */
+  private static String rawEmail(String raw) {
+    if (raw == null) {
+      return "";
+    }
+    Matcher matcher = RAW_IDENT_EMAIL.matcher(raw);
+    return matcher.find() ? matcher.group(1).trim() : "";
   }
 
   private static String firstLine(String message) {

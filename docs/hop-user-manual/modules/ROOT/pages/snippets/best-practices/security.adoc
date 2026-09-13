@@ -68,6 +68,23 @@ see: xref:metadata-types/variable-resolver/index.adoc[Variable Resolvers].
 Again, just using a key vault is insufficient: make sure you protect the secrets (keys, users, passwords) to connect
 to the key vault you're using.
 
+==== AI Assistant: secrets, personal information, and minimum send
+
+The xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] sends the open pipeline or workflow context to a language-model service.
+Anything hard-coded in that file (or in its logs and check results) can leave your machine.
+
+Set up the project *before* you enable AI:
+
+* Never hard-code secrets or personal information in pipelines, workflows, metadata, notes, SQL, or sample rows.
+* Put values in xref:projects/projects-environments.adoc[environment] configuration files as variables. Keep those files outside the project repository.
+* Prefer a keystore or vault, referenced with a xref:metadata-types/variable-resolver/index.adoc[variable resolver].
+* Name secret variables so they contain `PASSWORD`, `SECRET`, `TOKEN` or `PASSWD`. Hop Gui masks those in the `Ctrl-Space` picker, and the assistant redacts matching XML/JSON keys.
+* Keep personal records (names, emails, national ids, row samples) out of notes, Data Grids and log messages.
+
+On each question, use the session *context inclusion* checkboxes to send only what is needed: check results, plugin catalog, execution log, full XML.
+That cuts token cost and the chance of sharing sensitive data.
+See xref:hop-gui/perspective-ai-advisor.adoc#context-inclusions[Context inclusions].
+
 === Secure your Hop Server
 
 If you're running the Hop Server on a Kubernetes or VM constellation you can secure network access from and to the

@@ -26,6 +26,8 @@ under the License.
 |===
 |
 == Description
+include::../../snippets/pipeline/source-and-consumes.adoc[]
+
 The Get Variables transform allows you to get the value of a variable and create field(s) from it. You only need to use this transform if you need the variable value in a field.
 
 TIP:  If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows from result transform.

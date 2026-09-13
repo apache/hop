@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -88,6 +89,7 @@ import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformSourceSupport;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
@@ -744,6 +746,115 @@ public class PipelineMeta extends AbstractMeta
     }
 
     return false;
+  }
+
+  /**
+   * Whether {@code hop} is a main (non-info, non-error) hop into a transform that will not drain
+   * it. Creating such a hop stalls the pipeline: the upstream {@code putRow} fills the rowset and
+   * blocks.
+   *
+   * @param hop the candidate or existing hop
+   * @return true if the hop should be refused
+   */
+  public boolean isDisallowedMainInputHop(PipelineHopMeta hop) {
+    if (hop == null || hop.getFromTransform() == null || hop.getToTransform() == null) {
+      return false;
+    }
+    if (!hop.isEnabled() || hop.isErrorHop()) {
+      return false;
+    }
+    TransformMeta to = hop.getToTransform();
+    ITransformMeta iMeta = to.getTransform();
+    if (iMeta == null || iMeta.consumesMainInput()) {
+      return false;
+    }
+    return !isTransformInformative(to, hop.getFromTransform());
+  }
+
+  /**
+   * Previous transforms on enabled main hops into {@code transformMeta}: not info, not error.
+   * {@link #findPreviousTransforms(TransformMeta, boolean)} with {@code info=false} still includes
+   * error-hop predecessors.
+   */
+  public List<TransformMeta> findPreviousMainTransforms(TransformMeta transformMeta) {
+    List<TransformMeta> previousTransforms = new ArrayList<>();
+    if (transformMeta == null) {
+      return previousTransforms;
+    }
+    for (PipelineHopMeta hi : hops) {
+      if (hi.getToTransform() != null
+          && hi.isEnabled()
+          && !hi.isErrorHop()
+          && hi.getToTransform().equals(transformMeta)
+          && !isTransformInformative(transformMeta, hi.getFromTransform())) {
+        previousTransforms.add(hi.getFromTransform());
+      }
+    }
+    return previousTransforms;
+  }
+
+  /**
+   * Main (non-info, non-error) hops into {@code to} that {@link ITransformMeta#consumesMainInput()}
+   * says will not be drained.
+   */
+  public List<PipelineHopMeta> findDisallowedMainInputHops(TransformMeta to) {
+    List<PipelineHopMeta> result = new ArrayList<>();
+    if (to == null) {
+      return result;
+    }
+    for (int i = 0; i < nrPipelineHops(); i++) {
+      PipelineHopMeta hop = getPipelineHop(i);
+      if (to.equals(hop.getToTransform()) && isDisallowedMainInputHop(hop)) {
+        result.add(hop);
+      }
+    }
+    return result;
+  }
+
+  void addUnconsumedMainInputRemark(List<ICheckResult> remarks, TransformMeta transformMeta) {
+    ITransformMeta iMeta = transformMeta.getTransform();
+    if (iMeta == null || iMeta.consumesMainInput()) {
+      return;
+    }
+    List<TransformMeta> mainPrev = findPreviousMainTransforms(transformMeta);
+    if (mainPrev.isEmpty()) {
+      return;
+    }
+    String fromNames =
+        mainPrev.stream().map(TransformMeta::getName).collect(Collectors.joining(", "));
+    String hint = iMeta.getMainInputRequirementHint();
+    String message;
+    if (Utils.isEmpty(hint)) {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.CheckResult.TypeResultError.DoesNotConsumeMainInput.Description",
+              transformMeta.getName(),
+              fromNames);
+    } else {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.CheckResult.TypeResultError.DoesNotConsumeMainInput.Hint.Description",
+              transformMeta.getName(),
+              fromNames,
+              hint);
+    }
+    remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
+  }
+
+  void addPipelineSourceRemark(List<ICheckResult> remarks, TransformMeta transformMeta) {
+    ITransformMeta iMeta = transformMeta.getTransform();
+    if (!TransformSourceSupport.isPipelineSource(iMeta)) {
+      return;
+    }
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_COMMENT,
+            TransformSourceSupport.CHECK_CODE_PIPELINE_SOURCE,
+            BaseMessages.getString(
+                PKG, "PipelineMeta.CheckResult.TypeResultComment.CanStartWithoutInput.Description"),
+            transformMeta));
   }
 
   /**
@@ -2618,6 +2729,8 @@ public class PipelineMeta extends AbstractMeta
                   transformMeta));
         }
 
+        addPipelineSourceRemark(remarks, transformMeta);
+
         int nrInfoTransforms = findNrInfoTransforms(transformMeta);
         TransformMeta[] infoTransform = null;
         if (nrInfoTransforms > 0) {
@@ -2679,6 +2792,7 @@ public class PipelineMeta extends AbstractMeta
                   remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
           transformMeta.check(
               remarks, this, prev, input, output, infoRowMeta, variables, metadataProvider);
+          addUnconsumedMainInputRemark(remarks, transformMeta);
           ExtensionPointHandler.callExtensionPoint(
               LogChannel.GENERAL,
               variables,

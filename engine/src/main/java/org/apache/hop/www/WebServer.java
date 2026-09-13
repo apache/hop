@@ -233,6 +233,7 @@ public class WebServer {
       IHopServerPlugin servlet = pluginRegistry.loadClass(plugin, IHopServerPlugin.class);
       servlet.setup(pipelineMap, workflowMap);
       servlet.setJettyMode(true);
+      HopServerPluginPermissions.register(servlet, log);
 
       ServletContextHandler servletContext =
           new ServletContextHandler(getContextPath(servlet), ServletContextHandler.SESSIONS);

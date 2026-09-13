@@ -32,6 +32,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.git.provider.GitInputFields;
+import org.apache.hop.git.provider.GitResourceType;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeAll;
@@ -101,13 +103,14 @@ class GitInputMetaTest {
 
   @Test
   void timestampFieldsAreDatesNotStrings() throws Exception {
+    meta.setResourceType(GitResourceType.PULL_REQUESTS.name());
     IRowMeta rowMeta = new RowMeta();
     meta.getFields(rowMeta, "git", null, null, new Variables(), null);
 
-    assertEquals(19, rowMeta.size());
     assertEquals(IValueMeta.TYPE_DATE, rowMeta.searchValueMeta("created_at").getType());
     assertEquals(IValueMeta.TYPE_DATE, rowMeta.searchValueMeta("updated_at").getType());
     assertEquals(IValueMeta.TYPE_DATE, rowMeta.searchValueMeta("closed_at").getType());
+    assertEquals(IValueMeta.TYPE_DATE, rowMeta.searchValueMeta("merged_at").getType());
     assertEquals(IValueMeta.TYPE_INTEGER, rowMeta.searchValueMeta("number").getType());
     assertEquals(IValueMeta.TYPE_STRING, rowMeta.searchValueMeta("title").getType());
     assertEquals("git", rowMeta.searchValueMeta("title").getOrigin());
@@ -119,8 +122,67 @@ class GitInputMetaTest {
     IRowMeta rowMeta = new RowMeta();
     meta.getFields(rowMeta, "git", null, null, new Variables(), null);
 
-    assertEquals(18, rowMeta.size());
+    assertEquals(GitInputFields.fieldCount(GitResourceType.COMMITS, false), rowMeta.size());
     assertEquals(null, rowMeta.searchValueMeta("raw_json"));
+  }
+
+  @Test
+  void eachResourceTypeGetsItsOwnFieldLayout() throws Exception {
+    // A commit has idents and a merge flag but no labels, assignees or branches; an issue is the
+    // other way round. A shared row would have to carry all of it and leave most of it empty.
+    meta.setResourceType(GitResourceType.COMMITS.name());
+    IRowMeta commits = new RowMeta();
+    meta.getFields(commits, "git", null, null, new Variables(), null);
+
+    assertNotNull(commits.searchValueMeta("author_email"));
+    assertNotNull(commits.searchValueMeta("committer_email"));
+    assertNotNull(commits.searchValueMeta("is_merge"));
+    assertEquals(
+        IValueMeta.TYPE_BOOLEAN,
+        commits.searchValueMeta("is_merge").getType(),
+        "is_merge is a real Boolean, not a Y/N string");
+    assertNull(commits.searchValueMeta("labels"));
+    assertNull(commits.searchValueMeta("assignees"));
+    assertNull(commits.searchValueMeta("source_branch"));
+    assertNull(commits.searchValueMeta("closed_at"));
+
+    meta.setResourceType(GitResourceType.PULL_REQUESTS.name());
+    IRowMeta pullRequests = new RowMeta();
+    meta.getFields(pullRequests, "git", null, null, new Variables(), null);
+
+    assertNotNull(pullRequests.searchValueMeta("labels"));
+    assertNotNull(pullRequests.searchValueMeta("assignees"));
+    assertNotNull(pullRequests.searchValueMeta("merged_at"));
+    assertEquals(
+        IValueMeta.TYPE_BOOLEAN,
+        pullRequests.searchValueMeta("merged").getType(),
+        "merged is a real Boolean, not a Y/N string");
+    assertNotNull(pullRequests.searchValueMeta("source_branch"));
+    assertNull(pullRequests.searchValueMeta("committer"));
+    assertNull(pullRequests.searchValueMeta("is_merge"));
+
+    // Issues share the people and label fields with pull requests but never the merge fields.
+    meta.setResourceType(GitResourceType.ISSUES.name());
+    IRowMeta issues = new RowMeta();
+    meta.getFields(issues, "git", null, null, new Variables(), null);
+
+    assertNotNull(issues.searchValueMeta("labels"));
+    assertNull(issues.searchValueMeta("merged"));
+    assertNull(issues.searchValueMeta("merged_at"));
+  }
+
+  @Test
+  void rawJsonIsAlwaysTheLastFieldWhateverTheType() throws Exception {
+    for (GitResourceType type : GitResourceType.values()) {
+      meta.setResourceType(type.name());
+      IRowMeta rowMeta = new RowMeta();
+      meta.getFields(rowMeta, "git", null, null, new Variables(), null);
+
+      assertEquals(
+          "raw_json",
+          rowMeta.getValueMeta(rowMeta.size() - 1).getName(),
+          "raw_json should be last for " + type);
+    }
   }
 
   @Test

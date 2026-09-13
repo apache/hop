@@ -36,6 +36,9 @@ import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -43,6 +46,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,12 +59,28 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::BaseTransform.TypeTooltipDesc.LanguageModelChat",
     keywords = "llm,ai,chat,openai,gpt",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "/pipeline/transforms/languagemodelchat.html")
+    documentationUrl = "/pipeline/transforms/languagemodelchat.html",
+    classLoaderGroup = "hop-ai")
+@GuiPlugin(classLoaderGroup = "hop-ai")
 @Getter
 @Setter
 public class LanguageModelChatMeta
     extends BaseTransformMeta<LanguageModelChat, LanguageModelChatData> {
   private static final Class<?> PKG = LanguageModelChatMeta.class; // For Translator
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "LanguageModelChatMeta.Widgets";
+  public static final String WIDGET_AI_PROVIDER = "0100-ai-provider";
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.AI_PROVIDER)
+  @GuiWidgetElement(
+      id = WIDGET_AI_PROVIDER,
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadataKey = "ai-provider",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      label = "i18n::LanguageModelChatDialog.AiProvider.Label",
+      toolTip = "i18n::LanguageModelChatDialog.AiProvider.Tooltip")
+  private String aiProviderName = "";
 
   @HopMetadataProperty private String inputField = "input";
   @HopMetadataProperty private boolean inputChatJson = false;
@@ -172,6 +192,7 @@ public class LanguageModelChatMeta
 
   @Override
   public void setDefault() {
+    aiProviderName = "";
     inputField = "input";
     inputChatJson = false;
     outputChatJson = false;
@@ -321,6 +342,24 @@ public class LanguageModelChatMeta
               transformMeta);
     }
     remarks.add(cr);
+
+    if (!isEmpty(aiProviderName)) {
+      try {
+        LanguageModelChatAiProviderSupport.resolve(this, variables, metadataProvider);
+        cr =
+            new CheckResult(
+                TYPE_RESULT_OK,
+                getString(PKG, "LanguageModelChatMeta.CheckResult.AiProviderOK"),
+                transformMeta);
+      } catch (Exception e) {
+        cr =
+            new CheckResult(
+                TYPE_RESULT_ERROR,
+                getString(PKG, "LanguageModelChatMeta.CheckResult.AiProviderError", e.getMessage()),
+                transformMeta);
+      }
+      remarks.add(cr);
+    }
 
     // See if we have input streams leading to this transform!
     if (input.length > 0) {

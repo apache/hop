@@ -38,26 +38,23 @@ final class GitIssueActivityMapper {
       String url,
       String body,
       JSONObject rawJson) {
-    return new GitResourceRecord(
-        provider,
-        commentType.getEntityType(),
-        owner,
-        repository,
-        id,
-        issueNumber,
-        issueTitle,
-        issueState,
-        author,
-        createdAt,
-        updatedAt,
-        "",
-        url,
-        body,
-        "",
-        "",
-        "",
-        "",
-        rawJson.toJSONString());
+    return GitResourceRecord.builder()
+        .provider(provider)
+        .entityType(commentType.getEntityType())
+        .repoOwner(owner)
+        .repoName(repository)
+        .id(id)
+        .number(issueNumber)
+        .title(issueTitle)
+        .state(issueState)
+        .body(body)
+        .author(author)
+        .authorLogin(author)
+        .createdAt(createdAt)
+        .updatedAt(updatedAt)
+        .url(url)
+        .rawJson(rawJson.toJSONString())
+        .build();
   }
 
   static GitResourceRecord event(
@@ -74,25 +71,21 @@ final class GitIssueActivityMapper {
       String createdAt,
       String url,
       JSONObject rawJson) {
-    return new GitResourceRecord(
-        provider,
-        GitResourceType.ISSUE_EVENTS.getEntityType(),
-        owner,
-        repository,
-        id,
-        issueNumber,
-        eventType,
-        eventDetail,
-        actor,
-        createdAt,
-        "",
-        "",
-        url,
-        eventDetail,
-        "",
-        "",
-        "",
-        "",
-        rawJson.toJSONString());
+    return GitResourceRecord.builder()
+        .provider(provider)
+        .entityType(GitResourceType.ISSUE_EVENTS.getEntityType())
+        .repoOwner(owner)
+        .repoName(repository)
+        .id(id)
+        .number(issueNumber)
+        .title(eventType)
+        .state(eventDetail)
+        .body(eventDetail)
+        .author(actor)
+        .authorLogin(actor)
+        .createdAt(createdAt)
+        .url(url)
+        .rawJson(rawJson.toJSONString())
+        .build();
   }
 }

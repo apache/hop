@@ -29,6 +29,7 @@
     <name>Hop Plugins Technology</name>
 
     <modules>
+        <module>ai</module>
         <module>arrow</module>
         <module>avro</module>
         <module>aws</module>

@@ -130,18 +130,8 @@ public class LanguageModelFacade {
             .timeout(timeout == null ? null : ofSeconds(timeout))
             .maxRetries(maxRetries)
             .logRequests(logRequests)
-            .logResponses(logResponses);
-
-    if (meta.isOpenAiUseProxy()) {
-      builder.httpClientBuilder(
-          new JdkHttpClientBuilder()
-              .httpClientBuilder(
-                  HttpClient.newBuilder()
-                      .proxy(
-                          ProxySelector.of(
-                              new InetSocketAddress(
-                                  meta.getOpenAiProxyHost(), meta.getOpenAiProxyPort())))));
-    }
+            .logResponses(logResponses)
+            .httpClientBuilder(openAiHttpClientBuilder());
 
     return builder.build();
   }
@@ -211,6 +201,7 @@ public class LanguageModelFacade {
         .responseFormat(toResponseFormat(format))
         .timeout(timeout == null ? null : ofSeconds(timeout))
         .maxRetries(maxRetries)
+        .httpClientBuilder(jdkHttpClientBuilder())
         .build();
   }
 
@@ -244,6 +235,7 @@ public class LanguageModelFacade {
         .maxRetries(maxRetries)
         .logRequests(logRequests)
         .logResponses(logResponses)
+        .httpClientBuilder(jdkHttpClientBuilder())
         .build();
   }
 
@@ -278,7 +270,31 @@ public class LanguageModelFacade {
         .logRequests(logRequests)
         .logResponses(logResponses)
         .maxRetries(maxRetries)
+        .httpClientBuilder(jdkHttpClientBuilder())
         .build();
+  }
+
+  /**
+   * Construct the JDK client here instead of going through langchain4j's ServiceLoader. Hop's
+   * plugin classloader is child-first while ServiceLoader still sees parent META-INF/services, so
+   * the factory class and HttpClientBuilderFactory can come from different loaders ("not a
+   * subtype").
+   */
+  private static JdkHttpClientBuilder jdkHttpClientBuilder() {
+    return new JdkHttpClientBuilder();
+  }
+
+  private JdkHttpClientBuilder openAiHttpClientBuilder() {
+    JdkHttpClientBuilder builder = jdkHttpClientBuilder();
+    if (meta.isOpenAiUseProxy()) {
+      builder.httpClientBuilder(
+          HttpClient.newBuilder()
+              .proxy(
+                  ProxySelector.of(
+                      new InetSocketAddress(
+                          meta.getOpenAiProxyHost(), meta.getOpenAiProxyPort()))));
+    }
+    return builder;
   }
 
   /**

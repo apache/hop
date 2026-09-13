@@ -164,6 +164,21 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isInFields();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isInFields();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "YamlInputDialog.wlXmlStreamField.Label");
+  }
+
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -241,19 +256,11 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    // See if we get input...
-    if (input.length <= 0) {
+    if (isInFields() && input.length <= 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInput"),
+              BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.IncomingHopsRequired"),
               transformMeta);
       remarks.add(cr);
     }

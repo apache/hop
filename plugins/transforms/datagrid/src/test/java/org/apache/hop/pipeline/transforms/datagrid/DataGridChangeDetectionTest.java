@@ -65,6 +65,14 @@ class DataGridChangeDetectionTest {
   }
 
   @Test
+  void dataGridDoesNotConsumeMainInput() {
+    DataGridMeta meta = new DataGridMeta();
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+    assertFalse(meta.getTransformIOMeta().isInputAcceptor());
+  }
+
+  @Test
   void editingTheMetaTabIsNotDetected() throws Exception {
     TransformMeta transformMeta = dataGridTransform();
     TransformMeta before = (TransformMeta) transformMeta.clone();

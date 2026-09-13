@@ -236,6 +236,7 @@ Otherwise by default a NULL is returned when all values are NULL.
 Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL.
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
 |HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
+|HOP_ALLOW_UNCONSUMED_MAIN_INPUT|N|Set this variable to Y to start a pipeline that has main hops into transforms that do not consume input (for example existing files whose upstream produces no rows). Default N fails init and stops on leftover input. Verify still reports an error. See xref:pipeline/pipeline-sources.adoc[Pipeline sources].
 |HOP_BATCHING_ROWSET|N|Set this variable to 'Y' if you want to test a more efficient batching row set.
 |HOP_DATABASE_CONNECTION_TIMEOUT|30|Default login/connection timeout in **seconds** applied when opening a JDBC database connection (maps to `DriverManager.setLoginTimeout`).
 Defaults to `30`; set to `0` to impose no timeout (a stalled connect can then block indefinitely).

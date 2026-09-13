@@ -30,6 +30,11 @@ under the License.
 
 The Execute SQL Script transform runs a SQL script either once, during the initialization phase of the pipeline, or once for every input-row that the transform receives.
 
+[NOTE]
+====
+xref:pipeline/pipeline-sources.adoc[Pipeline source] when *Execute for each row* is off (the default). Enable that option to run the script once per incoming row; hops are then required, and hops into one-shot mode are refused.
+====
+
 When used for every input row, parameters can be passed to the SQL scripts specified in the transform.
 Only in this mode, input fields are passed on to the next hop.
 

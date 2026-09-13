@@ -30,6 +30,13 @@
     <name>Hop Plugins Transforms Language Model Chat</name>
 
     <properties>
+        <!-- langchain4j 1.20.0 depends on Jackson. Hop already ships Jackson on the application
+             classloader; a second copy in this plugin's lib makes HopURLClassLoader (child-first,
+             shared hop-ai group with hop-tech-ai) define ObjectMapper again. HopAiConfigSingleton
+             then hits a LinkageError against HopJson.newMapper(). -->
+        <hop.pluginlib.exclude1>jackson-core</hop.pluginlib.exclude1>
+        <hop.pluginlib.exclude2>jackson-databind</hop.pluginlib.exclude2>
+        <hop.pluginlib.exclude3>jackson-annotations</hop.pluginlib.exclude3>
         <langchain4j.version>1.20.0</langchain4j.version>
     </properties>
 

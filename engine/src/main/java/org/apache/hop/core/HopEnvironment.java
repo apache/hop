@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.ai.advisor.AiAdvisorPluginType;
+import org.apache.hop.ai.provider.AiProviderPluginType;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
@@ -70,6 +72,14 @@ public class HopEnvironment {
   private static AtomicReference<SettableFuture<Boolean>> initialized = new AtomicReference<>(null);
 
   /**
+   * Set on the thread that is executing {@link #init(List)} until that call completes. Nested
+   * {@code init()} / {@link #isInitialized()} from {@code HopEnvironmentAfterInit} (or anything it
+   * invokes) must not wait on {@code initialized}'s future: that future is only completed after
+   * AfterInit returns, so waiting deadlocks the same thread.
+   */
+  private static final ThreadLocal<Boolean> initializing = new ThreadLocal<>();
+
+  /**
    * Initializes the Hop environment. This method performs the following operations:
    *
    * <p>- Creates a Hop "home" directory if it does not already exist - Reads in the hop.properties
@@ -105,14 +115,16 @@ public class HopEnvironment {
         org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),
         DataStreamPluginType.getInstance(),
         NotificationProviderPluginType.getInstance(),
-        org.apache.hop.core.diagram.DiagramExporterPluginType.getInstance());
+        org.apache.hop.core.diagram.DiagramExporterPluginType.getInstance(),
+        AiProviderPluginType.getInstance(),
+        AiAdvisorPluginType.getInstance());
   }
 
   public static void init(List<IPluginType> pluginTypes) throws HopException {
 
     SettableFuture<Boolean> ready;
     if (initialized.compareAndSet(null, ready = SettableFuture.create())) {
-
+      initializing.set(true);
       // Swaps out System Properties for a thread safe version.
       // This is not that important since we're no longer using System properties
       // However, plugins might still make use of it so keep it around
@@ -120,6 +132,8 @@ public class HopEnvironment {
       System.setProperties(ConcurrentMapProperties.convertProperties(System.getProperties()));
 
       try {
+        silenceVerboseThirdPartyLoggers();
+
         // This creates .hop and hop.properties...
         //
         if (!HopClientEnvironment.isInitialized()) {
@@ -188,9 +202,16 @@ public class HopEnvironment {
         ready.setException(t);
         // If it's a HopException, throw it, otherwise wrap it in a HopException
         throw ((t instanceof HopException hopException) ? hopException : new HopException(t));
+      } finally {
+        initializing.remove();
       }
 
     } else {
+      // Same thread is already inside init() (typically HopEnvironmentAfterInit). Waiting on the
+      // future would deadlock: it is only completed after AfterInit returns.
+      if (Boolean.TRUE.equals(initializing.get())) {
+        return;
+      }
       // A different thread is initializing
       ready = initialized.get();
       // Block until environment is initialized
@@ -230,9 +251,13 @@ public class HopEnvironment {
    * @return true if initialized, false otherwise
    */
   public static boolean isInitialized() {
+    // AfterInit runs before the init future is completed. Waiting here from that thread deadlocks.
+    if (Boolean.TRUE.equals(initializing.get())) {
+      return true;
+    }
     Future<Boolean> future = initialized.get();
     try {
-      return future != null && future.get();
+      return future != null && Boolean.TRUE.equals(future.get());
     } catch (Throwable e) {
       return false;
     }
@@ -253,5 +278,46 @@ public class HopEnvironment {
     LineageHub.getInstance().shutdown();
     HopClientEnvironment.reset();
     initialized.set(null);
+  }
+
+  /**
+   * Strong reference to prevent java.util.logging.LogManager from garbage-collecting the logger.
+   */
+  @SuppressWarnings("java:S3985")
+  private static final java.util.logging.Logger JUL_WIRE_LOGGER =
+      java.util.logging.Logger.getLogger("org.apache.hc.client5.http.wire");
+
+  /**
+   * Default verbose third-party loggers to a non-debug level to prevent dumping raw network bytes
+   * to the console while preserving explicitly configured debug settings.
+   */
+  private static void silenceVerboseThirdPartyLoggers() {
+    String wireLoggerName = "org.apache.hc.client5.http.wire";
+
+    // Silence JUL logger to prevent verbose byte dumps on backends printing via java.util.logging
+    try {
+      if (JUL_WIRE_LOGGER.getLevel() == null) {
+        JUL_WIRE_LOGGER.setLevel(java.util.logging.Level.WARNING);
+      }
+    } catch (Exception ignored) {
+      // Ignore if JUL cannot be configured
+    }
+
+    // Configure Log4j2 if present on the classpath, preserving any explicit configuration
+    try {
+      org.apache.logging.log4j.core.LoggerContext context =
+          org.apache.logging.log4j.core.LoggerContext.getContext(false);
+      org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+      org.apache.logging.log4j.core.config.LoggerConfig loggerConfig =
+          configuration.getLoggerConfig(wireLoggerName);
+      boolean isExplicitlyConfigured =
+          wireLoggerName.equals(loggerConfig.getName()) && loggerConfig.getExplicitLevel() != null;
+      if (!isExplicitlyConfigured) {
+        org.apache.logging.log4j.core.config.Configurator.setLevel(
+            wireLoggerName, org.apache.logging.log4j.Level.INFO);
+      }
+    } catch (LinkageError | Exception ignored) {
+      // Ignore if Log4j2 core is not available or configuration fails
+    }
   }
 }

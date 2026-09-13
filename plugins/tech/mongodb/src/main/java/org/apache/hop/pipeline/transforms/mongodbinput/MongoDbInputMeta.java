@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.mongodbinput;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -28,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.mongo.wrapper.field.MongoField;
@@ -76,6 +78,21 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   @Override
   public void setDefault() {
     jsonFieldName = "json";
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isExecuteForEachIncomingRow();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isExecuteForEachIncomingRow();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "MongoDbInputDialog.ExecuteForEachRow.Label");
   }
 
   @Override
@@ -131,5 +148,12 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         info,
         variables,
         metadataProvider);
+    if (isExecuteForEachIncomingRow() && input.length <= 0) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "MongoDbInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta));
+    }
   }
 }

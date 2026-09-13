@@ -85,6 +85,16 @@ public class SparkFileInputMeta extends BaseTransformMeta<SparkFileInput, SparkF
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return SparkFileInputDialog.class.getName();
   }

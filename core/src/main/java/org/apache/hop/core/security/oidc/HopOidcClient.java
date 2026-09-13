@@ -29,7 +29,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -62,6 +61,8 @@ public final class HopOidcClient {
   private static final Duration HTTP_TIMEOUT = Duration.ofSeconds(20);
   private static final Map<String, OidcDiscoveryDocument> DISCOVERY_CACHE =
       new ConcurrentHashMap<>();
+  private static final Map<String, JWKSource<SecurityContext>> JWKS_CACHE =
+      new ConcurrentHashMap<>();
 
   private final HopSecurityConfig config;
   private final HttpClient httpClient;
@@ -89,9 +90,10 @@ public final class HopOidcClient {
         });
   }
 
-  /** Drop cached discovery (after config change). */
+  /** Drop cached discovery and JWKS sources (after config change). */
   public static void clearDiscoveryCache() {
     DISCOVERY_CACHE.clear();
+    JWKS_CACHE.clear();
   }
 
   private OidcDiscoveryDocument fetchDiscovery(String issuer) throws Exception {
@@ -172,8 +174,8 @@ public final class HopOidcClient {
   }
 
   /**
-   * Validate ID token signature (JWKS) and return claims. Validates issuer when present in
-   * discovery.
+   * Validate ID token signature (JWKS) and return claims. Issuer and audience are required: bearer
+   * tokens are request-supplied, so a missing claim must not skip the check.
    */
   public JWTClaimsSet validateIdToken(String idToken, String expectedNonce) throws Exception {
     OidcDiscoveryDocument doc = getDiscovery();
@@ -181,7 +183,7 @@ public final class HopOidcClient {
       throw new IllegalStateException("OIDC discovery missing jwks_uri");
     }
     ConfigurableJWTProcessor<SecurityContext> processor = new DefaultJWTProcessor<>();
-    JWKSource<SecurityContext> keySource = new RemoteJWKSet<>(new URL(doc.getJwksUri()));
+    JWKSource<SecurityContext> keySource = jwkSource(doc.getJwksUri());
     Set<JWSAlgorithm> algs =
         Set.of(
             JWSAlgorithm.RS256,
@@ -196,11 +198,39 @@ public final class HopOidcClient {
     JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(algs, keySource);
     processor.setJWSKeySelector(keySelector);
     JWTClaimsSet claims = processor.process(idToken, null);
+    validateIdTokenClaims(claims, expectedNonce);
+    return claims;
+  }
 
+  /**
+   * Cached {@link RemoteJWKSet} per {@code jwks_uri}. A new source on every call would discard
+   * Nimbus' JWKS cache and let unauthenticated Bearer traffic force an outbound fetch per request.
+   */
+  static JWKSource<SecurityContext> jwkSource(String jwksUri) {
+    if (jwksUri == null || jwksUri.isBlank()) {
+      throw new IllegalStateException("OIDC discovery missing jwks_uri");
+    }
+    return JWKS_CACHE.computeIfAbsent(
+        jwksUri,
+        uri -> {
+          try {
+            return new RemoteJWKSet<>(URI.create(uri).toURL());
+          } catch (Exception e) {
+            throw new IllegalStateException("Invalid jwks_uri: " + uri, e);
+          }
+        });
+  }
+
+  /**
+   * Issuer, audience, and optional nonce. Package-visible so tests can cover the claim checks
+   * without a JWKS endpoint.
+   */
+  void validateIdTokenClaims(JWTClaimsSet claims, String expectedNonce) {
     String issuer = trimTrailingSlash(config.getOauthIssuerUrl());
-    if (claims.getIssuer() != null
-        && issuer != null
-        && !issuer.equals(trimTrailingSlash(claims.getIssuer()))) {
+    if (claims.getIssuer() == null || claims.getIssuer().isBlank()) {
+      throw new IllegalStateException("ID token missing issuer");
+    }
+    if (issuer != null && !issuer.equals(trimTrailingSlash(claims.getIssuer()))) {
       throw new IllegalStateException(
           "ID token issuer mismatch: " + claims.getIssuer() + " vs " + issuer);
     }
@@ -210,15 +240,15 @@ public final class HopOidcClient {
         throw new IllegalStateException("ID token nonce mismatch");
       }
     }
-    // Audience: must include our client id when present
     List<String> aud = claims.getAudience();
-    if (aud != null
-        && !aud.isEmpty()
-        && config.getOauthClientId() != null
+    if (aud == null || aud.isEmpty()) {
+      throw new IllegalStateException("ID token missing audience");
+    }
+    if (config.getOauthClientId() != null
+        && !config.getOauthClientId().isBlank()
         && !aud.contains(config.getOauthClientId())) {
       throw new IllegalStateException("ID token audience does not include client_id");
     }
-    return claims;
   }
 
   public HopSecurityContext toSecurityContext(JWTClaimsSet claims) {

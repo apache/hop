@@ -64,6 +64,11 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
     this.fields = new ArrayList<>();
   }
 
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   public RandomValueMeta(RandomValueMeta m) {
     this();
     this.seed = m.seed;

@@ -108,7 +108,8 @@ class BitbucketResourceClientWireMockTest {
                         envelopeWithNext(
                             "{\"hash\":\"deadbeef\",\"message\":\"a commit\\n\\nwith a body\","
                                 + "\"date\":\"2026-05-01T12:00:00.000000+00:00\","
-                                + "\"author\":{\"user\":{\"display_name\":\"Ada Lovelace\"}},"
+                                + "\"author\":{\"raw\":\"Ada Lovelace <ada@example.com>\","
+                                + "\"user\":{\"display_name\":\"Ada Lovelace\"}},"
                                 + "\"links\":{\"html\":{\"href\":\"https://bitbucket.org/team/repo/commits/deadbeef\"}}}"))));
     wireMock.stubFor(
         get(urlPathEqualTo("/repositories/team/repo/commits"))
@@ -124,10 +125,12 @@ class BitbucketResourceClientWireMockTest {
     assertEquals("deadbeef", record.getSha());
     assertEquals("a commit", record.getTitle());
     assertEquals("Ada Lovelace", record.getAuthor());
+    assertEquals("ada@example.com", record.getAuthorEmail());
 
     // Bitbucket's microsecond precision must still parse to a Date.
-    Object[] row = record.toRow(true);
-    int createdAt = List.of(GitInputFields.FIELD_NAMES).indexOf("created_at");
+    Object[] row = record.toRow(GitResourceType.COMMITS, true);
+    int createdAt =
+        List.of(GitInputFields.fieldNames(GitResourceType.COMMITS, true)).indexOf("created_at");
     assertEquals(Date.from(Instant.parse("2026-05-01T12:00:00Z")), row[createdAt]);
   }
 

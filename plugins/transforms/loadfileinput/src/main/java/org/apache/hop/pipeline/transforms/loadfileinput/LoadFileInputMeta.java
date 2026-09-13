@@ -182,6 +182,21 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isFileInField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFileInField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "LoadFileInputDialog.FilenameInField.Label");
+  }
+
+  @Override
   public void getFields(
       IRowMeta r,
       String name,

@@ -316,6 +316,21 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isAcceptingFilenames();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isAcceptingFilenames();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "ExcelInputDialog.AcceptFilenames.Label");
+  }
+
+  @Override
   public void setDefault() {
     startsWithHeader = true;
     ignoreEmptyRows = true;

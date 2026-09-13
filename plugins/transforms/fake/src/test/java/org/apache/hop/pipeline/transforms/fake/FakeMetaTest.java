@@ -46,6 +46,13 @@ class FakeMetaTest {
   }
 
   @Test
+  void appendsToIncomingRowsAndDoesNotStartWithoutInput() {
+    FakeMeta meta = new FakeMeta();
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
+  }
+
+  @Test
   void setDefaultUsesEnglishLocale() {
     FakeMeta meta = new FakeMeta();
     meta.setDefault();
