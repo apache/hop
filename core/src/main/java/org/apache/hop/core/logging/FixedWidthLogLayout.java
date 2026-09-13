@@ -26,6 +26,9 @@ public class FixedWidthLogLayout {
   private static final ThreadLocal<SimpleDateFormat> LOCAL_SIMPLE_DATE_PARSER =
       ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"));
 
+  private static final ThreadLocal<CachedTime> CACHED_TIME =
+      ThreadLocal.withInitial(CachedTime::new);
+
   private static final int MAX_LOG_LEVEL_LENGTH =
       Arrays.stream(LogLevel.getLogLevelCodes()).map(String::length).reduce(0, Integer::max);
 
@@ -39,13 +42,28 @@ public class FixedWidthLogLayout {
     this.timeAdded = addTime;
   }
 
+  /**
+   * Render the time prefix, re-using it for all the lines that fall into the same second. It is
+   * only reused when the event's second matches the cached one, so a line can never be labeled with
+   * a wrong timestamp.
+   */
+  private String formatTime(long timeStamp) {
+    long seconds = timeStamp / 1000L;
+    CachedTime cached = CACHED_TIME.get();
+    if (cached.seconds != seconds) {
+      cached.seconds = seconds;
+      cached.rendered = LOCAL_SIMPLE_DATE_PARSER.get().format(new Date(timeStamp));
+    }
+    return cached.rendered + " ";
+  }
+
   public String format(HopLoggingEvent event) {
     StringBuilder line = new StringBuilder();
 
     String dateTimeString = "";
 
     if (timeAdded) {
-      dateTimeString = LOCAL_SIMPLE_DATE_PARSER.get().format(new Date(event.timeStamp)) + " ";
+      dateTimeString = formatTime(event.timeStamp);
     }
 
     Object object = event.getMessage();
@@ -95,5 +113,10 @@ public class FixedWidthLogLayout {
   private String getLogLevelPadded(LogLevel logLevel) {
     String code = logLevel.getCode();
     return "[" + code + "] " + " ".repeat(Math.max(MAX_LOG_LEVEL_LENGTH - code.length(), 0));
+  }
+
+  private static final class CachedTime {
+    long seconds = Long.MIN_VALUE;
+    String rendered = "";
   }
 }

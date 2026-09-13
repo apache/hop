@@ -110,9 +110,14 @@ public class HopLogBufferAppender extends AbstractAppender {
     if (appender == null) {
       return;
     }
-    LogLevel hopLevel = toHopLevel(event.getLevel());
+    LogLevel hopLevel = fromEvent(event);
     String message = event.getMessage() == null ? "" : event.getMessage().getFormattedMessage();
     LogMessage logMessage = new LogMessage(message, channelId, hopLevel, false);
+    if (event.getThrown() != null) {
+      // The slf4j layer renders the throwable separately; re-produce the pre-rendered trace Hop's
+      // consumers expect and keep the buffered event free of the exception graph.
+      logMessage.setStackTrace(Const.getStackTracker(event.getThrown()));
+    }
     HopLoggingEvent loggingEvent = new HopLoggingEvent(logMessage, event.getTimeMillis(), hopLevel);
     appender.addLogggingEvent(loggingEvent);
 
@@ -123,16 +128,26 @@ public class HopLogBufferAppender extends AbstractAppender {
 
   private void writeToConsole(HopLoggingEvent event, LogLevel hopLevel) {
     String text = layout.format(event);
+    // The hop console streams are auto-flush PrintStreams: println already flushes, so no extra
+    // flush() syscall is needed per line.
     if (hopLevel == LogLevel.ERROR) {
       if (useColors) {
         text = ANSI_RED + text + ANSI_RESET;
       }
       HopLogStore.OriginalSystemErr.println(text);
-      HopLogStore.OriginalSystemErr.flush();
     } else {
       HopLogStore.OriginalSystemOut.println(text);
-      HopLogStore.OriginalSystemOut.flush();
     }
+  }
+
+  private static LogLevel fromEvent(LogEvent event) {
+    // The exact hop level travels in the MDC; fall back to the closest log4j2 level for events
+    // that did not originate from a hop LogChannel.
+    String levelCode = event.getContextData().getValue(LogChannel.MDC_LEVEL);
+    if (levelCode != null) {
+      return LogLevel.lookupCode(levelCode);
+    }
+    return toHopLevel(event.getLevel());
   }
 
   private static LogLevel toHopLevel(org.apache.logging.log4j.Level level) {

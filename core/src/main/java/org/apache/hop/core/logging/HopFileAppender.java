@@ -142,10 +142,13 @@ public class HopFileAppender extends AbstractAppender {
       return;
     }
     try {
-      final LogLevel hopeLevel = toHopLevel(event.getLevel());
+      final LogLevel hopeLevel = fromEvent(event);
       final String message =
           event.getMessage() == null ? "" : event.getMessage().getFormattedMessage();
       final LogMessage logMessage = new LogMessage(message, channelId, hopeLevel, false);
+      if (event.getThrown() != null) {
+        logMessage.setStackTrace(Const.getStackTracker(event.getThrown()));
+      }
       final HopLoggingEvent loggingEvent =
           new HopLoggingEvent(logMessage, event.getTimeMillis(), hopeLevel);
       outputStream.write(layout.format(loggingEvent).getBytes(Const.UTF_8));
@@ -164,6 +167,16 @@ public class HopFileAppender extends AbstractAppender {
     }
     final List<String> children = LoggingRegistry.getInstance().getLogChannelChildren(logChannelId);
     return children != null && children.contains(channelId);
+  }
+
+  private static LogLevel fromEvent(final LogEvent event) {
+    // The exact hop level travels in the MDC; fall back to the closest log4j2 level for events
+    // that did not originate from a hop LogChannel.
+    final String levelCode = event.getContextData().getValue(LogChannel.MDC_LEVEL);
+    if (levelCode != null) {
+      return LogLevel.lookupCode(levelCode);
+    }
+    return toHopLevel(event.getLevel());
   }
 
   private static LogLevel toHopLevel(final org.apache.logging.log4j.Level level) {
