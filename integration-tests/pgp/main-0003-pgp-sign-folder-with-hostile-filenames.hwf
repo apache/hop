@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0003-pgp-sign-folder-with-hostile-filenames</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Signs a whole folder whose filenames contain shell metacharacters. The names are
+  discovered by the action itself rather than configured, which is how they reach gpg in a real
+  deployment: whoever can write into a watched drop folder chooses them.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/10 00:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/10 00:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>fill a drop folder with hostile filenames</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+set -e
+
+GNUPG_HOME=${PROJECT_HOME}/output/gnupg
+WRAPPER=${PROJECT_HOME}/output/gpg-in-project.sh
+DROP=${PROJECT_HOME}/output/drop
+SIGNED=${PROJECT_HOME}/output/signed
+
+GPG_BIN=$(command -v gpg || true)
+if [ -z "$GPG_BIN" ]; then
+  echo "gpg is not installed; the PGP actions cannot run without it"
+  exit 1
+fi
+
+rm -rf "$GNUPG_HOME" "$DROP" "$SIGNED"
+mkdir -p "$GNUPG_HOME" "$DROP" "$SIGNED"
+chmod 700 "$GNUPG_HOME"
+
+printf '#!/bin/sh\nexec "%s" --homedir "%s" "$@"\n' "$GPG_BIN" "$GNUPG_HOME" &gt; "$WRAPPER"
+chmod 700 "$WRAPPER"
+
+"$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback --passphrase '' \
+  --quiet --quick-generate-key "Hop Integration Test &lt;hop-it@example.org&gt;" default default never 2&gt;&amp;1
+
+# Every name below is a legal file name that a shell would rewrite if it ever saw it. The action
+# discovers them by scanning the folder, so they must travel to gpg exactly as written here.
+printf 'id,amount\n1,100\n' &gt; "$DROP"'/report$(echo pwned).csv'
+printf 'id,amount\n2,200\n' &gt; "$DROP"'/report`echo pwned`.csv'
+printf 'id,amount\n3,300\n' &gt; "$DROP"'/report;echo pwned;.csv'
+printf 'id,amount\n4,400\n' &gt; "$DROP"'/report with spaces.csv'
+printf 'id,amount\n5,500\n' &gt; "$DROP"'/report&amp;&amp;echo pwned.csv'
+printf 'id,amount\n6,600\n' &gt; "$DROP"'/report|echo pwned.csv'
+printf 'id,amount\n7,700\n' &gt; "$DROP"'/report$HOME.csv'
+printf 'id,amount\n8,800\n' &gt; "$DROP"'/report*.csv'
+
+echo "drop folder contains $(find "$DROP" -type f | wc -l) files"
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>sign every file in the folder</name>
+      <description/>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <gpglocation>${PROJECT_HOME}/output/gpg-in-project.sh</gpglocation>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <asciiMode>Y</asciiMode>
+      <fields>
+        <field>
+          <action_type>sign</action_type>
+          <source_filefolder>${PROJECT_HOME}/output/drop</source_filefolder>
+          <wildcard>.*\.csv</wildcard>
+          <userid></userid>
+          <destination_filefolder>${PROJECT_HOME}/output/signed</destination_filefolder>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>460</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>every file was signed and verifies</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+set -e
+
+WRAPPER=${PROJECT_HOME}/output/gpg-in-project.sh
+DROP=${PROJECT_HOME}/output/drop
+SIGNED=${PROJECT_HOME}/output/signed
+
+dropped=$(find "$DROP" -type f | wc -l | tr -d ' ')
+signed=$(find "$SIGNED" -type f | wc -l | tr -d ' ')
+
+if [ "$dropped" -eq 0 ]; then
+  echo "no source files were created, the test proves nothing"
+  exit 1
+fi
+
+if [ "$dropped" -ne "$signed" ]; then
+  echo "expected $dropped signatures but found $signed"
+  echo "a name that a shell rewrote would have been read as a file that does not exist"
+  find "$SIGNED" -type f
+  exit 1
+fi
+
+# Every output has to be a real signature over the file it came from.
+failed=0
+while IFS= read -r f; do
+  if ! head -n 1 "$f" | grep -q -- '-----BEGIN PGP SIGNED MESSAGE-----'; then
+    echo "not a clear-signed message: $f"
+    failed=1
+    continue
+  fi
+  if ! "$WRAPPER" --batch --verify "$f" &gt;/dev/null 2&gt;&amp;1; then
+    echo "signature does not verify: $f"
+    failed=1
+  fi
+done &lt; &lt;(find "$SIGNED" -type f)
+
+echo "$signed of $dropped files signed and verified"
+exit $failed
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>680</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Signing a folder of files with shell metacharacters in their names failed</message>
+      <loglevel>ERROR</loglevel>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>460</xloc>
+      <yloc>220</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>fill a drop folder with hostile filenames</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>fill a drop folder with hostile filenames</from>
+      <to>sign every file in the folder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign every file in the folder</from>
+      <to>every file was signed and verifies</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>fill a drop folder with hostile filenames</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign every file in the folder</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>every file was signed and verifies</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
