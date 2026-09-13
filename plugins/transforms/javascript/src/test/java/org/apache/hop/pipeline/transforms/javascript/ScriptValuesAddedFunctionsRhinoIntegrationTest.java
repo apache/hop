@@ -64,9 +64,10 @@ class ScriptValuesAddedFunctionsRhinoIntegrationTest {
 
   @Test
   void getDigitsOnly_requiresOneArgument() {
+    Object[] args = args();
     assertThrows(
         EvaluatorException.class,
-        () -> ScriptValuesAddedFunctions.getDigitsOnly(cx, scope, args(), null));
+        () -> ScriptValuesAddedFunctions.getDigitsOnly(cx, scope, args, null));
   }
 
   @Test
@@ -255,5 +256,16 @@ class ScriptValuesAddedFunctionsRhinoIntegrationTest {
             () -> ScriptValuesAddedFunctions.LoadScriptFromTab(cx, scope, broken, null));
     assertTrue(ex.getMessage().contains("Unable to load script from tab"));
     assertTrue(ex.getMessage().contains("Broken"));
+  }
+
+  @Test
+  void loadScriptFromTab_requiresAtLeastOneArgument() {
+    Object[] args = args();
+
+    EvaluatorException ex =
+        assertThrows(
+            EvaluatorException.class,
+            () -> ScriptValuesAddedFunctions.LoadScriptFromTab(cx, scope, args, null));
+    assertTrue(ex.getMessage().contains("requires at least 1 argument"));
   }
 }
