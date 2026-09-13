@@ -252,6 +252,11 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // URL params were only for initial project/file; clear so they don't affect CLI/run.
     HopGui.getInstance().setCommandLineArguments(new ArrayList<>());
 
+    // Hop Web only delivers background asyncExec updates to the browser while a server
+    // push session is running. Start server push for the session so pipeline/workflow logs,
+    // notifications, and other async UI updates are pushed immediately without stalling.
+    ServerPushSessionFacade.start();
+
     HopWebUrlHelper.setUrlUpdater(new RapHopWebUrlUpdater());
 
     // Persist open tabs when the session ends (browser close, timeout, etc.).
@@ -271,7 +276,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
                   NotificationService.getInstance().stop();
                   ServerPushSessionFacade.stop();
                 } catch (Exception e) {
-                  LogChannel.UI.logError("Error stopping notifications on session end", e);
+                  LogChannel.UI.logError(
+                      "Error stopping notifications and server push on session end", e);
                 }
                 try {
                   HopGui hopGui = HopGui.getInstance();

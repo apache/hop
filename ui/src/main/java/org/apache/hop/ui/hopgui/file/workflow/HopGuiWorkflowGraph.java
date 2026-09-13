@@ -125,7 +125,6 @@ import org.apache.hop.ui.hopgui.CanvasSvgFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
-import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
@@ -2622,8 +2621,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/run.svg")
   @Override
   public void start() {
-    ServerPushSessionFacade.start();
-
     Thread thread =
         new Thread(
             () ->
@@ -2633,7 +2630,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                           try {
                             workflowRunDelegate.executeWorkflow(
                                 hopGui.getVariables(), workflowMeta, null);
-                            ServerPushSessionFacade.stop();
                           } catch (Exception e) {
                             stopRedrawTimer();
                             new ErrorDialog(
@@ -2911,7 +2907,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void startWorkflowHere(HopGuiWorkflowActionContext context) {
-    ServerPushSessionFacade.start();
     Thread thread =
         new Thread(
             () ->
@@ -2924,7 +2919,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                                 hopGui.getVariables(),
                                 workflowMeta,
                                 context.getActionMeta().getName());
-                            ServerPushSessionFacade.stop();
                           } catch (Exception e) {
                             new ErrorDialog(
                                 hopGui.getActiveShell(),
