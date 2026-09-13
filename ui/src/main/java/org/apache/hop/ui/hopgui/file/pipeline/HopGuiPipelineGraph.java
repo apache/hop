@@ -167,7 +167,6 @@ import org.apache.hop.ui.hopgui.CanvasSvgFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
-import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
@@ -5576,7 +5575,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void start() {
     try {
-      ServerPushSessionFacade.start();
       Thread thread =
           new Thread(
               () ->
@@ -5589,7 +5587,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                               } else {
                                 pipelineRunDelegate.executePipeline(
                                     hopGui.getLog(), pipelineMeta, false, LogLevel.BASIC);
-                                ServerPushSessionFacade.stop();
                               }
                             } catch (Throwable e) {
                               new ErrorDialog(
