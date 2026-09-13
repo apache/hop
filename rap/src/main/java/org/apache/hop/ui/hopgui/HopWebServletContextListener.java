@@ -21,9 +21,11 @@ import jakarta.servlet.ServletContextEvent;
 import java.util.logging.Logger;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityBootstrap;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.www.HopServerPluginPermissions;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
 
 public class HopWebServletContextListener extends RWTServletContextListener {
@@ -45,6 +47,9 @@ public class HopWebServletContextListener extends RWTServletContextListener {
     }
     // Apply HOP_WEB_SECURITY_MODE / bootstrap BASIC users before any request
     HopSecurityBootstrap.runOnce();
+    // Register plugin /hop/* permissions before the first request so RBAC does not 403 them
+    // while HopServerServlet is still lazy-initialized.
+    HopServerPluginPermissions.registerLoadedPlugins(LogChannel.GENERAL);
     // Use per-user audit folders in Hop Web when the user is authenticated
     AuditManager.setSessionAuditManagerProvider(new HopWebAuditManagerProvider());
     // Session-aware RBAC: menus/toolbars consult HopSecurity for the UISession principal

@@ -20,6 +20,7 @@ package org.apache.hop.www;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +61,32 @@ class HopServerServletTest {
     servlet.doGet(req, resp);
 
     verify(plugin).doGet(req, resp);
+  }
+
+  @Test
+  void doGetDispatchesPrefixPathToRegisteredPlugin() throws Exception {
+    IHopServerPlugin plugin = mock(IHopServerPlugin.class);
+    registry.put("/sourceModelData", plugin);
+
+    HttpServletRequest req = mock(HttpServletRequest.class);
+    when(req.getPathInfo()).thenReturn("/sourceModelData/models/sales");
+    HttpServletResponse resp = mock(HttpServletResponse.class);
+
+    servlet.doGet(req, resp);
+
+    verify(plugin).doGet(req, resp);
+  }
+
+  @Test
+  void doGetSendsNotFoundWhenPathInfoIsNull() throws Exception {
+    HttpServletRequest req = mock(HttpServletRequest.class);
+    when(req.getPathInfo()).thenReturn(null);
+    HttpServletResponse resp = mock(HttpServletResponse.class);
+    when(resp.isCommitted()).thenReturn(false);
+
+    servlet.doGet(req, resp);
+
+    verify(resp).sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
   }
 
   @Test
@@ -105,7 +132,39 @@ class HopServerServletTest {
   }
 
   @Test
-  void doPostCatchesFailureWhenRegistryUninitialized() throws Exception {
+  void doGetPrefersTheLongestRegisteredPrefix() throws Exception {
+    IHopServerPlugin shorter = mock(IHopServerPlugin.class);
+    IHopServerPlugin longer = mock(IHopServerPlugin.class);
+    registry.put("/source", shorter);
+    registry.put("/sourceModelData", longer);
+
+    HttpServletRequest req = mock(HttpServletRequest.class);
+    when(req.getPathInfo()).thenReturn("/sourceModelData/crm");
+    HttpServletResponse resp = mock(HttpServletResponse.class);
+
+    servlet.doGet(req, resp);
+
+    verify(longer).doGet(req, resp);
+    verify(shorter, never()).doGet(any(), any());
+  }
+
+  @Test
+  void doGetSendsServiceUnavailableWhenRegistryUninitialized() throws Exception {
+    HopServerServlet bare = new HopServerServlet();
+    HttpServletRequest req = mock(HttpServletRequest.class);
+    when(req.getPathInfo()).thenReturn("/any");
+    HttpServletResponse resp = mock(HttpServletResponse.class);
+    when(resp.isCommitted()).thenReturn(false);
+
+    bare.doGet(req, resp);
+
+    verify(resp)
+        .sendError(
+            HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Hop Server servlet is not initialized.");
+  }
+
+  @Test
+  void doPostReportsUnavailableWhenRegistryUninitialized() throws Exception {
     HopServerServlet bare = new HopServerServlet();
     HttpServletRequest req = mock(HttpServletRequest.class);
     when(req.getPathInfo()).thenReturn("/any");
@@ -116,6 +175,6 @@ class HopServerServletTest {
 
     verify(resp)
         .sendError(
-            HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process server request.");
+            HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Hop Server servlet is not initialized.");
   }
 }

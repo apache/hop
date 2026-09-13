@@ -85,6 +85,8 @@
     <servlet>
         <servlet-name>Server</servlet-name>
         <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+        <!-- Eager init so plugin /hop/* paths are registered with RBAC before the first request. -->
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>Server</servlet-name>

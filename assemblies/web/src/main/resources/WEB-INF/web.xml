@@ -88,6 +88,10 @@
     <servlet>
         <servlet-name>Server</servlet-name>
         <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+        <!-- Eager init so plugin /hop/* paths are registered with RBAC before the first request.
+             Otherwise HopServerAuthorizationFilter default-denies unknown plugin endpoints and
+             never calls chain.doFilter(), so this servlet would never start. -->
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>Server</servlet-name>

@@ -70,6 +70,14 @@ public class HopEnvironment {
   private static AtomicReference<SettableFuture<Boolean>> initialized = new AtomicReference<>(null);
 
   /**
+   * Set on the thread that is executing {@link #init(List)} until that call completes. Nested
+   * {@code init()} / {@link #isInitialized()} from {@code HopEnvironmentAfterInit} (or anything it
+   * invokes) must not wait on {@code initialized}'s future: that future is only completed after
+   * AfterInit returns, so waiting deadlocks the same thread.
+   */
+  private static final ThreadLocal<Boolean> initializing = new ThreadLocal<>();
+
+  /**
    * Initializes the Hop environment. This method performs the following operations:
    *
    * <p>- Creates a Hop "home" directory if it does not already exist - Reads in the hop.properties
@@ -111,7 +119,7 @@ public class HopEnvironment {
 
     SettableFuture<Boolean> ready;
     if (initialized.compareAndSet(null, ready = SettableFuture.create())) {
-
+      initializing.set(true);
       // Swaps out System Properties for a thread safe version.
       // This is not that important since we're no longer using System properties
       // However, plugins might still make use of it so keep it around
@@ -180,9 +188,16 @@ public class HopEnvironment {
         ready.setException(t);
         // If it's a HopException, throw it, otherwise wrap it in a HopException
         throw ((t instanceof HopException hopException) ? hopException : new HopException(t));
+      } finally {
+        initializing.remove();
       }
 
     } else {
+      // Same thread is already inside init() (typically HopEnvironmentAfterInit). Waiting on the
+      // future would deadlock: it is only completed after AfterInit returns.
+      if (Boolean.TRUE.equals(initializing.get())) {
+        return;
+      }
       // A different thread is initializing
       ready = initialized.get();
       // Block until environment is initialized
@@ -222,9 +237,13 @@ public class HopEnvironment {
    * @return true if initialized, false otherwise
    */
   public static boolean isInitialized() {
+    // AfterInit runs before the init future is completed. Waiting here from that thread deadlocks.
+    if (Boolean.TRUE.equals(initializing.get())) {
+      return true;
+    }
     Future<Boolean> future = initialized.get();
     try {
-      return future != null && future.get();
+      return future != null && Boolean.TRUE.equals(future.get());
     } catch (Throwable e) {
       return false;
     }
