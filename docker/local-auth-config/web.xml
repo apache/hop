@@ -73,6 +73,16 @@
         <url-pattern>/ui-dark</url-pattern>
     </servlet-mapping>
 
+    <!-- Path-shaped explorer file URLs so HTML in the RAP Browser has a directory base. -->
+    <servlet>
+        <servlet-name>ExplorerFile</servlet-name>
+        <servlet-class>org.apache.hop.ui.hopgui.explorer.ExplorerFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ExplorerFile</servlet-name>
+        <url-pattern>/explorer-file/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>welcome</servlet-name>
         <jsp-file>/docs/English/welcome/index.html</jsp-file>
