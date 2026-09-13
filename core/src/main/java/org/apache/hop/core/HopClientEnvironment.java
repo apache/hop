@@ -86,7 +86,8 @@ public class HopClientEnvironment {
             ExtensionPointPluginType.getInstance(),
             TwoWayPasswordEncoderPluginType.getInstance(),
             VariableResolverPluginType.getInstance(),
-            VfsPluginType.getInstance()));
+            VfsPluginType.getInstance(),
+            org.apache.hop.core.diagram.DiagramExporterPluginType.getInstance()));
   }
 
   public static synchronized void init(List<IPluginType> pluginsToLoad) throws HopException {

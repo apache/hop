@@ -31,6 +31,7 @@ If you already know which type you need, jump straight to its group:
 * xref:plugin-types/metadata-configuration.adoc[Metadata and configuration] — metadata objects, CLI commands and options, variable resolvers, password encoders, authentication
 * xref:plugin-types/execution-observability.adoc[Execution and observability] — extension points, logging, execution information, data samplers, lineage sinks, server servlets
 * xref:plugin-types/gui.adoc[GUI] — GUI plugins, perspectives, file types, search analysers, dialog tabs
+* xref:plugin-types/diagram-exporters.adoc[Diagram exporters] — SVG, Mermaid and other formats from the GUI and `hop export`
 
 The rest of this page is the part that is the same for all of them.
 
@@ -85,7 +86,7 @@ ITransformMeta meta = registry.loadClass(plugin, ITransformMeta.class);
 
 The registry is filled by the environment classes at startup, and which environment you start decides which plugin types exist:
 
-`HopClientEnvironment.init()`:: the eight core types — logging, value types, databases, database type rules, extension points, password encoders, variable resolvers and VFS.
+`HopClientEnvironment.init()`:: the core types — logging, value types, databases, database type rules, extension points, password encoders, variable resolvers, VFS and diagram exporters.
 `HopEnvironment.init()`:: the above plus everything engine-side: transforms, actions, engines, metadata, server servlets, and the rest.
 `HopGuiEnvironment.init()`:: the above plus the four GUI types.
 
@@ -334,6 +335,13 @@ See xref:internationalisation.adoc[Internationalisation] for the message bundles
 |`@WorkflowDialogPlugin`
 |`IWorkflowDialogPlugin`
 |An extra tab in the workflow properties dialog.
+
+4+^s|xref:plugin-types/diagram-exporters.adoc[Diagram exporters]
+
+|`DiagramExporterPluginType`
+|`@DiagramExporter`
+|`IDiagramExporter`
+|Exports a pipeline, workflow or custom diagram to SVG, Mermaid or another format.
 |===
 
 == Where plugins live, and how they ship

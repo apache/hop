@@ -139,3 +139,9 @@ Neither plugin type is added to the registry at startup: no environment class ca
 `PipelineDialog` and `WorkflowDialog` do ask the registry for their plugins, so the hook is in place, but as things stand the lookup returns nothing and an annotated class is silently ignored.
 Register the plugin type yourself before the dialog opens if you need this, or use a `@GuiPlugin` with `@GuiTab` instead.
 ====
+
+== Diagram export
+
+*File → Export diagram* is not a `@GuiPlugin` contribution of its own.
+It is a xref:plugin-types/diagram-exporters.adoc[diagram exporter] plugin type (`@DiagramExporter`).
+The GUI discovers every exporter that supports the active editor's `getSubject()`, including custom canvases, not only pipelines and workflows.

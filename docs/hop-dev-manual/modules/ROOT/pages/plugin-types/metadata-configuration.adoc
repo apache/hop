@@ -76,6 +76,7 @@ Each tool mixes in only the plugins of its own category:
 |`CATEGORY_SERVER` |`hop server`
 |`CATEGORY_DOC` |the documentation builder
 |`CATEGORY_PYTHON` |the Python command
+|`CATEGORY_EXPORT` |`hop export`
 |===
 
 The options themselves are picocli `@CommandLine.Option` fields on the class; the plugin is added to the command as a mixin.
@@ -86,7 +87,7 @@ That path requires a static `getInstance()` method on the class, because the dia
 
 == Hop command
 
-Where a configuration plugin extends an existing command, a `@HopCommand` plugin adds a whole new `hop` sub-command — this is how `hop run`, `hop conf`, `hop server`, `hop encrypt`, `hop search`, `hop doc` and `hop marketplace` are all built.
+Where a configuration plugin extends an existing command, a `@HopCommand` plugin adds a whole new `hop` sub-command — this is how `hop run`, `hop conf`, `hop server`, `hop encrypt`, `hop search`, `hop doc`, `hop marketplace` and `hop export` are all built.
 
 Annotation:: `@HopCommand`
 Implement:: `IHopCommand`, plus `Runnable` and picocli's `@Command`
