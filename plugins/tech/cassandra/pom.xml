@@ -31,6 +31,7 @@
     <properties>
         <cassandra-all.version>4.1.11</cassandra-all.version>
         <cassandra-java-driver.version>4.17.0</cassandra-java-driver.version>
+        <high-scale-lib.version>1.0.6</high-scale-lib.version>
     </properties>
 
     <dependencyManagement>
@@ -97,6 +98,16 @@
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-core</artifactId>
                 </exclusion>
+                <!-- ECJ (our maven-compiler-plugin compilerId) refuses jars that
+                     ship classes in java.* packages: split package vs java.base.
+                     high-scale-lib ships java/util/Hashtable.class and
+                     java/util/concurrent/ConcurrentHashMap.class; Cassandra still
+                     needs it at runtime so it is copied into the plugin zip by
+                     the dependency plugin execution below instead. -->
+                <exclusion>
+                    <groupId>com.boundary</groupId>
+                    <artifactId>high-scale-lib</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>*</artifactId>
@@ -124,6 +135,13 @@
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-math3</artifactId>
+                </exclusion>
+                <!-- ECJ (see high-scale-lib above): sjk-cli ships
+                     java/lang/ProcessBuilder.class. Only cassandra's nodetool Sjk
+                     command uses these so they are not needed by Hop at all. -->
+                <exclusion>
+                    <groupId>org.gridkit.jvmtool</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.lz4</groupId>
@@ -213,4 +231,36 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>ensure-high-scale-lib-in-plugin-zip</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- excluded from cassandra-all only to keep it off the
+                                 ECJ compile classpath (java.* split package), it is
+                                 still needed at runtime by Cassandra caches/logging
+                                 so it must ship inside the plugin zip. -->
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.boundary</groupId>
+                                    <artifactId>high-scale-lib</artifactId>
+                                    <version>${high-scale-lib.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/hop-plugin-lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

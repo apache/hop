@@ -844,6 +844,18 @@
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>${xerces.version}</version>
+                <exclusions>
+                    <!-- ECJ (our maven-compiler-plugin compilerId) refuses jars
+                         shipping classes in packages exported by JDK modules:
+                         xml-apis ships javax.xml.*, org.w3c.dom and org.xml.sax,
+                         all split packages vs the java.xml module. The JDK 21
+                         provides these APIs so xml-apis is not needed at runtime
+                         either. -->
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>xml-apis</groupId>
