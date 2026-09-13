@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.ui.core.database.DatabaseTreeNode;
+import org.apache.hop.ui.core.database.DatabaseTreeUtil;
 import org.junit.jupiter.api.Test;
 
 class DatabaseTreeNodeTest {
@@ -32,25 +34,25 @@ class DatabaseTreeNodeTest {
   void kindOfPrefersViewThenSynonymThenTable() {
     assertEquals(
         DatabaseTreeNode.Kind.VIEW,
-        DatabaseTreeNode.kindOf("orders_v", Set.of("orders_v"), Set.of()));
+        DatabaseTreeUtil.kindOf("orders_v", Set.of("orders_v"), Set.of()));
     assertEquals(
         DatabaseTreeNode.Kind.VIEW,
-        DatabaseTreeNode.kindOf("ORDERS_V", Set.of("orders_v"), Set.of()));
+        DatabaseTreeUtil.kindOf("ORDERS_V", Set.of("orders_v"), Set.of()));
     assertEquals(
         DatabaseTreeNode.Kind.SYNONYM,
-        DatabaseTreeNode.kindOf("orders_s", Set.of(), Set.of("orders_s")));
+        DatabaseTreeUtil.kindOf("orders_s", Set.of(), Set.of("orders_s")));
     assertEquals(
         DatabaseTreeNode.Kind.TABLE,
-        DatabaseTreeNode.kindOf("orders", Set.of("orders_v"), Set.of()));
+        DatabaseTreeUtil.kindOf("orders", Set.of("orders_v"), Set.of()));
   }
 
   @Test
   void namesForSchemaMatchesIgnoreCaseAndEmptyKeys() {
     Map<String, java.util.Collection<String>> map =
         Map.of("Public", List.of("v1"), "", List.of("root_view"));
-    assertEquals(List.of("v1"), DatabaseWorkbench.namesForSchema(map, "public"));
-    assertEquals(List.of("root_view"), DatabaseWorkbench.namesForSchema(map, null));
-    assertTrue(DatabaseWorkbench.namesForSchema(Map.of(), "public").isEmpty());
+    assertEquals(List.of("v1"), DatabaseTreeUtil.namesForSchema(map, "public"));
+    assertEquals(List.of("root_view"), DatabaseTreeUtil.namesForSchema(map, null));
+    assertTrue(DatabaseTreeUtil.namesForSchema(Map.of(), "public").isEmpty());
   }
 
   @Test
@@ -64,8 +66,8 @@ class DatabaseTreeNodeTest {
 
   @Test
   void containsIgnoreCase() {
-    assertTrue(DatabaseTreeNode.containsIgnoreCase(List.of("Alpha"), "alpha"));
-    assertFalse(DatabaseTreeNode.containsIgnoreCase(List.of("Alpha"), "beta"));
-    assertFalse(DatabaseTreeNode.containsIgnoreCase(null, "alpha"));
+    assertTrue(DatabaseTreeUtil.containsIgnoreCase(List.of("Alpha"), "alpha"));
+    assertFalse(DatabaseTreeUtil.containsIgnoreCase(List.of("Alpha"), "beta"));
+    assertFalse(DatabaseTreeUtil.containsIgnoreCase(null, "alpha"));
   }
 }

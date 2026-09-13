@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
@@ -42,6 +43,8 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
+import org.apache.hop.ui.core.database.DatabaseTreeNode;
+import org.apache.hop.ui.core.database.DatabaseTreeUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
@@ -114,7 +117,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
 
   private final IDatabaseWorkbenchHost host;
   private final Map<String, DatabaseConnectionState> connections = new LinkedHashMap<>();
-  private final List<TabItemHandler> items = new ArrayList<>();
+  @Getter private final List<TabItemHandler> items = new ArrayList<>();
 
   private final SashForm horizontalSash;
   private final Composite rightComposite;
@@ -543,7 +546,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         }
       }
     }
-    for (String view : namesForSchema(info.getViewMap(), schema.getSchemaName())) {
+    for (String view : DatabaseTreeUtil.namesForSchema(info.getViewMap(), schema.getSchemaName())) {
       if (filterMatcher.matches(view)) {
         return true;
       }
@@ -553,7 +556,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
 
   /**
    * Tables, views and synonyms under a schema (or catalog). Views get {@code view.svg} via {@link
-   * DatabaseTreeNode#kindOf}.
+   * DatabaseTreeUtil#kindOf}.
    */
   private void addSchemaObjects(
       TreeItem parent,
@@ -561,19 +564,19 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       String schemaName,
       String[] items,
       DatabaseMetaInformation info) {
-    Collection<String> views = namesForSchema(info.getViewMap(), schemaName);
-    Collection<String> synonyms = namesForSchema(info.getSynonymMap(), schemaName);
+    Collection<String> views = DatabaseTreeUtil.namesForSchema(info.getViewMap(), schemaName);
+    Collection<String> synonyms = DatabaseTreeUtil.namesForSchema(info.getSynonymMap(), schemaName);
     List<String> names = new ArrayList<>();
     if (items != null) {
       names.addAll(Arrays.asList(items));
     }
     for (String view : views) {
-      if (!DatabaseTreeNode.containsIgnoreCase(names, view)) {
+      if (!DatabaseTreeUtil.containsIgnoreCase(names, view)) {
         names.add(view);
       }
     }
     for (String synonym : synonyms) {
-      if (!DatabaseTreeNode.containsIgnoreCase(names, synonym)) {
+      if (!DatabaseTreeUtil.containsIgnoreCase(names, synonym)) {
         names.add(synonym);
       }
     }
@@ -582,35 +585,12 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       if (!matchesFilter(name, schemaName, connectionName)) {
         continue;
       }
-      DatabaseTreeNode.Kind kind = DatabaseTreeNode.kindOf(name, views, synonyms);
+      DatabaseTreeNode.Kind kind = DatabaseTreeUtil.kindOf(name, views, synonyms);
       TreeItem item = new TreeItem(parent, SWT.NONE);
       item.setText(name);
-      item.setImage(imageFor(kind));
+      item.setImage(DatabaseTreeUtil.imageFor(kind));
       item.setData(DatabaseTreeNode.table(kind, connectionName, schemaName, name));
     }
-  }
-
-  static Collection<String> namesForSchema(Map<String, Collection<String>> map, String schemaName) {
-    if (map == null || map.isEmpty()) {
-      return List.of();
-    }
-    if (schemaName != null) {
-      Collection<String> exact = map.get(schemaName);
-      if (exact != null) {
-        return exact;
-      }
-      for (Map.Entry<String, Collection<String>> entry : map.entrySet()) {
-        if (schemaName.equalsIgnoreCase(entry.getKey()) && entry.getValue() != null) {
-          return entry.getValue();
-        }
-      }
-    }
-    Collection<String> empty = map.get("");
-    if (empty != null) {
-      return empty;
-    }
-    Collection<String> missing = map.get(null);
-    return missing != null ? missing : List.of();
   }
 
   private boolean matchesFilter(String name, String schemaName, String connectionName) {
@@ -657,18 +637,9 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       }
       TreeItem item = new TreeItem(parent, SWT.NONE);
       item.setText(name);
-      item.setImage(imageFor(kind));
+      item.setImage(DatabaseTreeUtil.imageFor(kind));
       item.setData(DatabaseTreeNode.table(kind, connectionName, schemaName, name));
     }
-  }
-
-  private org.eclipse.swt.graphics.Image imageFor(DatabaseTreeNode.Kind kind) {
-    GuiResource resources = GuiResource.getInstance();
-    return switch (kind) {
-      case VIEW -> resources.getImageView();
-      case SYNONYM -> resources.getImageSynonym();
-      default -> resources.getImageTable();
-    };
   }
 
   private DatabaseTreeNode selectedNode() {
@@ -1326,10 +1297,6 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         return;
       }
     }
-  }
-
-  public List<TabItemHandler> getItems() {
-    return items;
   }
 
   public boolean remove(IHopFileTypeHandler handler) {

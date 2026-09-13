@@ -18,12 +18,13 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
@@ -32,6 +33,9 @@ import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
@@ -39,43 +43,45 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.search.SearchMatcher;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.database.DatabaseTreeNode;
+import org.apache.hop.ui.core.database.DatabaseTreeUtil;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
-import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This dialog represents an explorer type of interface on a given database connection. It shows the
@@ -85,31 +91,39 @@ import org.eclipse.swt.widgets.TreeItem;
 @GuiPlugin
 public class DatabaseExplorerDialog extends Dialog {
   private static final Class<?> PKG = DatabaseExplorerDialog.class;
-
+  public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID =
+      "DatabaseExplorerDialog-ContextMenu";
+  public static final String GUI_PLUGIN_SEARCHBAR_PARENT_ID = "DatabaseExplorerDialog-SearchBar";
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "DatabaseExplorerDialog-Toolbar";
-  public static final String TOOLBAR_ITEM_EXPAND_ALL = "DatabaseExplorer-ToolBar-10100-ExpandAll";
-  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
-      "DatabaseExplorer-ToolBar-10200-CollapseAll";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_100 =
-      "DatabaseExplorerDialog.Menu.Preview100";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_N =
-      "DatabaseExplorerDialog.Menu.PreviewN";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_SIZE =
-      "DatabaseExplorerDialog.Menu.ShowSize";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_LAYOUT =
-      "DatabaseExplorerDialog.Menu.ShowLayout";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_OPEN_SQL =
-      "DatabaseExplorerDialog.Menu.OpenSQL";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDL =
-      "DatabaseExplorerDialog.Menu.GenDDL";
-  public static final String CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN =
-      "DatabaseExplorerDialog.Menu.GenDDLOtherConn";
 
-  private final ILogChannel log;
-  private final PropsUi props;
-  private DatabaseMeta dbMeta;
-  private final IVariables variables;
-  private final ILoggingObject loggingObject;
+  public static final String TOOLBAR_ITEM_REGEX = "10000-DatabaseExplorerDialog-ToolBar-Regex";
+  public static final String TOOLBAR_ITEM_REFRESH = "DatabaseExplorerDialog-ToolBar-10000-Refresh";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL =
+      "DatabaseExplorerDialog-ToolBar-10010-ExpandAll";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
+      "DatabaseExplorerDialog-ToolBar-10020-CollapseAll";
+  public static final String TOOLBAR_ITEM_PREVIEW = "DatabaseExplorerDialog-Toolbar-10050-Preview";
+  public static final String TOOLBAR_ITEM_SHOW_LAYOUT =
+      "DatabaseExplorerDialog-Toolbar-10060-ShowLayout";
+  public static final String TOOLBAR_ITEM_SQL_SELECT =
+      "DatabaseExplorerDialog-Toolbar-10070-SqlSelect";
+
+  public static final String CONTEXT_MENU_PREVIEW_100 =
+      "DatabaseExplorerDialog-ContextMenu-10010-Preview100";
+  public static final String CONTEXT_MENU_PREVIEW_N =
+      "DatabaseExplorerDialog-ContextMenu-10020-PreviewN";
+  public static final String CONTEXT_MENU_SHOW_SIZE =
+      "DatabaseExplorerDialog-ContextMenu-10030-ShowSize";
+  public static final String CONTEXT_MENU_SHOW_LAYOUT =
+      "DatabaseExplorerDialog-ContextMenu-10040-ShowLayout";
+  public static final String CONTEXT_MENU_DDL =
+      "DatabaseExplorerDialog-ContextMenu-10050-GenerateDdl";
+  public static final String CONTEXT_MENU_DDL_OTHER =
+      "DatabaseExplorerDialog-ContextMenu-10060-GenerateDdlOther";
+  public static final String CONTEXT_MENU_SQL_SELECT =
+      "DatabaseExplorerDialog-ContextMenu-10070-SqlSelect";
+  public static final String CONTEXT_MENU_SQL_TRUNCATE =
+      "DatabaseExplorerDialog-ContextMenu-10080-SqlTruncate";
 
   private static final String STRING_CATALOG =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Catalogs.Label");
@@ -122,106 +136,96 @@ public class DatabaseExplorerDialog extends Dialog {
   private static final String STRING_SYNONYMS =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Synonyms.Label");
 
-  private final Shell parentShell;
+  private static final int FILTER_DEBOUNCE_MS = 250;
+
+  /** Debounced search action so we don't rebuild the tree on every keystroke. */
+  private final Runnable filterRunnable = this::updateTree;
+
+  private final ILogChannel log;
+  private final DatabaseMeta databaseMeta;
+  private final IVariables variables;
+  private final DbCache dbCache;
+  private final ILoggingObject loggingObject;
+  private final List<DatabaseMeta> databases;
+  private final boolean justLook;
+
   private Shell shell;
   private Tree wTree;
-  private TreeItem tiTree;
-
-  /** Updated on SWT.Expand/Collapse; used to detect native ">" handling vs DPI miss. */
-  private long lastTreeExpandCollapseNanos;
-
-  @Getter @Setter private String tableName;
-
-  private final boolean justLook;
-  @Getter @Setter private String selectedSchema;
-  @Setter private String selectedTable;
-  private final List<DatabaseMeta> databases;
-  @Getter @Setter private boolean splitSchemaAndTable;
-  @Getter @Setter private String schemaName;
-  private Composite buttonsComposite;
-  private Button wOk;
-  private Button bPrev;
-  private Button bPrevN;
-  private Button bCount;
-  private Button bShow;
-  private Button bDDL;
-  private Button bDDL2;
-  private Button bSql;
-  private String activeSchemaTable;
-  private Button bTruncate;
-
-  private Control toolBar;
+  private TreeItem connectionItem;
+  private Text wSearch;
+  private GuiToolbarWidgets searchBarWidgets;
+  private GuiToolbarWidgets toolBarWidgets;
+  private GuiMenuWidgets menuWidgets;
+  private SearchMatcher filter;
+  private boolean filterUseRegEx;
+  private String selectedSchemaName;
+  private String selectedTableName;
+  @Setter @Getter private boolean splitSchemaAndTable;
+  private DatabaseMetaInformation databaseMetaInformation;
 
   public DatabaseExplorerDialog(
       Shell parentShell,
       int style,
       IVariables variables,
-      DatabaseMeta conn,
+      DatabaseMeta databaseMeta,
       List<DatabaseMeta> databases) {
-    this(parentShell, style, variables, conn, databases, false, true);
+    this(parentShell, style, variables, databaseMeta, databases, false, true);
   }
 
   public DatabaseExplorerDialog(
-      Shell parentShell,
+      Shell parent,
       int style,
       IVariables variables,
-      DatabaseMeta conn,
+      DatabaseMeta databaseMeta,
       List<DatabaseMeta> databases,
       boolean look,
       boolean splitSchemaAndTable) {
-    super(parentShell, style);
-    this.parentShell = parentShell;
-    this.dbMeta = conn;
+    super(parent, style);
+    this.databaseMeta = databaseMeta;
     this.variables = variables;
     this.databases = databases;
     this.justLook = look;
     this.splitSchemaAndTable = splitSchemaAndTable;
     this.loggingObject = new LoggingObject("Database Explorer");
 
-    selectedSchema = null;
-    selectedTable = null;
-
-    props = PropsUi.getInstance();
+    filterUseRegEx = false;
+    selectedSchemaName = null;
+    selectedTableName = null;
     log = new LogChannel("DBExplorer");
+    dbCache = DbCache.getInstance();
   }
 
   public boolean open() {
-    tableName = null;
-
     if (Const.isLinux()) {
       shell =
           new Shell(
-              parentShell,
+              getParent(),
               SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     } else {
-      shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+      shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     }
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
-
-    shell.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Title", dbMeta.toString()));
+    // Do not include the connection name in the title (to save/restore the dialog box dimensions
+    // once)
+    shell.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Title"));
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
-
     shell.setLayout(formLayout);
+    shell.setMinimumSize(200, 400);
 
     int margin = PropsUi.getMargin();
 
     // Main buttons at the bottom
     //
     List<Button> buttons = new ArrayList<>();
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
     buttons.add(wOk);
     shell.setDefaultButton(wOk);
-
-    Button wRefresh = new Button(shell, SWT.PUSH);
-    wRefresh.setText(BaseMessages.getString(PKG, "System.Button.Refresh"));
-    wRefresh.addListener(SWT.Selection, e -> getData());
-    buttons.add(wRefresh);
 
     if (!justLook) {
       Button wCancel = new Button(shell, SWT.PUSH);
@@ -231,257 +235,125 @@ public class DatabaseExplorerDialog extends Dialog {
     }
     BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
 
-    // Add a toolbar
-    //
-    IToolbarContainer toolBarContainer =
+    // Create toolbar for search options at the top right
+    IToolbarContainer searchBarContainer =
         ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    toolBar = toolBarContainer.getControl();
-    GuiToolbarWidgets toolBarWidgets = new GuiToolbarWidgets();
+    searchBarWidgets = new GuiToolbarWidgets();
+    searchBarWidgets.registerGuiPluginObject(this);
+    searchBarWidgets.createToolbarWidgets(searchBarContainer, GUI_PLUGIN_SEARCHBAR_PARENT_ID);
+    Control searchBar = searchBarContainer.getControl();
+    searchBar.setLayoutData(FormDataBuilder.builder().top().right().build());
+    PropsUi.setLook(searchBar, Props.WIDGET_STYLE_TOOLBAR);
+
+    // Create search/filter text box at the top left
+    wSearch = new Text(shell, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
+    wSearch.setMessage(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Search.Placeholder"));
+    wSearch.setLayoutData(FormDataBuilder.builder().top().left().right(searchBar, -margin).build());
+    wSearch.setData(BaseDialog.NO_DEFAULT_HANDLER, "Nop");
+    wSearch.addListener(SWT.Modify, e -> filterTree());
+    wSearch.addListener(SWT.DefaultSelection, e -> updateTree());
+    PropsUi.setLook(wSearch, Props.WIDGET_STYLE_TOOLBAR);
+
+    // Create composite
+    Composite composite = new Composite(shell, SWT.BORDER);
+    composite.setLayout(new FormLayout());
+    composite.setLayoutData(
+        FormDataBuilder.builder()
+            .top(searchBar, margin)
+            .bottom(wOk, -2 * margin)
+            .fullWidth()
+            .build());
+    PropsUi.setLook(composite);
+
+    // Create toolbar for tree actions
+    IToolbarContainer toolBarContainer =
+        ToolbarFacade.createToolbarContainer(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
-    FormData layoutData = new FormData();
-    layoutData.top = new FormAttachment(0, 0);
-    layoutData.left = new FormAttachment(0, 0);
-    layoutData.right = new FormAttachment(100, 0);
-    toolBar.setLayoutData(layoutData);
-    toolBar.pack();
+    Control toolBar = toolBarContainer.getControl();
+    toolBar.setLayoutData(FormDataBuilder.builder().top().fullWidth().build());
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
-    addRightButtons();
-    refreshButtons(null);
-
-    // Tree /*| (multiple?SWT.CHECK:SWT.NONE)*/
-    wTree = new HopTree(shell, SWT.SINGLE | SWT.BORDER);
+    // Create tree
+    wTree = new HopTree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    wTree.setLayoutData(
+        FormDataBuilder.builder().top(toolBar, margin).bottom().fullWidth().build());
+    wTree.addListener(SWT.DefaultSelection, this::openTreeItem);
+    wTree.addListener(SWT.Selection, e -> updateGui());
     PropsUi.setLook(wTree);
-    FormData fdTree = new FormData();
-    // To the right of the label
-    fdTree.left = new FormAttachment(0, 0);
-    fdTree.top = new FormAttachment(toolBar, margin);
-    fdTree.right = new FormAttachment(buttonsComposite, -margin);
-    fdTree.bottom = new FormAttachment(wOk, -2 * margin);
-    wTree.setLayoutData(fdTree);
 
-    if (!getData()) {
-      if (shell != null && !shell.isDisposed()) {
-        shell.dispose();
-      }
-      return false;
-    }
+    // Create context menu
+    Menu menu = new Menu(wTree);
+    menuWidgets = new GuiMenuWidgets();
+    menuWidgets.registerGuiPluginObject(this);
+    menuWidgets.createMenuWidgets(GUI_PLUGIN_CONTEXT_MENU_PARENT_ID, shell, menu);
+    wTree.setMenu(menu);
+    wTree.addListener(SWT.MenuDetect, e -> updateGui());
 
-    wTree.addListener(SWT.Selection, e -> refreshButtons(getSchemaTable()));
-    wTree.addListener(SWT.DefaultSelection, this::openSchema);
-    wTree.addListener(SWT.Expand, e -> lastTreeExpandCollapseNanos = System.nanoTime());
-    wTree.addListener(SWT.Collapse, e -> lastTreeExpandCollapseNanos = System.nanoTime());
-    wTree.addListener(SWT.MouseDown, this::handleTreeMouseDown);
-    shell.addListener(SWT.Close, e -> cancel());
+    // So shortcut work and we're tried before the active perspective
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this, shell);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(shell, keyHandler);
 
-    // Prevent resizing below the complete control layout (notably right-side action buttons).
-    Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-    shell.setMinimumSize(minSize);
-    BaseTransformDialog.setSize(shell);
+    refresh();
 
-    shell.open();
+    updateGui();
 
-    // Handle the event loop until we're done with this shell...
-    //
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    wSearch.setFocus();
 
-    return tableName != null;
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return selectedTableName != null;
   }
 
-  private void cancel() {
-    log.logBasic("SelectTableDialog", "CANCEL SelectTableDialog", null);
-    dbMeta = null;
+  public void cancel() {
+    selectedSchemaName = null;
+    selectedTableName = null;
     dispose();
   }
 
-  private void addRightButtons() {
-    buttonsComposite = new Composite(shell, SWT.NONE);
-    PropsUi.setLook(buttonsComposite);
-    buttonsComposite.setLayout(new FormLayout());
-
-    activeSchemaTable = null;
-
-    bPrev = new Button(buttonsComposite, SWT.PUSH);
-    bPrev.setText(
-        BaseMessages.getString(
-            PKG,
-            CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_100,
-            Const.NVL(activeSchemaTable, "?")));
-    bPrev.setEnabled(activeSchemaTable != null);
-    bPrev.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            previewTable(activeSchemaTable);
-          }
-        });
-    FormData prevData = new FormData();
-    prevData.left = new FormAttachment(0, 0);
-    prevData.right = new FormAttachment(100, 0);
-    prevData.top = new FormAttachment(0, 0);
-    bPrev.setLayoutData(prevData);
-
-    bPrevN = new Button(buttonsComposite, SWT.PUSH);
-    bPrevN.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_N, Const.NVL(activeSchemaTable, "?")));
-    bPrevN.setEnabled(activeSchemaTable != null);
-    bPrevN.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            previewTable(activeSchemaTable);
-          }
-        });
-    FormData prevNData = new FormData();
-    prevNData.left = new FormAttachment(0, 0);
-    prevNData.right = new FormAttachment(100, 0);
-    prevNData.top = new FormAttachment(bPrev, PropsUi.getMargin());
-    bPrevN.setLayoutData(prevNData);
-
-    bCount = new Button(buttonsComposite, SWT.PUSH);
-    bCount.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_SIZE, Const.NVL(activeSchemaTable, "?")));
-    bCount.setEnabled(activeSchemaTable != null);
-    bCount.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            showCount(activeSchemaTable);
-          }
-        });
-    FormData countData = new FormData();
-    countData.left = new FormAttachment(0, 0);
-    countData.right = new FormAttachment(100, 0);
-    countData.top = new FormAttachment(bPrevN, PropsUi.getMargin());
-    bCount.setLayoutData(countData);
-
-    bShow = new Button(buttonsComposite, SWT.PUSH);
-    bShow.setText(
-        BaseMessages.getString(
-            PKG,
-            CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_LAYOUT,
-            Const.NVL(activeSchemaTable, "?")));
-    bShow.setEnabled(activeSchemaTable != null);
-    bShow.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            showTable(activeSchemaTable);
-          }
-        });
-    FormData showData = new FormData();
-    showData.left = new FormAttachment(0, 0);
-    showData.right = new FormAttachment(100, 0);
-    showData.top = new FormAttachment(bCount, PropsUi.getMargin() * 7);
-    bShow.setLayoutData(showData);
-
-    bDDL = new Button(buttonsComposite, SWT.PUSH);
-    bDDL.setText(BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDL));
-    bDDL.setEnabled(activeSchemaTable != null);
-    bDDL.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getDDL(activeSchemaTable);
-          }
-        });
-    FormData ddlData = new FormData();
-    ddlData.left = new FormAttachment(0, 0);
-    ddlData.right = new FormAttachment(100, 0);
-    ddlData.top = new FormAttachment(bShow, PropsUi.getMargin());
-    bDDL.setLayoutData(ddlData);
-
-    bDDL2 = new Button(buttonsComposite, SWT.PUSH);
-    bDDL2.setText(
-        BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN));
-    bDDL2.setEnabled(activeSchemaTable != null && databases != null);
-    bDDL2.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getDDLForOther(activeSchemaTable);
-          }
-        });
-    FormData ddl2Data = new FormData();
-    ddl2Data.left = new FormAttachment(0, 0);
-    ddl2Data.right = new FormAttachment(100, 0);
-    ddl2Data.top = new FormAttachment(bDDL, PropsUi.getMargin());
-    bDDL2.setLayoutData(ddl2Data);
-
-    bSql = new Button(buttonsComposite, SWT.PUSH);
-    bSql.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_OPEN_SQL, Const.NVL(activeSchemaTable, "?")));
-    bSql.setEnabled(activeSchemaTable != null);
-    bSql.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSql(activeSchemaTable);
-          }
-        });
-    FormData sqlData = new FormData();
-    sqlData.left = new FormAttachment(0, 0);
-    sqlData.right = new FormAttachment(100, 0);
-    sqlData.top = new FormAttachment(bDDL2, PropsUi.getMargin());
-    bSql.setLayoutData(sqlData);
-
-    bTruncate = new Button(buttonsComposite, SWT.PUSH);
-    bTruncate.setText(
-        BaseMessages.getString(
-            PKG, "DatabaseExplorerDialog.Menu.Truncate", Const.NVL(activeSchemaTable, "?")));
-    bTruncate.setEnabled(activeSchemaTable != null);
-    bTruncate.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getTruncate(activeSchemaTable);
-          }
-        });
-    FormData truncateData = new FormData();
-    truncateData.left = new FormAttachment(0, 0);
-    truncateData.right = new FormAttachment(100, 0);
-    truncateData.top = new FormAttachment(bSql, PropsUi.getMargin());
-    bTruncate.setLayoutData(truncateData);
-
-    FormData fdComposite = new FormData();
-    fdComposite.right = new FormAttachment(100, 0);
-    // Attach to the toolbar control (not a pixel snapshot of its height at creation time).
-    fdComposite.top = new FormAttachment(toolBar, 0);
-    fdComposite.bottom = new FormAttachment(wOk, -2 * PropsUi.getMargin());
-    buttonsComposite.setLayoutData(fdComposite);
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_SEARCHBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_REGEX,
+      toolTip = "i18n::DatabaseExplorerDialog.RegEx.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/regex.svg")
+  public void filterUseRegEx() {
+    this.filterUseRegEx = !this.filterUseRegEx;
+    // Update the button icon
+    updateGui();
+    // Apply the filter
+    updateTree();
   }
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EXPAND_ALL,
-      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.ExpandAll.Tooltip",
+      toolTip = "i18n::System.Tooltip.ExpandAll",
       type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/expand-all.svg")
+      image = "ui/images/expand-all.svg",
+      separator = true)
+  @GuiKeyboardShortcut(control = true, key = '+')
+  @GuiOsxKeyboardShortcut(command = true, key = '+')
   public void expandAll() {
-    expandAllItems(wTree.getItems(), true);
+    expandAllItems(connectionItem.getItems(), true);
   }
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_COLLAPSE_ALL,
-      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.CollapseAll.Tooltip",
+      toolTip = "i18n::System.Tooltip.CollapseALl",
       type = GuiToolbarElementType.BUTTON,
       image = "ui/images/collapse-all.svg")
+  @GuiKeyboardShortcut(control = true, key = '-')
+  @GuiOsxKeyboardShortcut(command = true, key = '-')
   public void collapseAll() {
-    expandAllItems(wTree.getItems(), false);
+    expandAllItems(connectionItem.getItems(), false);
   }
 
-  private void expandAllItems(TreeItem[] treeitems, boolean expand) {
-    for (TreeItem item : treeitems) {
+  private void expandAllItems(TreeItem[] items, boolean expand) {
+    for (TreeItem item : items) {
       item.setExpanded(expand);
       if (item.getItemCount() > 0) {
         expandAllItems(item.getItems(), expand);
@@ -489,368 +361,374 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  private void refreshButtons(String table) {
-    // Avoid setText/layout while expanding folders: Windows DPI often misaligns the native
-    // expander hit target, and synchronous label updates during Selection can make clicks feel
-    // dead unless they land in the tiny gap between ">" and the folder icon.
-    boolean tableChanged = !Objects.equals(activeSchemaTable, table);
-    activeSchemaTable = table;
-    boolean hasTable = table != null;
-    boolean canGenerateDdlForOther = hasTable && databases != null;
-
-    if (tableChanged) {
-      bPrev.setText(
-          BaseMessages.getString(
-              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_100, Const.NVL(table, "?")));
-      bPrevN.setText(
-          BaseMessages.getString(
-              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_N, Const.NVL(table, "?")));
-      bCount.setText(
-          BaseMessages.getString(
-              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_SIZE, Const.NVL(table, "?")));
-      bShow.setText(
-          BaseMessages.getString(
-              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_LAYOUT, Const.NVL(table, "?")));
-      bDDL.setText(BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDL));
-      bDDL2.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN));
-      bSql.setText(
-          BaseMessages.getString(
-              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_OPEN_SQL, Const.NVL(table, "?")));
-      bTruncate.setText(
-          BaseMessages.getString(
-              PKG, "DatabaseExplorerDialog.Menu.Truncate", Const.NVL(table, "?")));
-    }
-
-    bPrev.setEnabled(hasTable);
-    bPrevN.setEnabled(hasTable);
-    bCount.setEnabled(hasTable);
-    bShow.setEnabled(hasTable);
-    bDDL.setEnabled(hasTable);
-    bDDL2.setEnabled(canGenerateDdlForOther);
-    bSql.setEnabled(hasTable);
-    bTruncate.setEnabled(hasTable);
-
-    if (!tableChanged || shell == null || shell.isDisposed()) {
-      return;
-    }
-    Display display = shell.getDisplay();
-    display.asyncExec(
-        () -> {
-          if (shell == null || shell.isDisposed()) {
-            return;
-          }
-          buttonsComposite.layout(true, true);
-          shell.layout(true, false);
-        });
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_REFRESH,
+      toolTip = "i18n::System.Button.Refresh",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/refresh.svg")
+  @GuiKeyboardShortcut(key = SWT.F5)
+  @GuiOsxKeyboardShortcut(key = SWT.F5)
+  public void refresh() {
+    GetDatabaseInfoProgressDialog dialog =
+        new GetDatabaseInfoProgressDialog(shell, variables, databaseMeta);
+    this.databaseMetaInformation = dialog.open();
+    updateTree();
   }
 
-  private boolean getData() {
-    GetDatabaseInfoProgressDialog gdipd =
-        new GetDatabaseInfoProgressDialog(shell, variables, dbMeta);
-    DatabaseMetaInformation dmi = gdipd.open();
-    if (dmi == null) {
-      return false;
-    }
-    disposeOldTreeRootIfPresent();
-    createDatabaseRootTreeItem();
-    addCatalogBranches(dmi);
-    addSchemaBranches(dmi);
-    TreeItem tiTab = addTablesBranch(dmi.getTables());
-    TreeItem tiView = addViewsBranch(dmi.getViews());
-    TreeItem tiSyn = addSynonymsBranch(dmi.getSynonyms());
-    selectInitiallySelectedTable(tiTab, tiView, tiSyn);
-    tiTree.setExpanded(true);
-    return true;
-  }
-
-  private void disposeOldTreeRootIfPresent() {
-    if (tiTree != null && !tiTree.isDisposed()) {
-      tiTree.dispose();
-    }
-  }
-
-  private void createDatabaseRootTreeItem() {
-    tiTree = new TreeItem(wTree, SWT.NONE);
-    tiTree.setImage(GuiResource.getInstance().getImageDatabase());
-    tiTree.setText(dbMeta == null ? "" : dbMeta.getName());
-  }
-
-  private void addCatalogBranches(DatabaseMetaInformation dmi) {
-    Catalog[] catalogs = dmi.getCatalogs();
-    if (catalogs == null) {
-      return;
-    }
-    TreeItem tiCat = new TreeItem(tiTree, SWT.NONE);
-    tiCat.setImage(GuiResource.getInstance().getImageFolder());
-    tiCat.setText(STRING_CATALOG);
-    for (Catalog catalog : catalogs) {
-      TreeItem newCat = new TreeItem(tiCat, SWT.NONE);
-      newCat.setImage(GuiResource.getInstance().getImageFolder());
-      newCat.setText(catalog.getCatalogName());
-      for (String catalogItemName : catalog.getItems()) {
-        TreeItem ti = new TreeItem(newCat, SWT.NONE);
-        ti.setImage(GuiResource.getInstance().getImageTable());
-        ti.setText(catalogItemName);
+  public void updateGui() {
+    // Update the regex filter icons in the search bar
+    ToolItem item = searchBarWidgets.findToolItem(TOOLBAR_ITEM_REGEX);
+    if (item != null && !item.isDisposed()) {
+      if (filterUseRegEx) {
+        item.setImage(GuiResource.getInstance().getImageRegex());
+      } else {
+        item.setImage(GuiResource.getInstance().getImageRegexDisabled());
       }
     }
+
+    DatabaseTreeNode node = getSelectedNode();
+    boolean isTable = node != null && node.isTableLike();
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PREVIEW, isTable);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_SHOW_LAYOUT, isTable);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_SQL_SELECT, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_PREVIEW_100, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_PREVIEW_N, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_SHOW_SIZE, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_SHOW_LAYOUT, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_DDL, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_DDL_OTHER, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_SQL_SELECT, isTable);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_SQL_TRUNCATE, isTable);
   }
 
-  private void addSchemaBranches(DatabaseMetaInformation dmi) {
-    Schema[] schemas = dmi.getSchemas();
-    if (schemas == null) {
-      return;
-    }
-    TreeItem tiSch = new TreeItem(tiTree, SWT.NONE);
-    tiSch.setImage(GuiResource.getInstance().getImageFolder());
-    tiSch.setText(STRING_SCHEMAS);
-    for (Schema schema : schemas) {
-      TreeItem newSch = new TreeItem(tiSch, SWT.NONE);
-      newSch.setImage(GuiResource.getInstance().getImageSchema());
-      newSch.setText(schema.getSchemaName());
-      for (String schemaItemName : schema.getItems()) {
-        TreeItem ti = new TreeItem(newSch, SWT.NONE);
-        ti.setImage(GuiResource.getInstance().getImageTable());
-        ti.setText(schemaItemName);
+  private SearchMatcher createSearchMatcher() {
+    if (wSearch != null && !wSearch.isDisposed()) {
+      String search = wSearch.getText();
+      if (!Utils.isEmpty(search)) {
+        return new SearchMatcher(search, false, filterUseRegEx, false);
       }
     }
+    return null; // new SearchMatcher("", false, false, false);
   }
 
-  private TreeItem addTablesBranch(String[] tabnames) {
-    if (tabnames == null) {
-      return null;
+  /** Filter the tree based on search text, debounced so we don't rebuild on every keystroke. */
+  protected void filterTree() {
+    if (shell == null || shell.isDisposed()) {
+      return;
     }
-    TreeItem tiTab = new TreeItem(tiTree, SWT.NONE);
-    tiTab.setImage(GuiResource.getInstance().getImageFolder());
-    tiTab.setText(STRING_TABLES);
-    for (String tabname : tabnames) {
-      TreeItem newTab = new TreeItem(tiTab, SWT.NONE);
-      newTab.setImage(GuiResource.getInstance().getImageTable());
-      newTab.setText(tabname);
-    }
-    tiTab.setExpanded(true);
-    return tiTab;
+    shell.getDisplay().timerExec(FILTER_DEBOUNCE_MS, filterRunnable);
   }
 
-  private TreeItem addViewsBranch(String[] views) {
-    if (views == null) {
-      return null;
+  /** Update tree when refresh or filter changed */
+  private void updateTree() {
+    if (wTree.isDisposed()) {
+      return;
     }
-    TreeItem tiView = new TreeItem(tiTree, SWT.NONE);
-    tiView.setImage(GuiResource.getInstance().getImageFolder());
-    tiView.setText(STRING_VIEWS);
+
+    shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+    wTree.setRedraw(false);
+
+    // Remove all previous items
+    wTree.removeAll();
+
+    // Create connection tree item
+    String connectionName = "";
+    Image image = GuiResource.getInstance().getImageDatabase();
+    if (databaseMeta != null) {
+      connectionName = databaseMeta.getName();
+      image = GuiResource.getInstance().getImage(databaseMeta.getIDatabase());
+    }
+    connectionItem = new TreeItem(wTree, SWT.NONE);
+    connectionItem.setImage(image);
+    connectionItem.setText(connectionName);
+    connectionItem.setData(DatabaseTreeNode.connection(connectionName, true));
+
+    if (databaseMetaInformation != null) {
+
+      // Create search filter
+      this.filter = createSearchMatcher();
+
+      if (!updateTreeSchemas()) {
+        if (!updateTreeCatalogs()) {
+          addFolder(
+              connectionItem,
+              connectionName,
+              STRING_TABLES,
+              databaseMetaInformation.getTables(),
+              DatabaseTreeNode.Kind.TABLE);
+          addFolder(
+              connectionItem,
+              connectionName,
+              STRING_VIEWS,
+              databaseMetaInformation.getViews(),
+              DatabaseTreeNode.Kind.VIEW);
+          addFolder(
+              connectionItem,
+              connectionName,
+              STRING_SYNONYMS,
+              databaseMetaInformation.getSynonyms(),
+              DatabaseTreeNode.Kind.SYNONYM);
+        }
+      }
+    }
+
+    // Always expand the root item
+    connectionItem.setExpanded(true);
+
+    wTree.setRedraw(true);
+    shell.setCursor(null);
+  }
+
+  // Database support catalogs
+  private boolean updateTreeCatalogs() {
+    Catalog[] catalogs = databaseMetaInformation.getCatalogs();
+    if (catalogs != null && catalogs.length > 0) {
+      String connectionName = databaseMeta.getName();
+      for (Catalog catalog : catalogs) {
+        TreeItem catalogItem = new TreeItem(connectionItem, SWT.NONE);
+        catalogItem.setText(Const.NVL(catalog.getCatalogName(), ""));
+        catalogItem.setImage(GuiResource.getInstance().getImageFolder());
+        catalogItem.setData(DatabaseTreeNode.catalog(connectionName, catalog.getCatalogName()));
+        addSchemaObjects(
+            catalogItem,
+            connectionName,
+            catalog.getCatalogName(),
+            catalog.getItems(),
+            databaseMetaInformation);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // Database support schemas
+  private boolean updateTreeSchemas() {
+    Schema[] schemas = databaseMetaInformation.getSchemas();
+    if (schemas != null && schemas.length > 0) {
+      String connectionName = databaseMeta.getName();
+      for (Schema schema : schemas) {
+        if (schemaOrChildMatches(schema, databaseMetaInformation)) {
+          TreeItem schemaItem = new TreeItem(connectionItem, SWT.NONE);
+          schemaItem.setText(Const.NVL(schema.getSchemaName(), ""));
+          schemaItem.setImage(GuiResource.getInstance().getImageSchema());
+          schemaItem.setData(DatabaseTreeNode.schema(connectionName, schema.getSchemaName()));
+          addSchemaObjects(
+              schemaItem,
+              connectionName,
+              schema.getSchemaName(),
+              schema.getItems(),
+              databaseMetaInformation);
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private void addFolder(
+      TreeItem parent,
+      String connectionName,
+      String folderName,
+      String[] names,
+      DatabaseTreeNode.Kind kind) {
+    if (names == null || names.length == 0) {
+      return;
+    }
+    TreeItem item = new TreeItem(parent, SWT.NONE);
+    item.setText(folderName);
+    item.setImage(GuiResource.getInstance().getImageFolder());
+    item.setData(DatabaseTreeNode.folder(connectionName, folderName));
+    addTables(item, connectionName, names, kind);
+  }
+
+  private void addTables(
+      TreeItem parent, String connectionName, String[] names, DatabaseTreeNode.Kind kind) {
+    if (names == null) {
+      return;
+    }
+    boolean expanded = false;
+    for (String name : names) {
+      if (matchesFilter(name, null)) {
+        TreeItem item = new TreeItem(parent, SWT.NONE);
+        item.setText(name);
+        item.setImage(DatabaseTreeUtil.imageFor(kind));
+        item.setData(DatabaseTreeNode.table(kind, connectionName, null, name));
+
+        // Highlight selected item
+        if (name.equalsIgnoreCase(selectedTableName)) {
+          item.setFont(GuiResource.getInstance().getFontBold());
+          wTree.setSelection(item);
+          wTree.showItem(item);
+          expanded = true;
+        }
+      }
+    }
+    parent.setExpanded(expanded);
+  }
+
+  /**
+   * Tables, views and synonyms under a schema (or catalog). Views get {@code view.svg} via {@link
+   * DatabaseTreeUtil#kindOf}.
+   */
+  private void addSchemaObjects(
+      TreeItem parent,
+      String connectionName,
+      String schemaName,
+      String[] items,
+      DatabaseMetaInformation info) {
+    Collection<String> views = DatabaseTreeUtil.namesForSchema(info.getViewMap(), schemaName);
+    Collection<String> synonyms = DatabaseTreeUtil.namesForSchema(info.getSynonymMap(), schemaName);
+    List<String> names = new ArrayList<>();
+    if (items != null) {
+      names.addAll(Arrays.asList(items));
+    }
     for (String view : views) {
-      TreeItem newView = new TreeItem(tiView, SWT.NONE);
-      newView.setImage(GuiResource.getInstance().getImageView());
-      newView.setText(view);
-    }
-    return tiView;
-  }
-
-  private TreeItem addSynonymsBranch(String[] syn) {
-    if (syn == null) {
-      return null;
-    }
-    TreeItem tiSyn = new TreeItem(tiTree, SWT.NONE);
-    tiSyn.setImage(GuiResource.getInstance().getImageFolder());
-    tiSyn.setText(STRING_SYNONYMS);
-    for (String s : syn) {
-      TreeItem newSyn = new TreeItem(tiSyn, SWT.NONE);
-      newSyn.setImage(GuiResource.getInstance().getImageSynonym());
-      newSyn.setText(s);
-    }
-    return tiSyn;
-  }
-
-  private void selectInitiallySelectedTable(TreeItem tiTab, TreeItem tiView, TreeItem tiSyn) {
-    if (StringUtils.isEmpty(selectedTable)) {
-      return;
-    }
-    TreeItem ti = findTreeItemForInitialSelection(tiTab, tiView, tiSyn);
-    if (ti != null) {
-      wTree.setSelection(new TreeItem[] {ti});
-      wTree.showSelection();
-      if (dbMeta != null) {
-        refreshButtons(
-            dbMeta.getQuotedSchemaTableCombination(variables, selectedSchema, selectedTable));
+      if (!DatabaseTreeUtil.containsIgnoreCase(names, view)) {
+        names.add(view);
       }
     }
-    selectedTable = null;
+    for (String synonym : synonyms) {
+      if (!DatabaseTreeUtil.containsIgnoreCase(names, synonym)) {
+        names.add(synonym);
+      }
+    }
+    names.sort(String.CASE_INSENSITIVE_ORDER);
+    boolean expanded = false;
+    for (String name : names) {
+      if (matchesFilter(name, schemaName)) {
+        DatabaseTreeNode.Kind kind = DatabaseTreeUtil.kindOf(name, views, synonyms);
+        TreeItem item = new TreeItem(parent, SWT.NONE);
+        item.setText(name);
+        item.setImage(DatabaseTreeUtil.imageFor(kind));
+        item.setData(DatabaseTreeNode.table(kind, connectionName, schemaName, name));
+
+        // Highlight selected item
+        if (schemaName.equalsIgnoreCase(selectedSchemaName)
+            && name.equalsIgnoreCase(selectedTableName)) {
+          parent.setFont(GuiResource.getInstance().getFontBold());
+          item.setFont(GuiResource.getInstance().getFontBold());
+          wTree.setSelection(item);
+          wTree.showItem(item);
+          expanded = true;
+        }
+
+        // If is filtered and an item match then expand parent
+        if (filter != null) {
+          expanded = true;
+        }
+      }
+    }
+    parent.setExpanded(expanded);
   }
 
-  private TreeItem findTreeItemForInitialSelection(
-      TreeItem tiTab, TreeItem tiView, TreeItem tiSyn) {
-    TreeItem ti = null;
-    if (tiTab != null) {
-      ti = ConstUi.findTreeItem(tiTab, selectedSchema, selectedTable);
+  private boolean matchesFilter(String name, String schemaName) {
+    if (filter == null) {
+      return true;
     }
-    if (ti == null && tiView != null) {
-      ti = ConstUi.findTreeItem(tiView, selectedSchema, selectedTable);
-    }
-    if (ti == null) {
-      ti = ConstUi.findTreeItem(tiTree, selectedSchema, selectedTable);
-    }
-    if (ti == null && tiSyn != null) {
-      ti = ConstUi.findTreeItem(tiSyn, selectedSchema, selectedTable);
-    }
-    return ti;
+    return filter.matches(name) || filter.matches(schemaName);
   }
 
-  private String getSchemaTable() {
-    TreeItem[] ti = wTree.getSelection();
-    if (ti.length != 1) {
+  private boolean schemaOrChildMatches(Schema schema, DatabaseMetaInformation info) {
+    if (filter == null) {
+      return true;
+    }
+    if (filter.matches(schema.getSchemaName())) {
+      return true;
+    }
+    if (schema.getItems() != null) {
+      for (String table : schema.getItems()) {
+        if (filter.matches(table)) {
+          return true;
+        }
+      }
+    }
+    for (String view : DatabaseTreeUtil.namesForSchema(info.getViewMap(), schema.getSchemaName())) {
+      if (filter.matches(view)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private @Nullable DatabaseTreeNode getSelectedNode() {
+    TreeItem[] selection = wTree.getSelection();
+    if (selection.length != 1) {
       return null;
     }
-    TreeItem parentItem = ti[0].getParentItem();
-    if (parentItem == null) {
-      return null;
-    }
-    String parentLabel = parentItem.getText();
-    String itemText = ti[0].getText();
-    if (ti[0].getItemCount() != 0) {
-      return null;
-    }
-    if (isRootTableViewSynonymOrEmptyParent(parentLabel)) {
-      return itemText;
-    }
-    if (dbMeta == null) {
-      return null;
-    }
-    return dbMeta.getQuotedSchemaTableCombination(variables, parentLabel, itemText);
+    Object data = selection[0].getData();
+    return data instanceof DatabaseTreeNode node ? node : null;
   }
 
-  private static boolean isRootTableViewSynonymOrEmptyParent(String parentLabel) {
-    return parentLabel.equalsIgnoreCase(STRING_TABLES)
-        || parentLabel.equalsIgnoreCase(STRING_VIEWS)
-        || parentLabel.equalsIgnoreCase(STRING_SYNONYMS)
-        || parentLabel.isEmpty();
-  }
-
-  public void setTreeMenu() {
-    final String table = getSchemaTable();
-    if (table != null) {
-      Menu mTree = new Menu(shell, SWT.POP_UP);
-
-      MenuItem miPrev = new MenuItem(mTree, SWT.PUSH);
-      miPrev.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_100, table));
-      miPrev.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              previewTable(table);
-            }
-          });
-      MenuItem miPrevN = new MenuItem(mTree, SWT.PUSH);
-      miPrevN.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_N, table));
-      miPrevN.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              previewTable(table);
-            }
-          });
-      MenuItem miCount = new MenuItem(mTree, SWT.PUSH);
-      miCount.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_SIZE, table));
-      miCount.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              showCount(table);
-            }
-          });
-
-      new MenuItem(mTree, SWT.SEPARATOR);
-
-      MenuItem miShow = new MenuItem(mTree, SWT.PUSH);
-      miShow.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_LAYOUT, table));
-      miShow.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              showTable(table);
-            }
-          });
-      MenuItem miDDL = new MenuItem(mTree, SWT.PUSH);
-      miDDL.setText(BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDL));
-      miDDL.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              getDDL(table);
-            }
-          });
-      MenuItem miDDL2 = new MenuItem(mTree, SWT.PUSH);
-      miDDL2.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN));
-      miDDL2.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              getDDLForOther(table);
-            }
-          });
-      miDDL2.setEnabled(databases != null);
-      MenuItem miSql = new MenuItem(mTree, SWT.PUSH);
-      miSql.setText(
-          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_OPEN_SQL, table));
-      miSql.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              getSql(table);
-            }
-          });
-
-      wTree.setMenu(mTree);
-    } else {
-      wTree.setMenu(null);
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_PREVIEW,
+      type = GuiToolbarElementType.BUTTON,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.Preview.Tooltip",
+      image = "ui/images/preview.svg",
+      separator = true)
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_PREVIEW_100,
+      label = "i18n::DatabaseExplorerDialog.Menu.Preview100",
+      image = "ui/images/preview.svg")
+  @GuiKeyboardShortcut(key = SWT.F4)
+  @GuiOsxKeyboardShortcut(key = SWT.F4)
+  public void showTablePreview100() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      showTablePreview(node, false);
     }
   }
 
-  public void previewTable(String qualifiedTableName) {
-    PreviewTableSettingsDialog settingsDialog =
-        new PreviewTableSettingsDialog(shell, 100, variables, false);
-    PreviewTableSettingsDialog.Settings settings = settingsDialog.open();
-    if (settings == null) {
-      return;
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_PREVIEW_N,
+      label = "i18n::DatabaseExplorerDialog.Menu.PreviewN",
+      image = "ui/images/preview.svg")
+  public void showTablePreviewN() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      showTablePreview(node, true);
     }
-    int limit = settings.rowLimit;
-    int queryTimeoutSeconds = settings.queryTimeoutSeconds;
+  }
 
-    String[] tableNameParts = qualifiedTableName.split("\\.");
+  public void showTablePreview(DatabaseTreeNode node, boolean askSetting) {
+    int limit = 100;
+    int queryTimeoutSeconds = 0;
 
-    GetPreviewTableProgressDialog pd = null;
-    if (schemaName == null && tableNameParts.length == 2) {
-      // Table name contains both schema name and table name concatenated
-      pd =
-          new GetPreviewTableProgressDialog(
-              shell,
-              variables,
-              dbMeta,
-              tableNameParts[0],
-              tableNameParts[1],
-              limit,
-              queryTimeoutSeconds);
-    } else {
-      pd =
-          new GetPreviewTableProgressDialog(
-              shell, variables, dbMeta, null, qualifiedTableName, limit, queryTimeoutSeconds);
+    if (askSetting) {
+      PreviewTableSettingsDialog settingsDialog =
+          new PreviewTableSettingsDialog(shell, 100, variables, false);
+      PreviewTableSettingsDialog.Settings settings = settingsDialog.open();
+      if (settings == null) {
+        return;
+      }
+      limit = settings.rowLimit;
+      queryTimeoutSeconds = settings.queryTimeoutSeconds;
     }
 
-    List<Object[]> rows = pd.open();
-    if (pd.isPreviewSucceeded()) {
+    GetPreviewTableProgressDialog dialog =
+        new GetPreviewTableProgressDialog(
+            shell,
+            variables,
+            databaseMeta,
+            node.getSchemaName(),
+            node.getObjectName(),
+            limit,
+            queryTimeoutSeconds);
+    List<Object[]> rows = dialog.open();
+    if (dialog.isPreviewSucceeded()) {
       if (!rows.isEmpty()) {
         new ShowRowsDialog(
                 shell,
                 variables,
                 BaseMessages.getString(PKG, "DatabaseExplorerDialog.ShowRows.Title"),
                 BaseMessages.getString(
-                    PKG, "DatabaseExplorerDialog.ShowRows.Message", qualifiedTableName),
-                pd.getRowMeta(),
+                    PKG, "DatabaseExplorerDialog.ShowRows.Message", node.getObjectName()),
+                dialog.getRowMeta(),
                 rows)
             .open();
       } else {
@@ -862,103 +740,133 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  public void showTable(String qualifiedTableName) {
-    String sql = dbMeta.getSqlQueryFields(qualifiedTableName);
-    IRowMeta result = null;
-    try (Database db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta)) {
-      db.connect();
-      result = db.getQueryFields(sql, false);
-    } catch (Exception e) {
-      // Do Nothing
-    }
-    if (result != null) {
-      TransformFieldsDialog sfd =
-          new TransformFieldsDialog(shell, variables, SWT.NONE, qualifiedTableName, result);
-      sfd.open();
-    }
-  }
-
-  public void showCount(String qualifiedTableName) {
-    String realTableName =
-        (qualifiedTableName.contains(".")
-            ? qualifiedTableName.substring(qualifiedTableName.indexOf(".") + 1)
-            : qualifiedTableName);
-    GetTableSizeProgressDialog pd =
-        new GetTableSizeProgressDialog(shell, variables, dbMeta, realTableName);
-    Long size = pd.open();
-    if (size != null) {
-      MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG,
-              "DatabaseExplorerDialog.TableSize.Message",
-              qualifiedTableName,
-              size.toString()));
-      mb.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.TableSize.Title"));
-      mb.open();
-    }
-  }
-
-  public void getDDL(String qualifiedTableName) {
-    try (Database db = new Database(loggingObject, variables, dbMeta)) {
-      db.connect();
-      IRowMeta r = db.getTableFields(qualifiedTableName);
-      String realTableName =
-          (qualifiedTableName.contains(".")
-              ? qualifiedTableName.substring(qualifiedTableName.indexOf(".") + 1)
-              : qualifiedTableName);
-
-      String sql = db.getCreateTableStatement(realTableName, r, null, false, null, true);
-      DatabaseWorkbenchDialog.openSql(dbMeta, sql);
-    } catch (HopDatabaseException dbe) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "Dialog.Error.Header"),
-          BaseMessages.getString(PKG, "DatabaseExplorerDialog.Error.RetrieveLayout"),
-          dbe);
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_SHOW_LAYOUT,
+      type = GuiToolbarElementType.BUTTON,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.ShowLayout.Tooltip",
+      image = "ui/images/layout.svg")
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_SHOW_LAYOUT,
+      label = "i18n::DatabaseExplorerDialog.Menu.ShowLayout",
+      image = "ui/images/layout.svg",
+      separator = true)
+  public void showTableLayout() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, node.getSchemaName(), node.getObjectName());
+      String sql = databaseMeta.getSqlQueryFields(table);
+      IRowMeta result = null;
+      try (Database db =
+          new Database(HopGui.getInstance().getLoggingObject(), variables, databaseMeta)) {
+        db.connect();
+        result = db.getQueryFields(sql, false);
+      } catch (Exception e) {
+        // Do Nothing
+      }
+      if (result != null) {
+        TransformFieldsDialog sfd =
+            new TransformFieldsDialog(shell, variables, SWT.NONE, table, result);
+        sfd.open();
+      }
     }
   }
 
-  public void getDDLForOther(String qualifiedTableName) {
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_SHOW_SIZE,
+      label = "i18n::DatabaseExplorerDialog.Menu.ShowSize")
+  public void showTableSize() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      GetTableSizeProgressDialog dialog =
+          new GetTableSizeProgressDialog(
+              shell, variables, databaseMeta, node.getObjectName(), node.getSchemaName());
+      Long size = dialog.open();
+      if (size != null) {
+        String tableName =
+            databaseMeta.getQuotedSchemaTableCombination(
+                variables, node.getSchemaName(), node.getObjectName());
 
-    if (databases != null) {
-      try (Database database = new Database(loggingObject, variables, dbMeta)) {
+        MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG, "DatabaseExplorerDialog.TableSize.Message", tableName, size.toString()));
+        mb.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.TableSize.Title"));
+        mb.open();
+      }
+    }
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_DDL,
+      label = "i18n::DatabaseExplorerDialog.Menu.GenDDL")
+  public void showDDL() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, node.getSchemaName(), node.getObjectName());
+
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+        db.connect();
+        IRowMeta rowMeta = db.getTableFields(table);
+        String sql = db.getCreateTableStatement(table, rowMeta, null, false, null, true);
+        openSqlEditor(sql);
+      } catch (HopDatabaseException dbe) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "Dialog.Error.Header"),
+            BaseMessages.getString(PKG, "DatabaseExplorerDialog.Error.RetrieveLayout"),
+            dbe);
+      }
+    }
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_DDL_OTHER,
+      label = "i18n::DatabaseExplorerDialog.Menu.GenDDLOtherConn")
+  public void showDDLForOther() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null && databases != null) {
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, node.getSchemaName(), node.getObjectName());
+
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
 
-        String realTableName =
-            (qualifiedTableName.contains(".")
-                ? qualifiedTableName.substring(qualifiedTableName.indexOf(".") + 1)
-                : qualifiedTableName);
-        IRowMeta rowMeta = database.getTableFields(realTableName);
+        IRowMeta rowMeta = database.getTableFields(table);
 
         // Now select the other connection...
-
-        // Only take non-SAP ERP connections....
-        List<DatabaseMeta> databaseMetaList = new ArrayList<>();
-        for (DatabaseMeta databaseMeta : databases) {
-          databaseMetaList.add(databaseMeta);
-        }
-
-        String[] connectionNames = new String[databaseMetaList.size()];
+        String[] connectionNames = new String[databases.size()];
         for (int i = 0; i < connectionNames.length; i++) {
-          connectionNames[i] = (databaseMetaList.get(i)).getName();
+          connectionNames[i] = (databases.get(i)).getName();
         }
 
-        EnterSelectionDialog enterSelectionDialog =
+        EnterSelectionDialog dialog =
             new EnterSelectionDialog(
                 shell,
                 connectionNames,
                 BaseMessages.getString(PKG, "DatabaseExplorerDialog.TargetDatabase.Title"),
                 BaseMessages.getString(PKG, "DatabaseExplorerDialog.TargetDatabase.Message"));
-        String target = enterSelectionDialog.open();
+        String target = dialog.open();
         if (target != null) {
-          DatabaseMeta targetDatabaseMeta = DatabaseMeta.findDatabase(databaseMetaList, target);
+          DatabaseMeta targetDatabaseMeta = DatabaseMeta.findDatabase(databases, target);
           try (Database targetDatabase =
               new Database(loggingObject, variables, targetDatabaseMeta)) {
             String sql =
-                targetDatabase.getCreateTableStatement(
-                    qualifiedTableName, rowMeta, null, false, null, true);
-            DatabaseWorkbenchDialog.openSql(targetDatabaseMeta, sql);
+                targetDatabase.getCreateTableStatement(table, rowMeta, null, false, null, true);
+            openSqlEditor(sql);
           }
         }
       } catch (HopDatabaseException dbe) {
@@ -977,20 +885,51 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  public void getSql(String qualifiedTableName) {
-    String realTableName =
-        (qualifiedTableName.contains(".")
-            ? qualifiedTableName.substring(qualifiedTableName.indexOf(".") + 1)
-            : qualifiedTableName);
-    DatabaseWorkbenchDialog.openSql(dbMeta, "SELECT * FROM " + realTableName);
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_SQL_SELECT,
+      type = GuiToolbarElementType.BUTTON,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.SQLSelect.Tooltip",
+      image = "ui/images/script.svg")
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_SQL_SELECT,
+      label = "i18n::DatabaseExplorerDialog.Menu.SQLSelect",
+      image = "ui/images/script.svg",
+      separator = true)
+  public void showSqlSelect() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, node.getSchemaName(), node.getObjectName());
+      openSqlEditor("SELECT * FROM " + table);
+    }
   }
 
-  public void getTruncate(String truncateTableReference) {
-    DatabaseWorkbenchDialog.openSql(dbMeta, "-- TRUNCATE TABLE " + truncateTableReference);
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_SQL_TRUNCATE,
+      label = "i18n::DatabaseExplorerDialog.Menu.Truncate")
+  public void showSqlTruncate() {
+    DatabaseTreeNode node = getSelectedNode();
+    if (node != null) {
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, node.getSchemaName(), node.getObjectName());
+      openSqlEditor("-- TRUNCATE TABLE " + table);
+    }
+  }
+
+  protected void openSqlEditor(String sql) {
+    SqlEditor dialog = new SqlEditor(shell, SWT.NONE, variables, databaseMeta, dbCache, sql);
+    dialog.open();
   }
 
   public void dispose() {
-    props.setScreen(new WindowProperty(shell));
+    PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
@@ -999,181 +938,56 @@ public class DatabaseExplorerDialog extends Dialog {
       dispose();
       return;
     }
-    TreeItem[] selection = wTree.getSelection();
-    if (selection.length != 1) {
+
+    DatabaseTreeNode node = getSelectedNode();
+    if (node == null || !node.isTableLike()) {
       return;
     }
-    TreeItem selected = selection[0];
-    if (completeOkFromThreePartPath(selected)) {
-      return;
-    }
-    completeOkFromFourPartPath(selected);
-  }
 
-  private boolean completeOkFromThreePartPath(TreeItem selected) {
-    String[] path = ConstUi.getTreeStrings(selected);
-    if (path.length != 3 || !isTablesViewsOrSynonymsPathSegment(path[1])) {
-      return false;
-    }
-    applyOkSelectionForFlatTableFolder(selected.getText());
-    dispose();
-    return true;
-  }
-
-  private void applyOkSelectionForFlatTableFolder(String selectedItemText) {
-    schemaName = null;
-    tableName = selectedItemText;
-    String[] st = tableName.split("\\.", 2);
-    if (st.length > 1) {
-      schemaName = st[0];
-      tableName = st[1];
-    }
-  }
-
-  private void completeOkFromFourPartPath(TreeItem selected) {
-    String[] path = ConstUi.getTreeStrings(selected);
-    if (path.length != 4 || !isCatalogOrSchemasPathSegment(path[1])) {
-      return;
-    }
     if (splitSchemaAndTable) {
-      schemaName = path[2];
-      tableName = path[3];
+      selectedSchemaName = node.getSchemaName();
+      selectedTableName = node.getObjectName();
     } else {
-      if (dbMeta == null) {
-        return;
-      }
-      schemaName = null;
-      tableName = dbMeta.getQuotedSchemaTableCombination(variables, path[2], path[3]);
+      selectedSchemaName = null;
+      selectedTableName =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, node.getSchemaName(), node.getObjectName());
     }
+
     dispose();
   }
 
-  private static boolean isTablesViewsOrSynonymsPathSegment(String pathSegment) {
-    return STRING_TABLES.equalsIgnoreCase(pathSegment)
-        || STRING_VIEWS.equalsIgnoreCase(pathSegment)
-        || STRING_SYNONYMS.equalsIgnoreCase(pathSegment);
-  }
-
-  private static boolean isCatalogOrSchemasPathSegment(String pathSegment) {
-    return STRING_SCHEMAS.equals(pathSegment) || STRING_CATALOG.equals(pathSegment);
-  }
-
-  public void openSchema(Event e) {
-    TreeItem sel = (TreeItem) e.item;
-    if (sel == null) {
+  public void openTreeItem(Event e) {
+    TreeItem[] selection = wTree.getSelection();
+    if (selection == null || selection.length == 0) {
       return;
     }
+    TreeItem item = selection[0];
 
-    TreeItem up1 = sel.getParentItem();
-    if (up1 != null) {
-      TreeItem up2 = up1.getParentItem();
-      if (up2 != null) {
-        TreeItem up3 = up2.getParentItem();
-        if (up3 != null) {
-          tableName = sel.getText();
-          if (!justLook) {
-            ok();
-          } else {
-            previewTable(tableName);
-          }
-        }
-      }
-    }
-  }
-
-  private void handleTreeMouseDown(Event e) {
-    if (e.button == 3) {
-      setTreeMenu();
-      return;
-    }
-    if (e.button != 1) {
-      return;
-    }
-
-    TreeItem item = wTree.getItem(new Point(e.x, e.y));
-    if (item == null) {
-      // Expander ">" is often outside getItem()'s hit box; resolve the row by Y.
-      item = findTreeItemAtY(e.y);
-    }
-    if (item == null || item.getItemCount() == 0) {
-      return;
-    }
-
-    Rectangle textBounds = item.getBounds(0);
-    Rectangle imageBounds = item.getImageBounds(0);
-    boolean inGutter = e.x < textBounds.x;
-    boolean onImage =
-        imageBounds != null && !imageBounds.isEmpty() && imageBounds.contains(e.x, e.y);
-    if (!inGutter && !onImage) {
-      return;
-    }
-
-    if (onImage) {
-      // Folder icon is outside the native expander hit target.
+    DatabaseTreeNode node = (DatabaseTreeNode) item.getData();
+    if (!node.isTableLike()) {
+      // Expand/Collapse hierarchy
       item.setExpanded(!item.getExpanded());
       return;
     }
 
-    // Gutter / ">": native may or may not handle the click (works at 100%, often misses at
-    // high DPI). Wait one display turn; only complement when Expand/Collapse did not fire
-    // around this click — avoids the expand-then-collapse race at 100%.
-    final TreeItem target = item;
-    final boolean expandedBefore = item.getExpanded();
-    final long mouseDownNanos = System.nanoTime();
-    wTree
-        .getDisplay()
-        .asyncExec(
-            () -> {
-              if (target.isDisposed()) {
-                return;
-              }
-              long delta = lastTreeExpandCollapseNanos - mouseDownNanos;
-              // Native handled if Expand/Collapse fired just before or after MouseDown.
-              if (Math.abs(delta) < 100_000_000L) {
-                return;
-              }
-              if (target.getExpanded() != expandedBefore) {
-                return;
-              }
-              target.setExpanded(!expandedBefore);
-            });
-  }
-
-  private TreeItem findTreeItemAtY(int y) {
-    for (TreeItem root : wTree.getItems()) {
-      TreeItem found = findTreeItemAtY(root, y);
-      if (found != null) {
-        return found;
-      }
+    if (justLook) {
+      showTablePreview(node, false);
+    } else {
+      ok();
     }
-    return null;
-  }
-
-  private static TreeItem findTreeItemAtY(TreeItem item, int y) {
-    Rectangle textBounds = item.getBounds(0);
-    Rectangle imageBounds = item.getImageBounds(0);
-    int top = textBounds.y;
-    int bottom = textBounds.y + textBounds.height;
-    if (imageBounds != null && !imageBounds.isEmpty()) {
-      top = Math.min(top, imageBounds.y);
-      bottom = Math.max(bottom, imageBounds.y + imageBounds.height);
-    }
-    if (y >= top && y < bottom) {
-      return item;
-    }
-    if (item.getExpanded()) {
-      for (TreeItem child : item.getItems()) {
-        TreeItem found = findTreeItemAtY(child, y);
-        if (found != null) {
-          return found;
-        }
-      }
-    }
-    return null;
   }
 
   public void setSelectedSchemaAndTable(String schema, String table) {
-    this.selectedSchema = schema;
-    this.selectedTable = table;
+    this.selectedSchemaName = schema;
+    this.selectedTableName = table;
+  }
+
+  public String getSchemaName() {
+    return selectedSchemaName;
+  }
+
+  public String getTableName() {
+    return selectedTableName;
   }
 }

@@ -23,6 +23,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,9 +71,8 @@ public class DatabaseMetaInformation {
     }
 
     monitor.beginTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfoFromDb"), 8);
-    Database db = new Database(parentLoggingObject, variables, databaseMeta);
 
-    try {
+    try (Database db = new Database(parentLoggingObject, variables, databaseMeta)) {
       monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ConnectingDb"));
       db.connect();
       monitor.worked(1);
@@ -93,18 +93,17 @@ public class DatabaseMetaInformation {
       monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfo"));
       Map<String, String> connectionExtraOptions = databaseMeta.getExtraOptions();
       if (databaseMeta.supportsCatalogs() && dbmd.supportsCatalogsInTableDefinitions()) {
-        ArrayList<Catalog> catalogList = new ArrayList<>();
+        List<Catalog> catalogs = new ArrayList<>();
 
         String catalogFilterKey = databaseMeta.getPluginId() + "." + FILTER_CATALOG_LIST;
         if ((connectionExtraOptions != null)
             && connectionExtraOptions.containsKey(catalogFilterKey)) {
-          String catsFilterCommaList = connectionExtraOptions.get(catalogFilterKey);
-          String[] catsFilterArray = catsFilterCommaList.split(",");
-          for (String s : catsFilterArray) {
-            catalogList.add(new Catalog(s.trim()));
+          String catalogsFilterCommaList = connectionExtraOptions.get(catalogFilterKey);
+          for (String name : catalogsFilterCommaList.split(",")) {
+            catalogs.add(new Catalog(name.trim()));
           }
         }
-        if (catalogList.isEmpty()) {
+        if (catalogs.isEmpty()) {
           ResultSet catalogResultSet = dbmd.getCatalogs();
 
           // Grab all the catalog names and put them in an array list
@@ -113,7 +112,7 @@ public class DatabaseMetaInformation {
           //
           while (catalogResultSet != null && catalogResultSet.next()) {
             String catalogName = catalogResultSet.getString(1);
-            catalogList.add(new Catalog(catalogName));
+            catalogs.add(new Catalog(catalogName));
           }
 
           // Close the catalogs resultset immediately
@@ -123,7 +122,7 @@ public class DatabaseMetaInformation {
 
         // Now loop over the catalogs...
         //
-        for (Catalog catalog : catalogList) {
+        for (Catalog catalog : catalogs) {
           ArrayList<String> catalogTables = new ArrayList<>();
 
           try {
@@ -149,11 +148,11 @@ public class DatabaseMetaInformation {
 
           // Save the list of tables in the catalog (can be empty)
           //
-          catalog.setItems(catalogTables.toArray(new String[catalogTables.size()]));
+          catalog.setItems(catalogTables.toArray(new String[0]));
         }
 
         // Save for later...
-        setCatalogs(catalogList.toArray(new Catalog[catalogList.size()]));
+        setCatalogs(catalogs.toArray(new Catalog[0]));
       }
       monitor.worked(1);
       if (monitor.isCanceled()) {
@@ -164,7 +163,7 @@ public class DatabaseMetaInformation {
       //
       monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSchemaInfo"));
       if (databaseMeta.supportsSchemas() && dbmd.supportsSchemasInTableDefinitions()) {
-        ArrayList<Schema> schemaList = new ArrayList<>();
+        List<Schema> schemaList = new ArrayList<>();
         try {
           String schemaFilterKey = databaseMeta.getPluginId() + "." + FILTER_SCHEMA_LIST;
           if ((connectionExtraOptions != null)
@@ -204,7 +203,7 @@ public class DatabaseMetaInformation {
             }
           }
           for (Schema schema : schemaList) {
-            ArrayList<String> schemaTables = new ArrayList<>();
+            List<String> schemaTables = new ArrayList<>();
 
             try {
               ResultSet schemaTablesResultSet = null;
@@ -237,7 +236,7 @@ public class DatabaseMetaInformation {
               // Just ignore it!
             }
 
-            schema.setItems(schemaTables.toArray(new String[schemaTables.size()]));
+            schema.setItems(schemaTables.toArray(new String[0]));
 
             if (monitor.isCanceled()) {
               return;
@@ -249,8 +248,7 @@ public class DatabaseMetaInformation {
         }
 
         // Sort the schemas by names
-        Collections.sort(
-            schemaList,
+        schemaList.sort(
             (s1, s2) -> {
               return s1.getSchemaName() == null
                   ? -1
@@ -258,7 +256,7 @@ public class DatabaseMetaInformation {
             });
 
         // Save for later...
-        setSchemas(schemaList.toArray(new Schema[schemaList.size()]));
+        setSchemas(schemaList.toArray(new Schema[0]));
       }
       monitor.worked(1);
       if (monitor.isCanceled()) {
@@ -309,7 +307,6 @@ public class DatabaseMetaInformation {
           BaseMessages.getString(PKG, "DatabaseMeta.Error.UnableRetrieveDbInfo"), e);
     } finally {
       monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ClosingDbConnection"));
-      db.disconnect();
       monitor.done();
     }
   }
