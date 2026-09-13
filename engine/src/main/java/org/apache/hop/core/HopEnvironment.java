@@ -119,6 +119,8 @@ public class HopEnvironment {
       System.setProperties(ConcurrentMapProperties.convertProperties(System.getProperties()));
 
       try {
+        silenceVerboseThirdPartyLoggers();
+
         // This creates .hop and hop.properties...
         //
         if (!HopClientEnvironment.isInitialized()) {
@@ -245,5 +247,29 @@ public class HopEnvironment {
     LineageHub.getInstance().shutdown();
     HopClientEnvironment.reset();
     initialized.set(null);
+  }
+
+  /**
+   * Silence noisy third-party loggers (such as Apache HttpClient 5 wire logging) by defaulting
+   * their level to INFO if not explicitly configured, preventing verbose byte dumping to console
+   * while preserving intentional debug flags. (Fixes #8340)
+   */
+  private static void silenceVerboseThirdPartyLoggers() {
+    try {
+      org.apache.logging.log4j.core.LoggerContext context =
+          org.apache.logging.log4j.core.LoggerContext.getContext(false);
+      org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+      String wireLoggerName = "org.apache.hc.client5.http.wire";
+      org.apache.logging.log4j.core.config.LoggerConfig loggerConfig =
+          configuration.getLoggerConfig(wireLoggerName);
+      boolean isExplicitlyConfigured =
+          wireLoggerName.equals(loggerConfig.getName()) && loggerConfig.getExplicitLevel() != null;
+      if (!isExplicitlyConfigured) {
+        org.apache.logging.log4j.core.config.Configurator.setLevel(
+            wireLoggerName, org.apache.logging.log4j.Level.INFO);
+      }
+    } catch (LinkageError | Exception ignored) {
+      // If Log4j2 core is not present, ignore
+    }
   }
 }
