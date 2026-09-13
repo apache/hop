@@ -197,6 +197,17 @@ class DefaultActionCopyFactoryTest {
   }
 
   @Test
+  void copyOfUnchangedActionMetaIsNotMarkedChanged() {
+    sourceActionMeta.setLocation(40, 60);
+    sourceActionMeta.setChanged(false);
+
+    ActionMeta copy = factory.copy(sourceActionMeta, CopyContext.DEFAULT);
+
+    assertFalse(sourceActionMeta.hasChanged(), "Source should stay unchanged");
+    assertFalse(copy.hasChanged(), "Copying a clean action must not mark the copy changed");
+  }
+
+  @Test
   void testIntegrationWithReplaceMeta() {
     // Test that replaceMeta now uses the copy factory
     ActionMeta target = new ActionMeta();

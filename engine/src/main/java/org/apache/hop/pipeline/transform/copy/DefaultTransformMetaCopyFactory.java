@@ -127,6 +127,10 @@ public class DefaultTransformMetaCopyFactory implements ITransformMetaCopyFactor
         if (copy.getTransform() != null) {
           copy.getTransform().setChanged();
         }
+      } else {
+        // Copying location / row distribution uses setters that flip wrapperChanged. A snapshot of
+        // an unchanged transform must stay unchanged so dialog OK-without-edits is not dirty.
+        copy.setChanged(false);
       }
     } else {
       // Explicitly clear changed state if not preserving it
