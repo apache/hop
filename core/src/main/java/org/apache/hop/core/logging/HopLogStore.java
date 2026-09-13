@@ -44,10 +44,45 @@ public class HopLogStore {
 
   private static AtomicBoolean initialized = new AtomicBoolean(false);
 
-  private static ILogChannelFactory logChannelFactory = new LogChannelFactory();
+  /** System property selecting the {@link ILogChannelFactory} implementation to use. */
+  public static final String LOG_CHANNEL_FACTORY_PROPERTY = "hop.logging.factory";
 
+  private static final String DEFAULT_LOG_CHANNEL_FACTORY =
+      "org.apache.hop.core.logging.Slf4jLogChannelFactory";
+
+  private static volatile ILogChannelFactory logChannelFactory;
+
+  /**
+   * Resolve the {@link ILogChannelFactory}: either the one set through {@link
+   * #setLogChannelFactory(ILogChannelFactory)}, or loaded from the {@link
+   * #LOG_CHANNEL_FACTORY_PROPERTY} system property, or the default SLF4J-backed factory.
+   */
   public static ILogChannelFactory getLogChannelFactory() {
-    return logChannelFactory;
+    ILogChannelFactory current = logChannelFactory;
+    if (current == null) {
+      synchronized (HopLogStore.class) {
+        current = logChannelFactory;
+        if (current == null) {
+          current = loadLogChannelFactory();
+          logChannelFactory = current;
+        }
+      }
+    }
+    return current;
+  }
+
+  private static ILogChannelFactory loadLogChannelFactory() {
+    String className =
+        org.apache.hop.core.util.EnvUtil.getSystemProperty(LOG_CHANNEL_FACTORY_PROPERTY);
+    if (org.apache.hop.core.util.Utils.isEmpty(className)) {
+      className = DEFAULT_LOG_CHANNEL_FACTORY;
+    }
+    try {
+      return (ILogChannelFactory) Class.forName(className).getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new org.apache.hop.core.exception.HopRuntimeException(
+          "Unable to load the configured log channel factory '" + className + "'", e);
+    }
   }
 
   public static void setLogChannelFactory(ILogChannelFactory logChannelFactory) {
@@ -157,6 +192,10 @@ public class HopLogStore {
       store = new HopLogStore(maxSize, maxLogTimeoutMinutes, redirectStdOut, redirectStdErr);
     }
     initialized.set(true);
+
+    // Make sure Hop's in-memory buffer is fed by the SLF4J/log4j2 pipeline.
+    //
+    HopLogConfig.ensureBufferAppender();
   }
 
   public static HopLogStore getInstance() {
@@ -206,9 +245,75 @@ public class HopLogStore {
   /**
    * @return The appender that represents the central logging store. It is capable of giving back
    *     log rows in an incremental fashion, etc.
+   * @deprecated Internal use only. Prefer {@link #getLogBufferText(String, boolean, int, int)}.
    */
+  @Deprecated
+  @Internal
   public static LoggingBuffer getAppender() {
     return getInstance().appender;
+  }
+
+  /**
+   * Read facade exposing the buffered log lines for a channel (and children) as plain text. This is
+   * the stable way for read-side consumers to access Hop's in-memory log buffer, which is now fed
+   * by the SLF4J/log4j2 pipeline.
+   *
+   * @param parentLogChannelId the log channel id to read from (including children)
+   * @param includeGeneral include general log lines
+   * @param from first line sequence (inclusive)
+   * @param to last line sequence (inclusive)
+   * @return the buffered log lines formatted as text
+   */
+  public static List<String> getLogBufferText(
+      String parentLogChannelId, boolean includeGeneral, int from, int to) {
+    List<HopLoggingEvent> events = getLogBufferFromTo(parentLogChannelId, includeGeneral, from, to);
+    List<String> lines = new java.util.ArrayList<>(events.size());
+    for (HopLoggingEvent event : events) {
+      if (event != null && event.getMessage() != null) {
+        lines.add(event.getMessage().toString());
+      }
+    }
+    return lines;
+  }
+
+  /**
+   * Read facade exposing the buffered log lines for a channel (and children) as formatted text. It
+   * is the stable replacement for the deprecated {@link #getAppender()}.getBuffer(...) usage from
+   * read-side consumers.
+   *
+   * @param parentLogChannelId the log channel id to read from (including children)
+   * @param includeGeneral include general log lines
+   * @param startLineNr first line sequence (inclusive)
+   * @param endLineNr last line sequence (inclusive)
+   * @return the buffered log lines formatted as text
+   */
+  public static StringBuffer getBuffer(
+      String parentLogChannelId, boolean includeGeneral, int startLineNr, int endLineNr) {
+    return getInstance()
+        .appender
+        .getBuffer(parentLogChannelId, includeGeneral, startLineNr, endLineNr);
+  }
+
+  /**
+   * @see #getBuffer(String, boolean, int, int)
+   */
+  public static StringBuffer getBuffer(String parentLogChannelId, boolean includeGeneral) {
+    return getInstance().appender.getBuffer(parentLogChannelId, includeGeneral);
+  }
+
+  /**
+   * @see #getBuffer(String, boolean, int, int)
+   */
+  public static StringBuffer getBuffer(
+      String parentLogChannelId, boolean includeGeneral, int startLineNr) {
+    return getInstance().appender.getBuffer(parentLogChannelId, includeGeneral, startLineNr);
+  }
+
+  /**
+   * @return the maximum number of buffered log lines.
+   */
+  public static int getMaxNrLines() {
+    return getInstance().appender.getMaxNrLines();
   }
 
   /**

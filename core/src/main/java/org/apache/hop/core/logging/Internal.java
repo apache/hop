@@ -17,23 +17,15 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.Test;
-
-/** Unit test for {@link LogChannelFileWriterBuffer} */
-class LogChannelFileWriterBufferTest {
-
-  @Test
-  void test() {
-    String id = "1";
-    String logMessage = "Log message";
-
-    LogChannelFileWriterBuffer buffer = new LogChannelFileWriterBuffer(id);
-
-    buffer.addEvent(new HopLoggingEvent(logMessage, System.currentTimeMillis(), LogLevel.BASIC));
-
-    String log = buffer.getBuffer().toString();
-    assertTrue(log.contains(logMessage));
-  }
-}
+/**
+ * Marks an API as internal to Apache Hop. Internal APIs may change or be removed without notice and
+ * should not be relied upon by external code. They are kept public so the rest of the Hop codebase
+ * can call them, but they are not part of the stable SDK surface.
+ */
+@Documented
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
+public @interface Internal {}

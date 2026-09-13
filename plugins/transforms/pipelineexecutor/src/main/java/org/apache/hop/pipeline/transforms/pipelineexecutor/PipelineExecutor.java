@@ -488,7 +488,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       }
       if (!Utils.isEmpty(meta.getExecutionLogTextField())) {
         String channelId = getData().getExecutorPipeline().getLogChannelId();
-        String logText = HopLogStore.getAppender().getBuffer(channelId, false).toString();
+        String logText = HopLogStore.getBuffer(channelId, false).toString();
         outputRow[idx++] = logText;
       }
       if (!Utils.isEmpty(meta.getExecutionLogChannelIdField())) {

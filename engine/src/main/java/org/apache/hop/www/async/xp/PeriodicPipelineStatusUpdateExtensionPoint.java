@@ -174,9 +174,7 @@ public class PeriodicPipelineStatusUpdateExtensionPoint
             pipeline.getStatusDescription());
 
     String logText =
-        HopLogStore.getAppender()
-            .getBuffer(pipeline.getLogChannel().getLogChannelId(), false)
-            .toString();
+        HopLogStore.getBuffer(pipeline.getLogChannel().getLogChannelId(), false).toString();
 
     pipelineStatus.setFirstLoggingLineNr(-1);
     pipelineStatus.setLastLoggingLineNr(-1);

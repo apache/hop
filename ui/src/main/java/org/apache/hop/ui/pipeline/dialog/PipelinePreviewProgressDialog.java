@@ -275,9 +275,7 @@ public class PipelinePreviewProgressDialog {
 
     // Capture preview activity to a String:
     loggingText =
-        HopLogStore.getAppender()
-            .getBuffer(pipeline.getLogChannel().getLogChannelId(), true)
-            .toString();
+        HopLogStore.getBuffer(pipeline.getLogChannel().getLogChannelId(), true).toString();
 
     if (progressMonitor != null) {
       progressMonitor.done();

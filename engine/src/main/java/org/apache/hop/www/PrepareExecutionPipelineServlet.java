@@ -174,9 +174,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
           }
         } catch (Throwable e) {
           String logText =
-              HopLogStore.getAppender()
-                  .getBuffer(pipeline.getLogChannel().getLogChannelId(), true)
-                  .toString();
+              HopLogStore.getBuffer(pipeline.getLogChannel().getLogChannelId(), true).toString();
           String errorMsg =
               BaseMessages.getString(
                   PKG,

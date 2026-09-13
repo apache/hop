@@ -22,7 +22,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelFileWriter;
+import org.apache.hop.core.logging.HopFileAppender;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
@@ -154,18 +154,16 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
             realLogFilename,
             pipelineExecutionConfiguration.isCreateParentFolder(),
             pipeline.getLogChannel());
-        final LogChannelFileWriter logChannelFileWriter =
-            new LogChannelFileWriter(
+        final HopFileAppender logFileAppender =
+            HopFileAppender.create(
                 servletLoggingObject.getLogChannelId(),
                 HopVfs.getFileObject(realLogFilename),
                 pipelineExecutionConfiguration.isSetAppendLogfile());
-        logChannelFileWriter.startLogging();
+        logFileAppender.attach();
 
         pipeline.addExecutionFinishedListener(
             pipelineEngine -> {
-              if (logChannelFileWriter != null) {
-                logChannelFileWriter.stopLogging();
-              }
+              logFileAppender.stop();
             });
       } catch (HopException e) {
         logError(Const.getStackTracker(e));

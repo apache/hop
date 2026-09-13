@@ -27,14 +27,34 @@ import org.apache.hop.core.metrics.IMetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
 import org.apache.hop.core.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
+/**
+ * The default Hop log channel, backed by SLF4J. Hop's in-memory {@link LoggingBuffer} is kept in
+ * sync by the {@code HopLogBufferAppender} registered on the SLF4J/log4j2 backend so read-side
+ * consumers (servlets, database log tables, metrics, log browsers, ...) keep working.
+ *
+ * <p>The hop call-site (class/method/line) is captured with a {@link StackWalker} and surfaced to
+ * backends through the {@link #MDC_CALLER} and {@link #MDC_CHANNEL} MDC keys so patterns can render
+ * the real origin instead of this channel.
+ */
 public class LogChannel implements ILogChannel {
+
+  /** MDC key under which the hop call-site is published while a message is logged. */
+  public static final String MDC_CALLER = "hop.caller";
+
+  /** MDC key under which the hop log channel id is published while a message is logged. */
+  public static final String MDC_CHANNEL = "hop.logChannelId";
 
   public static ILogChannel GENERAL = new LogChannel("General");
 
   public static ILogChannel UI = new LogChannel("GUI");
 
   private final String logChannelId;
+
+  private final Logger logger;
 
   private LogLevel logLevel;
 
@@ -46,15 +66,16 @@ public class LogChannel implements ILogChannel {
 
   private static final MetricsRegistry metricsRegistry = MetricsRegistry.getInstance();
 
-  private String filter;
+  private static final StackWalker stackWalker = StackWalker.getInstance();
 
-  private LogChannelFileWriterBuffer fileWriter;
+  private String filter;
 
   @Setter @Getter private boolean simplified;
 
   public LogChannel(Object subject) {
-    logLevel = DefaultLogLevel.getLogLevel();
-    logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject);
+    this.logLevel = DefaultLogLevel.getLogLevel();
+    this.logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject);
+    this.logger = LoggerFactory.getLogger(loggerName(this.logChannelId));
   }
 
   public LogChannel(Object subject, boolean gatheringMetrics) {
@@ -75,6 +96,8 @@ public class LogChannel implements ILogChannel {
       ILoggingObject parentObject,
       boolean gatheringMetrics,
       boolean forceNewLoggingEntry) {
+    this.logChannelId =
+        LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
     if (parentObject != null) {
       this.logLevel = parentObject.getLogLevel();
       this.containerObjectId = parentObject.getContainerId();
@@ -83,9 +106,16 @@ public class LogChannel implements ILogChannel {
       this.containerObjectId = null;
     }
     this.gatheringMetrics = gatheringMetrics;
+    this.logger = LoggerFactory.getLogger(loggerName(this.logChannelId));
+  }
 
-    logChannelId =
-        LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
+  private static String loggerName(String channelId) {
+    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject(channelId);
+    String detailed = LoggingObjectNameHelper.getDetailedSubject(loggingObject);
+    if (Utils.isEmpty(detailed)) {
+      return "org.apache.hop";
+    }
+    return "org.apache.hop." + detailed.replace('\\', '.');
   }
 
   @Override
@@ -103,42 +133,24 @@ public class LogChannel implements ILogChannel {
    * @param channelLogLevel
    */
   public void println(ILogMessage logMessage, LogLevel channelLogLevel) {
-    String subject = null;
-
     LogLevel logLevel = logMessage.getLevel();
 
     if (!logLevel.isVisible(channelLogLevel)) {
       return; // not for our eyes.
     }
 
-    if (subject == null) {
-      subject = "Hop";
-    }
-
     // Are the message filtered?
     //
-    if (!logLevel.isError()
-        && !Utils.isEmpty(filter)
-        && subject.indexOf(filter) < 0
-        && logMessage.toString().indexOf(filter) < 0) {
-
+    if (!logLevel.isError() && !Utils.isEmpty(filter) && !messageContainedInFilter(logMessage)) {
       return; // "filter" not found in row: don't show!
     }
 
-    // Let's not keep everything...
+    // Emit to the SLF4J backend. Hop's in-memory buffer is fed back through the
+    // HopLogBufferAppender.
     //
-    if (channelLogLevel.getLevel() >= logLevel.getLevel()) {
-      HopLoggingEvent loggingEvent =
-          new HopLoggingEvent(logMessage, System.currentTimeMillis(), logLevel);
-      HopLogStore.getAppender().addLogggingEvent(loggingEvent);
-
-      if (this.fileWriter == null) {
-        this.fileWriter = LoggingRegistry.getInstance().getLogChannelFileWriterBuffer(logChannelId);
-      }
-
-      // add to buffer
-      if (this.fileWriter != null) {
-        this.fileWriter.addEvent(loggingEvent);
+    try (MDC.MDCCloseable ignored1 = MDC.putCloseable(MDC_CALLER, callSite())) {
+      try (MDC.MDCCloseable ignored2 = MDC.putCloseable(MDC_CHANNEL, logChannelId)) {
+        logToSf4j(logMessage, logLevel);
       }
     }
   }
@@ -180,6 +192,55 @@ public class LogChannel implements ILogChannel {
     if (logMessageLevel.isVisible(logLevel)) {
       println(new LogMessage(s, logChannelId, arguments, logMessageLevel, simplified), logLevel);
     }
+  }
+
+  private boolean messageContainedInFilter(ILogMessage message) {
+    return message.toString().indexOf(filter) >= 0;
+  }
+
+  private void logToSf4j(ILogMessage message, LogLevel level) {
+    String text = message.getMessage();
+    Throwable throwable = message.getThrowable();
+    switch (level) {
+      case NOTHING:
+        break;
+      case ERROR:
+        if (throwable != null) {
+          logger.error(text, throwable);
+        } else {
+          logger.error(text);
+        }
+        break;
+      case MINIMAL:
+        logger.warn(text);
+        break;
+      case BASIC, DETAILED:
+        logger.info(text);
+        break;
+      case DEBUG:
+        logger.debug(text);
+        break;
+      case ROWLEVEL:
+        logger.trace(text);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private static String callSite() {
+    return stackWalker.walk(
+        frames ->
+            frames
+                .skip(1L)
+                .filter(f -> !f.getClassName().startsWith(LogChannel.class.getName()))
+                .findFirst()
+                .map(LogChannel::formatFrame)
+                .orElse(null));
+  }
+
+  private static String formatFrame(StackWalker.StackFrame frame) {
+    return frame.getClassName() + "." + frame.getMethodName() + "(" + frame.getLineNumber() + ")";
   }
 
   @Override

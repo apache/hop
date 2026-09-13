@@ -103,7 +103,7 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
 
     // Logging text of the workflow
     pipelineRow[index++] =
-        HopLogStore.getAppender().getBuffer(loggingWorkflow.getLogChannelId(), false).toString();
+        HopLogStore.getBuffer(loggingWorkflow.getLogChannelId(), false).toString();
 
     // Result object *after* execution:
     Result result = loggingWorkflow.getResult();
@@ -146,7 +146,7 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
 
         // Logging text of action
         transformRow[index++] =
-            HopLogStore.getAppender().getBuffer(actionResult.getLogChannelId(), false).toString();
+            HopLogStore.getBuffer(actionResult.getLogChannelId(), false).toString();
 
         // Errors
         transformRow[index++] = result.getNrErrors();

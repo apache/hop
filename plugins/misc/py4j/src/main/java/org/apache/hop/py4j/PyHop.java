@@ -30,7 +30,6 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingBuffer;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
@@ -434,8 +433,7 @@ public class PyHop {
   //
 
   public String getLogging(String logChannelId) {
-    LoggingBuffer loggingBuffer = HopLogStore.getAppender();
-    return loggingBuffer.getBuffer(logChannelId, false).toString();
+    return HopLogStore.getBuffer(logChannelId, false).toString();
   }
 
   //
