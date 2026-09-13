@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.git.provider.GitInputFields;
+import org.apache.hop.git.provider.GitResourceType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.AfterEach;
@@ -236,7 +237,8 @@ class GitInputTest {
       // drain
     }
 
-    assertEquals(GitInputFields.FIELD_NAMES.length - 1, data.outputRowMeta.size());
+    assertEquals(
+        GitInputFields.fieldCount(GitResourceType.COMMITS, false), data.outputRowMeta.size());
     assertEquals(-1, data.outputRowMeta.indexOfValue("raw_json"));
   }
 

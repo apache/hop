@@ -249,11 +249,11 @@ limitations under the License.
             <negated>N</negated>
             <operator>AND</operator>
             <leftvalue>merged</leftvalue>
-            <function>IN LIST</function>
+            <function>IS NOT NULL</function>
             <value>
               <name>constant</name>
               <type>String</type>
-              <text>Y;N</text>
+              <text/>
               <length>-1</length>
               <precision>-1</precision>
               <isnull>N</isnull>

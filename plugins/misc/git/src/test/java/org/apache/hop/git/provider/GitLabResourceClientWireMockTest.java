@@ -92,7 +92,7 @@ class GitLabResourceClientWireMockTest {
                     .withBody(
                         "[{\"id\":\"abc123\",\"title\":\"fix things\","
                             + "\"message\":\"fix things\\n\\nwith detail\","
-                            + "\"author_name\":\"Ada\","
+                            + "\"author_name\":\"Ada\",\"author_email\":\"ada@example.com\","
                             + "\"created_at\":\"2026-05-01T12:00:00.000Z\","
                             + "\"web_url\":\"https://gitlab.com/apache/hop/-/commit/abc123\"}]")));
     wireMock.stubFor(
@@ -108,10 +108,12 @@ class GitLabResourceClientWireMockTest {
     assertEquals("gitlab", record.getProvider());
     assertEquals("abc123", record.getSha());
     assertEquals("Ada", record.getAuthor());
+    assertEquals("ada@example.com", record.getAuthorEmail());
 
     // GitLab's millisecond form still has to reach the row as a real Date.
-    Object[] row = record.toRow(true);
-    int createdAt = List.of(GitInputFields.FIELD_NAMES).indexOf("created_at");
+    Object[] row = record.toRow(GitResourceType.COMMITS, true);
+    int createdAt =
+        List.of(GitInputFields.fieldNames(GitResourceType.COMMITS, true)).indexOf("created_at");
     assertEquals(Date.from(Instant.parse("2026-05-01T12:00:00Z")), row[createdAt]);
   }
 
@@ -142,7 +144,7 @@ class GitLabResourceClientWireMockTest {
     assertEquals(42L, record.getNumber(), "GitLab numbers rows by iid, not id");
     assertEquals("feature", record.getSourceBranch());
     assertEquals("main", record.getTargetBranch());
-    assertEquals("Y", record.getMerged());
+    assertTrue(record.getMerged());
   }
 
   @Test

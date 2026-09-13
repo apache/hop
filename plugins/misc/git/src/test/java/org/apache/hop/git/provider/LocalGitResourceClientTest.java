@@ -177,9 +177,95 @@ class LocalGitResourceClientTest {
 
     List<GitResourceRecord> records = readAll(GitResourceType.COMMITS);
 
-    int createdAt = List.of(GitInputFields.FIELD_NAMES).indexOf("created_at");
-    Object value = records.get(0).toRow(true)[createdAt];
+    int createdAt =
+        List.of(GitInputFields.fieldNames(GitResourceType.COMMITS, true)).indexOf("created_at");
+    Object value = records.get(0).toRow(GitResourceType.COMMITS, true)[createdAt];
     assertInstanceOf(Date.class, value);
+  }
+
+  @Test
+  void commitRowsCarryTheAuthorEmail() throws Exception {
+    initRepoWithTwoCommits();
+
+    List<GitResourceRecord> records = readAll(GitResourceType.COMMITS);
+
+    int authorEmail =
+        List.of(GitInputFields.fieldNames(GitResourceType.COMMITS, true)).indexOf("author_email");
+    for (GitResourceRecord record : records) {
+      assertEquals("tester", record.getAuthor());
+      assertEquals("tester@example.com", record.getAuthorEmail());
+      assertEquals("tester@example.com", record.toRow(GitResourceType.COMMITS, true)[authorEmail]);
+      assertTrue(
+          record.getRawJson().contains("\"author_email\":\"tester@example.com\""),
+          "raw_json should carry the e-mail too: " + record.getRawJson());
+    }
+  }
+
+  @Test
+  void commitFileRowsCarryTheAuthorEmail() throws Exception {
+    initRepoWithTwoCommits();
+
+    List<GitResourceRecord> records = readAll(GitResourceType.COMMIT_FILES);
+
+    assertFalse(records.isEmpty());
+    for (GitResourceRecord record : records) {
+      assertEquals("tester@example.com", record.getAuthorEmail());
+    }
+  }
+
+  @Test
+  void commitRowsSeparateAuthorFromCommitterAndFlagMerges() throws Exception {
+    // A rebase, a squash or a web merge rewrites the committer but keeps the original author.
+    writeFile("hello.txt", "v1");
+    try (Git git = Git.init().setDirectory(repoDir).call()) {
+      git.add().addFilepattern(".").call();
+      git.commit()
+          .setMessage("initial")
+          .setAuthor("Ada", "ada@example.com")
+          .setCommitter("Release Bot", "bot@example.com")
+          .call();
+    }
+
+    List<GitResourceRecord> records = readAll(GitResourceType.COMMITS);
+
+    GitResourceRecord record = records.get(0);
+    assertEquals("Ada", record.getAuthor());
+    assertEquals("ada@example.com", record.getAuthorEmail());
+    assertEquals("Release Bot", record.getCommitter());
+    assertEquals("bot@example.com", record.getCommitterEmail());
+    assertFalse(record.getIsMerge(), "a root commit has one parent at most");
+  }
+
+  @Test
+  void aMergeCommitIsFlaggedAsOne() throws Exception {
+    try (Git git = Git.init().setDirectory(repoDir).call()) {
+      writeFile("hello.txt", "v1");
+      git.add().addFilepattern(".").call();
+      git.commit().setMessage("initial").setAuthor("tester", "tester@example.com").call();
+      String main = git.getRepository().getBranch();
+
+      git.checkout().setCreateBranch(true).setName("side").call();
+      writeFile("side.txt", "side");
+      git.add().addFilepattern(".").call();
+      git.commit().setMessage("side work").setAuthor("tester", "tester@example.com").call();
+
+      git.checkout().setName(main).call();
+      writeFile("hello.txt", "v2");
+      git.add().addFilepattern(".").call();
+      git.commit().setMessage("main work").setAuthor("tester", "tester@example.com").call();
+
+      git.merge()
+          .include(git.getRepository().resolve("side"))
+          .setCommit(true)
+          .setMessage("merge side")
+          .call();
+    }
+
+    List<GitResourceRecord> records = readAll(GitResourceType.COMMITS);
+
+    long merges = records.stream().filter(r -> Boolean.TRUE.equals(r.getIsMerge())).count();
+    assertEquals(1, merges, "exactly the merge commit should be flagged");
+    assertTrue(records.get(0).getIsMerge(), "the merge is the most recent commit");
   }
 
   @Test

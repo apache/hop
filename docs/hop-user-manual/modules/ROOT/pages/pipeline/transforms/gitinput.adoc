@@ -86,7 +86,13 @@ Only used when the source is `REMOTE`. For a local repository the owner and name
 
 == Output fields
 
-Every row has the same fields whatever the provider or resource type.
+The row layout is chosen per **Resource type**, not shared by all of them. A single layout would have to be the union of everything any type can report, so a commit row would carry empty label and assignee columns and an issue row would carry empty branch and merge columns.
+
+Within a type the layout is identical across providers, so a pipeline written against GitHub keeps working when it is pointed at GitLab or Bitbucket. A field a given provider does not report arrives as an empty value, not as a missing column.
+
+Changing **Resource type** changes the fields the transform emits, so re-open the dialog after changing it to let the downstream transforms pick the new layout up.
+
+=== Fields every type reports
 
 [options="header"]
 |===
@@ -95,18 +101,48 @@ Every row has the same fields whatever the provider or resource type.
 |entity_type|String|The resource type that produced the row, for example `commits` or `pull_requests`.
 |repo_owner, repo_name|String|The repository the row belongs to.
 |id|String|Provider identifier: a GitHub node id, a GitLab id, or the commit SHA.
-|number|Integer|Issue or pull request number. GitLab uses the issue **iid**.
-|title|String|Issue or pull request title, the commit message subject, or the changed file path for `COMMIT_FILES`.
-|state|String|Issue or pull request state, or the change type for `COMMIT_FILES`.
-|author|String|Commit author, issue reporter, or event actor.
-|created_at, updated_at, closed_at|Date|Real Date values, so they can be compared and formatted without a Select Values transform. A timestamp that cannot be parsed becomes `null` rather than failing the row; the original text stays in `raw_json`.
 |url|String|Link to the item on the provider.
-|body|String|Commit message, issue or comment body, or the previous path for a renamed file.
-|sha|String|Commit hash.
-|source_branch, target_branch|String|Pull or merge request branches.
-|merged|String|`Y` or `N`.
-|raw_json|String|The full provider payload. Left out when **Include raw JSON in output** is unchecked.
+|raw_json|String|The full provider payload, when **Include raw JSON in output** is checked. Always the last field, so unchecking it never shifts the fields in front of it.
 |===
+
+=== COMMITS
+
+`sha`, `title` (message subject), `body` (full message), `author`, `author_email`, `author_login`, `committer`, `committer_email`, `created_at`, `is_merge`.
+
+A commit carries two idents. `author` and `author_email` are who wrote the change; `committer` and `committer_email` are who applied it, and the two differ after a rebase, a squash, a cherry-pick or a merge made through a provider's web UI. `author_login` is the provider account the ident was matched to, which is a different thing again: `author` is whatever the person put in their `git config`, `author_login` is who they are on the platform, and it is the only one of the three that reliably joins commits to issues and pull requests. It is empty for a local repository and for any ident the provider could not match to an account.
+
+`is_merge` is a Boolean, true when the commit has more than one parent, which is what you want to filter out of contributor statistics. It is not related to `merged` on a pull request: `is_merge` says the commit *is* a merge, `merged` says a pull request *was* merged. The two never appear on the same row.
+
+=== COMMIT_FILES
+
+`sha`, `title` (file path), `state` (change type), `body` (previous path of a rename or copy), `author`, `author_email`, `author_login`, `created_at`.
+
+=== ISSUES
+
+`number`, `title`, `state`, `body`, `author`, `author_login`, `labels`, `assignees`, `created_at`, `updated_at`, `closed_at`.
+
+Issues identify people by account rather than by e-mail, so there is no `author_email`. `labels` and `assignees` are comma-separated lists, flattened from the provider's array. Bitbucket has no labels and carries a single assignee rather than a list.
+
+=== PULL_REQUESTS
+
+The `ISSUES` fields, plus `source_branch`, `target_branch`, `merged` and `merged_at`.
+
+`merged` is a Boolean; `merged_at` is when it happened, which is not the same as `closed_at` and is what a lead-time or cycle-time calculation needs. Bitbucket does not report a merge time.
+
+=== ISSUE_COMMENTS, PR_COMMENTS
+
+`number` (the parent issue or pull request), `title`, `state`, `body`, `author`, `author_login`, `created_at`, `updated_at`.
+
+For these two types `title` and `state` carry the event type and event detail rather than the issue title and state.
+
+=== ISSUE_EVENTS
+
+`number`, `title` (event type), `state` (event detail), `body`, `author`, `author_login`, `created_at`.
+
+=== Dates
+
+`created_at`, `updated_at`, `closed_at` and `merged_at` are real Date values, so they can be compared and formatted without a Select Values transform. A timestamp that cannot be parsed becomes `null` rather than failing the row; the original text stays in `raw_json`.
+
 
 Providers format timestamps differently: GitHub uses `2026-05-01T12:00:00Z`, GitLab adds milliseconds and Bitbucket uses microsecond precision. All of them are parsed to the same instant.
 
@@ -125,6 +161,10 @@ That is the right setting for a full extract, but it hands control of the reques
 
 Set **Source** to `LOCAL` and point **Local repository path** at the folder that contains `.git`. No connection or token is needed.
 
+Commit rows carry both Git idents in full: `author` and `author_email` from the author ident, `committer` and `committer_email` from the committer ident, and `is_merge` from the parent count. `author_login` stays empty, because a clone on disk has no provider accounts to match idents against. All of it is repeated in `raw_json`.
+
+That is enough for a contributor list: group on `author` and `author_email`, count the rows, and filter on `is_merge` being false to leave merge commits out of the totals.
+
 `COMMIT_FILES` emits one row per changed file per commit, with the file path in `title` and the change type (`added`, `modified`, `deleted`, `renamed`, `copied`) in `state`. Rename and copy detection is on, so moving a file produces a single `renamed` row carrying its previous path in `body` rather than a `deleted` row plus an `added` row. Merge commits are compared against their first parent.
 
 == Issue comments and events
@@ -142,8 +182,6 @@ Comments on issues and on pull requests are separate resource types, so `ISSUE_C
 On GitHub both come from one repository-wide feed and are told apart by the comment's own URL, so reading both types costs two passes over that feed. On a repository where most discussion happens in pull requests, `ISSUE_COMMENTS` can legitimately return very few rows.
 
 NOTE: Gitea and Forgejo do not support `ISSUE_COMMENTS`, `PR_COMMENTS` or `ISSUE_EVENTS` yet; the transform reports that rather than returning an empty result.
-
-For these two types `title` and `state` carry the event type and event detail rather than the issue title and state, and `number` identifies the parent issue.
 
 The GitHub comment feed returns comments without their parent issue, so `title` and `state` are empty for GitHub `ISSUE_COMMENTS` rows. That feed also ignores **State**; use **Since** to limit it by comment time. GitLab and Bitbucket walk issues one at a time and do fill both fields.
 

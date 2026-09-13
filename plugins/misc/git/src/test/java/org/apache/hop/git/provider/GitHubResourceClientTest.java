@@ -17,7 +17,8 @@
 
 package org.apache.hop.git.provider;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class GitHubResourceClientTest {
     listResponse.put("merged_at", "2026-05-01T12:00:00Z");
     listResponse.put("state", "closed");
 
-    assertEquals("Y", GitHubResourceClient.mapGithubMerged(listResponse));
+    assertTrue(GitHubResourceClient.mapGithubMerged(listResponse));
   }
 
   @Test
@@ -41,8 +42,8 @@ class GitHubResourceClientTest {
     notMerged.put("merged", Boolean.FALSE);
     notMerged.put("merged_at", "2026-05-01T12:00:00Z");
 
-    assertEquals("Y", GitHubResourceClient.mapGithubMerged(merged));
-    assertEquals("N", GitHubResourceClient.mapGithubMerged(notMerged));
+    assertTrue(GitHubResourceClient.mapGithubMerged(merged));
+    assertFalse(GitHubResourceClient.mapGithubMerged(notMerged));
   }
 
   @Test
@@ -51,6 +52,6 @@ class GitHubResourceClientTest {
     closedUnmerged.put("state", "closed");
     closedUnmerged.put("closed_at", "2026-05-01T12:00:00Z");
 
-    assertEquals("N", GitHubResourceClient.mapGithubMerged(closedUnmerged));
+    assertFalse(GitHubResourceClient.mapGithubMerged(closedUnmerged));
   }
 }

@@ -330,48 +330,51 @@ class GitLabResourceClient implements GitResourceClient {
 
     return switch (resourceType) {
       case COMMITS ->
-          new GitResourceRecord(
-              PROVIDER,
-              entityType,
-              owner,
-              repository,
-              GitApiHttp.getString(json, "id"),
-              0L,
-              firstLine(GitApiHttp.getString(json, "message")),
-              "",
-              GitApiHttp.getString(json, "author_name"),
-              GitApiHttp.getString(json, "created_at"),
-              "",
-              "",
-              GitApiHttp.getString(json, "web_url"),
-              GitApiHttp.getString(json, "message"),
-              GitApiHttp.getString(json, "id"),
-              "",
-              "",
-              "",
-              rawJson);
+          GitResourceRecord.builder()
+              .provider(PROVIDER)
+              .entityType(entityType)
+              .repoOwner(owner)
+              .repoName(repository)
+              .id(GitApiHttp.getString(json, "id"))
+              .sha(GitApiHttp.getString(json, "id"))
+              .title(firstLine(GitApiHttp.getString(json, "message")))
+              .body(GitApiHttp.getString(json, "message"))
+              .author(GitApiHttp.getString(json, "author_name"))
+              .authorEmail(GitApiHttp.getString(json, "author_email"))
+              .committer(GitApiHttp.getString(json, "committer_name"))
+              .committerEmail(GitApiHttp.getString(json, "committer_email"))
+              .createdAt(GitApiHttp.getString(json, "created_at"))
+              .isMerge(GitJsonLists.mergeFlag(json, "parent_ids"))
+              .url(GitApiHttp.getString(json, "web_url"))
+              .rawJson(rawJson)
+              .build();
       case ISSUES, PULL_REQUESTS -> {
         JSONObject author = (JSONObject) json.get("author");
-        yield new GitResourceRecord(
-            PROVIDER,
-            entityType,
-            owner,
-            repository,
-            GitApiHttp.getString(json, "id"),
-            GitApiHttp.getLong(json, "iid"),
-            GitApiHttp.getString(json, "title"),
-            GitApiHttp.getString(json, "state"),
-            author != null ? GitApiHttp.getString(author, "username") : "",
-            GitApiHttp.getString(json, "created_at"),
-            GitApiHttp.getString(json, "updated_at"),
-            GitApiHttp.getString(json, "closed_at"),
-            GitApiHttp.getString(json, "web_url"),
-            GitApiHttp.getString(json, "description"),
-            "",
-            GitApiHttp.getString(json, "source_branch"),
-            GitApiHttp.getString(json, "target_branch"),
-            "merged".equalsIgnoreCase(GitApiHttp.getString(json, "state")) ? "Y" : "N",
-            rawJson);
+        String login = author != null ? GitApiHttp.getString(author, "username") : "";
+        yield GitResourceRecord.builder()
+            .provider(PROVIDER)
+            .entityType(entityType)
+            .repoOwner(owner)
+            .repoName(repository)
+            .id(GitApiHttp.getString(json, "id"))
+            .number(GitApiHttp.getLong(json, "iid"))
+            .title(GitApiHttp.getString(json, "title"))
+            .state(GitApiHttp.getString(json, "state"))
+            .body(GitApiHttp.getString(json, "description"))
+            .author(login)
+            .authorLogin(login)
+            .labels(GitJsonLists.names(json, "labels", "name"))
+            .assignees(GitJsonLists.names(json, "assignees", "username"))
+            .sourceBranch(GitApiHttp.getString(json, "source_branch"))
+            .targetBranch(GitApiHttp.getString(json, "target_branch"))
+            .merged("merged".equalsIgnoreCase(GitApiHttp.getString(json, "state")))
+            .mergedAt(GitApiHttp.getString(json, "merged_at"))
+            .createdAt(GitApiHttp.getString(json, "created_at"))
+            .updatedAt(GitApiHttp.getString(json, "updated_at"))
+            .closedAt(GitApiHttp.getString(json, "closed_at"))
+            .url(GitApiHttp.getString(json, "web_url"))
+            .rawJson(rawJson)
+            .build();
       }
       case ISSUE_COMMENTS, PR_COMMENTS, ISSUE_EVENTS, COMMIT_FILES ->
           throw new IllegalStateException();
