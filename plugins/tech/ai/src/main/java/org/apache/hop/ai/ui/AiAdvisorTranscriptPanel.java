@@ -27,10 +27,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
@@ -318,37 +317,21 @@ public class AiAdvisorTranscriptPanel extends Composite {
   private void appendBody(Composite block, Role role, String text) {
     GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
     gd.widthHint = 1;
-    if (role == Role.USER) {
+    if (role == Role.USER || EnvironmentUtils.getInstance().isWeb()) {
       Text body = new Text(block, SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
-      body.setText(text != null ? text : "");
+      if (role == Role.USER) {
+        body.setText(text != null ? text : "");
+      } else {
+        AiAdvisorMarkdown.Document document = AiAdvisorMarkdown.render(text);
+        body.setText(document.text());
+      }
       body.setLayoutData(gd);
       applyRoleLook(body, role);
       bodies.add(body);
       return;
     }
-    StyledText body = new StyledText(block, SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
-    AiAdvisorMarkdown.Document document = AiAdvisorMarkdown.render(text);
-    body.setText(document.text());
-    body.setLayoutData(gd);
-    applyRoleLook(body, role);
-    applyMarkdownStyles(body, document);
+    Control body = AiAdvisorDesktopTranscriptStyler.createAssistantBody(block, gd, role, text);
     bodies.add(body);
-  }
-
-  private void applyMarkdownStyles(StyledText widget, AiAdvisorMarkdown.Document document) {
-    GuiResource gui = GuiResource.getInstance();
-    for (AiAdvisorMarkdown.Span span : document.spans()) {
-      StyleRange range = new StyleRange();
-      range.start = span.start();
-      range.length = span.length();
-      switch (span.kind()) {
-        case HEADING -> range.font = gui.getFontMediumBold();
-        case BOLD -> range.fontStyle = SWT.BOLD;
-        case EMPHASIS -> range.fontStyle = SWT.ITALIC;
-        case CODE -> range.font = gui.getFontFixed();
-      }
-      widget.setStyleRange(range);
-    }
   }
 
   /**
@@ -455,8 +438,8 @@ public class AiAdvisorTranscriptPanel extends Composite {
     if (body instanceof Text text) {
       return text.getLineHeight();
     }
-    if (body instanceof StyledText styled) {
-      return styled.getLineHeight();
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return AiAdvisorDesktopTranscriptStyler.lineHeight(body);
     }
     return 16;
   }
