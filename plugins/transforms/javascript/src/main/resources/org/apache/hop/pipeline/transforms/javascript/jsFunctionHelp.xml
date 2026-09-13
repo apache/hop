@@ -385,17 +385,15 @@
         </Arguments>
     </jsFunction>
     <jsFunction name="LoadScriptFromTab">
-        <help>Adds the content of a JavaScript_mod Tab into the current Context.</help>
-        <sample>// Load's JavaScript Functions from an existing tab
+        <help>Adds the content of a JavaScript Tab into the current Context. Throws an error if the tab name does not exist or the script cannot be evaluated.</help>
+        <sample>// Loads JavaScript functions from an existing tab
             // into your actual running Context.
-            // This function should called from your defined StartScript
+            // Call this from your defined StartScript
             // otherwise your functions are loaded on each processing
-            // Row.
+            // Row. Missing or invalid tabs fail the transform immediately.
             //
             // Usage:
             // LoadScriptFromTab(var);
-            //
-            // 2006-11-15
             //
             var xTab = "Your TabName";
             LoadScriptFromTab(xTab);
