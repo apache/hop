@@ -331,20 +331,27 @@ public class GitInputMeta extends BaseTransformMeta<GitInput, GitInputData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    for (int i = 0; i < GitInputFields.fieldCount(includeRawJson); i++) {
+    // The layout depends on what is being read: a commit row has no labels or branches, an issue
+    // row has no commit idents. An unparseable resource type falls back to COMMITS so the dialog
+    // can still show a field list while the type is a variable that is not set yet.
+    GitResourceType type;
+    try {
+      type = GitResourceType.fromStored(variables.resolve(resourceType));
+    } catch (IllegalArgumentException e) {
+      type = GitResourceType.COMMITS;
+    }
+
+    for (GitInputFields.Field field : GitInputFields.layout(type, includeRawJson)) {
       IValueMeta valueMeta;
       try {
-        valueMeta =
-            ValueMetaFactory.createValueMeta(
-                GitInputFields.FIELD_NAMES[i], GitInputFields.FIELD_TYPES[i]);
+        valueMeta = ValueMetaFactory.createValueMeta(field.getFieldName(), field.getType());
       } catch (HopPluginException e) {
         throw new HopTransformException(
-            BaseMessages.getString(
-                PKG, "GitInputMeta.Error.CreateValueMeta", GitInputFields.FIELD_NAMES[i]),
+            BaseMessages.getString(PKG, "GitInputMeta.Error.CreateValueMeta", field.getFieldName()),
             e);
       }
-      if (GitInputFields.FIELD_LENGTHS[i] > 0) {
-        valueMeta.setLength(GitInputFields.FIELD_LENGTHS[i]);
+      if (field.getLength() > 0) {
+        valueMeta.setLength(field.getLength());
       }
       valueMeta.setOrigin(name);
       rowMeta.addValueMeta(valueMeta);

@@ -45,12 +45,20 @@ The 'github' connection has no token, so this uses the anonymous GitHub API:
 enough for a public repository, but limited to 60 requests per hour. Add a
 personal access token for higher limits, or to read a private repository.
 
-Every provider returns the same row layout, so pointing this at a GitLab,
-Bitbucket, Forgejo or Gitea connection needs no other change.</note>
+Every provider returns the same row layout for a given resource type, so
+pointing this at a GitLab, Bitbucket, Forgejo or Gitea connection needs no
+other change. The layout is per resource type: a pull request row carries
+labels, assignees and merge fields, where a commit row carries the author
+and committer idents instead.
+
+labels and assignees are comma-separated lists flattened from the provider's
+arrays. author_login is the account the pull request was opened from, which
+is what joins it to commits and comments. merged_at is the merge time, which
+is not the same as closed_at.</note>
       <xloc>64</xloc>
       <yloc>48</yloc>
       <width>560</width>
-      <heigth>200</heigth>
+      <heigth>280</heigth>
       <fontname>Noto Sans</fontname>
       <fontsize>11</fontsize>
       <fontbold>N</fontbold>
@@ -130,7 +138,16 @@ Bitbucket, Forgejo or Gitea connection needs no other change.</note>
         <name>author</name>
       </field>
       <field>
+        <name>author_login</name>
+      </field>
+      <field>
         <name>state</name>
+      </field>
+      <field>
+        <name>labels</name>
+      </field>
+      <field>
+        <name>assignees</name>
       </field>
       <field>
         <name>merged</name>
@@ -140,6 +157,9 @@ Bitbucket, Forgejo or Gitea connection needs no other change.</note>
       </field>
       <field>
         <name>closed_at</name>
+      </field>
+      <field>
+        <name>merged_at</name>
       </field>
       <field>
         <name>source_branch</name>

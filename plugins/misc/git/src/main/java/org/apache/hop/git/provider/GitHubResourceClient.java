@@ -659,26 +659,29 @@ class GitHubResourceClient implements GitResourceClient {
       case COMMITS -> {
         JSONObject commit = (JSONObject) json.get("commit");
         JSONObject author = commit != null ? (JSONObject) commit.get("author") : null;
-        yield new GitResourceRecord(
-            PROVIDER,
-            entityType,
-            owner,
-            repository,
-            GitApiHttp.getString(json, "sha"),
-            0L,
-            firstLine(GitApiHttp.getString(commit, "message")),
-            "",
-            author != null ? GitApiHttp.getString(author, "name") : "",
-            author != null ? GitApiHttp.getString(author, "date") : "",
-            "",
-            "",
-            GitApiHttp.getString(json, "html_url"),
-            commit != null ? GitApiHttp.getString(commit, "message") : "",
-            GitApiHttp.getString(json, "sha"),
-            "",
-            "",
-            "",
-            rawJson);
+        JSONObject committer = commit != null ? (JSONObject) commit.get("committer") : null;
+        // The nested commit.author is the Git ident the commit was written with; the top level
+        // author is the GitHub account it was matched to, which is absent for an unmatched ident.
+        JSONObject authorAccount = (JSONObject) json.get("author");
+        yield GitResourceRecord.builder()
+            .provider(PROVIDER)
+            .entityType(entityType)
+            .repoOwner(owner)
+            .repoName(repository)
+            .id(GitApiHttp.getString(json, "sha"))
+            .sha(GitApiHttp.getString(json, "sha"))
+            .title(firstLine(GitApiHttp.getString(commit, "message")))
+            .body(commit != null ? GitApiHttp.getString(commit, "message") : "")
+            .author(author != null ? GitApiHttp.getString(author, "name") : "")
+            .authorEmail(author != null ? GitApiHttp.getString(author, "email") : "")
+            .authorLogin(authorAccount != null ? GitApiHttp.getString(authorAccount, "login") : "")
+            .committer(committer != null ? GitApiHttp.getString(committer, "name") : "")
+            .committerEmail(committer != null ? GitApiHttp.getString(committer, "email") : "")
+            .createdAt(author != null ? GitApiHttp.getString(author, "date") : "")
+            .isMerge(GitJsonLists.mergeFlag(json, "parents"))
+            .url(GitApiHttp.getString(json, "html_url"))
+            .rawJson(rawJson)
+            .build();
       }
       case ISSUES, PULL_REQUESTS -> {
         JSONObject user = (JSONObject) json.get("user");
@@ -686,26 +689,31 @@ class GitHubResourceClient implements GitResourceClient {
             resourceType == GitResourceType.PULL_REQUESTS ? (JSONObject) json.get("head") : null;
         JSONObject base =
             resourceType == GitResourceType.PULL_REQUESTS ? (JSONObject) json.get("base") : null;
-        yield new GitResourceRecord(
-            PROVIDER,
-            entityType,
-            owner,
-            repository,
-            GitApiHttp.getString(json, "node_id"),
-            GitApiHttp.getLong(json, "number"),
-            GitApiHttp.getString(json, "title"),
-            GitApiHttp.getString(json, "state"),
-            user != null ? GitApiHttp.getString(user, "login") : "",
-            GitApiHttp.getString(json, "created_at"),
-            GitApiHttp.getString(json, "updated_at"),
-            GitApiHttp.getString(json, "closed_at"),
-            GitApiHttp.getString(json, "html_url"),
-            GitApiHttp.getString(json, "body"),
-            "",
-            head != null ? GitApiHttp.getString(head, "ref") : "",
-            base != null ? GitApiHttp.getString(base, "ref") : "",
-            mapGithubMerged(json),
-            rawJson);
+        String login = user != null ? GitApiHttp.getString(user, "login") : "";
+        yield GitResourceRecord.builder()
+            .provider(PROVIDER)
+            .entityType(entityType)
+            .repoOwner(owner)
+            .repoName(repository)
+            .id(GitApiHttp.getString(json, "node_id"))
+            .number(GitApiHttp.getLong(json, "number"))
+            .title(GitApiHttp.getString(json, "title"))
+            .state(GitApiHttp.getString(json, "state"))
+            .body(GitApiHttp.getString(json, "body"))
+            .author(login)
+            .authorLogin(login)
+            .labels(GitJsonLists.names(json, "labels", "name"))
+            .assignees(GitJsonLists.names(json, "assignees", "login"))
+            .sourceBranch(head != null ? GitApiHttp.getString(head, "ref") : "")
+            .targetBranch(base != null ? GitApiHttp.getString(base, "ref") : "")
+            .merged(mapGithubMerged(json))
+            .mergedAt(GitApiHttp.getString(json, "merged_at"))
+            .createdAt(GitApiHttp.getString(json, "created_at"))
+            .updatedAt(GitApiHttp.getString(json, "updated_at"))
+            .closedAt(GitApiHttp.getString(json, "closed_at"))
+            .url(GitApiHttp.getString(json, "html_url"))
+            .rawJson(rawJson)
+            .build();
       }
       case ISSUE_COMMENTS, PR_COMMENTS, ISSUE_EVENTS, COMMIT_FILES ->
           throw new IllegalStateException();
@@ -713,13 +721,12 @@ class GitHubResourceClient implements GitResourceClient {
   }
 
   /** GitHub list-pulls responses often omit {@code merged}; {@code merged_at} is reliable. */
-  static String mapGithubMerged(org.json.simple.JSONObject json) {
+  static boolean mapGithubMerged(org.json.simple.JSONObject json) {
     Object merged = json.get("merged");
     if (merged instanceof Boolean booleanValue) {
-      return booleanValue ? "Y" : "N";
+      return booleanValue;
     }
-    String mergedAt = GitApiHttp.getString(json, "merged_at");
-    return mergedAt.isBlank() ? "N" : "Y";
+    return !GitApiHttp.getString(json, "merged_at").isBlank();
   }
 
   private static JSONArray parseArray(String body) throws HopException {

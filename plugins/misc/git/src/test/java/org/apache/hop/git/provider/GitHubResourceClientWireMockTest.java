@@ -24,7 +24,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -109,7 +108,7 @@ class GitHubResourceClientWireMockTest {
         + message
         + "\",\"author\":{\"name\":\""
         + author
-        + "\",\"date\":\""
+        + "\",\"email\":\"ada@example.com\",\"date\":\""
         + date
         + "\"}}}";
   }
@@ -129,6 +128,7 @@ class GitHubResourceClientWireMockTest {
     assertEquals("a1", record.getSha());
     assertEquals("first", record.getTitle());
     assertEquals("Ada", record.getAuthor());
+    assertEquals("ada@example.com", record.getAuthorEmail());
   }
 
   @Test
@@ -139,12 +139,11 @@ class GitHubResourceClientWireMockTest {
     List<GitResourceRecord> records =
         drain(client.openReader(GitResourceType.COMMITS, "apache", "hop", options(1, 10)));
 
-    Object[] row = records.get(0).toRow(true);
+    Object[] row = records.get(0).toRow(GitResourceType.COMMITS, true);
+    List<String> fieldNames = List.of(GitInputFields.fieldNames(GitResourceType.COMMITS, true));
     assertEquals(
-        Date.from(Instant.parse("2026-05-01T12:00:00Z")),
-        row[GitInputFields.FIELD_NAMES.length - 10]);
-    assertEquals(Date.from(Instant.parse("2026-05-01T12:00:00Z")), row[9]);
-    assertNull(row[10], "updated_at is absent for a commit");
+        Date.from(Instant.parse("2026-05-01T12:00:00Z")), row[fieldNames.indexOf("created_at")]);
+    assertEquals(-1, fieldNames.indexOf("updated_at"), "a commit layout has no updated_at column");
   }
 
   @Test
@@ -227,6 +226,79 @@ class GitHubResourceClientWireMockTest {
     assertEquals(1, records.size());
     assertNotNull(reader.getTruncationNote());
     assertTrue(reader.getTruncationNote().contains("1,000 items"));
+  }
+
+  @Test
+  void pullRequestRowsCarryLabelsAssigneesAndMergeTime() throws Exception {
+    wireMock.stubFor(
+        get(urlPathEqualTo("/repos/apache/hop/pulls"))
+            .withQueryParam("page", equalTo("1"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(
+                        "[{\"node_id\":\"n7\",\"number\":7,\"title\":\"a pull request\","
+                            + "\"state\":\"closed\",\"user\":{\"login\":\"ada\"},"
+                            + "\"labels\":[{\"name\":\"bug\"},{\"name\":\"needs review\"}],"
+                            + "\"assignees\":[{\"login\":\"grace\"},{\"login\":\"alan\"}],"
+                            + "\"merged_at\":\"2026-05-02T09:30:00Z\","
+                            + "\"head\":{\"ref\":\"feature\"},\"base\":{\"ref\":\"main\"}}]")));
+    wireMock.stubFor(
+        get(urlPathEqualTo("/repos/apache/hop/pulls"))
+            .withQueryParam("page", equalTo("2"))
+            .willReturn(aResponse().withStatus(200).withBody("[]")));
+
+    List<GitResourceRecord> records =
+        drain(client.openReader(GitResourceType.PULL_REQUESTS, "apache", "hop", options(1, 10)));
+
+    assertEquals(1, records.size());
+    GitResourceRecord record = records.get(0);
+    assertEquals("bug, needs review", record.getLabels());
+    assertEquals("grace, alan", record.getAssignees());
+    assertEquals("ada", record.getAuthorLogin());
+    assertTrue(record.getMerged());
+
+    List<String> fieldNames =
+        List.of(GitInputFields.fieldNames(GitResourceType.PULL_REQUESTS, true));
+    Object[] row = record.toRow(GitResourceType.PULL_REQUESTS, true);
+    assertEquals(
+        Date.from(Instant.parse("2026-05-02T09:30:00Z")), row[fieldNames.indexOf("merged_at")]);
+    assertEquals(-1, fieldNames.indexOf("committer"), "a pull request layout has no committer");
+  }
+
+  @Test
+  void commitRowsSeparateTheGitIdentFromTheGithubAccount() throws Exception {
+    // commit.author is what the commit was signed with; the top-level author is the matched
+    // account, and the two are routinely different people or absent altogether.
+    wireMock.stubFor(
+        get(urlPathEqualTo("/repos/apache/hop/commits"))
+            .withQueryParam("page", equalTo("1"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(
+                        "[{\"sha\":\"a1\",\"author\":{\"login\":\"ada-gh\"},"
+                            + "\"parents\":[{\"sha\":\"p1\"},{\"sha\":\"p2\"}],"
+                            + "\"commit\":{\"message\":\"a merge\","
+                            + "\"author\":{\"name\":\"Ada\",\"email\":\"ada@example.com\","
+                            + "\"date\":\"2026-05-01T12:00:00Z\"},"
+                            + "\"committer\":{\"name\":\"GitHub\","
+                            + "\"email\":\"noreply@github.com\"}}}]")));
+    wireMock.stubFor(
+        get(urlPathEqualTo("/repos/apache/hop/commits"))
+            .withQueryParam("page", equalTo("2"))
+            .willReturn(aResponse().withStatus(200).withBody("[]")));
+
+    List<GitResourceRecord> records =
+        drain(client.openReader(GitResourceType.COMMITS, "apache", "hop", options(1, 10)));
+
+    GitResourceRecord record = records.get(0);
+    assertEquals("Ada", record.getAuthor());
+    assertEquals("ada@example.com", record.getAuthorEmail());
+    assertEquals("ada-gh", record.getAuthorLogin());
+    assertEquals("GitHub", record.getCommitter());
+    assertEquals("noreply@github.com", record.getCommitterEmail());
+    assertTrue(record.getIsMerge(), "two parents is a merge");
   }
 
   @Test
