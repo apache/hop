@@ -72,4 +72,15 @@ class HopGuiWebUserFileMenuTest {
     assertTrue(HopWebUserFileMenuState.shouldShowSvgExport(true, false, true));
     assertTrue(HopWebUserFileMenuState.shouldShowSvgExport(false, true, true));
   }
+
+  @Test
+  void diagramExportRequiresAnOpenFlowOrSupportingHandler() {
+    IHopFileTypeHandler handler = mock(IHopFileTypeHandler.class);
+    when(handler.getSubject()).thenReturn(new PipelineMeta());
+
+    assertFalse(HopWebUserFileMenuState.shouldShowDiagramExport(handler, false, false, false));
+    assertTrue(HopWebUserFileMenuState.shouldShowDiagramExport(handler, true, false, true));
+    assertTrue(HopWebUserFileMenuState.shouldShowDiagramExport(handler, false, true, true));
+    assertFalse(HopWebUserFileMenuState.shouldShowDiagramExport(null, false, false, true));
+  }
 }

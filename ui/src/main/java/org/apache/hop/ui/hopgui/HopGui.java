@@ -1425,7 +1425,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
       separator = true,
-      label = "i18n::HopGui.Menu.File.ExportToSVG",
+      label = "i18n::HopGui.Menu.File.ExportDiagram",
       image = "ui/images/image.svg",
       parentId = ID_MAIN_MENU_FILE)
   public void menuFileExportToSvg() {
@@ -2504,7 +2504,8 @@ public class HopGui
             HopSecurity.allows(Permission.FILE_CREATE),
             HopSecurity.allows(Permission.METADATA_WRITE));
     boolean showSvgExport =
-        HopWebUserFileMenuState.shouldShowSvgExport(
+        HopWebUserFileMenuState.shouldShowDiagramExport(
+            getActiveFileTypeHandler(),
             getActivePipelineGraph() != null,
             getActiveWorkflowGraph() != null,
             HopSecurity.allows(Permission.FILE_EXPORT));

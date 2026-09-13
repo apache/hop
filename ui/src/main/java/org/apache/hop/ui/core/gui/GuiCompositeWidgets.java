@@ -74,6 +74,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
@@ -222,6 +223,10 @@ public class GuiCompositeWidgets {
               + "; falling back to tabs");
     }
     GuiWidgetGroupType type = GuiWidgetGroups.typeOf(guiElements.getChildren());
+    if (type == GuiWidgetGroupType.BOXES) {
+      layoutBoxes(sourceData, parent, groups, useNewLayout);
+      return;
+    }
     if (type != GuiWidgetGroupType.TABS && type != GuiWidgetGroupType.NONE) {
       LogChannel.UI.logBasic(
           "Widget group type "
@@ -263,6 +268,40 @@ public class GuiCompositeWidgets {
         Comparator.comparing((WidgetGroup g) -> Const.NVL(g.order, ""))
             .thenComparing(g -> Const.NVL(g.label, "")));
     return groups;
+  }
+
+  private void layoutBoxes(
+      Object sourceData, Composite parent, List<WidgetGroup> groups, boolean useNewLayout) {
+    Control last = widgetsFirstLastControl;
+    int margin = PropsUi.getMargin();
+    for (WidgetGroup group : groups) {
+      Group box = new Group(parent, SWT.SHADOW_ETCHED_IN);
+      PropsUi.setLook(box);
+      box.setText(Const.NVL(group.label, ""));
+      FormLayout boxLayout = new FormLayout();
+      boxLayout.marginWidth = PropsUi.getFormMargin();
+      boxLayout.marginHeight = PropsUi.getFormMargin();
+      box.setLayout(boxLayout);
+
+      FormData fdBox = new FormData();
+      fdBox.left = new FormAttachment(0, 0);
+      fdBox.right = new FormAttachment(100, 0);
+      if (last == null) {
+        fdBox.top = new FormAttachment(0, 0);
+      } else {
+        fdBox.top = new FormAttachment(last, margin);
+      }
+      box.setLayoutData(fdBox);
+
+      Control lastInBox = null;
+      for (GuiElements child : group.elements) {
+        lastInBox = addCompositeWidgets(sourceData, box, child, lastInBox, useNewLayout);
+      }
+      for (Consumer<Composite> extra : group.extras) {
+        extra.accept(box);
+      }
+      last = box;
+    }
   }
 
   private void layoutTabs(

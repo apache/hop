@@ -115,6 +115,7 @@ public class HopEnvironment {
         org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),
         DataStreamPluginType.getInstance(),
         NotificationProviderPluginType.getInstance(),
+        org.apache.hop.core.diagram.DiagramExporterPluginType.getInstance(),
         AiProviderPluginType.getInstance(),
         AiAdvisorPluginType.getInstance());
   }
@@ -143,6 +144,13 @@ public class HopEnvironment {
         //
         pluginTypes.forEach(PluginRegistry::addPluginType);
         PluginRegistry.init();
+
+        org.apache.hop.core.diagram.DiagramExportService.getInstance()
+            .registerSubjectLoader(
+                new org.apache.hop.diagram.loader.PipelineDiagramSubjectLoader());
+        org.apache.hop.core.diagram.DiagramExportService.getInstance()
+            .registerSubjectLoader(
+                new org.apache.hop.diagram.loader.WorkflowDiagramSubjectLoader());
 
         LineageHub.getInstance().environmentReady();
 

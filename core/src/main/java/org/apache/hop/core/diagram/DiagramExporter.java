@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.config.plugin;
+package org.apache.hop.core.diagram;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,32 +23,29 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** This annotation signals to the plugin system that the class is a configuration plugin. */
+/** Annotation used to define a diagram exporter plugin. */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ConfigPlugin {
-  String CATEGORY_ROOT = "root";
-  String CATEGORY_CONFIG = "config";
-  String CATEGORY_RUN = "run";
-  String CATEGORY_SEARCH = "search";
-  String CATEGORY_IMPORT = "import";
-  String CATEGORY_SERVER = "server";
-  String CATEGORY_DOC = "doc";
-  String CATEGORY_PYTHON = "python";
-  String CATEGORY_NAMING = "naming";
-  String CATEGORY_GUI = "gui";
-  String CATEGORY_EXPORT = "export";
-
+public @interface DiagramExporter {
+  /** The unique ID of the diagram exporter plugin. */
   String id();
 
+  /** The user-friendly name of the exporter. */
+  String name();
+
+  /** A short description of the exporter. */
   String description() default "";
 
-  String category() default CATEGORY_CONFIG;
+  /** The format identifier (e.g. SVG, MERMAID, PDF, PLANTUML, DRAWIO). */
+  String format();
 
-  /**
-   * Plugins sharing a group share a single class loader. Set this when the config plugin lives in a
-   * plugin folder that also uses {@code classLoaderGroup} on metadata or GUI types.
-   */
-  String classLoaderGroup() default "";
+  /** The default file extension (without dot), e.g. "svg", "mmd". */
+  String fileExtension();
+
+  /** The file filter descriptions for file dialogs. */
+  String[] fileFilterNames() default {};
+
+  /** Supported domain subject classes (e.g. PipelineMeta, WorkflowMeta, or custom models). */
+  Class<?>[] supportedSubjectTypes() default {};
 }
