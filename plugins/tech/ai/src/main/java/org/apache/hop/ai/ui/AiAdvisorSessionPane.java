@@ -64,6 +64,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -134,7 +135,9 @@ public class AiAdvisorSessionPane extends Composite {
     wPrompt = new Text(this, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
     applyPromptFieldLook(wPrompt);
     wPrompt.setMessage(BaseMessages.getString(PKG, "AiAdvisor.Prompt.Message"));
-    wPrompt.addPaintListener(e -> paintPromptHint(wPrompt, e));
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      wPrompt.addPaintListener(e -> paintPromptHint(wPrompt, e));
+    }
     wPrompt.setLayoutData(
         new FormDataBuilder()
             .left(wQuestion, margin)
