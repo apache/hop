@@ -1,0 +1,488 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:openvar: ${
+:closevar: }
+:description: How to add an AI advisor for a new file type, metadata editor or other GUI location without changing Hop core.
+[[AiAdvisorPlugins]]
+= AI advisor plugins
+
+The AI Assistant workbench is a host.
+It does not know about Data Vault models, lineage views, or your metadata editor.
+You add those by shipping two things in *your* plugin:
+
+. An `@AiAdvisorPlugin` / `IAiAdvisor` — prompt, inclusions, optional graph edits.
+. One or more `@GuiToolbarElement` / `@GuiContextAction` methods on the editor that already owns the subject — toolbar, canvas, table, note, …
+
+Hop never enumerates locations.
+A location is a string you invent.
+
+The user-facing workbench is documented in xref:manual::hop-gui/perspective-ai-advisor.adoc[AI Assistant].
+This page is the plugin contract.
+
+== Mental model
+
+[source]
+----
+Your file type / metadata editor
+    └── @GuiToolbarElement  /  @GuiContextAction
+            └── builds AiAdvisorOpenRequest
+                    location, areaLabel, artifact, preferFloatingWindow
+            └── HopGui.openAiAdvisorSession(request)
+                    └── extension point HopGuiAiAdvisorOpenSession
+                            └── hop-tech-ai workbench (no-op if the plugin is absent)
+
+Your IAiAdvisor  (@AiAdvisorPlugin)            // omit classLoaderGroup
+    └── locations = { "data-vault-graph" }     // same string
+    └── buildPrompt(AiAdvisorRequest)          // cast artifact, honour inclusions
+    └── optional parseResponse / previewProposal / validate / apply / afterApply / summarizeApplied
+----
+
+Three JARs stay decoupled:
+
+[cols="1,3",options="header"]
+|===
+|Module |What you may depend on
+
+|`hop-core`
+|`IAiAdvisor`, `AiAdvisorOpenRequest`, `AiAdvisorLocations`, `HopExtensionPoint.HopGuiAiAdvisorOpenSession`.
+No langchain4j, no SWT.
+
+|`hop-ui`
+|`HopGui.openAiAdvisorSession(request)` from a toolbar or context action.
+Still no `hop-tech-ai`.
+
+|`hop-tech-ai`
+|The workbench, Language Model Chat, langchain4j.
+Third-party advisor JARs must *not* set `classLoaderGroup = "hop-ai"` and must *not* compile against this module.
+|===
+
+If `plugins/tech/ai` is missing, `openAiAdvisorSession` is a silent no-op.
+That is how privacy-sensitive installs remove AI.
+
+== Location ids
+
+`AiAdvisorLocations` in `hop-core` only lists ids *Hop itself* uses:
+
+[cols="1,3",options="header"]
+|===
+|Constant |When Hop uses it
+
+|`pipeline-graph`
+|Pipeline canvas and pipeline toolbar *AI Help*
+
+|`workflow-graph`
+|Workflow canvas and workflow toolbar *AI Help*
+
+|`perspective`
+|`CTRL-SHIFT-A`, *New session*, Tools menu
+|===
+
+Everything else is yours.
+Typical ids for hopper-edw-style plugins:
+
+* `data-vault-graph`
+* `business-vault-graph`
+* `dimensional-graph`
+* `source-model-graph`
+* `lineage-view`
+* `execution-map`
+* a metadata type key (`rdbms`, `neo4j-connection`, …) when Help lives on that editor
+
+Put the same string on `@AiAdvisorPlugin(locations = {…})` and on `AiAdvisorOpenRequest.setLocation(…)`.
+The workbench does not validate the id against a registry.
+
+Empty `locations()` means the workbench may offer the advisor on any session.
+
+== Open a session from your GUI
+
+Build the request in `hop-core` types only, then hand it to `HopGui`.
+The class names in the example are illustrative (a Data Vault graph).
+Replace them with your file type's graph, context id and toolbar root.
+
+[source,java]
+----
+@GuiPlugin
+public class VaultAiGuiPlugin {
+
+  public static final String LOCATION = "data-vault-graph";
+
+  @GuiToolbarElement(
+      root = HopGuiVaultGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = "HopGuiVaultGraph-ToolBar-10048-ai-help",
+      toolTip = "i18n::HopGuiVaultGraph.Toolbar.AiHelp.Tooltip",
+      image = "ai-provider.svg")
+  public void openFromToolbar() {
+    HopGuiVaultGraph graph = /* active vault graph */;
+    if (graph == null || graph.getModel() == null) {
+      return;
+    }
+    open(graph, graph.getModel(), null);
+  }
+
+  @GuiContextAction(
+      id = "vault-graph-ai-help",
+      parentId = HopGuiVaultContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiVaultGraph.AiHelp.Name",
+      tooltip = "i18n::HopGuiVaultGraph.AiHelp.Tooltip",
+      image = "ai-provider.svg",
+      category = "Help",
+      categoryOrder = "1")
+  public void openFromCanvas(HopGuiVaultContext context) {
+    if (context.getVaultGraph() != null) {
+      open(context.getVaultGraph(), context.getVaultGraph().getModel(), null);
+    }
+  }
+
+  private static void open(HopGuiVaultGraph graph, Object model, String focusName) {
+    AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
+    request.setAdvisorPluginId("data-vault-advisor");
+    request.setLocation(LOCATION);
+    request.setAreaLabel("Data Vault");
+    request.setPreferFloatingWindow(true);
+    request.setArtifact(model);
+    request.setArtifactName(model.toString()); // a stable display name
+    request.setArtifactKind("data-vault");
+    request.setTitle(model.toString());
+    request.setFocusNodeName(focusName);
+    try {
+      graph.getHopGui().openAiAdvisorSession(request);
+    } catch (HopException e) {
+      // log; the extension point is absent when hop-tech-ai is not installed
+    }
+  }
+}
+----
+
+`PipelineAiGuiPlugin` / `WorkflowAiGuiPlugin` in `plugins/tech/ai` are the same pattern for Hop's own graphs.
+
+=== `AiAdvisorOpenRequest` fields
+
+[cols="1,3",options="header"]
+|===
+|Field |Role
+
+|`advisorPluginId`
+|`@AiAdvisorPlugin` id to select in the workbench combo.
+
+|`location`
+|Free-form id. Session reuse keys on this plus advisor id and artifact name.
+
+|`areaLabel`
+|Session-tree group ("Pipelines", "Data Vault", "Lineage"). Falls back to "General" when empty.
+
+|`preferFloatingWindow`
+|`true` when the user is looking at a subject that must stay on screen.
+The workbench then opens (or reuses) a floating window instead of switching to the AI perspective.
+Set this on graph toolbars and canvas Help.
+Leave it `false` for `CTRL-SHIFT-A` / unbound sessions.
+
+|`artifact`
+|The open object (`PipelineMeta`, your vault model, …).
+The advisor casts it in `buildPrompt`.
+Keep SWT widgets *off* this object; pass a `logSupplier` for logs.
+
+|`artifactName` / `artifactKind` / `title`
+|Reuse and display.
+`artifactName` should be stable for a given file (name, not a transient hash).
+
+|`focusNodeName`
+|Optional transform, action, table, … the user right-clicked.
+
+|`logSupplier`
+|Optional `Supplier<String>` read on the UI thread before the background call.
+Use it for execution logs that live in SWT widgets.
+
+|`reuseExisting`
+|Default `true`.
+The store reuses a session with the same advisor id, location and artifact name.
+
+|`attributes`
+|A `Map<String,Object>` copied onto the session (new session: replace; reuse: merge, incoming keys win).
+The engine copies it onto every `AiAdvisorRequest` for `buildPrompt`.
+Do *not* put SWT / `HopGui` here.
+|===
+
+If a dialog or dock is already open, that layout is reused even when `preferFloatingWindow` is true.
+
+== Implement `IAiAdvisor`
+
+Keep langchain4j and SWT off this class.
+`buildPrompt` must not call the model; the workbench does that through Language Model Chat.
+
+[source,java]
+----
+@AiAdvisorPlugin(
+    id = "data-vault-advisor",
+    name = "i18n::DataVaultAiAdvisor.Name",
+    description = "i18n::DataVaultAiAdvisor.Description",
+    image = "ai-provider.svg",
+    locations = {"data-vault-graph"})
+public class DataVaultAiAdvisor implements IAiAdvisor {
+
+  public static final String ID = "data-vault-advisor";
+
+  @Override
+  public String getId() {
+    return ID;
+  }
+
+  @Override
+  public String getName() {
+    return BaseMessages.getString(PKG, "DataVaultAiAdvisor.Name");
+  }
+
+  @Override
+  public String[] getLocations() {
+    return new String[] {"data-vault-graph"};
+  }
+
+  @Override
+  public List<AiAdvisorScenario> listScenarios() {
+    return List.of(
+        new AiAdvisorScenario("dv-general", "General", "Questions about this vault model"),
+        new AiAdvisorScenario("dv-hub", "Hub design", "Business keys and hub grain"));
+  }
+
+  @Override
+  public List<String> listBaselineSharing() {
+    return List.of("model outline");
+  }
+
+  @Override
+  public List<AiAdvisorInclusion> listInclusions() {
+    return List.of(
+        new AiAdvisorInclusion(
+            "checks",
+            "Include model check results",
+            false,
+            "Validation messages for this model",
+            "check results"),
+        catalogInclusion(),
+        new AiAdvisorInclusion(
+            "metadata",
+            "Include selected metadata",
+            false,
+            "JSON of metadata objects the user picks",
+            "metadata"));
+  }
+
+  private static AiAdvisorInclusion catalogInclusion() {
+    AiAdvisorInclusion inclusion =
+        new AiAdvisorInclusion(
+            "catalog",
+            "Include catalog sources",
+            false,
+            "Record definitions the user picks",
+            "catalog sources");
+    inclusion.setPicker(true);
+    inclusion.setMultiSelect(true);
+    return inclusion;
+  }
+
+  @Override
+  public List<AiAdvisorInclusionChoice> listInclusionChoices(
+      String inclusionId, AiAdvisorRequest request) {
+    if (!"catalog".equals(inclusionId)) {
+      return List.of();
+    }
+    return List.of(
+        new AiAdvisorInclusionChoice("SRC_ORDERS", "Orders"),
+        new AiAdvisorInclusionChoice("SRC_CUSTOMER", "Customer"));
+  }
+
+  @Override
+  public AiAdvisorPrompt buildPrompt(AiAdvisorRequest request) throws HopException {
+    if (!(request.getArtifact() instanceof MyVaultModel model)) {
+      throw new HopException("No Data Vault model is bound to this session.");
+    }
+    String system = loadPreambleAndScenario(request.getScenarioId());
+    StringBuilder user = new StringBuilder();
+    user.append("User question:\n").append(request.getUserPrompt()).append("\n\n");
+    user.append("Model structure JSON:\n").append(serializeStructure(model)).append("\n\n");
+    if (request.inclusionEnabled("checks")) {
+      user.append("Check results JSON:\n").append(serializeChecks(model, request)).append("\n\n");
+    }
+    if (request.inclusionEnabled("catalog")) {
+      user.append("Catalog sources: ")
+          .append(request.selectedInclusionIds("catalog"))
+          .append("\n\n");
+    }
+    // Workbench appends selected metadata when inclusion id is "metadata".
+    return new AiAdvisorPrompt(system, user.toString());
+  }
+}
+----
+
+=== Inclusions
+
+The workbench shows a collapsible *Sharing* line: a short summary of what this send includes (question, any baseline the advisor always sends, then each opted-in inclusion).
+Expand it to see the checkboxes.
+
+Each `AiAdvisorInclusion` is one optional extra.
+Best practice: `defaultSelected = false` for sensitive extras (logs, full XML, selected metadata).
+A plugin-id catalog may default on so `hop_proposals` can use real plugin ids.
+
+`listBaselineSharing()` supplies the short phrases for context you always put in the prompt (for example `graph structure`).
+Leave it empty if the question is the only baseline.
+
+[cols="1,3",options="header"]
+|===
+|Id |Workbench behaviour
+
+|any string you choose
+|Checkbox only.
+You honour `request.inclusionEnabled(id)` in `buildPrompt`.
+
+|any string with `picker = true`
+|Checkbox *and* a *Select…* button.
+The workbench calls `listInclusionChoices(id, request)` (no SWT).
+Chosen *ids* are on `request.selectedInclusionIds(id)` and persist on the session.
+Empty choices → the workbench shows a short message and unchecks the inclusion.
+
+|`metadata`
+|Checkbox *and* a *Select metadata…* picker of Hop `@HopMetadata` objects.
+Not routed through `listInclusionChoices`.
+Selected type-key/name pairs are on `request.getMetadataSelections()`.
+`hop-tech-ai` serialises those objects (secrets redacted) when the box is checked.
+Default should be off.
+|===
+
+Ids `checks`, `catalog`, `xml` and `logs` are what the bundled pipeline/workflow advisors use.
+They are not reserved; using the same ids on another advisor is a convention, not a requirement.
+
+Default-on inclusions cost tokens on every send.
+Default-off inclusions (full XML, logs, metadata) are the ones that can leak secrets or personal data.
+
+=== `AiAdvisorRequest` on each turn
+
+[cols="1,3",options="header"]
+|===
+|Field |Set by
+
+|`location`
+|The open request.
+
+|`artifact`, `focusNodeName`, `logExcerpt`
+|The session (log excerpt is captured on the UI thread).
+
+|`inclusions`, `metadataSelections`, `inclusionSelections`
+|The session pane checkboxes, Hop metadata picker, and generic Select… pickers.
+
+|`scenarioId`, `userPrompt`
+|The combo and the question field.
+
+|`followUp`
+|`true` after a successful prior turn.
+Large context (catalog, XML, logs) is usually first-turn only; you decide.
+
+|`attributes`
+|Copied from the session (which came from `AiAdvisorOpenRequest.attributes`).
+`HopGui` is injected only on the *apply* request, never on `buildPrompt`.
+
+|`variables`, `metadataProvider`
+|The Hop GUI session.
+
+|`appliedChangeSummaries`
+|What the user applied from earlier proposal blocks (`summarizeApplied`).
+|===
+
+After `buildPrompt` returns, the workbench appends standing notes to the *system* prompt, in this order:
+
+. Plugin files (no Hop-tech-ai dependency):
+  * `{plugin-folder}/ai-context.md` — every advisor in that plugin
+  * `{plugin-folder}/ai-context/<advisor-id>.md` — one advisor (for example `ai-context/data-vault-advisor.md`)
+  * The same paths on the plugin classpath (JAR root) if the folder file is missing
+  * The folder file *wins* when both exist, so an install can edit notes without rebuilding
+. `IAiAdvisor.getStandingContext()` when non-empty (computed notes; prefer files)
+. Configuration → *Extra context* and *Context files* (default `{openvar}PROJECT_HOME{closevar}/AGENTS.md`)
+
+Missing files are skipped. Your `buildPrompt` does not load these.
+
+=== Proposals (optional)
+
+The default `parseResponse` extracts ` ```hop_proposals ` JSON blocks (`AiProposalParser` in hop-core).
+Override `parseResponse` only when you use a different fence (for example ` ```dv_proposals `).
+The workbench never parses proposals itself.
+
+Proposal `type` is a free string (`ADD_TRANSFORM`, `CREATE_HUB`, `CLIPBOARD_TRANSFORMS`, `SAVE_METADATA`, …).
+Unknown types must not be dropped — validate them as blocked with a reason, or apply them in your own applier.
+
+The workbench itself copies `CLIPBOARD_TRANSFORMS`, `CLIPBOARD_ACTIONS`, and `CLIPBOARD_METADATA` to the system clipboard after `applyProposals`, and saves `SAVE_METADATA` through the metadata serializer.
+Pipeline and workflow appliers skip those types so a mixed selection still applies graph edits (`REPLACE_TRANSFORM` / `REPLACE_ACTION` keep name and location).
+Third-party advisors can emit the same type names without depending on hop-tech-ai appliers.
+
+Override `previewProposal` to show domain text (DDL, diffs) in the review dialog.
+Return null to keep the default parameter list.
+
+Override `summarizeApplied` so follow-up turns get `ADD_HUB: Create H_CUSTOMER` instead of `unknown change`.
+The default is `type: description`.
+Pipeline/workflow advisors already produce the richer `ADD_TRANSFORM: name (pluginId)` wording.
+
+After `applyProposals` succeeds the workbench calls `afterApply` on the UI thread, then refreshes any Explorer tab whose `IHopFileTypeHandler.getSubject()` is the session artifact (`setChanged` on Hop graphs, `redraw` / `updateGui` on other handlers).
+Custom file types should still implement `afterApply` for undo using `request.getAttributes().get(AiAdvisorRequest.ATTR_HOP_GUI)` and `request.getArtifact()`.
+
+Chat-only advisors leave apply / afterApply / summarize as the defaults.
+
+== Classloading
+
+`IAiAdvisor` lives in *hop-core*.
+Two plugin classloaders both see the same interface.
+`PluginRegistry.loadClass(..., IAiAdvisor.class)` does *not* require a shared group.
+
+Set `classLoaderGroup = "hop-ai"` *only* on classes that live in `plugins/tech/ai` (or that must load langchain4j / `org.apache.hop.ai.engine.*`).
+
+Third-party advisor plugins:
+
+* `@AiAdvisorPlugin` — *omit* `classLoaderGroup` (empty default).
+* `@GuiPlugin` toolbar/context that only builds `AiAdvisorOpenRequest` and calls `HopGui.openAiAdvisorSession` — *omit* `classLoaderGroup`.
+* Compile against `hop-core` + `hop-ui` only. Never compile against `hop-tech-ai`.
+* Do not bundle langchain4j.
+
+If `plugins/tech/ai` is removed, `openAiAdvisorSession` is still a silent no-op; the third-party advisor plugin still loads.
+
+The workbench combo lists advisors whose `locations()` match the session (plus advisors with empty locations).
+A `data-vault-graph` session does not offer Pipeline AI Help.
+The unbound perspective lists every advisor.
+
+Do not put hopper-edw location ids in `AiAdvisorLocations`.
+
+== Privacy
+
+The assistant sends whatever you put in the prompt to an external service.
+
+* Never hard-code secrets in the artifact.
+  Use environment variables or a xref:plugin-types/metadata-configuration.adoc[variable resolver].
+* Redact passwords, tokens and API keys in XML, logs and JSON you append.
+  Named fields matching `password`, `secret`, `token`, `api-key` are redacted by the workbench for XML, logs and selected metadata; literals in SQL, notes and oddly named fields are not.
+* Keep personal records out of sample rows, notes and logs you include.
+* Default new inclusions *off* when they send bulk XML, logs or metadata.
+
+== Checklist
+
+. Invent a location id. Do not add it to `AiAdvisorLocations`.
+. Implement `IAiAdvisor` with that id on `locations`. Omit `classLoaderGroup`.
+. Add toolbar and/or context-menu plugins on the editor that owns the subject (also omit `classLoaderGroup`).
+. Build `AiAdvisorOpenRequest` (location, area label, artifact, attributes, `preferFloatingWindow` when the subject should stay visible).
+. Call `hopGui.openAiAdvisorSession(request)` — not `AiAdvisorViews`.
+. Honour inclusions in `buildPrompt`; use id `metadata` for Hop metadata, `picker = true` + `listInclusionChoices` for anything else (catalog names, …).
+. Keep `defaultSelected = false` for sensitive extras. A plugin-id catalog may default on. Set `summary` and `listBaselineSharing()` so the collapsed Sharing line is accurate.
+. Keep SWT and langchain4j off `IAiAdvisor`.
+. Ship standing notes as `ai-context.md` and/or `ai-context/<id>.md` in the plugin folder (or JAR root).
+. Emit `hop_proposals` unless you override `parseResponse`. Override `previewProposal` for custom review text.
+. Implement `afterApply` and `summarizeApplied` if you apply custom proposal types.
+. Verify AI still disappears when `plugins/tech/ai` is removed, and that your advisor JAR still loads.

@@ -1,0 +1,15 @@
+Structural graph, clipboard, and metadata proposals.
+
+When you recommend adding, removing, renaming, connecting, replacing, or creating pipeline transforms, workflow actions, hops, notes, or named metadata objects, you MUST append a fenced JSON block tagged hop_proposals (see schema below). Do not leave those recommendations as prose-only steps.
+
+Advisory-only turns (no hop_proposals) are for explanation, diagnosis, or when the user asked not to change anything.
+
+Empty canvas and "build this flow" questions are design requests: emit ADD_TRANSFORM or ADD_ACTION items plus hops so the user can apply them.
+
+Do not emit SET_TRANSFORM_PROPERTY or SET_ACTION_PROPERTY. Put SQL, connection names, filenames, sheet names, and similar plugin fields on ADD_TRANSFORM / ADD_ACTION / CONFIGURE_TRANSFORM / CONFIGURE_ACTION parameters so Apply fills the dialogs. Also mention those values in the markdown. Do not leave configuration as prose-only.
+
+If a transform or action with that name already exists, emit CONFIGURE_TRANSFORM or CONFIGURE_ACTION with transformName/actionName plus the plugin fields instead of ADD_*.
+
+CLIPBOARD_* / REPLACE_* XML only when a matching transform or action template is already in the prompt (focus XML). Do not skip ADD_TRANSFORM because you lack XML.
+
+SAVE_METADATA when the user needs a new or updated named metadata object. Relational database connections use typeKey rdbms. The json MUST wrap the database plugin id as a key: rdbms.POSTGRESQL.{pluginId, hostname, port, databaseName, username, password, accessType}. A flat rdbms object or missing plugin id saves as type NONE. Prefer ${VARIABLE} for passwords. Use an id from the database plugins JSON in context (POSTGRESQL, MYSQL, …).

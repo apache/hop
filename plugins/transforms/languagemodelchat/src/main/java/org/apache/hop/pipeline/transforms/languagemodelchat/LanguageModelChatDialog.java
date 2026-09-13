@@ -46,12 +46,15 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.models.
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.models.MistralComposite;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.models.OllamaComposite;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.models.OpenAiComposite;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 public class LanguageModelChatDialog extends BaseTransformDialog
@@ -59,6 +62,7 @@ public class LanguageModelChatDialog extends BaseTransformDialog
 
   private final LanguageModelChatMeta input;
   private Collection<IDialogComposite> composites;
+  private GuiCompositeWidgets widgets;
 
   public LanguageModelChatDialog(
       Shell parent,
@@ -115,7 +119,23 @@ public class LanguageModelChatDialog extends BaseTransformDialog
     // Transform Name Row
     IDialogComposite tnc = new TransformNameComposite(params.build());
 
-    IDialogComposite gsc = new GeneralSettingsComposite(params.control(shell).build());
+    widgets = new GuiCompositeWidgets(variables);
+    widgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            input.setChanged();
+          }
+        });
+    widgets.createCompositeWidgets(
+        input, null, shell, LanguageModelChatMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, tnc.control());
+    Control last = widgets.getWidgetsMap().get(LanguageModelChatMeta.WIDGET_AI_PROVIDER);
+    if (last == null) {
+      last = tnc.control();
+    }
+
+    IDialogComposite gsc = new GeneralSettingsComposite(params.control(last).build());
 
     // Model Specific Composite
     modelComposite.setLayout(new FormLayout());
@@ -146,6 +166,7 @@ public class LanguageModelChatDialog extends BaseTransformDialog
         modelComposite);
 
     populateInputs(modelComposite);
+    widgets.setWidgetsContents(input, shell, LanguageModelChatMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
 
     // Open dialog and return the transformed name
     defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -196,6 +217,8 @@ public class LanguageModelChatDialog extends BaseTransformDialog
     if (composites.stream().anyMatch(c -> !c.ok())) {
       return;
     }
+
+    widgets.getWidgetsContents(input, LanguageModelChatMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
 
     // Mark the transform as changed
     input.setChanged();

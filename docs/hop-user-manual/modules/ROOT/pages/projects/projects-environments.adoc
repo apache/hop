@@ -154,6 +154,11 @@ image:hop-gui/environment/environment-dialog-configuration-files-tab.png[Environ
 
 Each environment contains one or more configuration files where you manage environment-specific variables.
 
+Store secrets (database passwords, API keys, tokens) in these files as variables, not in project metadata or pipelines.
+Keep the files *outside* the project folder so they are not checked into the project repository.
+Better still, store the value in a keystore or vault and put a xref:metadata-types/variable-resolver/index.adoc[variable resolver] expression in the configuration file.
+See xref:best-practices/index.adoc[Best practices: security] and xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[AI Assistant: secrets].
+
 image:hop-gui/environment/environment-files.png[Environment configuration files,width="90%"]
 
 *Edit...* opens the described variables dialog for the selected file:

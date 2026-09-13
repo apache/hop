@@ -716,6 +716,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-ai</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-aws</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1680,6 +1686,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-misc-rest</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-ai</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

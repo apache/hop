@@ -39,7 +39,9 @@ Most contribution annotations live in `org.apache.hop.core.gui.plugin` and its s
 
 `@GuiMenuElement`:: an item in the main menu
 `@GuiToolbarElement` and `@GuiToolbarElementFilter`:: a toolbar button, and a rule for when it is shown
-`@GuiWidgetElement`:: a widget on a settings page or metadata editor
+`@GuiWidgetElement`:: a widget on a settings page or metadata editor.
+For a metadata combo without a compile dependency on that plugin, set `metadataKey` (for example `ai-provider`) instead of `metadata`.
+When the plugin is not installed the widget is omitted.
 `@GuiContextAction` and `@GuiContextActionFilter` (in `org.apache.hop.core.action`):: an entry in a context dialog or right-click menu
 `@GuiKeyboardShortcut` / `@GuiOsxKeyboardShortcut`:: a keyboard shortcut
 `@GuiTab`:: a tab on an existing tab folder

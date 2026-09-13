@@ -191,6 +191,12 @@ public enum HopExtensionPoint {
    */
   HopGuiSearchMarketplace("Open the marketplace, searching for a plugin id (String)"),
 
+  /**
+   * Open or reuse an AI advisor session. Payload is {@code AiAdvisorOpenRequest}. Listened to by
+   * {@code hop-tech-ai}; hopper-edw and other plugins fire this instead of depending on that JAR.
+   */
+  HopGuiAiAdvisorOpenSession("Open an AI advisor session (AiAdvisorOpenRequest)"),
+
   HopImportStart("Executed at the start of the 'hop-import' command line tool"),
   HopImportTargetMetadataReady(
       "The import target metadata provider has been created (HopImportBase)"),

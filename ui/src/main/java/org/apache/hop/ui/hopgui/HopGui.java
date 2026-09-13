@@ -39,6 +39,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -552,6 +553,15 @@ public class HopGui
     } catch (Throwable e) {
       return null;
     }
+  }
+
+  /**
+   * Open or reuse an AI advisor session. No-op when {@code hop-tech-ai} is not installed. Other
+   * plugins (hopper-edw) should call this instead of compiling against the AI tech plugin.
+   */
+  public void openAiAdvisorSession(AiAdvisorOpenRequest request) throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        getLog(), getVariables(), HopExtensionPoint.HopGuiAiAdvisorOpenSession.id, request);
   }
 
   /**

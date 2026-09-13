@@ -60,6 +60,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   public static final String CONST_MODEL_TYPE = "model_type";
 
   private Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
+  private LanguageModelChatMeta modelMeta;
 
   private int parallelism = 1;
   private ForkJoinPool executor;
@@ -121,7 +122,8 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      facadeMap.put(new LanguageModel(meta), new LanguageModelFacade(variables, meta));
+      modelMeta = LanguageModelChatAiProviderSupport.resolve(meta, this, metadataProvider);
+      facadeMap.put(new LanguageModel(modelMeta), new LanguageModelFacade(variables, modelMeta));
 
       int parallelism =
           meta.getParallelism() <= 0 ? getRuntime().availableProcessors() : meta.getParallelism();
@@ -234,7 +236,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     String finishReason = null;
     String output = null;
 
-    LanguageModel model = new LanguageModel(meta);
+    LanguageModel model = new LanguageModel(modelMeta);
     LanguageModelFacade facade = facadeMap.get(model);
 
     List<ChatMessage> messageList = facade.inputToChatMessages(message);

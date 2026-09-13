@@ -728,17 +728,35 @@ public class GuiCompositeWidgets {
       Control lastControl,
       boolean useNewLayout) {
 
-    MetaSelectionLine<? extends IHopMetadata> metaSelectionLine =
-        new MetaSelectionLine<>(
-            variables,
-            HopGui.getInstance().getMetadataProvider(),
-            guiElements.getMetadataClass(),
-            parent,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            guiElements.getLabel(),
-            guiElements.getToolTip(),
-            false,
-            true);
+    IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
+    int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
+    MetaSelectionLine<? extends IHopMetadata> metaSelectionLine;
+    if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
+      metaSelectionLine =
+          MetaSelectionLine.forMetadataKey(
+              variables,
+              metadataProvider,
+              parent,
+              flags,
+              guiElements.getMetadataKey(),
+              guiElements.getLabel(),
+              guiElements.getToolTip());
+      if (metaSelectionLine == null) {
+        return lastControl;
+      }
+    } else {
+      metaSelectionLine =
+          new MetaSelectionLine<>(
+              variables,
+              metadataProvider,
+              guiElements.getMetadataClass(),
+              parent,
+              flags,
+              guiElements.getLabel(),
+              guiElements.getToolTip(),
+              false,
+              true);
+    }
 
     widgetsMap.put(guiElements.getId(), metaSelectionLine);
 

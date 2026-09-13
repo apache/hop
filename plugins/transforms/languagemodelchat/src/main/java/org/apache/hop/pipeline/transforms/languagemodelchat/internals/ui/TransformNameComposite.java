@@ -82,7 +82,7 @@ public class TransformNameComposite implements IDialogComposite {
     label.setLayoutData(fdlTransformName);
     inputField.setLayoutData(fdTransformName);
 
-    this.control = inputField;
+    this.control = separator;
   }
 
   public Label getLabel() {

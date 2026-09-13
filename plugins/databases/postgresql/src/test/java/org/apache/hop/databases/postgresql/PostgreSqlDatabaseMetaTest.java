@@ -19,10 +19,15 @@ package org.apache.hop.databases.postgresql;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -31,6 +36,9 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
+import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -872,5 +880,64 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getSqlLockTables(new String[] {"FOO", "BAR"}));
 
     assertNull(nativeMeta.getSqlUnlockTables(new String[] {"FOO"}));
+  }
+
+  @Test
+  void testPluginIdAndName() {
+    assertEquals("POSTGRESQL", nativeMeta.getPluginId());
+    assertEquals("PostgreSQL", nativeMeta.getPluginName());
+
+    nativeMeta.setPluginName(null);
+    assertEquals("PostgreSQL", nativeMeta.getPluginName());
+
+    nativeMeta.setPluginId(null);
+    assertEquals("POSTGRESQL", nativeMeta.getPluginId());
+  }
+
+  @Test
+  void testDeserializationOfTestEdwJson() throws Exception {
+    HopClientEnvironment.init();
+    DatabasePluginType.getInstance().searchPlugins();
+
+    String json =
+        "{\n"
+            + "  \"rdbms\": {\n"
+            + "    \"POSTGRESQL\": {\n"
+            + "      \"sshTunnelUsePrivateKey\": false,\n"
+            + "      \"databaseName\": \"test_edw\",\n"
+            + "      \"pluginId\": \"POSTGRESQL\",\n"
+            + "      \"sshTunnelEnabled\": false,\n"
+            + "      \"accessType\": 0,\n"
+            + "      \"hostname\": \"localhost\",\n"
+            + "      \"password\": \"Encrypted 2be98afc86aa7f2e4cb79ce10ca97bcce\",\n"
+            + "      \"port\": \"54320\",\n"
+            + "      \"attributes\": {},\n"
+            + "      \"username\": \"test\"\n"
+            + "    }\n"
+            + "  },\n"
+            + "  \"name\": \"test_edw\"\n"
+            + "}";
+
+    JsonMetadataProvider provider =
+        new JsonMetadataProvider(
+            new HopTwoWayPasswordEncoder(),
+            "/tmp/test-metadata",
+            Variables.getADefaultVariableSpace());
+    JsonMetadataParser<DatabaseMeta> parser =
+        new JsonMetadataParser<>(DatabaseMeta.class, provider);
+
+    JsonFactory jsonFactory = new JsonFactory();
+    try (com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser(json)) {
+      jsonParser.nextToken();
+      DatabaseMeta databaseMeta = parser.loadJsonObject(DatabaseMeta.class, jsonParser);
+      assertNotNull(databaseMeta);
+      assertEquals("test_edw", databaseMeta.getName());
+      assertEquals("POSTGRESQL", databaseMeta.getPluginId());
+      assertEquals("PostgreSQL", databaseMeta.getPluginName());
+      assertEquals("localhost", databaseMeta.getHostname());
+      assertEquals("54320", databaseMeta.getPort());
+      assertEquals("test_edw", databaseMeta.getDatabaseName());
+      assertEquals("test", databaseMeta.getUsername());
+    }
   }
 }
