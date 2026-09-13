@@ -180,12 +180,12 @@ public class ContextDialog extends Dialog {
 
   private static ContextDialog activeInstance;
 
-  private enum OwnerType {
+  public enum OwnerType {
     CATEGORY,
     ITEM,
   }
 
-  private class CategoryAndOrder {
+  public static class CategoryAndOrder {
     String category;
     String order;
     boolean collapsed;
@@ -268,7 +268,7 @@ public class ContextDialog extends Dialog {
 
   private List<CategoryAndOrder> categories;
 
-  private static class Item {
+  public static class Item {
     private final GuiAction action;
     private final Image image;
     private boolean selected;
@@ -576,6 +576,10 @@ public class ContextDialog extends Dialog {
     // Manually set canvas size otherwise canvas never gets drawn.
     wCanvas.setSize(10, 10);
 
+    if (ContextDialogSvgFacade.isSupported()) {
+      ContextDialogSvgFacade.register(wCanvas, this);
+    }
+
     // Show the dialog now
     //
     shell.open();
@@ -705,6 +709,10 @@ public class ContextDialog extends Dialog {
 
     // Store the toolbar settings
     storeDialogSettings();
+
+    if (ContextDialogSvgFacade.isSupported() && wCanvas != null) {
+      ContextDialogSvgFacade.unregister(wCanvas);
+    }
 
     // Close the dialog window
     shell.close();
@@ -1128,29 +1136,20 @@ public class ContextDialog extends Dialog {
    */
   private void onPaint(Event event) {
 
+    updateToolbar();
+
+    if (ContextDialogSvgFacade.isSupported()) {
+      ContextDialogSvgFacade.renderAndPublish(wCanvas, this);
+      return;
+    }
+
     GC gc = event.gc;
 
     org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
     org.eclipse.swt.graphics.Rectangle canvas = wCanvas.getBounds();
 
-    boolean useCategories;
-    Button categoriesCheckBox = getCategoriesCheckBox();
-    if (categoriesCheckBox == null) {
-      useCategories = true;
-    } else {
-      useCategories = categoriesCheckBox.getSelection();
-    }
-    useCategories &= !categories.isEmpty();
-
-    boolean useFixedWidth;
-    Button fixedWidthCheckBox = getFixedWidthCheckBox();
-    if (fixedWidthCheckBox == null) {
-      useFixedWidth = false;
-    } else {
-      useFixedWidth = fixedWidthCheckBox.getSelection();
-    }
-
-    updateToolbar();
+    boolean useCategories = isUseCategories();
+    boolean useFixedWidth = isUseFixedWidth();
 
     // Fill everything with white...
     //
@@ -1335,19 +1334,88 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    totalContentHeight = Math.max(area.height, y);
+    updateContentHeight(Math.max(area.height, y));
+  }
 
-    // Content size is only known after paint. Resize the canvas and refresh the scrollbar here.
-    // updateVerticalBar() used to run only from filter()/resize *before* the first paint, so on
-    // Hop Web (RAP) the scroll range could stay stale and truncate the list mid-way (#7868).
-    int canvasWidth = wCanvas.getBounds().width;
+  void updateContentHeight(int height) {
+    totalContentHeight = height;
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
+    }
+    org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
+    int canvasWidth = (wCanvas != null && !wCanvas.isDisposed()) ? wCanvas.getBounds().width : 0;
     if (previousTotalContentHeight != totalContentHeight || canvasWidth != area.width) {
       previousTotalContentHeight = totalContentHeight;
-      wCanvas.setSize(area.width, totalContentHeight);
+      if (wCanvas != null && !wCanvas.isDisposed()) {
+        wCanvas.setSize(area.width, totalContentHeight);
+      }
       wScrolledComposite.setMinWidth(area.width);
       wScrolledComposite.setMinHeight(totalContentHeight);
       updateVerticalBar();
     }
+  }
+
+  boolean isUseCategories() {
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    boolean useCategories = (categoriesCheckBox == null) || categoriesCheckBox.getSelection();
+    return useCategories && categories != null && !categories.isEmpty();
+  }
+
+  boolean isUseFixedWidth() {
+    Button fixedWidthCheckBox = getFixedWidthCheckBox();
+    return fixedWidthCheckBox != null && fixedWidthCheckBox.getSelection();
+  }
+
+  List<CategoryAndOrder> getCategories() {
+    return categories;
+  }
+
+  List<Item> getFilteredItems() {
+    return filteredItems;
+  }
+
+  Item getSelectedItem() {
+    return selectedItem;
+  }
+
+  int getIconSize() {
+    return iconSize;
+  }
+
+  int getMargin() {
+    return margin;
+  }
+
+  int getXMargin() {
+    return xMargin;
+  }
+
+  int getYMargin() {
+    return yMargin;
+  }
+
+  ScrolledComposite getScrolledComposite() {
+    return wScrolledComposite;
+  }
+
+  Canvas getCanvas() {
+    return wCanvas;
+  }
+
+  Label getTooltipLabel() {
+    return wlTooltip;
+  }
+
+  List<AreaOwner> getAreaOwners() {
+    return areaOwners;
+  }
+
+  void setAreaOwners(List<AreaOwner> areaOwners) {
+    this.areaOwners = areaOwners;
+  }
+
+  int getTotalContentHeight() {
+    return totalContentHeight;
   }
 
   private void updateToolbar() {
