@@ -31,10 +31,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       - name: Set up JDK 21
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v6
         with:
-          java-version: 21
+          java-version: '21'
+          distribution: 'temurin'
       - name: RAT Check
         run: mvn clean apache-rat:check
