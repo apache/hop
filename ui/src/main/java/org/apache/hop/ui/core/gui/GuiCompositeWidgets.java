@@ -50,6 +50,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -1734,6 +1735,14 @@ public class GuiCompositeWidgets {
                     + "' (widget '"
                     + guiElements.getId()
                     + "'), value not applied");
+            return;
+          }
+
+          // SWT text widgets cannot hold null. An empty read-back of a field that is still null
+          // is not an edit: writing "" would serialize as <tag/> instead of omitting the field.
+          if (parameterType == String.class
+              && DialogOkContent.widgetEmptyLeavesNull(
+                  readFieldValue(sourceData, guiElements), value)) {
             return;
           }
 

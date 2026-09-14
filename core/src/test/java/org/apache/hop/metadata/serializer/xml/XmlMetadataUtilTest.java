@@ -222,21 +222,6 @@ class XmlMetadataUtilTest {
   }
 
   @Test
-  void nullAndEmptyStringSerializeDifferentlyButCompareEqualForChangeDetection() throws Exception {
-    Field withNullFormat = new Field("a", "String", 50, -1, null, TestEnum.ONE);
-    Field withEmptyFormat = new Field("a", "String", 50, -1, "", TestEnum.ONE);
-
-    String nullXml = XmlMetadataUtil.serializeObjectToXml(withNullFormat);
-    String emptyXml = XmlMetadataUtil.serializeObjectToXml(withEmptyFormat);
-
-    assertFalse(nullXml.contains("<format"), "null is omitted from XML");
-    assertTrue(emptyXml.contains("<format"), "empty string is written as a tag");
-    assertTrue(
-        XmlHandler.sameContentIgnoringEmptyValues(nullXml, emptyXml),
-        "dialog OK that turns null into empty string is not a content change");
-  }
-
-  @Test
   void testListReferenceSerializationWithEmptyReference() throws Exception {
     String xml =
         """

@@ -28,8 +28,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -294,7 +294,7 @@ public class HopGuiWorkflowActionDelegate {
 
       byte[] beforeSnapshot = workflowGraph.captureUndoSnapshot();
       boolean alreadyChanged = action.hasChanged();
-      String beforeXml = action.getXml();
+      ActionMeta before = action.clone();
 
       IAction jei = action.getAction();
 
@@ -308,7 +308,7 @@ public class HopGuiWorkflowActionDelegate {
           //
           workflowMeta.renameActionIfNameCollides(action);
           workflowGraph.commitDialogUndo(beforeSnapshot);
-          if (hasActionMetaChanged(beforeXml, action.getXml())) {
+          if (hasActionMetaChanged(before, action)) {
             action.setChanged();
           } else {
             action.setChanged(alreadyChanged);
@@ -414,12 +414,11 @@ public class HopGuiWorkflowActionDelegate {
   }
 
   /**
-   * Returns {@code true} if two action snapshots differ in persisted configuration. Omitted XML
-   * elements ({@code null} fields) and empty elements ({@code <tag/>} from an empty string) are
-   * treated as the same so a dialog OK that only round-trips widget text does not mark the workflow
-   * dirty.
+   * Returns {@code true} if two action snapshots differ in persisted configuration. String {@code
+   * null} and {@code ""} are treated as the same so a dialog OK that only round-trips widget text
+   * does not mark the workflow dirty. An extra empty table row is still a change.
    */
-  private static boolean hasActionMetaChanged(String beforeXml, String afterXml) {
-    return !XmlHandler.sameContentIgnoringEmptyValues(beforeXml, afterXml);
+  private static boolean hasActionMetaChanged(ActionMeta before, ActionMeta after) {
+    return !DialogOkContent.same(before, after);
   }
 }

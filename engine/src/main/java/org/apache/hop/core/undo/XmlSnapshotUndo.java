@@ -183,8 +183,7 @@ public class XmlSnapshotUndo<M> {
 
   /**
    * Gzip headers include a timestamp, so compressed bytes of identical XML are not equal. Compare
-   * inflated XML instead. Empty elements ({@code <tag/>}) are treated as the same as omitted
-   * elements so a dialog OK that only turns {@code null} into {@code ""} is not recorded as undo.
+   * inflated XML instead.
    */
   public static boolean sameXmlContent(byte[] left, byte[] right) {
     if (left == right) {
@@ -194,7 +193,7 @@ public class XmlSnapshotUndo<M> {
       return false;
     }
     try {
-      return XmlHandler.sameContentIgnoringEmptyValues(decompress(left), decompress(right));
+      return decompress(left).equals(decompress(right));
     } catch (IOException e) {
       return false;
     }

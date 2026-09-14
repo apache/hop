@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -39,9 +38,9 @@ import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.pipeline.IPartitioner;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -764,27 +763,15 @@ public class HopGuiPipelineTransformDelegate {
    * Returns {@code true} if two transform snapshots differ in persisted configuration (transform
    * body, partitioning, GUI placement, and error handling).
    *
-   * <p>Omitted XML elements ({@code null} fields) and empty elements ({@code <tag/>} from an empty
-   * string) are treated as the same so a dialog OK that only round-trips widget text does not mark
-   * the pipeline dirty. Serialization still writes them differently.
+   * <p>String {@code null} and {@code ""} are treated as the same so a dialog OK that only
+   * round-trips widget text does not mark the pipeline dirty. An extra empty table row is still a
+   * change. Serialization still writes null and empty string differently.
    */
   private static boolean hasTransformMetaChanged(TransformMeta before, TransformMeta after) {
-    try {
-      if (!XmlHandler.sameContentIgnoringEmptyValues(before.getXml(), after.getXml())) {
-        return true;
-      }
-
-      return !XmlHandler.sameContentIgnoringEmptyValues(
-          getErrorMetaXml(before), getErrorMetaXml(after));
-    } catch (HopException e) {
-      // If comparison fails, treat as changed to avoid losing edits.
+    if (!DialogOkContent.same(before, after)) {
       return true;
     }
-  }
-
-  private static String getErrorMetaXml(TransformMeta transformMeta) throws HopException {
-    TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
-    return errorMeta == null ? Const.EMPTY_STRING : errorMeta.getXml();
+    return !DialogOkContent.same(before.getTransformErrorMeta(), after.getTransformErrorMeta());
   }
 
   public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
