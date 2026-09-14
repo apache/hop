@@ -49,45 +49,6 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   private final ReentrantLock dbLock = new ReentrantLock();
 
   /**
-   * Checks if the given field name is already present in the output row metadata.
-   *
-   * @param outputRowMeta The output row metadata to check against.
-   * @param fieldName The field name to check for.
-   * @return true if the field name is already in use, false otherwise.
-   */
-  private boolean isOutputFieldNameInUse(IRowMeta outputRowMeta, String fieldName) {
-    if (outputRowMeta == null || fieldName == null) {
-      return false;
-    }
-    for (int i = 0; i < outputRowMeta.size(); i++) {
-      String existingName = outputRowMeta.getValueMeta(i).getName();
-      if (existingName != null && existingName.equalsIgnoreCase(fieldName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Creates a unique field name for the output row metadata by appending a suffix if necessary.
-   *
-   * @param outputRowMeta The output row metadata to check against.
-   * @param baseName The base name for the field.
-   * @return A unique field name.
-   */
-  private String createUniqueOutputFieldName(IRowMeta outputRowMeta, String baseName) {
-    String normalizedBaseName =
-        (baseName == null || baseName.trim().isEmpty()) ? "field" : baseName.trim();
-    String candidateName = normalizedBaseName;
-    int suffix = 1;
-    while (isOutputFieldNameInUse(outputRowMeta, candidateName)) {
-      candidateName = normalizedBaseName + "_dbj" + suffix;
-      suffix++;
-    }
-    return candidateName;
-  }
-
-  /**
    * Appends runtime output metadata to the given DatabaseJoinData object.
    *
    * @param data The DatabaseJoinData object to update.
@@ -104,7 +65,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
       if (valueName == null || valueName.trim().isEmpty()) {
         valueName = "field" + (i + 1);
       }
-      valueMeta.setName(createUniqueOutputFieldName(data.outputRowMeta, valueName));
+      valueMeta.setName(valueName);
       valueMeta.setOrigin(getTransformName());
       data.outputRowMeta.addValueMeta(valueMeta);
     }
@@ -155,10 +116,11 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
                 + rowMeta.getString(rowData));
       }
 
-      DatabaseJoinMeta.SqlParameterSpec parameterSpec =
-          data.parameterSpec == null
-              ? DatabaseJoinMeta.parseSqlParameterSpec(meta.getEffectiveSql(variables))
-              : data.parameterSpec;
+      DatabaseJoinMeta.SqlParameterSpec parameterSpec = data.parameterSpec;
+      if (parameterSpec == null) {
+        throw new HopTransformException(
+            "Database Join SQL parameter specification is not initialized.");
+      }
       data.keynrs = new int[parameterSpec.getParameterCount()];
 
       int positionalIndex = 0;
