@@ -73,7 +73,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION =
       "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";
-  public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "true";
+  public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "false";
 
   private static final String YES = "Y";
 

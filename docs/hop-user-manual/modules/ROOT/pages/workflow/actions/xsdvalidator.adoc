@@ -39,7 +39,7 @@ See also the xref:pipeline/transforms/xsdvalidator.adoc[XSD Validator pipeline t
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Enable external entity for XSD validation|
+|Enable external entity for XSD validation|Allow the XSD validation to resolve external entities (XXE). Disabled by default: leave this unchecked unless the schemas you validate against are trusted and genuinely need to load external entities. The default for new actions can be changed with the `ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION` Java system property.
 |XSD Source a|The options are
 
 * none (default)

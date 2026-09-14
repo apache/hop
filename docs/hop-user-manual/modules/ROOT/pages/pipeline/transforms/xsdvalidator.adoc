@@ -71,6 +71,8 @@ See also the xref:workflow/actions/xsdvalidator.adoc[XSD Validator workflow acti
 * Add validation msg in output : check this if you want to add a validation message in the output.
 * Validation msg field: the name of the validation message field.
 
+|Enable external entity for XSD validation|Allow the XSD validation to resolve external entities (XXE). Disabled by default: leave this unchecked unless the schemas you validate against are trusted and genuinely need to load external entities. The default for new transforms can be changed with the `ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION` Java system property.
+
 |XML schema definition a|
 
 XSD source : select one of these options:
