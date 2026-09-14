@@ -761,6 +761,8 @@ public class ContextDialog extends Dialog {
       toolTip = "i18n::ContextDialog.GuiAction.ShowCategories.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableCategories() {
+    updateToolbar();
+    previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
   }
@@ -772,6 +774,7 @@ public class ContextDialog extends Dialog {
       toolTip = "i18n::ContextDialog.GuiAction.FixedWidth.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableFixedWidth() {
+    previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
   }
@@ -780,22 +783,30 @@ public class ContextDialog extends Dialog {
     if (toolBarWidgets == null) {
       return null;
     }
-    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
-    if (checkboxItem == null) {
-      return null;
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (control instanceof Button button) {
+      return button;
     }
-    return (Button) checkboxItem.getControl();
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
   }
 
   private Button getFixedWidthCheckBox() {
     if (toolBarWidgets == null) {
       return null;
     }
-    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
-    if (checkboxItem == null) {
-      return null;
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_FIXED_WIDTH);
+    if (control instanceof Button button) {
+      return button;
     }
-    return (Button) checkboxItem.getControl();
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
   }
 
   private void onMouseMove(Event event) {
