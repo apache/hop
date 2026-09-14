@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.hop.web.it.pages.PipelineGraphPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.JavascriptExecutor;
 
 /**
  * Working on the canvas itself: moving things, undoing, zooming.
@@ -100,5 +101,37 @@ class HopWebCanvasTest extends HopWebTestBase {
     assertTrue(
         graph.transformIconSize(TRANSFORM) <= normal,
         () -> "zooming back out left the icon at " + graph.transformIconSize(TRANSFORM));
+  }
+
+  /**
+   * RAP's client-side GC keeps the onload handler of an image it is still waiting for after the
+   * canvas is disposed, and that handler then throws against the nulled context. A context dialog
+   * closed before every action icon has arrived is enough to trigger it, which the dialog sweep did
+   * several times a week. Hop Web patches the destructor (gc-pending-images.js); this runs a GC
+   * through that destructor in the real client and checks the handlers are gone.
+   */
+  @Test
+  @DisplayName("a disposed canvas drops the images it was still loading")
+  void disposedCanvasForgetsPendingImages() {
+    Object result =
+        ((JavascriptExecutor) driver)
+            .executeScript(
+                String.join(
+                    "\n",
+                    "var GC = rwt.widgets.GC;",
+                    "var image = { onload: function() {}, onerror: function() {} };",
+                    "var gc = Object.create(GC.prototype);",
+                    "gc._control = { removeEventListener: function() {},",
+                    "                isCreated: function() { return false; } };",
+                    "gc._canvas = {};",
+                    "gc._context = {};",
+                    "gc._pendingImages = [ image ];",
+                    "GC.$$destructor.call(gc);",
+                    "return image.onload === null && image.onerror === null;"));
+
+    assertTrue(
+        Boolean.TRUE.equals(result),
+        "disposing a GC left its pending image handlers alive; they would run against a null"
+            + " context when the image arrives");
   }
 }
