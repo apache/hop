@@ -169,6 +169,7 @@ public class HopWeb implements ApplicationConfiguration {
             "org/apache/hop/ui/hopgui/canvas-zoom.js",
             "org/apache/hop/ui/hopgui/canvas-svg.js",
             "org/apache/hop/ui/hopgui/context-dialog-svg.js",
+            "org/apache/hop/ui/hopgui/gc-pending-images.js",
             "org/apache/hop/ui/hopgui/monaco-editor.js",
             "org/apache/hop/ui/hopgui/mac-command-keys.js")
         .forEach(

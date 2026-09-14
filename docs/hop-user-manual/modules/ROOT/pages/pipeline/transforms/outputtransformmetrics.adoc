@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Wait for selected transforms to finish and output their metrics as rows.
+:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/transformsmetrics.svg[Output transform metrics Icon, role="image-doc-icon"] Output transform metrics
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 Output transform metrics waits until the listed transform copies in the same pipeline have finished, then emits *one output row per watched copy* with the requested counters.
@@ -30,19 +28,6 @@ Output transform metrics waits until the listed transform copies in the same pip
 This transform is a *row generator*. It does not consume incoming rows and must not have incoming hops. Connecting an upstream hop can deadlock the pipeline: the watched transform cannot finish while its output buffer is full, and this transform never drains that buffer.
 
 Use this transform when a pipeline itself needs metrics (for example after a Kettle/PDI import, or to feed Write to log). For project-wide monitoring, prefer xref:metadata-types/pipeline-log.adoc[Pipeline logging] or xref:pipeline/transforms/execinfo.adoc[Execution information].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:cross.svg[Not Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

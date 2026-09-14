@@ -17,30 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The rules accumulator uses Drools to check rows against a rule set
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/rules_acc.svg[Rules accumulator transform Icon, role="image-doc-icon"] Rules accumulator
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Rules Accumulator collects incoming rows and executes them against a rule set. This may be useful to determine the answer to a question or otherwise analyze a dataset.
 
 https://www.drools.org/[Drools] is the present rule engine implementation and its https://docs.drools.org/7.68.0.Final/drools-docs/html_single/index.html#_droolslanguagereferencechapter[rule language] can be referenced for use by this transform. https://docs.drools.org/7.68.0.Final/drools-docs/html_single/index.html#_welcome[Drools documentation]
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Details
 Once all incoming rows have been collected by the Rules Accumulator transform (e.g. - the previous transform shuts down) the rows are transformed into Rules.Row objects and passed into the rules engine to be executed against the given rule set.

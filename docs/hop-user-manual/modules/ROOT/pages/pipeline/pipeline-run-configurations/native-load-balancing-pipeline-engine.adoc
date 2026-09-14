@@ -16,8 +16,6 @@ under the License.
 ////
 [[LoadBalancingPipelineEngine]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: The load-balancing pipeline engine assigns each pipeline execution to one Hop Server from a configured group.
 
 = Load-balancing Pipeline Engine
@@ -31,11 +29,11 @@ Each Hop Server in the group still needs a xref:metadata-types/hop-server.adoc[H
 
 image:run-configuration/load-balance-pipeline-run-configuration-editor.png[Load-balancing pipeline run configuration editor]
 
-=== Options
+== Options
 
 The engine-specific options sit on three tabs under the selected engine type.
 
-==== Management
+=== Management
 
 [options="header",cols="1,3"]
 |===
@@ -49,7 +47,7 @@ The engine-specific options sit on three tabs under the selected engine type.
 
 |===
 
-==== Load-balancing
+=== Load-balancing
 
 [options="header",cols="1,3"]
 |===
@@ -83,13 +81,13 @@ Default `3000`.
 Default `10000`.
 
 |Assignment state folder
-|Optional VFS folder for assignment ledger files, for example `{openvar}PROJECT_HOME{closevar}/loadbalance`.
+|Optional VFS folder for assignment ledger files, for example `+${PROJECT_HOME}/loadbalance+`.
 Leave empty to skip files.
 Results are also written to the run configuration's xref:metadata-types/execution-information-location.adoc[execution information location] when one is set.
 
 |===
 
-==== Hop Servers
+=== Hop Servers
 
 [options="header",cols="1,3"]
 |===
@@ -100,7 +98,7 @@ Results are also written to the run configuration's xref:metadata-types/executio
 
 |===
 
-=== How a server is chosen
+== How a server is chosen
 
 . The engine re-reads this run configuration from metadata.
 . It probes every enabled server (status, load, occupying executions, graceful shutdown).
@@ -109,21 +107,21 @@ Results are also written to the run configuration's xref:metadata-types/executio
 . The pipeline is registered with `max_concurrent` so the server itself refuses the work if it is already at capacity (`SERVER_AT_CAPACITY`).
 . On capacity or connectivity failure the engine retries another server until the retry budget is exhausted.
 
-=== Draining a server
+== Draining a server
 
 . Set *Enabled* to `N` in this table (picked up on the next configuration refresh), and/or
 . Shut the Hop Server down gracefully so it reports `shuttingDown` and refuses new work.
 
 Use the pack algorithm if you want idle machines to stay empty so they can be turned off.
 
-=== Kubernetes
+== Kubernetes
 
 * Hop-aware pool: one Hop Server metadata object per pod (or StatefulSet DNS name).
   Then even-load, pack, disable, and max concurrent work as described above.
 * A Kubernetes Service in front of several pods as a *single* remote Hop Server is still possible.
   That is L4 round-robin from kube-proxy, not Hop-aware load balancing.
 
-=== See also
+== See also
 
 * xref:workflow/workflow-run-configurations/native-load-balancing-workflow-engine.adoc[Load-balancing workflow engine]
 * xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline engine]

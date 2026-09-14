@@ -252,14 +252,14 @@ Injection keys are documented on each transform page. Shared identity keys: `FOR
 . Pipeline: *Row Generator* (or *Spark file input*) → *Spark lake table output*
  ** Format: `delta`
  ** Identifier mode: `PATH`
- ** Table path: e.g. `${PROJECT_HOME}/output/delta-orders`
+ ** Table path: e.g. `+${PROJECT_HOME}/output/delta-orders+`
  ** Save mode: `Overwrite` for a first write (default is *ErrorIfExists*)
 . Second pipeline or hop: *Spark lake table input* on the same path → *Spark file output* or preview.
 . Run with the native Spark run configuration.
 
 === Time travel sketch
 
-Write twice with *Overwrite*, then set Input **Time travel** to `VERSION` and **Version** to `0` (Delta) or the first snapshot id from Iceberg’s `{table}.snapshots`. See the Input transform page for TIMESTAMP mode.
+Write twice with *Overwrite*, then set Input **Time travel** to `VERSION` and **Version** to `0` (Delta) or the first snapshot id from Iceberg’s `+{table}.snapshots+`. See the Input transform page for TIMESTAMP mode.
 
 === MERGE sketch
 

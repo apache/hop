@@ -1,0 +1,99 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+
+name: Hop PR Comment (Documentation)
+
+# Posts the Antora errors of "Hop PR Build (Documentation)" as one sticky
+# comment on the pull request. That build runs on `pull_request` with the
+# read-only token every fork PR gets, so it cannot comment itself; it uploads
+# the report as an artifact and this workflow, which runs in the base
+# repository with write access, picks it up. Nothing from the PR is checked
+# out or executed here: the artifact is data, and the PR number it names is
+# checked against the run's own head commit before anything is posted.
+on:
+  workflow_run:
+    workflows: [ 'Hop PR Build (Documentation)' ]
+    types: [ completed ]
+
+permissions:
+  contents: read
+
+jobs:
+  comment:
+    name: Comment on the pull request
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: write
+
+    steps:
+      - name: Post or update the comment
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const run = context.payload.workflow_run
+
+            const { data: { artifacts } } = await github.rest.actions.listWorkflowRunArtifacts({
+              ...context.repo, run_id: run.id, name: 'docs-report'
+            })
+            if (!artifacts.length) {
+              core.info('No docs-report artifact on this run, nothing to post')
+              return
+            }
+            const { data: zip } = await github.rest.actions.downloadArtifact({
+              ...context.repo, artifact_id: artifacts[0].id, archive_format: 'zip'
+            })
+            fs.writeFileSync('docs-report.zip', Buffer.from(zip))
+            await exec.exec('unzip', ['-o', 'docs-report.zip', '-d', 'docs-report'])
+
+            const read = f => fs.readFileSync(`docs-report/${f}`, 'utf8').trim()
+            const prNumber = Number(read('pr-number'))
+            const errorCount = Number(read('error-count'))
+            const body = read('comment.md')
+            if (!Number.isInteger(prNumber) || !Number.isInteger(errorCount)) {
+              core.setFailed('docs-report artifact is malformed')
+              return
+            }
+
+            // The PR number comes from the artifact; make sure it is the PR the
+            // build actually ran for, and that it has not moved on since.
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: prNumber })
+            if (pr.head.sha !== run.head_sha) {
+              core.info(`PR #${prNumber} is at ${pr.head.sha}, build was for ${run.head_sha}: skipping`)
+              return
+            }
+
+            const marker = '<!-- hop-docs-check -->'
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo, issue_number: prNumber, per_page: 100
+            })
+            const existing = comments.find(c => c.body && c.body.startsWith(marker))
+
+            if (existing) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body })
+              core.info(`Updated comment ${existing.html_url}`)
+            } else if (errorCount > 0) {
+              const { data: c } = await github.rest.issues.createComment({ ...context.repo, issue_number: prNumber, body })
+              core.info(`Posted comment ${c.html_url}`)
+            } else {
+              // A clean build on a PR that never had a comment: stay quiet.
+              core.info('Build passed and there is no earlier comment, nothing to post')
+            }

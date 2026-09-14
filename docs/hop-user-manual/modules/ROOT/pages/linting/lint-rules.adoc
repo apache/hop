@@ -17,6 +17,7 @@ under the License.
 [[LintRules]]
 :imagesdir: ../assets/images
 :description: How Hop lint rules are written, which rules ship with Hop, and how a project switches them on, retunes them or adds its own.
+:page-marketplace: hop-misc-lint
 
 = Lint rules
 

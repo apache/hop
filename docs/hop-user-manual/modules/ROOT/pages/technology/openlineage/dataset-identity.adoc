@@ -80,11 +80,11 @@ one identity for the same physical file.
 |VFS scheme |namespace |name
 
 |`file://` |`file` |absolute path (`/data/customers.csv`)
-|`s3://`, `s3a://`, `s3n://` |`s3://{bucket}` |object key, no leading slash
-|`gs://` |`gs://{bucket}` |object key
-|`hdfs://` |`hdfs://{host}:{port}` |path
-|`abfss://`, `wasbs://` |`{scheme}://{container}@{account}` |path
-|other (`ftp`, `sftp`, `http`, …) |`{scheme}://{host}[:{port}]` |path
+|`s3://`, `s3a://`, `s3n://` |`+s3://{bucket}+` |object key, no leading slash
+|`gs://` |`+gs://{bucket}+` |object key
+|`hdfs://` |`+hdfs://{host}:{port}+` |path
+|`abfss://`, `wasbs://` |`+{scheme}://{container}@{account}+` |path
+|other (`ftp`, `sftp`, `http`, …) |`+{scheme}://{host}[:{port}]+` |path
 |===
 
 URI user info (credentials) is dropped from the namespace, so no secret reaches the lineage graph.
@@ -115,13 +115,13 @@ This is the identity another producer has to match to land on the same node as a
 |===
 |Hop database type |Dataset namespace
 
-|PostgreSQL |`postgres://{host}:{port}`
-|MySQL, MariaDB |`mysql://{host}:{port}`
-|Redshift |`redshift://{host}:{port}`
-|Oracle |`oracle://{host}:{port}`
-|MS SQL Server (both drivers) |`mssql://{host}:{port}`
-|DB2 |`db2://{host}:{port}`
-|anything else |`{lowercased type id}://{host}:{port}`
+|PostgreSQL |`+postgres://{host}:{port}+`
+|MySQL, MariaDB |`+mysql://{host}:{port}+`
+|Redshift |`+redshift://{host}:{port}+`
+|Oracle |`+oracle://{host}:{port}+`
+|MS SQL Server (both drivers) |`+mssql://{host}:{port}+`
+|DB2 |`+db2://{host}:{port}+`
+|anything else |`+{lowercased type id}://{host}:{port}+`
 |===
 
 A connection with no host — an embedded or file-backed database — has no namespace to key on, and
@@ -130,7 +130,7 @@ no relational lineage event is emitted for it.
 [NOTE]
 ====
 *Known gap: Snowflake and BigQuery.* The OpenLineage naming specification names these by account
-(`snowflake://{account}`) and by a bare `bigquery` namespace respectively. Hop currently derives
+(`+snowflake://{account}+`) and by a bare `bigquery` namespace respectively. Hop currently derives
 both from host and port like every other type, which means Snowflake does not match a dbt run's
 identity and BigQuery — having no host — emits nothing. Aligning them is tracked follow-up work.
 ====
@@ -143,7 +143,7 @@ identity and BigQuery — having no host — emits nothing. Aligning them is tra
 ----
 
 * Only the segments the database actually has are included, joined with `.`; a database with no
-  catalog level yields `{schema}.{table}`.
+  catalog level yields `+{schema}.{table}+`.
 * Segments are emitted *verbatim*: trimmed, but never re-cased and never quoted. No surrounding
   quotes, no trailing semicolon.
 * A table recovered by parsing SQL carries no catalog segment (SQL cannot name one) and may carry

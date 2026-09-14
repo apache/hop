@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Database value validation transform checks incoming values against a target table so you can see which rows, columns and values would fail an insert.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/databasevaluevalidation.svg[Database value validation transform Icon, role="image-doc-icon"] Database value validation
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Database value validation transform checks incoming rows against a target table *before* you write them.
@@ -33,19 +31,6 @@ Typical use: Source -> Database value validation -> xref:pipeline/transforms/tab
 
 This is complementary to xref:pipeline/transforms/validator.adoc[Data Validator], which uses hand-authored rules. Database value validation keeps the rules in sync with the live table.
 
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
-
 == Options
 
 [width="90%", options="header"]
@@ -53,8 +38,8 @@ This is complementary to xref:pipeline/transforms/validator.adoc[Data Validator]
 |Option|Description
 |Transform name|Unique name of this transform in the pipeline
 |Connection|Relational database connection of the table to validate against
-|Schema|Optional schema of the target table. You can use a variable, for example `'${SCHEMA_NAME}'`.
-|Table|Name of the table to validate against. You can use a variable, for example `'${TABLE_NAME}'`.
+|Schema|Optional schema of the target table. You can use a variable, for example `+'${SCHEMA_NAME}'+`.
+|Table|Name of the table to validate against. You can use a variable, for example `+'${TABLE_NAME}'+`.
 |Browse table|Select the schema and table from the database
 |Get fields / Enter mapping|Map stream fields to table columns. When the mapping is empty, stream fields are matched to table columns by name.
 |Omit values from error messages|Show failed values as `?` so they do not appear in the log or on the error hop

@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The CSV file input transform reads data from a delimited file.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/textfileinput.svg[CSV file input transform Icon, role="image-doc-icon"] CSV file input
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The CSV file input transform reads data from a delimited file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
@@ -42,19 +40,6 @@ No VFS support.
 * Lazy conversion -- If you will be reading many fields from the file and many of those fields will not be manipulate, but merely passed through the pipeline to land in some other text file or a database, lazy conversion can prevent Hop from performing unnecessary work on those fields such as converting them into objects such as strings, dates, or numbers.
 
 For information on valid date and numeric formats used in this transform, view the Date Formatting Table and Number Formatting Table.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

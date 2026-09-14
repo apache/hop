@@ -16,8 +16,6 @@ under the License.
 ////
 [[LoadBalancingWorkflowEngine]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: The load-balancing workflow engine assigns each workflow execution to one Hop Server from a configured group.
 
 = Load-balancing Workflow Engine
@@ -37,7 +35,7 @@ Do not point it back at this load-balancing configuration.
 
 Max concurrent on each server counts unfinished pipelines *and* workflows, so a mixed pool shares one cap.
 
-=== See also
+== See also
 
 * xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[Load-balancing pipeline engine]
 * xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow engine]

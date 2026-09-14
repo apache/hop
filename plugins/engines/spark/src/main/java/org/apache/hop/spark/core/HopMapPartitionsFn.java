@@ -20,10 +20,12 @@ package org.apache.hop.spark.core;
 import java.io.File;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -303,6 +305,8 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               ? JsonRowMeta.fromJson(inputRowMetaJson)
               : new org.apache.hop.core.row.RowMeta();
       IRowMeta outputRowMeta = JsonRowMeta.fromJson(outputRowMetaJson);
+      final HopSparkRowConverter.RowCodec inputCodec =
+          HopSparkRowConverter.RowCodec.of(inputRowMeta);
 
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(transformName);
@@ -478,7 +482,17 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       List<Object[]> resultRows = new ArrayList<>();
       List<List<Object[]>> targetResultRowsList = new ArrayList<>();
       final boolean multiTarget = !targetTransforms.isEmpty();
-      if (!multiTarget) {
+      // Plain case: one main input, no info or target streams — rows go through a one-slot
+      // handler straight into the Spark output queue; no Injector, row sets or executor loop.
+      final boolean direct =
+          !inputTransform
+              && !acceptFilenamesFromMain
+              && !multiTarget
+              && infoTransforms.isEmpty()
+              && mainTransform instanceof BaseTransform;
+      if (direct) {
+        // output captured by SparkDirectRowHandler.putRow
+      } else if (!multiTarget) {
         transformCombi.transform.addRowListener(
             new RowAdapter() {
               @Override
@@ -533,27 +547,39 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         infoCombi.transform.processRow();
       }
 
-      List<Row> output = new ArrayList<>();
       MetricsThrottle throttle = new MetricsThrottle();
       final SparkTransformExecutionSampling samplingRef = sampling;
+      final ITransform mainRef = mainTransform;
+      final RowProducer mainProducer = rowProducer;
+      final TransformMetaDataCombi injectorCombi = mainInjectorCombi;
+      final long[] rowsSeen = {0L};
 
+      // Rows are handed to Spark lazily: every step() pushes at most one input row (or runs one
+      // iteration of a source) and queues what the transform produced. The partition output is
+      // never materialised, so memory is bounded by the transform's own state, not by the
+      // partition size, and the downstream Spark operator can start consuming immediately.
+      PartitionIterator rows;
       if (inputTransform) {
         // Source transform: drive until finished with no external input
-        driveUntilDone(
-            pipeline,
-            executor,
-            output,
-            outputRowMeta,
-            multiTarget,
-            resultRows,
-            targetTransforms,
-            targetResultRowsList,
-            throttle,
-            mainTransform,
-            copyNr,
-            host,
-            partitionStartMs,
-            samplingRef);
+        rows =
+            new PartitionIterator(
+                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+              private boolean more = true;
+
+              @Override
+              boolean step() throws HopException {
+                if (!more || pipeline.isFinished() || pipeline.getErrors() != 0) {
+                  return false;
+                }
+                clearCapture(resultRows, targetResultRowsList);
+                more = executor.oneIteration();
+                if (throttle.shouldPublish(resultRows.size())) {
+                  publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
+                  flushSamplesQuietly(samplingRef, false);
+                }
+                return true;
+              }
+            };
       } else if (acceptFilenamesFromMain) {
         // Accept-filenames (Text File Input, Excel, …):
         // 1) Pre-load every partition row (filenames) into the main injector and mark finished.
@@ -564,7 +590,6 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         // remaining hop size. After the first processRow consumes all filenames, size is 0
         // and further oneIteration() calls never advance the reader (infinite stall after
         // openNextFile/createReader — the log line users see just before hang).
-        long rowsSeen = 0;
         while (input.hasNext()) {
           Row sparkRow = input.next();
           Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
@@ -572,7 +597,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           if (mainInjectorCombi != null) {
             mainInjectorCombi.transform.processRow();
           }
-          rowsSeen++;
+          rowsSeen[0]++;
         }
         if (rowProducer != null) {
           rowProducer.finished();
@@ -580,82 +605,148 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
             mainInjectorCombi.transform.processRow();
           }
         }
-        if (rowsSeen > 0 || throttle.shouldPublish(0)) {
+        if (rowsSeen[0] > 0 || throttle.shouldPublish(0)) {
           publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
         }
-        driveAcceptFilenamesUntilDone(
-            pipeline,
-            mainTransform,
-            output,
-            outputRowMeta,
-            multiTarget,
-            resultRows,
-            targetTransforms,
-            targetResultRowsList,
-            throttle,
-            copyNr,
-            host,
-            partitionStartMs,
-            samplingRef);
+        rows =
+            new PartitionIterator(
+                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+              private boolean more = true;
+              private long contentRows = 0;
+
+              @Override
+              boolean step() throws HopException {
+                if (!more || pipeline.isFinished() || pipeline.getErrors() != 0) {
+                  return false;
+                }
+                clearCapture(resultRows, targetResultRowsList);
+                more = mainRef.processRow();
+                contentRows += resultRows.size();
+                if (throttle.shouldPublish(resultRows.size())
+                    || contentRows % METRICS_ROW_INTERVAL == 0) {
+                  publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
+                  flushSamplesQuietly(samplingRef, false);
+                }
+                return true;
+              }
+            };
+      } else if (direct) {
+        final SparkDirectRowHandler[] handlerRef = new SparkDirectRowHandler[1];
+        rows =
+            new PartitionIterator(
+                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+              private boolean inputDrained = false;
+
+              @Override
+              boolean step() throws HopException {
+                SparkDirectRowHandler handler = handlerRef[0];
+                if (input.hasNext()) {
+                  handler.offer(inputCodec.toHop(input.next()));
+                  mainRef.processRow();
+                  if (mainRef.getErrors() > 0) {
+                    return false;
+                  }
+                  rowsSeen[0]++;
+                  if (throttle.shouldPublish(1) || rowsSeen[0] % METRICS_ROW_INTERVAL == 0) {
+                    publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
+                    flushSamplesQuietly(samplingRef, false);
+                  }
+                  return true;
+                }
+                if (inputDrained) {
+                  return false;
+                }
+                // End of input: one call with an empty slot so getRow() returns null and
+                // buffering transforms emit what they hold.
+                inputDrained = true;
+                handler.offer(null);
+                mainRef.processRow();
+                return true;
+              }
+            };
+        SparkDirectRowHandler handler =
+            new SparkDirectRowHandler(
+                (BaseTransform) mainTransform, inputRowMeta, outputRowMeta, rows::emit);
+        ((BaseTransform) mainTransform).setRowHandler(handler);
+        handlerRef[0] = handler;
       } else {
-        long rowsSeen = 0;
-        while (input.hasNext()) {
-          Row sparkRow = input.next();
-          Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
-          clearCapture(resultRows, targetResultRowsList);
-          rowProducer.putRow(inputRowMeta, hopRow, false);
-          // Forward the main row onto the hop before Stream Lookup's info-first processRow
-          // calls getRow() for the main stream (same timing Beam gets from topo order +
-          // non-blocking handler).
-          if (mainInjectorCombi != null) {
-            mainInjectorCombi.transform.processRow();
-          }
-          executor.oneIteration();
-          appendCapturedRows(
-              output,
-              outputRowMeta,
-              multiTarget,
-              resultRows,
-              targetTransforms,
-              targetResultRowsList);
-          rowsSeen++;
-          if (throttle.shouldPublish(1) || rowsSeen % METRICS_ROW_INTERVAL == 0) {
-            publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
-            flushSamplesQuietly(samplingRef, false);
-          }
-        }
-        if (rowProducer != null) {
-          rowProducer.finished();
-          if (mainInjectorCombi != null) {
-            mainInjectorCombi.transform.processRow();
-          }
-          clearCapture(resultRows, targetResultRowsList);
-          executor.oneIteration();
-          appendCapturedRows(
-              output,
-              outputRowMeta,
-              multiTarget,
-              resultRows,
-              targetTransforms,
-              targetResultRowsList);
-        }
+        rows =
+            new PartitionIterator(
+                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+              private boolean inputDrained = false;
+
+              @Override
+              boolean step() throws HopException {
+                if (input.hasNext()) {
+                  Object[] hopRow = inputCodec.toHop(input.next());
+                  clearCapture(resultRows, targetResultRowsList);
+                  mainProducer.putRow(inputRowMeta, hopRow, false);
+                  // Forward the main row onto the hop before Stream Lookup's info-first
+                  // processRow calls getRow() for the main stream (same timing Beam gets from
+                  // topo order + non-blocking handler).
+                  if (injectorCombi != null) {
+                    injectorCombi.transform.processRow();
+                  }
+                  executor.oneIteration();
+                  rowsSeen[0]++;
+                  if (throttle.shouldPublish(1) || rowsSeen[0] % METRICS_ROW_INTERVAL == 0) {
+                    publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
+                    flushSamplesQuietly(samplingRef, false);
+                  }
+                  return true;
+                }
+                if (inputDrained) {
+                  return false;
+                }
+                // End of input: flag the injector done and give buffering transforms one last
+                // iteration to emit what they hold.
+                inputDrained = true;
+                if (mainProducer != null) {
+                  mainProducer.finished();
+                  if (injectorCombi != null) {
+                    injectorCombi.transform.processRow();
+                  }
+                  clearCapture(resultRows, targetResultRowsList);
+                  executor.oneIteration();
+                }
+                return true;
+              }
+            };
       }
 
-      if (pipeline.getErrors() > 0) {
-        publishMetrics(mainTransform, copyNr, host, partitionStartMs, false, true);
-        throw new HopException(
-            "Errors detected while executing transform '"
-                + transformName
-                + "' on a Spark partition");
+      // End-of-partition duties run when the consumer exhausts the iterator, or on task
+      // completion if it stops early (limit, cancelled stage).
+      final SparkTransformExecutionSampling samplingToClose = sampling;
+      Runnable finish =
+          () -> {
+            try {
+              if (pipeline.getErrors() > 0) {
+                publishMetrics(mainRef, copyNr, host, partitionStartMs, false, true);
+                throw new HopException(
+                    "Errors detected while executing transform '"
+                        + transformName
+                        + "' on a Spark partition");
+              }
+              executor.dispose();
+              publishMetrics(mainRef, copyNr, host, partitionStartMs, false, true);
+              if (samplingToClose != null) {
+                samplingToClose.close();
+              }
+            } catch (HopException e) {
+              throw new HopRuntimeException(
+                  "Error executing Hop transform '" + transformName + "' in Spark mapPartitions",
+                  e);
+            }
+          };
+      rows.onFinish(finish);
+      TaskContext taskContext = TaskContext.get();
+      if (taskContext != null) {
+        taskContext.addTaskCompletionListener(
+            (org.apache.spark.util.TaskCompletionListener) ctx -> rows.finishQuietly());
       }
-
-      executor.dispose();
-      publishMetrics(mainTransform, copyNr, host, partitionStartMs, false, true);
-      if (sampling != null) {
-        sampling.close();
-        sampling = null;
-      }
-      return output.iterator();
+      // Sampling is closed by finish(); the catch block below only handles setup failures
+      sampling = null;
+      return rows;
     } catch (Exception e) {
       if (mainTransform != null) {
         try {
@@ -996,73 +1087,6 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
    * Drive the single-threaded mini-pipeline until it finishes (source transforms with no main input
    * hop — Row Generator, Get File Names, etc.).
    */
-  private void driveUntilDone(
-      LocalPipelineEngine pipeline,
-      SingleThreadedPipelineExecutor executor,
-      List<Row> output,
-      IRowMeta outputRowMeta,
-      boolean multiTarget,
-      List<Object[]> resultRows,
-      List<String> targetTransforms,
-      List<List<Object[]>> targetResultRowsList,
-      MetricsThrottle throttle,
-      ITransform mainTransform,
-      int copyNr,
-      String host,
-      long partitionStartMs,
-      SparkTransformExecutionSampling samplingRef)
-      throws HopException {
-    boolean more = true;
-    while (more && !pipeline.isFinished() && pipeline.getErrors() == 0) {
-      clearCapture(resultRows, targetResultRowsList);
-      more = executor.oneIteration();
-      appendCapturedRows(
-          output, outputRowMeta, multiTarget, resultRows, targetTransforms, targetResultRowsList);
-      if (throttle.shouldPublish(resultRows.size())) {
-        publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
-        flushSamplesQuietly(samplingRef, false);
-      }
-    }
-  }
-
-  /**
-   * After filename rows are pre-loaded onto the main injector, call {@code processRow()} on the
-   * file-input transform until it finishes reading content.
-   *
-   * <p>{@link SingleThreadedPipelineExecutor#oneIteration()} only schedules {@code processRow} once
-   * per remaining input-rowset size when the transform has input hops. After accept-filenames
-   * drains those rows, size is 0 and further iterations never advance the reader.
-   */
-  private void driveAcceptFilenamesUntilDone(
-      LocalPipelineEngine pipeline,
-      ITransform mainTransform,
-      List<Row> output,
-      IRowMeta outputRowMeta,
-      boolean multiTarget,
-      List<Object[]> resultRows,
-      List<String> targetTransforms,
-      List<List<Object[]>> targetResultRowsList,
-      MetricsThrottle throttle,
-      int copyNr,
-      String host,
-      long partitionStartMs,
-      SparkTransformExecutionSampling samplingRef)
-      throws HopException {
-    boolean more = true;
-    long contentRows = 0;
-    while (more && !pipeline.isFinished() && pipeline.getErrors() == 0) {
-      clearCapture(resultRows, targetResultRowsList);
-      more = mainTransform.processRow();
-      appendCapturedRows(
-          output, outputRowMeta, multiTarget, resultRows, targetTransforms, targetResultRowsList);
-      contentRows += resultRows.size();
-      if (throttle.shouldPublish(resultRows.size()) || contentRows % METRICS_ROW_INTERVAL == 0) {
-        publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
-        flushSamplesQuietly(samplingRef, false);
-      }
-    }
-  }
-
   private static void clearCapture(
       List<Object[]> resultRows, List<List<Object[]>> targetResultRowsList) {
     resultRows.clear();
@@ -1071,24 +1095,104 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     }
   }
 
-  private static void appendCapturedRows(
-      List<Row> output,
-      IRowMeta outputRowMeta,
-      boolean multiTarget,
-      List<Object[]> resultRows,
-      List<String> targetTransforms,
-      List<List<Object[]>> targetResultRowsList)
-      throws HopException {
-    if (!multiTarget) {
-      for (Object[] hopRow : resultRows) {
-        output.add(HopSparkRowConverter.toSparkRow(outputRowMeta, hopRow));
-      }
-      return;
+  /**
+   * Lazy partition output. {@link #step()} advances the mini-pipeline by one unit of work and
+   * leaves whatever the transform emitted in the capture lists; those rows are converted and
+   * queued, and handed to Spark one at a time.
+   */
+  private abstract static class PartitionIterator implements Iterator<Row> {
+    private final HopSparkRowConverter.RowCodec outputCodec;
+    private final boolean multiTarget;
+    private final List<String> targetTransforms;
+    private final List<Object[]> resultRows;
+    private final List<List<Object[]>> targetResultRowsList;
+    private final ArrayDeque<Row> pending = new ArrayDeque<>();
+    private Runnable finish;
+    private boolean finished;
+    private boolean exhausted;
+
+    PartitionIterator(
+        IRowMeta outputRowMeta,
+        boolean multiTarget,
+        List<String> targetTransforms,
+        List<Object[]> resultRows,
+        List<List<Object[]>> targetResultRowsList) {
+      this.outputCodec = HopSparkRowConverter.RowCodec.of(outputRowMeta);
+      this.multiTarget = multiTarget;
+      this.targetTransforms = targetTransforms;
+      this.resultRows = resultRows;
+      this.targetResultRowsList = targetResultRowsList;
     }
-    for (int t = 0; t < targetTransforms.size(); t++) {
-      String tag = targetTransforms.get(t);
-      for (Object[] hopRow : targetResultRowsList.get(t)) {
-        output.add(HopSparkRowConverter.toTaggedSparkRow(tag, outputRowMeta, hopRow));
+
+    /** Do one unit of work; return false when the transform has nothing left to produce. */
+    abstract boolean step() throws HopException;
+
+    /** Queue an already converted output row (direct handler path). */
+    void emit(Row row) {
+      pending.add(row);
+    }
+
+    void onFinish(Runnable finish) {
+      this.finish = finish;
+    }
+
+    @Override
+    public boolean hasNext() {
+      try {
+        while (pending.isEmpty() && !exhausted) {
+          if (step()) {
+            queueCaptured();
+          } else {
+            exhausted = true;
+          }
+        }
+      } catch (Exception e) {
+        throw new HopRuntimeException("Error executing Hop transform in Spark mapPartitions", e);
+      }
+      if (pending.isEmpty()) {
+        runFinish();
+        return false;
+      }
+      return true;
+    }
+
+    @Override
+    public Row next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      return pending.poll();
+    }
+
+    private void queueCaptured() throws HopException {
+      if (!multiTarget) {
+        for (Object[] hopRow : resultRows) {
+          pending.add(outputCodec.toSpark(hopRow));
+        }
+        return;
+      }
+      for (int t = 0; t < targetResultRowsList.size(); t++) {
+        for (Object[] hopRow : targetResultRowsList.get(t)) {
+          pending.add(outputCodec.toTaggedSpark(targetTransforms.get(t), hopRow));
+        }
+      }
+    }
+
+    private void runFinish() {
+      if (!finished) {
+        finished = true;
+        if (finish != null) {
+          finish.run();
+        }
+      }
+    }
+
+    /** Task-completion hook: release the mini-pipeline even when Spark stopped pulling early. */
+    void finishQuietly() {
+      try {
+        runFinish();
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError("Error finishing Hop transform partition (non-fatal)", e);
       }
     }
   }
@@ -1098,7 +1202,14 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     private static final long serialVersionUID = 1L;
     private long lastPublishMs = 0L;
 
+    private int calls = 0;
+
     boolean shouldPublish(int rowsThisBatch) {
+      // The clock read is a syscall; sampling it every 128 calls keeps the ~1 s cadence for slow
+      // transforms without paying for it on every row of a fast one.
+      if (lastPublishMs != 0L && (++calls & 127) != 0) {
+        return false;
+      }
       long now = System.currentTimeMillis();
       if (lastPublishMs == 0L || now - lastPublishMs >= METRICS_TIME_INTERVAL_MS) {
         lastPublishMs = now;

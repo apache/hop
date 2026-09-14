@@ -17,6 +17,7 @@ under the License.
 [[HopLint]]
 :imagesdir: ../assets/images
 :description: hop lint runs the Hop linter from the command line, for a quick check while you work or as a build step in CI.
+:page-marketplace: hop-misc-lint
 
 = hop lint
 

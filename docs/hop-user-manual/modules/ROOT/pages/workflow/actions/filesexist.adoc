@@ -16,8 +16,6 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:openvar: ${
-:closevar: }
 :description: The Checks If Files Exist action verifies that the specified files exist. The action returns true (success) if all the listed files exist, false (fail) if any of those don't.
 
 = Checks if files exist
@@ -36,7 +34,7 @@ You can point to individual files, or to folders and use regular-expression wild
 |Action name|The name of the workflow action. This name must be unique in a single workflow.
 |Files/Folders|A table of files and folders to verify:
 
-* *File/Folder*: the full path of a file or folder. You can use variables like `{openvar}PROJECT_HOME{closevar}` in the path.
+* *File/Folder*: the full path of a file or folder. You can use variables like `+${PROJECT_HOME}+` in the path.
 * *Wildcard (RegExp)*: optional regular expression. When the path is a folder, at least one file matching this pattern must exist. When empty and no exclude wildcard is set, the action only checks that the path itself exists (file or folder).
 * *Exclude wildcard (RegExp)*: optional regular expression. Files matching this pattern are ignored when evaluating a folder.
 * *Include subfolders*: when set to `Y`, also look for matching files in subfolders of the specified folder.

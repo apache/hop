@@ -17,33 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Injector transform is used for special purpose pipelines where you want to 'inject' rows into a pipeline.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/injector.svg[Injector transform Icon, role="image-doc-icon"] Injector
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Injector transform is used for special purpose pipelines where you  want to 'inject' rows into the pipeline using the Hop API and Java, or from streaming input transforms like the xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer] transform.
 
 Among other things you can build 'headless' pipelines with it: pipelines that have no input at design time: do not read from file or database.
-
-Pipeline unit tests replace a transform that has an input data set attached with an Injector, and inject the static data set rows instead of executing the original transform.
-See xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Testing].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

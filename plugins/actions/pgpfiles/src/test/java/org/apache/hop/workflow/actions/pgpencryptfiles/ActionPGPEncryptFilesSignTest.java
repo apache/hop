@@ -204,6 +204,44 @@ class ActionPGPEncryptFilesSignTest {
     assertEquals(PLAIN_TEXT, Files.readString(opened), "the round trip must preserve the content");
   }
 
+  /**
+   * Filenames are discovered by scanning a folder, so their content is chosen by whoever can write
+   * to it. They must reach gpg as literal arguments and never be interpreted.
+   *
+   * <p>Each name below expands to something different when a shell looks at it: if one ever were
+   * evaluated, gpg would be handed a name that does not exist and the action would report an error.
+   * Signing successfully is therefore the assertion that the name was passed through untouched. See
+   * https://github.com/apache/hop/issues/8311.
+   */
+  @Test
+  void filenamesAreNotInterpretedByAShell() throws Exception {
+    List<String> hostileNames =
+        List.of(
+            "report$(echo pwned).csv",
+            "report`echo pwned`.csv",
+            "report$HOME.csv",
+            "report\";echo pwned;\".csv",
+            "report'; echo pwned; '.csv");
+
+    for (String name : hostileNames) {
+      Path source = Files.writeString(work.resolve(name), PLAIN_TEXT);
+      Path signed = work.resolve(name + ".asc");
+
+      ActionPGPEncryptFiles sign = encryptAction();
+      sign.setAsciiMode(true);
+      sign.getPgpFiles().add(pgpFile(ActionPGPEncryptFiles.ActionType.SIGN, source, signed, ""));
+
+      Result result = sign.execute(new Result(), 0);
+
+      assertEquals(0, result.getNrErrors(), "signing must not report errors for: " + name);
+      assertTrue(result.getResult(), "signing must succeed for: " + name);
+      assertTrue(Files.exists(signed), "the signed file must be written for: " + name);
+      assertTrue(
+          Files.readString(signed).startsWith("-----BEGIN PGP SIGNED MESSAGE-----"),
+          "the output must be a clear-signed message for: " + name);
+    }
+  }
+
   private ActionPGPEncryptFiles encryptAction() {
     ActionPGPEncryptFiles action = new ActionPGPEncryptFiles("PGP encrypt files");
     attachToWorkflow(action);
