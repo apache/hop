@@ -16,9 +16,29 @@
   ~ limitations under the License.
   -->
 <extensions>
+    <!-- not really needed by default and quite outdated
     <extension>
-        <groupId>co.leantechniques</groupId>
-        <artifactId>maven-buildtime-extension</artifactId>
-        <version>3.0.3</version>
+      <groupId>co.leantechniques</groupId>
+      <artifactId>maven-buildtime-extension</artifactId>
+      <version>3.0.3</version>
+    <extension>
+    -->
+    <!--
+    $ docker run -d \
+      -p 16686:16686 \
+      -p 4317:4317 \
+      -p 4318:4318 \
+      jaegertracing/jaeger
+    $ mvn \
+      -Dotel.traces.exporter=otlp \
+      -Dotel.exporter.otlp.endpoint=http://localhost:4317 \
+      -Dotel.instrumentation.maven.transfer.enabled=false \
+      -DskipTests
+      clean install -T0.75C
+    <extension>
+        <groupId>io.opentelemetry.contrib</groupId>
+        <artifactId>opentelemetry-maven-extension</artifactId>
+        <version>1.55.0-alpha</version>
     </extension>
+    -->
 </extensions>

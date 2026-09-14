@@ -106,6 +106,8 @@
         <byte-buddy.version>1.18.11</byte-buddy.version>
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
+        <gmavenplus-plugin.version>4.3.1</gmavenplus-plugin.version>
+        <groovy.version>4.0.28</groovy.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
@@ -160,6 +162,7 @@
         <objenesis.version>3.6</objenesis.version>
         <opentelemetry.version>1.65.0</opentelemetry.version>
         <org.eclipse.platform.version>3.134.0</org.eclipse.platform.version>
+        <plexus-compiler.version>2.17.0</plexus-compiler.version>
         <project.build.outputTimestamp>1786535563</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -381,12 +384,109 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>ensure-lombok-ecj-agent-jar</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                    <version>${lombok.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${maven.multiModuleProjectDirectory}/.mvn</outputDirectory>
+                            <overWriteIfNewer>false</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>${gmavenplus-plugin.version}</version>
+                <inherited>false</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.groovy</groupId>
+                        <artifactId>groovy</artifactId>
+                        <version>${groovy.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>attach-lombok-ecj-agent</id>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <skipScriptExecution>${lombok.ecj.agent.attached}</skipScriptExecution>
+                            <scripts>
+                                <script><![CDATA[
+import com.sun.tools.attach.VirtualMachine
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
+if (System.getProperty('lombok.ecj.agent.skip') != 'true') {
+    synchronized (System.getProperties()) {
+        if (System.getProperty('lombok.ecj.agent.attached') == null) {
+            def lombokJar = new File(System.getProperty('maven.multiModuleProjectDirectory'), '.mvn/lombok-' + project.properties['lombok.version'] + '.jar')
+            if (!lombokJar.isFile() || lombokJar.length() < 1000000L) {
+                throw new IllegalStateException('Lombok jar missing or incomplete for the ECJ agent attach, expected ' + lombokJar)
+            }
+            def agentJar = Files.createTempFile('lombok-ecj-agent-', '.jar').toFile()
+            agentJar.deleteOnExit()
+            Files.copy(lombokJar.toPath(), agentJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            try {
+                def vm = VirtualMachine.attach(String.valueOf(ProcessHandle.current().pid()))
+                try {
+                    vm.loadAgent(agentJar.absolutePath, 'ECJ')
+                } finally {
+                    vm.detach()
+                }
+                System.setProperty('lombok.ecj.agent.attached', 'true')
+                log.info('Lombok ECJ agent attached (source: ' + lombokJar + ')')
+            } catch (Throwable t) {
+                throw new IllegalStateException('Unable to self-attach the Lombok ECJ agent, ensure -Djdk.attach.allowAttachSelf=true is in .mvn/jvm.config and the environment allows self-attach, or skip it with -Dlombok.ecj.agent.skip=true', t)
+            }
+        }
+    }
+}
+                                ]]></script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
                 <configuration>
+                    <compilerId>eclipse</compilerId>
                     <compilerArgs>
                         <arg>-Xlint:-options</arg>
                     </compilerArgs>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-eclipse</artifactId>
+                        <version>${plexus-compiler.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
