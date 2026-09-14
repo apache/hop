@@ -170,6 +170,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     String jsLocation = resourceManager.getLocation("js/canvas-zoom.js");
     jsLoader.require(jsLocation);
     jsLoader.require(resourceManager.getLocation("js/canvas-svg.js"));
+    jsLoader.require(resourceManager.getLocation("js/context-dialog-svg.js"));
     // RAP's GC leaves image onload handlers alive after dispose; see the script.
     jsLoader.require(resourceManager.getLocation("js/gc-pending-images.js"));
     jsLoader.require(resourceManager.getLocation("js/monaco-editor.js"));

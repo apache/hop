@@ -54,6 +54,17 @@ class CanvasOverlayAttachTest {
     assertTrue(js.contains("this._canvasId = properties.canvas"), js);
   }
 
+  @Test
+  void contextDialogSvgJsLoadsAndDefinesHandler() throws IOException {
+    String js = readResource("org/apache/hop/ui/hopgui/context-dialog-svg.js");
+
+    assertNotNull(js);
+    assertTrue(js.contains("rap.registerTypeHandler(\"hop.ContextDialogSvgRenderer\""), js);
+    assertTrue(js.contains("_handleMouseMove"), js);
+    assertTrue(js.contains("mousemove"), js);
+    assertTrue(js.contains("pointerEvents = \"none\""), js);
+  }
+
   private static String readResource(String name) throws IOException {
     InputStream in = CanvasOverlayAttachTest.class.getClassLoader().getResourceAsStream(name);
     assertNotNull(in, name);
