@@ -432,7 +432,7 @@ When mode is `OAUTH2`, Hop Web uses the **authorization code flow with PKCE** ag
 | Confidential clients set a secret (or `HOP_WEB_OAUTH_CLIENT_SECRET`). Public clients may leave the secret empty and rely on PKCE.
 
 | Redirect URI
-| Defaults to `{origin}{context}/oauth/callback` — register this exact URI with the IdP.
+| Defaults to `+{origin}{context}/oauth/callback+` — register this exact URI with the IdP.
 
 | Scopes
 | Default `openid profile email`
@@ -479,7 +479,7 @@ To make a specific Google account an administrator for local/dev:
 3. If the consent screen is in *Testing*, add your Gmail address under **Test users**.
 4. Run Hop Web in OAUTH2 mode with issuer `https://accounts.google.com`, your client id/secret, and scopes `openid profile email`.
 5. In `HOP_CONFIG_FOLDER/security/security-config.json` (or Configuration → Security after you have access):
-
++
 [source,json]
 ----
 {
@@ -499,7 +499,7 @@ To make a specific Google account an administrator for local/dev:
 ----
 
 6. Ensure shell env does **not** still export Keycloak claims, then restart and log in again:
-
++
 [source,bash]
 ----
 unset HOP_WEB_OAUTH_ROLE_CLAIM HOP_WEB_OAUTH_USERNAME_CLAIM

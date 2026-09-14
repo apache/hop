@@ -38,8 +38,8 @@ This is complementary to xref:pipeline/transforms/validator.adoc[Data Validator]
 |Option|Description
 |Transform name|Unique name of this transform in the pipeline
 |Connection|Relational database connection of the table to validate against
-|Schema|Optional schema of the target table. You can use a variable, for example `'${SCHEMA_NAME}'`.
-|Table|Name of the table to validate against. You can use a variable, for example `'${TABLE_NAME}'`.
+|Schema|Optional schema of the target table. You can use a variable, for example `+'${SCHEMA_NAME}'+`.
+|Table|Name of the table to validate against. You can use a variable, for example `+'${TABLE_NAME}'+`.
 |Browse table|Select the schema and table from the database
 |Get fields / Enter mapping|Map stream fields to table columns. When the mapping is empty, stream fields are matched to table columns by name.
 |Omit values from error messages|Show failed values as `?` so they do not appear in the log or on the error hop

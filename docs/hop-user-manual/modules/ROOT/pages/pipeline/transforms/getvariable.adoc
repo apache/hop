@@ -17,8 +17,6 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Get Variables transform allows you to get the value of a variable and returns rows or adds values to existing input rows.
-:openvar: ${
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/getvariable.svg[Get variables transform Icon, role="image-doc-icon"] Get variables
@@ -35,7 +33,7 @@ Note that workflow/environment variables are set only once. A pipeline needs to 
 
 See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for when to use a field, a parameter, or a variable.
 
-Refer to parameters/variables using the syntax: {openvar}myVariable{closevar}, for example from a previous pipeline.
+Refer to parameters/variables using the syntax: +${myVariable}+, for example from a previous pipeline.
 
 *Two ways to pass fields, parameters to variables downstream:*
 
@@ -43,10 +41,10 @@ Parameters must be unique per pipeline (case is not a differentiator). The pipel
 
   * Use a pipeline executor transform or a Repeat action:
     - Send: add fields on the Parameters tab (parameter name can be same as field name) to send.
-    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: {openvar}myParam{closevar}
+    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: +${myParam}+
   * Edit any upstream pipeline’s properties:
     - Send: Add a parameter on the parameters tab of a pipeline’s properties (Edit pipeline icon), and optionally give it a default value. The parameter value can be set in a pipeline using various transforms.
-    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: {openvar}myParam{closevar}
+    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: +${myParam}+
 
 
 *Other:*
@@ -57,7 +55,7 @@ To convert the Variable into a data type other than String use Select Values - M
 
 To get system values, including command line arguments, use the Get System Info transform.
 
-For example, in the variable column, you can specify: `{openvar}java.io.tmpdir{closevar}/hop/tempfile.txt` and it will be evaluated as `/tmp/hop/tempfile.txt` on Unix-like systems.
+For example, in the variable column, you can specify: `+${java.io.tmpdir}/hop/tempfile.txt+` and it will be evaluated as `/tmp/hop/tempfile.txt` on Unix-like systems.
 
 == Troubleshooting
 
@@ -75,7 +73,7 @@ You must always specify the data type or you will have errors like the following
 |Transform Name|The name of this transform as it appears in the pipeline workspace.
 |Name|Name of the field.
 |Variable a|Allows you to enter variables as complete strings to return rows or add values to input rows.
-For example, you can specify: ${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
+For example, you can specify: +${java.io.tmpdir}/hop/tempfile.txt+ and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
 
 // CTRL-space snippet
 include::../../snippets/variables/control-space.adoc[]

@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Simple evaluation action evaluates a variable, a field in the result stream, the number of result files, or log text from the previous action.
 
-:openvar: ${
-:closevar: }
 
 = Simple evaluation
 
@@ -78,7 +76,7 @@ Evaluation type:
 |===
 |Field|Value|Explanation
 |Source: Evaluate|Variable|Select this to evaluate a variable set before
-|Source: Variable name|e. g. {openvar}VAR1{closevar}|Enter the variable name using the usual syntax
+|Source: Variable name|e. g. +${VAR1}+|Enter the variable name using the usual syntax
 |Source: Type|String, Number etc.|The type of your variable
 |Success on: Success when source variable set||When this option is selected, the true path is followed when the source variable is set.
 Note: The workflow action checks if the source variable is defined, so an empty or null value is also true.

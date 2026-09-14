@@ -16,8 +16,6 @@ under the License.
 ////
 [[community-blog]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: This page bundles relevant community blog posts and articles about Apache Hop. 
 
 = Community Blog Posts 

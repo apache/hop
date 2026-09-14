@@ -64,7 +64,7 @@ This is the single most important thing to know about this transform: no shell i
 * shell built-ins: `cd`, `export`, `set`, `echo` on Windows
 
 These are passed to the process as literal arguments.
-Hop variables such as `{openvar}PROJECT_HOME{closevar}` *are* resolved, because Hop resolves them before the process is started.
+Hop variables such as `+${PROJECT_HOME}+` *are* resolved, because Hop resolves them before the process is started.
 
 If you need shell features, run a shell explicitly and pass your command line to it as an argument, for example `/bin/sh` with arguments `-c` and `ls -la /tmp | wc -l` (see *Arguments in fields* below), or use the xref:workflow/actions/shell.adoc[Shell] workflow action which is built for scripts.
 

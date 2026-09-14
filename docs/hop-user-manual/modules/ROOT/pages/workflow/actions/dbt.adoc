@@ -88,7 +88,7 @@ With **Emit OpenLineage** enabled, the action runs the project's `dbt-ol` execut
 |`OPENLINEAGE_URL`|`HOP_LINEAGE_OPENLINEAGE_URL` - the collector Hop's xref:technology/openlineage/index.adoc[OpenLineage sink] delivers to. When it is not set the action logs a warning and leaves dbt to its own configuration.
 |`OPENLINEAGE_API_KEY`|`HOP_LINEAGE_OPENLINEAGE_API_KEY`, when set, so a secured collector accepts dbt's events on the same terms as Hop's.
 |`OPENLINEAGE_NAMESPACE`|`HOP_LINEAGE_OPENLINEAGE_NAMESPACE`, defaulting to `hop` - the same fallback the Hop sink uses.
-|`OPENLINEAGE_PARENT_ID`|`{namespace}/{workflow name}/{workflow run id}`, which makes the dbt run a child of the Hop workflow run through OpenLineage's `ParentRunFacet`.
+|`OPENLINEAGE_PARENT_ID`|`+{namespace}/{workflow name}/{workflow run id}+`, which makes the dbt run a child of the Hop workflow run through OpenLineage's `ParentRunFacet`.
 |===
 
 Warehouse tables are identified the same way on both sides. dbt's adapters emit datasets as `(namespace=postgres://host:port, name=database.schema.table)` following the OpenLineage naming specification, which is what xref:technology/openlineage/dataset-identity.adoc[Hop's dataset identity] adopts - so a table that Hop loads and dbt then transforms resolves to the *same* node in the graph, with no reconciliation step.

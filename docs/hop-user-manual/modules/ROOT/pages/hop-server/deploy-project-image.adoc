@@ -16,8 +16,6 @@ under the License.
 ////
 [[DeployProjectImage]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: Build a Docker image that contains your Hop project. Run it as a short-lived job from a scheduler, or as a long-lived Hop Server, with docker run, Compose, Kubernetes or OpenShift.
 
 = Project in a Docker image
@@ -133,7 +131,7 @@ If the environment file contains only non-secret values or xref:metadata-types/v
 Treat that as the exception.
 
 `<metadata_folder>` / `HOP_SERVER_METADATA_FOLDER` is the older hook for xref:hop-server/web-service.adoc[web services].
-Prefer `HOP_PROJECT_*` so `{openvar}PROJECT_HOME{closevar}` and metadata inheritance work.
+Prefer `HOP_PROJECT_*` so `+${PROJECT_HOME}+` and metadata inheritance work.
 
 JDBC drivers the image is not allowed to ship can be installed at start with `HOP_DRIVERS_DOWNLOAD` and `HOP_DRIVERS_ACCEPT_LICENSE`, or `COPY`'d into `/opt/hop/lib/jdbc/`.
 Extra plugins go into the image the same way.
@@ -177,7 +175,7 @@ docker run --rm \
   -e HOP_PROJECT_NAME=your-project \
   -e HOP_ENVIRONMENT_NAME=prod \
   -e HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/prod.json \
-  -e HOP_FILE_PATH='{openvar}PROJECT_HOME{closevar}/main.hwf' \
+  -e HOP_FILE_PATH='${PROJECT_HOME}/main.hwf' \
   -e HOP_RUN_CONFIG=local \
   -v /etc/hop/prod.json:/config/prod.json:ro \
   registry.example.com/your-project-hop-server:<git-sha>
@@ -294,7 +292,7 @@ xref:hop-server/web-service.adoc[Web services] work because the project's `metad
 
 Clients (Hop Gui, hop-run, an Airflow worker with a Hop client) use a *Remote* run configuration that points at this server.
 Export resources is optional here: the server already has the project.
-Prefer executing a filename under `{openvar}PROJECT_HOME{closevar}` that exists in the image.
+Prefer executing a filename under `+${PROJECT_HOME}+` that exists in the image.
 
 For the short-lived alternative, see <<skip_hop_server_short_lived_containers>>.
 The xref:docker-container.adoc[Docker container] page lists every hop-run variable. The xref:how-to-guides/apache-hop-web-services-docker.adoc[web services in Docker] how-to is the long-lived case.

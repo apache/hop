@@ -40,7 +40,7 @@ The public API lives under the Java package `org.apache.hop.lineage` in the `hop
 | `LineageVariables` — Hop variables (`@Variable`) that describe hub configuration. Also the per-kind emitters (`LineageFileIoEmitter`, `LineageRelationalIoEmitter`, `LineageHttpIoEmitter`, `LineageRunLifecycleEmitter`, `LineageTransformSchemaEmitter`), the shared dataset-identity helpers (`LineageFileIdentity`, `LineageRelationalIdentity`) and `LineageMetadataWalker` (see <<lineage-relational>>). Emitters are best-effort by construction: they no-op on missing arguments and never throw into transform execution, so call sites invoke them directly without a defensive `try`/`catch`.
 
 |`org.apache.hop.lineage.context`
-| `LineageContext`, `LineageSubjectType`, `LineagePortableFilename` — Immutable correlation (subject type, log channel, pipeline/workflow/transform/action names, `hopFilename` as on the engine/meta, optional `hopFilenamePortableKey` as `${PROJECT_HOME}/…` when derivable, optional attributes). Run identity for a single execution is the log channel id on the context.
+| `LineageContext`, `LineageSubjectType`, `LineagePortableFilename` — Immutable correlation (subject type, log channel, pipeline/workflow/transform/action names, `hopFilename` as on the engine/meta, optional `hopFilenamePortableKey` as `+${PROJECT_HOME}/…+` when derivable, optional attributes). Run identity for a single execution is the log channel id on the context.
 
 |`org.apache.hop.lineage.model`
 | `LineageEvent`, `LineageEventKind`, `LineagePayload` and concrete payloads (structural, file I/O, relational I/O, HTTP, run lifecycle).

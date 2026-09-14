@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description:
 
-:openvar: ${
-:closevar: }
 
 = Pipeline
 
@@ -49,8 +47,8 @@ See also:
 |Action name|Name of the action.
 |Pipeline|Specify your pipeline by entering in its path or clicking Browse.
 
-The selected pipelines will automatically converted to a path relative to your `{openvar}PROJECT_HOME{closevar}`. +
-For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/project/` and you select a pipeline `/home/admin/hop/project/subfolder/sub.hpl` than the path will automatically be converted to `{openvar}PROJECT_HOME{closevar}/subfolder/sub.hpl`.
+The selected pipelines will automatically converted to a path relative to your `+${PROJECT_HOME}+`. +
+For example, if your `+${PROJECT_HOME}+` is `/home/admin/hop/project/` and you select a pipeline `/home/admin/hop/project/subfolder/sub.hpl` than the path will automatically be converted to `+${PROJECT_HOME}/subfolder/sub.hpl+`.
 
 |Run Configuration|The pipeline can run in different types of xref:metadata-types/pipeline-run-config.adoc[pipeline configurations].
 Select the desired run configuration to control where and how the pipeline is executed.
@@ -116,8 +114,8 @@ Use Set variables if you want to pass a single value upstream from a pipeline to
 |Stream column name|Specify the field of an incoming record from a previous pipeline as the parameter.
 |Value|Specify pipeline parameter values through one of the following actions: +
 - Manually entering a value (ETL workflow for example). +
-- Using another parameter to set the value ({openvar}Internal.workflow.Name{closevar} for example). +
-- Using a combination of manually specified values and parameter values (\{openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt for example).
+- Using another parameter to set the value (+${Internal.workflow.Name}+ for example). +
+- Using a combination of manually specified values and parameter values (+${FILE_PREFIX}_${FILE_DATE}.txt+ for example).
 
 |Get Parameters|Get the existing parameters already associated by the pipeline.
 |===

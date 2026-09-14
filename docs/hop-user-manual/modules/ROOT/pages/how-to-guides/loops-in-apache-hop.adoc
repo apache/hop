@@ -17,8 +17,6 @@ under the License.
 [[Loops]]
 :imagesdir: ../../assets/images
 :description: This guide provides an overview of the various actions, transforms and ways to build loops in Apache Hop.
-:openvar: ${
-:closevar: }
 
 = Loops in Apache Hop
 
@@ -42,7 +40,7 @@ image:how-to-guides/loops-in-apache-hop/loops-copy-rows-to-result.png[Copy rows 
 
 Create 10 rows with a counter to loop over. Copy these rows to memory.
 
-Process each of the values in the loop individually. This example receives the loop value as a `${openvar}PRM_COUNTER${closevar}` parameter and prints it to the logs.
+Process each of the values in the loop individually. This example receives the loop value as a `+${PRM_COUNTER}+` parameter and prints it to the logs.
 
 image:how-to-guides/loops-in-apache-hop/loops-copy-rows-to-result-process-one-row.png[Copy rows to result - process one row, width="65%"]
 
@@ -218,7 +216,7 @@ The repeat action in itself is pretty simple: it requires a workflow or pipeline
 
 The action will continue to execute the specified workflow or pipeline until a condition is met: either a variable is set with an (optional) value, or an `End repeat` action is triggered in a child workflow.
 
-The example below runs a pipeline that increments a `${openvar}COUNTER${closevar}` variable with each run. If the variable values exceeds 10, a variable `${openvar}END_LOOP${closevar}` is set. This variable is detected by the Repeat action, and the loop stops.
+The example below runs a pipeline that increments a `+${COUNTER}+` variable with each run. If the variable values exceeds 10, a variable `+${END_LOOP}+` is set. This variable is detected by the Repeat action, and the loop stops.
 
 image:how-to-guides/loops-in-apache-hop/loops-repeat-action.png[Repeat Action, width="65%"]
 

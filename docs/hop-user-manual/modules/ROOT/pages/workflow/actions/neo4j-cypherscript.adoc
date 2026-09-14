@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Neo4j Cypher script action executes Cypher statements in a workflow.
 
-:openvar: ${
-:closevar: }
 
 = Neo4j Cypher script
 
@@ -47,7 +45,7 @@ The result of this action is a `true` or `false` exit code that determines if a 
 For examples see below.
 
 |Replace variables
-|Check this option if you want to replace variables in the format `{openvar}VARIABLE_NAME{closevar}` in the script prior to execution.
+|Check this option if you want to replace variables in the format `+${VARIABLE_NAME}+` in the script prior to execution.
 |===
 
 == Example

@@ -16,8 +16,6 @@ under the License.
 ////
 [[FieldsParametersVariables]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Fields, parameters, and variables are the three ways Apache Hop moves data and configuration. This page compares them, how they flow between pipelines and workflows, and the pitfalls that come up when they share a name.
 
 = Fields, parameters, and variables
@@ -69,7 +67,7 @@ Fields, parameters, and variables are available downstream when they are in scop
 |After the pipeline or workflow that should read them has started
 |===
 
-For the full variable reference (how to write `{openvar}NAME{closevar}`, hierarchy, resolvers, and the built-in names), see xref:variables.adoc[Variables].
+For the full variable reference (how to write `+${NAME}+`, hierarchy, resolvers, and the built-in names), see xref:variables.adoc[Variables].
 
 == Fields
 
@@ -93,7 +91,7 @@ NOTE: Copy rows to result as a way to build loops from a workflow is xref:how-to
 
 Think of parameters as function arguments. Declaring them on a pipeline is like writing `MyPipeline(parameter1, parameter2, ...)`. Each parameter has a name, an optional default, and an optional description (pipeline or workflow properties, *Parameters* tab).
 
-When the pipeline or workflow starts, each parameter is activated as a variable of the same name. From that point you can write `{openvar}MY_PARAM{closevar}` anywhere a variable is accepted. Use xref:pipeline/transforms/getvariable.adoc[Get variables] only when you need that value as a field in the stream.
+When the pipeline or workflow starts, each parameter is activated as a variable of the same name. From that point you can write `+${MY_PARAM}+` anywhere a variable is accepted. Use xref:pipeline/transforms/getvariable.adoc[Get variables] only when you need that value as a field in the stream.
 
 Rules that matter in practice:
 
@@ -113,7 +111,7 @@ Variables are more global than fields, and you choose the scope: the Java virtua
 
 Two practical kinds:
 
-* *Configuration variables* are set before execution: system properties, xref:projects/projects-environments.adoc[environment] files, project variables, run configurations, or `hop-run -p`. Any downstream workflow or pipeline can use `{openvar}myVariable{closevar}` directly. You do not need Get variables unless the value must become a field.
+* *Configuration variables* are set before execution: system properties, xref:projects/projects-environments.adoc[environment] files, project variables, run configurations, or `hop-run -p`. Any downstream workflow or pipeline can use `+${myVariable}+` directly. You do not need Get variables unless the value must become a field.
 * *Runtime variables* are set while a pipeline or workflow is running, usually with xref:pipeline/transforms/setvariable.adoc[Set Variables] or the xref:workflow/actions/setvariables.adoc[Set Variables] action. A running pipeline cannot pick up a new value that another transform in the *same* pipeline just set: all transforms start together. Set the variable, then start another pipeline or workflow (or let a Pipeline Executor start the child once per row). A nested pipeline that was already running is the same execution; it will not see the new value either.
 
 A variable can be visible "upstream" only when it was set with a wider scope than the child (for example *Valid in the parent* or *Valid in the root*).
@@ -131,7 +129,7 @@ The places you can define variables, and which level inherits from which, are li
 |Map the field on the caller's *Parameters* tab. Declare the same name on the child.
 
 |Pass a configuration value into everything
-|Set an environment, project, or run-configuration variable. Refer to `{openvar}NAME{closevar}` in any descendant.
+|Set an environment, project, or run-configuration variable. Refer to `+${NAME}+` in any descendant.
 
 |Use a variable as a field
 |xref:pipeline/transforms/getvariable.adoc[Get variables] in the pipeline that needs the field.
@@ -149,7 +147,7 @@ The places you can define variables, and which level inherits from which, are li
 == Common pitfalls
 
 * *Same name, different thing.* A field `customer_id`, a parameter `CUSTOMER_ID`, and a variable `CUSTOMER_ID` can all exist at once. The field is not the variable. Map it explicitly when you need the value in the other form.
-* *Declaring a parameter shields the child from a same-named variable.* A parameter is an input the child declares, so the child's default applies whenever nothing was passed to it - a project or environment variable of the same name does not fill it in by itself. If the child should pick up `HOSTNAME` from the environment, either tick *Pass parent values to matching parameters* on the caller, or list `HOSTNAME` on the caller's *Parameters* tab. Where a value is genuinely environment-wide, not declaring it as a parameter at all and just reading `{openvar}HOSTNAME{closevar}` is simpler.
+* *Declaring a parameter shields the child from a same-named variable.* A parameter is an input the child declares, so the child's default applies whenever nothing was passed to it - a project or environment variable of the same name does not fill it in by itself. If the child should pick up `HOSTNAME` from the environment, either tick *Pass parent values to matching parameters* on the caller, or list `HOSTNAME` on the caller's *Parameters* tab. Where a value is genuinely environment-wide, not declaring it as a parameter at all and just reading `+${HOSTNAME}+` is simpler.
 * *Do not set and read a variable in the same pipeline.* Transforms run in parallel. There is no guaranteed order, so the reader can see a previous run's value or nothing. This is the most common variable surprise.
 * *A pipeline that is already running will not see new variables.* Start a new pipeline (or a new executor iteration) after Set Variables. Parameters are the alternative when you need a value at start-up of each child.
 * *Get Parameters only sees one level.* If the name is declared two levels up, type it or copy it yourself.

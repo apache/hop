@@ -16,8 +16,6 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:openvar: ${
-:closevar: }
 :description: The Token replacement transform replaces tokens in an input string or file.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
@@ -31,7 +29,7 @@ The transform can then output this data either to a file or a field on the strea
 
 A token contains a start string, a name, and an end string.
 
-For example {openvar}my_token{closevar} could be a token.
+For example +${my_token}+ could be a token.
 
 The start string, and end string are configurable and can be any series of characters.
 

@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Formula transform allows you to apply Excel-like formulas (see [Apache POI](https://poi.apache.org/components/spreadsheet/eval-devguide.html)) and functions on fields in a pipeline (Not Java or Javascript Formulas).
 
-:openvar: ${
-:closevar: }
 
 // supported functions are available at the link below.
 // also check plugins/transforms/formula/src/main/resources/functions.xml for the list of functions
@@ -93,7 +91,7 @@ NOTE: `#N/A` is the exception: it means "no value available" and is written to t
 |Option|Description
 |transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
 |New Field|the name of the new field that will be created from the formula. The Formula transform requires a data row to create a new field (if using a transform that queries for rows, you will have to preview it first to generate a row). You can add a row generator with a single row as the first transform in your pipeline.
-|Formula|To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax {openvar}param1{closevar}. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: `CONCATENATE([field1], “{openvar}Param1{closevar}”)`.
+|Formula|To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax +${param1}+. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: `+CONCATENATE([field1], “${Param1}”)+`.
 
 * Note: You may have to add quotes around variables in formulas as variables have no type.
 |Value type|the data type for the new formula field

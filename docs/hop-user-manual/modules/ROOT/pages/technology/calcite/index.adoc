@@ -36,7 +36,7 @@ Click the button to pretty-print the selection, or the whole buffer when nothing
 Undo (Ctrl+Z / Cmd+Z) restores the SQL from before the format.
 In a Database SQL editor the formatter picks a Calcite dialect from the tab's relational connection (MySQL, PostgreSQL, Oracle, SQL Server, and others).
 Quoted identifiers are accepted in PostgreSQL/ANSI double quotes (`"public".table`), MySQL backticks, and SQL Server brackets.
-Hop variable expressions such as `'${TABLE_NAME}'` are preserved.
+Hop variable expressions such as `+'${TABLE_NAME}'+` are preserved.
 
 IMPORTANT: Comments are removed during formatting, unless you select all text except for the comments.
 

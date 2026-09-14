@@ -52,7 +52,7 @@ Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (wor
 |Polls `jobs/runs/get` until the run is terminal (`SUCCESS`, `FAILED`, …) or **Timeout** is reached (0 = no limit).
 
 |Fire and forget
-|Returns as soon as the run is accepted; does not poll. Pair with xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait] later in the workflow (using `${DatabricksRunId}`).
+|Returns as soon as the run is accepted; does not poll. Pair with xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait] later in the workflow (using `+${DatabricksRunId}+`).
 |===
 
 If the parent workflow is stopped while waiting, the action attempts to cancel the Databricks run.
@@ -112,7 +112,7 @@ Default variable names (configurable on the **Run** tab):
 |Deploy mode: local fat jar (prefer `hop-conf --generate-fat-jar … --spark-client-version=native-provided`), entry pipeline path, and Native Spark run configuration name present in the metadata export (or project package)
 
 |DBFS / Volume base directory
-|Upload root for deploy artifacts. Fat jar: content-addressed `hop-native-<sha12>.jar` (+ `.sha256` sidecar) so Databricks job libraries refresh when jar bytes change (fixed-name overwrite is not enough on long-lived Dedicated clusters — see xref:pipeline/spark/databricks.adoc#lesson-fat-jar-library-uri[Databricks lessons]). Per entry pipeline stem: `pipeline-{stem}.hpl`, `metadata-{stem}.json`, `hop-spark-package-{stem}.zip`, `env-config-{stem}.json`. Prefer a Unity Catalog volume when public DBFS root is disabled, e.g. `/Volumes/catalog/schema/volume/hop`.
+|Upload root for deploy artifacts. Fat jar: content-addressed `hop-native-<sha12>.jar` (+ `.sha256` sidecar) so Databricks job libraries refresh when jar bytes change (fixed-name overwrite is not enough on long-lived Dedicated clusters — see xref:pipeline/spark/databricks.adoc#lesson-fat-jar-library-uri[Databricks lessons]). Per entry pipeline stem: `+pipeline-{stem}.hpl+`, `+metadata-{stem}.json+`, `+hop-spark-package-{stem}.zip+`, `+env-config-{stem}.json+`. Prefer a Unity Catalog volume when public DBFS root is disabled, e.g. `/Volumes/catalog/schema/volume/hop`.
 |===
 
 === Package tab

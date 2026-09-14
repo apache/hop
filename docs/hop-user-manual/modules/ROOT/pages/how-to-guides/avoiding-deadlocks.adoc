@@ -17,8 +17,6 @@ under the License.
 [[AvoidingDeadlocks]]
 :imagesdir: ../../assets/images
 :description: This guide provides an overview of strategies to avoid deadlocks in Apache Hop.
-:openvar: ${
-:closevar: }
 
 = Avoiding Deadlocks
 

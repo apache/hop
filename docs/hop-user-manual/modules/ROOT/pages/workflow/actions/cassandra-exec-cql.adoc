@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Cassandra Exec CQL action executes one or more CassandraQL statements on a Cassandra cluster.
 
-:openvar: ${
-:closevar: }
 
 = Cassandra Exec CQL
 

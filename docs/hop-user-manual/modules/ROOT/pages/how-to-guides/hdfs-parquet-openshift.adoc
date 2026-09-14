@@ -43,9 +43,9 @@ Ranger still applies: the Kerberos principal on the keytab must be allowed to wr
 Create metadata `HdfsConnectionDefinition` named for example `cdp`:
 
 * Transport: HttpFS
-* Endpoint: `'${HDFS_HTTPFS_HOST}'` / `'${HDFS_HTTPFS_PORT}'`
+* Endpoint: `+'${HDFS_HTTPFS_HOST}'+` / `+'${HDFS_HTTPFS_PORT}'+`
 * HTTPS as required by Auto-TLS; trust material can be the CDP `ca.pem` (or a JKS/PKCS12)
-* Kerberos enabled, principal `'${HDFS_PRINCIPAL}'`, keytab `/var/run/secrets/hdfs/hop.keytab`
+* Kerberos enabled, principal `+'${HDFS_PRINCIPAL}'+`, keytab `/var/run/secrets/hdfs/hop.keytab`
 
 == 4. Pipeline
 

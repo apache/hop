@@ -57,7 +57,7 @@ Supported operations:
 *Redis key* and *Hash field* are editable combo boxes: pick an upstream field name or type a value.
 
 . If the text matches an incoming stream field name, Redis uses *that field's value* from the current row.
-. Otherwise the text is treated as a literal (variables such as `${PREFIX}:user` are resolved).
+. Otherwise the text is treated as a literal (variables such as `+${PREFIX}:user+` are resolved).
 
 == Options
 
@@ -68,7 +68,7 @@ Supported operations:
 |Name of the Redis connection metadata
 
 |Fields table
-|One or more read mappings (see below). Use *Get fields* to add one mapping per upstream field (defaults: data structure `STRING`, Redis key = field name, value field = `{fieldName}Value`, codecs `STRING`, hash columns empty, list start/stop `0` / `-1`).
+|One or more read mappings (see below). Use *Get fields* to add one mapping per upstream field (defaults: data structure `STRING`, Redis key = field name, value field = `+{fieldName}Value+`, codecs `STRING`, hash columns empty, list start/stop `0` / `-1`).
 
 |===
 
