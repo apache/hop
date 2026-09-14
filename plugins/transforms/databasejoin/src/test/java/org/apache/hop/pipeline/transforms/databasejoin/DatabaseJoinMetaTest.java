@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.databasejoin;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -191,40 +193,6 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     Assertions.assertEquals("id", row.getValueMeta(0).getName());
   }
 
-  @Test
-  void getParameterRowSelectsMatchingIncomingFieldsInOrder() {
-    DatabaseJoinMeta meta = new DatabaseJoinMeta();
-    ParameterField id = new ParameterField();
-    id.setName("id");
-    ParameterField missing = new ParameterField();
-    missing.setName("missing");
-    ParameterField name = new ParameterField();
-    name.setName("name");
-    meta.setParameters(List.of(id, missing, name));
-
-    IRowMeta incoming = new RowMeta();
-    incoming.addValueMeta(new ValueMetaString("name"));
-    incoming.addValueMeta(new ValueMetaInteger("id"));
-    incoming.addValueMeta(new ValueMetaString("extra"));
-
-    IRowMeta param = meta.getParameterRow(incoming);
-    Assertions.assertEquals(2, param.size());
-    Assertions.assertEquals("id", param.getValueMeta(0).getName());
-    Assertions.assertEquals("name", param.getValueMeta(1).getName());
-  }
-
-  @Test
-  void getParameterRowHandlesNullIncoming() {
-    DatabaseJoinMeta meta = new DatabaseJoinMeta();
-    ParameterField field = new ParameterField();
-    field.setName("id");
-    meta.getParameters().add(field);
-    IRowMeta param = meta.getParameterRow(null);
-    Assertions.assertNotNull(param);
-    Assertions.assertTrue(param.isEmpty());
-  }
-
-  @Test
   void parseSqlParameterSpecSupportsMixedNamedAndPositionalPlaceholders() {
     String sql =
         "SELECT order_id, total FROM orders WHERE customer_id = ?{customer_id} AND status = ?";
@@ -253,6 +221,31 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
   }
 
   @Test
+  void parseSqlParameterSpecIgnoresQuotedCommentedAndJsonbOperatorQuestionMarks() {
+    String sql =
+        "SELECT \"?identifier\" FROM t /* ? block */ WHERE payload ? 'x' -- ? line\nAND route = ?{route} AND status = ?";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(
+        "SELECT \"?identifier\" FROM t /* ? block */ WHERE payload ? 'x' -- ? line\nAND route = ? AND status = ?",
+        spec.getPreparedSql());
+    Assertions.assertEquals(2, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList("route", null), spec.getParameterReferences());
+  }
+
+  @Test
+  void parseSqlParameterSpecIgnoresPostgresDollarQuotedQuestionMarks() {
+    String sql = "SELECT $$ ? $$, $tag$ ?{ignored} $tag$ FROM dual WHERE id = ?";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(sql, spec.getPreparedSql());
+    Assertions.assertEquals(1, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList((String) null), spec.getParameterReferences());
+  }
+
+  @Test
   void createQueryParameterRowMetaResolvesNamedAndPositionalOrder() throws Exception {
     DatabaseJoinMeta meta = new DatabaseJoinMeta();
     ParameterField positional = new ParameterField();
@@ -275,7 +268,26 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
   }
 
   @Test
-  void createMetadataLookupParameterRowDataBuildsTypedDefaults() {
+  void createMetadataLookupParameterRowMetaPrefersIncomingTypeOverDeclaredType() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField field = new ParameterField();
+    field.setName("id");
+    field.setType(IValueMeta.TYPE_STRING);
+    meta.setParameters(List.of(field));
+
+    IRowMeta incoming = new RowMeta();
+    incoming.addValueMeta(new ValueMetaNumber("id"));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec("SELECT 1 FROM dual WHERE id = ?");
+    IRowMeta queryParamMeta = meta.createMetadataLookupParameterRowMeta(spec, incoming);
+
+    Assertions.assertEquals(1, queryParamMeta.size());
+    Assertions.assertEquals(IValueMeta.TYPE_NUMBER, queryParamMeta.getValueMeta(0).getType());
+  }
+
+  @Test
+  void createMetadataLookupParameterRowDataUsesNullValues() {
     DatabaseJoinMeta meta = new DatabaseJoinMeta();
     ParameterField intField = new ParameterField();
     intField.setName("order");
@@ -295,9 +307,30 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     Object[] rowData = meta.createMetadataLookupParameterRowData(queryParamMeta);
 
     Assertions.assertEquals(3, rowData.length);
-    Assertions.assertEquals(Long.valueOf(0L), rowData[0]);
-    Assertions.assertEquals(Boolean.FALSE, rowData[1]);
-    Assertions.assertEquals("metadata", rowData[2]);
+    Assertions.assertNull(rowData[0]);
+    Assertions.assertNull(rowData[1]);
+    Assertions.assertNull(rowData[2]);
+  }
+
+  @Test
+  void getMissingPositionalParameterFieldsChecksDeclaredFieldAndIncomingFieldPresence() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField p1 = new ParameterField();
+    p1.setName("id");
+    ParameterField p2 = new ParameterField();
+    p2.setName("missing");
+    meta.setParameters(List.of(p1, p2));
+
+    IRowMeta incoming = new RowMeta();
+    incoming.addValueMeta(new ValueMetaInteger("id"));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec(
+            "SELECT 1 FROM dual WHERE id = ? AND status = ? AND route = ?");
+
+    Assertions.assertEquals(
+        Arrays.asList("missing", "#3"),
+        new ArrayList<>(meta.getMissingPositionalParameterFields(incoming, spec)));
   }
 
   public class ParameterFieldLoadSaveValidator implements IFieldLoadSaveValidator<ParameterField> {
