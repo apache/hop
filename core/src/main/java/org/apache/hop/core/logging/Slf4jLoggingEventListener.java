@@ -31,8 +31,18 @@ import java.util.function.Function;
 import org.apache.hop.core.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
+
+  /** MDC key holding the Hop channel id associated with the log record. */
+  public static final String MDC_CHANNEL_ID = "hop.logChannelId";
+
+  /** MDC key holding the Hop log level code associated with the log record. */
+  public static final String MDC_LOG_LEVEL = "hop.logLevel";
+
+  /** MDC key holding the (detailed) subject associated with the log record. */
+  public static final String MDC_SUBJECT = "hop.subject";
 
   @VisibleForTesting
   Logger pipelineLogger = LoggerFactory.getLogger("org.apache.hop.pipeline.Pipeline");
@@ -56,25 +66,40 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
     checkNotNull(messageObject, "Expected log message to be defined.");
     if (messageObject instanceof LogMessage message) {
       ILoggingObject loggingObject = logObjProvider.apply(message.getLogChannelId());
+      String subject = subjectOf(loggingObject, message);
 
-      if (loggingObject == null) {
-        // this can happen if logObject has been discarded while log events are still in flight.
-        logToLogger(
-            hopLogger,
-            message.getLevel(),
-            message.getSubject() + " " + message.getMessage(),
-            message.getThrowable());
-      } else if (loggingObject.getObjectType() == PIPELINE
-          || loggingObject.getObjectType() == TRANSFORM
-          || loggingObject.getObjectType() == DATABASE) {
-        logToLogger(pipelineLogger, message.getLevel(), loggingObject, message);
-      } else if (loggingObject.getObjectType() == WORKFLOW
-          || loggingObject.getObjectType() == ACTION) {
-        logToLogger(workflowLogger, message.getLevel(), loggingObject, message);
-      } else {
-        logToLogger(hopLogger, message.getLevel(), loggingObject, message);
+      // Publish the Hop context as MDC so custom log4j2 appenders (agent, collector, Kafka, ...)
+      // can correlate records and preserve the 7 native Hop levels regardless of how many SLF4J
+      // levels the backing provider exposes.
+      try (MDC.MDCCloseable channel = MDC.putCloseable(MDC_CHANNEL_ID, message.getLogChannelId());
+          MDC.MDCCloseable level = MDC.putCloseable(MDC_LOG_LEVEL, message.getLevel().getCode());
+          MDC.MDCCloseable ignored = MDC.putCloseable(MDC_SUBJECT, subject)) {
+        if (loggingObject == null) {
+          // this can happen if logObject has been discarded while log events are still in flight.
+          logToLogger(
+              hopLogger,
+              message.getLevel(),
+              message.getSubject() + " " + message.getMessage(),
+              message.getThrowable());
+        } else if (loggingObject.getObjectType() == PIPELINE
+            || loggingObject.getObjectType() == TRANSFORM
+            || loggingObject.getObjectType() == DATABASE) {
+          logToLogger(pipelineLogger, message.getLevel(), loggingObject, message);
+        } else if (loggingObject.getObjectType() == WORKFLOW
+            || loggingObject.getObjectType() == ACTION) {
+          logToLogger(workflowLogger, message.getLevel(), loggingObject, message);
+        } else {
+          logToLogger(hopLogger, message.getLevel(), loggingObject, message);
+        }
       }
     }
+  }
+
+  private String subjectOf(ILoggingObject loggingObject, LogMessage message) {
+    if (loggingObject == null) {
+      return message.getSubject();
+    }
+    return getDetailedSubject(loggingObject);
   }
 
   private void logToLogger(

@@ -49,6 +49,38 @@ String logText =
 The second argument clears the buffer as it is read.
 This is the same path a `logBasic()` call from a xref:manual::pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class] takes: the transform's own channel, the same store.
 
+=== SLF4J and the Log4j2 binding
+
+The log records hop writes to the store are mirrored to SLF4J by `Slf4jLoggingEventListener` and, in turn, to Log4j2 through the `log4j-slf4j2-impl` binding.
+The binding is a configuration concern, not a Hop one: bring your own `log4j2.xml` (or `logback.xml`, or JUL) on the classpath and the stack emits whatever the provider expects, without touching Hop code.
+A minimal `log4j2.xml` is shipped so text logs are visible out of the box.
+
+`LogChannel` keeps feeding `HopLogStore` synchronously regardless of the binding, so the GUI, the execution information location and the server keep working even when the external logger is reconfigured.
+
+==== Hop context as MDC
+
+While dispatching a record, the listener publishes the Hop execution context to the SLF4J MDC so custom appenders (agent, collector, Kafka, OpenTelemetry) can correlate records without parsing the message text.
+
+[opts="header",cols="2,2,6"]
+|===
+|MDC key |Example |Meaning
+
+|`hop.logChannelId`
+|`04f3…`
+|The Hop channel id of the record, the same key used to look the line up in `HopLogStore`.
+
+|`hop.logLevel`
+|`7`
+|The native Hop log level code of the record, preserving all seven Hop levels even though SLF4J exposes five.
+
+|`hop.subject`
+|`/opt/import/pipeline.hpl`
+|The detailed subject of the log object, normally the pipeline or workflow filename.
+|===
+
+The keys are also exposed as constants on `Slf4jLoggingEventListener`: `MDC_CHANNEL_ID`, `MDC_LOG_LEVEL` and `MDC_SUBJECT`.
+MDC is scoped to a single dispatch and is cleared once the record is handed to SLF4J, so it never leaks to another thread.
+
 == Attaching a debugger
 
 The launcher scripts in the distribution read `HOP_OPTIONS`, and each ships with a commented-out JDWP line:
