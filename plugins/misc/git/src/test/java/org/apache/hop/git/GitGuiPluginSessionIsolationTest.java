@@ -17,10 +17,13 @@
 
 package org.apache.hop.git;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import org.apache.hop.git.config.GitConfigSingleton;
 import org.junit.jupiter.api.Test;
 
 class GitGuiPluginSessionIsolationTest {
@@ -51,5 +54,89 @@ class GitGuiPluginSessionIsolationTest {
         assertFalse(Modifier.isStatic(field.getModifiers()));
       }
     }
+  }
+
+  @Test
+  void gitPerspectiveIsNotAProcessWideStaticSingletonField() {
+    for (Field field : GitPerspective.class.getDeclaredFields()) {
+      if ("instance".equals(field.getName())) {
+        assertFalse(
+            Modifier.isStatic(field.getModifiers()),
+            "GitPerspective must not keep a process-wide static instance field");
+      }
+    }
+  }
+
+  @Test
+  void gitCommitPerspectiveIsNotAProcessWideStaticSingletonField() {
+    for (Field field : GitCommitPerspective.class.getDeclaredFields()) {
+      if ("instance".equals(field.getName())) {
+        assertFalse(
+            Modifier.isStatic(field.getModifiers()),
+            "GitCommitPerspective must not keep a process-wide static instance field");
+      }
+    }
+  }
+
+  @Test
+  void gitCommitPerspectiveUninitializedIsSafe() {
+    GitCommitPerspective perspective = new GitCommitPerspective();
+    assertFalse(perspective.isInitialized());
+    assertDoesNotThrow(perspective::activate);
+    assertDoesNotThrow(perspective::perspectiveActivated);
+    assertDoesNotThrow(perspective::retrieveState);
+    assertDoesNotThrow(perspective::saveState);
+    assertDoesNotThrow(perspective::refresh);
+    assertDoesNotThrow(perspective::updateGui);
+    assertDoesNotThrow(perspective::selectAllChanged);
+    assertDoesNotThrow(perspective::addFilesToGit);
+    assertDoesNotThrow(perspective::unstageFiles);
+    assertDoesNotThrow(perspective::addFilesToGitIgnore);
+    assertDoesNotThrow(perspective::deleteFiles);
+    assertDoesNotThrow(perspective::restoreFiles);
+    assertDoesNotThrow(perspective::showTextDiff);
+    assertDoesNotThrow(perspective::showGraphDiff);
+    assertDoesNotThrow(() -> perspective.commitFiles(false));
+  }
+
+  @Test
+  void gitPerspectiveUninitializedIsSafe() {
+    GitPerspective perspective = new GitPerspective();
+    assertFalse(perspective.isInitialized());
+    assertDoesNotThrow(perspective::activate);
+    assertDoesNotThrow(perspective::perspectiveActivated);
+    assertDoesNotThrow(() -> perspective.refresh());
+    assertDoesNotThrow(() -> perspective.refresh(true));
+    assertDoesNotThrow(perspective::updateGui);
+    assertDoesNotThrow(perspective::clearGitUiState);
+    assertDoesNotThrow(perspective::clearSearchFilters);
+    assertDoesNotThrow(perspective::copyRevisionId);
+    assertDoesNotThrow(perspective::copyPath);
+    assertDoesNotThrow(perspective::resetToCommit);
+    assertDoesNotThrow(perspective::revertCommit);
+    assertDoesNotThrow(perspective::revertFile);
+    assertDoesNotThrow(perspective::cherryPickCommit);
+    assertDoesNotThrow(perspective::cherryPickFile);
+    assertDoesNotThrow(perspective::checkoutReference);
+    assertDoesNotThrow(perspective::checkoutCommit);
+    assertDoesNotThrow(perspective::addTag);
+    assertDoesNotThrow(perspective::addBranchFromCommit);
+    assertDoesNotThrow(perspective::addBranchFromRef);
+    assertDoesNotThrow(perspective::mergeBranch);
+    assertDoesNotThrow(perspective::fetch);
+    assertDoesNotThrow(perspective::pull);
+    assertDoesNotThrow(perspective::push);
+    assertDoesNotThrow(perspective::pushReference);
+    assertDoesNotThrow(perspective::renameReference);
+    assertDoesNotThrow(perspective::deleteReference);
+    assertDoesNotThrow(perspective::showAllRef);
+    assertDoesNotThrow(perspective::showTextDiff);
+    assertDoesNotThrow(perspective::showGraphDiff);
+  }
+
+  @Test
+  void gitConfigSingletonThreadSafe() {
+    assertNotNull(GitConfigSingleton.getInstance());
+    assertNotNull(GitConfigSingleton.getConfig());
   }
 }
