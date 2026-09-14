@@ -48,6 +48,6 @@ The transform uses https://github.com/google/libphonenumber[Google libphonenumbe
 
 TIP: If the original phone number already has an international area code, this transform will not normalize it to another country even if the international area code is different from the country input’s international area code.
 
-TIP: Output, number type, and is-valid field names may contain variables (for example `${OUTPUT_FIELD}`).
+TIP: Output, number type, and is-valid field names may contain variables (for example `+${OUTPUT_FIELD}+`).
 
 TIP: If a number cannot be parsed, the original value is written to the output field, the number type is `ERROR`, and is-valid is `false`. Numbers that parse but are not valid (for example a too-short national number) are still formatted; use the is-valid field to filter them.

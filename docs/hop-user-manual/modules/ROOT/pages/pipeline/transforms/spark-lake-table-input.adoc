@@ -89,7 +89,7 @@ This transform is **not** available on the local Hop engine or on Beam engines. 
 |SQL `TIMESTAMP AS OF TIMESTAMP '…'`
 |===
 
-Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `{table}.snapshots` (or catalog metadata) for snapshot ids.
+Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `+{table}.snapshots+` (or catalog metadata) for snapshot ids.
 
 == Metadata injection
 

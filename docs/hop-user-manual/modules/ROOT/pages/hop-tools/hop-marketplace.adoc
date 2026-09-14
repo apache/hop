@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Install optional Hop plugins from Apache Repository / Maven Central
-:openvar: ${
-:closevar: }
 
 :TOC:
 
@@ -165,7 +163,7 @@ Happy path:
 
 . *New*
 . Add plugins (*From catalog…*)
-. *Save As…* `{openvar}PROJECT_HOME{closevar}/hop-env.yaml` (default folder is the active project home)
+. *Save As…* `+${PROJECT_HOME}/hop-env.yaml+` (default folder is the active project home)
 . *Validate*, then *Apply*, then restart Hop
 
 `full-client-env.yaml` at the install root is a generated list of every optional plugin. A banner says so; use *Apply* to restore the fat client, or *Save As* into a project for a custom set.
@@ -217,7 +215,7 @@ image::marketplace/marketplace-environment-drift.png[Marketplace environment dri
 
 image::marketplace/marketplace-dialog-repositories.png[Marketplace dialog Repositories tab,75%,align="left"]
 
-Configure the global marketplace repository list (stored under `marketplace` in `${HOP_CONFIG_FOLDER}/hop-config.json` — the same config the CLI uses):
+Configure the global marketplace repository list (stored under `marketplace` in `+${HOP_CONFIG_FOLDER}/hop-config.json+` — the same config the CLI uses):
 
 * Table columns: *Primary*, *Enabled*, *Id*, *Name*, *URL*, *Auth*
 * *Add* / *Edit* / *Remove* — maintain repository entries
@@ -560,7 +558,7 @@ Installing works against any Maven repository, because downloads use plain Maven
 |Value|Endpoint used|Repository manager
 |`auto` (default)|detected from the URL|any of the below
 |`nexus`|`/service/rest/v1/search`|Sonatype Nexus 3
-|`forgejo`|`/api/v1/packages/{owner}`|Forgejo, Gitea
+|`forgejo`|`+/api/v1/packages/{owner}+`|Forgejo, Gitea
 |`jfrog`|`/api/search/aql` or `/api/storage`|JFrog Artifactory
 |===
 
@@ -573,7 +571,7 @@ On Forgejo, packages are named `groupId:artifactId` and each candidate version i
 Artifactory has two usable listing APIs and Hop picks between them:
 
 * When credentials resolve, it uses *AQL* (`POST /api/search/aql`), which finds every plugin zip in the repository in one request. AQL requires an authenticated user, so it is not attempted anonymously.
-* Otherwise — and whenever AQL is refused, for a token without that permission or an instance where it is disabled — it *walks the repository* with `GET /api/storage/{repo}/{path}`, one request per folder, stopping at each folder that holds a zip. This works for any user with read access, anonymous included.
+* Otherwise — and whenever AQL is refused, for a token without that permission or an instance where it is disabled — it *walks the repository* with `+GET /api/storage/{repo}/{path}+`, one request per folder, stopping at each folder that holds a zip. This works for any user with read access, anonymous included.
 
 The File List API (`?list&deep=1`) would be a better fit than either, but it is an Artifactory Pro feature and is not used.
 
@@ -604,7 +602,7 @@ Plugin zips do not have to be served from a Maven repository at all. Set `urlTem
 urlTemplate: https://forge.example.org/acme/dist/releases/download/v${version}/${artifactId}-${version}.zip
 ----
 
-Supported placeholders are `${groupId}`, `${groupPath}` (groupId with dots replaced by slashes), `${artifactId}` and `${version}`; an unrecognised placeholder is reported as an error instead of producing a confusing 404. When `urlTemplate` is set, the repository `url` is not used for plugin downloads.
+Supported placeholders are `+${groupId}+`, `+${groupPath}+` (groupId with dots replaced by slashes), `+${artifactId}+` and `+${version}+`; an unrecognised placeholder is reported as an error instead of producing a confusing 404. When `urlTemplate` is set, the repository `url` is not used for plugin downloads.
 
 Such a host serves no Maven metadata, so versions must be exact: combine `urlTemplate` with a `catalogUrl` that pins each version. SNAPSHOT resolution does not apply, and live browsing cannot list release assets.
 

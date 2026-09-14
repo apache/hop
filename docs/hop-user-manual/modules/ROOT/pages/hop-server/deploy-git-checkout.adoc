@@ -16,8 +16,6 @@ under the License.
 ////
 [[DeployGitCheckout]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: Clone a Hop project onto the server host, start Hop Server against that folder, and update with git pull.
 
 = Git checkout on the server
@@ -66,7 +64,7 @@ The project name is taken from that environment; you do not pass `-j`.
 hop-server.sh -e prod /etc/hop/hop-server.xml
 ----
 
-If `hop-server.xml` lives in the project, the projects plugin resolves it relative to `{openvar}PROJECT_HOME{closevar}` (see xref:hop-server/index.adoc#_start_hop_server_with_a_configuration_file[Start Hop Server with a configuration file]).
+If `hop-server.xml` lives in the project, the projects plugin resolves it relative to `+${PROJECT_HOME}+` (see xref:hop-server/index.adoc#_start_hop_server_with_a_configuration_file[Start Hop Server with a configuration file]).
 Prefer keeping the server XML and the environment JSON *outside* the clone.
 
 A systemd unit is in the Hop repository at `docs/hop-user-manual/modules/ROOT/assets/files/hop-server/hop-server.service`.

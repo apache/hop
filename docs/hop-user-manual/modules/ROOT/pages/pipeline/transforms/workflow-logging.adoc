@@ -17,8 +17,6 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: The workflow logging transform gives you detailed logging information about a workflow and its actions.
-:openvar: ${
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:icons/workflow-log.svg[Workflow logging transform Icon, role="image-doc-icon"] Workflow logging

@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Workflow action executes a previously defined workflow from the current workflow.
 
-:openvar: ${
-:closevar: }
 
 = Workflow
 
@@ -53,9 +51,9 @@ See also:
 |Action name|Name of the action.
 |Workflow Filename a|Specify the XML file name of the workflow to execute. Click to browse through your local files.
 
-The selected workflow will automatically converted to a path relative to your `{openvar}PROJECT_HOME{closevar}`.
+The selected workflow will automatically converted to a path relative to your `+${PROJECT_HOME}+`.
 
-For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/project/` and you select a workflow `/home/admin/hop/project/subfolder/sub.hwf` than the path will automatically be converted to `{openvar}PROJECT_HOME{closevar}/subfolder/sub.hwf`.
+For example, if your `+${PROJECT_HOME}+` is `/home/admin/hop/project/` and you select a workflow `/home/admin/hop/project/subfolder/sub.hwf` than the path will automatically be converted to `+${PROJECT_HOME}/subfolder/sub.hwf+`.
 
 |Run configuration a|The xref:metadata-types/workflow-run-config.adoc[workflow run configuration] to use for this workflow action.  
 |===
@@ -120,8 +118,8 @@ a|Allows you to specify the values for the sub-workflow's parameters.
 You can do this by:
 
 * Manually typing some text (Ex: ETL workflow)
-* Using a parameter to set the value (Ex: `{openvar}Internal.workflow.Name{closevar}`)
-* Using a combination of manually specified text and parameter values (Ex: `{openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt`)
+* Using a parameter to set the value (Ex: `+${Internal.workflow.Name}+`)
+* Using a combination of manually specified text and parameter values (Ex: `+${FILE_PREFIX}_${FILE_DATE}.txt+`)
 
 |===
 

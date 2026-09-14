@@ -35,7 +35,7 @@ Rows are passed through unchanged so you can keep using the stream after the wri
 |Option|Description
 |Transform name|The name of this transform
 |Data set name|The name of the data set to write to. Select an existing data set or type a new name when (re)creating.
-|Folder name|Optional folder for the CSV file. Leave empty to use `'${HOP_DATASETS_FOLDER}'`.
+|Folder name|Optional folder for the CSV file. Leave empty to use `+'${HOP_DATASETS_FOLDER}'+`.
 |CSV filename|Base filename of the data set CSV file. Leave empty to use the data set name with a `.csv` extension when (re)creating, or the filename stored on an existing data set.
 |(Re)create data set|When enabled, the transform creates or overwrites the data set metadata from the incoming row metadata, then writes the CSV (including a header-only file when the stream is empty).
 |Validate against existing data set|When (re)create is disabled, load the existing data set and fail if the incoming field count, names (same order, case-insensitive) or types do not match. Extra input fields are ignored when validation is off; missing data set fields are written empty.

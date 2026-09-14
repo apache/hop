@@ -125,7 +125,7 @@ Below is a table detailing parameters specific to individual language model APIs
 |API Key/AccessToken
 | Unique access value used to authenticate and authorise access to the endpoint service. The value
 is masked in the dialog and stored encrypted in the pipeline, unless it is a variable such as
-`'${OPENAI_API_KEY}'`, which is stored as it stands so it can be resolved at run time.
+`+'${OPENAI_API_KEY}'+`, which is stored as it stands so it can be resolved at run time.
 
 |Model Name
 |Identifies which specific model to use.

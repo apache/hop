@@ -16,8 +16,6 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:openvar: ${
-:closevar: }
 :description: The OData input transform retrieves data from OData V2 and V4 service endpoints.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
@@ -29,7 +27,7 @@ The OData input transform enables you to query OData (Open Data Protocol) servic
 
 This transform is an input transform: it issues GET requests against an Entity Set and streams each entity as a Hop row. JSON properties are mapped with an *OData Path*. Pagination follows `@odata.nextLink` (OData V4) and `__next` (OData V2), including relative next-link URLs.
 
-The Connection, Query, and Fields values all accept Hop variables (`{openvar}VARIABLE{closevar}`).
+The Connection, Query, and Fields values all accept Hop variables (`+${VARIABLE}+`).
 
 == Connection Options
 

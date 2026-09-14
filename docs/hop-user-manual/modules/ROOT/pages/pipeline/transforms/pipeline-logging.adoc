@@ -17,8 +17,6 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: The pipeline logging transform gives you detailed logging information about a pipeline and its transforms.
-:openvar: ${
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:icons/pipeline-log.svg[Pipeline logging transform Icon, role="image-doc-icon"] Pipeline logging

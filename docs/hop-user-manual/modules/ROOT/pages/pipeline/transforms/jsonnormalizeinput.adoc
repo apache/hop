@@ -17,8 +17,6 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The JSON Normalize Input transform.
-:openvar: ${
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 
@@ -70,9 +68,9 @@ Sample pipelines and data ship with the JSON transforms plugin under `plugins/tr
 * `transforms/json-normalize-orders.hpl` with `data/json-normalize-orders.json` — nested `orders` array.
 * `transforms/json-normalize-root-array.hpl` with `data/json-normalize-events.json` — root-level array.
 * `transforms/json-normalize-complex-transactions.hpl` with `data/json-normalize-complex-transactions.json` — larger file with many columns and rows.
-* `transforms/json-normalize-hop-config-layers.hpl` reads `{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json` — wide row from the root object (arrays as JSON text), then parallel branches that normalize `variables`, lifecycle environments, and project configurations from those strings. Point `HOP_CONFIG_FOLDER` at your real Hop config folder, or use the fixture under `integration-tests/json/resources/hop-config-layers-it/` to try the shape offline.
+* `transforms/json-normalize-hop-config-layers.hpl` reads `+${HOP_CONFIG_FOLDER}/hop-config.json+` — wide row from the root object (arrays as JSON text), then parallel branches that normalize `variables`, lifecycle environments, and project configurations from those strings. Point `HOP_CONFIG_FOLDER` at your real Hop config folder, or use the fixture under `integration-tests/json/resources/hop-config-layers-it/` to try the shape offline.
 
-Pipeline unit tests in `integration-tests/json/` (`0008`–`0011`) exercise these scenarios in CI, including `0011-json-normalize-hop-config-layers.hpl` for `{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json` with parallel branches.
+Pipeline unit tests in `integration-tests/json/` (`0008`–`0011`) exercise these scenarios in CI, including `0011-json-normalize-hop-config-layers.hpl` for `+${HOP_CONFIG_FOLDER}/hop-config.json+` with parallel branches.
 
 == Options
 

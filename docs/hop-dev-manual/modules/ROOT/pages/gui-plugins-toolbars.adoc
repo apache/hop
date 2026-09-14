@@ -403,7 +403,7 @@ plugins/.../src/main/resources/org/example/myplugin/messages/messages_en_US.prop
 MyClass.MyButton.ToolTip=Pretty-print JSON
 ----
 
-Escape variable-like tokens in properties with single quotes when needed (`'${VAR}'`) so they are not treated as interpolation.
+Escape variable-like tokens in properties with single quotes when needed (`+'${VAR}'+`) so they are not treated as interpolation.
 
 == Checklist for a new toolbar contribution
 

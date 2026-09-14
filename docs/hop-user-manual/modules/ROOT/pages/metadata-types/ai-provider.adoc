@@ -16,8 +16,6 @@ under the License.
 ////
 :documentationPath: /metadata-types/
 :language: en_US
-:openvar: ${
-:closevar: }
 :description: Named AI provider (model and credentials) used by the AI Assistant and optionally by Language Model Chat.
 
 = AI Provider
@@ -37,7 +35,7 @@ The xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] uses these objects as
 Global configuration only stores the enable flag and the default provider *name*.
 
 Do *not* paste a live API key into this metadata object.
-Set `{openvar}AI_API_KEY{closevar}` (or a similar name containing `PASSWORD`, `SECRET` or `TOKEN`) in an xref:projects/projects-environments.adoc[environment] configuration file, or better a xref:metadata-types/variable-resolver/index.adoc[variable resolver] expression such as `#{vault:secret/data/ai:api-key}`.
+Set `+${AI_API_KEY}+` (or a similar name containing `PASSWORD`, `SECRET` or `TOKEN`) in an xref:projects/projects-environments.adoc[environment] configuration file, or better a xref:metadata-types/variable-resolver/index.adoc[variable resolver] expression such as `#{vault:secret/data/ai:api-key}`.
 The same pattern applies to every other secret in the project: never hard-code it in pipelines, workflows or metadata.
 See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information].
 
@@ -103,10 +101,10 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 |Plugin implementation (OpenAI, Grok, …)
 
 |Base URL
-|Override the type's default endpoint. Variables such as `'${AI_BASE_URL}'` are resolved at send time. For Hugging Face, a URL here is used as the dedicated inference endpoint when Model name is empty.
+|Override the type's default endpoint. Variables such as `+'${AI_BASE_URL}'+` are resolved at send time. For Hugging Face, a URL here is used as the dedicated inference endpoint when Model name is empty.
 
 |API key
-|Secret stored as a Hop password field. Not sent in advisor prompts. Prefer `{openvar}AI_API_KEY{closevar}` from an environment file or a keystore resolver expression, not a pasted key.
+|Secret stored as a Hop password field. Not sent in advisor prompts. Prefer `+${AI_API_KEY}+` from an environment file or a keystore resolver expression, not a pasted key.
 
 |Model name
 |Model identifier for the chosen provider. *Refresh models* fills the combo from the live catalog when the provider supports it. For Hugging Face, a model id is sent to the inference router; an `http(s)` URL is called as a dedicated endpoint. If this field is empty, Base URL is used instead.

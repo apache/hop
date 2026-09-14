@@ -319,7 +319,7 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 
 ==== Environment configuration file (4th argument)
 
-On a laptop, Hop projects usually set `PROJECT_HOME` to a local folder. In a *clustered* `spark-submit` job that path often has no meaning: drivers and executors do not share your desktop filesystem, and paths in pipelines are typically `${PROJECT_HOME}/…` or other project variables.
+On a laptop, Hop projects usually set `PROJECT_HOME` to a local folder. In a *clustered* `spark-submit` job that path often has no meaning: drivers and executors do not share your desktop filesystem, and paths in pipelines are typically `+${PROJECT_HOME}/…+` or other project variables.
 
 Pass an optional **environment configuration file** as the 4th positional argument (or `--HopConfigFile=…`). It uses the same JSON format as a Hop environment / `hop-config` variables file. `MainSpark` loads every described variable into the pipeline variable space before execution.
 
@@ -343,7 +343,7 @@ Example `cluster-env-config.json`:
 }
 ----
 
-Use this for any value that must differ between local development and the cluster: connection endpoints, bucket prefixes, `${PROJECT_HOME}`, credentials placeholders you resolve elsewhere, and so on.
+Use this for any value that must differ between local development and the cluster: connection endpoints, bucket prefixes, `+${PROJECT_HOME}+`, credentials placeholders you resolve elsewhere, and so on.
 
 [IMPORTANT]
 ====
@@ -352,7 +352,7 @@ Use this for any value that must differ between local development and the cluste
 * Variables in this file override defaults for *this* submit only; they do not rewrite your project’s GUI environment on disk.
 ====
 
-*Data paths* in the pipeline (files, tables, object stores) must be reachable from *workers*, not only from your laptop. Prefer HDFS, S3/GS/ABFS, or a shared mount — and set `PROJECT_HOME` (and similar) in the environment config so `${PROJECT_HOME}/…` resolves correctly on the cluster.
+*Data paths* in the pipeline (files, tables, object stores) must be reachable from *workers*, not only from your laptop. Prefer HDFS, S3/GS/ABFS, or a shared mount — and set `PROJECT_HOME` (and similar) in the environment config so `+${PROJECT_HOME}/…+` resolves correctly on the cluster.
 
 *Resource flags* (optional examples):
 

@@ -17,8 +17,6 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Write To Log transform writes information to the Hop logging system.
-:openvar: ${
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/writetolog.svg[Write to log transform Icon, role="image-doc-icon"] Write to log
@@ -37,7 +35,7 @@ If no fields are added in the Write to log Fields list, it will write out all fi
 
 A Logging level must be set. Set the Log detail level to Basic if you want variables to be printed out.
 
-Example to print a parameter or variable in the Log Message section: ``COUNTER: {openvar}myCounter{closevar}``
+Example to print a parameter or variable in the Log Message section: `+COUNTER: ${myCounter}+`
 
 If a data row does not exist containing fields, logging fields, parameters, or variables will not work. You may use a "Generate rows" transform to create a dummy row in order to print variables or parameters.
 

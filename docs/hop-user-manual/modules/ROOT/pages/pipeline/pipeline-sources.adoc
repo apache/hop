@@ -86,7 +86,7 @@ Enable the option named in that error if you really want the transform to read t
 
 Error hops (red) and info hops are not treated as main input: they stay allowed.
 
-Pipelines that already have such a hop and whose upstream produces *no* rows used to finish. They now fail at init (and leftover rows stop the pipeline). To keep those files running, set `'${HOP_ALLOW_UNCONSUMED_MAIN_INPUT}'` to `Y` on the run (Verify still reports the error).
+Pipelines that already have such a hop and whose upstream produces *no* rows used to finish. They now fail at init (and leftover rows stop the pipeline). To keep those files running, set `+'${HOP_ALLOW_UNCONSUMED_MAIN_INPUT}'+` to `Y` on the run (Verify still reports the error).
 
 == Related
 

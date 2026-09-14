@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Replace In String transform performs simple search and replace operations on String fields.
 
-:openvar: {
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/replaceinstring.svg[Replace in String transform Icon, role="image-doc-icon"] Replace in String
@@ -54,7 +52,7 @@ You can also use xref::variables.adoc#_hexadecimal_values[hexadecimal replacemen
 
 You could parse out sections of a string as follows
 
-* regex = ^([0-9]{openvar}4{closevar})([0-9]{openvar}7{closevar})$
+* regex = +^([0-9]{4})([0-9]{7})$+
 * replace with = $2
 
 This will replace any 11 digit numbers with the last 7 digits.

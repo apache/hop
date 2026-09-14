@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Multi-session AI advisory for pipelines and workflows, hosted as a perspective, floating window, or bottom-dock tab.
 
 = AI Assistant
@@ -47,7 +45,7 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
 . Check *Enable AI advisory*.
 . Optionally pick a *Default AI provider*.
 . *Extra context* is sent with every question. The default includes that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different metadata types, and that Hop uses pipelines/workflows (not Kettle transformations/jobs). Add project conventions here.
-. *Context files* defaults to `{openvar}PROJECT_HOME{closevar}/AGENTS.md`. Existing files are appended automatically; missing files are skipped. Add more VFS paths, one per line.
+. *Context files* defaults to `+${PROJECT_HOME}/AGENTS.md+`. Existing files are appended automatically; missing files are skipped. Add more VFS paths, one per line.
 . Leave *Allow sending full XML* unchecked unless you explicitly want the first prompt of a session to include the full pipeline or workflow XML.
   This is a second gate: the session checkbox cannot send XML until this option is on.
 
@@ -115,7 +113,7 @@ Regardless of the checkboxes, every turn includes:
 
 * your question
 * a compact *structure JSON* (transform or action names, plugin ids, hops, optional focus node)
-* *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `{openvar}PROJECT_HOME{closevar}/AGENTS.md` exist)
+* *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `+${PROJECT_HOME}/AGENTS.md+` exist)
 * plugin notes from `ai-context.md` in the advisor plugin folder (Hop ships case-sensitivity and run-configuration facts here; other plugins can add their own)
 
 The first turn of a session also includes a short *summary JSON* (file name, counts, parameter *names* — not values), *metadata type keys* (for example `rdbms`), and *database plugin ids* (`POSTGRESQL`, `MYSQL`, …) so `SAVE_METADATA` can set the connection type.
@@ -211,7 +209,7 @@ If a password, token or personal record is hard-coded in a pipeline, workflow, m
 Set this up *before* you enable AI advisory:
 
 . *Never hard-code secrets.* Not in pipelines, workflows, metadata (including xref:metadata-types/ai-provider.adoc[AI Provider] API keys), notes, SQL, or sample rows.
-. Put values in an xref:projects/projects-environments.adoc[environment] configuration file as variables, for example `{openvar}DB_PASSWORD{closevar}` or `{openvar}AI_API_KEY{closevar}`. Keep those files *outside* the project folder and out of the project git repository. See xref:best-practices/index.adoc[Best practices: security].
+. Put values in an xref:projects/projects-environments.adoc[environment] configuration file as variables, for example `+${DB_PASSWORD}+` or `+${AI_API_KEY}+`. Keep those files *outside* the project folder and out of the project git repository. See xref:best-practices/index.adoc[Best practices: security].
 . *Better:* store the secret in a keystore or vault and reference it with a xref:metadata-types/variable-resolver/index.adoc[variable resolver], for example `#{vault:secret/data/database:password}`. The environment file then holds only the resolver expression.
 . Give secret variable names a recognizable pattern (`PASSWORD`, `SECRET`, `TOKEN`, `PASSWD`). Hop Gui masks those values in the `Ctrl-Space` picker. The advisor also redacts XML tags, attributes and JSON keys whose names match `password`, `pass`, `pwd`, `secret`, `apikey` / `api-key`, `token` and `access-token`.
 . Keep *personal information* out of anything the assistant might send: no customer names, emails, national ids or row samples in notes, Data Grids, log messages, or transform names.
@@ -220,7 +218,7 @@ Redaction does *not* catch literals in SQL, notes, oddly named fields, or free-t
 The checkboxes above are the real control.
 
 The AI Provider API key is never copied into advisor prompts.
-It is still project metadata if you paste it: use `{openvar}AI_API_KEY{closevar}` or a resolver there too.
+It is still project metadata if you paste it: use `+${AI_API_KEY}+` or a resolver there too.
 
 == Floating window and bottom dock
 

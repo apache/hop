@@ -15,8 +15,6 @@ language governing permissions and limitations under the
 License.
 ////
 :imagesdir: ../../assets/images/
-:openvar: ${
-:closevar: }
 :page-pagination:
 :description: Describes a Salesforce connection. The Salesforce connection, specified on a project level, can be reused across multiple Salesforce transforms.
 
@@ -82,7 +80,7 @@ Server-to-server authentication using JWT (JSON Web Token) signed with RSA priva
 
 |Password
 |
-|Your Salesforce password (can use variables like `{openvar}SF_PASS{closevar}`)
+|Your Salesforce password (can use variables like `+${SF_PASS}+`)
 
 |Security Token (Optional)
 |
@@ -142,7 +140,7 @@ Server-to-server authentication using JWT (JSON Web Token) signed with RSA priva
 
 |Private Key
 |
-|RSA private key in PKCS8 PEM format. For security, use variables like `{openvar}SF_JWT_PRIVATE_KEY{closevar}` to reference keys stored in external secret managers. The key is encrypted when saved. Click Browse to load from file.
+|RSA private key in PKCS8 PEM format. For security, use variables like `+${SF_JWT_PRIVATE_KEY}+` to reference keys stored in external secret managers. The key is encrypted when saved. Click Browse to load from file.
 
 |Token Endpoint
 |https://login.salesforce.com
@@ -163,7 +161,7 @@ Follow these steps to create a Salesforce connection using username and password
 5. Ensure "Username/Password" is selected as the Authentication Type
 6. Fill in the required fields:
    * **Username**: Your Salesforce username or email address
-   * **Password**: Your Salesforce password (or use a variable like `{openvar}SF_PASS{closevar}`)
+   * **Password**: Your Salesforce password (or use a variable like `+${SF_PASS}+`)
    * **Security Token (Optional)**: Only required if your organization has IP restrictions enabled and you're connecting from an untrusted IP address. If you need a security token, you can request it from Salesforce by going to Settings > My Personal Information > Reset My Security Token
    * **Target URL**: The default `https://login.salesforce.com/services/Soap/u/64.0` works for most cases. Use `https://test.salesforce.com/services/Soap/u/64.0` for sandbox environments
 7. Click "Test Connection" to verify your settings
@@ -315,11 +313,11 @@ If you selected "Admin approved users are pre-authorized":
 4. Enter a descriptive name for your connection
 5. Select "OAuth JWT Bearer" as the Authentication Type
 6. Fill in the JWT settings:
-   * **Username**: Your Salesforce username (e.g., `user@company.com` or use `{openvar}SF_USER{closevar}`)
-   * **Consumer Key**: Paste the Consumer Key from your Salesforce Connected App (or use `{openvar}SF_CONSUMER_KEY{closevar}`)
+   * **Username**: Your Salesforce username (e.g., `user@company.com` or use `+${SF_USER}+`)
+   * **Consumer Key**: Paste the Consumer Key from your Salesforce Connected App (or use `+${SF_CONSUMER_KEY}+`)
    * **Private Key**: 
      ** Click the "Browse..." button to load your private key file (`salesforce_private_pkcs8.key`)
-     ** OR use a variable reference: `{openvar}SF_JWT_PRIVATE_KEY{closevar}` (recommended for production)
+     ** OR use a variable reference: `+${SF_JWT_PRIVATE_KEY}+` (recommended for production)
    * **Token Endpoint**: 
      ** Use `https://login.salesforce.com` for production
      ** Use `https://test.salesforce.com` for sandbox environments

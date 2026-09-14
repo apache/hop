@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Configure Hop launcher environment variables from Hop Gui or the hop setup command
-:openvar: ${
-:closevar: }
 
 = Hop setup
 
@@ -31,16 +29,16 @@ Without these variables Hop uses the installation `config/` and `audit/` folders
 |===
 |Variable |Linux / macOS |Windows
 
-|{openvar}HOP_CONFIG_FOLDER{closevar}
-|`~/.local/share/hop` (or `{openvar}XDG_DATA_HOME{closevar}/hop`)
+|+${HOP_CONFIG_FOLDER}+
+|`~/.local/share/hop` (or `+${XDG_DATA_HOME}/hop+`)
 |`%USERPROFILE%\.hop\config`
 
-|{openvar}HOP_AUDIT_FOLDER{closevar}
-|`~/.local/state/hop` (or `{openvar}XDG_STATE_HOME{closevar}/hop`)
+|+${HOP_AUDIT_FOLDER}+
+|`~/.local/state/hop` (or `+${XDG_STATE_HOME}/hop+`)
 |`%USERPROFILE%\.hop\audit`
 |===
 
-You can also set `{openvar}HOP_JAVA_HOME{closevar}`, `{openvar}HOP_OPTIONS{closevar}` and `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`.
+You can also set `+${HOP_JAVA_HOME}+`, `+${HOP_OPTIONS}+` and `+${HOP_SHARED_JDBC_FOLDERS}+`.
 
 == Hop Gui
 
@@ -48,7 +46,7 @@ Open the configurator from:
 
 * *Tools → Configure Hop environment...*
 * The Welcome dialog topic *Environment setup*
-* The first-start question, when `{openvar}HOP_CONFIG_FOLDER{closevar}` is not set
+* The first-start question, when `+${HOP_CONFIG_FOLDER}+` is not set
 
 On first start Hop asks whether to keep configuration outside the installation folder:
 
@@ -58,7 +56,7 @@ image::hop-tools/setup/01-hop-setup-question.png[First-start question to configu
 
 === Variables tab
 
-Set `{openvar}HOP_CONFIG_FOLDER{closevar}`, `{openvar}HOP_AUDIT_FOLDER{closevar}`, `{openvar}HOP_JAVA_HOME{closevar}`, `{openvar}HOP_OPTIONS{closevar}` and `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`.
+Set `+${HOP_CONFIG_FOLDER}+`, `+${HOP_AUDIT_FOLDER}+`, `+${HOP_JAVA_HOME}+`, `+${HOP_OPTIONS}+` and `+${HOP_SHARED_JDBC_FOLDERS}+`.
 
 image::hop-tools/setup/02-configure-hop-environment-dialog-variables-tab.png[Configure Hop environment dialog, Variables tab, width="90%"]
 
@@ -78,7 +76,7 @@ image::hop-tools/setup/03-configure-hop-environment-dialog-location-tab.png[Conf
 
 === Projects tab
 
-A new `{openvar}HOP_CONFIG_FOLDER{closevar}` starts without projects. On the *Projects* tab you can:
+A new `+${HOP_CONFIG_FOLDER}+` starts without projects. On the *Projects* tab you can:
 
 image::hop-tools/setup/06-configure-hop-environment-dialog-projects-tab.png[Configure Hop environment dialog, Projects tab, width="90%"]
 
@@ -127,19 +125,19 @@ On Windows use `hop.bat setup apply --defaults`.
 |Option |Description
 
 |`--config-folder`
-|Value for `{openvar}HOP_CONFIG_FOLDER{closevar}`
+|Value for `+${HOP_CONFIG_FOLDER}+`
 
 |`--audit-folder`
-|Value for `{openvar}HOP_AUDIT_FOLDER{closevar}`
+|Value for `+${HOP_AUDIT_FOLDER}+`
 
 |`--java-home`
-|Value for `{openvar}HOP_JAVA_HOME{closevar}`
+|Value for `+${HOP_JAVA_HOME}+`
 
 |`--options`
-|Value for `{openvar}HOP_OPTIONS{closevar}`
+|Value for `+${HOP_OPTIONS}+`
 
 |`--jdbc-folders`
-|Value for `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`
+|Value for `+${HOP_SHARED_JDBC_FOLDERS}+`
 
 |`--defaults`
 |Fill unspecified config/audit folders with the recommended paths and register a default project plus samples
@@ -148,7 +146,7 @@ On Windows use `hop.bat setup apply --defaults`.
 |Write Windows user environment variables
 
 |`--shell-rc`
-|Update `~/.bashrc` or `~/.zshrc` (detected from `{openvar}SHELL{closevar}`)
+|Update `~/.bashrc` or `~/.zshrc` (detected from `+${SHELL}+`)
 
 |`--rc-file`
 |Override the rc file path
@@ -185,4 +183,4 @@ If you do not pick a write target, Hop uses:
 
 Hop launchers source the well-known hop-env script when it exists, so desktop shortcuts pick up the folders after a restart. An environment variable that is already set is left unchanged.
 
-To skip the first-start prompt set `{openvar}HOP_NO_SETUP_DIALOG{closevar}=Y`.
+To skip the first-start prompt set `+${HOP_NO_SETUP_DIALOG}=Y+`.

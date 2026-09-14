@@ -59,7 +59,7 @@ That is the library-conflict and OpenShift-network path this plugin exists to av
 |Name |VFS scheme: `name:///path`
 |Description |Optional
 |Transport |HttpFS, Knox or WebHDFS
-|Endpoint hostname |One host, or two HA hosts separated by commas (Impala JDBC style): `master1.example.com,master2.example.com`. Example: `'${HDFS_HTTPFS_HOST}'`
+|Endpoint hostname |One host, or two HA hosts separated by commas (Impala JDBC style): `master1.example.com,master2.example.com`. Example: `+'${HDFS_HTTPFS_HOST}'+`
 |Port |Defaults: HttpFS 14000, Knox 8443, WebHDFS 9870 (HTTPS WebHDFS is often 9871)
 |HTTPS |Use HTTPS
 |HTTP base path |Empty uses `/webhdfs/v1`. Knox example: `/gateway/cdp-proxy/webhdfs/v1`
@@ -73,7 +73,7 @@ That is the library-conflict and OpenShift-network path this plugin exists to av
 |===
 |Option |Description
 |Enable Kerberos |SPNEGO on every request
-|Principal |For example `hop/hop@EXAMPLE.COM` or `'${HDFS_PRINCIPAL}'`
+|Principal |For example `hop/hop@EXAMPLE.COM` or `+'${HDFS_PRINCIPAL}'+`
 |Keytab |Keytab path (OpenShift Secret mount). Prefer this over a ticket cache in containers. On Windows, Browse stores forward slashes (`C:/Users/...`); JAAS treats `\` as an escape.
 |krb5.conf |JVM-wide; one file per Hop process. When set, Realm and KDC are ignored. Same forward-slash rule as the keytab on Windows.
 |Realm / KDC |Optional if krb5.conf is not set. Do not fill these if krb5.conf is set.

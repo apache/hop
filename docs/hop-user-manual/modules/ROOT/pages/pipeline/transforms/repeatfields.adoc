@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: Repeat a field value from a previous row
 
-:openvar: {
-:closevar: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/repeatfields.svg[Repeat fields Icon, role="image-doc-icon"] Repeat fields

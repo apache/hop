@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :documentationPath: /workflow/actions/
-:openvar: ${
-:closevar: }
 :language: en_US
 :description: The Shell action executes a shell script on the host where the workflow is running.
 
@@ -61,10 +59,10 @@ This is also useful, when you want to execute operating system commands like dir
 This option creates a temporary script in the working directory and executes it.
 
 NOTE: Variables are resolved within the script when given.
-|Script file name|The filename of the shell script to start, should include full path else {openvar}user.dir{closevar} is used as path.
+|Script file name|The filename of the shell script to start, should include full path else +${user.dir}+ is used as path.
 |Working directory|The directory that will be used as working directory for the shell script.
 The working directory only becomes active when the shell script starts so "Filename" should still include the full path to the script.
-When the field is left empty or the working directory is invalid {openvar}user.dir{closevar} will be used as working directory.
+When the field is left empty or the working directory is invalid +${user.dir}+ will be used as working directory.
 2+|Logging settings
 |Specify log file|Enable to specify a separate logging file for the execution of this workflow.
 |Append logfile|Enable to append to the logfile as opposed to creating a new one

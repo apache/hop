@@ -17,8 +17,6 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Table Input transform is used to read information from a database, using a connection and SQL.
-:openvar: ${
-:closevar: }
 :openfield: {
 :closefield: }
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
@@ -33,7 +31,7 @@ The Table Input transform is one of the most frequently used transforms in Apach
 
 This transform supports parameterization using:
 
-- Apache Hop variables (e.g., `{openvar}customerId{closevar}`)
+- Apache Hop variables (e.g., `+${customerId}+`)
 - Named input fields from a previous transform (JDBC prepared statements using `{openfield}fieldName{closefield}` placeholders)
 - Positional input fields from a previous transform (JDBC prepared statements using `?` placeholders)
 
@@ -81,7 +79,7 @@ Named parameters:
 - Can be used more than once
 - Ignore extra incoming fields
 - Cannot be mixed with positional `?` in the same statement
-- Do not conflict with Hop variables `{openvar}variable{closevar}`
+- Do not conflict with Hop variables `+${variable}+`
 - Work best with a single parameter row, or with *Execute for each row*
 
 Classic positional `?` placeholders remain supported. Values are passed in the order of fields in the incoming stream. Use a `Select Values` transform to ensure the correct field order if you use `?`.
@@ -139,10 +137,10 @@ If your query includes Hop variables, enable `Replace variables in script`. This
 ----
 SELECT *
 FROM public.tableinput
-WHERE id > {openvar}PRM_ID{closevar};
+WHERE id > ${PRM_ID};
 ----
 
-- `{openvar}PRM_ID{closevar}` is defined as a pipeline variable (e.g., via parameters or `Set Variables` transform)
+- `+${PRM_ID}+` is defined as a pipeline variable (e.g., via parameters or `Set Variables` transform)
 
 image:transforms/tableinput/table-input-variables-in-sql-parameter-definition.png[Parameter definition in pipeline, width="45%"]
 
@@ -167,10 +165,10 @@ image:transforms/tableinput/table-input-combine-variables-and-prepared-statement
 ----
 SELECT *
 FROM public.tableinput
-where id > {openvar}PRM_ID{closevar} AND lastdate > ?;
+where id > ${PRM_ID} AND lastdate > ?;
 ----
 
-- `{openvar}startDate{closevar}` is a pipeline variable
+- `+${startDate}+` is a pipeline variable
 - `?` is a parameter provided by the input stream
 
 == Best Practices and Pro Tips
@@ -194,15 +192,15 @@ Table Input can be used in a metadata-driven pipeline. For example, create a tem
 [source,sql]
 ----
 SELECT *
-FROM {openvar}tableName{closevar}
-WHERE {openvar}condition{closevar}
+FROM ${tableName}
+WHERE ${condition}
 ----
 
 Then use a Metadata Injection transform to inject actual values (e.g., from a CSV or database).
 
 .Steps:
 1. Create a template pipeline with Table Input
-2. Use `{openvar}tableName{closevar}` and `{openvar}condition{closevar}` as placeholders
+2. Use `+${tableName}+` and `+${condition}+` as placeholders
 3. In a separate pipeline, use Metadata Injection to inject values into the SQL field
 4. Execute the injected pipeline
 
@@ -245,7 +243,7 @@ On the *Fields* tab you can define the output schema instead of asking the datab
 |Connection|Database connection to execute the query against.
 |SQL tab|SQL statement, optional SQL file, `Get SQL select statement`, `Use named parameters`, and `Insert field...` for `{openfield}fieldName{closefield}`.
 |Use named parameters|When enabled, `{openfield}fieldName{closefield}` in SQL is bound to an incoming field. Off for existing Table Input metadata, on for new transforms. Disable if curly braces are used for something else. Checking this option also enables *Execute for each row* when hops exist, and selects the incoming transform when there is only one.
-|Replace variables in script?|Enable to substitute variables (e.g., `{openvar}param{closevar}`) in your SQL before execution.
+|Replace variables in script?|Enable to substitute variables (e.g., `+${param}+`) in your SQL before execution.
 |Insert data from transform|Optional. Names the hop that should be treated as informational (parameter rows, not the SQL result). Parameter values are read from **all** incoming hops. Leave empty when you only need the connected hops as parameter sources.
 |Execute for each row?|When incoming hops exist, run the SQL query once for each incoming row. Disable to concatenate all incoming rows into a single parameter list (legacy `WHERE bar IN (?,?,?)` from several one-field rows). Incoming hops with different layouts still produce the mixed-layout warning.
 |Limit size|Maximum number of rows to return from the query. `0` means no limit. See <<limit-size-vs-sql-limit,Limit size vs. SQL LIMIT>> below.
