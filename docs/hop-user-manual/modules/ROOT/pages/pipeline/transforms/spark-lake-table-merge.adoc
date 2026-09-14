@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Spark lake table merge runs MERGE INTO against Delta Lake or Apache Iceberg tables on the native Spark pipeline engine.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=yes, Beam Spark=yes, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/spark-lake-table-merge.svg[Spark lake table merge transform Icon, role="image-doc-icon"] Spark lake table merge
 
