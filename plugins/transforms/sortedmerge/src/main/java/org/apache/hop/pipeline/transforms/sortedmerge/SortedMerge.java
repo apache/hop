@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.i18n.BaseMessages;
@@ -69,8 +70,8 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     // now that we have all rows sorted, all we need to do is find out what the smallest row is.
     // The smallest row is the first in our case...
     //
-    RowSetRow smallestRow = data.sortedBuffer.get(0);
-    data.sortedBuffer.remove(0);
+    RowSetRow smallestRow = data.sortedBuffer.getFirst();
+    data.sortedBuffer.removeFirst();
     Object[] outputRowData = smallestRow.getRowData();
 
     // We read another row from the row set where the smallest row came from.
@@ -164,8 +165,8 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
             try {
               return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
             } catch (HopValueException e) {
-              return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
-              // HopRuntimeException.
+              throw new HopRuntimeException(
+                  BaseMessages.getString(PKG, "SortedMerge.Exception.ErrorComparingRows"), e);
             }
           };
 
@@ -177,13 +178,16 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
 
   @Override
   public boolean processRow() throws HopException {
-    Object[] row = getRowSorted(); // get row, sorted
-    if (row == null) { // no more input to be expected...
+    // get row, sorted
+    Object[] row = getRowSorted();
+    // no more input to be expected...
+    if (row == null) {
       setOutputDone();
       return false;
     }
 
-    putRow(data.rowMeta, row); // copy row to possible alternate rowset(s).
+    // copy row to possible alternate rowset(s).
+    putRow(data.rowMeta, row);
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "SortedMerge.Log.LineNumber") + getLinesRead());
     }
