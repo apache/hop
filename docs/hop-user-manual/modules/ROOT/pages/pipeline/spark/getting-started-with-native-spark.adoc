@@ -105,6 +105,8 @@ If you need streaming, windowing, or Beam-only connectors, stay on the Beam engi
 ** applies a *native handler* that rewrites the hop as Spark Dataset operations, or
 ** wraps the transform in `mapPartitions` so each Spark partition runs that transform in a tiny local Hop pipeline.
 . File outputs and other Spark *actions* materialise the graph (read → transform → write).
+
+Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
 . Transform metrics are collected via Spark accumulators and shown in Hop like any other engine.
 
 You still design pipelines *visually* in Hop. Spark’s role is the distributed execution engine and the Dataset runtime under the hood.

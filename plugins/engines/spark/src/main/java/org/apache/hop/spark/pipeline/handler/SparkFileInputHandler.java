@@ -51,7 +51,11 @@ import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
 /**
  * Native Spark file read for {@link SparkFileInputMeta}.
@@ -159,7 +163,19 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
     boolean hasFields = meta.getFields() != null && !meta.getFields().isEmpty();
     boolean nameBasedProjection = delimited && hasFields && !meta.isInferSchema();
 
-    // For delimited + explicit fields: do NOT push StructType into the reader (positional).
+    // For delimited + explicit fields: a reader StructType is bound by POSITION, while the Hop
+    // field list is by name (subset, any order, case-insensitive). So the schema we push is built
+    // from the file's own header: every file column in file order, typed where a Hop numeric
+    // field matches, string otherwise. Same by-name projection/cast below either way; numeric
+    // columns are then parsed once by the CSV converter instead of tokenized, wrapped and cast,
+    // and no header-inference job is needed. Any problem reading the header → schema-less load.
+    if (nameBasedProjection && meta.isHeader() && !meta.isMultiLine()) {
+      StructType typed =
+          typedSchemaFromHeader(log, spark, path, options, meta.getFields(), transformMeta);
+      if (typed != null) {
+        reader = reader.schema(typed);
+      }
+    }
     // Infer schema only when requested and no field list.
     if (delimited && meta.isInferSchema() && !hasFields) {
       reader = reader.option("inferSchema", "true");
@@ -330,17 +346,16 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
   private static Column castColumn(Dataset<Row> source, String columnName, SparkField field)
       throws HopException {
     Column c = col(columnName);
+    int typeId = hopTypeId(field);
+
+    // Already typed by the reader schema: no string round trip
+    DataType readerType = readerType(source, columnName);
+    if (readerType != null && readerType.equals(typedReaderType(typeId))) {
+      return c.alias(field.getName());
+    }
+
     // Always trim strings before numeric/date conversion
     Column trimmed = trim(c.cast(DataTypes.StringType));
-
-    String hopType = StringUtils.defaultIfBlank(field.getHopType(), "String");
-    int typeId;
-    try {
-      typeId = org.apache.hop.core.row.value.ValueMetaFactory.getIdForValueMeta(hopType);
-    } catch (Exception e) {
-      throw new HopException(
-          "Unknown Hop type '" + hopType + "' for field '" + field.getName() + "'", e);
-    }
 
     return switch (typeId) {
       case IValueMeta.TYPE_STRING, IValueMeta.TYPE_INET -> trimmed.alias(field.getName());
@@ -353,6 +368,174 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
       case IValueMeta.TYPE_BINARY -> c.cast(DataTypes.BinaryType);
       default -> trimmed;
     };
+  }
+
+  private static int hopTypeId(SparkField field) throws HopException {
+    String hopType = StringUtils.defaultIfBlank(field.getHopType(), "String");
+    try {
+      return org.apache.hop.core.row.value.ValueMetaFactory.getIdForValueMeta(hopType);
+    } catch (Exception e) {
+      throw new HopException(
+          "Unknown Hop type '" + hopType + "' for field '" + field.getName() + "'", e);
+    }
+  }
+
+  private static DataType readerType(Dataset<Row> source, String columnName) {
+    for (StructField f : source.schema().fields()) {
+      if (f.name().equals(columnName)) {
+        return f.dataType();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Spark type the CSV converter may parse directly for a Hop type; null keeps the column as string
+   * for the lenient cast path (dates need the format mask, booleans accept Y/N, decimals need
+   * precision).
+   */
+  static DataType typedReaderType(int hopTypeId) {
+    return switch (hopTypeId) {
+      case IValueMeta.TYPE_INTEGER -> DataTypes.LongType;
+      case IValueMeta.TYPE_NUMBER -> DataTypes.DoubleType;
+      default -> null;
+    };
+  }
+
+  /**
+   * Build the reader schema from the first line of the (first) file: file columns in file order,
+   * typed where a Hop numeric field matches the header name. Returns null when the header cannot be
+   * read or is ambiguous, in which case the caller keeps the schema-less load.
+   */
+  static StructType typedSchemaFromHeader(
+      ILogChannel log,
+      SparkSession spark,
+      String path,
+      Map<String, String> options,
+      List<SparkField> fields,
+      TransformMeta transformMeta) {
+    try {
+      org.apache.hadoop.conf.Configuration conf = spark.sessionState().newHadoopConf();
+      org.apache.hadoop.fs.Path p = new org.apache.hadoop.fs.Path(path);
+      org.apache.hadoop.fs.FileSystem fs = p.getFileSystem(conf);
+      org.apache.hadoop.fs.Path file = firstDataFile(fs, p);
+      if (file == null) {
+        return null;
+      }
+      String headerLine = readFirstLine(fs, conf, file, options.getOrDefault("encoding", "UTF-8"));
+      if (StringUtils.isBlank(headerLine)) {
+        return null;
+      }
+      String[] names = parseHeader(headerLine, options);
+      if (names == null || names.length == 0) {
+        return null;
+      }
+      Map<String, Integer> typeByLower = new java.util.HashMap<>();
+      for (SparkField field : fields) {
+        if (StringUtils.isNotEmpty(field.getName())) {
+          typeByLower.put(field.getName().toLowerCase(Locale.ROOT), hopTypeId(field));
+        }
+      }
+      Set<String> seen = new HashSet<>();
+      StructField[] structFields = new StructField[names.length];
+      for (int i = 0; i < names.length; i++) {
+        String name = names[i] == null ? "" : names[i];
+        if (name.isEmpty() || !seen.add(name)) {
+          // Spark would rename empty/duplicate headers; keep the proven path instead
+          return null;
+        }
+        Integer typeId = typeByLower.get(name.toLowerCase(Locale.ROOT));
+        DataType type = typeId == null ? null : typedReaderType(typeId);
+        structFields[i] =
+            new StructField(
+                name, type == null ? DataTypes.StringType : type, true, Metadata.empty());
+      }
+      return new StructType(structFields);
+    } catch (Exception e) {
+      if (log != null) {
+        log.logDetailed(
+            "Typed CSV schema not applied for '"
+                + transformMeta.getName()
+                + "' (falling back to schema-less load): "
+                + e.getMessage());
+      }
+      return null;
+    }
+  }
+
+  private static org.apache.hadoop.fs.Path firstDataFile(
+      org.apache.hadoop.fs.FileSystem fs, org.apache.hadoop.fs.Path p) throws java.io.IOException {
+    org.apache.hadoop.fs.FileStatus[] matches = fs.globStatus(p);
+    if (matches == null || matches.length == 0) {
+      return null;
+    }
+    List<org.apache.hadoop.fs.FileStatus> candidates = new ArrayList<>();
+    for (org.apache.hadoop.fs.FileStatus status : matches) {
+      if (status.isDirectory()) {
+        for (org.apache.hadoop.fs.FileStatus child : fs.listStatus(status.getPath())) {
+          if (child.isFile() && !isHidden(child.getPath())) {
+            candidates.add(child);
+          }
+        }
+      } else if (status.isFile() && !isHidden(status.getPath())) {
+        candidates.add(status);
+      }
+    }
+    if (candidates.isEmpty()) {
+      return null;
+    }
+    // Same choice Spark's header inference makes: the first file in path order
+    candidates.sort(java.util.Comparator.comparing(f -> f.getPath().toString()));
+    return candidates.get(0).getPath();
+  }
+
+  private static boolean isHidden(org.apache.hadoop.fs.Path path) {
+    String name = path.getName();
+    return name.startsWith("_") || name.startsWith(".");
+  }
+
+  private static String readFirstLine(
+      org.apache.hadoop.fs.FileSystem fs,
+      org.apache.hadoop.conf.Configuration conf,
+      org.apache.hadoop.fs.Path file,
+      String encoding)
+      throws java.io.IOException {
+    org.apache.hadoop.io.compress.CompressionCodec codec =
+        new org.apache.hadoop.io.compress.CompressionCodecFactory(conf).getCodec(file);
+    java.io.InputStream in = fs.open(file);
+    if (codec != null) {
+      in = codec.createInputStream(in);
+    }
+    try (java.io.BufferedReader reader =
+        new java.io.BufferedReader(new java.io.InputStreamReader(in, encoding))) {
+      String line = reader.readLine();
+      if (line != null && !line.isEmpty() && line.charAt(0) == '\uFEFF') {
+        line = line.substring(1);
+      }
+      return line;
+    }
+  }
+
+  /** Split the header with the same delimiter/quote/escape the Spark CSV reader will use. */
+  private static String[] parseHeader(String line, Map<String, String> options) {
+    com.univocity.parsers.csv.CsvParserSettings settings =
+        new com.univocity.parsers.csv.CsvParserSettings();
+    com.univocity.parsers.csv.CsvFormat format = settings.getFormat();
+    format.setDelimiter(options.getOrDefault("sep", options.getOrDefault("delimiter", ",")));
+    String quote = options.getOrDefault("quote", "\"");
+    if (!quote.isEmpty()) {
+      format.setQuote(quote.charAt(0));
+    }
+    String escape = options.getOrDefault("escape", "\\");
+    if (!escape.isEmpty()) {
+      format.setQuoteEscape(escape.charAt(0));
+    }
+    settings.setIgnoreLeadingWhitespaces(
+        Boolean.parseBoolean(options.getOrDefault("ignoreLeadingWhiteSpace", "true")));
+    settings.setIgnoreTrailingWhitespaces(
+        Boolean.parseBoolean(options.getOrDefault("ignoreTrailingWhiteSpace", "true")));
+    settings.setMaxColumns(20000);
+    return new com.univocity.parsers.csv.CsvParser(settings).parseLine(line);
   }
 
   /**

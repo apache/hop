@@ -261,6 +261,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /** The list of IRowListener interfaces */
   protected List<IRowListener> rowListeners;
 
+  /** Read-only view of {@link #rowListeners}, created once: getRowListeners() runs per row. */
+  private List<IRowListener> rowListenersView;
+
   /** The list of destination-aware IRowToListener interfaces (target hops / putRowTo) */
   protected List<IRowToListener> rowToListeners;
 
@@ -440,6 +443,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     rowDistribution = transformMeta.getRowDistribution();
 
     rowListeners = new CopyOnWriteArrayList<>();
+    rowListenersView = Collections.unmodifiableList(rowListeners);
     rowToListeners = new CopyOnWriteArrayList<>();
     resultFiles = new HashMap<>();
     resultFilesLock = new ReentrantReadWriteLock();
@@ -3377,7 +3381,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public List<IRowListener> getRowListeners() {
-    return Collections.unmodifiableList(rowListeners);
+    if (rowListenersView == null) {
+      rowListenersView = Collections.unmodifiableList(rowListeners);
+    }
+    return rowListenersView;
   }
 
   @Override

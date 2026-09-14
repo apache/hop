@@ -305,6 +305,8 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               ? JsonRowMeta.fromJson(inputRowMetaJson)
               : new org.apache.hop.core.row.RowMeta();
       IRowMeta outputRowMeta = JsonRowMeta.fromJson(outputRowMetaJson);
+      final HopSparkRowConverter.RowCodec inputCodec =
+          HopSparkRowConverter.RowCodec.of(inputRowMeta);
 
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(transformName);
@@ -480,7 +482,17 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       List<Object[]> resultRows = new ArrayList<>();
       List<List<Object[]>> targetResultRowsList = new ArrayList<>();
       final boolean multiTarget = !targetTransforms.isEmpty();
-      if (!multiTarget) {
+      // Plain case: one main input, no info or target streams — rows go through a one-slot
+      // handler straight into the Spark output queue; no Injector, row sets or executor loop.
+      final boolean direct =
+          !inputTransform
+              && !acceptFilenamesFromMain
+              && !multiTarget
+              && infoTransforms.isEmpty()
+              && mainTransform instanceof BaseTransform;
+      if (direct) {
+        // output captured by SparkDirectRowHandler.putRow
+      } else if (!multiTarget) {
         transformCombi.transform.addRowListener(
             new RowAdapter() {
               @Override
@@ -618,6 +630,45 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                 return true;
               }
             };
+      } else if (direct) {
+        final SparkDirectRowHandler[] handlerRef = new SparkDirectRowHandler[1];
+        rows =
+            new PartitionIterator(
+                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+              private boolean inputDrained = false;
+
+              @Override
+              boolean step() throws HopException {
+                SparkDirectRowHandler handler = handlerRef[0];
+                if (input.hasNext()) {
+                  handler.offer(inputCodec.toHop(input.next()));
+                  mainRef.processRow();
+                  if (mainRef.getErrors() > 0) {
+                    return false;
+                  }
+                  rowsSeen[0]++;
+                  if (throttle.shouldPublish(1) || rowsSeen[0] % METRICS_ROW_INTERVAL == 0) {
+                    publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
+                    flushSamplesQuietly(samplingRef, false);
+                  }
+                  return true;
+                }
+                if (inputDrained) {
+                  return false;
+                }
+                // End of input: one call with an empty slot so getRow() returns null and
+                // buffering transforms emit what they hold.
+                inputDrained = true;
+                handler.offer(null);
+                mainRef.processRow();
+                return true;
+              }
+            };
+        SparkDirectRowHandler handler =
+            new SparkDirectRowHandler(
+                (BaseTransform) mainTransform, inputRowMeta, outputRowMeta, rows::emit);
+        ((BaseTransform) mainTransform).setRowHandler(handler);
+        handlerRef[0] = handler;
       } else {
         rows =
             new PartitionIterator(
@@ -627,8 +678,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               @Override
               boolean step() throws HopException {
                 if (input.hasNext()) {
-                  Row sparkRow = input.next();
-                  Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
+                  Object[] hopRow = inputCodec.toHop(input.next());
                   clearCapture(resultRows, targetResultRowsList);
                   mainProducer.putRow(inputRowMeta, hopRow, false);
                   // Forward the main row onto the hop before Stream Lookup's info-first
@@ -1051,7 +1101,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
    * queued, and handed to Spark one at a time.
    */
   private abstract static class PartitionIterator implements Iterator<Row> {
-    private final IRowMeta outputRowMeta;
+    private final HopSparkRowConverter.RowCodec outputCodec;
     private final boolean multiTarget;
     private final List<String> targetTransforms;
     private final List<Object[]> resultRows;
@@ -1067,7 +1117,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         List<String> targetTransforms,
         List<Object[]> resultRows,
         List<List<Object[]>> targetResultRowsList) {
-      this.outputRowMeta = outputRowMeta;
+      this.outputCodec = HopSparkRowConverter.RowCodec.of(outputRowMeta);
       this.multiTarget = multiTarget;
       this.targetTransforms = targetTransforms;
       this.resultRows = resultRows;
@@ -1076,6 +1126,11 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
     /** Do one unit of work; return false when the transform has nothing left to produce. */
     abstract boolean step() throws HopException;
+
+    /** Queue an already converted output row (direct handler path). */
+    void emit(Row row) {
+      pending.add(row);
+    }
 
     void onFinish(Runnable finish) {
       this.finish = finish;
@@ -1112,15 +1167,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     private void queueCaptured() throws HopException {
       if (!multiTarget) {
         for (Object[] hopRow : resultRows) {
-          pending.add(HopSparkRowConverter.toSparkRow(outputRowMeta, hopRow));
+          pending.add(outputCodec.toSpark(hopRow));
         }
         return;
       }
       for (int t = 0; t < targetResultRowsList.size(); t++) {
         for (Object[] hopRow : targetResultRowsList.get(t)) {
-          pending.add(
-              HopSparkRowConverter.toTaggedSparkRow(
-                  targetTransforms.get(t), outputRowMeta, hopRow));
+          pending.add(outputCodec.toTaggedSpark(targetTransforms.get(t), hopRow));
         }
       }
     }
@@ -1149,7 +1202,14 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     private static final long serialVersionUID = 1L;
     private long lastPublishMs = 0L;
 
+    private int calls = 0;
+
     boolean shouldPublish(int rowsThisBatch) {
+      // The clock read is a syscall; sampling it every 128 calls keeps the ~1 s cadence for slow
+      // transforms without paying for it on every row of a fast one.
+      if (lastPublishMs != 0L && (++calls & 127) != 0) {
+        return false;
+      }
       long now = System.currentTimeMillis();
       if (lastPublishMs == 0L || now - lastPublishMs >= METRICS_TIME_INTERVAL_MS) {
         lastPublishMs = now;
