@@ -96,7 +96,10 @@ jobs:
       # pull request that is the merge commit of the PR onto main. Warnings are
       # logged so authors can see them; only errors (unresolved xrefs, missing
       # includes, malformed tables, ...) fail the build.
+      # shell: bash is not the default: the default is `bash -e {0}` without
+      # pipefail, which would let the `tee` below swallow Antora's exit code.
       - name: Build the manuals
+        shell: bash
         working-directory: hop-website
         run: |
           node tools/sync-tokens.mjs
@@ -105,42 +108,27 @@ jobs:
           npx antora --log-level=warn --log-failure-level=error --log-format=json \
             --to-dir "$GITHUB_WORKSPACE/site" antora-playbook-hop.yml 2>&1 | tee antora.log
 
-      # Turn the structured log into PR annotations on the offending .adoc lines
-      # and a per-file summary. Only errors are annotated: GitHub shows at most
-      # 10 per kind and the docs still carry ~150 pre-existing warnings.
+      # Error annotations on the offending .adoc lines, a job summary and, for a
+      # pull request, the body of the PR comment. The comment itself is posted
+      # by pr_docs_comment.yml: this job runs with the read-only token of a
+      # fork pull request, so it can only hand the report over as an artifact.
       - name: Report problems
         if: ${{ !cancelled() }}
         working-directory: hop-website
-        run: |
-          node - <<'JS'
-          const fs = require('node:fs')
-          const root = process.env.GITHUB_WORKSPACE + '/hop/'
-          const rows = []
-          for (const line of fs.readFileSync('antora.log', 'utf8').split('\n')) {
-            if (!line.startsWith('{')) continue
-            let e
-            try { e = JSON.parse(line) } catch { continue }
-            const file = e.file && e.file.path ? e.file.path.replace(root, '') : ''
-            const at = e.file && e.file.line ? e.file.line : ''
-            rows.push({ level: e.level, file, at, msg: e.msg })
-            if (e.level === 'error' || e.level === 'fatal') {
-              const where = file ? `file=${file},line=${at || 1},` : ''
-              console.log(`::error ${where}title=Antora::${e.msg}`)
-            }
-          }
-          const errors = rows.filter(r => r.level === 'error' || r.level === 'fatal')
-          const warnings = rows.filter(r => r.level === 'warn')
-          const table = list => list.length
-            ? ['| File | Line | Message |', '|---|---|---|',
-               ...list.map(r => `| ${r.file} | ${r.at} | ${r.msg.replace(/\|/g, '\\|')} |`)].join('\n')
-            : '_none_'
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
-            '## Antora build',
-            `${errors.length} error(s), ${warnings.length} warning(s)`,
-            '', '### Errors', table(errors),
-            '', '<details><summary>Warnings</summary>', '', table(warnings), '', '</details>', ''
-          ].join('\n'))
-          JS
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node "$GITHUB_WORKSPACE/hop/.github/scripts/antora-report.mjs" antora.log "$GITHUB_WORKSPACE/report"
+
+      - name: Hand the report to the comment workflow
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-report
+          path: report
+          retention-days: 1
 
       - name: Upload the rendered manuals
         if: ${{ !cancelled() }}
