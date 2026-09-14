@@ -16,6 +16,16 @@
   ~ limitations under the License.
   -->
 <extensions>
+    <!-- Incremental reactor builds: builds only the modules that changed against
+         the reference branch plus their dependents. Inert unless enabled with
+         -Dgib.disable=false; the GitHub Actions PR build is the only thing that
+         does so. See the gib.* properties in the root pom.xml. -->
+    <extension>
+        <groupId>io.github.gitflow-incremental-builder</groupId>
+        <artifactId>gitflow-incremental-builder</artifactId>
+        <version>4.7.0</version>
+    </extension>
+
     <!-- not really needed by default and quite outdated
     <extension>
       <groupId>co.leantechniques</groupId>

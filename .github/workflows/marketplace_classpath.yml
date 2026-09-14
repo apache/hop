@@ -80,11 +80,11 @@ jobs:
       IT_REPORT_ROOT: 'https://ci-builds.apache.org/job/Hop/job/Hop-integration-tests/lastCompletedBuild/testReport'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # jdeps is a JDK tool: a JRE does not have it.
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -172,7 +172,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: marketplace-classpath-report
           path: reports/
