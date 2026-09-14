@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -55,7 +56,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
   private static final Class<?> PKG = DataSetEditor.class;
   public static final String CONST_ERROR = "Error";
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Text wBaseFilename;
   private TextVar wFolderName;
@@ -91,7 +92,9 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlName.left = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
 
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 5);

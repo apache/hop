@@ -43,6 +43,7 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewerExtension5;
+import org.eclipse.jface.text.IUndoManager;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
@@ -418,12 +419,12 @@ public class ContentEditorWidget implements IContentEditorWidget {
 
   @Override
   public int getCaretPosition() {
-    StyledText textWidget = sourceViewer.getTextWidget();
-    if (textWidget == null || textWidget.isDisposed()) {
-      org.eclipse.swt.graphics.Point range = sourceViewer.getSelectedRange();
-      return range != null ? range.x + range.y : 0;
+    // Document offset, not the StyledText widget offset (those diverge when folding is on).
+    org.eclipse.swt.graphics.Point range = sourceViewer.getSelectedRange();
+    if (range == null) {
+      return 0;
     }
-    return textWidget.getCaretOffset();
+    return range.x + range.y;
   }
 
   @Override
@@ -445,11 +446,20 @@ public class ContentEditorWidget implements IContentEditorWidget {
     if (doc == null || range == null) {
       return;
     }
+    IUndoManager undoManager = sourceViewer.getUndoManager();
+    if (undoManager != null) {
+      undoManager.beginCompoundChange();
+    }
     try {
       doc.replace(range.x, range.y, insertion);
       sourceViewer.setSelectedRange(range.x + insertion.length(), 0);
     } catch (org.eclipse.jface.text.BadLocationException e) {
       // ignore invalid range
+    } finally {
+      if (undoManager != null) {
+        undoManager.endCompoundChange();
+      }
+      updateGui();
     }
   }
 
@@ -772,6 +782,22 @@ public class ContentEditorWidget implements IContentEditorWidget {
           contextMenuWidgets.enableMenuItem(
               ID_CONTEXT_MENU_FIND_REPLACE, sourceViewer.isEditable());
         });
+    // StyledText.handleKey always inserts CR/LF (operator precedence vs Ctrl ignore).
+    // Widget KeyDown is too late; VerifyKey and SWT.Verify must reject the newline.
+    sourceViewer.prependVerifyKeyListener(
+        event -> {
+          if (shouldEatExecuteNewline(event.stateMask, event.keyCode, event.character)) {
+            event.doit = false;
+          }
+        });
+    styledText.addListener(
+        SWT.Verify,
+        event -> {
+          if (IContentEditorWidget.eatExecuteNewlineArmed(control)
+              && IContentEditorWidget.isLineDelimiterText(event.text)) {
+            event.doit = false;
+          }
+        });
     styledText.addListener(
         SWT.KeyDown,
         event -> {
@@ -790,6 +816,23 @@ public class ContentEditorWidget implements IContentEditorWidget {
             event.doit = false;
           }
         });
+  }
+
+  /**
+   * Ctrl+Enter should execute SQL, not insert a newline. GTK VerifyKey often has {@code stateMask
+   * == 0}; {@link IContentEditorWidget#DATA_EAT_EXECUTE_NEWLINE} is set from the SQL tab as soon as
+   * Traverse/KeyDown identifies the shortcut.
+   */
+  private boolean shouldEatExecuteNewline(int stateMask, int keyCode, char character) {
+    if (IContentEditorWidget.executeActionOf(control) == null) {
+      return false;
+    }
+    if (IContentEditorWidget.isExecuteKey(stateMask, keyCode, character)
+        || IContentEditorWidget.isExecuteAllKey(stateMask, keyCode, character)) {
+      return true;
+    }
+    return IContentEditorWidget.isExecuteNewline(keyCode, character)
+        && IContentEditorWidget.eatExecuteNewlineArmed(control);
   }
 
   void installFolding() {

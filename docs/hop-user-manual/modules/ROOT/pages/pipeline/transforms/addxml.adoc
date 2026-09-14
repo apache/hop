@@ -17,28 +17,14 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add XML transform allows you to encode the content of a number of fields in a row in XML. This XML is added to the row in the form of a String field.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/add_xml.svg[Add XML Icon, role="image-doc-icon"] Add XML
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Add XML transform allows you to encode the content of a number of fields in a row in XML.
 This XML is added to the row in the form of a String field.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -55,6 +41,25 @@ This XML is added to the row in the form of a String field.
 |Omit null values from the XML result|Do not add elements or attributes with null values.
 This is often used to limit the size of the target XML.
 |===
+
+=== Namespaces
+
+Namespaces are declared like any other value: add a field in the Fields tab, mark it as an
+attribute and give it the element name of the declaration. Because the value comes from the row,
+different rows can use different namespace URIs.
+
+* To put the root element in a default namespace, use the element name `xmlns`. A root element
+`catalog` with a field `xmlns` holding `https://hop.apache.org` generates
+`<catalog xmlns="https://hop.apache.org">`. Child elements without a prefix are in that namespace
+too.
+* To bind the root element to a prefix, name the root XML element `prefix:element` and declare the
+matching `xmlns:prefix` field. A root element `cat:catalog` with a field `xmlns:cat` generates
+`<cat:catalog xmlns:cat="https://hop.apache.org">`. Unprefixed child elements are then *not* in
+that namespace; give them the prefix in their element name if they should be.
+* Any further declarations, e.g. `xmlns:xsi`, can be added as attribute fields in the same way.
+
+A prefixed root XML element without a matching `xmlns:prefix` field is an error: XML cannot use a
+prefix that is not bound to a namespace URI.
 
 === Fields Tab
 

@@ -52,6 +52,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -1292,6 +1293,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         };
 
     columns[0].setUsingVariables(true);
+    columns[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     columns[0].setToolTip(
         BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsTable.Name.Column.Tooltip"));
     columns[1].setUsingVariables(true);

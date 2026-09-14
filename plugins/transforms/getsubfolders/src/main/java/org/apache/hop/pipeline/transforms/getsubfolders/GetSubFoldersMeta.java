@@ -98,6 +98,21 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isFolderNameDynamic();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFolderNameDynamic();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetSubFoldersDialog.wOriginFiles.Label");
+  }
+
+  @Override
   public void getFields(
       IRowMeta row,
       String name,

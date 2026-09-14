@@ -161,6 +161,14 @@ public class Const {
           "Set this variable to 'Y' to automatically create config file when it's missing.")
   public static final String HOP_AUTO_CREATE_CONFIG = "HOP_AUTO_CREATE_CONFIG";
 
+  /** The system variable to keep the Hop configuration in memory without persisting it to disk */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "N",
+      description =
+          "Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk.")
+  public static final String HOP_CONFIG_IN_MEMORY = "HOP_CONFIG_IN_MEMORY";
+
   /**
    * The system environment variable pointing to the alternative location for the Hop metadata
    * folder
@@ -218,6 +226,18 @@ public class Const {
       description =
           "Set to 'Y' to bypass the engine-compatibility gate and run pipelines/workflows that contain transforms or actions marked UNSUPPORTED on the selected engine. Run-scoped, not persisted.")
   public static final String HOP_ALLOW_UNSUPPORTED = "HOP_ALLOW_UNSUPPORTED";
+
+  /**
+   * When a main hop feeds a transform that does not consume input, init fails and leftover rows
+   * stop the pipeline. Set to 'Y' to start anyway (Verify still reports an error). Use for existing
+   * files whose upstream produces no rows.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "N",
+      description =
+          "Set to 'Y' to start a pipeline that has main hops into transforms that do not consume input. Verify still reports an error. Default N fails init and stops on leftover input.")
+  public static final String HOP_ALLOW_UNCONSUMED_MAIN_INPUT = "HOP_ALLOW_UNCONSUMED_MAIN_INPUT";
 
   /** The operating system the hop platform runs on */
   @Variable(

@@ -17,8 +17,6 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.vfs2.FileChangeEvent;
 import org.apache.commons.vfs2.FileListener;
 import org.apache.commons.vfs2.FileObject;
@@ -34,17 +32,14 @@ public class HopGuiFileRefreshDelegate {
 
   private DefaultFileMonitor fileMonitor;
 
-  // key: vfs file uri
-  // value: the corresponding fileTypeHandler
-  //
-  private Map<String, IHopFileTypeHandler> fileHandlerMap;
+  private final FileRefreshHandlerMap fileHandlerMap;
 
   // TODO: replace it with a config option
   private static final long DELAY = 1000l;
 
   public HopGuiFileRefreshDelegate(HopGui hopGui) {
     this.hopGui = hopGui;
-    this.fileHandlerMap = new HashMap<>();
+    this.fileHandlerMap = new FileRefreshHandlerMap();
     this.fileMonitor =
         new DefaultFileMonitor(
             new FileListener() {
@@ -52,9 +47,8 @@ public class HopGuiFileRefreshDelegate {
               @Override
               public void fileChanged(FileChangeEvent arg0) throws Exception {
                 String fileName = arg0.getFileObject().getName().getURI();
-                if (fileName != null) {
-                  IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
-                  if (fileHandler != null && !hopGui.getDisplay().isDisposed()) {
+                if (fileName != null && !hopGui.getDisplay().isDisposed()) {
+                  for (IHopFileTypeHandler fileHandler : fileHandlerMap.get(fileName)) {
                     hopGui.getDisplay().asyncExec(fileHandler::reload);
                   }
                 }
@@ -86,26 +80,48 @@ public class HopGuiFileRefreshDelegate {
 
     try {
       FileObject file = HopVfs.getFileObject(fileName);
-      fileMonitor.addFile(file);
-      fileHandlerMap.put(file.getPublicURIString(), fileTypeHandler);
+      String uri = file.getPublicURIString();
+      boolean first = fileHandlerMap.add(uri, fileTypeHandler);
+      fileHandlerMap.alias(uri, fileName);
+      if (first) {
+        fileMonitor.addFile(file);
+      }
     } catch (HopFileException e) {
       hopGui.getLog().logError("Error registering new FileObject", e);
+      fileHandlerMap.add(fileName, fileTypeHandler);
     }
-    fileHandlerMap.put(fileName, fileTypeHandler);
   }
 
   public void remove(String fileName) {
-    if (!hopGui.getProps().isReloadingFilesOnChange()) {
+    remove(fileName, null);
+  }
+
+  public void remove(String fileName, IHopFileTypeHandler fileTypeHandler) {
+    if (fileName == null || !hopGui.getProps().isReloadingFilesOnChange()) {
       return;
     }
     try {
       FileObject file = HopVfs.getFileObject(fileName);
-      fileName = file.getPublicURIString();
-      fileMonitor.removeFile(file);
+      String uri = file.getPublicURIString();
+      boolean empty =
+          fileTypeHandler == null
+              ? fileHandlerMap.removeAll(uri)
+              : fileHandlerMap.remove(uri, fileTypeHandler);
+      if (fileTypeHandler != null) {
+        fileHandlerMap.remove(fileName, fileTypeHandler);
+      } else {
+        fileHandlerMap.removeAll(fileName);
+      }
+      if (empty) {
+        fileMonitor.removeFile(file);
+      }
     } catch (HopFileException e) {
       hopGui.getLog().logError("Error removing FileObject from fileListener", e);
-    } finally {
-      fileHandlerMap.remove(fileName);
+      if (fileTypeHandler == null) {
+        fileHandlerMap.removeAll(fileName);
+      } else {
+        fileHandlerMap.remove(fileName, fileTypeHandler);
+      }
     }
   }
 }

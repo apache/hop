@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
@@ -45,17 +44,18 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -217,7 +217,9 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(lastControl, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
@@ -1246,10 +1248,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor sqledit =
-              new SqlEditor(
-                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-          sqledit.open();
+          DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(BaseMessages.getString(PKG, "CrateDBBulkLoaderDialog.NoSQL.DialogMessage"));

@@ -17,30 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The SAS input transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/sasinput.svg[SAS input transform Icon, role="image-doc-icon"] SAS input
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The SAS input transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
 
 The functionality is backed by the https://github.com/epam/parso[Parso java library].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 

@@ -41,8 +41,13 @@ public enum ParquetVersion implements IEnumHasCode {
   }
 
   public static ParquetVersion getVersionFromDescription(String description) {
+    if (description == null || description.isEmpty()) {
+      return Version1;
+    }
     for (ParquetVersion version : values()) {
-      if (version.getDescription().equals(description)) {
+      if (version.getDescription().equals(description)
+          || version.name().equals(description)
+          || version.getCode().equals(description)) {
         return version;
       }
     }

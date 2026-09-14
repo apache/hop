@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
@@ -38,7 +37,6 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -47,9 +45,11 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -217,7 +217,9 @@ public class UpdateDialog extends BaseTransformDialog {
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
-    wSchema = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
@@ -245,7 +247,9 @@ public class UpdateDialog extends BaseTransformDialog {
     wbTable.setLayoutData(fdbTable);
     wbTable.addListener(SWT.Selection, e -> getTableName());
 
-    wTable = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
@@ -422,6 +426,7 @@ public class UpdateDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    ciKey[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     tableFieldColumns.add(ciKey[0]);
     wKey =
         new TableView(
@@ -477,6 +482,7 @@ public class UpdateDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    ciReturn[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     tableFieldColumns.add(ciReturn[0]);
     wReturn =
         new TableView(
@@ -978,10 +984,7 @@ public class UpdateDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transforminfo, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor sqledit =
-              new SqlEditor(
-                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-          sqledit.open();
+          DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(BaseMessages.getString(PKG, "UpdateDialog.NoSQLNeeds.DialogMessage"));

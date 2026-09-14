@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>javafilter-row-object</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>One and the same Java Filter condition, on a stream that has the field and on one that does not.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/09/03 09:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/09/03 09:00:00.000</modified_date>
+    <key_for_session_key/>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Both filters below hold exactly the same condition:
+
+  !row.exists("department") || "A".equals(row.getString("department"))
+
+The row object reads the row by field name, so a field that is not in the stream is never
+referenced by the expression itself. Writing this as "A".equals(department) would not even
+compile on the lower stream, which has no department field.
+
+Use this for pipelines that read a layout that is only known at runtime, e.g. a Table Input
+transform running "select * from ${TABLE_NAME}" where not every table has the same columns.</note>
+      <xloc>48</xloc>
+      <yloc>32</yloc>
+      <width>660</width>
+      <heigth>150</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop><from>table with a department column</from><to>group filter</to><enabled>Y</enabled></hop>
+    <hop><from>group filter</from><to>department A</to><enabled>Y</enabled></hop>
+    <hop><from>group filter</from><to>other departments</to><enabled>Y</enabled></hop>
+    <hop><from>table without a department column</from><to>the same group filter</to><enabled>Y</enabled></hop>
+    <hop><from>the same group filter</from><to>every row, nothing to filter on</to><enabled>Y</enabled></hop>
+    <hop><from>the same group filter</from><to>no rows</to><enabled>Y</enabled></hop>
+  </order>
+  <transform>
+    <name>table with a department column</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><set_empty_string>N</set_empty_string><length>-1</length><name>id</name><precision>-1</precision><type>Integer</type></field>
+      <field><set_empty_string>N</set_empty_string><length>-1</length><name>name</name><precision>-1</precision><type>String</type></field>
+      <field><set_empty_string>N</set_empty_string><length>-1</length><name>department</name><precision>-1</precision><type>String</type></field>
+    </fields>
+    <data>
+      <line><item>1</item><item>Alice</item><item>A</item></line>
+      <line><item>2</item><item>Bob</item><item>B</item></line>
+      <line><item>3</item><item>Carol</item><item>A</item></line>
+    </data>
+    <attributes/>
+    <GUI><xloc>96</xloc><yloc>240</yloc></GUI>
+  </transform>
+  <transform>
+    <name>group filter</name>
+    <type>JavaFilter</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>department A</send_true_to>
+    <send_false_to>other departments</send_false_to>
+    <condition>!row.exists("department") || "A".equals(row.getString("department"))</condition>
+    <attributes/>
+    <GUI><xloc>336</xloc><yloc>240</yloc></GUI>
+  </transform>
+  <transform>
+    <name>department A</name><type>Dummy</type><description/><distribute>Y</distribute><custom_distribution/><copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning><attributes/><GUI><xloc>592</xloc><yloc>192</yloc></GUI>
+  </transform>
+  <transform>
+    <name>other departments</name><type>Dummy</type><description/><distribute>Y</distribute><custom_distribution/><copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning><attributes/><GUI><xloc>592</xloc><yloc>288</yloc></GUI>
+  </transform>
+  <transform>
+    <name>table without a department column</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><set_empty_string>N</set_empty_string><length>-1</length><name>id</name><precision>-1</precision><type>Integer</type></field>
+      <field><set_empty_string>N</set_empty_string><length>-1</length><name>name</name><precision>-1</precision><type>String</type></field>
+    </fields>
+    <data>
+      <line><item>4</item><item>Dave</item></line>
+      <line><item>5</item><item>Erin</item></line>
+    </data>
+    <attributes/>
+    <GUI><xloc>96</xloc><yloc>400</yloc></GUI>
+  </transform>
+  <transform>
+    <name>the same group filter</name>
+    <type>JavaFilter</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>every row, nothing to filter on</send_true_to>
+    <send_false_to>no rows</send_false_to>
+    <condition>!row.exists("department") || "A".equals(row.getString("department"))</condition>
+    <attributes/>
+    <GUI><xloc>336</xloc><yloc>400</yloc></GUI>
+  </transform>
+  <transform>
+    <name>every row, nothing to filter on</name><type>Dummy</type><description/><distribute>Y</distribute><custom_distribution/><copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning><attributes/><GUI><xloc>592</xloc><yloc>352</yloc></GUI>
+  </transform>
+  <transform>
+    <name>no rows</name><type>Dummy</type><description/><distribute>Y</distribute><custom_distribution/><copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning><attributes/><GUI><xloc>592</xloc><yloc>448</yloc></GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

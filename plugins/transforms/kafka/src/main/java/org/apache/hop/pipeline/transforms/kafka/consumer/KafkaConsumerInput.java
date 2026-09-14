@@ -118,7 +118,6 @@ public class KafkaConsumerInput
       PipelineMeta subTransMeta = new PipelineMeta(realFilename, metadataProvider, this);
       subTransMeta.setMetadataProvider(metadataProvider);
       subTransMeta.setFilename(realFilename);
-      subTransMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       logDetailed("Loaded sub-pipeline '" + realFilename + "'");
 
       PipelineRunConfiguration runConfiguration =
@@ -132,6 +131,7 @@ public class KafkaConsumerInput
               false);
 
       LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, this, this);
+      kafkaPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       kafkaPipeline.setParentPipeline(getPipeline());
       kafkaPipeline.setPipelineRunConfiguration(runConfiguration);
       kafkaPipeline.prepareExecution();

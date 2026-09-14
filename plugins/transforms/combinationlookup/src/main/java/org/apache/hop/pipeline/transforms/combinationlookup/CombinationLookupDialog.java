@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,16 +34,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -79,7 +79,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
 
   private Button wPreloadCache;
 
-  private Text wTk;
+  private TextVar wTk;
 
   private Label wlAutoinc;
   private Button wAutoinc;
@@ -98,7 +98,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
   private TableView wKey;
 
   private Label wlHashfield;
-  private Text wHashfield;
+  private TextVar wHashfield;
 
   private Text wLastUpdateField;
 
@@ -174,7 +174,9 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
@@ -201,7 +203,9 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
@@ -287,6 +291,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    ciKey[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     tableFieldColumns.add(ciKey[0]);
     wKey =
         new TableView(
@@ -326,7 +331,9 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdlHashfield.right = new FormAttachment(middle, -margin);
     fdlHashfield.bottom = new FormAttachment(wLastUpdateField, -margin);
     wlHashfield.setLayoutData(fdlHashfield);
-    wHashfield = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHashfield =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_COLUMN);
     PropsUi.setLook(wHashfield);
     wHashfield.addModifyListener(lsMod);
     FormData fdHashfield = new FormData();
@@ -482,7 +489,9 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdlTk.right = new FormAttachment(middle, -margin);
     fdlTk.bottom = new FormAttachment(gTechGroup, -margin);
     wlTk.setLayoutData(fdlTk);
-    wTk = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTk =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_COLUMN);
     PropsUi.setLook(wTk);
     FormData fdTk = new FormData();
     fdTk.left = new FormAttachment(middle, 0);
@@ -891,15 +900,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor sqledit =
-              new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  pipelineMeta.findDatabase(info.getConnectionName(), variables),
-                  DbCache.getInstance(),
-                  sql.getSql());
-          sqledit.open();
+          DatabaseWorkbenchDialog.openSql(
+              pipelineMeta.findDatabase(info.getConnectionName(), variables), sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(

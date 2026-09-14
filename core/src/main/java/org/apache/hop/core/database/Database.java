@@ -130,8 +130,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /**
    * When positive, applied to statements created in {@link #openQuery(String, IRowMeta, Object[],
-   * int, boolean)} via {@link Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC
-   * driver default (typically unlimited). Intended for short-lived GUI preview connections.
+   * int, boolean)} and {@link #execStatement(String, IRowMeta, Object[])} via {@link
+   * Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC driver default (typically
+   * unlimited). Intended for short-lived GUI preview connections.
    */
   private int statementQueryTimeoutSeconds;
 
@@ -270,8 +271,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /**
    * Sets the JDBC {@link Statement#setQueryTimeout(int)} (seconds) for statements opened by {@link
-   * #openQuery(String, IRowMeta, Object[], int, boolean)} until {@link #disconnect()}. Use {@code
-   * 0} to use the driver default.
+   * #openQuery(String, IRowMeta, Object[], int, boolean)} and {@link #execStatement(String,
+   * IRowMeta, Object[])} until {@link #disconnect()}. Use {@code 0} to use the driver default.
    *
    * @param seconds query timeout in whole seconds; values {@code < 0} are treated as {@code 0}
    */
@@ -623,10 +624,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     openQueryStatement = null;
     openQueryRowMeta = null;
     if (connection == null) {
+      dbmd = null;
       return; // Nothing to do...
     }
     try {
       if (connection.isClosed()) {
+        dbmd = null;
         return; // Nothing to do...
       }
     } catch (SQLException ex) {
@@ -722,6 +725,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.logError(Const.getStackTracker(hde));
       }
       statementQueryTimeoutSeconds = 0;
+      dbmd = null;
     }
   }
 
@@ -737,6 +741,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         connection.close();
         connection = null;
       }
+      dbmd = null;
 
       if (log.isDetailed()) {
         log.logDetailed("Connection to database closed!");
@@ -1525,12 +1530,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (params != null) {
         PreparedStatement prepStmt = connection.prepareStatement(databaseMeta.stripCR(sql));
         setValues(params, data, prepStmt); // set the parameters!
+        applyStatementQueryTimeout(prepStmt);
         resultSet = prepStmt.execute();
         count = prepStmt.getUpdateCount();
         prepStmt.close();
       } else {
         String sqlStripped = databaseMeta.stripCR(sql);
         try (Statement stmt = connection.createStatement()) {
+          applyStatementQueryTimeout(stmt);
           resultSet = stmt.execute(sqlStripped);
           count = stmt.getUpdateCount();
         }
@@ -1614,8 +1621,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         if (!Const.onlySpaces(stat)) {
           String sql = Const.trim(stat);
-          if (sql.toUpperCase().startsWith("SELECT")
-              && !sql.toUpperCase().matches("(?is)^(select\\s.*\\sinto\\s).*")) {
+          if (SqlQueryClassifier.isQuery(sql)) {
             // A Query
             if (log.isDetailed()) {
               log.logDetailed("launch SELECT statement: " + Const.CR + sql);
@@ -2281,33 +2287,25 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     // For now, we just try to get the field layout on the re-bound in the
     // exception block below.
     //
-    boolean maybeScanTable = false;
     try {
       if (databaseMeta.supportsPreparedStatementMetadataRetrieval()) {
-        // On with the regular program.
-        //
         fields = getQueryFieldsFromPreparedStatement(sql);
+      } else if (isDataServiceConnection()) {
+        // Data services return Hop type names on SOURCE_* columns. Standard JDBC getColumns()
+        // does not, so ordinary databases go straight to the fallback.
+        fields = getQueryFieldsFromDatabaseMetaData(sql);
       } else {
-        if (isDataServiceConnection()) {
-          fields = getQueryFieldsFromDatabaseMetaData(sql);
-        } else {
-          maybeScanTable = true;
-          fields = getQueryFieldsFromDatabaseMetaData();
-        }
+        fields = getQueryFieldsFallback(sql, param, inform, data);
       }
     } catch (Exception e) {
-      if (maybeScanTable) {
-        String fastFetchSql = sql.replaceAll("\\b((?i)WHERE)\\b(\\s)", "$1 1=2 AND$2");
-        if (fastFetchSql.length() > sql.length()) {
-          try {
-            fields = getQueryFieldsFallback(sql, param, inform, data);
-          } catch (HopDatabaseException ignore) {
-            // Do nothing
-          }
-        }
-      }
-      if (fields == null) {
+      // Only recover from the prepared-statement / data-service paths. The else branch already
+      // ran the fallback; calling it again would execute the user's SQL twice.
+      if (databaseMeta.supportsPreparedStatementMetadataRetrieval() || isDataServiceConnection()) {
         fields = getQueryFieldsFallback(sql, param, inform, data);
+      } else if (e instanceof HopDatabaseException hopDatabaseException) {
+        throw hopDatabaseException;
+      } else {
+        throw new HopDatabaseException(e);
       }
     }
 
@@ -2352,53 +2350,54 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private IRowMeta getQueryFieldsFromDatabaseMetaData(String sql) throws Exception {
 
-    ResultSet columns =
+    try (ResultSet columns =
         connection
             .getMetaData()
-            .getColumns("", "", StringUtils.isNotBlank(sql) ? sql : databaseMeta.getName(), "");
-    IRowMeta rowMeta = new RowMeta();
-    while (columns.next()) {
-      IValueMeta valueMeta = null;
-      String name = columns.getString("COLUMN_NAME");
-      String comments = columns.getString("REMARKS");
-      String type = columns.getString("SOURCE_DATA_TYPE");
-      int size = columns.getInt("COLUMN_SIZE");
-      valueMeta =
-          switch (type) {
-            case "Integer", "Long" -> new ValueMetaInteger();
-            case "BigDecimal", "BigNumber" -> new ValueMetaBigNumber();
-            case "Double", "Number" -> new ValueMetaNumber();
-            case "String" -> new ValueMetaString();
-            case "Date" -> new ValueMetaDate();
-            case "Boolean" -> new ValueMetaBoolean();
-            case "Binary" -> new ValueMetaBinary();
-            case "Timestamp" -> new ValueMetaTimestamp();
-            case "Internet Address" -> new ValueMetaInternetAddress();
-            default -> valueMeta;
-          };
-      if (valueMeta != null) {
-        valueMeta.setName(name);
-        valueMeta.setComments(comments);
-        valueMeta.setLength(size);
-        valueMeta.setOriginalColumnTypeName(type);
+            .getColumns("", "", StringUtils.isNotBlank(sql) ? sql : databaseMeta.getName(), "")) {
+      IRowMeta rowMeta = new RowMeta();
+      while (columns.next()) {
+        IValueMeta valueMeta = null;
+        String name = columns.getString("COLUMN_NAME");
+        String comments = columns.getString("REMARKS");
+        String type = columns.getString("SOURCE_DATA_TYPE");
+        int size = columns.getInt("COLUMN_SIZE");
+        valueMeta =
+            switch (type) {
+              case "Integer", "Long" -> new ValueMetaInteger();
+              case "BigDecimal", "BigNumber" -> new ValueMetaBigNumber();
+              case "Double", "Number" -> new ValueMetaNumber();
+              case "String" -> new ValueMetaString();
+              case "Date" -> new ValueMetaDate();
+              case "Boolean" -> new ValueMetaBoolean();
+              case "Binary" -> new ValueMetaBinary();
+              case "Timestamp" -> new ValueMetaTimestamp();
+              case "Internet Address" -> new ValueMetaInternetAddress();
+              default -> valueMeta;
+            };
+        if (valueMeta != null) {
+          valueMeta.setName(name);
+          valueMeta.setComments(comments);
+          valueMeta.setLength(size);
+          valueMeta.setOriginalColumnTypeName(type);
 
-        valueMeta.setConversionMask(columns.getString("SOURCE_MASK"));
-        valueMeta.setDecimalSymbol(columns.getString("SOURCE_DECIMAL_SYMBOL"));
-        valueMeta.setGroupingSymbol(columns.getString("SOURCE_GROUPING_SYMBOL"));
-        valueMeta.setCurrencySymbol(columns.getString("SOURCE_CURRENCY_SYMBOL"));
+          valueMeta.setConversionMask(columns.getString("SOURCE_MASK"));
+          valueMeta.setDecimalSymbol(columns.getString("SOURCE_DECIMAL_SYMBOL"));
+          valueMeta.setGroupingSymbol(columns.getString("SOURCE_GROUPING_SYMBOL"));
+          valueMeta.setCurrencySymbol(columns.getString("SOURCE_CURRENCY_SYMBOL"));
 
-        rowMeta.addValueMeta(valueMeta);
-      } else {
-        log.logBasic(
-            "Database.getQueryFields() IValueMeta mapping not resolved for the column " + name);
-        rowMeta = null;
-        break;
+          rowMeta.addValueMeta(valueMeta);
+        } else {
+          log.logBasic(
+              "Database.getQueryFields() IValueMeta mapping not resolved for the column " + name);
+          rowMeta = null;
+          break;
+        }
       }
-    }
-    if (rowMeta != null && !rowMeta.isEmpty()) {
-      return rowMeta;
-    } else {
-      throw new Exception("Error in Database.getQueryFields()");
+      if (rowMeta != null && !rowMeta.isEmpty()) {
+        return rowMeta;
+      } else {
+        throw new Exception("Error in Database.getQueryFields()");
+      }
     }
   }
 
@@ -3275,6 +3274,70 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     return retval.toString();
   }
 
+  /**
+   * DDL to recreate a table or view: catalog text when the dialect can read it, otherwise a {@code
+   * CREATE TABLE} (or a column-only {@code CREATE VIEW}) from field metadata.
+   *
+   * @param schemaName schema or catalog, may be {@code null}
+   * @param objectName table or view name
+   * @param view {@code true} to emit {@code CREATE VIEW}
+   * @param fields columns already loaded, or {@code null} to look them up
+   */
+  public String getObjectDdl(String schemaName, String objectName, boolean view, IRowMeta fields)
+      throws HopDatabaseException {
+    String qualified = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, objectName);
+    String catalog = readCatalogDdl(schemaName, objectName, view);
+    if (!Utils.isEmpty(catalog)) {
+      if (view && !DatabaseObjectDdl.startsWithCreate(catalog)) {
+        return DatabaseObjectDdl.asCreateViewStatement(qualified, catalog);
+      }
+      return DatabaseObjectDdl.ensureSemicolon(catalog);
+    }
+    IRowMeta layout = fields;
+    if (layout == null || layout.isEmpty()) {
+      layout = loadObjectFields(schemaName, objectName, qualified);
+    }
+    if (view) {
+      return DatabaseObjectDdl.synthesizeCreateView(
+          qualified, layout, "View definition is not available from the catalog");
+    }
+    if (layout == null || layout.isEmpty()) {
+      return "";
+    }
+    databaseMeta.quoteReservedWords(layout);
+    return getCreateTableStatement(qualified, layout, null, false, null, true);
+  }
+
+  private IRowMeta loadObjectFields(String schemaName, String objectName, String qualified)
+      throws HopDatabaseException {
+    try {
+      IRowMeta meta = getTableFieldsMeta(schemaName, objectName);
+      if (meta != null && meta.size() > 0) {
+        return meta;
+      }
+    } catch (Exception ignored) {
+      // Fall back to the query-based layout.
+    }
+    return getTableFields(qualified);
+  }
+
+  private String readCatalogDdl(String schemaName, String objectName, boolean view) {
+    String sql = databaseMeta.getSqlObjectDdl(schemaName, objectName);
+    if (Utils.isEmpty(sql) && view) {
+      sql = databaseMeta.getSqlViewDefinition(schemaName, objectName);
+    }
+    if (Utils.isEmpty(sql)) {
+      return null;
+    }
+    try {
+      RowMetaAndData row = getOneRow(sql);
+      return DatabaseObjectDdl.extractDefinition(row);
+    } catch (Exception e) {
+      log.logDebug("Unable to read object DDL from the catalog", e);
+      return null;
+    }
+  }
+
   public String getAlterTableStatement(
       String tableName,
       IRowMeta fields,
@@ -3493,33 +3556,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       ParameterMetaData pmd = ps.getParameterMetaData();
       for (int i = 1; i <= pmd.getParameterCount(); i++) {
         String name = "par" + i;
-        int sqltype = pmd.getParameterType(i);
-        int length = pmd.getPrecision(i);
-        int precision = pmd.getScale(i);
-        IValueMeta val =
-            switch (sqltype) {
-              case java.sql.Types.CHAR, java.sql.Types.VARCHAR -> new ValueMetaString(name);
-              case java.sql.Types.BIGINT,
-                      java.sql.Types.INTEGER,
-                      java.sql.Types.NUMERIC,
-                      java.sql.Types.SMALLINT,
-                      java.sql.Types.TINYINT ->
-                  new ValueMetaInteger(name);
-              case java.sql.Types.DECIMAL,
-                      java.sql.Types.DOUBLE,
-                      java.sql.Types.FLOAT,
-                      java.sql.Types.REAL ->
-                  new ValueMetaNumber(name);
-              case java.sql.Types.DATE, java.sql.Types.TIME, java.sql.Types.TIMESTAMP ->
-                  new ValueMetaDate(name);
-              case java.sql.Types.BOOLEAN, java.sql.Types.BIT -> new ValueMetaBoolean(name);
-              default -> new ValueMetaNone(name);
-            };
-
-        if (val.isNumeric() && (length > 18 || precision > 18)) {
-          val = new ValueMetaBigNumber(name);
+        int sqlType = pmd.getParameterType(i);
+        int precision = pmd.getPrecision(i);
+        int scale = pmd.getScale(i);
+        DatabaseColumn column = DatabaseColumn.of(name, sqlType, null, precision, scale, precision);
+        IValueMeta val = DatabaseTypeMapper.getValueMeta(this, databaseMeta, column, false, false);
+        if (val == null) {
+          val = new ValueMetaNone(name);
+        } else if (isUnsizedExactNumeric(sqlType, precision, scale) && val.isNumber()) {
+          // Drivers often report NUMERIC/DECIMAL with precision 0 for untyped parameters.
+          // The mapper then yields a double-backed Number; the old parameter path used Integer.
+          val = new ValueMetaInteger(name);
         }
-
         par.addValueMeta(val);
       }
     } catch (AbstractMethodError | Exception e) {
@@ -3528,6 +3576,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     return par;
+  }
+
+  private static boolean isUnsizedExactNumeric(int sqlType, int precision, int scale) {
+    return (sqlType == Types.NUMERIC || sqlType == Types.DECIMAL) && precision <= 0 && scale <= 0;
   }
 
   public int countParameters(String sql) {
@@ -3694,9 +3746,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (monitor != null) {
       monitor.setTaskName("Opening query...");
     }
-    ResultSet rset = openQuery(sql, params, data, fetchMode, lazyConversion);
-
-    return getRows(rset, limit, monitor);
+    // openQuery honours setQueryLimit via Statement.setMaxRows. The limit argument used to only
+    // stop the client read loop, so drivers that buffer the result still fetched the whole table.
+    int previousLimit = rowlimit;
+    if (limit > 0) {
+      setQueryLimit(limit);
+    }
+    try {
+      ResultSet rset = openQuery(sql, params, data, fetchMode, lazyConversion);
+      return getRows(rset, limit, monitor);
+    } finally {
+      rowlimit = previousLimit;
+    }
   }
 
   /**

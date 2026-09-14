@@ -51,6 +51,8 @@ public enum HopExtensionPoint {
   PipelineGraphMouseMoved("The mouse was moved on the canvas"),
   PipelineGraphMouseDoubleClick("A left or right button was double-clicked in a Pipeline"),
   PipelineBeforeDeleteTransforms("Pipeline transforms about to be deleted"),
+  PipelineTransformRenamed(
+      "A pipeline transform was renamed (TransformNameChange: pipeline, old name, new name)"),
 
   HopGuiPipelineMetaExecutionStart("Hop GUI initiates the execution of a pipeline (PipelineMeta)"),
   HopGuiPipelineExecutionConfiguration(
@@ -105,6 +107,7 @@ public enum HopExtensionPoint {
   AfterCheckTransforms("After a set of transforms has been checked for warnings/errors."),
   BeforeCheckTransform("Right before a transform is about to be verified."),
   AfterCheckTransform("After a transform has been checked for warnings/errors."),
+  AfterCheckActions("After a set of workflow actions has been checked for warnings/errors."),
 
   HopServerInit("Right before the Hop server starts"),
   HopServerStartup("Right after the Hop server has started and is fully functional"),
@@ -188,7 +191,17 @@ public enum HopExtensionPoint {
    */
   HopGuiSearchMarketplace("Open the marketplace, searching for a plugin id (String)"),
 
+  /**
+   * Open or reuse an AI advisor session. Payload is {@code AiAdvisorOpenRequest}. Listened to by
+   * {@code hop-tech-ai}; hopper-edw and other plugins fire this instead of depending on that JAR.
+   */
+  HopGuiAiAdvisorOpenSession("Open an AI advisor session (AiAdvisorOpenRequest)"),
+
   HopImportStart("Executed at the start of the 'hop-import' command line tool"),
+  HopImportTargetMetadataReady(
+      "The import target metadata provider has been created (HopImportBase)"),
+  HopImportRewriteMetadata(
+      "Imported files and connections have been written; rewrite metadata names (HopImportBase)"),
   HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
   ;
 

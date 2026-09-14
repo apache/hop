@@ -19,6 +19,7 @@ package org.apache.hop.www;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.hop.core.annotations.HopServerServlet;
 
 public interface IHopServerPlugin extends IHopServerServlet {
 
@@ -31,4 +32,20 @@ public interface IHopServerPlugin extends IHopServerServlet {
   void setJettyMode(boolean jettyMode);
 
   boolean isJettyMode();
+
+  /**
+   * Hop Web RBAC permission id for this servlet. Default reads {@link
+   * HopServerServlet#requiredPermission()} on the implementation class. Empty means default-deny on
+   * authenticated Hop Web.
+   *
+   * @return permission id such as {@code run.execute}, or empty
+   */
+  default String getRequiredPermissionId() {
+    HopServerServlet annotation = getClass().getAnnotation(HopServerServlet.class);
+    if (annotation == null) {
+      return "";
+    }
+    String permission = annotation.requiredPermission();
+    return permission == null ? "" : permission.trim();
+  }
 }

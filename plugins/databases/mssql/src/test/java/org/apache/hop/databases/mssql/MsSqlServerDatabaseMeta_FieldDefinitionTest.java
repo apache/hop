@@ -37,7 +37,6 @@ class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   private static final String STRING_DECIMAL = "DECIMAL";
   private static final String STRING_FLOAT = "FLOAT";
   private static final String STRING_VARCHAR = "VARCHAR";
-  private static final String STRING_TEXT = "TEXT";
 
   @BeforeEach
   void init() {
@@ -128,7 +127,7 @@ class MsSqlServerDatabaseMeta_FieldDefinitionTest {
     IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(10_000).build();
 
     assertEquals(
-        STRING_TEXT, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
+        "VARCHAR(MAX)", dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   private static class MetaInterfaceBuilder {

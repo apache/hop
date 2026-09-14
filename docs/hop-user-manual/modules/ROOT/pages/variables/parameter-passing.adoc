@@ -16,8 +16,6 @@ under the License.
 ////
 [[ParameterPassing]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: The exact rules that decide which value a parameter has when a pipeline or workflow is started by another one. The same rules apply to every action and transform that runs a child.
 
 = Passing parameters to a child pipeline or workflow
@@ -88,7 +86,7 @@ For each parameter the child declares, in this order:
 "Otherwise" means the row supplied nothing, which includes a name you typed in and left blank. What
 counts as supplying a value is not always obvious - see <<supplies>>.
 
-A row that names a parameter the child does *not* declare is not ignored: that parameter is declared on the child and set, so the child can use `{openvar}NAME{closevar}` as if it had declared it itself.
+A row that names a parameter the child does *not* declare is not ignored: that parameter is declared on the child and set, so the child can use `+${NAME}+` as if it had declared it itself.
 
 [[supplies]]
 == What counts as "supplies a value"
@@ -102,7 +100,7 @@ Rule 1 only applies to a row that actually configures something. Several cases l
 |A value is filled in
 |That value is used. Rule 1.
 
-|A value that is a variable expression resolving to empty, such as `{openvar}OTHER_VARIABLE{closevar}` when `OTHER_VARIABLE` is set but empty
+|A value that is a variable expression resolving to empty, such as `+${OTHER_VARIABLE}+` when `OTHER_VARIABLE` is set but empty
 |You configured a value; it just came out empty. The child falls back to its own default. **The checkbox makes no difference here** - the row already claimed the parameter, so the caller's own value of that name is not considered.
 
 |A stream field is mapped, and it is empty on this row
@@ -127,7 +125,7 @@ The contrast to keep in mind is between an empty cell and an expression that eva
 |`child-default`
 |`parent-value`
 
-|`{openvar}EMPTY_VAR{closevar}`, where `EMPTY_VAR` is set but empty
+|`+${EMPTY_VAR}+`, where `EMPTY_VAR` is set but empty
 |`child-default`
 |`child-default`
 |===
@@ -137,7 +135,7 @@ There is therefore no way to say "use my expression, and fall back to the caller
 [WARNING]
 ====
 If the variable in such an expression does not exist at all, Hop cannot resolve it and passes the
-text through unchanged: the child receives the literal string `{openvar}OTHER_VARIABLE{closevar}`,
+text through unchanged: the child receives the literal string `+${OTHER_VARIABLE}+`,
 not an empty value. An undefined variable and a variable set to empty behave very differently, and
 unticking the checkbox does not protect you from this one.
 ====
@@ -162,13 +160,13 @@ A child that declares `MY_PARAM` with default `child-default`, a caller whose sc
 |`child-default`
 |`child-default`
 
-|`MY_PARAM` = `{openvar}EMPTY_VAR{closevar}`, where `EMPTY_VAR` is set but empty
+|`MY_PARAM` = `+${EMPTY_VAR}+`, where `EMPTY_VAR` is set but empty
 |`child-default`
 |`child-default`
 
-|`MY_PARAM` = `{openvar}NO_SUCH_VAR{closevar}`, where the variable does not exist
-|`{openvar}NO_SUCH_VAR{closevar}`
-|`{openvar}NO_SUCH_VAR{closevar}`
+|`MY_PARAM` = `+${NO_SUCH_VAR}+`, where the variable does not exist
+|`+${NO_SUCH_VAR}+`
+|`+${NO_SUCH_VAR}+`
 
 |`MY_PARAM` listed, no value, no stream field
 |`child-default`
@@ -197,7 +195,7 @@ If the child must be able to run with an empty value, declare it in the child wi
 
 The child inherits `MY_PARAM=parent-value` as a variable either way. But if the child also *declares* `MY_PARAM` as a parameter, activating that parameter sets the variable in the child's scope, so the parameter is what you read. That is the point of declaring it, and it is why two independently written pipelines that happen to use the same name do not contaminate each other.
 
-If a value really is environment-wide, do not declare it as a parameter at all. Just read `{openvar}NAME{closevar}`: it is inherited, and nothing overwrites it.
+If a value really is environment-wide, do not declare it as a parameter at all. Just read `+${NAME}+`: it is inherited, and nothing overwrites it.
 
 === A child that is already running does not see new values
 

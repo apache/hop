@@ -1,0 +1,9 @@
+{
+  "name": "github",
+  "description": "Public GitHub API. Leave the token empty for anonymous access to public repositories (rate limited), or set a personal access token for higher limits and private repositories.",
+  "provider": "GITHUB_CLOUD",
+  "api_base_url": "",
+  "username": "",
+  "token": "",
+  "password": ""
+}

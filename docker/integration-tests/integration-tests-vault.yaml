@@ -15,6 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
+volumes:
+  k8s-jwt:
+
 services:
   integration_test_vault:
     extends:
@@ -23,8 +26,12 @@ services:
     depends_on:
       vault:
         condition: service_healthy
+      k8s-mock:
+        condition: service_healthy
     links:
       - vault
+    volumes:
+      - k8s-jwt:/tmp/k8s-sa:ro
   vault:
     image: hashicorp/vault
     ports:
@@ -40,3 +47,24 @@ services:
       timeout: 3s
       retries: 10
       start_period: 5s
+  k8s-mock:
+    image: python:3.12-alpine
+    depends_on:
+      vault:
+        condition: service_healthy
+    environment:
+      JWT_PATH: /jwt/token
+      PORT: "8080"
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: myroot
+      KUBERNETES_HOST: http://k8s-mock:8080
+    volumes:
+      - ./resource/vault/k8s-tokenreview.py:/k8s-tokenreview.py:ro
+      - k8s-jwt:/jwt
+    command: [ "python", "/k8s-tokenreview.py" ]
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready')" ]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+      start_period: 2s

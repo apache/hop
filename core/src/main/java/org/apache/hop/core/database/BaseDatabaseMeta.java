@@ -44,6 +44,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
@@ -212,6 +214,11 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     if (getAccessTypeList() != null && getAccessTypeList().length > 0) {
       accessType = getAccessTypeList()[0];
     }
+    DatabaseMetaPlugin annotation = getClass().getAnnotation(DatabaseMetaPlugin.class);
+    if (annotation != null) {
+      pluginId = annotation.type();
+      pluginName = annotation.typeDescription();
+    }
   }
 
   /**
@@ -219,6 +226,24 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @Override
   public String getPluginId() {
+    if (Utils.isEmpty(pluginId)) {
+      if (!Utils.isEmpty(pluginName)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithName(DatabasePluginType.class, pluginName);
+        if (plugin != null) {
+          pluginId = plugin.getIds()[0];
+        }
+      }
+      if (Utils.isEmpty(pluginId)) {
+        DatabaseMetaPlugin annotation = getClass().getAnnotation(DatabaseMetaPlugin.class);
+        if (annotation != null) {
+          pluginId = annotation.type();
+          if (Utils.isEmpty(pluginName)) {
+            pluginName = annotation.typeDescription();
+          }
+        }
+      }
+    }
     return pluginId;
   }
 
@@ -235,6 +260,24 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @Override
   public String getPluginName() {
+    if (Utils.isEmpty(pluginName)) {
+      if (!Utils.isEmpty(pluginId)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithId(DatabasePluginType.class, pluginId);
+        if (plugin != null) {
+          pluginName = plugin.getName();
+        }
+      }
+      if (Utils.isEmpty(pluginName)) {
+        DatabaseMetaPlugin annotation = getClass().getAnnotation(DatabaseMetaPlugin.class);
+        if (annotation != null) {
+          pluginName = annotation.typeDescription();
+          if (Utils.isEmpty(pluginId)) {
+            pluginId = annotation.type();
+          }
+        }
+      }
+    }
     return pluginName;
   }
 
@@ -922,6 +965,56 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public String getSqlQueryFields(String tableName) {
     return "SELECT * FROM " + tableName;
+  }
+
+  /**
+   * SQL-standard catalog lookup. Dialects without {@code INFORMATION_SCHEMA.VIEWS} override this
+   * (Oracle, SQLite) or {@link #getSqlObjectDdl(String, String)} (MySQL {@code SHOW CREATE TABLE}).
+   */
+  @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    if (Utils.isEmpty(viewName)) {
+      return null;
+    }
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = ");
+    sql.append(quoteSqlString(viewName));
+    if (!Utils.isEmpty(schemaName)) {
+      sql.append(" AND TABLE_SCHEMA = ").append(quoteSqlString(schemaName));
+    }
+    return sql.toString();
+  }
+
+  /**
+   * Quote an identifier for catalog SQL such as {@code SHOW CREATE TABLE}. Always quotes, unlike
+   * {@link DatabaseMeta#quoteField(String)}.
+   */
+  protected String quoteIdentifierAlways(String name) {
+    if (name == null) {
+      return null;
+    }
+    String start = Const.NVL(getStartQuote(), "");
+    String end = Const.NVL(getEndQuote(), start);
+    if (start.isEmpty()) {
+      return name;
+    }
+    return start + name.replace(end, end + end) + end;
+  }
+
+  /**
+   * {@code SHOW CREATE TABLE} for MySQL, Hive and similar. Quotes schema and object names.
+   *
+   * @return the statement, or {@code null} when {@code objectName} is empty
+   */
+  protected String showCreateTableSql(String schemaName, String objectName) {
+    if (Utils.isEmpty(objectName)) {
+      return null;
+    }
+    String qualified =
+        Utils.isEmpty(schemaName)
+            ? quoteIdentifierAlways(objectName)
+            : quoteIdentifierAlways(schemaName) + "." + quoteIdentifierAlways(objectName);
+    return "SHOW CREATE TABLE " + qualified;
   }
 
   /**
@@ -1648,12 +1741,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
         String stat = all.substring(from, to);
         if (!onlySpaces(stat)) {
           String s = Const.trim(stat);
-          statements.add(
-              new SqlScriptStatement(
-                  s,
-                  from,
-                  to,
-                  s.toUpperCase().startsWith("SELECT") || s.toLowerCase().startsWith("show")));
+          statements.add(new SqlScriptStatement(s, from, to, SqlQueryClassifier.isQuery(s)));
         }
         to++;
         from = to;

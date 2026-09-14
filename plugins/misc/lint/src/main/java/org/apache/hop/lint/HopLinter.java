@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -113,7 +114,9 @@ public class HopLinter {
   private void applyEffectiveRuleSet(EffectiveRuleSet resolved) {
     this.effectiveRuleSet = resolved;
     this.config = resolved.getConfig();
-    log.logBasic(
+    // Detailed, not basic: resolving happens on every lint of every file, and now on every
+    // right-click that has to work out what the lint menu should offer.
+    log.logDetailed(
         "Effective lint rules loaded: "
             + resolved.getRules().size()
             + " ("
@@ -486,8 +489,7 @@ public class HopLinter {
               runPolicyRules(pipelineMeta, fileName), pipelineMeta));
     }
 
-    return LintResultDeduplicator.deduplicate(
-        LintCheckResultAdapter.fromCheckResults(remarks, fileName));
+    return applyPolicy(LintCheckResultAdapter.fromCheckResults(remarks, fileName), fileName);
   }
 
   /** Compute workflow lint results the same way as workflow verify plus optional policy rules. */
@@ -512,8 +514,7 @@ public class HopLinter {
               runPolicyRules(workflowMeta, fileName), workflowMeta));
     }
 
-    return LintResultDeduplicator.deduplicate(
-        LintCheckResultAdapter.fromCheckResults(remarks, fileName));
+    return applyPolicy(LintCheckResultAdapter.fromCheckResults(remarks, fileName), fileName);
   }
 
   private boolean shouldIncludeLintInWorkflowVerify() {
@@ -583,13 +584,95 @@ public class HopLinter {
       throws HopException {
     List<LintResult> results = new ArrayList<>(policyResults);
     if (shouldIncludeNativeChecks() && hopObject != null) {
+      ensureEffectiveRuleSet();
       results.addAll(
-          HopNativeCheckRunner.runNativeChecks(hopObject, fileName, variables, metadataProvider));
+          HopNativeCheckRunner.runNativeChecks(
+              hopObject,
+              fileName,
+              variables,
+              metadataProvider,
+              new NativeCheckClassifier(effectiveRuleSet.getNativeVerifyRules())));
     }
     // Suppressions are applied last, so they cover Hop's native remarks as well as policy
     // findings — a team accepting something should not have to care which produced it.
-    return getPolicy()
-        .applySuppressions(LintResultDeduplicator.deduplicate(results), projectRootFor(fileName));
+    return applyPolicy(results, fileName);
+  }
+
+  /**
+   * Deduplicate, then apply the project's {@code exclude:} and {@code suppress:} configuration.
+   *
+   * <p>Every path that hands results to a caller ends here, the editor ones included. A decision
+   * that only held on the command line would leave the finding on the canvas, which is where the
+   * person who wrote it down is looking.
+   */
+  public List<LintResult> applyPolicy(List<LintResult> results, String fileName) {
+    List<LintResult> deduplicated = LintResultDeduplicator.deduplicate(results);
+    LintPolicy policy = getPolicy();
+    if (policy.isEmpty()) {
+      // Locating the project configuration walks the filesystem, and the editor lints on a
+      // keystroke timer. Nothing is excluded or suppressed, so there is nothing to root against.
+      LintResultsManager.getInstance().setMarkedElements(fileName, Set.of());
+      return deduplicated;
+    }
+
+    Path projectRoot = projectRootFor(fileName);
+    if (policy.isExcluded(fileName, projectRoot)) {
+      // Nothing about this file is checked, so nothing about it is accepted either: marking a
+      // transform as "findings ignored here" would claim a decision nobody made.
+      LintResultsManager.getInstance().setMarkedElements(fileName, Set.of());
+      // An excluded file is not linted, however the linter was asked to look at it: through the
+      // project walk, through an open editor, or by name. Filtering the findings away here rather
+      // than at each entry point is what keeps those answers the same.
+      log.logDetailed("Not linting " + fileName + ": excluded by the project configuration");
+      return List.of();
+    }
+
+    LintResultsManager.getInstance()
+        .setMarkedElements(fileName, policy.markedElements(fileName, projectRoot));
+    return policy.applySuppressions(deduplicated, projectRoot);
+  }
+
+  /**
+   * Whether the project has accepted the findings on this transform or action.
+   *
+   * <p>Read from the configuration rather than from the last run's results: a menu has to be right
+   * the first time it is opened, including on a file this session has not linted yet.
+   */
+  public boolean isMarkedElement(String fileName, String elementName) {
+    LintPolicy policy = getPolicy();
+    return !policy.getSuppressions().isEmpty()
+        && policy.markedElements(fileName, projectRootFor(fileName)).contains(elementName);
+  }
+
+  /** Whether the project keeps this file out of linting entirely. */
+  public boolean isExcluded(String fileName) {
+    LintPolicy policy = getPolicy();
+    return !policy.getExcludes().isEmpty() && policy.isExcluded(fileName, projectRootFor(fileName));
+  }
+
+  /**
+   * Drop the accepted findings from a list of Hop's own verify remarks, in place.
+   *
+   * <p>Hop collects those itself, so they arrive here having passed no suppression. Removing them
+   * keeps the verify tab, the Problems bar and the canvas telling the same story: a finding the
+   * project has accepted is gone from all three, or from none.
+   */
+  public void removeSuppressed(List<ICheckResult> remarks, String fileName) {
+    if (remarks == null || remarks.isEmpty()) {
+      return;
+    }
+    LintPolicy policy = getPolicy();
+    if (policy.getSuppressions().isEmpty()) {
+      return;
+    }
+    // Resolved once: the project root is the same for every remark, and finding it walks the
+    // filesystem.
+    Path projectRoot = projectRootFor(fileName);
+    remarks.removeIf(
+        remark -> {
+          LintResult result = LintCheckResultAdapter.fromCheckResult(remark, fileName);
+          return result != null && policy.isSuppressed(result, projectRoot);
+        });
   }
 
   /**
@@ -626,8 +709,12 @@ public class HopLinter {
   private List<LintResult> runPolicyRulesInternal(Object hopObject, String fileName) {
     List<LintResult> results = new ArrayList<>();
     ensureEffectiveRuleSet();
+    // A rule is handed one transform at a time, and a transform does not know its pipeline. This
+    // is how a rule about the way an element is connected can be answered, and so report the
+    // element rather than the file.
+    CustomRuleExecutor.setSubject(hopObject);
     try {
-      for (CustomLintRule customRule : effectiveRuleSet.getEnabledRules()) {
+      for (CustomLintRule customRule : effectiveRuleSet.getEnabledPolicyRules()) {
         List<LintResult> customResults =
             CustomRuleExecutor.executeRule(customRule, hopObject, fileName);
         results.addAll(customResults);
@@ -669,6 +756,8 @@ public class HopLinter {
       }
     } catch (Exception e) {
       log.logError("Error executing custom rules on file " + fileName + ": " + e.getMessage(), e);
+    } finally {
+      CustomRuleExecutor.setSubject(null);
     }
     return results;
   }

@@ -248,6 +248,9 @@ class OracleDatabaseMetaTest {
     assertEquals(" FETCH FIRST 5 ROWS ONLY", nativeMeta.getLimitClause(5));
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
     assertEquals(reusedFieldsQuery, nativeMeta.getSqlQueryFields("FOO"));
+    assertEquals(
+        "SELECT TEXT FROM ALL_VIEWS WHERE VIEW_NAME = 'CUSTOMER_V' AND OWNER = 'SALES'",
+        nativeMeta.getSqlViewDefinition("SALES", "CUSTOMER_V"));
     assertEquals(reusedFieldsQuery, nativeMeta.getSqlTableExists("FOO"));
     String reusedColumnsQuery = "SELECT FOO FROM BAR WHERE 1=0";
     assertEquals(reusedColumnsQuery, nativeMeta.getSqlQueryColumnFields("FOO", "BAR"));

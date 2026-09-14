@@ -151,7 +151,7 @@ public class RuleRegistry {
             entry.getValue().applyTo(existing);
           }
         }
-        LogChannel.GENERAL.logBasic(
+        LogChannel.GENERAL.logDetailed(
             "Applied project lint overlay from: " + projectYaml.getAbsolutePath());
       } catch (Exception e) {
         // The user owns this file: report it instead of silently falling back to defaults.

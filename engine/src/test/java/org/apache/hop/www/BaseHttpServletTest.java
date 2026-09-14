@@ -42,6 +42,8 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,6 +55,56 @@ class BaseHttpServletTest {
   void setUp() {
     servlet = new BaseHttpServlet();
     servlet.setLog(mock(ILogChannel.class));
+  }
+
+  @Test
+  void getServletVariablesReadsLiveConfigAfterReplacement() {
+    PipelineMap pipelineMap = new PipelineMap();
+    HopServerConfig config = new HopServerConfig();
+    IVariables first = new Variables();
+    first.setVariable("PROJECT_HOME", "/tmp/project-a");
+    config.setVariables(first);
+    pipelineMap.setHopServerConfig(config);
+
+    servlet.setup(pipelineMap, null);
+    assertEquals("/tmp/project-a", servlet.getServletVariables().getVariable("PROJECT_HOME"));
+
+    IVariables second = new Variables();
+    second.setVariable("PROJECT_HOME", "/tmp/project-b");
+    config.setVariables(second);
+    assertEquals("/tmp/project-b", servlet.getServletVariables().getVariable("PROJECT_HOME"));
+  }
+
+  @Test
+  void copyServletVariablesDoesNotMutateServerSpace() {
+    PipelineMap pipelineMap = new PipelineMap();
+    HopServerConfig config = new HopServerConfig();
+    IVariables serverVars = new Variables();
+    serverVars.setVariable("PROJECT_HOME", "/tmp/project");
+    config.setVariables(serverVars);
+    pipelineMap.setHopServerConfig(config);
+
+    servlet.setup(pipelineMap, null);
+    IVariables copy = servlet.copyServletVariables();
+    copy.setVariable("FOO", "bar");
+
+    assertEquals("/tmp/project", copy.getVariable("PROJECT_HOME"));
+    assertEquals("bar", copy.getVariable("FOO"));
+    assertNull(config.getVariables().getVariable("FOO"));
+    assertEquals("/tmp/project", config.getVariables().getVariable("PROJECT_HOME"));
+  }
+
+  @Test
+  void getServerConfigPrefersPipelineMapOverField() {
+    HopServerConfig fieldConfig = new HopServerConfig();
+    servlet.setServerConfig(fieldConfig);
+
+    PipelineMap pipelineMap = new PipelineMap();
+    HopServerConfig mapConfig = new HopServerConfig();
+    pipelineMap.setHopServerConfig(mapConfig);
+    servlet.setPipelineMap(pipelineMap);
+
+    assertEquals(mapConfig, servlet.getServerConfig());
   }
 
   @Test

@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -50,7 +51,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * Editor that allows you to change Workflow Log metadata
@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
   private static final Class<?> PKG = WorkflowLogEditor.class;
 
-  private Text wName;
+  private TextVar wName;
   private Button wEnabled;
   private Button wLoggingParentsOnly;
   private Button wFailParentOnLoggingFailure;
@@ -103,7 +103,9 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);

@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -47,6 +48,15 @@ public class LintResultsManager {
    */
   private final Map<String, Map<String, List<LintResult>>> overlayIndexCache =
       new ConcurrentHashMap<>();
+
+  /**
+   * Per file, the transforms and actions whose findings the project has accepted.
+   *
+   * <p>Kept next to the findings because the canvas needs both and a painter cannot afford to read
+   * the project configuration: it runs for every element on every repaint. Resolved by the linter,
+   * which reads that configuration once per run anyway.
+   */
+  private final Map<String, Set<String>> markedElementsByFile = new ConcurrentHashMap<>();
 
   // Store all results for global view
   private final List<LintResult> allResults = new ArrayList<>();
@@ -110,6 +120,25 @@ public class LintResultsManager {
 
     // Notify listeners
     notifyListeners();
+  }
+
+  /** Record which transforms or actions of a file carry a suppression. */
+  public void setMarkedElements(String filePath, Set<String> elementNames) {
+    String normalizedPath = LintPathUtils.normalizePath(filePath);
+    if (elementNames == null || elementNames.isEmpty()) {
+      markedElementsByFile.remove(normalizedPath);
+    } else {
+      markedElementsByFile.put(normalizedPath, Set.copyOf(elementNames));
+    }
+  }
+
+  /** Whether the project has accepted the findings on this transform or action. */
+  public boolean isMarkedElement(String filePath, String elementName) {
+    if (elementName == null) {
+      return false;
+    }
+    Set<String> marked = markedElementsByFile.get(LintPathUtils.normalizePath(filePath));
+    return marked != null && marked.contains(elementName);
   }
 
   /** Update results for a single file without clearing other file results. */

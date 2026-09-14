@@ -306,7 +306,6 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(transformName);
-      pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       pipelineMeta.setMetadataProvider(metadataProvider);
 
       if (infoTransforms.size() != infoRowMetaJsons.size()
@@ -404,6 +403,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       LocalPipelineEngine pipeline =
           new LocalPipelineEngine(
               pipelineMeta, variables, new LoggingObject("apache-spark-transform"));
+      pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       pipeline.setMetadataProvider(metadataProvider);
       pipeline
           .getPipelineRunConfiguration()

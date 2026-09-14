@@ -23,6 +23,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -37,6 +38,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FileMetadata.Keyword",
     documentationUrl = "/pipeline/transforms/filemetadata.html")
 public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetadataData> {
+  private static final Class<?> PKG = FileMetadataMeta.class;
+
   /** Stores the name of the file to examine */
   @HopMetadataProperty(key = "fileName")
   private String fileName;
@@ -69,6 +72,21 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     super();
     this.delimiterCandidates = new ArrayList<>();
     this.enclosureCandidates = new ArrayList<>();
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isFilenameInField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFilenameInField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "FileMetadata.FileInField.Label");
   }
 
   /**

@@ -34,7 +34,6 @@ import java.util.List;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -51,7 +50,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -60,9 +58,11 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -114,7 +114,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Combo wTk;
 
   private Label wlTkRename;
-  private Text wTkRename;
+  private TextVar wTkRename;
 
   private Button wTkAutoIncrement;
   private Button wTkUuid;
@@ -125,7 +125,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Text wSeq;
 
   private Button wTkFieldButton;
-  private Text wTkField;
+  private TextVar wTkField;
 
   private Button wDisableUnknownUpdate;
   private Button wShowUnknownTk;
@@ -315,7 +315,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
-    wSchema = new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
@@ -342,7 +344,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wbTable.setLayoutData(fdbTable);
     wbTable.addListener(SWT.Selection, e -> getTableName());
 
-    wTable = new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(middle, 0);
@@ -563,7 +567,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdlTkRename.top = new FormAttachment(wlTk, 0, SWT.CENTER);
     wlTkRename.setLayoutData(fdlTkRename);
 
-    wTkRename = new Text(wTechnicalKeyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTkRename =
+        new TextVar(variables, wTechnicalKeyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     PropsUi.setLook(wTkRename);
     FormData fdTkRename = new FormData();
     fdTkRename.left = new FormAttachment(wlTkRename, margin);
@@ -658,7 +664,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wTkFieldButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TkField.Label"));
     wTkFieldButton.addListener(SWT.Selection, e -> setTkType(FIELD));
 
-    wTkField = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTkField =
+        new TextVar(variables, gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     PropsUi.setLook(wTkField);
     FormData fdTkField = new FormData();
     fdTkField.left = new FormAttachment(wTkFieldButton, margin);
@@ -803,6 +811,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    fieldColumns[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     fieldColumns[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "DimensionLookupDialog.ColumnInfo.StreamField"),
@@ -1766,10 +1775,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
         if (!sql.hasError()) {
           if (sql.hasSql()) {
             DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-            SqlEditor sqledit =
-                new SqlEditor(
-                    shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-            sqledit.open();
+            DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
           } else {
             MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
             mb.setMessage(

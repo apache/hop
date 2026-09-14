@@ -17,6 +17,7 @@
 package org.apache.hop.lint;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -28,8 +29,11 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
@@ -41,13 +45,18 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MenuItem;
 
 /** GUI plugin that adds lint actions to the Explorer perspective */
 @GuiPlugin(
     id = "HopLintCheckerExplorerGuiPlugin",
     description = "Hop Lint Checker Explorer Integration")
 public class ExplorerLintGuiPlugin {
+
+  private static final Class<?> PKG = ExplorerLintGuiPlugin.class; // for i18n purposes
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -138,6 +147,12 @@ public class ExplorerLintGuiPlugin {
 
   private static final String CONTEXT_MENU_LINT_FILE = "context-menu-lint-file";
   private static final String CONTEXT_MENU_LINT_FOLDER = "context-menu-lint-folder";
+
+  /**
+   * Menu items are ordered by id, so this one has to sort after {@link #CONTEXT_MENU_LINT_FOLDER}
+   * to sit with the other two rather than being pushed above the separator that starts the group.
+   */
+  private static final String CONTEXT_MENU_LINT_EXCLUDE = "context-menu-lint-ignore-selection";
 
   /** Lint selected file in explorer - context menu */
   @GuiMenuElement(
@@ -598,6 +613,271 @@ public class ExplorerLintGuiPlugin {
           }
         },
         "HopLinter-Folder");
+  }
+
+  /**
+   * Keep the selected file or folder out of linting, on the record in the project configuration.
+   *
+   * <p>The file-level counterpart to accepting a finding on a single transform: a template that is
+   * dynamic from end to end has nothing worth checking at design time, and saying so once beats
+   * marking every transform in it.
+   */
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_LINT_EXCLUDE,
+      type = GuiMenuElementType.MENU_ITEM,
+      label = "i18n::ExplorerLintGuiPlugin.Menu.ExcludeFromLinting.Label",
+      image = "lint-check.svg",
+      separator = false)
+  public void excludeFromLintingContext() {
+    excludeFromLinting();
+  }
+
+  /** Tools → Lint → Exclude From Linting, for the Explorer selection. */
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = "lint-selected-ignore",
+      type = GuiMenuElementType.MENU_ITEM,
+      label = "i18n::ExplorerLintGuiPlugin.Menu.ExcludeFromLinting.Label",
+      parentId = LinterGuiPlugin.LINT_SUBMENU_ID,
+      image = "lint-check.svg")
+  public static void excludeFromLinting() {
+    try {
+      Selection selection = currentSelection();
+      if (selection == null) {
+        return;
+      }
+
+      if (selection.excluded()) {
+        includeInLintingAgain(selection);
+      } else {
+        excludeFromLinting(selection);
+      }
+    } catch (Exception e) {
+      log.logError("Error changing what is linted: " + e.getMessage(), e);
+      showErrorDialog(
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.Failed.Title"),
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.Failed.Message"),
+          e);
+    }
+  }
+
+  private static void excludeFromLinting(Selection selection) throws Exception {
+    HopGui hopGui = HopGui.peekInstance();
+    String reason =
+        new EnterStringDialog(
+                hopGui.getShell(),
+                "",
+                BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.Reason.Title"),
+                BaseMessages.getString(
+                    PKG, "ExplorerLintGuiPlugin.Exclude.Reason.Message", selection.pattern()))
+            .open();
+    if (reason == null) {
+      return;
+    }
+
+    LintPolicyYamlWriter.addExclude(selection.projectYaml().toPath(), selection.pattern(), reason);
+    refreshAfterPolicyChange(selection.path());
+
+    showMessage(
+        BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.Done.Title"),
+        BaseMessages.getString(
+            PKG,
+            "ExplorerLintGuiPlugin.Exclude.Done.Message",
+            selection.pattern(),
+            selection.projectYaml().getPath()),
+        SWT.ICON_INFORMATION);
+  }
+
+  private static void includeInLintingAgain(Selection selection) throws Exception {
+    boolean removed =
+        LintPolicyYamlWriter.removeExclude(selection.projectYaml().toPath(), selection.pattern());
+    if (!removed) {
+      // Excluded by a pattern somebody wrote by hand, "templates/**" rather than this file: the
+      // entry to remove is a judgement call, so say where to look instead of guessing.
+      showMessage(
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Include.ByPattern.Title"),
+          BaseMessages.getString(
+              PKG,
+              "ExplorerLintGuiPlugin.Include.ByPattern.Message",
+              selection.pattern(),
+              selection.projectYaml().getPath()),
+          SWT.ICON_INFORMATION);
+      return;
+    }
+
+    refreshAfterPolicyChange(selection.path());
+    BackgroundLintService.getInstance().scheduleFileLint(selection.path(), true);
+
+    showMessage(
+        BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Include.Done.Title"),
+        BaseMessages.getString(
+            PKG, "ExplorerLintGuiPlugin.Include.Done.Message", selection.pattern()),
+        SWT.ICON_INFORMATION);
+  }
+
+  /** What is selected in the Explorer, as the project configuration would record it. */
+  private record Selection(String path, File projectYaml, String pattern, boolean excluded) {}
+
+  /**
+   * The Explorer selection resolved against the project configuration, or null when there is
+   * nothing to act on. Complains to the user itself, so callers only have to check for null.
+   */
+  private static Selection currentSelection() {
+    ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+    ExplorerFile selectedFile = perspective == null ? null : perspective.getSelectedFile();
+    if (selectedFile == null || Utils.isEmpty(selectedFile.getFilename())) {
+      showMessage(
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.NoSelection.Title"),
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.NoSelection.Message"),
+          SWT.ICON_INFORMATION);
+      return null;
+    }
+    Selection selection = resolveSelection(selectedFile.getFilename());
+    if (selection == null) {
+      explainWhyNot(LintPathUtils.normalizePath(selectedFile.getFilename()));
+    }
+    return selection;
+  }
+
+  /**
+   * Two different problems look the same to the caller: there is no project configuration to write
+   * to, or there is one but the file sits outside the folder its patterns are relative to. Saying
+   * which is which is the difference between a message someone can act on and one they cannot.
+   */
+  private static void explainWhyNot(String path) {
+    File projectYaml = resolveProjectYaml(path);
+    if (projectYaml == null || projectYaml.getParentFile() == null) {
+      showMessage(
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.NoProject.Title"),
+          BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.NoProject.Message"),
+          SWT.ICON_INFORMATION);
+      return;
+    }
+    showMessage(
+        BaseMessages.getString(PKG, "ExplorerLintGuiPlugin.Exclude.OutsideProject.Title"),
+        BaseMessages.getString(
+            PKG,
+            "ExplorerLintGuiPlugin.Exclude.OutsideProject.Message",
+            projectYaml.getParentFile().getAbsolutePath()),
+        SWT.ICON_INFORMATION);
+  }
+
+  /** As above but silent, for deciding what the menu item should say. */
+  private static Selection resolveSelection(String filename) {
+    String path = LintPathUtils.normalizePath(filename);
+    File projectYaml = resolveProjectYaml(path);
+    if (projectYaml == null || projectYaml.getParentFile() == null) {
+      return null;
+    }
+    Path projectRoot = projectYaml.getParentFile().toPath().toAbsolutePath();
+    String pattern = LintPolicy.relativise(path, projectRoot);
+    if (new File(path).isAbsolute() && pattern.equals(path)) {
+      // relativise hands the path back untouched when it sits outside the project, and an
+      // absolute path in a portable configuration file would only work on this machine.
+      return null;
+    }
+    if (isFolder(filename)) {
+      pattern = pattern + "/**";
+    }
+    return new Selection(path, projectYaml, pattern, isExcluded(path));
+  }
+
+  private static boolean isExcluded(String path) {
+    try {
+      HopLinter linter = new HopLinter();
+      linter.loadConfigurationForContext(new File(path));
+      return linter.isExcluded(path);
+    } catch (Exception e) {
+      log.logDetailed("Could not read the lint configuration for " + path + ": " + e.getMessage());
+      return false;
+    }
+  }
+
+  /** The findings on screen were computed under the old configuration. */
+  private static void refreshAfterPolicyChange(String path) {
+    BackgroundLintService.getInstance().getTracker().invalidate(path);
+    LintResultsManager.getInstance().updateResultsForFile(path, List.of());
+    LintProblemsBarManager.getInstance().updateProblemsBar(path);
+    LintCanvasOverlayRefresh.redrawOpenGraphs();
+  }
+
+  /**
+   * Keep the menu item saying what it will do.
+   *
+   * <p>The wording is decided when the menu opens rather than when it is built, because it depends
+   * on what is selected: the same item excludes a file that is linted and puts back one that is
+   * not. A one-way "Exclude From Linting" leaves people editing YAML to undo a menu click.
+   */
+  @GuiCallback(callbackId = ExplorerPerspective.GUI_CONTEXT_MENU_CREATED_CALLBACK_ID)
+  public void trackExplorerSelectionForLintMenu() {
+    ExplorerPerspective perspective = ExplorerPerspective.getInstance();
+    if (perspective == null || perspective.getMenuWidgets() == null) {
+      return;
+    }
+    MenuItem item = perspective.getMenuWidgets().findMenuItem(CONTEXT_MENU_LINT_EXCLUDE);
+    if (item == null || item.isDisposed() || item.getParent() == null) {
+      return;
+    }
+    item.getParent()
+        .addMenuListener(
+            new MenuAdapter() {
+              @Override
+              public void menuShown(MenuEvent event) {
+                updateExcludeMenuItem(item);
+              }
+            });
+  }
+
+  private static void updateExcludeMenuItem(MenuItem item) {
+    if (item.isDisposed()) {
+      return;
+    }
+    try {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      ExplorerFile selectedFile = perspective == null ? null : perspective.getSelectedFile();
+      Selection selection =
+          selectedFile == null || Utils.isEmpty(selectedFile.getFilename())
+              ? null
+              : resolveSelection(selectedFile.getFilename());
+      boolean excluded = selection != null && selection.excluded();
+      item.setText(
+          BaseMessages.getString(
+              PKG,
+              excluded
+                  ? "ExplorerLintGuiPlugin.Menu.IncludeInLinting.Label"
+                  : "ExplorerLintGuiPlugin.Menu.ExcludeFromLinting.Label"));
+    } catch (Exception e) {
+      log.logDetailed("Could not work out the lint menu wording: " + e.getMessage());
+    }
+  }
+
+  /**
+   * The hop-lint.yml governing the selection, creating a path for one when the project has none.
+   */
+  static File resolveProjectYaml(String selectedPath) {
+    File found = RuleRegistry.getInstance().findProjectYaml(new File(selectedPath));
+    if (found != null) {
+      return found;
+    }
+    try {
+      String projectPath = LinterConfigPlugin.getInstance().getProjectPath();
+      if (!Utils.isEmpty(projectPath)) {
+        return new File(projectPath, "hop-lint.yml");
+      }
+    } catch (Exception e) {
+      log.logDetailed("No project configuration available: " + e.getMessage());
+    }
+    return null;
+  }
+
+  private static boolean isFolder(String filename) {
+    try (FileObject fileObject = HopVfs.getFileObject(filename)) {
+      return fileObject != null && fileObject.isFolder();
+    } catch (Exception e) {
+      return new File(filename).isDirectory();
+    }
   }
 
   private static void showMessage(String title, String message, int style) {

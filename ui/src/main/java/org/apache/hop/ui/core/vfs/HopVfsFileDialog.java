@@ -65,6 +65,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.HopTree;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -354,7 +356,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         navigateToolBarContainer, NAVIGATE_TOOLBAR_PARENT_ID);
     navigateToolBar.pack();
 
-    wFilename = new TextVar(variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(
+                browsingDirectories ? NamingSchemeTypes.FOLDER : NamingSchemeTypes.FILE);
     wFilename.addListener(SWT.DefaultSelection, e -> enteredFilenameOrFolder());
     wFilename.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     PropsUi.setLook(wFilename);
@@ -1733,6 +1738,14 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       // The control that will be the editor must be a child of the Tree
       Text renameText = new Text(wBrowser, SWT.BORDER);
       renameText.setText(file.getName().getBaseName());
+      try {
+        NamingSchemeWidgetSupport.attachShortcut(
+            renameText,
+            variables,
+            file.isFolder() ? NamingSchemeTypes.FOLDER : NamingSchemeTypes.FILE);
+      } catch (Exception ignored) {
+        // folder check can fail on some VFS types; shortcut is optional
+      }
       renameText.addListener(SWT.FocusOut, event -> renameText.dispose());
       renameText.addListener(
           SWT.KeyUp,

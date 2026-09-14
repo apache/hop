@@ -401,7 +401,10 @@ public class StyledTextVar extends TextComposite {
           String oldText = "";
           int eventType = -1;
 
-          if ((event.length != newText.length()) || (fullSelection)) {
+          // Whole-document setText() (load) has empty replacedText and is skipped. Replacing the
+          // current selection — including Format SQL after select-all — must still be undoable.
+          boolean wholeDocument = event.length == newText.length();
+          if (!wholeDocument || fullSelection || !Utils.isEmpty(repText)) {
             if (!Utils.isEmpty(repText)) {
               oldText =
                   newText.substring(0, event.start)

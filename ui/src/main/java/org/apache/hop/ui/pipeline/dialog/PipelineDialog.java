@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -78,7 +79,7 @@ public class PipelineDialog extends Dialog {
   private CTabItem wParamTab;
   private CTabItem wMonitorTab;
 
-  private Text wPipelineName;
+  private TextVar wPipelineName;
   private Button wNameFilenameSync;
   private Text wPipelineFilename;
 
@@ -264,7 +265,9 @@ public class PipelineDialog extends Dialog {
     fdlPipelineName.right = new FormAttachment(middle, -margin);
     fdlPipelineName.top = new FormAttachment(0, margin);
     wlPipelineName.setLayoutData(fdlPipelineName);
-    wPipelineName = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPipelineName =
+        new TextVar(variables, wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_PIPELINE);
     PropsUi.setLook(wPipelineName);
     wPipelineName.addModifyListener(lsMod);
     FormData fdPipelineName = new FormData();
@@ -570,6 +573,7 @@ public class PipelineDialog extends Dialog {
             BaseMessages.getString(PKG, "PipelineDialog.ColumnInfo.Parameter.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "PipelineDialog.ColumnInfo.Default.Label"),

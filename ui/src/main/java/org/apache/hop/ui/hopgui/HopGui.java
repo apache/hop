@@ -39,6 +39,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -72,6 +73,7 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.security.HopJdbcTokenService;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.core.security.HopSecurityPrivilegeMode;
@@ -95,9 +97,11 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -134,6 +138,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
@@ -206,8 +211,23 @@ public class HopGui
   public static final String ID_MAIN_MENU_FILE_EXPORT_TO_SVG = "10050-menu-file-export-to-svg";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN = "10840-menu-file-copy-jdbc-token";
   public static final String ID_MAIN_MENU_FILE_LOG_OFF = "10850-menu-file-log-off";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
+
+  public static final String ID_MAIN_MENU_FILE_USER_NEW = "15010-menu-file-user-new";
+  public static final String ID_MAIN_MENU_FILE_USER_OPEN = "15020-menu-file-user-open";
+  public static final String ID_MAIN_MENU_FILE_USER_SAVE = "15030-menu-file-user-save";
+  public static final String ID_MAIN_MENU_FILE_USER_SAVE_AS = "15040-menu-file-user-save-as";
+  public static final String ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG =
+      "15050-menu-file-user-export-svg";
+  public static final String ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT =
+      "15060-menu-file-user-export-project";
+  public static final String ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE =
+      "15070-menu-file-user-import-kettle-zip";
+
+  private static final String ID_MAIN_MENU_PROJECT_EXPORT_PLUGIN = "10055-menu-file-export-to-svg";
+  private static final String ID_MAIN_MENU_KETTLE_IMPORT_PLUGIN = "10060-menu-tools-import";
 
   public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "20000-menu-edit";
   public static final String ID_MAIN_MENU_EDIT_UNDO = "20010-menu-edit-undo";
@@ -235,8 +255,6 @@ public class HopGui
 
   public static final String ID_MAIN_MENU_VIEW_PARENT_ID = "25000-menu-view";
   public static final String ID_MAIN_MENU_VIEW_FULL_SCREEN = "25010-menu-view-full-screen";
-  public static final String ID_MAIN_MENU_VIEW_TERMINAL = "25010-menu-view-terminal";
-  public static final String ID_MAIN_MENU_VIEW_NEW_TERMINAL = "25020-menu-view-new-terminal";
 
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
@@ -277,9 +295,12 @@ public class HopGui
   /** Username label immediately left of {@link #ID_MAIN_TOOLBAR_LOG_OFF}. */
   public static final String ID_MAIN_TOOLBAR_USER = "toolbar-10890-user";
 
+  public static final String ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN = "toolbar-10895-copy-jdbc-token";
+
   public static final String ID_MAIN_TOOLBAR_LOG_OFF = "toolbar-10900-log-off";
 
   public static final String ID_STATUS_TOOLBAR = "HopGui-Status-Toolbar";
+  public static final String ID_NOTIFICATION_TOOLBAR = "HopGui-Notification-Toolbar";
 
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
@@ -321,6 +342,7 @@ public class HopGui
 
   private Menu mainMenu;
   private GuiMenuWidgets mainMenuWidgets;
+  private Composite toolbarComposite;
   private Composite mainHopGuiComposite;
 
   private Control mainToolbar;
@@ -329,14 +351,27 @@ public class HopGui
   private Control statusToolbar;
   private GuiToolbarWidgets statusToolbarWidgets;
 
+  private Control notificationToolbar;
+  private GuiToolbarWidgets notificationToolbarWidgets;
+
   private Composite perspectivesSidebar;
   private Composite bottomToolbar;
   private final java.util.List<SidebarToolbarItemDescriptor> sidebarToolbarDescriptors =
       new java.util.ArrayList<>();
   private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
+
+  public ToolBar getNotificationToolbar() {
+    return (ToolBar) notificationToolbar;
+  }
+
+  public GuiToolbarWidgets getNotificationToolbarWidgets() {
+    return notificationToolbarWidgets;
+  }
+
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
+  private IHopFileTypeHandler capabilityFileTypeHandler;
   private org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock terminalPanel;
 
   public org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock getTerminalPanel() {
@@ -523,6 +558,15 @@ public class HopGui
     } catch (Throwable e) {
       return null;
     }
+  }
+
+  /**
+   * Open or reuse an AI advisor session. No-op when {@code hop-tech-ai} is not installed. Other
+   * plugins (hopper-edw) should call this instead of compiling against the AI tech plugin.
+   */
+  public void openAiAdvisorSession(AiAdvisorOpenRequest request) throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        getLog(), getVariables(), HopExtensionPoint.HopGuiAiAdvisorOpenSession.id, request);
   }
 
   /**
@@ -830,48 +874,34 @@ public class HopGui
   }
 
   /**
-   * If -file= was passed in command line args (e.g. from Hop Web URL ?file=...), open that file
-   * once and remove the arg so the URL can later reflect the current tab.
+   * If -file= / --file / -f was passed in command line args (e.g. from Hop Web URL ?file=... or
+   * {@code hop gui -f}), open that file once and remove the arg so the URL can later reflect the
+   * current tab.
    */
   private void openFileFromCommandLineArgs() {
     List<String> args = getCommandLineArguments();
     if (args == null) {
       return;
     }
-    String filePath = null;
-    for (int i = 0; i < args.size(); i++) {
-      String arg = args.get(i);
-      if (arg != null && arg.startsWith("-file=")) {
-        filePath = arg.substring("-file=".length()).trim();
-        args.remove(i);
-        break;
-      }
-    }
+    String filePath = HopGuiCommandLine.takeOption(args, HopGuiCommandLine.FILE_OPTION_NAMES);
     if (StringUtils.isEmpty(filePath)) {
       return;
     }
     try {
-      String resolved = variables.resolve(filePath);
+      String resolved = HopGuiCommandLine.resolveFile(variables, filePath);
       if (StringUtils.isNotEmpty(resolved)) {
         fileDelegate.fileOpen(resolved, true);
       }
     } catch (Exception e) {
-      log.logError("Error opening file from URL '" + filePath + "'", e);
+      log.logError("Error opening file from command line '" + filePath + "'", e);
     }
   }
 
-  /** True if command line args contain -file=... (e.g. from Hop Web URL). */
+  /** True if command line args contain a file to open. */
   private boolean hasFileInCommandLineArgs() {
-    List<String> args = getCommandLineArguments();
-    if (args == null) {
-      return false;
-    }
-    for (String arg : args) {
-      if (arg != null && arg.startsWith("-file=")) {
-        return true;
-      }
-    }
-    return false;
+    return StringUtils.isNotEmpty(
+        HopGuiCommandLine.findOption(
+            getCommandLineArguments(), HopGuiCommandLine.FILE_OPTION_NAMES));
   }
 
   private void loadPerspectives() {
@@ -1254,15 +1284,24 @@ public class HopGui
 
     mainMenu = new Menu(shell, SWT.BAR);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
+    updateWebUserFileMenuItems();
     mainMenuWidgets.ensureShortcutPluginInstancesRegistered();
+
+    eventsHandler.addEventListener(
+        getClass().getName() + "WebProjectMenuItems",
+        event -> updateWebUserFileMenuItems(),
+        HopGuiEvents.ProjectActivated.name(),
+        HopGuiEvents.ProjectDeactivated.name());
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
     } else if (areSessionControlsVisible()) {
-      // Log off is Hop Web only
+      // Log off / JDBC token are Hop Web only
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF, false);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN, false);
     } else {
       mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF);
+      mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN);
     }
 
     // We build the menu items but don't attach them to the shell.
@@ -1386,7 +1425,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
       separator = true,
-      label = "i18n::HopGui.Menu.File.ExportToSVG",
+      label = "i18n::HopGui.Menu.File.ExportDiagram",
       image = "ui/images/image.svg",
       parentId = ID_MAIN_MENU_FILE)
   public void menuFileExportToSvg() {
@@ -1494,6 +1533,53 @@ public class HopGui
       toolTip = "i18n::HopGui.Toolbar.User.Tooltip")
   public void toolbarLoggedInUser() {
     // Display-only label; no action
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN,
+      label = "i18n::HopGui.Menu.File.CopyJdbcToken",
+      parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/copy.svg",
+      separator = true)
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN,
+      image = "ui/images/copy.svg",
+      toolTip = "i18n::HopGui.Menu.File.CopyJdbcToken")
+  public void menuFileCopyJdbcToken() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Desktop.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Desktop.Message"));
+      box.open();
+      return;
+    }
+    HopSecurityContext ctx = HopSecurity.getContext();
+    if (ctx == null || !ctx.isAuthenticated()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Unauthenticated.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Unauthenticated.Message"));
+      box.open();
+      return;
+    }
+    try {
+      HopJdbcTokenService.IssuedToken issued =
+          HopJdbcTokenService.issue(
+              ctx.getUsername(), ctx.getRoleIds(), HopJdbcTokenService.DEFAULT_TTL);
+      GuiResource.getInstance().toClipboard(issued.token());
+      long minutes = Math.max(1L, issued.expiresInSeconds() / 60L);
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Copied.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Copied.Message", minutes));
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Error.Title"),
+          BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Error.Message"),
+          e);
+    }
   }
 
   @GuiMenuElement(
@@ -1954,13 +2040,24 @@ public class HopGui
   }
 
   protected void addMainToolbar() {
+    // Create a composite to hold both main toolbar and notification toolbar
+    toolbarComposite = new Composite(shell, SWT.NONE);
+    toolbarComposite.setLayout(new FormLayout());
+    FormData fdToolbarComposite = new FormData();
+    fdToolbarComposite.left = new FormAttachment(0, 0);
+    fdToolbarComposite.top = new FormAttachment(0, 0);
+    fdToolbarComposite.right = new FormAttachment(100, 0);
+    toolbarComposite.setLayoutData(fdToolbarComposite);
+
+    // Main toolbar (left side, fills remaining space) - use ToolbarFacade for SWT/RAP compatibility
     IToolbarContainer mainToolbarContainer =
-        ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+        ToolbarFacade.createToolbarContainer(
+            toolbarComposite, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     mainToolbar = mainToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
-    fdToolBar.right = new FormAttachment(100, 0);
+    fdToolBar.bottom = new FormAttachment(100, 0);
     mainToolbar.setLayoutData(fdToolBar);
     PropsUi.setLook(mainToolbar, Props.WIDGET_STYLE_TOOLBAR);
 
@@ -1969,6 +2066,7 @@ public class HopGui
     List<String> hiddenToolbarItems = new ArrayList<>();
     if (!areSessionControlsVisible()) {
       hiddenToolbarItems.add(ID_MAIN_TOOLBAR_PRIVILEGE);
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN);
       hiddenToolbarItems.add(ID_MAIN_TOOLBAR_LOG_OFF);
     }
     mainToolbarWidgets.createToolbarWidgets(
@@ -1976,9 +2074,31 @@ public class HopGui
     updateLoggedInUserToolbar();
     updatePrivilegeModeToolbar();
     if (!EnvironmentUtils.getInstance().isWeb()) {
+      mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN, false);
       mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_LOG_OFF, false);
     }
     mainToolbar.pack();
+
+    // Notification toolbar (right side, fixed width)
+    IToolbarContainer notificationToolbarContainer =
+        ToolbarFacade.createToolbarContainer(
+            toolbarComposite, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    notificationToolbar = notificationToolbarContainer.getControl();
+    FormData fdNotificationToolBar = new FormData();
+    fdNotificationToolBar.right = new FormAttachment(100, 0);
+    fdNotificationToolBar.top = new FormAttachment(0, 0);
+    fdNotificationToolBar.bottom = new FormAttachment(100, 0);
+    notificationToolbar.setLayoutData(fdNotificationToolBar);
+    PropsUi.setLook(notificationToolbar, Props.WIDGET_STYLE_TOOLBAR);
+
+    notificationToolbarWidgets = new GuiToolbarWidgets();
+    notificationToolbarWidgets.registerGuiPluginObject(this);
+    notificationToolbarWidgets.createToolbarWidgets(
+        notificationToolbarContainer, ID_NOTIFICATION_TOOLBAR);
+    notificationToolbar.pack();
+
+    // Make main toolbar end before notification toolbar
+    fdToolBar.right = new FormAttachment(notificationToolbar, 0);
   }
 
   /**
@@ -2066,7 +2186,7 @@ public class HopGui
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
-    formData.top = new FormAttachment(mainToolbar, 0);
+    formData.top = new FormAttachment(toolbarComposite, 0);
     formData.bottom = new FormAttachment(statusToolbar, 0);
     mainHopGuiComposite.setLayoutData(formData);
 
@@ -2291,10 +2411,13 @@ public class HopGui
       boolean running,
       boolean paused) {
 
+    this.capabilityFileTypeHandler = handler;
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_EXPORT_TO_SVG, IHopFileType.CAPABILITY_EXPORT_TO_SVG);
     mainMenuWidgets.enableMenuItem(
@@ -2354,9 +2477,69 @@ public class HopGui
         HopSecurity.allows(Permission.FILE_CREATE) || HopSecurity.allows(Permission.METADATA_WRITE);
     mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_NEW, canCreate);
     mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_NEW, canCreate);
+
+    updateWebUserFileMenuItems();
+  }
+
+  private void updateWebUserFileMenuItems() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+
+    boolean projectExportAvailable =
+        GuiRegistry.getInstance().findGuiMenuItem(ID_MAIN_MENU, ID_MAIN_MENU_PROJECT_EXPORT_PLUGIN)
+            != null;
+    boolean kettleImportAvailable =
+        GuiRegistry.getInstance().findGuiMenuItem(ID_MAIN_MENU, ID_MAIN_MENU_KETTLE_IMPORT_PLUGIN)
+            != null;
+
+    boolean showProjectExport =
+        HopWebUserFileMenuState.shouldShowProjectExport(
+            variables.resolve(Const.VAR_PROJECT_HOME),
+            projectExportAvailable,
+            HopSecurity.allows(Permission.FILE_EXPORT));
+    boolean showKettleImport =
+        HopWebUserFileMenuState.shouldShowKettleImport(
+            kettleImportAvailable,
+            HopSecurity.allows(Permission.FILE_CREATE),
+            HopSecurity.allows(Permission.METADATA_WRITE));
+    boolean showSvgExport =
+        HopWebUserFileMenuState.shouldShowDiagramExport(
+            getActiveFileTypeHandler(),
+            getActivePipelineGraph() != null,
+            getActiveWorkflowGraph() != null,
+            HopSecurity.allows(Permission.FILE_EXPORT));
+
+    boolean canDownload =
+        HopWebUserFileMenuState.canDownload(
+            getActiveFileTypeHandler(), HopSecurity.allows(Permission.FILE_SAVE));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE, canDownload);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE_AS, canDownload);
+
+    // Keep the enabled-state map in sync for keyboard/menu dispatch and hide unavailable actions.
+    // File Server keeps the same actions, but shares the web-only visibility rules for SVG.
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(
+        ID_MAIN_MENU_FILE_USER_NEW,
+        HopSecurity.allows(Permission.FILE_CREATE)
+            || HopSecurity.allows(Permission.METADATA_WRITE));
+    mainMenuWidgets.enableMenuItem(
+        ID_MAIN_MENU_FILE_USER_OPEN, HopSecurity.allows(Permission.FILE_VIEW));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT, showProjectExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE, showKettleImport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT, showProjectExport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE, showKettleImport);
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
+    if (capabilityFileTypeHandler instanceof DatabaseSqlEditorTab tab
+        && tab.getControl() != null
+        && !tab.getControl().isDisposed()) {
+      return tab;
+    }
     return getActivePerspective().getActiveFileTypeHandler();
   }
 

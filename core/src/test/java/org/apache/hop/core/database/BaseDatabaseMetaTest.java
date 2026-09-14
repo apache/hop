@@ -62,6 +62,10 @@ class BaseDatabaseMetaTest {
     // Note - this method should only use native.
     // (each test run in its own thread).
     assertEquals("", nativeMeta.getLimitClause(5));
+    assertEquals(
+        "SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'v' AND TABLE_SCHEMA = 's'",
+        nativeMeta.getSqlViewDefinition("s", "v"));
+    assertNull(nativeMeta.getSqlObjectDdl("s", "t"));
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertFalse(nativeMeta.isNeedsPlaceHolder());
     assertEquals(DatabaseMeta.CLOB_LENGTH, nativeMeta.getMaxTextFieldLength());

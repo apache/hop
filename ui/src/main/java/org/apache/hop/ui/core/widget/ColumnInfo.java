@@ -66,6 +66,12 @@ public class ColumnInfo {
 
   @Getter @Setter private boolean usingVariables;
 
+  /**
+   * Optional {@link NamingSchemeTypes} code. When set, TableView uses a TextVar/ComboVar editor
+   * (variables still follow {@link #usingVariables}) and offers the naming-scheme shortcut.
+   */
+  @Getter @Setter private String namingSchemeType;
+
   @Getter @Setter private boolean passwordField;
 
   @Getter @Setter private IComboValuesSelectionListener comboValuesSelectionListener;

@@ -17,30 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The MongoDB Output transform can output data to a MongoDB database collection.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/mongodb-output.svg[MongoDB Output transform Icon, role="image-doc-icon"] MongoDB Output
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The MongoDB Output transform can output data to a MongoDB database http://docs.mongodb.org/manual/reference/glossary/[collection].
 
 For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 

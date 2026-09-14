@@ -30,6 +30,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -471,7 +472,9 @@ public class ActionHttpDialog extends ActionDialog {
     fdbTargetFile.top = new FormAttachment(0, margin);
     wbTargetFile.setLayoutData(fdbTargetFile);
 
-    wTargetFile = new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTargetFile =
+        new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wTargetFile);
     wTargetFile.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.TargetFile.Tooltip"));
     wTargetFile.addModifyListener(lsMod);

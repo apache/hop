@@ -197,7 +197,9 @@ public final class StandardJdbcTypeMapper {
    */
   private static Numeric mapDecimal(DatabaseMeta databaseMeta, DatabaseColumn column, int sqlType) {
     int valtype = IValueMeta.TYPE_NUMBER;
-    int length = numericLength(column);
+    // Hop Number/BigNumber length is the total number of significant digits (JDBC precision).
+    // numericLength() remains the digits before the decimal, for dialect rule conditions.
+    int length = totalDigits(column);
     int precision = numericScale(column);
 
     if (isApproximateNumeric(sqlType)) {
@@ -271,10 +273,13 @@ public final class StandardJdbcTypeMapper {
   }
 
   /**
-   * The Hop length of a numeric column: the digits before the decimal.
+   * Digits before the decimal: JDBC precision with the scale taken off.
    *
-   * <p>A database reports precision as the total number of significant digits, so the scale has to
-   * come off. A value at or beyond 126 means the database did not really say.
+   * <p>Dialect rules use this to test whether a declaration is possible at all (an overscaled
+   * DOUBLE, an unspecified NUMERIC). It is not the Hop length stored on the value metadata; that is
+   * {@link #totalDigits(DatabaseColumn)}.
+   *
+   * <p>A value at or beyond 126 means the database did not really say.
    */
   public static int numericLength(DatabaseColumn column) {
     int length = column.getPrecision();
@@ -282,6 +287,18 @@ public final class StandardJdbcTypeMapper {
     if (length > 0 && length > scale) {
       length -= scale;
     }
+    return length >= 126 ? -1 : length;
+  }
+
+  /**
+   * The Hop length of a numeric column: the total number of significant digits, the same value the
+   * database reports as its precision. Dialogs and {@code DECIMAL(length, precision)} writers use
+   * this meaning.
+   *
+   * <p>A value at or beyond 126 means the database did not really say.
+   */
+  public static int totalDigits(DatabaseColumn column) {
+    int length = column.getPrecision();
     return length >= 126 ? -1 : length;
   }
 

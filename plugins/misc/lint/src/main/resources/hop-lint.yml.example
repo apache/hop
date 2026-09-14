@@ -37,3 +37,12 @@ rules:
     enabled: true
     severity: ERROR
     parameters: {}
+
+  # Hop's own transform and action checks — everything reported as [HOP-CHECK].
+  # The core pack reports them as warnings, because check() works from the row
+  # stream Hop infers at design time and is wrong wherever fields arrive at
+  # runtime. Put the severity back to ERROR to treat them as the transform
+  # meant them, or set enabled: false to leave them to the Verify button.
+  HOP-CHECK:
+    enabled: true
+    severity: WARNING

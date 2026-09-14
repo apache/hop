@@ -249,21 +249,10 @@ class JsonOutputTest {
     pipelineMeta.setName("testJsonOutput");
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    // create an injector transform
-    String injectorTransformName = "injector transform";
-    TransformMeta injectorTransform =
-        TestUtilities.createInjectorTransform(injectorTransformName, registry);
-    pipelineMeta.addTransform(injectorTransform);
-
     // create a row generator transform
     TransformMeta rowGeneratorTransform =
         createRowGeneratorTransform("Create rows for testJsonOutput1", registry);
     pipelineMeta.addTransform(rowGeneratorTransform);
-
-    // create a PipelineHopMeta for injector and add it to the pipelineMeta
-    PipelineHopMeta hopInjectoryRowGenerator =
-        new PipelineHopMeta(injectorTransform, rowGeneratorTransform);
-    pipelineMeta.addPipelineHop(hopInjectoryRowGenerator);
 
     // create the json output transform
     // but first lets get a filename

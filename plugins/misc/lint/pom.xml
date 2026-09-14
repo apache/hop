@@ -46,6 +46,18 @@
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+
+        <!--
+          The core pack names two Select Values checks by message key, so that a rule about one
+          check keeps working in every locale. Only a test that resolves those keys against the
+          real bundle can catch them being renamed; without it a rule would quietly stop matching.
+        -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-selectvalues</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

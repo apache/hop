@@ -146,6 +146,21 @@ public @interface GuiWidgetElement {
   Class<? extends IHopMetadata> metadata() default IHopMetadata.class;
 
   /**
+   * Metadata plugin key (for example {@code ai-provider}) so a widget can target a metadata type
+   * without a compile dependency on that plugin. Empty uses {@link #metadata()}. When the plugin is
+   * not installed the widget is omitted.
+   */
+  String metadataKey() default "";
+
+  /**
+   * Optional naming-scheme type code for this widget ({@code file}, {@code folder}, {@code
+   * hop-variable}, …). Empty means: infer {@code file}/{@code folder} from {@link
+   * GuiElementType#FILENAME}/{@link GuiElementType#FOLDER}, otherwise the widget is not a name
+   * field. Does not replace {@link #type()}.
+   */
+  String namingSchemeType() default "";
+
+  /**
    * Layout bucket inside the {@link #parentId()} tree. Empty (the default) keeps the widget on the
    * flat form. When any sibling has a group, widgets are shown in that container ({@link
    * #groupType()}).

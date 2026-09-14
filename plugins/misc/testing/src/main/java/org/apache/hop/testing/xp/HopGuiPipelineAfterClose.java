@@ -24,9 +24,11 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestGraphVariables;
+import org.apache.hop.testing.util.UnitTestTransformRenames;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
@@ -49,6 +51,9 @@ public class HopGuiPipelineAfterClose implements IExtensionPoint<PipelineMeta> {
       UnitTestGraphVariables.clear(variables, stateMap);
     }
     if (stateMap != null) {
+      PipelineUnitTest unitTest =
+          (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+      UnitTestTransformRenames.revertAll(unitTest, stateMap);
       stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
     }
   }

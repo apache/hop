@@ -125,7 +125,7 @@ public class ValueMetaBase implements IValueMeta {
           EnvUtil.getSystemProperty(Const.HOP_DEFAULT_DATE_FORMAT), "yyyy/MM/dd HH:mm:ss.SSS");
   public static final String DEFAULT_TIMESTAMP_PARSE_MASK =
       Const.NVL(
-          EnvUtil.getSystemProperty(Const.HOP_DEFAULT_DATE_FORMAT),
+          EnvUtil.getSystemProperty(Const.HOP_DEFAULT_TIMESTAMP_FORMAT),
           "yyyy/MM/dd HH:mm:ss.SSSSSSSSS");
   // endregion
 

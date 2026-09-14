@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -146,6 +147,7 @@ public class DataGridDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
               BaseMessages.getString(PKG, "System.Combo.No")),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(

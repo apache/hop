@@ -57,10 +57,20 @@ public class PipelineVerifyLintExtension implements IExtensionPoint<CheckTransfo
       HopLinter linter = new HopLinter();
       linter.loadConfigurationForContext(new java.io.File(fileName));
 
-      List<LintResult> policyResults = linter.runPolicyRules(pipelineMeta, fileName);
+      if (linter.isExcluded(fileName)) {
+        // The project keeps this file out of linting. Hop's own verify output is left alone —
+        // the user asked for it — but nothing lint-related is added to it or reported from it.
+        return;
+      }
+
+      List<LintResult> policyResults =
+          linter.applyPolicy(linter.runPolicyRules(pipelineMeta, fileName), fileName);
       extension
           .getRemarks()
           .addAll(LintCheckResultAdapter.toCheckResults(policyResults, pipelineMeta));
+
+      // Hop collected its own remarks before this point, so they have passed no suppression yet.
+      linter.removeSuppressed(extension.getRemarks(), fileName);
 
       List<LintResult> verifyViewResults =
           LintResultDeduplicator.deduplicate(

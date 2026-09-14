@@ -35,6 +35,7 @@ Since metadata types are plugin types too, the available metadata types in your 
 By default, Hop contains the following metadata types:
 
 
+* xref:metadata-types/ai-provider.adoc[AI Provider]: Named language-model endpoint (credentials and model) used by the AI Assistant and optionally by Language Model Chat
 * xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
 * xref:metadata-types/azure-authentication.adoc[Azure Connection]: An Azure Blob Storage connection type.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
@@ -46,11 +47,14 @@ xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location]: Defines where and how Apache Hop stores execution metadata, supporting local files, remote servers, a database, Neo4j, Elastic or OpenSearch for later inspection and analysis.
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location]: Defines where and how Apache Hop stores execution metadata, supporting local files, remote servers, Neo4j, or Elastic for later inspection and analysis.
 * xref:metadata-types/ftp-connection.adoc[FTP Connection]: Named FTP or FTPS server used as a VFS scheme in file paths and by the FTP actions
+* xref:metadata-types/git-connection.adoc[Git Connection]: REST API endpoint and credentials for GitHub, GitLab, Bitbucket, Forgejo or Gitea
 * xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]: A Google Cloud Storage connection type.
+* xref:metadata-types/hdfs-connection.adoc[HDFS Connection]: Named HDFS access via HttpFS, Knox or WebHDFS (no Hadoop client JARs)
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection
 * xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]: Connect to one or more S3 endpoints using a Minio client
+* xref:metadata-types/naming-scheme.adoc[Naming Scheme]: Reusable rules to normalize Hop field names, database identifiers, and file or folder names
 * xref:metadata-types/webdav-connection.adoc[WebDAV Connection]: Named WebDAV or WebDAV-over-HTTPS endpoint used as a VFS scheme in file paths
 * xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: A shared connection to a Neo4j server
 * xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: Description of the nodes, relationships, indexes, ... of a Neo4j graph

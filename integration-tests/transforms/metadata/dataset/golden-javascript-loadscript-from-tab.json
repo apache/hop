@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-javascript-loadscript-from-tab.csv",
+  "name": "golden-javascript-loadscript-from-tab",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "value",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "result",
+      "field_format": "####0;-####0"
+    }
+  ],
+  "folder_name": ""
+}

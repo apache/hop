@@ -65,4 +65,37 @@ public final class EffectiveRuleSet {
     }
     return enabled;
   }
+
+  /**
+   * The enabled rules the linter evaluates itself.
+   *
+   * <p>Native rules live in the same list, and are merged and overridden on the same terms, but
+   * they have no target or condition to evaluate: they say how a remark Hop's own {@code check()}
+   * already produced should be reported.
+   */
+  public List<CustomLintRule> getEnabledPolicyRules() {
+    List<CustomLintRule> enabled = new ArrayList<>();
+    for (CustomLintRule rule : rules) {
+      if (rule.isEnabled() && !rule.isNativeVerify()) {
+        enabled.add(rule);
+      }
+    }
+    return enabled;
+  }
+
+  /**
+   * The rules covering Hop's own verify remarks, disabled ones included.
+   *
+   * <p>A disabled native rule is not a rule that does nothing: it is the project saying that the
+   * check it names should not be reported, so the classifier has to see it.
+   */
+  public List<CustomLintRule> getNativeVerifyRules() {
+    List<CustomLintRule> nativeRules = new ArrayList<>();
+    for (CustomLintRule rule : rules) {
+      if (rule.isNativeVerify()) {
+        nativeRules.add(rule);
+      }
+    }
+    return nativeRules;
+  }
 }

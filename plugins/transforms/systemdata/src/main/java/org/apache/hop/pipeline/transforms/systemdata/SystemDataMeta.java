@@ -67,6 +67,11 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
     fields = new ArrayList<>();
   }
 
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   public SystemDataMeta(SystemDataMeta m) {
     this();
     m.fields.forEach(f -> fields.add(new SystemInfoField(f)));

@@ -19,6 +19,7 @@ package org.apache.hop.databases.mysql;
 
 import static org.apache.hop.junit.database.TypeRuleFixture.column;
 import static org.apache.hop.junit.database.TypeRuleFixture.meta;
+import static org.apache.hop.junit.database.TypeRuleFixture.numericColumn;
 import static org.apache.hop.junit.database.TypeRuleFixture.properties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -91,5 +92,22 @@ class MySqlTypeRulesTest {
 
     assertTrue(valueMeta.isBinary());
     assertEquals(8, valueMeta.getLength());
+  }
+
+  @Test
+  void aWideExactDecimalRoundTripsAsDecimalNotDouble() throws Exception {
+    MySqlDatabaseMeta dialect = new MySqlDatabaseMeta();
+    IValueMeta valueMeta =
+        DatabaseTypeMapper.getValueMeta(
+            new Variables(),
+            meta(dialect),
+            numericColumn(Types.DECIMAL, "decimal", 24, 15),
+            false,
+            false);
+    assertTrue(valueMeta.isBigNumber() || valueMeta.isNumber());
+    assertEquals(24, valueMeta.getLength());
+    assertEquals(15, valueMeta.getPrecision());
+    assertEquals(
+        "DECIMAL(24, 15)", dialect.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 }

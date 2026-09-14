@@ -18,31 +18,13 @@ under the License.
 :language: en_US
 :description: The ETL metadata injection transform inserts data from various sources into a pipeline at runtime.
 
-:openvar: ${
-:closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/GenericTransform.svg[Metadata Injection transform Icon, role="image-doc-icon"] Metadata Injection
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 Metadata injection allows Apache Hop users to provide the required metadata for a pipeline at runtime. This can significantly reduce the need to develop slightly different versions of what is basically the same pipeline.
-
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Usage
 
@@ -72,8 +54,8 @@ xref:pipeline/metadata-injection.adoc[Read more on metadata injection]
 |Pipeline|Specify your template pipeline by entering in its path.
 Click Browse to display and enter the path details using the Virtual File System Browser.
 
-If you select a pipeline that has the same root path as the current pipeline, the variable {openvar}Internal.Transform.Current.Directory{closevar} will automatically be inserted in place of the common root path.
-For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl then the path will automatically be converted to {openvar}Internal.Transform.Current.Directory{closevar}/path/sub.hpl.
+If you select a pipeline that has the same root path as the current pipeline, the variable +${Internal.Transform.Current.Directory}+ will automatically be inserted in place of the common root path.
+For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl then the path will automatically be converted to +${Internal.Transform.Current.Directory}/path/sub.hpl+.
 |===
 
 The ETL Metadata Injection transform features the two tabs with fields.
@@ -100,8 +82,8 @@ The Source field dialog box opens.
 
 3. Optionally, select Use constant value to specify a constant value for the injected metadata through one of the following actions:
 - Manually entering a value.
-- Using an internal variable to set the value ({openvar}Internal.transform.Unique.Count{closevar} for example).
-- Using a combination of manually specified values and parameter values ({openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt for example).
+- Using an internal variable to set the value (+${Internal.transform.Unique.Count}+ for example).
+- Using a combination of manually specified values and parameter values (+${FILE_PREFIX}_${FILE_DATE}.txt+ for example).
 
 When specifying constant values for grouped lists of values like fields or filenames please note that there isn't a good solution for that.  Best practice is to use a xref:pipeline/transforms/datagrid.adoc[Data Grid] transform to inject a complete set of constant values.  You can map those in this metadata injection transform. It will do its best to accommodate you by allowing you to inject a single row in the group with the specified constant value.
 

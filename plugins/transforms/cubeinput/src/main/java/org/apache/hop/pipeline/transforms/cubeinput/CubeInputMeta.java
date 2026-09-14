@@ -69,6 +69,16 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void setDefault() {
     this.file = new CubeFile();
     this.rowLimit = "0";

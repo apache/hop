@@ -1035,7 +1035,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       }
       // add Hidden
       if (!Utils.isEmpty(meta.getHiddenFieldName())) {
-        outputRowData[rowIndex++] = Boolean.valueOf(data.path);
+        outputRowData[rowIndex++] = data.hidden;
       }
       // Add modification date
       if (meta.getLastModificationTimeFieldName() != null

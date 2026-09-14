@@ -153,7 +153,10 @@ public final class PathVariableReplacer {
     if (value.contains("${") || value.contains(",")) {
       return false;
     }
-    // Absolute local path, Windows drive path, UNC, or VFS URI
+    // Tilde home path, absolute local path, Windows drive path, UNC, or VFS URI
+    if (value.equals("~") || value.startsWith("~/") || value.startsWith("~\\")) {
+      return true;
+    }
     if (value.startsWith("/") || value.startsWith("\\")) {
       return true;
     }

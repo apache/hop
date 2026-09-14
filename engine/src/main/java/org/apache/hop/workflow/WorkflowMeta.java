@@ -64,6 +64,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -83,6 +84,7 @@ import org.w3c.dom.Node;
  */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-workflow")
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
   public static final String WORKFLOW_EXTENSION = ".hwf";
@@ -390,7 +392,7 @@ public class WorkflowMeta extends AbstractMeta
       throws HopXmlException {
     try {
       // OK, try to load using the VFS stuff...
-      Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(filename));
+      Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(filename, variables));
       if (doc != null) {
         // The workflowNode
         Node workflowNode = XmlHandler.getSubNode(doc, XML_TAG);
@@ -1593,9 +1595,18 @@ public class WorkflowMeta extends AbstractMeta
         if (action != null) {
           checkAction(remarks, monitor, variables, metadataProvider, actionMeta, action);
         }
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkAction(
+                actionMeta, variables, metadataProvider));
         // Progress bar...
         monitor.worked(worked++);
       }
+
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL,
+          variables,
+          HopExtensionPoint.AfterCheckActions.id,
+          new CheckActionsExtension(remarks, variables, this, actions, metadataProvider));
 
       monitor.done();
     } catch (Exception e) {

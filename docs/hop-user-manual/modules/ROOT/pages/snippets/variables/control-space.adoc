@@ -17,5 +17,5 @@ under the License.
 
 
 
-TIP: You can see a list of defined variables by using CTRL-SPACE (CMD-SPACE on OSX) in the input field.
+TIP: You can see a list of defined variables by using CTRL-SPACE in the input field.
 This helper will insert a selected variable into the input field. Only environment variables and variables with the JVM scope are shown here. Variables that are created in pipeline or workflow with a parent, grant parent or root workflow job need to be entered manually

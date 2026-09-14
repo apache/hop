@@ -41,10 +41,12 @@ import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroups;
+import org.apache.hop.core.gui.plugin.GuiWidgetMethodInvoker;
 import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -72,6 +74,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
@@ -220,6 +223,10 @@ public class GuiCompositeWidgets {
               + "; falling back to tabs");
     }
     GuiWidgetGroupType type = GuiWidgetGroups.typeOf(guiElements.getChildren());
+    if (type == GuiWidgetGroupType.BOXES) {
+      layoutBoxes(sourceData, parent, groups, useNewLayout);
+      return;
+    }
     if (type != GuiWidgetGroupType.TABS && type != GuiWidgetGroupType.NONE) {
       LogChannel.UI.logBasic(
           "Widget group type "
@@ -261,6 +268,40 @@ public class GuiCompositeWidgets {
         Comparator.comparing((WidgetGroup g) -> Const.NVL(g.order, ""))
             .thenComparing(g -> Const.NVL(g.label, "")));
     return groups;
+  }
+
+  private void layoutBoxes(
+      Object sourceData, Composite parent, List<WidgetGroup> groups, boolean useNewLayout) {
+    Control last = widgetsFirstLastControl;
+    int margin = PropsUi.getMargin();
+    for (WidgetGroup group : groups) {
+      Group box = new Group(parent, SWT.SHADOW_ETCHED_IN);
+      PropsUi.setLook(box);
+      box.setText(Const.NVL(group.label, ""));
+      FormLayout boxLayout = new FormLayout();
+      boxLayout.marginWidth = PropsUi.getFormMargin();
+      boxLayout.marginHeight = PropsUi.getFormMargin();
+      box.setLayout(boxLayout);
+
+      FormData fdBox = new FormData();
+      fdBox.left = new FormAttachment(0, 0);
+      fdBox.right = new FormAttachment(100, 0);
+      if (last == null) {
+        fdBox.top = new FormAttachment(0, 0);
+      } else {
+        fdBox.top = new FormAttachment(last, margin);
+      }
+      box.setLayoutData(fdBox);
+
+      Control lastInBox = null;
+      for (GuiElements child : group.elements) {
+        lastInBox = addCompositeWidgets(sourceData, box, child, lastInBox, useNewLayout);
+      }
+      for (Consumer<Composite> extra : group.extras) {
+        extra.accept(box);
+      }
+      last = box;
+    }
   }
 
   private void layoutTabs(
@@ -691,9 +732,15 @@ public class GuiCompositeWidgets {
         comboItems = new String[] {};
       }
     }
-    if (guiElements.isVariablesEnabled()) {
+    boolean namingEnabled =
+        StringUtils.isNotEmpty(guiElements.getNamingSchemeType()) && !guiElements.isPassword();
+    if (guiElements.isVariablesEnabled() || namingEnabled) {
       ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
       PropsUi.setLook(comboVar);
+      if (!guiElements.isVariablesEnabled()) {
+        comboVar.setVariablesEnabled(false);
+      }
+      enableNamingIfPresent(comboVar, guiElements);
       widgetsMap.put(guiElements.getId(), comboVar);
       comboVar.setItems(comboItems);
       control = comboVar;
@@ -720,17 +767,35 @@ public class GuiCompositeWidgets {
       Control lastControl,
       boolean useNewLayout) {
 
-    MetaSelectionLine<? extends IHopMetadata> metaSelectionLine =
-        new MetaSelectionLine<>(
-            variables,
-            HopGui.getInstance().getMetadataProvider(),
-            guiElements.getMetadataClass(),
-            parent,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            guiElements.getLabel(),
-            guiElements.getToolTip(),
-            false,
-            true);
+    IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
+    int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
+    MetaSelectionLine<? extends IHopMetadata> metaSelectionLine;
+    if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
+      metaSelectionLine =
+          MetaSelectionLine.forMetadataKey(
+              variables,
+              metadataProvider,
+              parent,
+              flags,
+              guiElements.getMetadataKey(),
+              guiElements.getLabel(),
+              guiElements.getToolTip());
+      if (metaSelectionLine == null) {
+        return lastControl;
+      }
+    } else {
+      metaSelectionLine =
+          new MetaSelectionLine<>(
+              variables,
+              metadataProvider,
+              guiElements.getMetadataClass(),
+              parent,
+              flags,
+              guiElements.getLabel(),
+              guiElements.getToolTip(),
+              false,
+              true);
+    }
 
     widgetsMap.put(guiElements.getId(), metaSelectionLine);
 
@@ -768,7 +833,6 @@ public class GuiCompositeWidgets {
         SWT.Selection,
         event -> {
           // This widget annotation was on top of a method.
-          // We need to instantiate the method using the provided classloader.
           //
           Method buttonMethod = guiElements.getButtonMethod();
           Class<?> methodClass = buttonMethod.getDeclaringClass();
@@ -783,11 +847,10 @@ public class GuiCompositeWidgets {
               compositeButtonsListener.buttonPressed(sourceObject);
             }
 
-            Object guiObject = methodClass.getDeclaredConstructor().newInstance();
-
-            // Invoke the button method (mutations apply to sourceObject)
-            //
-            buttonMethod.invoke(guiObject, sourceObject);
+            // The scanned Method can belong to a second copy of the class (GuiPluginType vs
+            // HopMetadata classLoaderGroup). Invoke on the live source object's class so the
+            // method body can cast the argument without ClassCastException.
+            GuiWidgetMethodInvoker.invoke(buttonMethod, sourceObject);
 
             // Re-bind form fields from the (possibly mutated) source object. Template-load and
             // similar buttons open modal dialogs; refresh both immediately and on the next UI
@@ -1002,7 +1065,9 @@ public class GuiCompositeWidgets {
       style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
     }
 
-    if (guiElements.isVariablesEnabled()) {
+    boolean namingEnabled =
+        StringUtils.isNotEmpty(guiElements.getNamingSchemeType()) && !guiElements.isPassword();
+    if (guiElements.isVariablesEnabled() || namingEnabled) {
       if (!multiLine && guiElements.isPassword()) {
         String toolTip =
             StringUtils.isNotEmpty(guiElements.getToolTip()) ? guiElements.getToolTip() : null;
@@ -1017,6 +1082,10 @@ public class GuiCompositeWidgets {
       } else {
         TextVar textVar = new TextVar(variables, parent, style);
         PropsUi.setLook(textVar);
+        if (!guiElements.isVariablesEnabled()) {
+          textVar.setVariablesEnabled(false);
+        }
+        enableNamingIfPresent(textVar, guiElements);
         widgetsMap.put(guiElements.getId(), textVar);
         addModifyListener(textVar.getTextWidget(), guiElements.getId());
         control = textVar;
@@ -1059,7 +1128,9 @@ public class GuiCompositeWidgets {
                         typeFilename.getFilterNames(),
                         true);
                 if (StringUtils.isNotEmpty(filename)) {
-                  text.setText(filename);
+                  // Windows dialogs emit '\'. JAAS keytab/krb5.conf treat '\' as an escape;
+                  // VFS and java.io.File accept '/'.
+                  text.setText(HopVfs.separatorsToUnix(filename));
                 }
               });
         }
@@ -1073,7 +1144,7 @@ public class GuiCompositeWidgets {
               e -> {
                 String folder = BaseDialog.presentDirectoryDialog(parent.getShell());
                 if (StringUtils.isNotEmpty(folder)) {
-                  text.setText(folder);
+                  text.setText(HopVfs.separatorsToUnix(folder));
                 }
               });
         }
@@ -1083,6 +1154,18 @@ public class GuiCompositeWidgets {
     }
 
     return control;
+  }
+
+  private void enableNamingIfPresent(Control control, GuiElements guiElements) {
+    String type = guiElements.getNamingSchemeType();
+    if (StringUtils.isEmpty(type) || guiElements.isPassword()) {
+      return;
+    }
+    if (control instanceof TextVar textVar) {
+      textVar.enableNamingSchemes(type);
+    } else if (control instanceof ComboVar comboVar) {
+      comboVar.enableNamingSchemes(type);
+    }
   }
 
   public ITypeFilename instantiateTypeFilename(GuiElements guiElements) {

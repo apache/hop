@@ -74,6 +74,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -132,12 +133,13 @@ public class TextFileInputDialog extends BaseTransformDialog
   private Button wAccFilenames;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+  private MetaSelectionLine wNamingScheme;
 
   private Label wlPassThruFields;
   private Button wPassThruFields;
 
   private Label wlAccField;
-  private Text wAccField;
+  private CCombo wAccField;
 
   private Label wlAccTransform;
   private CCombo wAccTransform;
@@ -593,7 +595,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdbaFilename.top = new FormAttachment(0, 0);
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
@@ -778,7 +782,8 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdlAccField.left = new FormAttachment(0, 0);
     fdlAccField.right = new FormAttachment(middle, -margin);
     wlAccField.setLayoutData(fdlAccField);
-    wAccField = new Text(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAccField = new CCombo(gAccepting, SWT.BORDER | SWT.READ_ONLY);
+    wAccField.setEditable(true);
     wAccField.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptField.Tooltip"));
     PropsUi.setLook(wAccField);
@@ -787,6 +792,15 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdAccField.left = new FormAttachment(middle, 0);
     fdAccField.right = new FormAttachment(100, 0);
     wAccField.setLayoutData(fdAccField);
+    wAccField.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          setAcceptField();
+          shell.setCursor(null);
+          busy.dispose();
+        });
 
     // Fill in the source transforms...
     List<TransformMeta> prevTransforms =
@@ -2010,6 +2024,31 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wSchemaDefinition.addSelectionListener(lsSelection);
 
+    wNamingScheme =
+        MetaSelectionLine.forMetadataKey(
+            variables,
+            metadataProvider,
+            wFieldsComp,
+            SWT.NONE,
+            "naming-scheme",
+            BaseMessages.getString(PKG, "TextFileInputDialog.NamingScheme.Label"),
+            BaseMessages.getString(PKG, "TextFileInputDialog.NamingScheme.Tooltip"));
+    Control namingAnchor = wSchemaDefinition;
+    if (wNamingScheme != null) {
+      PropsUi.setLook(wNamingScheme);
+      FormData fdNamingScheme = new FormData();
+      fdNamingScheme.left = new FormAttachment(0, 0);
+      fdNamingScheme.top = new FormAttachment(wSchemaDefinition, margin);
+      fdNamingScheme.right = new FormAttachment(100, 0);
+      wNamingScheme.setLayoutData(fdNamingScheme);
+      try {
+        wNamingScheme.fillItems();
+      } catch (Exception e) {
+        log.logError("Error getting naming scheme items", e);
+      }
+      namingAnchor = wNamingScheme;
+    }
+
     // Ignore manual schema
     //
     Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
@@ -2019,7 +2058,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     FormData fdlIgnoreFields = new FormData();
     fdlIgnoreFields.left = new FormAttachment(0, 0);
     fdlIgnoreFields.right = new FormAttachment(middle, -margin);
-    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    fdlIgnoreFields.top = new FormAttachment(namingAnchor, margin);
     wlIgnoreFields.setLayoutData(fdlIgnoreFields);
     wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wIgnoreFields);
@@ -2103,6 +2142,7 @@ public class TextFileInputDialog extends BaseTransformDialog
               },
               true)
         };
+    colInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colInfos[12].setToolTip(
         BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Tooltip"));
@@ -2206,6 +2246,32 @@ public class TextFileInputDialog extends BaseTransformDialog
         wFields.table.redraw();
         wFields.table.update();
       }
+    }
+  }
+
+  /**
+   * Fill the filename field combo with the fields of the transform we accept filenames from. When
+   * no transform has been selected yet we fall back to the fields of all previous transforms.
+   */
+  private void setAcceptField() {
+    try {
+      String acceptTransformName = wAccTransform.getText();
+      IRowMeta r =
+          Utils.isEmpty(acceptTransformName)
+              ? pipelineMeta.getPrevTransformFields(variables, transformName)
+              : pipelineMeta.getTransformFields(variables, acceptTransformName);
+      // setItems() leaves the text of an editable combo alone, so the configured field survives
+      // the refresh and simply opening the dropdown does not mark the dialog as changed.
+      //
+      wAccField.setItems(r == null ? new String[0] : r.getFieldNames());
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "TextFileInputDialog.ErrorDialog.UnableToGetInputFields.Title"),
+          BaseMessages.getString(
+              PKG, "TextFileInputDialog.ErrorDialog.UnableToGetInputFields.Message"),
+          e);
     }
   }
 
@@ -2314,6 +2380,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     wAccField.setText(Const.NVL(meta.getFileInput().getAcceptingField(), ""));
     wAccTransform.setText(Const.NVL(meta.getAcceptingTransformName(), ""));
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
+    if (wNamingScheme != null) {
+      wNamingScheme.setText(Const.NVL(meta.getNamingScheme(), ""));
+    }
     wIgnoreFields.setSelection(meta.isIgnoreFields());
 
     // Apply the ignore fields state (fill from schema and disable/enable controls)
@@ -2573,6 +2642,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setLength(wLength.getText());
 
     meta.setSchemaDefinition(wSchemaDefinition.getText());
+    if (wNamingScheme != null) {
+      meta.setNamingScheme(wNamingScheme.getText());
+    }
     meta.setIgnoreFields(wIgnoreFields.getSelection());
 
     meta.getFileInput().getInputFiles().clear();
@@ -3321,6 +3393,14 @@ public class TextFileInputDialog extends BaseTransformDialog
   @Override
   public TableView getFieldsTable() {
     return this.wFields;
+  }
+
+  @Override
+  public String getNamingSchemeName() {
+    if (wNamingScheme != null && !wNamingScheme.isDisposed()) {
+      return wNamingScheme.getText();
+    }
+    return input.getNamingScheme();
   }
 
   @Override

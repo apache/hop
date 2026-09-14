@@ -47,6 +47,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -171,11 +172,82 @@ public class HopVfs {
     // namespace, with its own named VFS connections. Everything else uses the process wide
     // manager below, exactly as before. See issue #8106.
     HopVfsNamespace namespace = HopVfsNamespaces.resolve(variables);
-    if (namespace != null) {
-      return namespace.getFileSystemManager();
+    DefaultFileSystemManager namespaceManager = managerOf(namespace);
+    if (namespaceManager != null) {
+      return namespaceManager;
     }
     bootstrapWith(variables);
     return getFileSystemManager();
+  }
+
+  /**
+   * The file system manager of this namespace, or null when there is nothing usable to resolve
+   * with.
+   *
+   * <p>A namespace is closed once the last user lets go of it, and a closed {@link
+   * DefaultFileSystemManager} has dropped every provider it had - the local one included. Handing
+   * it a path afterwards fails as {@code "because it is a relative path, and no base URI was
+   * provided"}, even for an absolute local path, because there is no longer a provider to claim it.
+   *
+   * <p>Whoever inherited the namespace is never told that it closed: the binding is copied when a
+   * thread is created and never looked at again, and Hop GUI lets go of the previous project's
+   * namespace while background work - the linter - is still running on it. See issue #8295.
+   *
+   * <p>What to do about it depends on who else is in this JVM. With one tenant, the process wide
+   * manager is the right answer and not merely a salvage: the work that outlived the namespace
+   * belongs to the project that is open now, which is exactly what that manager holds. With several
+   * tenants ({@link HopVfsNamespaces#isIsolated()}) it is the wrong answer - the named connections
+   * on it are somebody else's - so the namespace builds its own connections again instead. If even
+   * that fails, the closed manager is handed back and the caller gets the error it would have got
+   * before: silently resolving one tenant's files through another's is worse than failing.
+   *
+   * @param namespace the namespace to resolve with, may be null
+   * @return its manager, or null when the process wide manager should be used instead
+   */
+  private static DefaultFileSystemManager managerOf(HopVfsNamespace namespace) {
+    if (namespace == null) {
+      return null;
+    }
+    DefaultFileSystemManager manager = namespace.getFileSystemManager();
+    if (manager != null && manager.hasProvider("file")) {
+      return manager;
+    }
+
+    if (HopVfsNamespaces.isIsolated()) {
+      try {
+        namespace.rebuild();
+      } catch (Exception e) {
+        // Only the rebuild belongs in this try. Logging is what runs before the log store exists,
+        // and a failure to say something must not be read as a failure to rebuild.
+        if (HopLogStore.isInitialized()) {
+          LogChannel.GENERAL.logError(
+              "The VFS namespace of "
+                  + namespace.getDescription()
+                  + " was closed while still in use and could not be built again. Files resolved"
+                  + " through it keep failing: the process wide manager holds the named connections"
+                  + " of another tenant and is not used in its place.",
+              e);
+        }
+        return manager;
+      }
+      if (HopLogStore.isInitialized()) {
+        LogChannel.GENERAL.logBasic(
+            "The VFS namespace of "
+                + namespace.getDescription()
+                + " was closed while still in use. Its named connections were read again.");
+      }
+      return namespace.getFileSystemManager();
+    }
+
+    // Resolving a file is one of the first things Hop does, long before there is anywhere to log
+    // to, so never let saying this out loud be the thing that fails.
+    if (HopLogStore.isInitialized()) {
+      LogChannel.GENERAL.logDebug(
+          "The VFS namespace of "
+              + namespace.getDescription()
+              + " is closed. Resolving with the process wide file system manager instead.");
+    }
+    return null;
   }
 
   /**
@@ -356,20 +428,92 @@ public class HopVfs {
    */
   public static FileObject getFileObject(String vfsFilename, IVariables variables)
       throws HopFileException {
-    return resolveWith(vfsFilename, getFileSystemManager(variables));
+    return resolveWith(vfsFilename, getFileSystemManager(variables), variables);
   }
 
   public static synchronized FileObject getFileObject(String vfsFilename) throws HopFileException {
     // Nothing to go on but the thread: the namespace of the execution running on it, if any.
-    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    DefaultFileSystemManager namespaceManager = managerOf(HopVfsNamespaces.getCurrent());
     return resolveWith(
-        vfsFilename, namespace == null ? getFileSystemManager() : namespace.getFileSystemManager());
+        vfsFilename, namespaceManager == null ? getFileSystemManager() : namespaceManager, null);
   }
 
-  private static FileObject resolveWith(String vfsFilename, DefaultFileSystemManager fsManager)
+  /**
+   * Resolves paths that start with {@code ~} (tilde) to the user's home directory.
+   *
+   * <p>The tilde character is recognized only at the start of a path (e.g. {@code ~}, {@code
+   * ~/path}, {@code ~\path} on Windows, or prefixed with {@code file://~} or {@code file:~}). A
+   * tilde elsewhere in a path (e.g. {@code /tmp/~} or {@code foo~bar}) or a tilde followed by
+   * non-separator characters (e.g. {@code ~username} or {@code ~temp}) is not replaced.
+   *
+   * @param path the path to resolve
+   * @param variables optional variables to look up {@code user.home} from; if null or unset, falls
+   *     back to {@code System.getProperty("user.home")}
+   * @return the path with leading tilde expanded, or the original path if no tilde prefix applies
+   */
+  public static String resolveHomeDirectory(String path, IVariables variables) {
+    if (path == null || path.isEmpty()) {
+      return path;
+    }
+    String prefix = "";
+    String remaining = path;
+    if (remaining.startsWith("file://")) {
+      prefix = "file://";
+      remaining = remaining.substring("file://".length());
+    } else if (remaining.startsWith("file:")) {
+      prefix = "file:";
+      remaining = remaining.substring("file:".length());
+    }
+
+    if (remaining.equals("~") || remaining.startsWith("~/") || remaining.startsWith("~\\")) {
+      String userHome = null;
+      if (variables != null) {
+        userHome = variables.getVariable("user.home");
+      }
+      if (StringUtils.isEmpty(userHome)) {
+        userHome = System.getProperty("user.home");
+      }
+      if (userHome != null) {
+        // Strip trailing slash/backslash from userHome so appending remainder does not duplicate it
+        while (userHome.length() > 1 && (userHome.endsWith("/") || userHome.endsWith("\\"))) {
+          userHome = userHome.substring(0, userHome.length() - 1);
+        }
+        if (remaining.equals("~")) {
+          remaining = userHome;
+        } else {
+          remaining = userHome + remaining.substring(1);
+        }
+        if (!prefix.isEmpty()) {
+          if (prefix.equals("file://") && !remaining.startsWith("/")) {
+            return prefix + "/" + remaining;
+          }
+          return prefix + remaining;
+        }
+        return remaining;
+      }
+    }
+    return path;
+  }
+
+  /**
+   * Resolves paths that start with {@code ~} (tilde) to the user's home directory using {@code
+   * System.getProperty("user.home")}.
+   *
+   * @param path the path to resolve
+   * @return the path with leading tilde expanded, or the original path if no tilde prefix applies
+   * @see #resolveHomeDirectory(String, IVariables)
+   */
+  public static String resolveHomeDirectory(String path) {
+    return resolveHomeDirectory(path, null);
+  }
+
+  private static FileObject resolveWith(
+      String vfsFilename, DefaultFileSystemManager fsManager, IVariables variables)
       throws HopFileException {
 
     try {
+      vfsFilename = resolveHomeDirectory(vfsFilename, variables);
+
       // We have one problem with VFS: if the file is in a subdirectory of the current one:
       // somedir/somefile
       // In that case, VFS doesn't parse the file correctly.
@@ -615,6 +759,23 @@ public class HopVfs {
     return getFilename(getFileObject(filename));
   }
 
+  /**
+   * Replace backslashes with forward slashes.
+   *
+   * <p>Windows file dialogs and {@link #getFilename(FileObject)} emit {@code \}. JAAS {@code
+   * keyTab} / {@code java.security.krb5.conf} treat backslash as an escape ({@code C:\Users} is not
+   * a path), and VFS prefers {@code /}. Java {@code File} accepts forward slashes on Windows.
+   *
+   * @param filename a local path, VFS URI, or {@code null}
+   * @return the same string with {@code \} replaced by {@code /}, or {@code null} if the input was
+   */
+  public static String separatorsToUnix(String filename) {
+    if (filename == null || filename.indexOf('\\') < 0) {
+      return filename;
+    }
+    return filename.replace('\\', '/');
+  }
+
   public static String getFilename(FileObject fileObject) {
     FileName fileName = fileObject.getName();
     String root = fileName.getRootURI();
@@ -762,9 +923,9 @@ public class HopVfs {
    */
   public static boolean startsWithScheme(String vfsFileName) {
     // Nothing to go on but the thread: the namespace of the execution running on it, if any.
-    HopVfsNamespace namespace = HopVfsNamespaces.getCurrent();
+    DefaultFileSystemManager namespaceManager = managerOf(HopVfsNamespaces.getCurrent());
     return startsWithScheme(
-        vfsFileName, namespace == null ? getFileSystemManager() : namespace.getFileSystemManager());
+        vfsFileName, namespaceManager == null ? getFileSystemManager() : namespaceManager);
   }
 
   private static boolean startsWithScheme(String vfsFileName, DefaultFileSystemManager fsManager) {
@@ -785,6 +946,7 @@ public class HopVfs {
    * prepended. This recognises:
    *
    * <ul>
+   *   <li>Tilde paths pointing to user home ({@code ~}, {@code ~/path}, {@code ~\path})
    *   <li>VFS URIs with a scheme, e.g. {@code file:///...}, {@code s3://...}, {@code hdfs://...}
    *   <li>POSIX absolute paths ({@code /...})
    *   <li>Windows UNC paths ({@code \\host\share})
@@ -797,6 +959,16 @@ public class HopVfs {
   public static boolean isAbsolutePath(String filename) {
     if (filename == null || filename.isEmpty()) {
       return false;
+    }
+    String stripped = filename;
+    if (stripped.startsWith("file://")) {
+      stripped = stripped.substring("file://".length());
+    } else if (stripped.startsWith("file:")) {
+      stripped = stripped.substring("file:".length());
+    }
+    // A path starting with tilde (home directory): ~, ~/, ~\
+    if (stripped.equals("~") || stripped.startsWith("~/") || stripped.startsWith("~\\")) {
+      return true;
     }
     // A VFS URI with a scheme, e.g. file:///, s3://, hdfs://, ...
     if (filename.contains("://")) {

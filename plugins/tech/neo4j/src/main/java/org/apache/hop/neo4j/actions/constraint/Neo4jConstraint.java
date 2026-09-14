@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
@@ -138,8 +139,8 @@ public class Neo4jConstraint extends ActionBase implements IAction {
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                logError("Error dropping constraint with cypher [" + _cypher + "]", e);
-                return false;
+                throw new HopRuntimeException(
+                    "Error dropping constraint with cypher [" + _cypher + "]", e);
               }
             });
       }
@@ -249,8 +250,8 @@ public class Neo4jConstraint extends ActionBase implements IAction {
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                logError("Error creating constraint with cypher [" + _cypher + "]", e);
-                return false;
+                throw new HopRuntimeException(
+                    "Error creating constraint with cypher [" + _cypher + "]", e);
               }
             });
       }

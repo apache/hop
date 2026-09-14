@@ -321,6 +321,16 @@ public class ProjectsGuiPlugin {
       hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectActivated.name());
       hopGui.getEventsHandler().fire(projectName, HopGuiEvents.MetadataChanged.name());
 
+      // The project that just opened has its own VFS connections: take its namespace, and let go
+      // of the one of the project we came from. Not a full reset - in Hop Web that would empty the
+      // file system manager of every other session as well.
+      //
+      // Before the extension point below, not after: letting go of the previous namespace closes
+      // it, and a listener that starts background work - the linter walks the whole project - would
+      // otherwise be handed a file system manager that is about to be closed underneath it. See
+      // issue #8295.
+      hopGui.useVfsNamespaceOfOpenProject();
+
       // Inform the outside world that we're enabled another project
       //
       ExtensionPointHandler.callExtensionPoint(
@@ -328,11 +338,6 @@ public class ProjectsGuiPlugin {
           hopGuiVariables,
           HopExtensionPoint.HopGuiProjectAfterEnabled.name(),
           project);
-
-      // The project that just opened has its own VFS connections: take its namespace, and let go
-      // of the one of the project we came from. Not a full reset - in Hop Web that would empty the
-      // file system manager of every other session as well.
-      hopGui.useVfsNamespaceOfOpenProject();
 
       // Finally, warn about metadata elements in this project which we can't load.
       // They're ignored so the project itself opens just fine.
@@ -1706,6 +1711,14 @@ public class ProjectsGuiPlugin {
     if (zipFilename == null) {
       return;
     }
+    exportProject(zipFilename, true);
+  }
+
+  public void exportProject(String zipFilename, boolean showConfirmation) {
+    HopGui hopGui = HopGui.getInstance();
+    Shell shell = hopGui.getShell();
+    IVariables variables = hopGui.getVariables();
+
     String projectName =
         HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
     if (StringUtils.isEmpty(projectName)) {
@@ -1713,7 +1726,7 @@ public class ProjectsGuiPlugin {
     }
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
-    String projectHome = projectConfig.getProjectHome();
+    String projectHome = variables.resolve(projectConfig.getProjectHome());
 
     AtomicBoolean includeVariables = new AtomicBoolean(true);
     AtomicBoolean includeMetadata = new AtomicBoolean(true);
@@ -1856,94 +1869,95 @@ public class ProjectsGuiPlugin {
               boolean asIs = exportAsIs.get();
 
               FileObject zipFile = HopVfs.getFileObject(zipFilename);
-              OutputStream outputStream = HopVfs.getOutputStream(zipFile, false);
-              ZipOutputStream zos = new ZipOutputStream(outputStream);
-              FileObject projectDirectory = HopVfs.getFileObject(projectHome);
-              // As-is: strip project home so entries land at the zip root (compatible with
-              // zip:file://…!/ read-only project open). Normal: strip parent so entries are under
-              // {projectName}/…
-              String stripBase =
-                  asIs
-                      ? projectDirectory.getName().getURI()
-                      : projectDirectory.getParent().getName().getURI();
+              try (OutputStream outputStream = HopVfs.getOutputStream(zipFile, false);
+                  ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+                FileObject projectDirectory = HopVfs.getFileObject(projectHome);
+                // As-is: strip project home so entries land at the zip root (compatible with
+                // zip:file://…!/ read-only project open). Normal: strip parent so entries are under
+                // {projectName}/…
+                String stripBase =
+                    asIs
+                        ? projectDirectory.getName().getURI()
+                        : projectDirectory.getParent().getName().getURI();
 
-              // Includes selected files and dependencies
-              if (!tree.getFileObjects().isEmpty()) {
-                for (FileObject fileObject : tree.getFileObjects()) {
-                  // To prevent the zip file from including itself
-                  if (zipFile.equals(fileObject)) {
-                    continue;
-                  }
-                  monitor.subTask(fileObject.getName().getURI());
-                  zipFile(fileObject, fileObject.getName().getURI(), zos, stripBase);
-                }
-              }
-
-              // Sidecars only for the classic (non as-is) export format
-              if (!asIs) {
-                HashMap<String, String> variablesMap = new HashMap<>();
-
-                for (String name : variables.getVariableNames()) {
-                  if (!name.contains("java.")
-                      && !name.contains("user.")
-                      && !name.contains("sun.")
-                      && !name.contains("os.")
-                      && !name.contains("file.")
-                      && !name.contains("jdk.")
-                      && !name.contains("http.")
-                      && !name.contains("path.")
-                      && !name.contains("ftp.")
-                      && !name.contains("line.")
-                      && !name.contains("awt.")
-                      && !name.equals("HOP_METADATA_FOLDER")
-                      && !name.contains("HOP_ENVIRONMENT_NAME")
-                      && !name.contains("HOP_AUDIT_FOLDER")
-                      && !name.contains("HOP_CONFIG_FOLDER")
-                      && !name.contains("PROJECT_HOME")
-                      && !name.contains("PARENT_PROJECT_NAME")
-                      && !name.contains("HOP_PROJECTS")
-                      && !name.contains("HOP_PLATFORM_OS")
-                      && !name.contains("HOP_PROJECT_NAME")
-                      && !name.contains("HOP_SERVER_URL")) {
-                    String value = variables.getVariable(name);
-                    variablesMap.put(name, value);
+                // Includes selected files and dependencies
+                if (!tree.getFileObjects().isEmpty()) {
+                  for (FileObject fileObject : tree.getFileObjects()) {
+                    // To prevent the zip file from including itself
+                    if (zipFile.equals(fileObject)) {
+                      continue;
+                    }
+                    monitor.subTask(fileObject.getName().getURI());
+                    zipFile(fileObject, fileObject.getName().getURI(), zos, stripBase);
                   }
                 }
-                ObjectMapper objectMapper = new ObjectMapper();
-                String variablesJson = objectMapper.writeValueAsString(variablesMap);
 
-                SerializableMetadataProvider metadataProvider =
-                    new SerializableMetadataProvider(hopGui.getMetadataProvider());
-                String metadataJson = metadataProvider.toJson();
+                // Sidecars only for the classic (non as-is) export format
+                if (!asIs) {
+                  HashMap<String, String> variablesMap = new HashMap<>();
 
-                // Includes config file
-                zipFile(
-                    HopVfs.getFileObject(
-                        Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
-                    projectDirectory.getName().getBaseName()
-                        + Const.FILE_SEPARATOR
-                        + Const.HOP_CONFIG,
-                    zos,
-                    stripBase);
+                  for (String name : variables.getVariableNames()) {
+                    if (!name.contains("java.")
+                        && !name.contains("user.")
+                        && !name.contains("sun.")
+                        && !name.contains("os.")
+                        && !name.contains("file.")
+                        && !name.contains("jdk.")
+                        && !name.contains("http.")
+                        && !name.contains("path.")
+                        && !name.contains("ftp.")
+                        && !name.contains("line.")
+                        && !name.contains("awt.")
+                        && !name.equals("HOP_METADATA_FOLDER")
+                        && !name.contains("HOP_ENVIRONMENT_NAME")
+                        && !name.contains("HOP_AUDIT_FOLDER")
+                        && !name.contains("HOP_CONFIG_FOLDER")
+                        && !name.contains("PROJECT_HOME")
+                        && !name.contains("PARENT_PROJECT_NAME")
+                        && !name.contains("HOP_PROJECTS")
+                        && !name.contains("HOP_PLATFORM_OS")
+                        && !name.contains("HOP_PROJECT_NAME")
+                        && !name.contains("HOP_SERVER_URL")) {
+                      String value = variables.getVariable(name);
+                      variablesMap.put(name, value);
+                    }
+                  }
+                  ObjectMapper objectMapper = new ObjectMapper();
+                  String variablesJson = objectMapper.writeValueAsString(variablesMap);
 
-                // Includes variables
-                if (includeVariables.get()) {
-                  zipString(
-                      variablesJson,
-                      "variables.json",
+                  SerializableMetadataProvider metadataProvider =
+                      new SerializableMetadataProvider(hopGui.getMetadataProvider());
+                  String metadataJson = metadataProvider.toJson();
+
+                  // Includes config file
+                  zipFile(
+                      HopVfs.getFileObject(
+                          Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
+                      projectDirectory.getName().getBaseName()
+                          + Const.FILE_SEPARATOR
+                          + Const.HOP_CONFIG,
                       zos,
-                      projectDirectory.getName().getBaseName());
-                }
+                      stripBase);
 
-                // Includes metadata
-                if (includeMetadata.get()) {
-                  zipString(
-                      metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
+                  // Includes variables
+                  if (includeVariables.get()) {
+                    zipString(
+                        variablesJson,
+                        "variables.json",
+                        zos,
+                        projectDirectory.getName().getBaseName());
+                  }
+
+                  // Includes metadata
+                  if (includeMetadata.get()) {
+                    zipString(
+                        metadataJson,
+                        "metadata.json",
+                        zos,
+                        projectDirectory.getName().getBaseName());
+                  }
                 }
               }
-
-              zos.close();
-              outputStream.close();
             } catch (Exception e) {
               throw new InvocationTargetException(e, "Error zipping project: " + e.getMessage());
             } finally {
@@ -1954,21 +1968,27 @@ public class ProjectsGuiPlugin {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(false, op);
 
-      GuiResource.getInstance().toClipboard(zipFilename);
+      if (showConfirmation) {
+        GuiResource.getInstance().toClipboard(zipFilename);
 
-      MessageBox box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Header"));
-      box.setMessage(
-          BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Message1", zipFilename)
-              + Const.CR
-              + BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Message2"));
-      box.open();
+        MessageBox box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_INFORMATION);
+        box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(
+                    PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Message1", zipFilename)
+                + Const.CR
+                + BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Dialog.Message2"));
+        box.open();
+      }
     } catch (Exception e) {
+      String errorMessage =
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Error.Dialog.Message");
+      hopGui.getLog().logError(errorMessage, e);
       new ErrorDialog(
           HopGui.getInstance().getShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Error.Dialog.Header"),
-          BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Error.Dialog.Message"),
-          e);
+          errorMessage,
+          showConfirmation ? e : new HopException(errorMessage));
     }
   }
 

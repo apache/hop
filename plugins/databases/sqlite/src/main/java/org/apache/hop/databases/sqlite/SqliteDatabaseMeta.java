@@ -58,6 +58,21 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return " LIMIT " + nrRows;
   }
 
+  @Override
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    if (Utils.isEmpty(objectName)) {
+      return null;
+    }
+    return "SELECT sql FROM sqlite_master WHERE name = "
+        + quoteSqlString(objectName)
+        + " AND type IN ('table', 'view')";
+  }
+
+  @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    return getSqlObjectDdl(schemaName, viewName);
+  }
+
   /**
    * Reading and writing dates as text rather than through the driver's getTimestamp/setTimestamp.
    * See {@link SqliteDateValues} and issue #3910.

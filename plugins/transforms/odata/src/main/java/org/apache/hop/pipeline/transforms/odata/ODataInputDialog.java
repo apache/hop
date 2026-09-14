@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class ODataInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ODataInputMeta.class;
@@ -113,15 +112,14 @@ public class ODataInputDialog extends BaseTransformDialog {
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
     fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    createTransformNameControl(shell, fdTransformName);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
 
     // Button bar at the bottom
     wOk = new Button(shell, SWT.PUSH);

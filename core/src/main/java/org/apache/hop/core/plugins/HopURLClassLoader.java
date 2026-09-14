@@ -108,10 +108,25 @@ public class HopURLClassLoader extends URLClassLoader {
     return clz;
   }
 
+  private static final String[] SYSTEM_PARENT_FIRST_PACKAGES = {
+    "org.apache.hop.core.", "com.fasterxml.jackson.", "org.slf4j."
+  };
+
+  protected boolean isParentFirst(String name) {
+    if (name != null) {
+      for (String pkg : SYSTEM_PARENT_FIRST_PACKAGES) {
+        if (name.startsWith(pkg)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   protected Class<?> loadClassFromParent(String name, boolean resolve)
       throws ClassNotFoundException {
     Class<?> clz;
-    if ((clz = getParent().loadClass(name)) != null) {
+    if (getParent() != null && (clz = getParent().loadClass(name)) != null) {
       if (resolve) {
         resolveClass(clz);
       }
@@ -123,6 +138,13 @@ public class HopURLClassLoader extends URLClassLoader {
   @Override
   protected synchronized Class<?> loadClass(String name, boolean resolve)
       throws ClassNotFoundException {
+    if (isParentFirst(name)) {
+      try {
+        return loadClassFromParent(name, resolve);
+      } catch (ClassNotFoundException | NoClassDefFoundError e) {
+        // Fall back to loading from this classloader
+      }
+    }
     try {
       return loadClassFromThisLoader(name, resolve);
     } catch (ClassNotFoundException | NoClassDefFoundError | SecurityException exception) {

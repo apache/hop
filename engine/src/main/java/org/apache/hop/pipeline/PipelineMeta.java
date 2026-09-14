@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +69,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
@@ -77,6 +79,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
 import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
@@ -86,6 +89,7 @@ import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformSourceSupport;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
@@ -99,6 +103,7 @@ import org.w3c.dom.Node;
  * This class defines information about a pipeline and offers methods to save and load it from XML
  * as well as methods to alter a pipeline by adding/removing databases, transforms, hops, etc.
  */
+@org.apache.hop.core.naming.NamingSchemeKind("hop-pipeline")
 public class PipelineMeta extends AbstractMeta
     implements IXml,
         Comparator<PipelineMeta>,
@@ -741,6 +746,115 @@ public class PipelineMeta extends AbstractMeta
     }
 
     return false;
+  }
+
+  /**
+   * Whether {@code hop} is a main (non-info, non-error) hop into a transform that will not drain
+   * it. Creating such a hop stalls the pipeline: the upstream {@code putRow} fills the rowset and
+   * blocks.
+   *
+   * @param hop the candidate or existing hop
+   * @return true if the hop should be refused
+   */
+  public boolean isDisallowedMainInputHop(PipelineHopMeta hop) {
+    if (hop == null || hop.getFromTransform() == null || hop.getToTransform() == null) {
+      return false;
+    }
+    if (!hop.isEnabled() || hop.isErrorHop()) {
+      return false;
+    }
+    TransformMeta to = hop.getToTransform();
+    ITransformMeta iMeta = to.getTransform();
+    if (iMeta == null || iMeta.consumesMainInput()) {
+      return false;
+    }
+    return !isTransformInformative(to, hop.getFromTransform());
+  }
+
+  /**
+   * Previous transforms on enabled main hops into {@code transformMeta}: not info, not error.
+   * {@link #findPreviousTransforms(TransformMeta, boolean)} with {@code info=false} still includes
+   * error-hop predecessors.
+   */
+  public List<TransformMeta> findPreviousMainTransforms(TransformMeta transformMeta) {
+    List<TransformMeta> previousTransforms = new ArrayList<>();
+    if (transformMeta == null) {
+      return previousTransforms;
+    }
+    for (PipelineHopMeta hi : hops) {
+      if (hi.getToTransform() != null
+          && hi.isEnabled()
+          && !hi.isErrorHop()
+          && hi.getToTransform().equals(transformMeta)
+          && !isTransformInformative(transformMeta, hi.getFromTransform())) {
+        previousTransforms.add(hi.getFromTransform());
+      }
+    }
+    return previousTransforms;
+  }
+
+  /**
+   * Main (non-info, non-error) hops into {@code to} that {@link ITransformMeta#consumesMainInput()}
+   * says will not be drained.
+   */
+  public List<PipelineHopMeta> findDisallowedMainInputHops(TransformMeta to) {
+    List<PipelineHopMeta> result = new ArrayList<>();
+    if (to == null) {
+      return result;
+    }
+    for (int i = 0; i < nrPipelineHops(); i++) {
+      PipelineHopMeta hop = getPipelineHop(i);
+      if (to.equals(hop.getToTransform()) && isDisallowedMainInputHop(hop)) {
+        result.add(hop);
+      }
+    }
+    return result;
+  }
+
+  void addUnconsumedMainInputRemark(List<ICheckResult> remarks, TransformMeta transformMeta) {
+    ITransformMeta iMeta = transformMeta.getTransform();
+    if (iMeta == null || iMeta.consumesMainInput()) {
+      return;
+    }
+    List<TransformMeta> mainPrev = findPreviousMainTransforms(transformMeta);
+    if (mainPrev.isEmpty()) {
+      return;
+    }
+    String fromNames =
+        mainPrev.stream().map(TransformMeta::getName).collect(Collectors.joining(", "));
+    String hint = iMeta.getMainInputRequirementHint();
+    String message;
+    if (Utils.isEmpty(hint)) {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.CheckResult.TypeResultError.DoesNotConsumeMainInput.Description",
+              transformMeta.getName(),
+              fromNames);
+    } else {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.CheckResult.TypeResultError.DoesNotConsumeMainInput.Hint.Description",
+              transformMeta.getName(),
+              fromNames,
+              hint);
+    }
+    remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
+  }
+
+  void addPipelineSourceRemark(List<ICheckResult> remarks, TransformMeta transformMeta) {
+    ITransformMeta iMeta = transformMeta.getTransform();
+    if (!TransformSourceSupport.isPipelineSource(iMeta)) {
+      return;
+    }
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_COMMENT,
+            TransformSourceSupport.CHECK_CODE_PIPELINE_SOURCE,
+            BaseMessages.getString(
+                PKG, "PipelineMeta.CheckResult.TypeResultComment.CanStartWithoutInput.Description"),
+            transformMeta));
   }
 
   /**
@@ -1543,7 +1657,7 @@ public class PipelineMeta extends AbstractMeta
     // OK, try to load using the VFS stuff...
     Document doc;
     try {
-      final FileObject pipelineFile = HopVfs.getFileObject(filename);
+      final FileObject pipelineFile = HopVfs.getFileObject(filename, parentVariableSpace);
       if (!pipelineFile.exists()) {
         throw new HopXmlException(
             BaseMessages.getString(PKG, "PipelineMeta.Exception.InvalidXMLPath", filename));
@@ -2615,6 +2729,8 @@ public class PipelineMeta extends AbstractMeta
                   transformMeta));
         }
 
+        addPipelineSourceRemark(remarks, transformMeta);
+
         int nrInfoTransforms = findNrInfoTransforms(transformMeta);
         TransformMeta[] infoTransform = null;
         if (nrInfoTransforms > 0) {
@@ -2676,6 +2792,7 @@ public class PipelineMeta extends AbstractMeta
                   remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
           transformMeta.check(
               remarks, this, prev, input, output, infoRowMeta, variables, metadataProvider);
+          addUnconsumedMainInputRemark(remarks, transformMeta);
           ExtensionPointHandler.callExtensionPoint(
               LogChannel.GENERAL,
               variables,
@@ -2816,6 +2933,12 @@ public class PipelineMeta extends AbstractMeta
                     "PipelineMeta.CheckResult.TypeResultWarning.BufferDeadlockRisk.Description",
                     risk.formatMessage()),
                 risk.reconvergence()));
+      }
+
+      for (TransformMeta transformMeta : transformsToCheck) {
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkTransform(
+                transformMeta, variables, metadataProvider));
       }
 
       ExtensionPointHandler.callExtensionPoint(
@@ -3338,24 +3461,6 @@ public class PipelineMeta extends AbstractMeta
     previousTransformCache.clear();
   }
 
-  /**
-   * Gets the pipeline type.
-   *
-   * @return the pipelineType
-   */
-  public PipelineType getPipelineType() {
-    return info.getPipelineType();
-  }
-
-  /**
-   * Sets the pipeline type.
-   *
-   * @param pipelineType the pipelineType to set
-   */
-  public void setPipelineType(PipelineType pipelineType) {
-    this.info.setPipelineType(pipelineType);
-  }
-
   public void addTransformChangeListener(ITransformMetaChangeListener listener) {
     transformChangeListeners.add(listener);
   }
@@ -3381,6 +3486,23 @@ public class PipelineMeta extends AbstractMeta
   public void notifyAllListeners(TransformMeta oldMeta, TransformMeta newMeta) {
     for (ITransformMetaChangeListener listener : transformChangeListeners) {
       listener.onTransformChange(this, oldMeta, newMeta);
+    }
+    if (oldMeta == null || newMeta == null) {
+      return;
+    }
+    String oldName = oldMeta.getName();
+    String newName = newMeta.getName();
+    if (oldName == null || oldName.equals(newName)) {
+      return;
+    }
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL,
+          Variables.getADefaultVariableSpace(),
+          HopExtensionPoint.PipelineTransformRenamed.id,
+          new TransformNameChange(this, oldName, newName));
+    } catch (HopException e) {
+      LogChannel.GENERAL.logError("Error calling extension point PipelineTransformRenamed", e);
     }
   }
 
@@ -3430,8 +3552,14 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * The PipelineType enum describes the various types of pipelines in terms of execution, including
-   * Normal, Serial Single-Threaded, and Single-Threaded.
+   * Describes how an engine drives the transforms of a pipeline. This is a property of the engine
+   * that executes the pipeline, not of the pipeline itself: the very same pipeline runs under
+   * either type, so it is never stored in the .hpl file. See {@link
+   * org.apache.hop.pipeline.engine.IPipelineEngine#getPipelineType()}.
+   *
+   * <p>Transforms use it in {@link
+   * org.apache.hop.pipeline.transform.BaseTransformMeta#getSupportedPipelineTypes()} to declare
+   * which of these execution models they can cope with.
    */
   @SuppressWarnings("java:S115")
   @Getter

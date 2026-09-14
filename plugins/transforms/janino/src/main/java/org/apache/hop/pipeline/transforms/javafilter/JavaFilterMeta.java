@@ -99,9 +99,15 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
     return Objects.hash(getTransformIOMeta().getTargetStreams(), condition);
   }
 
+  /**
+   * A new transform starts with a condition that compiles and runs on any stream, in the shape of
+   * the if-else it stands for. The dialog and the documentation say what to replace it with.
+   */
+  public static final String DEFAULT_CONDITION = "true ? true : false";
+
   @Override
   public void setDefault() {
-    condition = "true";
+    condition = DEFAULT_CONDITION;
   }
 
   @Override

@@ -455,11 +455,35 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    if (databaseDialect != null) {
+      return databaseDialect.getSqlViewDefinition(schemaName, viewName);
+    }
+    return super.getSqlViewDefinition(schemaName, viewName);
+  }
+
+  @Override
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    if (databaseDialect != null) {
+      return databaseDialect.getSqlObjectDdl(schemaName, objectName);
+    }
+    return super.getSqlObjectDdl(schemaName, objectName);
+  }
+
+  @Override
   public String getLimitClause(int nrRows) {
     if (databaseDialect != null) {
       return databaseDialect.getLimitClause(nrRows);
     }
     return super.getLimitClause(nrRows);
+  }
+
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    if (databaseDialect != null) {
+      return databaseDialect.getLimitClausePrefix(nrRows);
+    }
+    return super.getLimitClausePrefix(nrRows);
   }
 
   @Override

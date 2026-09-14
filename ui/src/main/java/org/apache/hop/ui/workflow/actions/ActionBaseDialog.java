@@ -33,6 +33,8 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -207,12 +209,14 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Label wNameNaming =
+        NamingSchemeWidgetSupport.enableOnText(wName, variables, NamingSchemeTypes.HOP_ACTION);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.right = new FormAttachment(wicon, -5);
     fdName.top = new FormAttachment(wlName, 5);
     fdName.left = new FormAttachment(0, 0);
-    wName.setLayoutData(fdName);
+    NamingSchemeWidgetSupport.layoutWithIndicator(wName, wNameNaming, fdName);
 
     Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();

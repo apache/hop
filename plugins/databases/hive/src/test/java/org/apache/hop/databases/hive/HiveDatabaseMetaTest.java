@@ -251,6 +251,7 @@ class HiveDatabaseMetaTest {
   void testSqlStatements() {
     assertEquals(" LIMIT 15", nativeMeta.getLimitClause(15));
     assertEquals("SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlQueryFields("FOO"));
+    assertEquals("SHOW CREATE TABLE `db`.`v`", nativeMeta.getSqlObjectDdl("db", "v"));
     assertEquals("SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlTableExists("FOO"));
     assertEquals("SELECT FOO FROM BAR LIMIT 0", nativeMeta.getSqlQueryColumnFields("FOO", "BAR"));
 

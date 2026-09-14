@@ -66,6 +66,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
   private static final String KEY_PIPELINE_VERIFY = "LinterIncludeInPipelineVerify";
   private static final String KEY_WORKFLOW_VERIFY = "LinterIncludeInWorkflowVerify";
   private static final String KEY_NATIVE_CHECKS = "LinterIncludeNativeChecks";
+  private static final String KEY_SHOW_IGNORED = "LinterShowIgnoredMarkers";
 
   /**
    * Read the current settings.
@@ -93,6 +94,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       includeLintInPipelineVerify = HopConfig.readOptionBoolean(KEY_PIPELINE_VERIFY, true);
       includeLintInWorkflowVerify = HopConfig.readOptionBoolean(KEY_WORKFLOW_VERIFY, true);
       includeNativeChecks = HopConfig.readOptionBoolean(KEY_NATIVE_CHECKS, true);
+      showIgnoredMarkers = HopConfig.readOptionBoolean(KEY_SHOW_IGNORED, true);
     } catch (Exception e) {
       // No readable configuration (a fresh install, or a CLI run outside a Hop home) simply
       // means the field defaults stand.
@@ -148,6 +150,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
             includeLintInWorkflowVerify = ((Button) control).getSelection();
         case "linter-include-native-checks" ->
             includeNativeChecks = ((Button) control).getSelection();
+        case "linter-show-ignored-markers" ->
+            showIgnoredMarkers = ((Button) control).getSelection();
         default -> {
           // A widget this plugin does not own.
         }
@@ -177,6 +181,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     putIfSet(options, KEY_PIPELINE_VERIFY, includeLintInPipelineVerify);
     putIfSet(options, KEY_WORKFLOW_VERIFY, includeLintInWorkflowVerify);
     putIfSet(options, KEY_NATIVE_CHECKS, includeNativeChecks);
+    putIfSet(options, KEY_SHOW_IGNORED, showIgnoredMarkers);
     if (!options.isEmpty()) {
       HopConfig.saveOptions(options);
     }
@@ -222,6 +227,17 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       names = {"--lint-problems-bar"},
       description = "Show the lint problems bar (default: true)")
   private Boolean showProblemsBarEnabled;
+
+  @GuiWidgetElement(
+      id = "linter-show-ignored-markers",
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.Label",
+      toolTip = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.ToolTip")
+  @CommandLine.Option(
+      names = {"--lint-show-ignored-markers"},
+      description = "Mark transforms and actions whose findings are ignored (default: true)")
+  private Boolean showIgnoredMarkers;
 
   @GuiWidgetElement(
       id = "linter-config-file",
@@ -347,6 +363,21 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   public void setLintOnEditEnabled(boolean lintOnEditEnabled) {
     this.lintOnEditEnabled = lintOnEditEnabled;
+  }
+
+  /**
+   * Whether a transform or action whose findings are ignored is marked as such on the canvas.
+   *
+   * <p>On by default. A finding that simply vanished is what makes static validation confusing for
+   * the next person to open the pipeline; a muted marker says the silence was somebody's decision,
+   * and its tooltip says whose reasoning.
+   */
+  public boolean isShowIgnoredMarkers() {
+    return showIgnoredMarkers == null || showIgnoredMarkers;
+  }
+
+  public void setShowIgnoredMarkers(boolean showIgnoredMarkers) {
+    this.showIgnoredMarkers = showIgnoredMarkers;
   }
 
   public boolean isShowProblemsBarEnabled() {

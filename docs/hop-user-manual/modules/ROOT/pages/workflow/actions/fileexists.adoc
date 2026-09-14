@@ -36,7 +36,7 @@ The first part runs in PERL.
 
 You have batch scripts that accesses data from a remote location, performs first-level row processing, and outputs the data to a specified directory.
 
-You do not want to start the workflow until this is done, so you put the workflow on a scheduler.
+You do not want to start the workflow until this is done, so you put the workflow on a xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[scheduler].
 
 As soon as the task is complete, the file is placed in a well-known location so that the "file exists." That is the signal that launches the workflow for final processing.
 

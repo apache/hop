@@ -20,13 +20,13 @@ package org.apache.hop.core.config.plugin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.ConfigFileSerializer;
 import org.apache.hop.core.config.ConfigNoFileSerializer;
@@ -36,6 +36,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.vfs.HopVfs;
 
 public abstract class ConfigFile implements IConfigFile {
 
@@ -63,6 +64,13 @@ public abstract class ConfigFile implements IConfigFile {
   protected Map<String, Object> configMap;
 
   @Getter @Setter @JsonIgnore protected IHopConfigSerializer serializer;
+  @Setter @JsonIgnore protected boolean inMemory;
+
+  public boolean isInMemory() {
+    return inMemory
+        || "Y".equalsIgnoreCase(System.getProperty(Const.HOP_CONFIG_IN_MEMORY, "N"))
+        || "true".equalsIgnoreCase(System.getProperty(Const.HOP_CONFIG_IN_MEMORY, "false"));
+  }
 
   public ConfigFile() {
     configMap = new HashMap<>();
@@ -71,7 +79,14 @@ public abstract class ConfigFile implements IConfigFile {
 
   public void readFromFile() throws HopException {
     try {
-      if (new File(getConfigFilename()).exists()) {
+      boolean inMemoryMode = isInMemory();
+      boolean exists;
+      try (FileObject configFile = HopVfs.getFileObject(getConfigFilename())) {
+        exists = configFile.exists();
+      }
+      if (inMemoryMode) {
+        this.serializer = new ConfigNoFileSerializer();
+      } else if (exists) {
         // Let's write to the file
         //
         this.serializer = new ConfigFileSerializer();
@@ -89,13 +104,20 @@ public abstract class ConfigFile implements IConfigFile {
           this.serializer = new ConfigNoFileSerializer();
         }
       }
-      configMap = serializer.readFromFile(getConfigFilename());
+      if (inMemoryMode && exists) {
+        configMap = new ConfigFileSerializer().readFromFile(getConfigFilename());
+      } else {
+        configMap = serializer.readFromFile(getConfigFilename());
+      }
     } catch (Exception e) {
       throw new HopException("Unable to read config file '" + getConfigFilename() + "'", e);
     }
   }
 
   public void saveToFile() throws HopException {
+    if (isInMemory()) {
+      return;
+    }
     synchronized (CONFIG_LOCK) {
       try {
         serializer.writeToFile(getConfigFilename(), configMap);

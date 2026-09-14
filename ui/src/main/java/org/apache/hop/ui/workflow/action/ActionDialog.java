@@ -34,6 +34,8 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -94,6 +96,10 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
   /**
    * Action name text field. Created by {@link #createShell(String)}. Subclasses set its value in
    * getData() and read it in ok(). Override {@link #onActionNameModified()} to react to changes.
+   *
+   * <p>Must remain an SWT {@link Text} that is a direct child of the dialog composite. Existing
+   * plugins resolve this field by type and attach siblings with {@code new FormAttachment(wName,
+   * ...)}.
    */
   protected Text wName;
 
@@ -276,7 +282,11 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
 
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    FormData fdName = new FormData();
+    fdName.left = new FormAttachment(middle, 0);
+    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
+    fdName.right = new FormAttachment(100, 0);
+    createActionNameControl(shell, fdName);
     PropsUi.setLook(wName);
     wName.addModifyListener(
         e -> {
@@ -284,11 +294,6 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
             onActionNameModified();
           }
         });
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     wSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
@@ -299,6 +304,21 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
 
     loading = true;
     return wSpacer;
+  }
+
+  /**
+   * Create a naming-enabled action-name field as a direct child of {@code parent}. {@link #wName}
+   * is an SWT {@link Text} sibling of other dialog controls so existing plugins stay binary- and
+   * layout-compatible. The N indicator is placed at {@code fd.right}.
+   *
+   * @param parent parent composite (usually {@link #shell})
+   * @param fd form data for the name slot (left/top/right)
+   */
+  protected void createActionNameControl(Composite parent, FormData fd) {
+    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Label naming =
+        NamingSchemeWidgetSupport.enableOnText(wName, variables, NamingSchemeTypes.HOP_ACTION);
+    NamingSchemeWidgetSupport.layoutWithIndicator(wName, naming, fd);
   }
 
   /**

@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -362,6 +363,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
               ValueMetaBase.trimTypeDesc,
               true),
         };
+    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(

@@ -88,7 +88,7 @@
       }
     },
     properties: [ "content", "language", "readOnly", "theme" ],
-    events: [ "contentChanged", "focusChanged", "selectionChanged", "findRequested" ],
+    events: [ "contentChanged", "focusChanged", "selectionChanged", "findRequested", "executeRequested" ],
     methods: [ "setSelection", "insert" ]
   });
 
@@ -264,6 +264,18 @@
       }
     },
 
+    _notifyExecute: function() {
+      if (this._destroyed) return;
+      try {
+        var remote = rap.getRemoteObject(this);
+        if (remote) {
+          remote.notify("executeRequested", {});
+        }
+      } catch (e) {
+        console.warn("MonacoEditor: failed to notify execute", e);
+      }
+    },
+
     _scheduleNotify: function() {
       var self = this;
       if (self._debounceId) clearTimeout(self._debounceId);
@@ -343,6 +355,10 @@
           self._editor.addCommand(
             window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.KeyH,
             function() { self._notifyFind(true); }
+          );
+          self._editor.addCommand(
+            window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.Enter,
+            function() { self._notifyExecute(); }
           );
         }
 

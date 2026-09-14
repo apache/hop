@@ -65,6 +65,8 @@ image:getting-started/gs-hop-gui-create-pipeline-6.png[]
 Use the search box in this dialog to find the transforms you need.
 Click or use the arrow keys and hit enter to add a transform to your pipeline.
 
+Start with a xref:pipeline/pipeline-sources.adoc[pipeline source] (a transform that does not need incoming hops).
+Search for `pipeline source` in this dialog, or pick Generate Rows.
 For now, add a xref:pipeline/transforms/rowgenerator.adoc[Generate Rows] and a xref:pipeline/transforms/addsequence.adoc[Add Sequence] transform to your pipeline.
 
 image:getting-started/gs-hop-gui-create-pipeline-add-two-transforms.png[]

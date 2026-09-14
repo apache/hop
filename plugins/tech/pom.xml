@@ -29,16 +29,19 @@
     <name>Hop Plugins Technology</name>
 
     <modules>
+        <module>ai</module>
         <module>arrow</module>
         <module>avro</module>
         <module>aws</module>
         <module>azure</module>
+        <module>calcite</module>
         <module>cassandra</module>
         <module>databricks</module>
         <module>dropbox</module>
         <module>elastic</module>
         <module>ftp</module>
         <module>google</module>
+        <module>hadoop</module>
         <module>minio</module>
         <module>mongodb</module>
         <module>neo4j</module>

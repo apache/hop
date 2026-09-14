@@ -17,6 +17,7 @@ under the License.
 [[Linting]]
 :imagesdir: ../assets/images
 :description: The Hop linter checks pipelines, workflows and metadata against a set of rules, in Hop Gui while you work and on the command line in CI.
+:page-marketplace: hop-misc-lint
 
 = Linting
 

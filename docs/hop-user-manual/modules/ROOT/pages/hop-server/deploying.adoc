@@ -16,14 +16,13 @@ under the License.
 ////
 [[DeployingHopServer]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: How to get a Hop project onto a Hop Server: bake it into a Docker image, send it from a client with export resources, or check it out with git on the host.
 
 = Deploying Hop Server
 
 xref:hop-server/index.adoc[Hop Server] is a long-lived process that executes pipelines and workflows.
 It is not a scheduler: something else (Hop Gui, xref:hop-run/index.adoc[hop-run], Apache Airflow, cron, Jenkins, a Kubernetes CronJob, ...) has to submit the work.
+See xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines].
 
 This page is the deployment story: after you develop a project, how does a running Hop Server get the files and the configuration it needs?
 
@@ -62,7 +61,7 @@ This is xref:hop-server/deploy-export-resources.adoc[export resources].
 Environment configuration is applied *on the client*; variables travel with the execution.
 
 `<metadata_folder>` in `hop-server.xml` is the older, lower-level hook.
-Prefer enabling a project so `{openvar}PROJECT_HOME{closevar}`, metadata inheritance and environment variables all work.
+Prefer enabling a project so `+${PROJECT_HOME}+`, metadata inheritance and environment variables all work.
 When both a project and `<metadata_folder>` are set, both providers sit on the metadata stack.
 
 == Choose a pattern
@@ -92,9 +91,9 @@ When both a project and `<metadata_folder>` are set, both providers sit on the m
 |Present in the clone or installed on the host
 
 |File paths
-|`{openvar}PROJECT_HOME{closevar}` is real on the server
+|`+${PROJECT_HOME}+` is real on the server
 |Paths are rewritten; see the xref:hop-server/deploy-export-resources.adoc[export resources caveats]
-|`{openvar}PROJECT_HOME{closevar}` is the clone directory
+|`+${PROJECT_HOME}+` is the clone directory
 
 |Best for
 |Enterprise CI/CD, Kubernetes, OpenShift; the same image as a short-lived job *or* a long-lived server
@@ -122,12 +121,12 @@ You can inspect those runs later from the xref:hop-gui/perspective-execution-inf
 This is the usual production pattern when a scheduler (Airflow, Jenkins, cron, a Kubernetes Job or CronJob) already owns the calendar.
 Keep a long-lived Hop Server when you need xref:hop-server/web-service.adoc[web services], or when many clients submit work to a shared always-on engine.
 
-See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers] and the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow] how-to.
+See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers], xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines], and the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow] how-to.
 
 == Environment configuration
 
-Use project variables for values that are stable and safe to commit (folder names relative to `{openvar}PROJECT_HOME{closevar}`).
-Use environment variables for infrastructure: `{openvar}DB_HOSTNAME{closevar}`, credentials, inbound paths.
+Use project variables for values that are stable and safe to commit (folder names relative to `+${PROJECT_HOME}+`).
+Use environment variables for infrastructure: `+${DB_HOSTNAME}+`, credentials, inbound paths.
 
 Keep environment JSON *outside* the project folder when it contains secrets.
 Typical places:
@@ -167,7 +166,7 @@ The server does not read them.
 == What Hop Server does not do
 
 * It does not schedule work.
-Use Airflow, cron, Jenkins, a Kubernetes CronJob, or hop-run from a wrapper.
+Use xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[an external scheduler]: Airflow, cron, Jenkins, a Kubernetes CronJob, or hop-run from a wrapper.
 * It does not keep a durable work queue.
 A restart drops in-flight executions unless you set `--shutdown-timeout` / `HOP_SERVER_SHUTDOWN_TIMEOUT` and the orchestrator waits.
 * A short-lived `apache/hop` container that runs `hop-run` and exits is *not* Hop Server.

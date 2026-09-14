@@ -59,32 +59,32 @@ TINYINT        p=  16 s=  16 signed  | DB=Integer(2,0)       VMB=Integer(2,0)   
 TINYINT        p= 126 s=   0 signed  | DB=Integer(2,0)       VMB=Integer(2,0)       PRV=Integer(2,0)       NEW=Integer(2,0)       
 DECIMAL        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 DECIMAL        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-DECIMAL        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DECIMAL        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DECIMAL        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DECIMAL        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DECIMAL        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DECIMAL        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 NUMERIC        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 NUMERIC        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-NUMERIC        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-NUMERIC        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+NUMERIC        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+NUMERIC        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 NUMERIC        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 NUMERIC        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 DOUBLE         p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 DOUBLE         p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-DOUBLE         p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DOUBLE         p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DOUBLE         p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DOUBLE         p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DOUBLE         p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DOUBLE         p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 FLOAT          p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 FLOAT          p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-FLOAT          p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-FLOAT          p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+FLOAT          p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+FLOAT          p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 FLOAT          p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 FLOAT          p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 REAL           p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 REAL           p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-REAL           p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-REAL           p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+REAL           p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+REAL           p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 REAL           p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 REAL           p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 TIMESTAMP      p=   0 s=   0 signed  | DB=Timestamp(0,-1)    VMB=Timestamp(0,-1)    PRV=Timestamp(0,-1)    NEW=Timestamp(0,-1)    
@@ -207,31 +207,31 @@ TINYINT        p=  16 s=  16 signed  | DB=Integer(2,0)       VMB=Integer(2,0)   
 TINYINT        p= 126 s=   0 signed  | DB=Integer(2,0)       VMB=Integer(2,0)       PRV=Integer(2,0)       NEW=Integer(2,0)       
 DECIMAL        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 DECIMAL        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-DECIMAL        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DECIMAL        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DECIMAL        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DECIMAL        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DECIMAL        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DECIMAL        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 NUMERIC        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 NUMERIC        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-NUMERIC        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-NUMERIC        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+NUMERIC        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+NUMERIC        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 NUMERIC        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 NUMERIC        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 DOUBLE         p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 DOUBLE         p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=Number(-1,-1)      NEW=BigNumber(38,-1)   DIVERGE
-DOUBLE         p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
+DOUBLE         p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
 DOUBLE         p=  20 s=  10 signed  | DB=Number(-1,-1)      VMB=BigNumber(20,10)   PRV=Number(-1,10)      NEW=Number(-1,-1)      DIVERGE
 DOUBLE         p=  16 s=  16 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 DOUBLE         p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 FLOAT          p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 FLOAT          p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-FLOAT          p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
+FLOAT          p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
 FLOAT          p=  20 s=  10 signed  | DB=Number(-1,-1)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(-1,-1)      DIVERGE
 FLOAT          p=  16 s=  16 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 FLOAT          p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 REAL           p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 REAL           p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-REAL           p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
+REAL           p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
 REAL           p=  20 s=  10 signed  | DB=Number(-1,-1)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(-1,-1)      DIVERGE
 REAL           p=  16 s=  16 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 REAL           p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
@@ -355,32 +355,32 @@ TINYINT        p=  16 s=  16 signed  | DB=Integer(2,0)       VMB=Integer(2,0)   
 TINYINT        p= 126 s=   0 signed  | DB=Integer(2,0)       VMB=Integer(2,0)       PRV=Integer(2,0)       NEW=Integer(2,0)       
 DECIMAL        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 DECIMAL        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-DECIMAL        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DECIMAL        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DECIMAL        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DECIMAL        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DECIMAL        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DECIMAL        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 NUMERIC        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 NUMERIC        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-NUMERIC        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-NUMERIC        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+NUMERIC        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+NUMERIC        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 NUMERIC        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 NUMERIC        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 DOUBLE         p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 DOUBLE         p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-DOUBLE         p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DOUBLE         p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DOUBLE         p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DOUBLE         p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DOUBLE         p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DOUBLE         p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 FLOAT          p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 FLOAT          p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-FLOAT          p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-FLOAT          p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+FLOAT          p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+FLOAT          p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 FLOAT          p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 FLOAT          p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 REAL           p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 REAL           p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-REAL           p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-REAL           p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+REAL           p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+REAL           p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 REAL           p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 REAL           p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 TIMESTAMP      p=   0 s=   0 signed  | DB=Timestamp(0,-1)    VMB=Timestamp(0,-1)    PRV=Timestamp(0,-1)    NEW=Timestamp(0,-1)    
@@ -503,32 +503,32 @@ TINYINT        p=  16 s=  16 signed  | DB=Integer(2,0)       VMB=Integer(2,0)   
 TINYINT        p= 126 s=   0 signed  | DB=Integer(2,0)       VMB=Integer(2,0)       PRV=Integer(2,0)       NEW=Integer(2,0)       
 DECIMAL        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 DECIMAL        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-DECIMAL        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DECIMAL        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DECIMAL        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DECIMAL        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DECIMAL        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DECIMAL        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 NUMERIC        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 NUMERIC        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-NUMERIC        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-NUMERIC        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+NUMERIC        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+NUMERIC        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 NUMERIC        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 NUMERIC        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 DOUBLE         p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 DOUBLE         p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-DOUBLE         p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DOUBLE         p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DOUBLE         p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DOUBLE         p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DOUBLE         p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DOUBLE         p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 FLOAT          p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 FLOAT          p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-FLOAT          p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-FLOAT          p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+FLOAT          p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+FLOAT          p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 FLOAT          p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 FLOAT          p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 REAL           p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 REAL           p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-REAL           p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-REAL           p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+REAL           p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+REAL           p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 REAL           p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 REAL           p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 TIMESTAMP      p=   0 s=   0 signed  | DB=Timestamp(0,-1)    VMB=Timestamp(0,-1)    PRV=Timestamp(0,-1)    NEW=Timestamp(0,-1)    
@@ -651,32 +651,32 @@ TINYINT        p=  16 s=  16 signed  | DB=Integer(2,0)       VMB=Integer(2,0)   
 TINYINT        p= 126 s=   0 signed  | DB=Integer(2,0)       VMB=Integer(2,0)       PRV=Integer(2,0)       NEW=Integer(2,0)       
 DECIMAL        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 DECIMAL        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-DECIMAL        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DECIMAL        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DECIMAL        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DECIMAL        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DECIMAL        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DECIMAL        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 NUMERIC        p=   0 s=   0 signed  | DB=Number(0,0)        VMB=Number(0,0)        PRV=Number(0,0)        NEW=Number(0,0)        
 NUMERIC        p=  38 s=   0 signed  | DB=BigNumber(38,0)    VMB=BigNumber(38,0)    PRV=BigNumber(38,0)    NEW=BigNumber(38,0)    
-NUMERIC        p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-NUMERIC        p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+NUMERIC        p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+NUMERIC        p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 NUMERIC        p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 NUMERIC        p= 126 s=   0 signed  | DB=Number(-1,0)       VMB=Number(-1,0)       PRV=Number(-1,0)       NEW=Number(-1,0)       
 DOUBLE         p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 DOUBLE         p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-DOUBLE         p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-DOUBLE         p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+DOUBLE         p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+DOUBLE         p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 DOUBLE         p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 DOUBLE         p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 FLOAT          p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 FLOAT          p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-FLOAT          p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-FLOAT          p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+FLOAT          p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+FLOAT          p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 FLOAT          p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 FLOAT          p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 REAL           p=   0 s=   0 signed  | DB=Number(0,-1)       VMB=Number(0,-1)       PRV=Number(0,-1)       NEW=Number(0,-1)       
 REAL           p=  38 s=   0 signed  | DB=BigNumber(38,-1)   VMB=BigNumber(38,-1)   PRV=BigNumber(38,-1)   NEW=BigNumber(38,-1)   
-REAL           p=  10 s=   2 signed  | DB=Number(8,2)        VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(8,2)        DIVERGE
-REAL           p=  20 s=  10 signed  | DB=Number(10,10)      VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=Number(10,10)      DIVERGE
+REAL           p=  10 s=   2 signed  | DB=Number(10,2)       VMB=Number(10,2)       PRV=Number(10,2)       NEW=Number(10,2)       
+REAL           p=  20 s=  10 signed  | DB=BigNumber(20,10)   VMB=BigNumber(20,10)   PRV=BigNumber(20,10)   NEW=BigNumber(20,10)   
 REAL           p=  16 s=  16 signed  | DB=BigNumber(16,16)   VMB=BigNumber(16,16)   PRV=BigNumber(16,16)   NEW=BigNumber(16,16)   
 REAL           p= 126 s=   0 signed  | DB=Number(-1,-1)      VMB=Number(-1,-1)      PRV=Number(-1,-1)      NEW=Number(-1,-1)      
 TIMESTAMP      p=   0 s=   0 signed  | DB=Date(-1,-1)        VMB=None(-1,-1)        PRV=None(-1,-1)        NEW=Date(-1,-1)        DIVERGE
@@ -748,4 +748,4 @@ STRUCT         p= 126 s=   0 signed  | DB=String(-1,-1)      VMB=String(-1,-1)  
 BIGINT         p=  20 s=   0 unsigned | DB=BigNumber(16,0)    VMB=BigNumber(16,0)    PRV=Integer(15,0)      NEW=BigNumber(16,0)    DIVERGE
 YEAR           p=   4 s=   0 signed  | DB=Date(-1,-1)        VMB=Date(-1,-1)        PRV=Date(-1,-1)        NEW=Date(-1,-1)        
 
-# diverging cases: 62
+# diverging cases: 15

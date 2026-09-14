@@ -20,6 +20,9 @@ under the License.
 
 = image:how-to-guides/run-hop-in-apache-airflow/airflow-logo.svg[Apache Airflow, width="75vw", align="center"]Run workflows and pipelines in Apache Airflow
 
+This is the Airflow-specific how-to.
+For cron, systemd, Jenkins, a Kubernetes CronJob and the hop-run contract they all share, see xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines].
+
 == What is Apache Airflow?
 
 From the https://airflow.apache.org/[Apache Airflow website]:
@@ -337,6 +340,8 @@ Your DAG logs will now show the environment variable and the parameter we used i
 
 So far, we've looked at DAG that we ran manually and ad-hoc. There are lots of https://airflow.apache.org/docs/apache-airflow/stable/authoring-and-scheduling/index.html[well-documented^] options to schedule DAGs in Apache Airflow.  Since scheduling your DAGs is not really Apache Hop related, we'll only cover this briefly here.
 
+For the same hop-run / short-lived-container contract with cron, systemd, Jenkins or a Kubernetes CronJob, see xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines].
+
 One option is to provide a cron string to schedule your DAG execution. For example, to run a specific DAG at 10:00 am every morning, we'll change the schedule_interval from None to a cron expression in the "with DAG" line in our DAG (line breaks added for readability):
 
 [source, python]
@@ -357,4 +362,7 @@ For a more detailed description of the scheduling options in Apache Airflow, you
 We've covered the basics of running Apache Hop pipelines (or workflows) in Apache Airflow with the DockerOperator.
 
 There are other options: you could use Airflow's https://airflow.apache.org/docs/apache-airflow/stable/howto/operator/bash.html[BashOperator^] to use xref:hop-run/index.adoc[hop-run] directly or the https://airflow.apache.org/docs/apache-airflow-providers-http/stable/operators.html[HTTP operator^] to run pipelines or workflows on a remote hop server.
+
+Airflow is one scheduler among several.
+xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] covers cron, `at`, systemd, Windows Task Scheduler, Jenkins and Kubernetes CronJob against the same hop-run contract.
 

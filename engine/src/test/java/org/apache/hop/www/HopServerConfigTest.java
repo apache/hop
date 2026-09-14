@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -34,6 +35,7 @@ import org.apache.hop.server.HopServerMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -277,6 +279,21 @@ class HopServerConfigTest {
     assertNull(variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_NAME));
     assertNull(variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_HOSTNAME));
     assertNull(variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_PORT));
+  }
+
+  @Test
+  void setVariablesAfterXmlLoadIsVisibleToServlets() throws HopXmlException {
+    Node configNode = getConfigNode(getConfigWithEmptyOptionsNode());
+    HopServerConfig fromXml = new HopServerConfig(Mockito.mock(ILogChannel.class), configNode);
+    IVariables enabled = new Variables();
+    enabled.setVariable("PROJECT_HOME", "/opt/project");
+    fromXml.setVariables(enabled);
+
+    PipelineMap map = new PipelineMap();
+    map.setHopServerConfig(fromXml);
+    BaseHttpServlet servlet = new BaseHttpServlet();
+    servlet.setup(map, null);
+    assertEquals("/opt/project", servlet.getServletVariables().getVariable("PROJECT_HOME"));
   }
 
   @Test

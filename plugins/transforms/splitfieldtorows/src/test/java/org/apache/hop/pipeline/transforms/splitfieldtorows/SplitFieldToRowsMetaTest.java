@@ -45,6 +45,7 @@ class SplitFieldToRowsMetaTest {
         Arrays.asList(
             "splitField",
             "delimiter",
+            "enclosure",
             "newFieldname",
             "includeRowNumber",
             "rowNumberField",

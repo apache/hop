@@ -604,11 +604,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               updatePipelineState(iLocation);
             } catch (Exception e) {
               if (logChannel != null) {
-                logChannel.logBasic(
+                logChannel.logError(
                     "Warning: unable to register execution info at location "
                         + executionInfoLocation.getName()
-                        + " (non-fatal): "
-                        + e.getMessage());
+                        + " (non-fatal)",
+                    e);
               }
             }
           }

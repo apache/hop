@@ -60,6 +60,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -79,7 +80,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.jspecify.annotations.Nullable;
@@ -95,7 +95,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private CTabFolder wTabFolder;
 
   private Composite wGeneralComp;
-  private Text wName;
+  private TextVar wName;
   private Combo wConnectionType;
   private Label wDriverInfo;
   private Button wbDownloadDriver;
@@ -215,7 +215,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlName.left = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
 
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);
@@ -553,12 +555,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     DatabaseMeta databaseMeta = this.getMetadata();
 
+    String newTypeName = wConnectionType.getText();
+    String oldTypeName = databaseMeta.getPluginName();
+    if (Utils.isEmpty(newTypeName) || newTypeName.equalsIgnoreCase(oldTypeName)) {
+      busyChangingConnectionType.set(false);
+      return;
+    }
+
     // Keep track of the old database type since this changes when getting the content
     //
     Class<? extends IDatabase> oldClass = databaseMeta.getIDatabase().getClass();
-    String oldTypeName = databaseMeta.getPluginName();
-    String newTypeName = wConnectionType.getText();
-    wConnectionType.setText(databaseMeta.getPluginName());
+    wConnectionType.setText(Const.NVL(oldTypeName, newTypeName));
 
     // Capture any information on the widgets
     //
@@ -1141,7 +1148,29 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     DatabaseMeta databaseMeta = this.getMetadata();
 
     wName.setText(Const.NVL(databaseMeta.getName(), ""));
-    wConnectionType.setText(Const.NVL(databaseMeta.getPluginName(), ""));
+    String connectionType = Const.NVL(databaseMeta.getPluginName(), "");
+    if (Utils.isEmpty(connectionType) && !Utils.isEmpty(databaseMeta.getPluginId())) {
+      IPlugin plugin =
+          PluginRegistry.getInstance()
+              .findPluginWithId(DatabasePluginType.class, databaseMeta.getPluginId());
+      if (plugin != null) {
+        connectionType = plugin.getName();
+      }
+    }
+    wConnectionType.setText(connectionType);
+    int typeIndex = Const.indexOfString(connectionType, wConnectionType.getItems());
+    if (typeIndex < 0) {
+      String[] items = wConnectionType.getItems();
+      for (int i = 0; i < items.length; i++) {
+        if (items[i].equalsIgnoreCase(connectionType)) {
+          typeIndex = i;
+          break;
+        }
+      }
+    }
+    if (typeIndex >= 0) {
+      wConnectionType.select(typeIndex);
+    }
 
     if (wUsername != null) {
       wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));

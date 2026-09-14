@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0001-lint-check-db-connections</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Issue #8295: the linter must not report CONNECTION_DOES_NOT_EXIST for connections that are in the project metadata.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/09 08:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/09 08:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Lint the Check DB connections workflows</name>
+      <description>Runs hop lint over two subject workflows and checks the CONNECTION_DOES_NOT_EXIST findings.</description>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+# Issue #8295: "Invalid linter warnings in action Check DB Connections".
+#
+# The linter reported CONNECTION_DOES_NOT_EXIST for database connections that are present in the
+# project metadata. The checker behind that rule (ReferencedDatabaseConnectionChecker) asks the
+# metadata serializer whether the connection exists, and used to report "does not exist" when that
+# lookup *failed* as well as when it answered no. A failed lookup is not evidence of absence.
+#
+# Note on ${} below: Hop resolves its own variables in this script before running it, so only Hop
+# variables are written with braces. Shell variables are written without them.
+
+set -u
+
+PROJECT_DIR="${PROJECT_HOME}"
+
+# Finding the hop CLI: run-tests.sh sets HOP_LOCATION but does not export it, so it does not reach
+# this shell - printenv rather than $HOP_LOCATION, which would abort under "set -u". The test image
+# puts the client on the PATH, which is what normally answers here.
+HOP_CLI="$(printenv HOP_LOCATION 2>/dev/null || true)"
+if [ -n "$HOP_CLI" ] &amp;&amp; [ -x "$HOP_CLI/hop" ]; then
+  HOP_CLI="$HOP_CLI/hop"
+elif command -v hop > /dev/null 2>/dev/null; then
+  HOP_CLI="$(command -v hop)"
+elif [ -x /opt/hop/hop ]; then
+  HOP_CLI=/opt/hop/hop
+else
+  echo "FAIL: no hop CLI found (HOP_LOCATION is not set, hop is not on the PATH, and there is"
+  echo "      nothing at /opt/hop/hop). The linter cannot be tested without it."
+  exit 1
+fi
+echo "Using hop CLI: $HOP_CLI"
+
+# hop lint reads the project metadata (metadata/rdbms) through the project that HOP_CONFIG_FOLDER
+# points at, exactly like the rest of this test suite.
+export HOP_CONFIG_FOLDER="$PROJECT_DIR"
+
+RULE=CONNECTION_DOES_NOT_EXIST
+REPORT_DIR="$PROJECT_DIR/output"
+mkdir -p "$REPORT_DIR"
+
+failures=0
+
+# Run hop lint over one file and leave the JSON report in $2. hop lint exits 1 when a finding
+# reaches --fail-on (ERROR by default), so only an exit code above 1 means the linter itself
+# failed to run.
+run_lint() {
+  subject="$1"
+  report="$2"
+  rm -f "$report"
+  "$HOP_CLI" lint "$subject" --format json --output "$report"
+  rc=$?
+  if [ $rc -gt 1 ]; then
+    echo "FAIL: hop lint could not lint $subject (exit code $rc)"
+    return 1
+  fi
+  if [ ! -s "$report" ]; then
+    echo "FAIL: hop lint wrote no report for $subject"
+    return 1
+  fi
+  return 0
+}
+
+count_rule() {
+  grep -c "$RULE" "$1" 2>/dev/null || true
+}
+
+echo "=== Subject 1: every referenced connection exists (OPS, Vault, CRM) ==="
+EXISTING_REPORT="$REPORT_DIR/lint-existing-connections.json"
+if run_lint "$PROJECT_DIR/subject/existing-connections.hwf" "$EXISTING_REPORT"; then
+  found=$(count_rule "$EXISTING_REPORT")
+  if [ "$found" -ne 0 ]; then
+    echo "FAIL: expected no $RULE findings, got $found."
+    echo "      OPS, Vault and CRM are all present in $PROJECT_DIR/metadata/rdbms."
+    echo "----- report -----"
+    cat "$EXISTING_REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  else
+    echo "OK: no $RULE findings for connections that exist."
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== Subject 2: the referenced connection really is absent (NoSuchConnection) ==="
+MISSING_REPORT="$REPORT_DIR/lint-missing-connection.json"
+if run_lint "$PROJECT_DIR/subject/missing-connection.hwf" "$MISSING_REPORT"; then
+  found=$(count_rule "$MISSING_REPORT")
+  if [ "$found" -ne 1 ]; then
+    echo "FAIL: expected exactly one $RULE finding, got $found."
+    echo "----- report -----"
+    cat "$MISSING_REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  elif ! grep -q "NoSuchConnection" "$MISSING_REPORT"; then
+    echo "FAIL: the $RULE finding does not name NoSuchConnection."
+    echo "----- report -----"
+    cat "$MISSING_REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  else
+    echo "OK: the missing connection is still reported."
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+if [ $failures -ne 0 ]; then
+  echo "$failures lint assertion(s) failed."
+  exit 1
+fi
+
+echo "All lint assertions passed."
+exit 0
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>320</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>The Hop linter reported incorrect CONNECTION_DOES_NOT_EXIST findings. See issue #8295.</message>
+      <parallel>N</parallel>
+      <xloc>560</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Lint the Check DB connections workflows</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Lint the Check DB connections workflows</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

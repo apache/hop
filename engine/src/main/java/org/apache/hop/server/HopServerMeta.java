@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/metadata-types/hop-server.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION,
     supportsGlobalReplace = true)
+@org.apache.hop.core.naming.NamingSchemeKind("hop-metadata")
 public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
   public static final String STRING_HOP_SERVER = "Hop Server";
   public static final String XML_TAG = "hop-server";

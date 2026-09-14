@@ -18,8 +18,6 @@ under the License.
 :language: en_US
 :description: The Formula transform allows you to apply Excel-like formulas (see [Apache POI](https://poi.apache.org/components/spreadsheet/eval-devguide.html)) and functions on fields in a pipeline (Not Java or Javascript Formulas).
 
-:openvar: ${
-:closevar: }
 
 // supported functions are available at the link below.
 // also check plugins/transforms/formula/src/main/resources/functions.xml for the list of functions
@@ -28,30 +26,15 @@ under the License.
 // https://poi.apache.org/components/spreadsheet/eval-devguide.html#What+functions+are+supported?
 
 :toc: macro
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/formula.svg[Formula transform Icon, role="image-doc-icon"] Formula
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
 
 With a formula you are not limited to comparing to three fields like in the Calculator. This is where you can set and compare Date and Times as well.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Usage
 You have the option of creating a new field (use New field column) or setting a field value (use Replace value column).
@@ -108,7 +91,7 @@ NOTE: `#N/A` is the exception: it means "no value available" and is written to t
 |Option|Description
 |transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
 |New Field|the name of the new field that will be created from the formula. The Formula transform requires a data row to create a new field (if using a transform that queries for rows, you will have to preview it first to generate a row). You can add a row generator with a single row as the first transform in your pipeline.
-|Formula|To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax {openvar}param1{closevar}. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: `CONCATENATE([field1], “{openvar}Param1{closevar}”)`.
+|Formula|To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax +${param1}+. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: `+CONCATENATE([field1], “${Param1}”)+`.
 
 * Note: You may have to add quotes around variables in formulas as variables have no type.
 |Value type|the data type for the new formula field

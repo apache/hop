@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.editor.FormulaEditor;
+import org.apache.hop.pipeline.transforms.janino.function.ExpressionLibrary;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -36,6 +37,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -140,6 +142,7 @@ public class JaninoDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {}),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(
@@ -201,7 +204,8 @@ public class JaninoDialog extends BaseTransformDialog {
                         shell,
                         SWT.APPLICATION_MODAL | SWT.SHEET,
                         Const.NVL(formula, ""),
-                        inputFields);
+                        inputFields,
+                        ExpressionLibrary.getFunctions());
                 formula = libFormulaEditor.open();
                 if (formula != null && !tv.isDisposed()) {
                   tv.setText(formula, e.x, e.y);

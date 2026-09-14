@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The String Operations transform can perform trim, case conversion, padding and other string operations on an incoming Hop field.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/stringoperations.svg[String operations transform Icon, role="image-doc-icon"] String operations
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The String Operations transform can perform the following string operations on an incoming Hop field:
@@ -34,19 +32,6 @@ The String Operations transform can perform the following string operations on a
 * Ignore escape characters.
 * Remove or return only numeric digits.
 * Remove special characters..
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 

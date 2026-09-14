@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerTabBase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -100,6 +101,17 @@ class ErrorPathCypherIT {
                 CREATE (workflow)-[:EXECUTES]->(pipeline)
                 CREATE (pipeline)-[:EXECUTES]->(failed)
                 CREATE (pipeline)-[:EXECUTES]->(ok)
+                CREATE (eiWorkflow:Execution { id : 'ei-workflow', name : 'main',\
+                 executionType : 'Workflow', failed : true })
+                CREATE (eiPipeline:Execution { id : 'ei-pipeline', name : 'load',\
+                 executionType : 'Pipeline', parentId : 'ei-workflow', failed : true })
+                CREATE (eiFailed:Execution { id : 'ei-failed', name : 'Table output',\
+                 executionType : 'Transform', parentId : 'ei-pipeline', failed : true })
+                CREATE (eiOk:Execution { id : 'ei-ok', name : 'Dummy',\
+                 executionType : 'Transform', parentId : 'ei-pipeline', failed : false })
+                CREATE (eiWorkflow)-[:EXECUTES]->(eiPipeline)
+                CREATE (eiPipeline)-[:EXECUTES]->(eiFailed)
+                CREATE (eiPipeline)-[:EXECUTES]->(eiOk)
                 """);
             return null;
           });
@@ -170,5 +182,48 @@ class ErrorPathCypherIT {
             .replace("NOT (err)-[:EXECUTES]->()", "size((err)-[:EXECUTES]->())=0");
 
     assertThrows(ClientException.class, () -> runErrorPathCypher(removedSyntax));
+  }
+
+  @Test
+  void executionInfoErrorPathReturnsTheDeepestFailedLeaf() {
+    List<Record> records = runExecutionInfoErrorPath();
+
+    assertEquals(1, records.size());
+    assertEquals(List.of("ei-workflow", "ei-pipeline", "ei-failed"), executionIds(records.get(0)));
+  }
+
+  @Test
+  void executionInfoErrorPathSkipsNonLeavesAndSuccessfulTransforms() {
+    List<String> ids = executionIds(runExecutionInfoErrorPath().get(0));
+
+    assertEquals("ei-failed", ids.get(ids.size() - 1));
+    assertFalse(ids.contains("ei-ok"));
+  }
+
+  @Test
+  void executionInfoLineageWalksDirectedExecutesToTheRoot() {
+    try (Session session = driver.session()) {
+      List<Record> records =
+          session.executeRead(
+              tx ->
+                  tx.run(
+                          NeoExecutionViewerTabBase.buildPathToRootCypher(true),
+                          Map.of("executionId", "ei-failed"))
+                      .list());
+      assertEquals(1, records.size());
+      assertEquals(
+          List.of("ei-workflow", "ei-pipeline", "ei-failed"), executionIds(records.get(0)));
+    }
+  }
+
+  private List<Record> runExecutionInfoErrorPath() {
+    try (Session session = driver.session()) {
+      return session.executeRead(
+          tx ->
+              tx.run(
+                      NeoExecutionViewerTabBase.buildPathToFailedCypher(),
+                      Map.of("executionId", "ei-workflow"))
+                  .list());
+    }
   }
 }

@@ -94,7 +94,6 @@ public class PropsUi extends Props {
   private static final String DISABLE_ZOOM_SCROLLING = "DisableZoomScrolling";
   private static final String METRICS_ABOVE_SELECTED_TRANSFORMS = "MetricsAboveSelectedTransforms";
   private static final String ENABLE_INFINITE_CANVAS_MOVE = "EnableInfiniteCanvasMove";
-  private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
   private static final String REMEMBER_DIALOG_POSITIONS = "RememberDialogPositions";
   private static final String RESET_DIALOG_POSITIONS_ON_RESTART = "ResetDialogPositionsOnRestart";
 

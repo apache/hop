@@ -23,6 +23,8 @@ This page explains how to develop new plugins with references to make developmen
 For contributing **toolbar buttons** and other GUI-only extensions (`@GuiPlugin`, `@GuiToolbarElement`, `@GuiToolbarElementFilter`), see xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars].
 That page covers the TextComposite and TableView extension points (SQL formatters, JSON tools, table export, and similar).
 
+For **diagram exporters** (SVG, Mermaid, PlantUML and other formats from *File → Export diagram* and `hop export`), see xref:plugin-types/diagram-exporters.adoc[Diagram exporters].
+
 == Plugin Registry
 
 Hop keeps a central registry of all the available Hop plugins.

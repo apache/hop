@@ -17,7 +17,8 @@
 
 package org.apache.hop.projects.xp;
 
-import java.util.Collections;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -25,11 +26,11 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
-import org.apache.hop.ui.hopgui.HopGui;
 
 @ExtensionPoint(
     id = "HopImportCreateProject",
@@ -37,29 +38,52 @@ import org.apache.hop.ui.hopgui.HopGui;
     extensionPointId = "HopImportCreateProject")
 public class HopImportCreateProjectIfNotExists implements IExtensionPoint<String> {
 
+  static final String IMPORT_PROJECT_NAME = "Hop Import Project";
+
   @Override
   public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, String projectPath)
       throws HopException {
+    createImportProject(variables, projectPath, true);
+  }
 
-    String projectName = "Hop Import Project";
-    String envName = "Hop Import Environment";
-
-    HopGui hopGui = HopGui.getInstance();
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
-    // create new project
-    if (!StringUtil.isEmpty(projectPath)) {
-      String defaultProjectConfigFilename = variables.resolve(config.getDefaultProjectConfigFile());
-      ProjectConfig projectConfig =
-          new ProjectConfig(projectName, projectPath, defaultProjectConfigFilename);
-      Project project = new Project();
-      project.getDescribedVariables().clear();
-      project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
-      project.setConfigFilename(
-          projectPath + System.getProperty("file.separator") + "project-config.json");
-      config.addProjectConfig(projectConfig);
-      HopConfig.getInstance().saveToFile();
-      project.saveToFile();
+  /**
+   * Register a project at {@code projectPath} without applying it to {@code variables}.
+   *
+   * <p>Folder import must not overwrite the GUI {@code PROJECT_HOME} (issue #2865). The new project
+   * is registered, not activated.
+   *
+   * @param persistHopConfig when false, skip writing hop-config.json (tests)
+   * @return the registered project config, or {@code null} when {@code projectPath} is empty
+   */
+  static ProjectConfig createImportProject(
+      IVariables variables, String projectPath, boolean persistHopConfig) throws HopException {
+    if (StringUtil.isEmpty(projectPath)) {
+      return null;
     }
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    String defaultProjectConfigFilename = variables.resolve(config.getDefaultProjectConfigFile());
+    if (StringUtils.isEmpty(defaultProjectConfigFilename)) {
+      defaultProjectConfigFilename = ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+    }
+    ProjectConfig projectConfig =
+        new ProjectConfig(IMPORT_PROJECT_NAME, projectPath, defaultProjectConfigFilename);
+    Project project = new Project();
+    project.getDescribedVariables().clear();
+
+    try (FileObject projectHome = HopVfs.getFileObject(projectPath)) {
+      FileObject configFile = projectHome.resolveFile(defaultProjectConfigFilename);
+      project.setConfigFilename(configFile.getName().getURI());
+    } catch (Exception e) {
+      throw new HopException(
+          "Error resolving project configuration file for import folder '" + projectPath + "'", e);
+    }
+
+    config.addProjectConfig(projectConfig);
+    if (persistHopConfig) {
+      HopConfig.getInstance().saveToFile();
+    }
+    project.saveToFile();
+    return projectConfig;
   }
 }

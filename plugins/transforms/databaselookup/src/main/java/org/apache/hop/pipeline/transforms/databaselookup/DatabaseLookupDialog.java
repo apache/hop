@@ -44,6 +44,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -259,7 +260,9 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar(variables, fieldGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, fieldGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
@@ -286,7 +289,9 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, fieldGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, fieldGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
@@ -488,6 +493,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "DatabaseLookupDialog.ColumnInfo.Newname"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    ciReturn[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     ciReturn[2] =
         new ColumnInfo(

@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -58,7 +59,7 @@ public class ProjectConfigDialog extends Dialog {
   private final String originalName;
 
   private Shell shell;
-  private Text wName;
+  private TextVar wName;
   private TextVar wHome;
   private TextVar wConfigFile;
   private ComboVar wGroup;
@@ -117,7 +118,9 @@ public class ProjectConfigDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin * 2);
     wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.BORDER);
+    wName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
@@ -143,7 +146,9 @@ public class ProjectConfigDialog extends Dialog {
     wbHome.setLayoutData(fdbHome);
     wbHome.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wHome, variables));
-    wHome = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER);
+    wHome =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FOLDER);
     PropsUi.setLook(wHome);
     FormData fdHome = new FormData();
     fdHome.left = new FormAttachment(middle, margin);

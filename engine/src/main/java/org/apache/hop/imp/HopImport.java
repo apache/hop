@@ -124,6 +124,18 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       description = "Print version information and exit")
   private boolean versionRequested;
 
+  @Option(
+      names = {"-n", "--naming-scheme"},
+      description =
+          "Naming scheme metadata name in the target folder to apply to relational connections")
+  private String namingSchemeName;
+
+  @Option(
+      names = {"--no-apply-naming-schemes"},
+      description =
+          "Do not apply a naming scheme; connection names are still aligned to one spelling")
+  private boolean noApplyNamingSchemes;
+
   private MultiMetadataProvider metadataProvider;
   private IVariables variables;
   private CommandLine cmd;
@@ -195,6 +207,8 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
         hopImport.setSkippingFolders(skippingFolders);
       }
       hopImport.setTargetConfigFilename(targetConfigFilename);
+      hopImport.setApplyNamingSchemes(!noApplyNamingSchemes);
+      hopImport.setNamingSchemeName(namingSchemeName);
 
       // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even
       // loaded

@@ -20,8 +20,10 @@ package org.apache.hop.ui.hopgui;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.UISession;
@@ -40,6 +42,7 @@ class BackgroundThreadFacadeImplTest {
   @DisplayName("work started from a session runs with that session bound")
   void carriesTheSessionOverToTheBackgroundThread() {
     UISession uiSession = mock(UISession.class);
+    when(uiSession.isBound()).thenReturn(true);
     Runnable work = mock(Runnable.class);
 
     try (MockedStatic<RWT> rwt = mockStatic(RWT.class)) {
@@ -48,12 +51,34 @@ class BackgroundThreadFacadeImplTest {
       Runnable bound = new BackgroundThreadFacadeImpl().bindInternal(work);
 
       // The session is read here, on the thread that starts the work; the work itself waits.
-      verifyNoInteractions(uiSession, work);
+      verifyNoInteractions(work);
 
       bound.run();
 
       // exec() makes the session current for whichever thread runs the work, which is the point.
       verify(uiSession).exec(work);
+    }
+  }
+
+  /**
+   * A session that ended while the work was queued must not be made current: RWT hands out a
+   * context that resolves to no session, and reading it back fails with a NullPointerException as
+   * far away as {@code Display.getCurrent()} (issue #8248). The work still runs.
+   */
+  @Test
+  @DisplayName("a session that ended in the meantime is not carried over")
+  void runsWithoutASessionThatDiedBeforeTheWorkStarted() {
+    UISession uiSession = mock(UISession.class);
+    when(uiSession.isBound()).thenReturn(false);
+    Runnable work = mock(Runnable.class);
+
+    try (MockedStatic<RWT> rwt = mockStatic(RWT.class)) {
+      rwt.when(() -> RWT.getUISession()).thenReturn(uiSession);
+
+      new BackgroundThreadFacadeImpl().bindInternal(work).run();
+
+      verify(work).run();
+      verify(uiSession, never()).exec(work);
     }
   }
 

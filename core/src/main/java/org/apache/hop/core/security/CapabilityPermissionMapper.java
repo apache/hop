@@ -39,6 +39,7 @@ public final class CapabilityPermissionMapper {
   public static final String CAPABILITY_SAVE = "Save";
   public static final String CAPABILITY_SAVE_AS = "SaveAs";
   public static final String CAPABILITY_EXPORT_TO_SVG = "ExportToSvg";
+  public static final String CAPABILITY_EXPORT_DIAGRAM = "ExportDiagram";
   public static final String CAPABILITY_START = "Start";
   public static final String CAPABILITY_STOP = "Stop";
   public static final String CAPABILITY_PAUSE = "Pause";
@@ -64,6 +65,7 @@ public final class CapabilityPermissionMapper {
           Map.entry(CAPABILITY_SAVE, Permission.FILE_SAVE),
           Map.entry(CAPABILITY_SAVE_AS, Permission.FILE_SAVE),
           Map.entry(CAPABILITY_EXPORT_TO_SVG, Permission.FILE_EXPORT),
+          Map.entry(CAPABILITY_EXPORT_DIAGRAM, Permission.FILE_EXPORT),
           Map.entry(CAPABILITY_START, Permission.RUN_EXECUTE),
           Map.entry(CAPABILITY_PREVIEW, Permission.RUN_EXECUTE),
           Map.entry(CAPABILITY_DEBUG, Permission.RUN_EXECUTE),

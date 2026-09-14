@@ -147,6 +147,11 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    return showCreateTableSql(schemaName, objectName);
+  }
+
+  @Override
   public String getSqlTableExists(String tableName) {
     return getSqlQueryFields(tableName);
   }

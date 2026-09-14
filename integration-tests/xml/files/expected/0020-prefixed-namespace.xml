@@ -1,0 +1,2 @@
+<it:Row xmlns:it="https://hop.apache.org/one"><id>1</id><name>alpha</name></it:Row>
+<it:Row xmlns:it="https://hop.apache.org/two"><id>2</id><name>beta</name></it:Row>

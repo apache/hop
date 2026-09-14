@@ -17,28 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: This transform allows you to enter Java expressions that are used to calculate new values or replace values in fields.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/janino.svg[User Defined Java Expression transform Icon, role="image-doc-icon"] User Defined Java Expression
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 This transform allows you to enter Java expressions that are used to calculate new values or replace values in fields. Any custom jar libraries that your expressions depend on need to be placed in the folder `plugins/transforms/janino/lib`
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Usage
 
@@ -180,6 +165,39 @@ If you prefer the return values to be of value type Integer, use "new Long(1)" a
 ----
 samplestr != null && samplestr.indexOf("abc")>-1 ? 1 : 2
 ----
+
+== The expression editor
+
+Double click a formula in the grid to open it in the expression editor.
+The tree on the left lists the fields of the incoming stream and a reference of the operators and methods an expression can use, grouped in Operators, Text, Mathematical, Date & time, Logical, Conversion and the `row` helper below.
+Selecting an entry shows what it does, what it returns and a few examples, double clicking one inserts it in the expression.
+
+== Reading fields by name
+
+Next to the fields of the incoming stream, every expression receives a helper named `row` that reads the row by field name:
+
+[options="header"]
+|===
+|Method|Returns
+|`row.exists("field")`|`true` when the stream has a field with this name
+|`row.isNull("field")`|`true` when the field is absent, or present with a null value
+|`row.getString("field")`|the value as a String, `null` when the field is absent
+|`row.getInteger("field")`|the value as a Long, `null` when the field is absent
+|`row.getNumber("field")`|the value as a Double, `null` when the field is absent
+|`row.getBigNumber("field")`|the value as a BigDecimal, `null` when the field is absent
+|`row.getDate("field")`|the value as a Date, `null` when the field is absent
+|`row.getBoolean("field")`|the value as a Boolean, `null` when the field is absent
+|===
+
+A field that is read this way does not have to exist, which makes it possible to write an expression for a stream whose layout is only known at runtime.
+It is also the way to use a field whose name is not a valid Java identifier, e.g. a name with a space in it:
+
+[source,java]
+----
+row.exists("discount") ? row.getNumber("discount") : new Double(0)
+----
+
+NOTE: when the stream itself contains a field named `row`, that field wins and the helper is not available.
 
 == Blocking specific code
 

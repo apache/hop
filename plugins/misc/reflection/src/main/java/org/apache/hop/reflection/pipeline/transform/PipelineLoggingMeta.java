@@ -48,6 +48,16 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void setDefault() {
     loggingTransforms = true;
   }

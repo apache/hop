@@ -42,6 +42,49 @@ public class HopCoreRulePackTest {
   }
 
   /**
+   * The pack says how Hop's own verify remarks are reported. Without a blanket rule the linter
+   * repeats whatever severity a transform's {@code check()} chose, which is how a clean pipeline
+   * came up with five errors in issue #8294.
+   */
+  @Test
+  public void shipsANativeRuleCoveringHopsOwnVerifyRemarks() {
+    List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
+
+    CustomLintRule blanket =
+        rules.stream()
+            .filter(rule -> "HOP-CHECK".equals(rule.generateRuleId()))
+            .findFirst()
+            .orElseThrow();
+
+    assertTrue(blanket.isNativeVerify());
+    assertTrue(blanket.isEnabled());
+    assertEquals("WARNING", blanket.getSeverity());
+    assertTrue(blanket.getAppliesTo().isEmpty(), "the blanket rule covers every remark");
+
+    // A check that is simply wrong is fixed in the transform, not silenced from here: a rule
+    // narrowed to one check would leave it firing for everyone who presses Verify.
+    assertTrue(
+        rules.stream()
+            .filter(CustomLintRule::isNativeVerify)
+            .allMatch(rule -> rule.getAppliesTo().isEmpty() && rule.getMessageKey().isEmpty()),
+        "the core pack does not ship a native rule narrowed to a single check");
+  }
+
+  /** Native rules are not evaluated against anything, so they must not reach the executor. */
+  @Test
+  public void nativeRulesAreNotPolicyRules() {
+    List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
+
+    assertTrue(
+        rules.stream().filter(CustomLintRule::isNativeVerify).noneMatch(rule -> rule.isComposed()));
+    assertTrue(
+        rules.stream()
+            .filter(rule -> !rule.isNativeVerify())
+            .allMatch(rule -> rule.getTarget() != null),
+        "every rule the linter evaluates has something to evaluate it against");
+  }
+
+  /**
    * The pack ships a composed rule as a worked example of the format, so a parse regression in the
    * allOf/anyOf handling shows up here rather than in someone's project.
    */
@@ -70,6 +113,7 @@ public class HopCoreRulePackTest {
         new HopCoreRulePack()
             .loadRules().stream()
                 .filter(CustomLintRule::isEnabled)
+                .filter(rule -> !rule.isNativeVerify())
                 .map(CustomLintRule::generateRuleId)
                 .sorted()
                 .toList();

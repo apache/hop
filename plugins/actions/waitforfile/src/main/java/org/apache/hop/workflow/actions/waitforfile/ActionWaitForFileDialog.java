@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -120,7 +121,9 @@ public class ActionWaitForFileDialog extends ActionDialog {
     fdbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();

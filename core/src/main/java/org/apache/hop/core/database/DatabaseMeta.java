@@ -72,6 +72,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     documentationUrl = "/metadata-types/rdbms-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION,
     supportsGlobalReplace = true)
+@org.apache.hop.core.naming.NamingSchemeKind("hop-metadata")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class;
 
@@ -231,6 +232,23 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     if (plugin == null) {
       plugin = registry.findPluginWithName(DatabasePluginType.class, databaseTypeDesc);
     }
+    if (plugin == null && databaseTypeDesc != null) {
+      for (IPlugin p : registry.getPlugins(DatabasePluginType.class)) {
+        for (String id : p.getIds()) {
+          if (id.equalsIgnoreCase(databaseTypeDesc)) {
+            plugin = p;
+            break;
+          }
+        }
+        if (plugin != null) {
+          break;
+        }
+        if (p.getName() != null && p.getName().equalsIgnoreCase(databaseTypeDesc)) {
+          plugin = p;
+          break;
+        }
+      }
+    }
 
     if (plugin == null) {
       throw new HopDatabaseException(
@@ -322,14 +340,44 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return The plugin ID of the database interface
    */
   public String getPluginId() {
-    return iDatabase.getPluginId();
+    if (iDatabase == null) {
+      return null;
+    }
+    String id = iDatabase.getPluginId();
+    if (Utils.isEmpty(id)) {
+      String name = iDatabase.getPluginName();
+      if (!Utils.isEmpty(name)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithName(DatabasePluginType.class, name);
+        if (plugin != null) {
+          id = plugin.getIds()[0];
+          iDatabase.setPluginId(id);
+        }
+      }
+    }
+    return id;
   }
 
   /**
    * @return The name of the database plugin type
    */
   public String getPluginName() {
-    return iDatabase.getPluginName();
+    if (iDatabase == null) {
+      return null;
+    }
+    String name = iDatabase.getPluginName();
+    if (Utils.isEmpty(name)) {
+      String id = iDatabase.getPluginId();
+      if (!Utils.isEmpty(id)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithId(DatabasePluginType.class, id);
+        if (plugin != null) {
+          name = plugin.getName();
+          iDatabase.setPluginName(name);
+        }
+      }
+    }
+    return name;
   }
 
   /*
@@ -1096,13 +1144,15 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   private String quoteSchema(String schemaName) {
-    if (supportsCatalogs()) {
-      int separatorIndex = schemaName.indexOf('.');
-      if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
-        String catalogName = schemaName.substring(0, separatorIndex);
-        String schemaPart = schemaName.substring(separatorIndex + 1);
-        return quoteField(catalogName) + "." + quoteField(schemaPart);
-      }
+    // A composite "catalog.schema" is split whenever the caller passed one, including on dialects
+    // that return supportsCatalogs() == false (jTDS SQL Server, Access, Gupta, Iris). That flag is
+    // a browsing hint and must not collapse mydb.dbo into the unresolvable identifier [mydb.dbo].
+    // A schema whose name itself contains a literal dot is vanishingly rare next to catalog.schema.
+    int separatorIndex = schemaName.indexOf('.');
+    if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
+      String catalogName = schemaName.substring(0, separatorIndex);
+      String schemaPart = schemaName.substring(separatorIndex + 1);
+      return quoteField(catalogName) + "." + quoteField(schemaPart);
     }
     return quoteField(schemaName);
   }
@@ -1177,6 +1227,24 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    */
   public String getSqlQueryFields(String tableName) {
     return iDatabase.getSqlQueryFields(tableName);
+  }
+
+  /**
+   * @param schemaName schema or catalog, or {@code null}
+   * @param viewName view name
+   * @return catalog SQL for the view definition, or {@code null}
+   */
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    return iDatabase.getSqlViewDefinition(schemaName, viewName);
+  }
+
+  /**
+   * @param schemaName schema or catalog, or {@code null}
+   * @param objectName table or view name
+   * @return catalog SQL for {@code CREATE TABLE}/{@code CREATE VIEW}, or {@code null}
+   */
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    return iDatabase.getSqlObjectDdl(schemaName, objectName);
   }
 
   public String getAddColumnStatement(

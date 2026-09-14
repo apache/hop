@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.groupby;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -38,6 +40,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "GroupBy",
     image = "groupby.svg",
@@ -72,15 +76,18 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
       injectionKeyDescription = "GroupByMeta.Injection.TEMP_FILE_PREFIX")
   private String prefix;
 
-  /** Indicate that some rows don't need to be considered : TODO: make work in GUI & worker */
-  @HopMetadataProperty(key = "ignore_aggregate")
+  /** When true, rows where the ignore field is true are excluded from aggregation. */
+  @HopMetadataProperty(
+      key = "ignore_aggregate",
+      injectionKey = "IGNORE_AGGREGATE",
+      injectionKeyDescription = "GroupByMeta.Injection.IGNORE_AGGREGATE")
   private boolean aggregateIgnored;
 
-  /**
-   * name of the boolean field that indicates we need to ignore the row : TODO: make work in GUI &
-   * worker
-   */
-  @HopMetadataProperty(key = "field_ignore")
+  /** Boolean field that marks rows to exclude from aggregation when ignore_aggregate is enabled. */
+  @HopMetadataProperty(
+      key = "field_ignore",
+      injectionKey = "IGNORE_AGGREGATE_FIELD",
+      injectionKeyDescription = "GroupByMeta.Injection.IGNORE_AGGREGATE_FIELD")
   private String aggregateIgnoredField;
 
   /** Fields to group over */
@@ -125,62 +132,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     aggregations = new ArrayList<>();
   }
 
-  /**
-   * @return Returns the aggregateIgnored.
-   */
-  public boolean isAggregateIgnored() {
-    return aggregateIgnored;
-  }
-
-  /**
-   * @param aggregateIgnored The aggregateIgnored to set.
-   */
-  public void setAggregateIgnored(boolean aggregateIgnored) {
-    this.aggregateIgnored = aggregateIgnored;
-  }
-
-  /**
-   * @return Returns the aggregateIgnoredField.
-   */
-  public String getAggregateIgnoredField() {
-    return aggregateIgnoredField;
-  }
-
-  /**
-   * @param aggregateIgnoredField The aggregateIgnoredField to set.
-   */
-  public void setAggregateIgnoredField(String aggregateIgnoredField) {
-    this.aggregateIgnoredField = aggregateIgnoredField;
-  }
-
-  /**
-   * @return Returns the groupField.
-   */
-  public List<GroupingField> getGroupingFields() {
-    return groupingFields;
-  }
-
-  /**
-   * @param groupingFields The groupField to set.
-   */
-  public void setGroupingFields(List<GroupingField> groupingFields) {
-    this.groupingFields = groupingFields;
-  }
-
-  /**
-   * @return Returns the passAllRows.
-   */
-  public boolean isPassAllRows() {
-    return passAllRows;
-  }
-
-  /**
-   * @param passAllRows The passAllRows to set.
-   */
-  public void setPassAllRows(boolean passAllRows) {
-    this.passAllRows = passAllRows;
-  }
-
   @Override
   public void setDefault() {
     directory = "${java.io.tmpdir}";
@@ -189,8 +140,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     passAllRows = false;
     aggregateIgnored = false;
     aggregateIgnoredField = null;
-
-    int sizeGroup = 0;
   }
 
   @Override
@@ -354,97 +303,39 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
               transformMeta);
       remarks.add(cr);
     }
-  }
 
-  /**
-   * @return Returns the directory.
-   */
-  public String getDirectory() {
-    return directory;
-  }
-
-  /**
-   * @param directory The directory to set.
-   */
-  public void setDirectory(String directory) {
-    this.directory = directory;
-  }
-
-  /**
-   * @return Returns the prefix.
-   */
-  public String getPrefix() {
-    return prefix;
-  }
-
-  /**
-   * @param prefix The prefix to set.
-   */
-  public void setPrefix(String prefix) {
-    this.prefix = prefix;
-  }
-
-  /**
-   * @return the addingLineNrInGroup
-   */
-  public boolean isAddingLineNrInGroup() {
-    return addingLineNrInGroup;
-  }
-
-  /**
-   * @param addingLineNrInGroup the addingLineNrInGroup to set
-   */
-  public void setAddingLineNrInGroup(boolean addingLineNrInGroup) {
-    this.addingLineNrInGroup = addingLineNrInGroup;
-  }
-
-  /**
-   * @return the lineNrInGroupField
-   */
-  public String getLineNrInGroupField() {
-    return lineNrInGroupField;
-  }
-
-  /**
-   * @param lineNrInGroupField the lineNrInGroupField to set
-   */
-  public void setLineNrInGroupField(String lineNrInGroupField) {
-    this.lineNrInGroupField = lineNrInGroupField;
-  }
-
-  /**
-   * @return the alwaysGivingBackOneRow
-   */
-  public boolean isAlwaysGivingBackOneRow() {
-    return alwaysGivingBackOneRow;
-  }
-
-  /**
-   * @param alwaysGivingBackOneRow the alwaysGivingBackOneRow to set
-   */
-  public void setAlwaysGivingBackOneRow(boolean alwaysGivingBackOneRow) {
-    this.alwaysGivingBackOneRow = alwaysGivingBackOneRow;
+    if (aggregateIgnored) {
+      if (Utils.isEmpty(aggregateIgnoredField)) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "GroupByMeta.CheckResult.IgnoreAggregateFieldMissing"),
+                transformMeta));
+      } else if (prev != null && !prev.isEmpty()) {
+        String ignoreField = variables.resolve(aggregateIgnoredField);
+        int idx = prev.indexOfValue(ignoreField);
+        if (idx < 0) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "GroupByMeta.CheckResult.IgnoreAggregateFieldNotFound", ignoreField),
+                  transformMeta));
+        } else if (!prev.getValueMeta(idx).isBoolean()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "GroupByMeta.CheckResult.IgnoreAggregateFieldNotBoolean", ignoreField),
+                  transformMeta));
+        }
+      }
+    }
   }
 
   @Override
   public PipelineMeta.PipelineType[] getSupportedPipelineTypes() {
     return new PipelineMeta.PipelineType[] {PipelineMeta.PipelineType.Normal};
-  }
-
-  /**
-   * Gets aggregations
-   *
-   * @return value of aggregations
-   */
-  public List<Aggregation> getAggregations() {
-    return aggregations;
-  }
-
-  /**
-   * @param aggregations The aggregations to set
-   */
-  public void setAggregations(List<Aggregation> aggregations) {
-    this.aggregations = aggregations;
   }
 
   @Override

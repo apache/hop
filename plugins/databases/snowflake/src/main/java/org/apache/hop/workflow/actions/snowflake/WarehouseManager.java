@@ -36,6 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -96,7 +97,9 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String CONST_COMMIT = ";\ncommit;";
 
   /** The database to connect to. */
-  @HopMetadataProperty(key = CONNECTION)
+  @HopMetadataProperty(
+      key = CONNECTION,
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** The management action to perform. */

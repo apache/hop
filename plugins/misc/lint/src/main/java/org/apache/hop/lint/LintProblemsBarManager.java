@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.eclipse.swt.widgets.Display;
 
@@ -138,7 +139,7 @@ public class LintProblemsBarManager {
     }
     // This touches SWT widgets, so make sure it runs on the UI thread regardless of which
     // thread the caller is on (background lint threads call this too).
-    if (Display.getCurrent() == null) {
+    if (SessionDisplay.current() == null) {
       Display display = sessionDisplay();
       if (display == null || display.isDisposed()) {
         log.logDetailed(
@@ -174,7 +175,7 @@ public class LintProblemsBarManager {
           "Gave up syncing the Problems tab for " + filePath + ": no editor found in time");
       return;
     }
-    Display display = Display.getCurrent();
+    Display display = SessionDisplay.current();
     if (display == null || display.isDisposed()) {
       return;
     }
@@ -184,9 +185,9 @@ public class LintProblemsBarManager {
   /**
    * The display to get onto the UI thread with.
    *
-   * <p>An editor we already know about answers first: {@code Display.getDefault()} only knows the
-   * session bound to the calling thread, which is nothing at all on a thread that was started
-   * without one - and in Hop Web the wrong session's display would be worse than none.
+   * <p>An editor we already know about answers first: the default display only knows the session
+   * bound to the calling thread, which is nothing at all on a thread that was started without one -
+   * and in Hop Web the wrong session's display would be worse than none.
    */
   private Display sessionDisplay() {
     for (HopGuiAbstractGraph graph : graphsById.values()) {
@@ -197,7 +198,7 @@ public class LintProblemsBarManager {
         }
       }
     }
-    return Display.getDefault();
+    return SessionDisplay.currentOrDefault();
   }
 
   public void refreshAllOpenEditors() {

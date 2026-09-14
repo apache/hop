@@ -98,6 +98,7 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelinePainter;
@@ -124,7 +125,6 @@ import org.apache.hop.ui.hopgui.CanvasSvgFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
-import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
@@ -141,6 +141,7 @@ import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
+import org.apache.hop.ui.hopgui.file.shared.ReferencedConnectionSaveValidator;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
@@ -2620,8 +2621,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/run.svg")
   @Override
   public void start() {
-    ServerPushSessionFacade.start();
-
     Thread thread =
         new Thread(
             () ->
@@ -2631,7 +2630,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                           try {
                             workflowRunDelegate.executeWorkflow(
                                 hopGui.getVariables(), workflowMeta, null);
-                            ServerPushSessionFacade.stop();
                           } catch (Exception e) {
                             stopRedrawTimer();
                             new ErrorDialog(
@@ -2909,7 +2907,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void startWorkflowHere(HopGuiWorkflowActionContext context) {
-    ServerPushSessionFacade.start();
     Thread thread =
         new Thread(
             () ->
@@ -2922,7 +2919,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                                 hopGui.getVariables(),
                                 workflowMeta,
                                 context.getActionMeta().getName());
-                            ServerPushSessionFacade.stop();
                           } catch (Exception e) {
                             new ErrorDialog(
                                 hopGui.getActiveShell(),
@@ -4671,6 +4667,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       if (StringUtils.isEmpty(workflowMeta.getFilename())) {
         throw new HopException("No filename: please specify a filename for this workflow");
+      }
+
+      IHopMetadataProvider saveMetadataProvider = workflowMeta.getMetadataProvider();
+      if (saveMetadataProvider == null) {
+        saveMetadataProvider = hopGui.getMetadataProvider();
+      }
+      if (!ReferencedConnectionSaveValidator.confirmSave(
+          hopShell(), workflowMeta, variables, saveMetadataProvider)) {
+        return;
       }
 
       // Keep track of save

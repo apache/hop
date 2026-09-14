@@ -18,6 +18,7 @@
 package org.apache.hop.marketplace.xp;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.AttributesContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -25,6 +26,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.marketplace.env.HopInstallSpecFiles;
 import org.apache.hop.marketplace.env.MarketplaceAttributes;
@@ -116,10 +118,7 @@ public class LifecycleEnvironmentDialogTabsExtensionPoint
     wEditEnv.addListener(
         SWT.Selection,
         e -> {
-          String initial = StringUtils.trimToNull(wEnvFile.getText());
-          if (initial != null && !HopInstallSpecFiles.exists(initial, variables)) {
-            initial = null;
-          }
+          String initial = existingSpecFile(extension, variables);
           HopInstallSpecEditor editor = new HopInstallSpecEditor(extension.getShell(), initial);
           editor.open();
           if (editor.wasSaved() && StringUtils.isNotBlank(editor.getCurrentFilename())) {
@@ -142,6 +141,7 @@ public class LifecycleEnvironmentDialogTabsExtensionPoint
                   extension.getShell(),
                   null,
                   variables,
+                  browseStart(extension, variables),
                   new String[] {"*.yaml;*.yml;*.json", "*.*"},
                   new String[] {
                     BaseMessages.getString(PKG, "MarketplaceDialog.EnvFile.Filter.Env"),
@@ -205,6 +205,55 @@ public class LifecycleEnvironmentDialogTabsExtensionPoint
 
     extension.addLoadCallback(this::loadFromContext);
     extension.addSaveCallback(this::saveToContext);
+  }
+
+  /**
+   * The spec file this environment points at, as a reference that actually resolves to a file.
+   *
+   * <p>The reference the user typed wins when it already resolves, so a {@code ${PROJECT_HOME}}
+   * style reference survives a round trip through the editor. Only when it does not resolve is it
+   * anchored at the project home — otherwise VFS anchors it at the Hop install directory (issue
+   * #8012).
+   *
+   * @return a resolving reference, or null when nothing is configured or it points at no file
+   */
+  private String existingSpecFile(AttributesDialogExtension extension, IVariables variables) {
+    String configured = StringUtils.trimToNull(wEnvFile.getText());
+    if (configured == null) {
+      return null;
+    }
+    if (HopInstallSpecFiles.exists(configured, variables)) {
+      return configured;
+    }
+    String anchored =
+        StringUtils.trimToNull(
+            HopInstallSpecFiles.resolveInProject(configured, variables, projectHome(extension)));
+    return anchored != null && HopInstallSpecFiles.exists(anchored, variables) ? anchored : null;
+  }
+
+  /**
+   * Where the file chooser should start: at the configured spec file, or at the project home when
+   * nothing usable is configured yet. Returning null leaves the dialog to its own default, which is
+   * the Hop install directory — the behaviour issue #8012 reports.
+   */
+  private FileObject browseStart(AttributesDialogExtension extension, IVariables variables) {
+    try {
+      String existing = existingSpecFile(extension, variables);
+      if (existing != null) {
+        return HopVfs.getFileObject(HopInstallSpecFiles.resolve(existing, variables), variables);
+      }
+      String home = StringUtils.trimToNull(projectHome(extension));
+      if (home != null) {
+        return HopVfs.getFileObject(HopInstallSpecFiles.resolve(home, variables), variables);
+      }
+    } catch (Exception e) {
+      // No usable starting point: let the file dialog choose.
+    }
+    return null;
+  }
+
+  private static String projectHome(AttributesDialogExtension extension) {
+    return extension.getContext() != null ? extension.getContext().getProjectHome() : null;
   }
 
   private void loadFromContext(AttributesContext context) {

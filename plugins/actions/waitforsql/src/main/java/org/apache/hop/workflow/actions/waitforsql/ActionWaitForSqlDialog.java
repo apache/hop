@@ -36,6 +36,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -189,7 +190,9 @@ public class ActionWaitForSqlDialog extends ActionDialog {
           }
         });
 
-    wTableName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTableName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTableName);
     wTableName.setToolTipText(BaseMessages.getString(PKG, "ActionWaitForSQL.Tablename.Tooltip"));
     wTableName.addModifyListener(lsMod);

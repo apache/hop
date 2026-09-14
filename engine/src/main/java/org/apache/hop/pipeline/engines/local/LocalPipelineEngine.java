@@ -486,27 +486,29 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         new TimerTask() {
           @Override
           public void run() {
-            try {
-              // Collect data from all the sampler stores.
-              //
-              if (dataProfile != null) {
+            // Sample rows and execution state are written independently so a conversion error
+            // on sampled data cannot skip the state update (and hide the real exception).
+            //
+            if (dataProfile != null) {
+              try {
                 ExecutionDataBuilder dataBuilder =
                     ExecutionDataBuilder.fromAllTransformData(
                         LocalPipelineEngine.this, samplerStoresMap, false);
-
-                // Send it to the location once
-                //
                 iLocation.registerData(dataBuilder.build());
+              } catch (Exception e) {
+                log.logError(
+                    "Warning: unable to register execution data at location "
+                        + executionInfoLocation.getName()
+                        + " (non-fatal)",
+                    e);
               }
+            }
 
-              // Update the pipeline execution state regularly
-              //
+            try {
               ExecutionState pipelineState =
                   ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, -1).build();
               iLocation.updateExecutionState(pipelineState);
 
-              // Update the state of all the transforms
-              //
               for (IEngineComponent component : getComponents()) {
                 ExecutionState transformState =
                     ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component)
@@ -514,13 +516,11 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                 iLocation.updateExecutionState(transformState);
               }
             } catch (Exception e) {
-              // This is probably cause by a race condition triggering this code after the pipeline
-              // finished.  We're just going to log this as a warning.
-              //
-              log.logBasic(
-                  "Warning: unable to register execution info (data and state) at location "
+              log.logError(
+                  "Warning: unable to register execution state at location "
                       + executionInfoLocation.getName()
-                      + "(non-fatal)");
+                      + " (non-fatal)",
+                  e);
             }
           }
         };

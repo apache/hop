@@ -44,32 +44,62 @@
         };
     }
 
-    function findCanvasForWidget(canvasId) {
-        if (canvasId) {
-            var widgetElement = document.getElementById(canvasId);
-            if (widgetElement) {
-                if (widgetElement.tagName === "CANVAS") {
-                    return widgetElement;
-                }
-                var nestedCanvas = widgetElement.querySelector("canvas");
-                if (nestedCanvas) {
-                    return nestedCanvas;
+    /**
+     * RAP does not put widget ids on DOM elements unless enableUITests is on
+     * (Widget._renderHtmlIds), so document.getElementById(canvasId) is usually null.
+     * Guessing "the first canvas larger than 500x500" then attaches the overlay to a
+     * dialog, or to nothing if the graph is smaller than that. Look the widget up in
+     * RAP's registry and take the canvas its GC created inside it.
+     */
+    function getWidgetDomElement(widgetId) {
+        if (!widgetId) {
+            return null;
+        }
+        try {
+            if (typeof rap !== "undefined" && typeof rap.getObject === "function") {
+                var proxy = rap.getObject(widgetId);
+                if (proxy && proxy.$el) {
+                    var queried = proxy.$el.get ? proxy.$el.get(0) : (proxy.$el[0] || proxy.$el);
+                    if (queried && queried.tagName) {
+                        return queried;
+                    }
                 }
             }
+            if (typeof rwt !== "undefined" && rwt.remote && rwt.remote.ObjectRegistry) {
+                var nativeWidget = rwt.remote.ObjectRegistry.getObject(widgetId);
+                if (nativeWidget) {
+                    if (typeof nativeWidget.getElement === "function") {
+                        var element = nativeWidget.getElement();
+                        if (element) {
+                            return element;
+                        }
+                    }
+                    if (typeof nativeWidget._getTargetNode === "function") {
+                        var target = nativeWidget._getTargetNode();
+                        if (target) {
+                            return target;
+                        }
+                    }
+                    if (nativeWidget._element) {
+                        return nativeWidget._element;
+                    }
+                }
+            }
+        } catch (ignored) {
+            // RAP has not registered this widget on the client yet.
         }
-        return findVisibleGraphCanvas();
+        return document.getElementById(widgetId);
     }
 
-    function findVisibleGraphCanvas() {
-        var allCanvases = document.querySelectorAll("canvas");
-        for (var i = 0; i < allCanvases.length; i++) {
-            var c = allCanvases[i];
-            var rect = c.getBoundingClientRect();
-            if (rect.width > 500 && rect.height > 500 && c.offsetParent !== null) {
-                return c;
-            }
+    function findCanvasForWidget(canvasId) {
+        var widgetElement = getWidgetDomElement(canvasId);
+        if (!widgetElement) {
+            return null;
         }
-        return null;
+        if (widgetElement.tagName === "CANVAS") {
+            return widgetElement;
+        }
+        return widgetElement.querySelector("canvas");
     }
 
     function buildServiceHandlerUrl(serviceId) {
@@ -280,15 +310,18 @@
     }
 
     hop.CanvasSvgRenderer = function (properties) {
+        properties = properties || {};
         this._canvas = null;
         this._overlay = null;
-        this._sessionUuid = null;
-        this._canvasId = null;
+        this._sessionUuid = properties.sessionUuid || null;
+        this._canvasId = properties.canvasId || null;
+        this._serviceHandlerUrl = properties.serviceHandlerUrl || null;
+        this._findTimer = null;
+        this._destroyed = false;
         this._revision = 0;
         this._areas = [];
         this._props = {};
         this._remoteObject = null;
-        this._serviceHandlerUrl = null;
         this._pollTimer = null;
         this._pollCount = 0;
         this._emptyRetries = 0;
@@ -346,6 +379,11 @@
 
     hop.CanvasSvgRenderer.prototype = {
         destroy: function () {
+            this._destroyed = true;
+            if (this._findTimer) {
+                clearTimeout(this._findTimer);
+                this._findTimer = null;
+            }
             if (this._pollTimer) {
                 clearInterval(this._pollTimer);
                 this._pollTimer = null;
@@ -384,18 +422,36 @@
         _findAndAttachCanvas: function () {
             var self = this;
             var attempts = 0;
-            var maxAttempts = 20;
+            if (this._findTimer) {
+                clearTimeout(this._findTimer);
+                this._findTimer = null;
+            }
 
             var tryFind = function () {
-                attempts++;
+                if (self._destroyed) {
+                    return;
+                }
                 var canvas = findCanvasForWidget(self._canvasId);
                 if (!canvas) {
-                    if (attempts < maxAttempts) {
-                        setTimeout(tryFind, 100);
+                    attempts++;
+                    // Nested <canvas> is created lazily on the first GC. Wait longer when the
+                    // RAP widget is already on the client; otherwise give up so a later
+                    // attachListener can start a fresh search.
+                    var widgetPresent = !!getWidgetDomElement(self._canvasId);
+                    var maxAttempts = widgetPresent ? 300 : 100;
+                    if (self._canvasId && attempts < maxAttempts) {
+                        self._findTimer = setTimeout(tryFind, 100);
                     }
                     return;
                 }
+                self._findTimer = null;
                 if (self._canvas === canvas) {
+                    var parent = canvas.parentElement;
+                    if (parent && self._overlay && self._overlay.parentNode !== parent) {
+                        self._attachToCanvas(canvas);
+                    } else if (self._overlay) {
+                        self._syncOverlayLayout(canvas);
+                    }
                     return;
                 }
                 self._attachToCanvas(canvas);
@@ -516,6 +572,11 @@
             if (!this._pollTimer) {
                 this._pollTimer = setInterval(function () {
                     self._pollCount++;
+                    if (self._canvas && !self._canvas.parentNode) {
+                        self._canvas = null;
+                        self._findAndAttachCanvas();
+                        return;
+                    }
                     if (self._canvas) {
                         self._syncOverlayLayout(self._canvas);
                     }

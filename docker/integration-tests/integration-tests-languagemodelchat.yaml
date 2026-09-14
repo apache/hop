@@ -1,0 +1,48 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_languagemodelchat:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      ollama:
+        condition: service_healthy
+    links:
+      - ollama
+
+  ollama:
+    # Pin version for CI stability; tests reach it over compose DNS (ollama:11434).
+    image: ollama/ollama:0.34.0
+    hostname: ollama
+    # The image ships no models, so the server is started and the test model pulled here. The
+    # healthcheck below is what holds the test container back until that pull has finished.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        until ollama list >/dev/null 2>&1; do sleep 1; done
+        ollama pull smollm2:135m
+        wait
+    healthcheck:
+      # smollm2:135m is ~270MB: small enough to pull on every run, large enough to answer a prompt.
+      test: ["CMD-SHELL", "ollama list | grep -q smollm2"]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 20s

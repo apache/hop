@@ -501,7 +501,7 @@ class MsSqlServerDatabaseMetaTest {
         "ALTER TABLE FOO ADD BAR DATETIME",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaDate("BAR"), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR DATETIME",
+        "ALTER TABLE FOO ADD BAR DATETIME2",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaTimestamp("BAR"), "", false, "", false));
 
@@ -584,7 +584,7 @@ class MsSqlServerDatabaseMetaTest {
             new ValueMetaBigNumber("BAR", 21, 4), "", "", false, false, false));
 
     assertEquals(
-        "TEXT",
+        "VARCHAR(MAX)",
         nativeMeta.getFieldDefinition(
             new ValueMetaString("BAR", nativeMeta.getMaxVARCHARLength() + 2, 0),
             "",

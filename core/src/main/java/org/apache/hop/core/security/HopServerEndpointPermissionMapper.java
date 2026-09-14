@@ -20,6 +20,7 @@ package org.apache.hop.core.security;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Maps Hop Server servlet paths ({@code /hop/*}) to the {@link Permission} required to call them.
@@ -31,7 +32,8 @@ import java.util.Optional;
  * <p>Matching is by longest context-path prefix, because most servlets accept trailing path
  * segments (for example {@code /hop/pipelineStatus/<name>/<id>}). Endpoints not listed here are
  * <em>unknown</em>; the filter treats unknown endpoints as default-deny so that new servlets do not
- * silently widen the authenticated attack surface.
+ * silently widen the authenticated attack surface. Plugin servlets opt in with {@link
+ * #register(String, Permission)} (typically from {@code @HopServerServlet(requiredPermission)}).
  *
  * <p>Every read endpoint maps to {@link Permission#FILE_VIEW} (which the built-in {@code READ_ONLY}
  * role holds), so status and image calls stay available to viewers while mutations and runs do not.
@@ -50,8 +52,109 @@ public final class HopServerEndpointPermissionMapper {
   private static final Map<String, Permission> API_READ_PERMISSIONS = buildApiReadTable();
   private static final Map<String, Permission> API_WRITE_PERMISSIONS = buildApiWriteTable();
 
+  /**
+   * Plugin servlet overlay. Concurrent so plugin load/unload from the servlet container thread is
+   * safe. Lookup takes the longest prefix across this map and the built-in table; a built-in wins
+   * only when the matching keys are the same length.
+   */
+  private static final ConcurrentHashMap<String, Permission> PLUGIN_PERMISSIONS =
+      new ConcurrentHashMap<>();
+
   private HopServerEndpointPermissionMapper() {
     // utility
+  }
+
+  /**
+   * Register a plugin Hop Server path for Hop Web RBAC. Empty/unknown paths stay default-deny.
+   *
+   * <p>Idempotent when the same path is registered with the same permission (including when that
+   * path is already a built-in). Refuses to replace a built-in path with a different permission, to
+   * register {@code /hop} itself, to register under {@value #API_PREFIX}, or to register a path
+   * nested under a built-in prefix (so a plugin cannot inherit {@code /hop/status}'s {@code
+   * file.view} while declaring a stronger permission).
+   *
+   * @param path servlet context path, e.g. {@code /hop/sourceModelData}
+   * @param permission required permission
+   * @throws IllegalArgumentException when the path or permission is invalid or would shadow a
+   *     built-in endpoint
+   */
+  public static void register(String path, Permission permission) {
+    String normalized = requirePluginPath(path);
+    if (permission == null) {
+      throw new IllegalArgumentException("Permission is required to register " + normalized);
+    }
+    Permission builtIn = ENDPOINT_PERMISSIONS.get(normalized);
+    if (builtIn != null) {
+      if (builtIn != permission) {
+        throw new IllegalArgumentException(
+            "Cannot overwrite built-in Hop Server endpoint '"
+                + normalized
+                + "' ("
+                + builtIn.getId()
+                + ") with "
+                + permission.getId());
+      }
+      return;
+    }
+    PLUGIN_PERMISSIONS.put(normalized, permission);
+  }
+
+  /**
+   * Register using a {@link Permission} id ({@code run.execute}, {@code file.view}, …). Convenience
+   * for plugin reflection against this class.
+   *
+   * @param path servlet context path
+   * @param permissionId permission id
+   */
+  public static void register(String path, String permissionId) {
+    register(path, Permission.fromId(permissionId));
+  }
+
+  /**
+   * Drop a plugin overlay entry. Built-in paths are unaffected.
+   *
+   * @param path servlet context path
+   */
+  public static void unregister(String path) {
+    String normalized = normalize(path);
+    if (normalized != null) {
+      PLUGIN_PERMISSIONS.remove(normalized);
+    }
+  }
+
+  /** Visible for tests: drop every plugin overlay entry. */
+  static void clearPluginRegistrations() {
+    PLUGIN_PERMISSIONS.clear();
+  }
+
+  /**
+   * Visible for tests: insert an overlay entry without {@link #register(String, Permission)}
+   * guards, so lookup can be asserted when a nested path is already in the map.
+   */
+  static void putPluginRegistrationUnchecked(String path, Permission permission) {
+    PLUGIN_PERMISSIONS.put(normalize(path), permission);
+  }
+
+  private static String requirePluginPath(String path) {
+    String normalized = normalize(path);
+    if (normalized == null) {
+      throw new IllegalArgumentException("Plugin endpoint path is empty");
+    }
+    if (!normalized.startsWith("/hop/") || "/hop".equals(normalized)) {
+      throw new IllegalArgumentException(
+          "Plugin endpoints must be a /hop/<name> path, got '" + path + "'");
+    }
+    if (normalized.equals(API_PREFIX) || normalized.startsWith(API_PREFIX + "/")) {
+      throw new IllegalArgumentException(
+          "Plugin endpoints cannot register under the JSON API prefix " + API_PREFIX);
+    }
+    for (String builtIn : ENDPOINT_PERMISSIONS.keySet()) {
+      if (normalized.startsWith(builtIn + "/")) {
+        throw new IllegalArgumentException(
+            "Plugin endpoint '" + normalized + "' is nested under built-in '" + builtIn + "'");
+      }
+    }
+    return normalized;
   }
 
   private static Map<String, Permission> buildTable() {
@@ -90,6 +193,8 @@ public final class HopServerEndpointPermissionMapper {
     map.put("/hop/asyncRun", Permission.RUN_EXECUTE);
     // A web service synchronously executes a pipeline and returns its output.
     map.put("/hop/webService", Permission.RUN_EXECUTE);
+    // Short-lived HMAC JWT for JDBC / API clients (session already authenticated).
+    map.put("/hop/jdbcToken", Permission.FILE_VIEW);
 
     // --- Control a running execution: RUN_STOP ---
     map.put("/hop/stopPipeline", Permission.RUN_STOP);
@@ -164,11 +269,23 @@ public final class HopServerEndpointPermissionMapper {
           isReadMethod(method) ? API_READ_PERMISSIONS : API_WRITE_PERMISSIONS;
       return longestMatch(table, normalized);
     }
-    return longestMatch(ENDPOINT_PERMISSIONS, normalized);
+    PrefixMatch builtIn = longestPrefix(ENDPOINT_PERMISSIONS, normalized);
+    PrefixMatch plugin = longestPrefix(PLUGIN_PERMISSIONS, normalized);
+    if (plugin != null && (builtIn == null || plugin.length() > builtIn.length())) {
+      return Optional.of(plugin.permission());
+    }
+    return builtIn == null ? Optional.empty() : Optional.of(builtIn.permission());
   }
+
+  private record PrefixMatch(Permission permission, int length) {}
 
   private static Optional<Permission> longestMatch(
       Map<String, Permission> table, String normalized) {
+    PrefixMatch match = longestPrefix(table, normalized);
+    return match == null ? Optional.empty() : Optional.of(match.permission());
+  }
+
+  private static PrefixMatch longestPrefix(Map<String, Permission> table, String normalized) {
     Permission best = null;
     int bestLen = -1;
     for (Map.Entry<String, Permission> entry : table.entrySet()) {
@@ -178,7 +295,7 @@ public final class HopServerEndpointPermissionMapper {
         bestLen = key.length();
       }
     }
-    return Optional.ofNullable(best);
+    return best == null ? null : new PrefixMatch(best, bestLen);
   }
 
   /** Only GET and HEAD are reads; anything else (including an unknown verb) is a mutation. */

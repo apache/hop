@@ -18,6 +18,8 @@
 package org.apache.hop.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -93,5 +95,85 @@ class HopEnvironmentSystemPropertyTest {
         CONFIG_FILE_VALUE,
         actualValue,
         "Config file property should be applied when not set via command-line");
+  }
+
+  @Test
+  void testThirdPartyWireLoggingSilencedByDefault() throws Exception {
+    org.apache.logging.log4j.core.LoggerContext context =
+        org.apache.logging.log4j.core.LoggerContext.getContext(false);
+    org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+    String wireLogger = "org.apache.hc.client5.http.wire";
+    java.util.logging.Logger julLogger = java.util.logging.Logger.getLogger(wireLogger);
+    java.util.logging.Level originalJulLevel = julLogger.getLevel();
+
+    try {
+      configuration.removeLogger(wireLogger);
+      context.updateLoggers();
+      julLogger.setLevel(null);
+
+      HopEnvironment.init();
+
+      org.apache.logging.log4j.core.config.LoggerConfig lc =
+          configuration.getLoggerConfig(wireLogger);
+      assertEquals(
+          wireLogger,
+          lc.getName(),
+          "HttpClient 5 wire logger configuration should be explicitly registered");
+      assertEquals(
+          org.apache.logging.log4j.Level.INFO,
+          lc.getLevel(),
+          "HttpClient 5 wire logger should default to INFO to suppress verbose dumps");
+      assertFalse(
+          org.apache.logging.log4j.LogManager.getLogger(wireLogger).isDebugEnabled(),
+          "HttpClient 5 wire logger should not have debug enabled by default");
+      assertEquals(
+          java.util.logging.Level.WARNING,
+          julLogger.getLevel(),
+          "JUL wire logger should default to WARNING to suppress console byte dumps");
+    } finally {
+      configuration.removeLogger(wireLogger);
+      context.updateLoggers();
+      julLogger.setLevel(originalJulLevel);
+    }
+  }
+
+  @Test
+  void testThirdPartyWireLoggingPreservesExplicitDebug() throws Exception {
+    org.apache.logging.log4j.core.LoggerContext context =
+        org.apache.logging.log4j.core.LoggerContext.getContext(false);
+    org.apache.logging.log4j.core.config.Configuration configuration = context.getConfiguration();
+    String wireLogger = "org.apache.hc.client5.http.wire";
+    java.util.logging.Logger julLogger = java.util.logging.Logger.getLogger(wireLogger);
+    java.util.logging.Level originalJulLevel = julLogger.getLevel();
+
+    try {
+      org.apache.logging.log4j.core.config.Configurator.setLevel(
+          wireLogger, org.apache.logging.log4j.Level.DEBUG);
+      julLogger.setLevel(java.util.logging.Level.FINE);
+
+      HopEnvironment.init();
+
+      org.apache.logging.log4j.core.config.LoggerConfig lc =
+          configuration.getLoggerConfig(wireLogger);
+      assertEquals(
+          wireLogger,
+          lc.getName(),
+          "HttpClient 5 wire logger configuration should match the target logger");
+      assertEquals(
+          org.apache.logging.log4j.Level.DEBUG,
+          lc.getLevel(),
+          "Explicitly configured DEBUG level should not be overridden by HopEnvironment.init()");
+      assertTrue(
+          org.apache.logging.log4j.LogManager.getLogger(wireLogger).isDebugEnabled(),
+          "HttpClient 5 wire logger should preserve explicit debug enabled state");
+      assertEquals(
+          java.util.logging.Level.FINE,
+          julLogger.getLevel(),
+          "Explicitly configured JUL FINE level should not be overridden by HopEnvironment.init()");
+    } finally {
+      configuration.removeLogger(wireLogger);
+      context.updateLoggers();
+      julLogger.setLevel(originalJulLevel);
+    }
   }
 }

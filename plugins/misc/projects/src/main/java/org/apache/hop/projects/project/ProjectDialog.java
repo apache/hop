@@ -47,6 +47,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -81,7 +82,7 @@ public class ProjectDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Text wName;
+  private TextVar wName;
   private TextVar wHome;
   private Button wReadOnly;
   private ComboVar wParentProject;
@@ -236,7 +237,9 @@ public class ProjectDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wName =
+        new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
@@ -261,7 +264,9 @@ public class ProjectDialog extends Dialog {
     fdbHome.top = new FormAttachment(wlHome, 0, SWT.CENTER);
     wbHome.setLayoutData(fdbHome);
     wbHome.addListener(SWT.Selection, this::browseHomeFolder);
-    wHome = new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wHome =
+        new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT)
+            .enableNamingSchemes(NamingSchemeTypes.FOLDER);
     PropsUi.setLook(wHome);
     FormData fdHome = new FormData();
     fdHome.left = new FormAttachment(middle, margin);
@@ -599,6 +604,7 @@ public class ProjectDialog extends Dialog {
               false),
         };
     columnInfo[0].setUsingVariables(true);
+    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     columnInfo[1].setUsingVariables(true);
 
     wVariables =

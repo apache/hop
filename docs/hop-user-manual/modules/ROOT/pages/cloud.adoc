@@ -16,8 +16,6 @@ under the License.
 ////
 [[RunningHopInTheCloud]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Hop has no cloud mode. Running a Hop project in the cloud is five decisions - where the files live, where configuration and secrets live, what executes, what starts it, and where run history goes. This page maps those decisions onto Hop concepts, independently of any cloud provider.
 
 = Running Apache Hop in the cloud
@@ -153,7 +151,8 @@ Fire-and-forget submission to a Hop Server needs you to poll or to use the xref:
 Hop Server does not keep a durable work queue; a restart drops in-flight executions unless `--shutdown-timeout` / `HOP_SERVER_SHUTDOWN_TIMEOUT` is set and the platform honours it during a graceful shutdown.
 Short-lived containers do not have this problem: the orchestrator retries the job.
 
-The xref:how-to-guides/run-hop-in-apache-airflow.adoc[Apache Airflow how-to] is a worked example of the pattern; the same principle applies to any scheduler.
+The xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[scheduling how-to] is the catalogue of those options (cron, systemd, Jenkins, a Kubernetes CronJob, Airflow, ...).
+The xref:how-to-guides/run-hop-in-apache-airflow.adoc[Apache Airflow how-to] is a worked example of one of them; the same principle applies to any scheduler.
 
 == 5. Where run history and logs go
 
@@ -172,7 +171,7 @@ When you need logging as data — durable, queryable, joined to your own tables 
 These are provider-independent and worth checking before the first production run.
 
 *Nothing written inside the container survives it.*
-Temporary files, `{openvar}java.io.tmpdir{closevar}`, sort and group-by spill files, and anything a transform writes to a relative path are all gone when the container exits.
+Temporary files, `+${java.io.tmpdir}+`, sort and group-by spill files, and anything a transform writes to a relative path are all gone when the container exits.
 Anything that must outlive the run goes to a mounted volume, object storage or a database.
 
 *Object storage is not a filesystem.*
@@ -258,5 +257,6 @@ If your provider is not in these lists, the question to ask is which standard it
 * xref:hop-server/deploying.adoc[Deploying Hop Server] — the three ways a project reaches a server, compared
 * xref:projects/index.adoc[Projects and environments] — what belongs in the project and what belongs in the environment
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location] — where run history is kept
+* xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] — cron, systemd, Jenkins, Kubernetes CronJob, Airflow
 * xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow] — a worked scheduler example
 * xref:best-practices/index.adoc[Best Practices]

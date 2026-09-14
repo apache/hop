@@ -65,4 +65,18 @@ class HopURLClassLoaderTest {
           "the jar's resource must be reachable after addJar");
     }
   }
+
+  @Test
+  void testSystemParentFirstClasses() throws Exception {
+    try (HopURLClassLoader loader =
+        new HopURLClassLoader(new URL[0], getClass().getClassLoader())) {
+      Class<?> mapperClass = loader.loadClass("com.fasterxml.jackson.databind.ObjectMapper");
+      assertEquals(com.fasterxml.jackson.databind.ObjectMapper.class, mapperClass);
+      assertEquals(getClass().getClassLoader(), mapperClass.getClassLoader());
+
+      Class<?> hopJsonClass = loader.loadClass("org.apache.hop.core.json.HopJson");
+      assertEquals(org.apache.hop.core.json.HopJson.class, hopJsonClass);
+      assertEquals(getClass().getClassLoader(), hopJsonClass.getClassLoader());
+    }
+  }
 }

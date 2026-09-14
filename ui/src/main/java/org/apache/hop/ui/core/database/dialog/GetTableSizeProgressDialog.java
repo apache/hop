@@ -18,7 +18,6 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import java.lang.reflect.InvocationTargetException;
-import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -90,31 +89,7 @@ public class GetTableSizeProgressDialog {
 
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      // Run something in the background to cancel active database queries, forcibly if needed!
-      Runnable run =
-          () -> {
-            IProgressMonitor monitor = pmd.getProgressMonitor();
-            while (pmd.getShell() == null
-                || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-              try {
-                Thread.sleep(100);
-              } catch (InterruptedException e) {
-                // Ignore
-              }
-            }
-
-            if (monitor.isCanceled()) { // Disconnect and see what happens!
-
-              try {
-                db.cancelQuery();
-              } catch (Exception e) {
-                // Ignore
-              }
-            }
-          };
-      // Start the cancel tracker in the background!
-      new Thread(run).start();
-
+      DatabaseProgressCancelWatcher.startIfDesktop(pmd, () -> db, "Hop-DB-TableSize-CancelWatcher");
       pmd.run(true, op);
     } catch (InvocationTargetException | InterruptedException e) {
       showErrorDialog(e);

@@ -52,6 +52,13 @@ public class WorkflowLintActionPainterExtension
 
     String severity = LintCanvasOverlayHelper.worstSeverity(byAction.get(ext.actionMeta.getName()));
     if (severity == null) {
+      // Nothing to report. If that is because somebody accepted the findings here, say so rather
+      // than leaving the next reader to wonder whether this action was checked at all.
+      if (LintCanvasOverlayHelper.isShowingIgnoredMarkers()
+          && LintResultsManager.getInstance().isMarkedElement(filePath, ext.actionMeta.getName())) {
+        LintCanvasOverlayHelper.drawIgnoredOverlay(
+            ext.gc, ext.x1, ext.y1, ext.iconSize, ext.actionMeta.isSelected());
+      }
       return;
     }
 

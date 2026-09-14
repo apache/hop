@@ -128,6 +128,76 @@ public class RuleRegistryTest {
     assertFalse(yaml.contains("type: custom"));
   }
 
+  /**
+   * Toggling HOP-CHECK in the rule manager is how a project decides it wants Hop's own verify
+   * remarks back at the severity the transforms meant, or gone. It has to survive the round trip
+   * through the project's hop-lint.yml — a native rule written out with the custom rule's shape
+   * would carry a null target and read back as a rule that checks nothing.
+   */
+  @Test
+  public void aNativeRuleSurvivesTheRoundTripThroughTheProjectYaml() throws Exception {
+    CustomLintRule hopCheck =
+        RuleRegistry.getInstance().resolve(null).getRules().stream()
+            .filter(rule -> "HOP-CHECK".equals(rule.generateRuleId()))
+            .findFirst()
+            .orElseThrow()
+            .copy();
+    hopCheck.setSeverity("ERROR");
+
+    String yaml = ProjectLintYamlExporter.export(java.util.List.of(hopCheck));
+    assertTrue(yaml.contains("HOP-CHECK"));
+    assertTrue(yaml.contains("severity: ERROR"));
+    assertFalse(yaml.contains("target:"), "a native rule has nothing to evaluate against");
+
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    try {
+      Files.writeString(projectYaml.toPath(), yaml);
+      CustomLintRule readBack =
+          RuleRegistry.getInstance().resolve(projectYaml).getRules().stream()
+              .filter(rule -> "HOP-CHECK".equals(rule.generateRuleId()))
+              .findFirst()
+              .orElseThrow();
+
+      assertTrue(readBack.isNativeVerify());
+      assertEquals("ERROR", readBack.getSeverity());
+    } finally {
+      projectYaml.delete();
+    }
+  }
+
+  /** A project can name a check of its own, and the narrowing has to come back with the rule. */
+  @Test
+  public void aProjectCanDefineItsOwnNativeRule() throws Exception {
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    try {
+      Files.writeString(
+          projectYaml.toPath(),
+          """
+          rules:
+            HOP-CHECK-TABLEINPUT-SQL:
+              type: native
+              enabled: false
+              appliesTo:
+                - TableInput
+              messageKey: "org.apache.hop.pipeline.transforms.tableinput:TableInputMeta.CheckResult.NoInput"
+              name: "Table Input SQL remark"
+          """);
+
+      CustomLintRule rule =
+          RuleRegistry.getInstance().resolve(projectYaml).getRules().stream()
+              .filter(r -> "HOP-CHECK-TABLEINPUT-SQL".equals(r.generateRuleId()))
+              .findFirst()
+              .orElseThrow();
+
+      assertTrue(rule.isNativeVerify());
+      assertFalse(rule.isEnabled());
+      assertEquals(java.util.List.of("TableInput"), rule.getAppliesTo());
+      assertTrue(rule.getMessageKey().endsWith(":TableInputMeta.CheckResult.NoInput"));
+    } finally {
+      projectYaml.delete();
+    }
+  }
+
   @Test
   public void projectYamlCanDefineAComposedRule() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");

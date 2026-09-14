@@ -159,6 +159,20 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   }
 
   @Override
+  public void undo() {
+    if (editorWidget != null) {
+      editorWidget.undo();
+    }
+  }
+
+  @Override
+  public void redo() {
+    if (editorWidget != null) {
+      editorWidget.redo();
+    }
+  }
+
+  @Override
   public void selectAll() {
     editorWidget.selectAll();
   }

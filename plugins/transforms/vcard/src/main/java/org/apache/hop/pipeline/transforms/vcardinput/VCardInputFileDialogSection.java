@@ -19,8 +19,11 @@ package org.apache.hop.pipeline.transforms.vcardinput;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.fileinput.InputFile;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -37,6 +40,7 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -79,7 +83,7 @@ public final class VCardInputFileDialogSection {
   public Button wAccFilenames;
   public Button wPassThruFields;
   public CCombo wAccTransform;
-  public Text wAccField;
+  public CCombo wAccField;
   public Button wIncludeFilename;
   public Text wIncludeFilenameField;
   public TextVar wEncoding;
@@ -298,7 +302,8 @@ public final class VCardInputFileDialogSection {
     fdlAccField.right = new FormAttachment(middle, -margin);
     wlAccField.setLayoutData(fdlAccField);
 
-    wAccField = new Text(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAccField = new CCombo(gAccepting, SWT.BORDER | SWT.READ_ONLY);
+    wAccField.setEditable(true);
     wAccField.setToolTipText(
         BaseMessages.getString(PKG, "VCardInputFileDialog.AcceptField.Tooltip"));
     PropsUi.setLook(wAccField);
@@ -308,6 +313,15 @@ public final class VCardInputFileDialogSection {
     fdAccField.left = new FormAttachment(middle, 0);
     fdAccField.right = new FormAttachment(100, 0);
     wAccField.setLayoutData(fdAccField);
+    wAccField.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          setAcceptField();
+          shell.setCursor(null);
+          busy.dispose();
+        });
 
     TransformMeta thisTransform = pipelineMeta.findTransform(transformName);
     if (thisTransform != null) {
@@ -567,6 +581,32 @@ public final class VCardInputFileDialogSection {
             setFlags();
           }
         });
+  }
+
+  /**
+   * Fill the filename field combo with the fields of the transform we accept filenames from. When
+   * no transform has been selected yet we fall back to the fields of all previous transforms.
+   */
+  private void setAcceptField() {
+    try {
+      String acceptTransformName = wAccTransform.getText();
+      IRowMeta r =
+          Utils.isEmpty(acceptTransformName)
+              ? pipelineMeta.getPrevTransformFields(variables, transformName)
+              : pipelineMeta.getTransformFields(variables, acceptTransformName);
+      // setItems() leaves the text of an editable combo alone, so the configured field survives
+      // the refresh and simply opening the dropdown does not mark the dialog as changed.
+      //
+      wAccField.setItems(r == null ? new String[0] : r.getFieldNames());
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "VCardInputFileDialog.ErrorDialog.UnableToGetInputFields.Title"),
+          BaseMessages.getString(
+              PKG, "VCardInputFileDialog.ErrorDialog.UnableToGetInputFields.Message"),
+          e);
+    }
   }
 
   private void activeIncludeFilename() {

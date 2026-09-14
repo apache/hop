@@ -83,6 +83,8 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -1416,6 +1418,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
+      NamingSchemeWidgetSupport.attachShortcut(
+          text, hopGui.getVariables(), NamingSchemeTypes.HOP_METADATA);
       text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,
@@ -2542,11 +2546,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           if (!typeFolder.isFolder() || knownKeys.contains(key)) {
             continue;
           }
+          List<FileObject> jsonFiles = HopVfs.findFiles(typeFolder, "json", false);
+          if (jsonFiles.isEmpty()) {
+            continue;
+          }
           String reason =
               BaseMessages.getString(PKG, "MetadataPerspective.Unknown.NoPluginForType", key);
           UnknownTypeModel unknownType =
               unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
-          for (FileObject jsonFile : HopVfs.findFiles(typeFolder, "json", false)) {
+          for (FileObject jsonFile : jsonFiles) {
             String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
             // The same element can live in a parent project as well: like anywhere else the first
             // provider which has it wins, so we don't list it twice.

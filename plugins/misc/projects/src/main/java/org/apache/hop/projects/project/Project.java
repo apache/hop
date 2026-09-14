@@ -256,6 +256,10 @@ public class Project extends ConfigFile implements IConfigFile {
       variables.setVariable(ProjectsUtil.VARIABLE_PROJECT_HOME, realValue);
     }
 
+    // Project variables can be used in environment configuration file paths.
+    //
+    applyProjectVariables(variables);
+
     // Apply the described variables from the various configuration files in the given order...
     //
     for (String configurationFile : configurationFiles) {
@@ -314,6 +318,12 @@ public class Project extends ConfigFile implements IConfigFile {
       String realValue = variables.resolve(dataSetsCsvFolder);
       variables.setVariable(ProjectsUtil.VARIABLE_HOP_DATASETS_FOLDER, realValue);
     }
+    // Keep project variables as the final values when a configuration file defines the same name.
+    //
+    applyProjectVariables(variables);
+  }
+
+  private void applyProjectVariables(IVariables variables) {
     for (DescribedVariable variable : getDescribedVariables()) {
       if (variable.getName() != null) {
         variables.setVariable(variable.getName(), variable.getValue());
