@@ -21,13 +21,33 @@ name: Hop PR Build (Documentation)
 
 on:
   push:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pr_build_docs.yml'
   pull_request:
     branches: [ 'main' ]
     paths:
       - 'docs/**'
+      - '.github/workflows/pr_build_docs.yml'
+
+# Supersede an in-flight PR build when the branch is pushed again; never cancel a
+# push build, so every merge to main keeps its own result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # The manuals are published by the Antora playbooks in apache/hop-website, so
+  # the site generator, UI, extensions and attributes come from that repository
+  # rather than being copied here. antora-playbook-hop.yml is its playbook for
+  # building the manuals from a hop checkout next to it. Point these at a fork
+  # and branch to test a docs change against an unreleased site build.
+  HOP_WEBSITE_REPOSITORY: apache/hop-website
+  HOP_WEBSITE_REF: main
 
 jobs:
-  build:
+  rat:
+    name: License headers
     runs-on: ubuntu-latest
 
     steps:
@@ -39,3 +59,94 @@ jobs:
           distribution: 'temurin'
       - name: RAT Check
         run: mvn clean apache-rat:check
+
+  antora:
+    name: Antora build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out apache/hop
+        uses: actions/checkout@v7
+        with:
+          path: hop
+
+      - name: Check out the website build
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ env.HOP_WEBSITE_REPOSITORY }}
+          ref: ${{ env.HOP_WEBSITE_REF }}
+          path: hop-website
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: hop-website/package-lock.json
+
+      - name: Install the site generator
+        working-directory: hop-website
+        run: npm ci
+
+      # Same pre-build steps as the website's `npm run build:hop`: the shared
+      # stylesheets, the navigation partials and the browser halves of the
+      # AsciiDoc extensions are generated into the UI directory, not committed.
+      #
+      # The playbook reads ../hop at HEAD, which is the checkout above: for a
+      # pull request that is the merge commit of the PR onto main. Warnings are
+      # logged so authors can see them; only errors (unresolved xrefs, missing
+      # includes, malformed tables, ...) fail the build.
+      - name: Build the manuals
+        working-directory: hop-website
+        run: |
+          node tools/sync-tokens.mjs
+          node tools/sync-nav.mjs
+          node tools/sync-vendor.mjs
+          npx antora --log-level=warn --log-failure-level=error --log-format=json \
+            --to-dir "$GITHUB_WORKSPACE/site" antora-playbook-hop.yml 2>&1 | tee antora.log
+
+      # Turn the structured log into PR annotations on the offending .adoc lines
+      # and a per-file summary. Only errors are annotated: GitHub shows at most
+      # 10 per kind and the docs still carry ~150 pre-existing warnings.
+      - name: Report problems
+        if: ${{ !cancelled() }}
+        working-directory: hop-website
+        run: |
+          node - <<'JS'
+          const fs = require('node:fs')
+          const root = process.env.GITHUB_WORKSPACE + '/hop/'
+          const rows = []
+          for (const line of fs.readFileSync('antora.log', 'utf8').split('\n')) {
+            if (!line.startsWith('{')) continue
+            let e
+            try { e = JSON.parse(line) } catch { continue }
+            const file = e.file && e.file.path ? e.file.path.replace(root, '') : ''
+            const at = e.file && e.file.line ? e.file.line : ''
+            rows.push({ level: e.level, file, at, msg: e.msg })
+            if (e.level === 'error' || e.level === 'fatal') {
+              const where = file ? `file=${file},line=${at || 1},` : ''
+              console.log(`::error ${where}title=Antora::${e.msg}`)
+            }
+          }
+          const errors = rows.filter(r => r.level === 'error' || r.level === 'fatal')
+          const warnings = rows.filter(r => r.level === 'warn')
+          const table = list => list.length
+            ? ['| File | Line | Message |', '|---|---|---|',
+               ...list.map(r => `| ${r.file} | ${r.at} | ${r.msg.replace(/\|/g, '\\|')} |`)].join('\n')
+            : '_none_'
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '## Antora build',
+            `${errors.length} error(s), ${warnings.length} warning(s)`,
+            '', '### Errors', table(errors),
+            '', '<details><summary>Warnings</summary>', '', table(warnings), '', '</details>', ''
+          ].join('\n'))
+          JS
+
+      - name: Upload the rendered manuals
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: manuals
+          path: site
+          retention-days: 7
+          if-no-files-found: ignore
