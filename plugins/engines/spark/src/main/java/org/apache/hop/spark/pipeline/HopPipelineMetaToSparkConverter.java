@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
+import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
@@ -488,6 +489,15 @@ public class HopPipelineMetaToSparkConverter {
     for (ISparkPipelineTransformHandler handler : transformHandlers.values()) {
       if (handler instanceof SparkBaseTransformHandler baseHandler) {
         baseHandler.setMetricsAccumulator(metricsAccumulator);
+      }
+    }
+  }
+
+  /** Driver-side listener that attributes Spark's own SQL metrics to native handler stages. */
+  public void setMetricsListener(SparkNativeMetricsListener metricsListener) {
+    for (ISparkPipelineTransformHandler handler : transformHandlers.values()) {
+      if (handler instanceof SparkBaseTransformHandler baseHandler) {
+        baseHandler.setMetricsListener(metricsListener);
       }
     }
   }
