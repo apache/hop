@@ -118,19 +118,31 @@ class DatabaseWorkbenchReloadMetaTest {
   }
 
   @Test
-  void ensureConnectionReturnsNullWhenDeleted() throws Exception {
+  void ensureConnectionFallsBackToSuppliedMetaWhenNotInSerializer() throws Exception {
     Map<String, DatabaseConnectionState> connections = new LinkedHashMap<>();
     DatabaseMeta meta = mock(DatabaseMeta.class);
-    when(meta.getName()).thenReturn("deleted-conn");
-    connections.put("deleted-conn", new DatabaseConnectionState(meta));
+    when(meta.getName()).thenReturn("unsaved-conn");
 
-    when(serializer.exists("deleted-conn")).thenReturn(false);
+    when(serializer.exists("unsaved-conn")).thenReturn(false);
 
     DatabaseConnectionState state =
         DatabaseWorkbench.ensureConnection(meta, host, connections, List.of(), null);
 
-    assertNull(state);
-    assertFalse(connections.containsKey("deleted-conn"));
+    assertNotNull(state);
+    assertSame(meta, state.getDatabaseMeta());
+    assertTrue(connections.containsKey("unsaved-conn"));
+  }
+
+  @Test
+  void ensureConnectionReturnsNullForBlankName() {
+    Map<String, DatabaseConnectionState> connections = new LinkedHashMap<>();
+    DatabaseMeta emptyName = mock(DatabaseMeta.class);
+    when(emptyName.getName()).thenReturn("");
+    assertNull(DatabaseWorkbench.ensureConnection(emptyName, host, connections, List.of(), null));
+
+    DatabaseMeta unnamed = mock(DatabaseMeta.class);
+    when(unnamed.getName()).thenReturn(null);
+    assertNull(DatabaseWorkbench.ensureConnection(unnamed, host, connections, List.of(), null));
   }
 
   @Test

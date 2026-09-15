@@ -40,6 +40,7 @@ Toolbar:
 * *Connect* — load schemas and their tables (background; does not freeze Hop Gui)
 * *Disconnect* — drop the loaded schema list
 * *Refresh* — reload the selected connected connection, or the connection list
+* *Edit connection* — open this connection in the Metadata perspective (or a dialog if that perspective is disabled)
 * *Open SQL editor* — new SQL tab for the selected connection (`SELECT * FROM table` when a table is selected)
 * *Generate DDL* — `CREATE TABLE` for the selected table, opened in a SQL tab
 * *Preview table* — run `SELECT` with a dialect-aware row limit (the **Query row limit** in Configuration → Plugins → Database Perspective, default 1000)
@@ -88,7 +89,9 @@ image::hop-gui/database/database-perspective-popup-dialog.png[The floating Datab
 
 Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`. SQL editor tabs (connection, file or buffer, unsaved edits) are remembered per project when you close the window or dock and when you restart Hop Gui. Query results are not stored.
 
-**SQL** on a table-output (or bulk-loader, lookup, update, …) transform dialog opens this floating window on the transform's connection: the schema/table tree refreshes in the background while you edit and run the generated SQL. The same happens from the database explorer (Open SQL, Generate DDL, Truncate).
+**SQL** on a table-output (or bulk-loader, lookup, update, …) transform dialog opens this floating window on the transform's connection: the schema/table tree refreshes in the background while you edit and run the generated SQL. The same happens from the database explorer (Open SQL, Generate DDL, Truncate). The explorer toolbar also has *Open in Database perspective*, which closes the explorer and switches to this perspective on the explorer's connection.
+
+On the relational database connection metadata editor, *Open in Database* does the same from the other direction: it activates this perspective on that connection so you can explore and query immediately.
 
 == See also
 

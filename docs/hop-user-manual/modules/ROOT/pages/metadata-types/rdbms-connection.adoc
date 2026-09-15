@@ -34,6 +34,7 @@ Transforms and actions store the *name* of a relational database connection. Whe
 
 image::hop-gui/validate-database-connections-on-save-warning-dialog.png[Database connections save warning,width="90%"]
 
+The connection editor has *Explore* (the classic table picker) and *Open in Database* (the xref:hop-gui/perspective-database.adoc[Database perspective], to browse schemas and run SQL). From that perspective, *Edit connection* opens this metadata editor.
 
 == Related Plugins
 

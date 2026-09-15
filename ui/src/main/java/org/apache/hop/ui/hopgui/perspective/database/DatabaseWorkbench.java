@@ -53,6 +53,7 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -64,6 +65,7 @@ import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.database.config.DatabasePerspectiveConfig;
 import org.apache.hop.ui.hopgui.perspective.database.config.DatabasePerspectiveConfigSingleton;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -96,6 +98,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   public static final String TOOLBAR_ITEM_CONNECT = "DatabaseWorkbench-Toolbar-10000-Connect";
   public static final String TOOLBAR_ITEM_DISCONNECT = "DatabaseWorkbench-Toolbar-10010-Disconnect";
   public static final String TOOLBAR_ITEM_REFRESH = "DatabaseWorkbench-Toolbar-10020-Refresh";
+  public static final String TOOLBAR_ITEM_EDIT_METADATA =
+      "DatabaseWorkbench-Toolbar-10025-EditMetadata";
   public static final String TOOLBAR_ITEM_SQL = "DatabaseWorkbench-Toolbar-10030-SqlEditor";
   public static final String TOOLBAR_ITEM_DDL = "DatabaseWorkbench-Toolbar-10040-GenerateDdl";
   public static final String TOOLBAR_ITEM_PREVIEW = "DatabaseWorkbench-Toolbar-10050-Preview";
@@ -106,6 +110,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   public static final String CONTEXT_MENU_CONNECT = "DatabaseWorkbench-ContextMenu-10000-Connect";
   public static final String CONTEXT_MENU_DISCONNECT =
       "DatabaseWorkbench-ContextMenu-10010-Disconnect";
+  public static final String CONTEXT_MENU_EDIT_METADATA =
+      "DatabaseWorkbench-ContextMenu-10020-EditMetadata";
   public static final String CONTEXT_MENU_SQL = "DatabaseWorkbench-ContextMenu-10030-SqlEditor";
   public static final String CONTEXT_MENU_DDL = "DatabaseWorkbench-ContextMenu-10040-GenerateDdl";
   public static final String CONTEXT_MENU_PREVIEW = "DatabaseWorkbench-ContextMenu-10050-Preview";
@@ -776,6 +782,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CONNECT, hasConnection && !connected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DISCONNECT, hasConnection && connected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_REFRESH, true);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT_METADATA, hasConnection);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_SQL, hasConnection);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DDL, table);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PREVIEW, table);
@@ -785,6 +792,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
 
     enableMenu(CONTEXT_MENU_CONNECT, hasConnection && !connected);
     enableMenu(CONTEXT_MENU_DISCONNECT, hasConnection && connected);
+    enableMenu(CONTEXT_MENU_EDIT_METADATA, hasConnection);
     enableMenu(CONTEXT_MENU_SQL, hasConnection);
     enableMenu(CONTEXT_MENU_DDL, table);
     enableMenu(CONTEXT_MENU_PREVIEW, table);
@@ -979,6 +987,45 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     reloadConnections();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EDIT_METADATA,
+      toolTip = "i18n::DatabasePerspective.Toolbar.EditMetadata.Tooltip",
+      image = "ui/images/metadata.svg")
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_EDIT_METADATA,
+      label = "i18n::DatabasePerspective.Menu.EditMetadata",
+      image = "ui/images/metadata.svg")
+  public void editSelectedConnection() {
+    DatabaseConnectionState state = selectedState();
+    if (state == null || state.getDatabaseMeta() == null) {
+      return;
+    }
+    String name = state.getDatabaseMeta().getName();
+    if (Utils.isEmpty(name)) {
+      return;
+    }
+    HopGui hopGui = host.getHopGui();
+    if (hopGui == null) {
+      return;
+    }
+    MetadataManager<DatabaseMeta> manager =
+        new MetadataManager<>(
+            host.getVariables(), host.getMetadataProvider(), DatabaseMeta.class, host.getShell());
+    MetadataPerspective perspective =
+        hopGui.getPerspectiveManager() == null
+            ? null
+            : hopGui.getPerspectiveManager().findPerspective(MetadataPerspective.class);
+    if (perspective != null) {
+      perspective.activate();
+      manager.editWithEditor(name);
+    } else {
+      manager.editMetadataInDialog(name);
+    }
   }
 
   @GuiToolbarElement(
@@ -1265,11 +1312,12 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (meta == null || connections == null) {
       return null;
     }
-    DatabaseMeta freshMeta =
-        reloadConnectionMeta(meta.getName(), host, connections, items, onTreeChanged);
-    if (freshMeta == null && host != null && host.getMetadataProvider() != null) {
+    if (Utils.isEmpty(meta.getName())) {
       return null;
     }
+    DatabaseMeta freshMeta =
+        reloadConnectionMeta(meta.getName(), host, connections, items, onTreeChanged);
+    // Not in the serializer: still use the caller-supplied definition (unsaved editor, explorer).
     DatabaseMeta effectiveMeta = freshMeta != null ? freshMeta : meta;
     DatabaseConnectionState state = connections.get(effectiveMeta.getName());
     if (state == null) {

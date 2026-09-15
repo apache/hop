@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.database;
 
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.i18n.BaseMessages;
@@ -64,6 +65,39 @@ public class DatabaseWorkbenchViews {
   /** Open or focus the floating Database window. */
   public static void openDialog(HopGui hopGui) {
     DatabaseWorkbenchDialog.open(hopGui);
+  }
+
+  /**
+   * Open {@code meta} in the Database perspective when that perspective is enabled, otherwise in
+   * the floating Database window. {@code sql} may be empty.
+   */
+  public static void openInDatabase(DatabaseMeta meta, String sql) {
+    HopGui hopGui;
+    try {
+      hopGui = HopGui.peekInstance();
+    } catch (Throwable e) {
+      hopGui = null;
+    }
+    openInDatabase(hopGui, meta, sql);
+  }
+
+  /**
+   * Open {@code meta} in the Database perspective when that perspective is enabled, otherwise in
+   * the floating Database window. {@code sql} may be empty.
+   */
+  public static void openInDatabase(HopGui hopGui, DatabaseMeta meta, String sql) {
+    if (meta == null) {
+      return;
+    }
+    if (hopGui != null && hopGui.getPerspectiveManager() != null) {
+      DatabasePerspective perspective =
+          hopGui.getPerspectiveManager().findPerspective(DatabasePerspective.class);
+      if (perspective != null) {
+        perspective.openConnection(meta, sql);
+        return;
+      }
+    }
+    DatabaseWorkbenchDialog.openSql(meta, sql);
   }
 
   /** True when the floating Database window is already open. */
