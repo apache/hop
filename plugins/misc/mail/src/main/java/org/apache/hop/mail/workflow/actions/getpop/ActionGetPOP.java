@@ -70,7 +70,6 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     keywords = "i18n::ActionGetPOP.keyword",
     documentationUrl = "/workflow/actions/getpop.html",
     actionTransformTypes = {ActionTransformType.MAIL})
-@SuppressWarnings("java:S1104")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class;
   private static final String CONST_PASSWORD = "password";
@@ -84,15 +83,25 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   public static final String ACTION_GET_MAILS_FROM_POP_ERROR_RECEIVED_DATES_SEARCH_TERM_EMPTY =
       "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty";
 
-  public int actionType;
+  @HopMetadataProperty(
+      key = "actiontype",
+      intCodeConverter = MailConnectionMeta.ActionTypeConverter.class)
+  private int actionType;
 
-  @HopMetadataProperty(key = "conditionreceiveddate")
-  public int conditionReceivedDate;
+  @HopMetadataProperty(
+      key = "conditionreceiveddate",
+      intCodeConverter = MailConnectionMeta.ConditionDateConverter.class)
+  private int conditionReceivedDate;
 
-  public int valueIMAPList;
+  @HopMetadataProperty(
+      key = "valueimaplist",
+      intCodeConverter = MailConnectionMeta.ValueImapListConverter.class)
+  private int valueIMAPList;
 
-  @HopMetadataProperty(key = "aftergetimap")
-  public int afterGetIMAP;
+  @HopMetadataProperty(
+      key = "aftergetimap",
+      intCodeConverter = MailConnectionMeta.AfterGetImapConverter.class)
+  private int afterGetIMAP;
 
   @HopMetadataProperty(key = "servername")
   private String serverName;
@@ -128,7 +137,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private String firstMails;
 
   @HopMetadataProperty(key = "retrievemails")
-  public int retrieveMails;
+  private int retrieveMails;
 
   @HopMetadataProperty private boolean delete;
 
