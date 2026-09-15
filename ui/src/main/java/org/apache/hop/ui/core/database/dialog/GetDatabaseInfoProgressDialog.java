@@ -40,9 +40,9 @@ import org.eclipse.swt.widgets.Shell;
 public class GetDatabaseInfoProgressDialog {
   private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class;
 
-  private Shell shell;
+  private final Shell shell;
   private final IVariables variables;
-  private DatabaseMeta databaseMeta;
+  private final DatabaseMeta databaseMeta;
 
   /**
    * Creates a new dialog that will handle the wait while we're finding out what tables, views etc.

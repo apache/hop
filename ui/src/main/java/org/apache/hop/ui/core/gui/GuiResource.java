@@ -248,6 +248,7 @@ public class GuiResource {
   @Getter private Image imageRedo;
   @Getter private Image imageRefresh;
   @Getter private Image imageRegex;
+  @Getter private Image imageRegexDisabled;
   @Getter private Image imageRemoveAll;
   @Getter private Image imageRemoveSingle;
   @Getter private Image imageRename;
@@ -488,6 +489,7 @@ public class GuiResource {
     imageExpandAll.dispose();
     imageSearch.dispose();
     imageRegex.dispose();
+    imageRegexDisabled.dispose();
     imageNew.dispose();
     imageEdit.dispose();
     imageLocked.dispose();
@@ -801,6 +803,8 @@ public class GuiResource {
     imagePrint = loadAsResource(display, "ui/images/print.svg", ConstUi.SMALL_ICON_SIZE);
     imageRefresh = loadAsResource(display, "ui/images/refresh.svg", ConstUi.SMALL_ICON_SIZE);
     imageRegex = loadAsResource(display, "ui/images/regex.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRegexDisabled =
+        loadAsResource(display, "ui/images/regex-disabled.svg", ConstUi.SMALL_ICON_SIZE);
     imageRemoveAll = loadAsResource(display, "ui/images/remove_all.svg", ConstUi.SMALL_ICON_SIZE);
     imageRemoveSingle =
         loadAsResource(display, "ui/images/remove_single.svg", ConstUi.SMALL_ICON_SIZE);
