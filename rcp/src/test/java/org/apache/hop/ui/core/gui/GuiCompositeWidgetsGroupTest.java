@@ -19,8 +19,10 @@ package org.apache.hop.ui.core.gui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
@@ -33,6 +35,7 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.layout.FormData;
@@ -75,6 +78,36 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
       widgets.setWidgetsContents(source, shell, FLAT_PARENT);
       widgets.getWidgetsContents(source, FLAT_PARENT);
       assertEquals("beta", source.getName());
+      assertNull(source.getNote());
+    } finally {
+      shell.dispose();
+    }
+  }
+
+  @Test
+  void emptyTextWidgetLeavesNullFieldNull() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FormLayout());
+    try {
+      FlatSample source = new FlatSample();
+      source.setName("alpha");
+      assertNull(source.getNote());
+
+      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
+      widgets.createCompositeWidgets(source, null, shell, FLAT_PARENT, null);
+      widgets.setWidgetsContents(source, shell, FLAT_PARENT);
+      widgets.getWidgetsContents(source, FLAT_PARENT);
+      assertNull(source.getNote());
+
+      TextVar note = (TextVar) widgets.getWidgetsMap().get("note");
+      assertNotNull(note);
+      note.setText("typed");
+      widgets.getWidgetsContents(source, FLAT_PARENT);
+      assertEquals("typed", source.getNote());
+
+      note.setText("");
+      widgets.getWidgetsContents(source, FLAT_PARENT);
+      assertEquals("", source.getNote());
     } finally {
       shell.dispose();
     }
@@ -179,7 +212,7 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
 
       assertFalse(first.getVisible());
       assertTrue(second.getVisible());
-      assertTrue(second.getLayoutData() instanceof FormData);
+      assertInstanceOf(FormData.class, second.getLayoutData());
       FormData secondData = (FormData) second.getLayoutData();
       assertTrue(secondData.height == -1 || secondData.height > 0);
 
@@ -242,6 +275,13 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
         type = GuiElementType.TEXT,
         label = "Name")
     private String name;
+
+    @GuiWidgetElement(
+        id = "note",
+        parentId = FLAT_PARENT,
+        type = GuiElementType.TEXT,
+        label = "Note")
+    private String note;
   }
 
   @GuiPlugin
