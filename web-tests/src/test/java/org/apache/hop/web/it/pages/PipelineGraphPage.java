@@ -300,9 +300,42 @@ public class PipelineGraphPage {
     dialog.choose(action);
   }
 
-  /** Clicks the canvas at an offset from its middle. */
+  /**
+   * Two clicks on the same spot closer together than this are one double-click. Chromedriver counts
+   * clicks the way a browser does - by time and position, not by what happened in between - and the
+   * browser default is 500 ms.
+   */
+  private static final long DOUBLE_CLICK_WINDOW_MS = 600;
+
+  private long lastClickAt;
+  private int lastClickX;
+  private int lastClickY;
+
+  /**
+   * Clicks the canvas at an offset from its middle.
+   *
+   * <p>Never within the double-click window of the previous click on the same spot. Adding a
+   * transform clicks where it will appear and the next thing a test does is click the transform, so
+   * with nothing in between but keystrokes the second click can arrive fast enough to count as a
+   * double-click - which on a transform means "edit", so its dialog opens where the context dialog
+   * was expected.
+   */
   public void clickAt(int offsetX, int offsetY) {
+    if (offsetX == lastClickX && offsetY == lastClickY) {
+      long sinceLast = System.currentTimeMillis() - lastClickAt;
+      if (sinceLast < DOUBLE_CLICK_WINDOW_MS) {
+        try {
+          Thread.sleep(DOUBLE_CLICK_WINDOW_MS - sinceLast);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new IllegalStateException("Interrupted while waiting to click the canvas", e);
+        }
+      }
+    }
     new Actions(driver).moveToElement(canvas(), offsetX, offsetY).click().perform();
+    lastClickAt = System.currentTimeMillis();
+    lastClickX = offsetX;
+    lastClickY = offsetY;
   }
 
   /**
