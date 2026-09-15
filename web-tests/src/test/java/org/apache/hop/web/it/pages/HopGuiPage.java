@@ -526,11 +526,60 @@ public class HopGuiPage {
                 .orElse(null));
   }
 
+  /**
+   * Whether the RAP widget behind an element takes clicks. RAP does not mark a disabled widget in
+   * the DOM at all; the state lives in the client-side widget object it hangs off the element, and
+   * a click on a disabled one is dropped there without the server ever hearing of it. Elements
+   * without a widget are left alone.
+   *
+   * <p>Compared against {@code false} rather than for {@code true}: the property is inheritable and
+   * a widget that was never disabled itself answers with the string {@code "inherit"}.
+   */
+  /** Long enough for the asyncExec that enables a toolbar item, short enough to read as a bug. */
+  private static final Duration ENABLE_TIMEOUT = Duration.ofSeconds(10);
+
+  private static final String IS_ENABLED =
+      "const w=arguments[0].rwtWidget;"
+          + "return !w||typeof w.getEnabled!=='function'||w.getEnabled()!==false;";
+
+  /**
+   * Clicks once the widget is enabled.
+   *
+   * <p>Hop enables toolbar items from an {@code asyncExec} after the change that warrants them, so
+   * a test that acts as soon as it sees the change on the canvas can click a Save button that is
+   * still disabled and get a silent no-op for it (a file reopened without its last transform).
+   * Waiting here turns that into a clear timeout when a button is disabled for real.
+   */
   private void click(WebElement element) {
     if (element == null) {
       throw new NoSuchElementException("No element to click");
     }
+    // A wait of its own: withMessage would stick to the shared one.
+    waitFor(driver, ENABLE_TIMEOUT)
+        .withMessage(() -> "widget " + describe(element) + " is disabled")
+        .until(d -> isEnabled(element));
     new Actions(driver).moveToElement(element).click().perform();
+  }
+
+  /**
+   * Waits for a widget to be disabled. Hop disables Save once a file is saved, so this is how a
+   * test knows a save it clicked has actually happened before it does anything drastic, such as
+   * throwing the session away.
+   */
+  public void awaitDisabled(By locator) {
+    WebElement element = visible(locator);
+    waitFor(driver, ENABLE_TIMEOUT)
+        .withMessage(() -> "widget " + describe(element) + " is still enabled")
+        .until(d -> !isEnabled(element));
+  }
+
+  private boolean isEnabled(WebElement element) {
+    return Boolean.TRUE.equals(((JavascriptExecutor) driver).executeScript(IS_ENABLED, element));
+  }
+
+  private static String describe(WebElement element) {
+    String id = element.getAttribute("data-hop-id");
+    return id != null ? id : element.getText();
   }
 
   /**
