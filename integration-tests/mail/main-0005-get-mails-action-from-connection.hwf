@@ -155,6 +155,10 @@ limitations under the License.
       <receivedDate2/>
       <recipientsearch/>
       <retrievemails>0</retrievemails>
+      <actiontype>get</actiontype>
+      <valueimaplist>imaplistall</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>nothing</aftergetimap>
       <saveattachment>Y</saveattachment>
       <savemessage>Y</savemessage>
       <sendersearch/>

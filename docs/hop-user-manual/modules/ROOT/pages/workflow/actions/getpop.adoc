@@ -96,8 +96,10 @@ a|Select the e-mails to retrieve:
 * Get not draft messages
 * Get answered messages
 * Get not answered messages
+
+The selected value is stored with the workflow (XML tag `valueimaplist`, for example `imaplistunread`). Reopening the action keeps the same Retrieve option.
 |Retrieve the first...emails|specify the number of messages to retrieve
-|After retrieved a|specfiy the action to perform on email messages after retrieval:
+|After retrieved a|specify the action to perform on email messages after retrieval:
 
 * Do nothing
 * Delete message
@@ -128,4 +130,9 @@ a|Select the e-mails to retrieve:
 * Greater than `Date 1`
 * Between `Date 1` and `Date 2`
 |===
+
+== Notes
+
+* IMAP **Retrieve** (unread, new, flagged, and the other list options) is stored with the workflow. Saving and reopening keeps the selected option.
+* Workflows saved in Hop 2.13 still load: date conditions such as `ignore` and IMAP list codes such as `imaplistunread` are accepted, not only integer indexes.
 
