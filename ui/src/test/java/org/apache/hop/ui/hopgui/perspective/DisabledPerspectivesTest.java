@@ -88,6 +88,7 @@ class DisabledPerspectivesTest {
           perspective.activate();
           perspective.clearSearchFilters();
           perspective.openSqlFile("x.sql", null, "select 1", false);
+          perspective.openConnection(null, "select 1");
         });
     assertTrue(perspective.getItems().isEmpty());
     assertTrue(perspective.connectionNames().isEmpty());

@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -200,6 +201,18 @@ public class DatabasePerspective implements IHopPerspective, TabClosable, IDatab
     }
     activate();
     workbench.openSqlFile(filename, connection, buffer, dirty);
+  }
+
+  /**
+   * Bring this perspective to the front, select {@code meta} in the tree, connect in the
+   * background, and open a SQL tab with {@code sql} (may be empty).
+   */
+  public void openConnection(DatabaseMeta meta, String sql) {
+    if (!isInitialized() || meta == null) {
+      return;
+    }
+    activate();
+    workbench.openSuggestedSql(meta, Const.NVL(sql, ""));
   }
 
   public List<String> connectionNames() {
