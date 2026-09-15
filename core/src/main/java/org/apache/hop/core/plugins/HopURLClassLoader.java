@@ -108,8 +108,20 @@ public class HopURLClassLoader extends URLClassLoader {
     return clz;
   }
 
+  /**
+   * Packages a plugin must share with the core classloader so objects can cross the boundary (Hop
+   * core types, the Jackson streaming/databind API, SLF4J). Jackson *modules* are deliberately not
+   * listed: plugins bring their own — e.g. jackson-module-scala is compiled per Scala version, so
+   * the Beam engine (Scala 2.12) and the native Spark engine (Scala 2.13) each need the copy in
+   * their own lib, and a parent-first lookup of the wrong one fails at runtime with "no Creators"
+   * when Spark deserializes its own Scala classes.
+   */
   private static final String[] SYSTEM_PARENT_FIRST_PACKAGES = {
-    "org.apache.hop.core.", "com.fasterxml.jackson.", "org.slf4j."
+    "org.apache.hop.core.",
+    "com.fasterxml.jackson.core.",
+    "com.fasterxml.jackson.databind.",
+    "com.fasterxml.jackson.annotation.",
+    "org.slf4j."
   };
 
   protected boolean isParentFirst(String name) {
