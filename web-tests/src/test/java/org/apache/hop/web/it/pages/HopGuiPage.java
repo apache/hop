@@ -33,18 +33,36 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class HopGuiPage {
 
   /**
-   * Every visible RAP shell that is big enough to be a window, outermost first. Index 0 is the Hop
-   * GUI itself, so anything beyond it is an open dialog. A shell's first line of text is its title,
+   * Script prologue that leaves {@code shells}: the dialogs on screen, outermost first.
+   *
+   * <p>A dialog is recognised by what RAP hangs off its element - a {@code rwt.widgets.Shell} with
+   * a title bar - rather than by looking like one. The previous rule, "any body-level div at
+   * z-index 100000 or more that is bigger than 100x100", also matched the transparent full-screen
+   * blocker RAP shows while a request is in flight. On a slow browser that blocker is on screen in
+   * the gap between choosing "Edit" in the context dialog and the transform dialog opening (the
+   * action runs in an asyncExec, one request later), and it read as a dialog with an empty title:
+   * {@code awaitDialog()} returned "", {@code closeAllDialogs()} "closed" it, and the real dialog
+   * then opened under the next click. Shells without a title bar are Hop's canvas tooltip and the
+   * Hop GUI window itself; a title-bar shell with no parent that covers the viewport is also the
+   * GUI window, should it ever get a caption.
+   */
+  public static final String DIALOG_SHELLS =
+      "const shells=[...document.body.children].filter(d=>{"
+          + "const w=d.rwtWidget;"
+          + "if(!w||w.classname!=='rwt.widgets.Shell')return false;"
+          + "if(typeof w.hasState!=='function'||!w.hasState('rwt_TITLE'))return false;"
+          + "const r=d.getBoundingClientRect();"
+          + "if(!(r.width>0&&r.height>0))return false;"
+          + "return !!w._parentShell"
+          + "||r.width<window.innerWidth||r.height<window.innerHeight;});";
+
+  /**
+   * The titles of the open dialogs, outermost first. A shell's first line of text is its title,
    * which is how these tests identify dialogs - far steadier than the positional {@code
    * //body/div[5]/div[1]} the previous suite matched on.
    */
   private static final String SHELL_TITLES =
-      "return [...document.body.children].filter(d=>{"
-          + "if(d.tagName!=='DIV')return false;"
-          + "const z=parseInt(getComputedStyle(d).zIndex);"
-          + "const r=d.getBoundingClientRect();"
-          + "return z>=100000&&r.width>100&&r.height>100;})"
-          + ".map(d=>(d.innerText||'').split('\\n')[0].trim());";
+      DIALOG_SHELLS + "return shells.map(d=>(d.innerText||'').split('\\n')[0].trim());";
 
   /**
    * How often to re-check a condition. The default of 500ms is the single biggest cost in this
@@ -107,11 +125,7 @@ public class HopGuiPage {
    * and a dialog builds its fields in plain SWT code.
    */
   private static final String TOP_INPUTS =
-      "const shells=[...document.body.children].filter(d=>{"
-          + "if(d.tagName!=='DIV')return false;"
-          + "const z=parseInt(getComputedStyle(d).zIndex);"
-          + "const r=d.getBoundingClientRect();"
-          + "return z>=100000&&r.width>100&&r.height>100;});"
+      DIALOG_SHELLS
           + "const top=shells[shells.length-1]||document;"
           + "return [...top.querySelectorAll('input')]"
           + ".filter(i=>i.type==='text'&&i.offsetParent!==null);";
@@ -138,8 +152,7 @@ public class HopGuiPage {
   public static List<String> openDialogTitles(WebDriver driver) {
     @SuppressWarnings("unchecked")
     List<String> titles = (List<String>) ((JavascriptExecutor) driver).executeScript(SHELL_TITLES);
-    // Drop the Hop GUI shell itself; only the dialogs above it are interesting.
-    return titles.isEmpty() ? titles : titles.subList(1, titles.size());
+    return titles;
   }
 
   public static String topDialogTitle(WebDriver driver) {
@@ -162,13 +175,7 @@ public class HopGuiPage {
   }
 
   private static final String TOP_SHELL_TEXT =
-      "const shells=[...document.body.children].filter(d=>{"
-          + "if(d.tagName!=='DIV')return false;"
-          + "const z=parseInt(getComputedStyle(d).zIndex);"
-          + "const r=d.getBoundingClientRect();"
-          + "return z>=100000&&r.width>100&&r.height>100;});"
-          + "const top=shells[shells.length-1];"
-          + "return top?top.innerText:'';";
+      DIALOG_SHELLS + "const top=shells[shells.length-1];" + "return top?top.innerText:'';";
 
   /**
    * Closes the welcome dialog if this Hop Web was configured to show it. The image used by the
@@ -207,7 +214,13 @@ public class HopGuiPage {
    * reading the title straight afterwards is racing it.
    */
   public String awaitDialog() {
-    return wait.until(d -> topDialogTitle());
+    // A blank title is not a dialog: nothing Hop opens is untitled, so it would be the detector
+    // catching something else mid-render.
+    return wait.until(
+        d -> {
+          String title = topDialogTitle();
+          return title == null || title.isBlank() ? null : title;
+        });
   }
 
   /** How long to give Escape before falling back to the dialog's own button. */
@@ -354,11 +367,7 @@ public class HopGuiPage {
 
   private static final String FIELD_BESIDE_LABEL =
       "const wanted=arguments[0];"
-          + "const shells=[...document.body.children].filter(d=>{"
-          + "if(d.tagName!=='DIV')return false;"
-          + "const z=parseInt(getComputedStyle(d).zIndex);"
-          + "const r=d.getBoundingClientRect();"
-          + "return z>=100000&&r.width>100&&r.height>100;});"
+          + DIALOG_SHELLS
           + "const top=shells[shells.length-1];"
           + "if(!top)return null;"
           + "const label=[...top.querySelectorAll('div')].find("
