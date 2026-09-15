@@ -54,6 +54,7 @@ the `hop-run` CLI, or submitted to a **Hop Server** for local/remote execution.
 | Execution engine | `engine/`, `engine-beam/` | Runs pipelines/workflows the operator authored — incl. transforms that touch files, DBs, network, and **scripting/exec** steps. |
 | Hop Server (servlet / HTTP) | `engine/` — package `org.apache.hop.www` + `HopServerMeta` in `org.apache.hop.server`; launched by the `hop-server` command (`org.apache.hop.www.HopServer`). *(The `org.apache.hop.server` connection helpers `HttpUtil`/`ServerConnectionManager` — see §9 — live in `core/`.)* | The **network trust boundary**: an embedded Jetty server whose servlets accept pipeline/workflow run requests over HTTP (`/hop/execPipeline`, `/hop/addPipeline`+`/hop/startExec`, `/hop/registerPackage`, …). Who may submit/run, and with what auth, lives here (§7, §8). |
 | Hop JSON API | `engine/src/main/java/org/apache/hop/www/api/` | **Part of Hop Server**, not a separate deployable. Mounted on `/hop/api/v1/` ([`WebServer.java`](engine/src/main/java/org/apache/hop/www/WebServer.java)) and exposes `execute/sync` (run a web service), `metadata` CRUD, `plugins` and `location` execution info. It sits inside the same `ConstraintSecurityHandler` as every servlet, so it inherits Hop Server's Basic/JAAS auth (§8). |
+| Arrow Flight server (gRPC) | `plugins/tech/arrow/` — package `org.apache.hop.arrow.flight`; launched by the `hop arrow` command (`org.apache.hop.arrow.command.ArrowCommand`) | A **second network listener**, separate from Hop Server: a gRPC/Arrow Flight endpoint that hands rows to and from Data Stream metadata elements. Binds `0.0.0.0:33333` by default. TLS (incl. mutual TLS) and username/password authentication are configurable but **off unless the operator passes the options** (§8) — with neither, anything that can reach the port can read the data it streams. |
 | GUI (desktop / web) | `ui/` (`hop-ui`, SWT core), `rcp/` (desktop fragment), `rap/` (`hop-ui-rap`, RAP/RWT **web** GUI) | Authoring surface used by the trusted operator. `rap/` is the **web GUI**, not a server. |
 | Plugins | `plugins/` | The large transform/action set, incl. scripting (GraalJS/Rhino/Groovy), shell/exec, SQL, and per-DB/per-cloud connectors (`plugins/tech/*`). |
 | Connection / driver layer | `lib-jdbc/` (bundled JDBC drivers), `core/` (`org.apache.hop.core.database`, `org.apache.hop.metadata`) | DB/file/cloud credentials + JDBC drivers the operator configures. (There is no standalone `metadata/` module — connection/metadata code is in `core/`.) |
@@ -182,8 +183,12 @@ where strict outbound TLS verification is required (see §9).
   the `<sslConfig>` block of `hop-server.xml`, but **TLS is off by default** (the
   shipped config starts a plain-HTTP listener; only auth is on). Outbound JDBC
   TLS is fully driver-delegated; HTTP/REST/cloud transforms use the JVM trust
-  store unless given a per-transform truststore. Enabling TLS is an operator
-  responsibility (§10).
+  store unless given a per-transform truststore. The **Arrow Flight server**
+  (`hop arrow`) is likewise plaintext and unauthenticated unless started with
+  `--arrow-flight-tls-certificate`/`--arrow-flight-tls-key` (optionally
+  `--arrow-flight-tls-client-ca` for mutual TLS) and
+  `--arrow-flight-username`/`--arrow-flight-password`; it logs a warning when it
+  starts without them. Enabling TLS is an operator responsibility (§10).
 
 ## §9 Security properties the project does *not* provide
 
