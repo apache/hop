@@ -21,8 +21,15 @@ def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
 def JDK_NAME = env.JDK_NAME ?: 'jdk_21_latest'
 def MAVEN_NAME = env.MAVEN_NAME ?: 'maven_3_latest'
 
-// The image the tests drive. Overridable so a release candidate can be checked the same way.
+def MAVEN_PARAMS = "-T 2 -U -B -e -V -Dmaven.compiler.fork=true"
+
+// A published image to test instead of building one, e.g. a release candidate. Only used when
+// BUILD_IMAGE is off.
 def HOP_WEB_IMAGE = env.HOP_WEB_IMAGE ?: 'apache/hop-web:Development'
+
+// The image built from this checkout. A per-build tag, never pushed: publishing stays with the
+// main job and its manual release process.
+def CI_IMAGE = "hop-web:selenium-${env.BUILD_NUMBER}"
 
 pipeline {
 
@@ -54,7 +61,14 @@ pipeline {
             logRotator(artifactNumToKeepStr: '5', numToKeepStr: '10')
         )
         disableConcurrentBuilds()
-        timeout(time: 1, unit: 'HOURS')
+        timeout(time: 2, unit: 'HOURS')
+    }
+
+    // Compared against false rather than tested directly: on the first run after this block is
+    // added Jenkins has not registered the parameter yet and params.BUILD_IMAGE is null.
+    parameters {
+        booleanParam(name: 'BUILD_IMAGE', defaultValue: true,
+            description: 'Build Hop and its Web image from this checkout. Off: test the published HOP_WEB_IMAGE instead.')
     }
 
     stages {
@@ -79,7 +93,32 @@ pipeline {
                 checkout scm
             }
         }
+        // Building here rather than pulling apache/hop-web:Development makes the nightly test the
+        // code as it is now: a broken or late main build no longer leaves it testing yesterday's
+        // image, or failing on a Docker Hub pull, and a failure points at a commit range.
+        stage('Build Apache Hop') {
+            when { expression { params.BUILD_IMAGE != false } }
+            steps {
+                // fast-build: no tests, rat, spotless, checkstyle or javadoc - the main build covers
+                // those. Only the assemblies the Web image is made of are needed here.
+                sh "mvn $MAVEN_PARAMS -Pfast-build clean install"
+                sh "unzip -qo ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
+                // Same as the main job: the marketplace-only plugins go into the image too
+                sh "./tools/install-wave1-plugins.sh ./assemblies/client/target/hop"
+                sh "unzip -qo ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp"
+            }
+        }
+        stage('Build Hop Web image') {
+            when { expression { params.BUILD_IMAGE != false } }
+            steps {
+                // The same Dockerfile the main job publishes from, so the image under test is
+                // built the way the shipped one is. Current platform only, no push.
+                sh "docker build . -f docker/web.Dockerfile -t ${CI_IMAGE}"
+                sh "docker image inspect ${CI_IMAGE} --format 'Testing {{.RepoTags}} digest {{.Id}} created {{.Created}}'"
+            }
+        }
         stage('Record image under test') {
+            when { expression { params.BUILD_IMAGE == false } }
             steps {
                 // These tests drive a published image rather than this checkout, so record which
                 // one actually ran. Without this a broken main build leaves the job quietly
@@ -90,8 +129,14 @@ pipeline {
         }
         stage('Run Selenium tests'){
             steps {
-                 sh "mvn -f web-tests/pom.xml -B -e clean test -Dhopweb.image=${HOP_WEB_IMAGE}"
+                script {
+                    // A locally built tag must not be pulled: it only exists on this agent.
+                    def imageArgs = params.BUILD_IMAGE != false
+                        ? "-Dhopweb.image=${CI_IMAGE} -Dhopweb.pull=false"
+                        : "-Dhopweb.image=${HOP_WEB_IMAGE}"
+                    sh "mvn -f web-tests/pom.xml -B -e clean test ${imageArgs}"
                 }
+            }
             post {
                 always {
                     // Screenshot and rendered DOM of every failed test.
@@ -104,6 +149,11 @@ pipeline {
     }
     post {
         always {
+            // A new tag every night would fill the agent's disk. Testcontainers removes its
+            // containers a few seconds after the JVM exits, which is after this runs, so take
+            // any that still reference the image down first.
+            sh "docker ps -aq --filter ancestor=${CI_IMAGE} | xargs -r docker rm -f || true"
+            sh "docker rmi ${CI_IMAGE} || true"
             cleanWs()
         }
         // Only mail when there is something to act on: a nightly green build does not need

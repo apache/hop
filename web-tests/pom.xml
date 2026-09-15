@@ -36,12 +36,13 @@
         <hopweb.headless>true</hopweb.headless>
         <hopweb.image>apache/hop-web:Development</hopweb.image>
         <hopweb.pull>true</hopweb.pull>
-        <hopweb.startupTimeout>300</hopweb.startupTimeout>
+        <hopweb.startupTimeout>600</hopweb.startupTimeout>
         <hopweb.url></hopweb.url>
         <jacoco.skip>true</jacoco.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
         <selenium.version>4.48.0</selenium.version>
+        <slf4j.version>2.0.18</slf4j.version>
         <testcontainers.version>2.0.5</testcontainers.version>
     </properties>
 
@@ -50,6 +51,21 @@
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Testcontainers reports on SLF4J, including the log of a container that failed to
+             start. Without a binding on the classpath that report goes nowhere. Testcontainers
+             itself brings a 1.7 API, which cannot see a 2.x binding, so pin the API to match. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
