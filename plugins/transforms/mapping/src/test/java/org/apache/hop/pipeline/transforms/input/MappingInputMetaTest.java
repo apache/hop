@@ -46,7 +46,7 @@ class MappingInputMetaTest {
 
     meta.setChanged();
 
-    MappingInputMeta copy = meta.clone();
+    MappingInputMeta copy = (MappingInputMeta) meta.clone();
 
     assertEquals(meta.getFields().size(), copy.getFields().size());
     for (int i = 0; i < meta.getFields().size(); i++) {

@@ -578,7 +578,7 @@ class Exasol4DatabaseMetaTest {
             false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR UNKNOWN ) ",
+        "ALTER TABLE FOO ADD ( BAR VARCHAR(45) ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

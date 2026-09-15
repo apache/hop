@@ -46,9 +46,11 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -251,7 +253,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     fdbFilename.top = new FormAttachment(0, 0);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar(variables, fileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, fileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     wFilename.setToolTipText(BaseMessages.getString(PKG, "ExcelWriterDialog.Filename.Tooltip"));
@@ -1473,7 +1477,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     FormData fdFieldComp = new FormData();
     fdFieldComp.left = new FormAttachment(0, 0);

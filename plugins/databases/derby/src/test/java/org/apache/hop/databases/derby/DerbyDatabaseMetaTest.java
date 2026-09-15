@@ -60,7 +60,6 @@ class DerbyDatabaseMetaTest {
     assertTrue(nativeMeta.isFetchSizeSupported());
     assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertEquals(1527, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertEquals(
         "http://db.apache.org/derby/papers/DerbyClientSpec.html",
         nativeMeta.getExtraOptionsHelpText());
@@ -385,7 +384,7 @@ class DerbyDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR UNKNOWN",
+        "ALTER TABLE FOO ADD BAR VARCHAR(45)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

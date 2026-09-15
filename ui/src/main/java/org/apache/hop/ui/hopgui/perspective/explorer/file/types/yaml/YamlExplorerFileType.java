@@ -43,6 +43,7 @@ public class YamlExplorerFileType extends BaseTextExplorerFileType<YamlExplorerF
         new String[] {"*.yml", "*.yaml"},
         new String[] {"YAML files", "YAML files"},
         FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_NEW,
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,

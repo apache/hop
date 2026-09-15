@@ -16,6 +16,9 @@ See: https://github.com/delta-io/delta
 This product bundles Apache Iceberg under the Apache License, Version 2.0.
 See: https://iceberg.apache.org/
 
+This product bundles Apache Calcite under the Apache License, Version 2.0.
+See: https://calcite.apache.org/
+
 This product bundles Unity Catalog client libraries (transitive dependency of
 Delta Lake) under the Apache License, Version 2.0.
 See: https://github.com/unitycatalog/unitycatalog

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import javax.xml.stream.XMLInputFactory;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.poi.ss.SpreadsheetVersion;
 
 public class StaxUtil {
@@ -67,10 +68,6 @@ public class StaxUtil {
   }
 
   public static final XMLInputFactory safeXMLInputFactory() {
-    XMLInputFactory factory = XMLInputFactory.newInstance();
-    // To prevent from XXE attacks
-    factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-    return factory;
+    return XmlParserFactoryProducer.createSecureXmlInputFactory();
   }
 }

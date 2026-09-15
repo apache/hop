@@ -1283,7 +1283,12 @@ public interface IValueMeta extends Cloneable {
    * @param lazyConversion use lazy conversion
    * @return The value metadata if this value should handle the SQL type at the specified index.
    * @throws HopDatabaseException In case something went wrong.
+   * @deprecated Superseded by {@link org.apache.hop.core.database.types.StandardJdbcTypeMapper},
+   *     which carries the single copy of these rules. This is one of three implementations that had
+   *     drifted apart; callers will be migrated to the mapper and this method removed in a later
+   *     release.
    */
+  @Deprecated(since = "2.20")
   IValueMeta getValueFromSqlType(
       IVariables variables,
       DatabaseMeta databaseMeta,
@@ -1305,7 +1310,11 @@ public interface IValueMeta extends Cloneable {
    * @param variables
    * @param databaseMeta the database metadata to reference capabilities and so on.
    * @param rs A ResultSet from getColumns, positioned correctly on a column to read.
+   * @deprecated Superseded by {@link org.apache.hop.core.database.types.StandardJdbcTypeMapper}.
+   *     This mapping had no callers left in Hop and had drifted from the one the engine actually
+   *     uses; use the mapper instead.
    */
+  @Deprecated(since = "2.20")
   IValueMeta getMetadataPreview(IVariables variables, DatabaseMeta databaseMeta, ResultSet rs)
       throws HopDatabaseException;
 

@@ -28,12 +28,13 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.server.IRemoteCapableRunConfiguration;
 
 @GuiPlugin(description = "Remote pipeline run configuration widgets")
 @Getter
 @Setter
 public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguration
-    implements IPipelineEngineRunConfiguration {
+    implements IPipelineEngineRunConfiguration, IRemoteCapableRunConfiguration {
 
   @GuiWidgetElement(
       order = "10",

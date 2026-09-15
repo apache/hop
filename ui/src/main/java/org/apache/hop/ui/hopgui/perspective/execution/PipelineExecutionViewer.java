@@ -629,6 +629,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
                     null,
                     props);
 
+            // Data rows, not configuration: draw long / multi-line values shortened. The value
+            // itself stays on the item, out of the cell, so the row keeps to a single line.
+            dataView.setShortenDisplayedValues(true);
+
             for (int r = 0; r < rowBuffer.size(); r++) {
               Object[] row = rowBuffer.getBuffer().get(r);
               TableItem item = dataView.table.getItem(r);
@@ -638,7 +642,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
                 if (value == null) {
                   value = "";
                 }
-                item.setText(c + 1, value);
+                dataView.setCellValue(item, c + 1, value);
               }
             }
             dataView.optWidth(true);
@@ -787,6 +791,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       pipelinePainter.setMaximum(maximum);
       pipelinePainter.setShowingNavigationView(true);
       pipelinePainter.setScreenMagnification(magnification);
+      pipelinePainter.setTransformLogMap(buildTransformErrorMap());
 
       try {
         pipelinePainter.drawPipelineImage();
@@ -802,6 +807,28 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       gc.dispose();
     }
     CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
+  }
+
+  /**
+   * Populate the painter error map from stored component metrics so failed transforms get a red
+   * border even though this viewer has no live {@code IPipelineEngine}.
+   */
+  private Map<String, String> buildTransformErrorMap() {
+    Map<String, String> transformErrorMap = new HashMap<>();
+    if (executionState == null || executionState.getMetrics() == null) {
+      return transformErrorMap;
+    }
+    String errorHeader = Pipeline.METRIC_ERROR.getHeader();
+    for (ExecutionStateComponentMetrics metrics : executionState.getMetrics()) {
+      if (metrics.getMetrics() == null) {
+        continue;
+      }
+      Long errors = metrics.getMetrics().get(errorHeader);
+      if (errors != null && errors > 0 && StringUtils.isNotEmpty(metrics.getComponentName())) {
+        transformErrorMap.put(metrics.getComponentName(), errors + " error(s)");
+      }
+    }
+    return transformErrorMap;
   }
 
   @Override
@@ -1103,7 +1130,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           // Don't load logging text as that can be a lot of data.
           // Lazily load that when the logging text comes into focus.
           //
-          ExecutionState executionState = iLocation.getExecutionState(execution.getId(), false);
+          ExecutionState executionState = iLocation.getExecutionState(child.getId(), false);
           perspective.createExecutionViewer(locationName, child, executionState);
           return;
         }
@@ -1154,7 +1181,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
       // Don't load execution logging text to prevent memory issues.
       //
-      ExecutionState executionState = iLocation.getExecutionState(execution.getId(), false);
+      ExecutionState executionState = iLocation.getExecutionState(childExecution.getId(), false);
       perspective.createExecutionViewer(locationName, childExecution, executionState);
 
     } catch (Exception e) {

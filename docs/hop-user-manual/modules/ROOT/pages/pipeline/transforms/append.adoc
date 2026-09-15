@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Append Streams transform reads the data from two transforms, only processing the second stream after the first one is finished.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/append.svg[Append Streams Icon, role="image-doc-icon"] Append Streams
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Append Streams transform reads the data from two transforms, only processing the second stream after the first one is finished.
@@ -30,18 +28,6 @@ The Append Streams transform reads the data from two transforms, only processing
 As always, the row layout for the input data coming from both transforms has to be identical: the same row lengths, the same data types, the same fields at the same field indexes in the row.
 
 *Important*: If you don't care about the order in which the output rows occur, you can use any transform to create a union of 2 or more data streams.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

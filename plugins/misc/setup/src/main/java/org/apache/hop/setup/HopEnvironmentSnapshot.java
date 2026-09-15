@@ -52,6 +52,8 @@ public class HopEnvironmentSnapshot {
     this.wellKnownEnvFile = wellKnownEnvFile;
   }
 
+  private static final String LAUNCHER_OPTIONS_MARKER = "-DHOP_PLATFORM_RUNTIME";
+
   public static HopEnvironmentSnapshot capture() {
     return capture(OsFamily.detect(), UserPaths.system());
   }
@@ -72,11 +74,24 @@ public class HopEnvironmentSnapshot {
             System.getenv(HopSetupVariables.JAVA_HOME),
             System.getenv("JAVA_HOME"),
             System.getProperty("java.home")),
-        firstNonBlank(System.getenv(HopSetupVariables.OPTIONS), HopSetupVariables.DEFAULT_OPTIONS),
+        firstNonBlank(
+            userOptions(System.getenv(HopSetupVariables.OPTIONS)),
+            HopSetupVariables.DEFAULT_OPTIONS),
         firstNonBlank(System.getenv(HopSetupVariables.JDBC_FOLDERS), ""),
         StringUtils.isNotBlank(configEnv),
         StringUtils.isNotBlank(auditEnv),
         HopEnvironmentDefaults.wellKnownEnvFile(os, paths));
+  }
+
+  /**
+   * Windows launchers accumulate the computed JVM flags into HOP_OPTIONS itself, and cmd exports
+   * that to the child process. Such a value is launcher output, not user input: persisting it would
+   * grow on every start. It is recognised by a flag only the launchers add.
+   */
+  static String userOptions(String environmentValue) {
+    return environmentValue != null && environmentValue.contains(LAUNCHER_OPTIONS_MARKER)
+        ? null
+        : environmentValue;
   }
 
   public static boolean configFolderSetInEnvironment() {

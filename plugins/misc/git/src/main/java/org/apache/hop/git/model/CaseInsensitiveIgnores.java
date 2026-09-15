@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.eclipse.jgit.ignore.FastIgnoreRule;
 import org.eclipse.jgit.ignore.IgnoreNode;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -148,9 +149,6 @@ class CaseInsensitiveIgnores {
   }
 
   private static String replaceUserHome(String path) {
-    if (path.startsWith("~/")) {
-      return System.getProperty("user.home") + path.substring(1);
-    }
-    return path;
+    return HopVfs.resolveHomeDirectory(path);
   }
 }

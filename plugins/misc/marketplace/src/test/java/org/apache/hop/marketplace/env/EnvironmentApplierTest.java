@@ -47,9 +47,9 @@ class EnvironmentApplierTest {
     Path hopHome = tempDir.resolve("hop");
     Files.createDirectories(hopHome.resolve("plugins"));
 
-    HopEnvironmentSpec env = new HopEnvironmentSpec();
+    HopInstallSpec env = new HopInstallSpec();
     env.setHopVersion("2.19.0");
-    HopEnvironmentSpec.PluginRef ref = new HopEnvironmentSpec.PluginRef();
+    HopInstallSpec.PluginRef ref = new HopInstallSpec.PluginRef();
     ref.setArtifactId("hop-tech-parquet");
     ref.setVersion("2.19.0");
     env.getPlugins().add(ref);
@@ -66,8 +66,8 @@ class EnvironmentApplierTest {
     Path hopHome = tempDir.resolve("hop");
     Files.createDirectories(hopHome.resolve("plugins/tech/parquet"));
 
-    HopEnvironmentSpec env = new HopEnvironmentSpec();
-    HopEnvironmentSpec.PluginRef ref = new HopEnvironmentSpec.PluginRef();
+    HopInstallSpec env = new HopInstallSpec();
+    HopInstallSpec.PluginRef ref = new HopInstallSpec.PluginRef();
     ref.setArtifactId("hop-tech-parquet");
     env.getPlugins().add(ref);
 
@@ -91,8 +91,8 @@ class EnvironmentApplierTest {
             hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-tech-parquet.json").toFile(),
             receipt);
 
-    HopEnvironmentSpec env = new HopEnvironmentSpec();
-    HopEnvironmentSpec.PluginRef ref = new HopEnvironmentSpec.PluginRef();
+    HopInstallSpec env = new HopInstallSpec();
+    HopInstallSpec.PluginRef ref = new HopInstallSpec.PluginRef();
     ref.setArtifactId("hop-tech-parquet");
     ref.setVersion("2.19.0");
     env.getPlugins().add(ref);

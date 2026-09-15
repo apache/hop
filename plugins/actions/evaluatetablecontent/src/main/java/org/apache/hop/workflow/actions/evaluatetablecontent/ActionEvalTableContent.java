@@ -196,7 +196,9 @@ public class ActionEvalTableContent extends ActionBase {
       return databaseMeta;
     }
     try {
-      databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
+      // Resolved, like every other action and transform that names a connection: a workflow may
+      // hand the name in as a parameter, which is how one test runs against two servers.
+      databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), resolve(connection));
       return databaseMeta;
     } catch (HopXmlException e) {
       return null;

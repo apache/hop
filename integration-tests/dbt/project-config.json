@@ -1,0 +1,11 @@
+{
+  "description" : "Integration test project for the dbt action plugin",
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "autoExportMetadataFilename" : "metadata.json",
+  "config" : {
+    "variables" : [ ]
+  }
+}

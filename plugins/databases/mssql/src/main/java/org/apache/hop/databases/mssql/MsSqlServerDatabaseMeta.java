@@ -18,6 +18,9 @@
 package org.apache.hop.databases.mssql;
 
 import java.sql.ResultSet;
+import java.sql.Types;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
@@ -25,6 +28,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -38,9 +44,119 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     type = "MSSQL",
     typeDescription = "MS SQL Server",
     image = "microsoft-sql.svg",
-    documentationUrl = "/database/databases/mssql.html")
+    documentationUrl = "/database/databases/mssql.html",
+    classLoaderGroup = "mssql-db")
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** SQL Server NVARCHAR(n) / NCHAR(n) stop at 4000 UTF-16 code units. */
+  private static final int MAX_NVARCHAR_LENGTH = 4000;
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // SQL Server spells a UUID UNIQUEIDENTIFIER, and grew a JSON type in 2025: a server
+          // older than that says so through its type list and the column becomes NVARCHAR. There
+          // is no address type at all, so an address falls back to text on its own.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UNIQUEIDENTIFIER")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .write(IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP)
+          .as(MsSqlServerDatabaseMeta::dateTimeColumnType)
+          .write(IValueMeta.TYPE_STRING)
+          .as(MsSqlServerDatabaseMeta::stringColumnType)
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
+
+  /**
+   * SQL Server date/time spelling. Preserve DATE/TIME/DATETIME2 when the original JDBC type is
+   * known; new Hop Date fields stay DATETIME, new Timestamp fields become DATETIME2.
+   */
+  static String dateTimeColumnType(IValueMeta valueMeta) {
+    // Hop type first: a DATE column the user converted to Timestamp must keep the time.
+    if (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+        || "datetime2".equalsIgnoreCase(valueMeta.getOriginalColumnTypeName())) {
+      return "DATETIME2";
+    }
+    int original = valueMeta.getOriginalColumnType();
+    if (original == Types.DATE) {
+      return "DATE";
+    }
+    if (original == Types.TIME) {
+      return "TIME";
+    }
+    return "DATETIME";
+  }
+
+  /**
+   * SQL Server string spelling. National-character source columns stay NVARCHAR/NCHAR; long strings
+   * use VARCHAR(MAX) rather than the deprecated TEXT type.
+   */
+  static String stringColumnType(IValueMeta valueMeta) {
+    int length = valueMeta.getLength();
+    if (isNationalString(valueMeta)) {
+      if (valueMeta.getOriginalColumnType() == Types.NCHAR
+          && length > 0
+          && length <= MAX_NVARCHAR_LENGTH) {
+        return "NCHAR(" + length + ")";
+      }
+      if (length > 0 && length <= MAX_NVARCHAR_LENGTH) {
+        return "NVARCHAR(" + length + ")";
+      }
+      if (length <= 0) {
+        return "NVARCHAR(100)";
+      }
+      return "NVARCHAR(MAX)";
+    }
+    if (length > 0 && length < 8000) {
+      return "VARCHAR(" + length + ")";
+    }
+    if (length <= 0) {
+      return "VARCHAR(100)";
+    }
+    return "VARCHAR(MAX)";
+  }
+
+  private static boolean isNationalString(IValueMeta valueMeta) {
+    int original = valueMeta.getOriginalColumnType();
+    if (original == Types.NCHAR
+        || original == Types.NVARCHAR
+        || original == Types.LONGNVARCHAR
+        || original == Types.NCLOB) {
+      return true;
+    }
+    String typeName = valueMeta.getOriginalColumnTypeName();
+    if (typeName == null) {
+      return false;
+    }
+    String upper = typeName.toUpperCase(Locale.ROOT);
+    return upper.startsWith("NCHAR") || upper.startsWith("NVARCHAR") || upper.startsWith("NTEXT");
+  }
+
+  /** SQL Server 2025, which is major version 17, is the first with a JSON type. */
+  private static final int FIRST_VERSION_WITH_JSON = 17;
+
+  @Override
+  public boolean isColumnTypeAvailable(String columnType) {
+    if ("JSON".equals(columnType)) {
+      return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+    }
+    return true;
+  }
+
+  /**
+   * SQL Server limits rows with TOP, between SELECT and the column list.
+   *
+   * <p>Inherited by the native dialect, which shares this syntax.
+   */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
@@ -232,7 +348,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -252,7 +368,8 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   /**
@@ -288,7 +405,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     int type = v.getType();
     switch (type) {
       case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
-        retval += "DATETIME";
+        retval += dateTimeColumnType(v);
         break;
       case IValueMeta.TYPE_BOOLEAN:
         if (isSupportsBooleanDataType()) {
@@ -328,16 +445,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
         }
         break;
       case IValueMeta.TYPE_STRING:
-        if (length < getMaxVARCHARLength()) {
-          // Maybe use some default DB String length in case length<=0
-          if (length > 0) {
-            retval += "VARCHAR(" + length + ")";
-          } else {
-            retval += "VARCHAR(100)";
-          }
-        } else {
-          retval += "TEXT"; // Up to 2bilion characters.
-        }
+        retval += stringColumnType(v);
         break;
       case IValueMeta.TYPE_BINARY:
         retval += "VARBINARY(MAX)";

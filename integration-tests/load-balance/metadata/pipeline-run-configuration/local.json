@@ -1,0 +1,25 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "feedback_size": "50000",
+      "sample_size": "100",
+      "sample_type_in_gui": "Last",
+      "wait_time": "20",
+      "rowset_size": "10000",
+      "safe_mode": false,
+      "show_feedback": false,
+      "topo_sort": false,
+      "gather_metrics": false,
+      "transactional": false,
+      "detect_buffer_deadlocks": true,
+      "mitigate_buffer_deadlocks": true,
+      "buffer_deadlock_spill_directory": ""
+    }
+  },
+  "defaultSelection": true,
+  "configurationVariables": [],
+  "name": "local",
+  "description": "Runs pipelines locally with the standard local Hop pipeline engine",
+  "dataProfile": "",
+  "executionInfoLocationName": ""
+}

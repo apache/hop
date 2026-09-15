@@ -55,7 +55,7 @@ classic merge join between data sets with data coming from two different input t
 compares and merges data within two rows of data, adding a field indicator for each row
 |You have two sets of data with the same layout. You want to compare both data sets and identify which lines in one set a new, identical, changed or deleted compared to the other data set.
 
-**example***: you receive a daily file that needs to be processed. Compare today's file with yesterday's file, so you can ignore the identical data and only process the changes.
+**example***: you receive a daily file that needs to be processed. Compare today's file with yesterday's file, so you can ignore the identical data and only process the changes. That pattern is snapshot xref:how-to-guides/cdc-snapshot-comparison.adoc[Change Data Capture].
 
 |xref:pipeline/transforms/multimerge.adoc[**Multiway merge join**]
 

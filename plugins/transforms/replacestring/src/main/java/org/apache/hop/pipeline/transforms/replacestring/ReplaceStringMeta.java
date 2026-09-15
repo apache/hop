@@ -61,16 +61,6 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
     this.fields = new ArrayList<>();
   }
 
-  public ReplaceStringMeta(ReplaceStringMeta m) {
-    this();
-    m.fields.forEach(f -> this.fields.add(new RSField(f)));
-  }
-
-  @Override
-  public ReplaceStringMeta clone() {
-    return new ReplaceStringMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

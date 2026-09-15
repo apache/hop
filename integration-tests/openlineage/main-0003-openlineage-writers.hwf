@@ -50,6 +50,22 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <name>Create warehouse tables</name>
+      <description>Seeds public.orders_source and (re)creates the four writer targets. The warehouse Postgres is shared with the other integration-test projects and is not torn down between them, so the tables are dropped and recreated here rather than seeded once on container init - another project may have left a table of the same name with different columns behind.</description>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DROP TABLE IF EXISTS public.orders_upsert&#10;;&#10;DROP TABLE IF EXISTS public.orders_combi&#10;;&#10;DROP TABLE IF EXISTS public.orders_dim&#10;;&#10;DROP TABLE IF EXISTS public.orders_bulk&#10;;&#10;DROP TABLE IF EXISTS public.orders_source&#10;;&#10;CREATE TABLE public.orders_source (id INTEGER, amount NUMERIC(10, 2))&#10;;&#10;INSERT INTO public.orders_source (id, amount) VALUES (1, 10.00), (2, 20.00), (3, 30.00)&#10;;&#10;CREATE TABLE public.orders_upsert (id INTEGER, amount NUMERIC(10, 2))&#10;;&#10;CREATE TABLE public.orders_combi (combi_tk INTEGER, id INTEGER, amount NUMERIC(10, 2))&#10;;&#10;CREATE TABLE public.orders_dim (dim_tk INTEGER, version INTEGER, date_from TIMESTAMP, date_to TIMESTAMP, id INTEGER, amount NUMERIC(10, 2))&#10;;&#10;CREATE TABLE public.orders_bulk (id INTEGER, amount NUMERIC(10, 2))&#10;;&#10;</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>warehouse</connection>
+      <parallel>N</parallel>
+      <xloc>128</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>0007-openlineage-insertupdate.hpl</name>
       <description/>
       <type>PIPELINE</type>
@@ -309,10 +325,17 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0007-openlineage-insertupdate.hpl</to>
+      <to>Create warehouse tables</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Create warehouse tables</from>
+      <to>0007-openlineage-insertupdate.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>0007-openlineage-insertupdate.hpl</from>

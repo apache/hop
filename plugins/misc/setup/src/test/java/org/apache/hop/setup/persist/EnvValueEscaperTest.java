@@ -39,9 +39,27 @@ class EnvValueEscaperTest {
   }
 
   @Test
-  void cmdRejectsMetacharacters() {
-    assertThrows(HopSetupException.class, () -> EnvValueEscaper.cmdQuoted("V", "a%PATH%"));
-    assertThrows(HopSetupException.class, () -> EnvValueEscaper.cmdQuoted("V", "a&b"));
+  void cmdQuotesValueAndEscapesPercent() throws Exception {
+    assertEquals(
+        "set \"V=C:\\Users\\alice\\.hop\\config\"",
+        EnvValueEscaper.cmdAssignment("V", "C:\\Users\\alice\\.hop\\config"));
+    assertEquals("set \"V=a%%PATH%%\"", EnvValueEscaper.cmdAssignment("V", "a%PATH%"));
+    assertEquals("set \"V=a&b\"", EnvValueEscaper.cmdAssignment("V", "a&b"));
+  }
+
+  @Test
+  void cmdWritesValuesContainingDoubleQuotesUnquoted() throws Exception {
+    assertEquals(
+        "set V=-Xmx2048m -DHOP_SHARED_JDBC_FOLDERS=\"C:\\java\\hop\\jdbc-shared\"",
+        EnvValueEscaper.cmdAssignment(
+            "V", "-Xmx2048m -DHOP_SHARED_JDBC_FOLDERS=\"C:\\java\\hop\\jdbc-shared\""));
+  }
+
+  @Test
+  void cmdRejectsUnsafeValues() {
+    assertThrows(HopSetupException.class, () -> EnvValueEscaper.cmdAssignment("V", "a!b"));
+    assertThrows(HopSetupException.class, () -> EnvValueEscaper.cmdAssignment("V", "a\nb"));
+    assertThrows(HopSetupException.class, () -> EnvValueEscaper.cmdAssignment("V", "\"a b\"&c"));
   }
 
   @Test

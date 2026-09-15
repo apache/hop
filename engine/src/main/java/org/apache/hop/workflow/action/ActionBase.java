@@ -59,6 +59,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.util.HopMetadataCopyUtil;
 import org.apache.hop.resource.IResourceHolder;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -75,6 +76,7 @@ import org.w3c.dom.Node;
  */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-action")
 public abstract class ActionBase
     implements IAction,
         Cloneable,
@@ -86,7 +88,8 @@ public abstract class ActionBase
         IDialogEditable {
 
   /** The name of the action */
-  @HopMetadataProperty private String name;
+  @HopMetadataProperty(namingSchemeType = "hop-action")
+  private String name;
 
   /** The description of the action */
   @HopMetadataProperty private String description;
@@ -421,6 +424,13 @@ public abstract class ActionBase
     } catch (CloneNotSupportedException cnse) {
       return null;
     }
+
+    // Object.clone() is shallow, so every list, map and nested value object is still shared with
+    // the original. Deep-copy the state that gets persisted so the copy can be used as an
+    // independent snapshot, for change detection and for undo. Fixes issue #8022.
+    //
+    HopMetadataCopyUtil.copyMetadataProperties(this, je);
+
     return je;
   }
 
@@ -774,6 +784,7 @@ public abstract class ActionBase
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
+    this.variables.setParentVariables(parentWorkflow);
     this.logLevel = parentWorkflow.getLogLevel();
     this.log = new LogChannel(this, parentWorkflow);
     this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());

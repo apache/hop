@@ -18,30 +18,15 @@ under the License.
 :language: en_US
 :description: The JavaScript transform allows you to create JavaScript scripts that use the available pipeline fields as variables.
 :imagesdir: ../../../assets/images
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/javascript.svg[JavaScript transform Icon, role="image-doc-icon"] JavaScript
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The JavaScript transform provides a user interface for building JavaScript expressions that you can use to modify your data. The code you type in the script area is executed once for each input row.
 
 TIP: Variables won’t be usable or testable until you create fields. Click the “Get variables” button to convert script variables into fields.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Usage
 
@@ -247,6 +232,47 @@ else
 Fields must be added to the rows in the same order to keep the structure of the row coherent.
 
 To add a field, define it as var in the Javascript pane, and add it as a field in the Fields table.
+
+=== [[stream-fields]]Stream fields are Java objects
+
+Fields coming from the input stream are not plain JavaScript primitives: the transform hands them to the Rhino engine as *wrapped Java objects* (`java.lang.Boolean`, `java.lang.Long`, `java.lang.String`, and so on). Variables you declare yourself with `var` inside the script are plain JavaScript values instead. That difference explains a number of surprising results, and `typeof` makes it visible:
+
+[source, javascript]
+----
+var myBoolean = false;
+
+typeof(myBoolean);      // "boolean" - declared in the script
+typeof(booleanField);   // "object"  - coming from the stream
+----
+
+Two consequences are worth knowing about.
+
+*A Boolean field is always truthy.* Rhino treats any wrapped object as `true`, so an `if` on a Boolean field never takes the else branch, even when the field is `false`. Comparing explicitly with `true` does work, because the equality operator unwraps the object:
+
+[source, javascript]
+----
+if (booleanField)             { ... }   // ALWAYS true, even when the field is false
+if (booleanField == true)     { ... }   // correct
+if (booleanField.valueOf())   { ... }   // correct
+----
+
+*Comparing two fields with `==` or `!=` compares object identity, not values.* Two Integer fields holding the same number are still two distinct Java objects, so `!=` reports them as different. Force a conversion to a JavaScript value first:
+
+[source, javascript]
+----
+if (intFieldA != intFieldB)                       { ... }   // WRONG: compares references
+if (intFieldA.valueOf() != intFieldB.valueOf())   { ... }   // correct
+if (parseInt(intFieldA) != parseInt(intFieldB))   { ... }   // correct
+----
+
+As a rule of thumb, call `.valueOf()` (or `parseInt()`, `parseFloat()`, `String()`) on a stream field whenever you use it in a comparison or in a boolean test.
+
+A field that is null in the stream is put in the script scope as `null`. Testing it with `fieldName == null` is safe, but calling any method on it - including `.valueOf()` - fails, so check for null first:
+
+[source, javascript]
+----
+var flag = (booleanField != null) && booleanField.valueOf();
+----
 
 === [[numeric-values]]Numeric values
 

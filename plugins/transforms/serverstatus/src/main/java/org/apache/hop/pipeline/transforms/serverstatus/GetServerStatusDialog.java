@@ -57,7 +57,9 @@ public class GetServerStatusDialog extends BaseTransformDialog {
   private Text wOsVersion;
   private Text wOsArchitecture;
   private Text wActivePipelines;
+  private Text wFinishedPipelines;
   private Text wActiveWorkflows;
+  private Text wFinishedWorkflows;
   private Text wAvailable;
   private Text wResponseNs;
 
@@ -298,6 +300,24 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wActivePipelines.setLayoutData(fdActivePipelines);
     lastControl = wActivePipelines;
 
+    Label wlFinishedPipelines = new Label(wContent, SWT.RIGHT);
+    wlFinishedPipelines.setText(
+        BaseMessages.getString(PKG, "GetServerStatusDialog.FinishedPipelines"));
+    PropsUi.setLook(wlFinishedPipelines);
+    FormData fdlFinishedPipelines = new FormData();
+    fdlFinishedPipelines.left = new FormAttachment(0, 0);
+    fdlFinishedPipelines.top = new FormAttachment(lastControl, margin);
+    fdlFinishedPipelines.right = new FormAttachment(middle, -margin);
+    wlFinishedPipelines.setLayoutData(fdlFinishedPipelines);
+    wFinishedPipelines = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wFinishedPipelines);
+    FormData fdFinishedPipelines = new FormData();
+    fdFinishedPipelines.left = new FormAttachment(middle, 0);
+    fdFinishedPipelines.top = new FormAttachment(wlFinishedPipelines, 0, SWT.CENTER);
+    fdFinishedPipelines.right = new FormAttachment(100, 0);
+    wFinishedPipelines.setLayoutData(fdFinishedPipelines);
+    lastControl = wFinishedPipelines;
+
     Label wlActiveWorkflows = new Label(wContent, SWT.RIGHT);
     wlActiveWorkflows.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ActiveWorkflows"));
     PropsUi.setLook(wlActiveWorkflows);
@@ -314,6 +334,24 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdActiveWorkflows.right = new FormAttachment(100, 0);
     wActiveWorkflows.setLayoutData(fdActiveWorkflows);
     lastControl = wActiveWorkflows;
+
+    Label wlFinishedWorkflows = new Label(wContent, SWT.RIGHT);
+    wlFinishedWorkflows.setText(
+        BaseMessages.getString(PKG, "GetServerStatusDialog.FinishedWorkflows"));
+    PropsUi.setLook(wlFinishedWorkflows);
+    FormData fdlFinishedWorkflows = new FormData();
+    fdlFinishedWorkflows.left = new FormAttachment(0, 0);
+    fdlFinishedWorkflows.top = new FormAttachment(lastControl, margin);
+    fdlFinishedWorkflows.right = new FormAttachment(middle, -margin);
+    wlFinishedWorkflows.setLayoutData(fdlFinishedWorkflows);
+    wFinishedWorkflows = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wFinishedWorkflows);
+    FormData fdFinishedWorkflows = new FormData();
+    fdFinishedWorkflows.left = new FormAttachment(middle, 0);
+    fdFinishedWorkflows.top = new FormAttachment(wlFinishedWorkflows, 0, SWT.CENTER);
+    fdFinishedWorkflows.right = new FormAttachment(100, 0);
+    wFinishedWorkflows.setLayoutData(fdFinishedWorkflows);
+    lastControl = wFinishedWorkflows;
 
     Label wlAvailable = new Label(wContent, SWT.RIGHT);
     wlAvailable.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.Available"));
@@ -387,7 +425,9 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wOsVersion.setText(Const.NVL(input.getOsVersionField(), ""));
     wOsArchitecture.setText(Const.NVL(input.getOsArchitectureField(), ""));
     wActivePipelines.setText(Const.NVL(input.getActivePipelinesField(), ""));
+    wFinishedPipelines.setText(Const.NVL(input.getFinishedPipelinesField(), ""));
     wActiveWorkflows.setText(Const.NVL(input.getActiveWorkflowsField(), ""));
+    wFinishedWorkflows.setText(Const.NVL(input.getFinishedWorkflowsField(), ""));
     wAvailable.setText(Const.NVL(input.getAvailableField(), ""));
     wResponseNs.setText(Const.NVL(input.getResponseNsField(), ""));
   }
@@ -421,7 +461,9 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     in.setOsVersionField(wOsVersion.getText());
     in.setOsArchitectureField(wOsArchitecture.getText());
     in.setActivePipelinesField(wActivePipelines.getText());
+    in.setFinishedPipelinesField(wFinishedPipelines.getText());
     in.setActiveWorkflowsField(wActiveWorkflows.getText());
+    in.setFinishedWorkflowsField(wFinishedWorkflows.getText());
     in.setAvailableField(wAvailable.getText());
     in.setResponseNsField(wResponseNs.getText());
 

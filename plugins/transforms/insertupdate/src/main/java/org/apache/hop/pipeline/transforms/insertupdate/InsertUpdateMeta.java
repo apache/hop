@@ -128,13 +128,6 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
     this.commitSize = commitSize;
   }
 
-  @Override
-  public Object clone() {
-    InsertUpdateMeta retval = (InsertUpdateMeta) super.clone();
-
-    return retval;
-  }
-
   /**
    * Returns the table name.
    *

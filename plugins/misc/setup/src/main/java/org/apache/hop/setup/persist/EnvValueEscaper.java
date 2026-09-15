@@ -29,22 +29,40 @@ public final class EnvValueEscaper {
     return "'" + value + "'";
   }
 
-  public static String cmdQuoted(String name, String value) throws HopSetupException {
+  /**
+   * Renders a {@code set} statement assigning the value in a cmd script. Values without a double
+   * quote are wrapped in quotes, which already neutralises {@code & | < > ^}. A value carrying its
+   * own quotes cannot be wrapped, so the unquoted form is used and cmd metacharacters are rejected.
+   */
+  public static String cmdAssignment(String name, String value) throws HopSetupException {
     rejectNewlines(name, value);
-    if (value.indexOf('"') >= 0
-        || value.indexOf('%') >= 0
-        || value.indexOf('!') >= 0
-        || value.indexOf('&') >= 0
-        || value.indexOf('|') >= 0
-        || value.indexOf('<') >= 0
-        || value.indexOf('>') >= 0
-        || value.indexOf('^') >= 0) {
+    if (value.indexOf('!') >= 0) {
       throw new HopSetupException(
           "Value for "
               + name
-              + " contains characters that cannot be written safely to a Windows cmd script");
+              + " must not contain '!': launchers run with delayed expansion enabled");
     }
-    return "\"" + value + "\"";
+    String escaped = value.replace("%", "%%");
+    if (escaped.indexOf('"') < 0) {
+      return "set \"" + name + "=" + escaped + "\"";
+    }
+    if (containsAny(escaped, "&|<>^")) {
+      throw new HopSetupException(
+          "Value for "
+              + name
+              + " combines double quotes with characters that cannot be written safely to a"
+              + " Windows cmd script");
+    }
+    return "set " + name + "=" + escaped;
+  }
+
+  private static boolean containsAny(String value, String characters) {
+    for (int i = 0; i < characters.length(); i++) {
+      if (value.indexOf(characters.charAt(i)) >= 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static String powershellSingleQuoted(String name, String value) throws HopSetupException {

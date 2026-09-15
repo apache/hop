@@ -1,0 +1,12 @@
+{
+  "name": "webhdfs",
+  "description": "WebHDFS on the integration-test NameNode (DataNodes are on the same compose network)",
+  "transport": "WebHDFS",
+  "endpointHostname": "${HDFS_ENDPOINT_HOSTNAME}",
+  "endpointPort": "${HDFS_ENDPOINT_PORT}",
+  "https": false,
+  "basePath": "/webhdfs/v1",
+  "simpleUser": "hop",
+  "kerberosEnabled": false,
+  "hostnameVerification": true
+}

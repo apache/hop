@@ -19,9 +19,16 @@ package org.apache.hop.databases.mssqlnative;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.sql.Types;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypeMapper;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
+import org.apache.hop.junit.database.TypeRuleFixture;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -29,6 +36,23 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 class MsSqlServerNativeDatabaseMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @Test
+  void nvarcharRoundTripUsesTheInheritedWriteRules() throws Exception {
+    HopClientEnvironment.init();
+    MsSqlServerNativeDatabaseMeta nativeMeta = new MsSqlServerNativeDatabaseMeta();
+    IValueMeta valueMeta =
+        DatabaseTypeMapper.getValueMeta(
+            new Variables(),
+            TypeRuleFixture.meta(nativeMeta),
+            TypeRuleFixture.column(Types.NVARCHAR, "nvarchar", 20, 20),
+            false,
+            false);
+    assertEquals(
+        "NVARCHAR(20)",
+        nativeMeta.getColumnDefinition(
+            valueMeta, null, null, false, false, false, ColumnContext.Purpose.CREATE));
+  }
 
   @Test
   void testMsSqlOverrides() {

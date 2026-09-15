@@ -52,15 +52,19 @@ public class FilesFromResultMeta extends BaseTransformMeta<FilesFromResult, File
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+  public boolean consumesMainInput() {
+    return false;
   }
 
   @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   private void readData(Node transformNode) {

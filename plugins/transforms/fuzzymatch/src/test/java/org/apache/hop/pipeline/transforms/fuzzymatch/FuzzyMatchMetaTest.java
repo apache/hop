@@ -93,7 +93,7 @@ class FuzzyMatchMetaTest {
     meta.setLookupField("lookup");
     meta.setLookupValues(List.of(new FuzzyMatchMeta.FMLookupValue("id", "rid")));
 
-    FuzzyMatchMeta copy = meta.clone();
+    FuzzyMatchMeta copy = (FuzzyMatchMeta) meta.clone();
 
     assertNotSame(meta, copy);
     assertEquals(FuzzyMatchMeta.MatchMode.ALL_ROWS, copy.getMatchMode());

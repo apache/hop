@@ -24,20 +24,84 @@
         window.hop = {};
     }
 
+    /**
+     * RAP does not put widget ids on DOM elements unless enableUITests is on, so
+     * document.getElementById(canvasId) is usually null. Do not guess by size: that
+     * binds wheel zoom to a dialog canvas or to nothing when the graph is small.
+     */
+    function getWidgetDomElement(widgetId) {
+        if (!widgetId) {
+            return null;
+        }
+        try {
+            if (typeof rap !== "undefined" && typeof rap.getObject === "function") {
+                var proxy = rap.getObject(widgetId);
+                if (proxy && proxy.$el) {
+                    var queried = proxy.$el.get ? proxy.$el.get(0) : (proxy.$el[0] || proxy.$el);
+                    if (queried && queried.tagName) {
+                        return queried;
+                    }
+                }
+            }
+            if (typeof rwt !== "undefined" && rwt.remote && rwt.remote.ObjectRegistry) {
+                var nativeWidget = rwt.remote.ObjectRegistry.getObject(widgetId);
+                if (nativeWidget) {
+                    if (typeof nativeWidget.getElement === "function") {
+                        var element = nativeWidget.getElement();
+                        if (element) {
+                            return element;
+                        }
+                    }
+                    if (typeof nativeWidget._getTargetNode === "function") {
+                        var target = nativeWidget._getTargetNode();
+                        if (target) {
+                            return target;
+                        }
+                    }
+                    if (nativeWidget._element) {
+                        return nativeWidget._element;
+                    }
+                }
+            }
+        } catch (ignored) {
+            // RAP has not registered this widget on the client yet.
+        }
+        return document.getElementById(widgetId);
+    }
+
+    function findCanvasForWidget(canvasId) {
+        var widgetElement = getWidgetDomElement(canvasId);
+        if (!widgetElement) {
+            return null;
+        }
+        if (widgetElement.tagName === "CANVAS") {
+            return widgetElement;
+        }
+        return widgetElement.querySelector("canvas");
+    }
+
     // Define the CanvasZoom constructor BEFORE registering the type handler
     hop.CanvasZoom = function(properties) {
+        properties = properties || {};
         this._canvas = null;
-        this._canvasId = properties.canvas; // This is the Canvas widget ID (Composite), not the actual canvas element
+        this._canvasId = properties.canvas; // RAP Canvas widget id, not the HTML <canvas>
         this._remoteObject = null;
         this._wheelHandler = null;
         this._sizeCheckInterval = null;
-        
+        this._findTimer = null;
+        this._destroyed = false;
+
         // DON'T attach in constructor - wait for explicit attachListener call from Java
         // This ensures the canvas is fully created and the remote object is ready
     };
 
     hop.CanvasZoom.prototype = {
         destroy: function() {
+            this._destroyed = true;
+            if (this._findTimer) {
+                clearTimeout(this._findTimer);
+                this._findTimer = null;
+            }
             if (this._canvas && this._wheelHandler) {
                 this._canvas.removeEventListener('wheel', this._wheelHandler);
             }
@@ -90,46 +154,27 @@
         _findAndAttachCanvas: function() {
             var self = this;
             var attempts = 0;
-            var maxAttempts = 20;
+            if (this._findTimer) {
+                clearTimeout(this._findTimer);
+                this._findTimer = null;
+            }
 
-            var findCanvasElement = function() {
-                // Prefer the RAP widget id from Java (same approach as canvas-svg.js).
-                if (self._canvasId) {
-                    var widgetElement = document.getElementById(self._canvasId);
-                    if (widgetElement) {
-                        if (widgetElement.tagName === "CANVAS") {
-                            return widgetElement;
-                        }
-                        var nested = widgetElement.querySelector("canvas");
-                        if (nested) {
-                            return nested;
-                        }
-                    }
-                }
-                // Fallback: first large visible graph canvas
-                var allCanvases = document.querySelectorAll("canvas");
-                for (var i = 0; i < allCanvases.length; i++) {
-                    var c = allCanvases[i];
-                    var rect = c.getBoundingClientRect();
-                    if (rect.width > 500 && rect.height > 500 && c.offsetParent !== null) {
-                        return c;
-                    }
-                }
-                return null;
-            };
-            
             var tryFindCanvas = function() {
-                attempts++;
-                var canvas = findCanvasElement();
-                
-                if (!canvas) {
-                    if (attempts < maxAttempts) {
-                        setTimeout(tryFindCanvas, 100);
-                        return;
-                    } else {
-                        return;
-                    }
+                if (self._destroyed) {
+                    return;
                 }
+                var canvas = findCanvasForWidget(self._canvasId);
+
+                if (!canvas) {
+                    attempts++;
+                    var widgetPresent = !!getWidgetDomElement(self._canvasId);
+                    var maxAttempts = widgetPresent ? 300 : 100;
+                    if (self._canvasId && attempts < maxAttempts) {
+                        self._findTimer = setTimeout(tryFindCanvas, 100);
+                    }
+                    return;
+                }
+                self._findTimer = null;
                 
                 // Same canvas element: still re-ensure the wheel listener (RAP may replace nodes).
                 if (self._canvas === canvas && self._wheelHandler) {
@@ -152,6 +197,11 @@
                 // This catches transforms applied by RAP at any time, including initial load at low zoom
                 if (!self._sizeCheckInterval) {
                     self._sizeCheckInterval = setInterval(function() {
+                        if (self._canvas && !self._canvas.parentNode) {
+                            self._canvas = null;
+                            self._findAndAttachCanvas();
+                            return;
+                        }
                         self._applyCanvasSizeFix();
                     }, 200); // Check every 200ms
                 }

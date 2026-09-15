@@ -36,12 +36,4 @@ public class DatabaseJoinData extends BaseTransformData implements ITransformDat
   public int[] keynrs; // parameter value index in an input row...
   public Object[] notfound; // Values in case nothing is found...
   public boolean isCanceled;
-
-  public DatabaseJoinData() {
-    super();
-
-    db = null;
-    notfound = null;
-    cache = null;
-  }
 }

@@ -17,9 +17,8 @@
 
 package org.apache.hop.testing.xp;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -31,7 +30,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
@@ -39,7 +37,6 @@ import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
@@ -65,119 +62,104 @@ public class LocationMouseDoubleClickExtensionPoint
       return;
     }
 
+    // This is called for every mouse down on the canvas so figure out first whether one of the
+    // unit test markers was clicked on.  Only then do any real work: loading the data sets and
+    // determining transform fields is far too expensive to do on every click (issue #8203).
+    //
+    MouseEvent e = pipelineGraphExtension.getEvent();
+    if (e.button != 1 && e.button != 2) {
+      return;
+    }
+    Point point = pipelineGraphExtension.getPoint();
+    AreaOwner areaOwner = pipelineGraph.getVisibleAreaOwner(point.x, point.y);
+    if (areaOwner == null || areaOwner.getAreaType() == null) {
+      return;
+    }
+    Object area = areaOwner.getParent();
+    boolean inputDataSet = DataSetConst.AREA_DRAWN_INPUT_DATA_SET.equals(area);
+    boolean goldenDataSet = DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET.equals(area);
+    boolean goldenDataResult = DataSetConst.AREA_DRAWN_GOLDEN_DATA_RESULT.equals(area);
+    if (!inputDataSet && !goldenDataSet && !goldenDataResult) {
+      return;
+    }
+
     HopGui hopGui = HopGui.getInstance();
     try {
+      String transformName = (String) areaOwner.getOwner();
+
+      if (goldenDataResult) {
+        pipelineGraphExtension.setPreventingDefault(true);
+        showGoldenDataResult(pipelineGraph, hopGui, unitTest, transformName);
+        return;
+      }
+
+      pipelineGraphExtension.setPreventingDefault(true);
+
+      PipelineUnitTestSetLocation location =
+          inputDataSet
+              ? unitTest.findInputLocation(transformName)
+              : unitTest.findGoldenLocation(transformName);
+      if (location == null) {
+        return;
+      }
+
       List<DataSet> dataSets = hopGui.getMetadataProvider().getSerializer(DataSet.class).loadAll();
 
-      Map<String, IRowMeta> transformFieldsMap = new HashMap<>();
-      for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
-        try {
-          IRowMeta transformFields =
-              pipelineMeta.getTransformFields(pipelineGraph.getVariables(), transformMeta);
-          transformFieldsMap.put(transformMeta.getName(), transformFields);
-        } catch (Exception e) {
-          // Ignore GUI errors...
-        }
+      PipelineUnitTestSetLocationDialog dialog =
+          new PipelineUnitTestSetLocationDialog(
+              hopGui.getActiveShell(),
+              variables,
+              hopGui.getMetadataProvider(),
+              location,
+              dataSets,
+              pipelineMeta.getTransformNames(),
+              transformFieldsResolver(pipelineGraph, pipelineMeta));
+      if (dialog.open()) {
+        hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
+        pipelineGraph.updateGui();
       }
-
-      // Find the location that was double-clicked on...
-      //
-      MouseEvent e = pipelineGraphExtension.getEvent();
-      Point point = pipelineGraphExtension.getPoint();
-
-      if (e.button == 1 || e.button == 2) {
-        AreaOwner areaOwner = pipelineGraph.getVisibleAreaOwner(point.x, point.y);
-        if (areaOwner != null && areaOwner.getAreaType() != null) {
-          // Check if this is the flask...
-          //
-          if (DataSetConst.AREA_DRAWN_INPUT_DATA_SET.equals(areaOwner.getParent())) {
-            pipelineGraphExtension.setPreventingDefault(true);
-
-            // Open the dataset double-clicked on...
-            //
-            String transformName = (String) areaOwner.getOwner();
-
-            PipelineUnitTestSetLocation inputLocation = unitTest.findInputLocation(transformName);
-            if (inputLocation != null) {
-              pipelineGraphExtension.setPreventingDefault(true);
-              PipelineUnitTestSetLocationDialog dialog =
-                  new PipelineUnitTestSetLocationDialog(
-                      hopGui.getActiveShell(),
-                      variables,
-                      hopGui.getMetadataProvider(),
-                      inputLocation,
-                      dataSets,
-                      transformFieldsMap);
-              if (dialog.open()) {
-                hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
-                pipelineGraph.updateGui();
-              }
-            }
-          } else if (DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET.equals(areaOwner.getParent())) {
-            pipelineGraphExtension.setPreventingDefault(true);
-
-            // Open the dataset double-clicked on...
-            //
-            String transformName = (String) areaOwner.getOwner();
-
-            PipelineUnitTestSetLocation goldenLocation = unitTest.findGoldenLocation(transformName);
-            if (goldenLocation != null) {
-              pipelineGraphExtension.setPreventingDefault(true);
-              PipelineUnitTestSetLocationDialog dialog =
-                  new PipelineUnitTestSetLocationDialog(
-                      hopGui.getActiveShell(),
-                      variables,
-                      hopGui.getMetadataProvider(),
-                      goldenLocation,
-                      dataSets,
-                      transformFieldsMap);
-              if (dialog.open()) {
-                // Save the unit test
-                hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class).save(unitTest);
-                pipelineGraph.updateGui();
-              }
-            }
-          } else if (DataSetConst.AREA_DRAWN_GOLDEN_DATA_RESULT.equals(areaOwner.getParent())) {
-            pipelineGraphExtension.setPreventingDefault(true);
-
-            // Open the dataset double-clicked on...
-            //
-            String transformName = (String) areaOwner.getOwner();
-
-            PipelineUnitTestSetLocation goldenLocation = unitTest.findGoldenLocation(transformName);
-            if (goldenLocation != null) {
-
-              // Find the errors list of the unit test...
-              //
-              IPipelineEngine<PipelineMeta> pipeline = pipelineGraph.getPipeline();
-              if (pipeline == null) {
-                return;
-              }
-
-              List<UnitTestResult> results =
-                  (List<UnitTestResult>)
-                      pipeline.getExtensionDataMap().get(DataSetConst.UNIT_TEST_RESULTS);
-              if (Utils.isEmpty(results)) {
-                return;
-              }
-
-              pipelineGraphExtension.setPreventingDefault(true);
-              ValidatePipelineUnitTestExtensionPoint.showUnitTestErrors(pipeline, results, hopGui);
-            }
-          }
-        }
-      }
-    } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing location", e);
+    } catch (Exception e2) {
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing location", e2);
     }
   }
 
-  private void openDataSet(String dataSetName) {
-    HopGui hopGui = HopGui.getInstance();
+  /**
+   * Resolve the output fields of a single transform for the dataset location dialog. The dialog
+   * only asks for the transform it's mapping fields for, which keeps a slow transform (a Table
+   * input needing a database connection for example) from blocking the whole dialog.
+   */
+  private Function<String, IRowMeta> transformFieldsResolver(
+      HopGuiPipelineGraph pipelineGraph, PipelineMeta pipelineMeta) {
+    return transformName -> {
+      try {
+        return pipelineMeta.getTransformFields(pipelineGraph.getVariables(), transformName);
+      } catch (Exception e) {
+        // Ignore GUI errors: the dialog reports unknown fields to the user.
+        //
+        return null;
+      }
+    };
+  }
 
-    MetadataManager<DataSet> manager =
-        new MetadataManager<>(
-            hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class, hopGui.getShell());
-    manager.editMetadata(dataSetName);
+  private void showGoldenDataResult(
+      HopGuiPipelineGraph pipelineGraph, HopGui hopGui, PipelineUnitTest unitTest, String name) {
+    if (unitTest.findGoldenLocation(name) == null) {
+      return;
+    }
+
+    // Find the errors list of the unit test...
+    //
+    IPipelineEngine<PipelineMeta> pipeline = pipelineGraph.getPipeline();
+    if (pipeline == null) {
+      return;
+    }
+
+    List<UnitTestResult> results =
+        (List<UnitTestResult>) pipeline.getExtensionDataMap().get(DataSetConst.UNIT_TEST_RESULTS);
+    if (Utils.isEmpty(results)) {
+      return;
+    }
+
+    ValidatePipelineUnitTestExtensionPoint.showUnitTestErrors(pipeline, results, hopGui);
   }
 }

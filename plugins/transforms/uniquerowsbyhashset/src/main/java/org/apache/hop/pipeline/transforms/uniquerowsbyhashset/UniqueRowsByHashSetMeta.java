@@ -108,19 +108,6 @@ public class UniqueRowsByHashSetMeta
     storeValues = true;
   }
 
-  public UniqueRowsByHashSetMeta(UniqueRowsByHashSetMeta m) {
-    this();
-    this.storeValues = m.storeValues;
-    this.rejectDuplicateRow = m.rejectDuplicateRow;
-    this.errorDescription = m.errorDescription;
-    m.compareFields.forEach(f -> this.compareFields.add(new CompareField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new UniqueRowsByHashSetMeta(this);
-  }
-
   @Override
   public void check(
       List<ICheckResult> remarks,

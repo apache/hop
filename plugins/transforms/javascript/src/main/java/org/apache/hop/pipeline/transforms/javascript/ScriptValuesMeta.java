@@ -163,24 +163,6 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     jsScripts.add(script);
   }
 
-  public ScriptValuesMeta(ScriptValuesMeta m) {
-    // Deliberately not calling this(): the no-arg constructor seeds a default "Script 1" for new
-    // transforms, and copying on top of that would add one more phantom script on every clone.
-    //
-    super();
-    jsScripts = new ArrayList<>();
-    scriptFields = new ArrayList<>();
-    this.optimizationLevel = m.optimizationLevel;
-    this.languageVersion = m.languageVersion;
-    m.jsScripts.forEach(s -> this.jsScripts.add(new ScriptValuesScript(s)));
-    m.scriptFields.forEach(f -> scriptFields.add(new ScriptField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new ScriptValuesMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

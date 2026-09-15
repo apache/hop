@@ -27,6 +27,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 /**
@@ -62,13 +63,26 @@ public final class MarketplaceHttp {
       MarketplaceRepository repository,
       HttpResponse.BodyHandler<T> handler)
       throws IOException, InterruptedException {
+    return send(client, url, null, null, timeout, repository, handler);
+  }
 
-    HttpResponse<T> response = send(client, url, timeout, repository, handler, true);
+  private static <T> HttpResponse<T> send(
+      HttpClient client,
+      String url,
+      String body,
+      String contentType,
+      Duration timeout,
+      MarketplaceRepository repository,
+      HttpResponse.BodyHandler<T> handler)
+      throws IOException, InterruptedException {
+
+    HttpResponse<T> response =
+        send(client, url, body, contentType, timeout, repository, handler, true);
     if (isAuthFailure(response.statusCode())
         && repository != null
         && repository.credentialsFromEnvironmentOnly()) {
       close(response.body());
-      response = send(client, url, timeout, repository, handler, false);
+      response = send(client, url, body, contentType, timeout, repository, handler, false);
     }
     return response;
   }
@@ -76,12 +90,22 @@ public final class MarketplaceHttp {
   private static <T> HttpResponse<T> send(
       HttpClient client,
       String url,
+      String body,
+      String contentType,
       Duration timeout,
       MarketplaceRepository repository,
       HttpResponse.BodyHandler<T> handler,
       boolean withCredentials)
       throws IOException, InterruptedException {
-    HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url)).timeout(timeout).GET();
+    HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url)).timeout(timeout);
+    if (body == null) {
+      builder.GET();
+    } else {
+      builder.POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8));
+      if (contentType != null) {
+        builder.header("Content-Type", contentType);
+      }
+    }
     if (withCredentials) {
       applyAuth(builder, repository);
     }
@@ -92,11 +116,40 @@ public final class MarketplaceHttp {
   public static String getText(
       HttpClient client, String url, MarketplaceRepository repository, String label)
       throws HopException {
+    return text(client, url, null, null, repository, label);
+  }
+
+  /**
+   * Authenticated POST returning the body as text. JFrog's AQL search is the one marketplace call
+   * that is a POST; its credential handling and anonymous retry have to be identical to the GET
+   * path, which is why it lives here rather than in the browser.
+   */
+  public static String postText(
+      HttpClient client,
+      String url,
+      String body,
+      String contentType,
+      MarketplaceRepository repository,
+      String label)
+      throws HopException {
+    return text(client, url, body, contentType, repository, label);
+  }
+
+  private static String text(
+      HttpClient client,
+      String url,
+      String body,
+      String contentType,
+      MarketplaceRepository repository,
+      String label)
+      throws HopException {
     try {
       HttpResponse<String> response =
           send(
               client,
               url,
+              body,
+              contentType,
               Duration.ofSeconds(60),
               repository,
               HttpResponse.BodyHandlers.ofString());
@@ -121,11 +174,20 @@ public final class MarketplaceHttp {
   }
 
   /**
-   * HTTP Basic when credentials are configured. Forgejo accepts Basic on both the Maven endpoint
-   * and the JSON API, with the access token supplied as the password.
+   * Apply the repository's {@link MarketplaceRepository#effectiveAuthType() authentication type}.
+   * Nothing is sent when the type is {@code none}, when it is unrecognised, or when the credentials
+   * it needs do not resolve — {@link #authHint} explains which of those happened if the server then
+   * answers 401.
+   *
+   * <p>Basic suits Nexus and Forgejo, which both accept an access token as the password. Bearer
+   * suits JFrog Artifactory access tokens, which carry no username.
    */
   public static void applyAuth(HttpRequest.Builder builder, MarketplaceRepository repository) {
     if (repository == null || !repository.hasCredentials()) {
+      return;
+    }
+    if (MarketplaceRepository.AUTH_TOKEN.equals(repository.effectiveAuthType())) {
+      builder.header("Authorization", "Bearer " + repository.effectiveToken());
       return;
     }
     String credentials = repository.effectiveUsername() + ":" + repository.effectivePassword();
@@ -144,11 +206,21 @@ public final class MarketplaceHttp {
     if (!isAuthFailure(status)) {
       return "";
     }
-    if (repository == null || !repository.hasCredentials()) {
-      return ". No credentials were sent; set HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD"
-          + " if this repository is private.";
+    if (repository == null) {
+      return ". No credentials were sent. Enable anonymous read on the repository, or set"
+          + " HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD if it is private.";
     }
+    if (!repository.hasCredentials()) {
+      return nothingSentHint(repository);
+    }
+    boolean token = MarketplaceRepository.AUTH_TOKEN.equals(repository.effectiveAuthType());
     if (repository.credentialsFromEnvironmentOnly()) {
+      if (token) {
+        return ". An environment token was rejected, and an anonymous retry also failed. Set"
+            + " HOP_MARKETPLACE_"
+            + repository.environmentIdPrefix()
+            + "_TOKEN to a token with read access to this repository.";
+      }
       return ". Environment credentials for user '"
           + repository.effectiveUsername()
           + "' were rejected, and an anonymous retry also failed. Set repository-specific"
@@ -156,16 +228,59 @@ public final class MarketplaceHttp {
           + repository.environmentIdPrefix()
           + "_USERNAME / _PASSWORD if this repository needs different ones.";
     }
-    if (unresolved(repository.effectiveUsername()) || unresolved(repository.effectivePassword())) {
+    // Token auth ignores the username, so an unresolved one there is somebody else's problem.
+    if (token
+        ? unresolved(repository.effectiveToken())
+        : unresolved(repository.effectiveUsername())
+            || unresolved(repository.effectivePassword())) {
       return ". The credentials configured for this repository use a variable that is not set, so"
           + " the expression itself was sent as the credential. Define the variable, or set"
           + " HOP_MARKETPLACE_"
           + repository.environmentIdPrefix()
-          + "_USERNAME / _PASSWORD instead.";
+          + (token ? "_TOKEN" : "_USERNAME / _PASSWORD")
+          + " instead.";
+    }
+    if (token) {
+      return ". A bearer token from the repository configuration was rejected; check the token and"
+          + " that it grants read access to this repository.";
     }
     return ". Basic auth was sent as user '"
         + repository.effectiveUsername()
         + "' from the repository configuration; check that password.";
+  }
+
+  /**
+   * Why no Authorization header went out. Anonymous is a valid configuration, so the useful part is
+   * distinguishing "nothing is configured" from "an authType was chosen but cannot be satisfied" —
+   * the second looks identical from the outside and is otherwise diagnosed by guesswork.
+   */
+  private static String nothingSentHint(MarketplaceRepository repository) {
+    String prefix = repository.environmentIdPrefix();
+    switch (repository.effectiveAuthType()) {
+      case MarketplaceRepository.AUTH_NONE:
+        if (MarketplaceRepository.AUTH_NONE.equalsIgnoreCase(
+            StringUtils.trimToEmpty(repository.getAuthType()))) {
+          return ". No credentials were sent because authType is 'none' for this repository. Remove"
+              + " it, or set it to basic or token, to authenticate.";
+        }
+        return ". No credentials were sent. Enable anonymous read on the repository, or set"
+            + " HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD if it is private.";
+      case MarketplaceRepository.AUTH_BASIC:
+        return ". No credentials were sent: authType is 'basic' but no "
+            + (StringUtils.isBlank(repository.effectiveUsername()) ? "username" : "password")
+            + " resolves for this repository. Set HOP_MARKETPLACE_"
+            + prefix
+            + "_USERNAME / _PASSWORD, or configure them on the repository.";
+      case MarketplaceRepository.AUTH_TOKEN:
+        return ". No credentials were sent: authType is 'token' but no token resolves for this"
+            + " repository. Set HOP_MARKETPLACE_"
+            + prefix
+            + "_TOKEN, or put the token in the repository password field.";
+      default:
+        return ". No credentials were sent: authType '"
+            + repository.getAuthType()
+            + "' is not recognised. Use auto, none, basic or token.";
+    }
   }
 
   /** A credential that still carries variable syntax never made it through resolution. */

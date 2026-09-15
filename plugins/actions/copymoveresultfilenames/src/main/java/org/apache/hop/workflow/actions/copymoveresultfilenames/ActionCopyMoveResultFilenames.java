@@ -163,39 +163,6 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     this("");
   }
 
-  public ActionCopyMoveResultFilenames(ActionCopyMoveResultFilenames a) {
-    super(a);
-    this.folderName = a.folderName;
-    this.specifyWildcard = a.specifyWildcard;
-    this.wildcard = a.wildcard;
-    this.wildcardExclude = a.wildcardExclude;
-    this.destinationFolder = a.destinationFolder;
-    this.nrErrorsLessThan = a.nrErrorsLessThan;
-    this.successCondition = a.successCondition;
-    this.addDate = a.addDate;
-    this.addTime = a.addTime;
-    this.specifyFormat = a.specifyFormat;
-    this.dateTimeFormat = a.dateTimeFormat;
-    this.addDateBeforeExtension = a.addDateBeforeExtension;
-    this.action = a.action;
-    this.overwriteFile = a.overwriteFile;
-    this.createDestinationFolder = a.createDestinationFolder;
-    this.removedSourceFilename = a.removedSourceFilename;
-    this.addDestinationFilename = a.addDestinationFilename;
-
-    this.nrErrors = 0;
-    this.nrSuccess = 0;
-    this.successConditionBroken = false;
-    this.limitFiles = 0;
-    this.wildcardPattern = null;
-    this.wildcardExcludePattern = null;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionCopyMoveResultFilenames(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) {
     result.setNrErrors(1);

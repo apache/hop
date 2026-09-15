@@ -13,15 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.groupby;
 
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode
 public class Aggregation implements Cloneable {
 
   private static final Class<?> PKG = Aggregation.class;
@@ -160,8 +166,6 @@ public class Aggregation implements Cloneable {
       injectionKeyDescription = "GroupByMeta.Injection.AGG_ORDER_FIELD")
   private String orderField;
 
-  public Aggregation() {}
-
   public Aggregation(String field, String subject, String typeDesc, String value) {
     this.field = field;
     this.subject = subject;
@@ -186,111 +190,10 @@ public class Aggregation implements Cloneable {
         orderField);
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Aggregation that = (Aggregation) o;
-    return type == that.type
-        && Objects.equals(field, that.field)
-        && Objects.equals(subject, that.subject)
-        && Objects.equals(typeLabel, that.typeLabel)
-        && Objects.equals(value, that.value)
-        && Objects.equals(orderField, that.orderField);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(field, subject, typeLabel, type, value, orderField);
-  }
-
-  /**
-   * Gets field
-   *
-   * @return value of field
-   */
-  public String getField() {
-    return field;
-  }
-
-  /**
-   * @param field The field to set
-   */
-  public void setField(String field) {
-    this.field = field;
-  }
-
-  /**
-   * Gets subject
-   *
-   * @return value of subject
-   */
-  public String getSubject() {
-    return subject;
-  }
-
-  /**
-   * @param subject The subject to set
-   */
-  public void setSubject(String subject) {
-    this.subject = subject;
-  }
-
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public String getTypeLabel() {
-    return typeLabel;
-  }
-
+  /** Keep typeLabel and the numeric type code in sync. */
   public void setTypeLabel(String typeCode) {
     this.typeLabel = typeCode;
     this.type = getTypeCodeFromLabel(typeCode);
-  }
-
-  /**
-   * Gets value
-   *
-   * @return value of value
-   */
-  public String getValue() {
-    return value;
-  }
-
-  /**
-   * @param value The value to set
-   */
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  /**
-   * Gets orderField
-   *
-   * @return value of orderField
-   */
-  public String getOrderField() {
-    return orderField;
-  }
-
-  /**
-   * @param orderField The orderField to set
-   */
-  public void setOrderField(String orderField) {
-    this.orderField = orderField;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  /**
-   * @param type The type to set
-   */
-  public void setType(int type) {
-    this.type = type;
   }
 
   public static final int getTypeCodeFromLongDesc(String desc) {

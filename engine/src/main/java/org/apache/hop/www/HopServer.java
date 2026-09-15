@@ -438,10 +438,23 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
         setupByHostNameAndPort(hostname, port);
       }
 
-      // Pass the variables and metadata provider
+      // Root-level options such as --project / --environment enable the project before this
+      // subcommand runs. Use that metadata provider when it was rebuilt against the project folder.
+      //
+      MultiMetadataProvider instanceProvider = HopMetadataInstance.getMetadataProvider();
+      if (instanceProvider != null
+          && StringUtils.isNotEmpty(variables.getVariable(Const.HOP_METADATA_FOLDER))) {
+        metadataProvider = instanceProvider;
+      }
+
+      // Pass the variables and metadata provider. setupByFileName / setupByHostNameAndPort
+      // replace this.config with a new HopServerConfig whose constructor variables do not
+      // contain PROJECT_HOME; reconnect the space that enableProject() just populated.
       //
       config.setVariables(variables);
       config.setMetadataProvider(metadataProvider);
+
+      logEnabledProjectVariables();
 
       // enable auth
       if (this.enableAuth != null) {
@@ -737,6 +750,36 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
       System.err.println("General error found, something went horribly wrong!");
       System.err.println(Const.getStackTracker(e));
       System.exit(2);
+    }
+  }
+
+  /**
+   * After mixins have run, log the project/environment identity the servlets will resolve against.
+   * A project name without PROJECT_HOME means enablement did not land on this variable space, and
+   * {@code /hop/execPipeline?pipeline=${PROJECT_HOME}/...} would fail. See issue #8284.
+   */
+  void logEnabledProjectVariables() throws HopException {
+    if (variables == null || log == null) {
+      return;
+    }
+    String projectName = variables.getVariable("HOP_PROJECT_NAME");
+    String environmentName = variables.getVariable("HOP_ENVIRONMENT_NAME");
+    String projectHome = variables.getVariable("PROJECT_HOME");
+    String metadataFolder = variables.getVariable(Const.HOP_METADATA_FOLDER);
+    log.logBasic(
+        "Hop Server variables: HOP_PROJECT_NAME="
+            + Const.NVL(projectName, "")
+            + ", HOP_ENVIRONMENT_NAME="
+            + Const.NVL(environmentName, "")
+            + ", PROJECT_HOME="
+            + Const.NVL(projectHome, "")
+            + ", HOP_METADATA_FOLDER="
+            + Const.NVL(metadataFolder, ""));
+    if (StringUtils.isNotEmpty(projectName) && StringUtils.isEmpty(projectHome)) {
+      throw new HopException(
+          "Project '"
+              + projectName
+              + "' is enabled but PROJECT_HOME is not set. Pipelines and workflows cannot resolve ${PROJECT_HOME}.");
     }
   }
 

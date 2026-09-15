@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.http;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.net.httpserver.Headers;
@@ -163,6 +164,51 @@ class ActionHttpExecutionTest {
     assertEquals(payload, FileUtils.readFileToString(tempFileForDownload, UTF_8));
     assertEquals(payload.getBytes(UTF_8).length, result.getBytesReadThisAction());
     assertEquals(payload.getBytes(UTF_8).length, result.getBytesWrittenThisAction());
+  }
+
+  @Test
+  void testHttpConfiguredSingleRunStoresReplyInVariable() throws Exception {
+    String payload = "download only payload";
+    File tempFileForDownload = File.createTempFile("downloadedFileVar", ".tmp");
+    tempFileForDownload.deleteOnExit();
+
+    LocalWorkflowEngine workflow = new LocalWorkflowEngine();
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(workflow);
+    http.setRunForEveryRow(false);
+    http.setAddFilenameToResult(false);
+    http.setUrl(httpBaseUrl() + "/downloadFile");
+    http.setTargetFilename(tempFileForDownload.getCanonicalPath());
+    http.setReplyVariableName("HTTP_REPLY");
+
+    Result result = http.execute(new Result(), 0);
+
+    assertTrue(result.getResult());
+    assertEquals(0, result.getNrErrors());
+    assertEquals(payload, FileUtils.readFileToString(tempFileForDownload, UTF_8));
+    assertEquals(payload, http.getVariable("HTTP_REPLY"));
+    assertEquals(payload, workflow.getVariable("HTTP_REPLY"));
+  }
+
+  @Test
+  void testHttpConfiguredSingleRunDoesNotStoreReplyWhenVariableUnset() throws Exception {
+    File tempFileForDownload = File.createTempFile("downloadedFileNoVar", ".tmp");
+    tempFileForDownload.deleteOnExit();
+
+    LocalWorkflowEngine workflow = new LocalWorkflowEngine();
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(workflow);
+    http.setRunForEveryRow(false);
+    http.setAddFilenameToResult(false);
+    http.setUrl(httpBaseUrl() + "/downloadFile");
+    http.setTargetFilename(tempFileForDownload.getCanonicalPath());
+
+    Result result = http.execute(new Result(), 0);
+
+    assertTrue(result.getResult());
+    assertEquals(0, result.getNrErrors());
+    assertNull(http.getVariable("HTTP_REPLY"));
+    assertNull(workflow.getVariable("HTTP_REPLY"));
   }
 
   private static void startHttpServer() throws IOException {

@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Excel Writer transform writes incoming rows to Microsoft Excel (.xls, .xlsx) or OpenDocument Spreadsheet (.ods) files.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/excelwriter.svg[Excel writer transform Icon, role="image-doc-icon"] Excel writer
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Excel Writer transform writes incoming rows from Hop to spreadsheet files.
@@ -36,19 +34,6 @@ The `.xls` and `.xlsx` backends share the same POI code path.
 The `.ods` backend is a separate implementation that mirrors the same transform options where the ODF format allows it.
 
 The `.xls` files use a binary format which is better suited for simple content, while the `.xlsx` files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Output formats
 

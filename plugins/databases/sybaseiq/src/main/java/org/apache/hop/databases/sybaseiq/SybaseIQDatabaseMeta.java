@@ -22,6 +22,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -29,9 +30,27 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "SYBASEIQ",
     typeDescription = "Sybase IQ",
-    documentationUrl = "/database/databases/sybaseiq.html")
+    documentationUrl = "/database/databases/sybaseiq.html",
+    classLoaderGroup = "sybaseiq-db")
 @GuiPlugin(id = "GUI-SybaseIQDatabaseMeta")
 public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /**
+   * Sybase IQ never answered this, so it inherited false and none of the handling written for it
+   * ever ran. Answering it truthfully matters while the flag still exists, because a dialect that
+   * extends this one relies on it.
+   */
+  @Override
+  public boolean isSybaseIQVariant() {
+    return true;
+  }
+
+  /** Sybase IQ limits rows with TOP, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -91,7 +110,7 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -111,7 +130,8 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return "ALTER TABLE "
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** The parameters field. */
+@Getter
+@NoArgsConstructor
 public class ParameterField implements Cloneable {
 
   /** The target field name */
@@ -38,12 +42,7 @@ public class ParameterField implements Cloneable {
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Parameter.Type")
   private String type = ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE);
 
-  public ParameterField() {
-    super();
-  }
-
   public ParameterField(ParameterField cloned) {
-    super();
     this.name = cloned.name;
     this.type = cloned.type;
   }
@@ -53,16 +52,8 @@ public class ParameterField implements Cloneable {
     return new ParameterField(this);
   }
 
-  public String getName() {
-    return name;
-  }
-
   public void setName(final String name) {
     this.name = StringUtils.stripToNull(name);
-  }
-
-  public String getType() {
-    return this.type;
   }
 
   public void setType(final String type) {

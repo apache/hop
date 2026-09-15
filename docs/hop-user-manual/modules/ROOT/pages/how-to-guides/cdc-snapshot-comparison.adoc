@@ -1,0 +1,161 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[CdcSnapshotComparison]]
+:imagesdir: ../../assets/images
+:description: Detect new, changed, identical and deleted rows by comparing two sorted snapshots in Apache Hop, or by storing a hash key.
+
+= CDC: comparing snapshots
+
+When the source has no change log and no reliable timestamp or increasing ID, CDC is a comparison of two full extracts: the set you already have (reference) and the set you just read (compare).
+
+Apache Hop does this in two ways:
+
+* xref:pipeline/transforms/mergerows.adoc[Merge Rows (diff)] compares two streams that are *sorted on the same key* and flags every row as `new`, `changed`, `identical`, or `deleted`. It is built for large snapshots — millions of rows — in a single sequential pass.
+* A stored *hash key* (MD5, SHA-1, SHA-256, …) shrinks a wide row to one column. The next run compares only `id` + hash, either with Merge Rows or against a table you keep.
+
+Both detect deletes, which xref:how-to-guides/cdc-filtered-selection.adoc[filtered selection] generally cannot.
+
+== Merge Rows (diff)
+
+Use this when you can produce two extracts with the same layout and a stable key: today’s file versus yesterday’s, source table versus target table, or this run versus a snapshot you saved last time.
+
+[source,text]
+----
+Table Input / Text file input     Table Input / Text file input
+(previous snapshot)               (new snapshot)
+        |                                  |
+        v                                  v
+   Sort Rows (key)                    Sort Rows (key)
+        |                                  |
+        +--------------+-------------------+
+                       |
+                       v
+              Merge Rows (diff)
+                 keys  = id
+                 values = the columns that define “changed”
+                       |
+                       v
+        Synchronize after merge   or   Switch / Case on the flag
+----
+
+=== Sort first
+
+Merge Rows is a *streaming* compare. It does not sort. Both hops into it must already be ordered on the *Keys to match*, same direction, same collation. Use xref:pipeline/transforms/sort.adoc[Sort Rows] on each stream. For large sorts, run several copies of Sort Rows and combine them with xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge].
+
+If either stream is out of order, flags are wrong and you will insert, update, or delete the wrong rows.
+
+=== Configure the compare
+
+[cols="1,3",options="header"]
+|===
+|Option
+|CDC meaning
+
+|Reference rows origin
+|The previous snapshot, or the current target. “What we already applied.”
+
+|Compare rows origin
+|The new snapshot, or the current source. “What we have now.”
+
+|Keys to match
+|The ID that identifies a row across snapshots. Do not put these in *Values to compare*.
+
+|Values to compare
+|The payload columns. A difference here yields `changed`.
+
+|Flag field name
+|Output field: `identical`, `changed`, `new`, or `deleted`.
+
+|Difference field name
+|Optional JSON of `{ from, to }` per changed column. Useful for audit or for a Type-2 dimension.
+|===
+
+Flag semantics (from the Merge Rows documentation):
+
+* `identical` — key in both streams, compared values match. Output is the reference row.
+* `changed` — key in both streams, at least one compared value differs. Output is the compare row.
+* `new` — key only in the compare stream.
+* `deleted` — key only in the reference stream.
+
+=== Apply the flags
+
+The shortest apply path is xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize after merge], which defaults to:
+
+* insert when the flag is `new`
+* update when the flag is `changed`
+* delete when the flag is `deleted`
+* do nothing for `identical`
+
+Alternatively, xref:pipeline/transforms/switchcase.adoc[Switch / Case] on the flag and send each branch to Insert / Update, Update, or Delete.
+
+=== Scale
+
+Comparison itself walks both sorted streams once and only keeps the current pair of rows in memory. The expensive part is usually the sort, not Merge Rows. That is why this path stays practical at millions of rows: sort (possibly in parallel copies), then merge-compare, then apply only the non-identical rows.
+
+xref:pipeline/transforms/tablecompare.adoc[Table Compare] is a different tool. It audits two database tables and reports differences; it is not the pipeline-oriented apply path described here.
+
+== Hash keys
+
+Comparing dozens of columns on every row works, but you can also fingerprint the payload and compare one string.
+
+Use a hash when:
+
+* the row is wide and you only need “did anything change?”
+* you want to persist a compact fingerprint in a database table and avoid re-reading the previous full snapshot
+* several pipelines should share the same change-detection key
+
+Do *not* use CRC32 or Adler-32 as a business change key. They are short checksums, not hashes. Prefer *MD5*, *SHA-1*, or *SHA-256* on the xref:pipeline/transforms/addchecksum.adoc[Add a checksum] transform.
+
+=== Compute and store
+
+[source,text]
+----
+Table Input (source)
+        |
+        v
+Add a checksum     (SHA-256 of the payload columns;
+                    set Separator so concatenated fields stay unique)
+        |
+        v
+  (optional) Table Output / Insert / Update
+             of id + hash [+ load_ts]  into a control table
+----
+
+Set *Prefix*, *Separator*, and *Suffix* on Add a checksum so two different column combinations cannot produce the same input string. A separator is the usual requirement; a prefix such as `CUST` distinguishes the same numeric payload used for different entities.
+
+Any column you leave out of the field list is invisible to change detection.
+
+=== Compare on the next run
+
+Compute hashes on the new extract, then either:
+
+* *Merge Rows* on `id`, with the hash as the only value to compare. Flags stay `new` / `changed` / `identical` / `deleted`. You no longer need the previous full snapshot — only the stored `id` + hash table, sorted on `id`.
+* *Database lookup* or *Merge Join* of the new `id` + hash against the control table, then Filter Rows where the hash differs or the lookup misses.
+
+After a successful apply, update the control table: insert hashes for `new` keys, replace hashes for `changed` keys, delete hashes for `deleted` keys.
+
+=== Trade-offs
+
+* A hash does not tell you *which* column changed. Keep Merge Rows’ JSON difference field (on the full payload, for `changed` rows only) if you need that.
+* SHA-256 collisions are not a practical concern for this use.
+* You still need a stable key. A hash without an ID cannot tell `new` from `deleted`.
+
+== When not to use this approach
+
+If a log product already emits change events, xref:how-to-guides/cdc-log-sniffing.adoc[log sniffing] is cheaper than reading two full sets. If a timestamp or increasing ID covers every change you care about *and* you do not need deletes, xref:how-to-guides/cdc-filtered-selection.adoc[filtered selection] is a single range query.
+
+See also: xref:how-to-guides/change-data-capture.adoc[Change Data Capture overview].

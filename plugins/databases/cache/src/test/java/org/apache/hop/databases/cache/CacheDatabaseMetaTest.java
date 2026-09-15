@@ -88,7 +88,7 @@ class CacheDatabaseMetaTest {
         cdm.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN ( BAR  UNKNOWN ) ",
+        "ALTER TABLE FOO ADD COLUMN ( BAR VARCHAR(45) ) ",
         cdm.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
     String lineSep = System.lineSeparator();

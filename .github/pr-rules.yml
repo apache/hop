@@ -13,12 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Configuration for actions/labeler (v5+ format): a label applies when any of
+# its globs matches any changed file.
 # Please keep the entries sorted lexicographically in each category.
 
 # General
-Beam: ["engine-beam/**/*"]
-Containers: ["docker/**/*", "helm/**/*"]
-Documentation: ["docs/**/*"]
-Hop Gui: ["rap/**/*", "rcp/**/*", "ui/**/*"]
-Integration Testing: ["integration-tests/**/*"]
-Neo4j: ["plugins/tech/neo4j/**/*"]
+Beam:
+  - changed-files:
+      - any-glob-to-any-file: ['engine-beam/**/*']
+Containers:
+  - changed-files:
+      - any-glob-to-any-file: ['docker/**/*', 'helm/**/*']
+Documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['docs/**/*']
+Hop Gui:
+  - changed-files:
+      - any-glob-to-any-file: ['rap/**/*', 'rcp/**/*', 'ui/**/*']
+Integration Testing:
+  - changed-files:
+      - any-glob-to-any-file: ['integration-tests/**/*']
+Neo4j:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/tech/neo4j/**/*']

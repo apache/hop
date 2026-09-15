@@ -343,4 +343,60 @@ class RestInitAndProcessTest {
     assertEquals(3000, data.realConnectionTimeout);
     assertEquals(7000, data.realReadTimeout);
   }
+
+  /**
+   * Regression test for Apache Hop #8054.
+   *
+   * <p>Every password field in Hop is decrypted with {@link
+   * Encr#decryptPasswordOptionallyEncrypted} after being resolved, including the {@code
+   * httpPassword} field a dozen lines above the trust store in {@link Rest#init()}. Before this
+   * fix, {@code trustStorePassword} was resolved but not decrypted, so an encrypted value that
+   * reached the field through a variable was passed to the trust store loader verbatim and the SSL
+   * context could not be built.
+   *
+   * <p>This test resolves an encrypted trust store password from a variable and asserts the value
+   * stored on {@link RestData} is the plaintext, matching the treatment {@code httpPassword} has
+   * always received.
+   */
+  @Test
+  void testInitDecryptsTrustStorePasswordFromVariable() {
+    String plaintext = "trustpass";
+    String encrypted = Encr.encryptPasswordIfNotUsingVariables(plaintext);
+    // Sanity check: the plugin only decrypts values with the standard "Encrypted " prefix.
+    assertTrue(
+        encrypted.startsWith("Encrypted "),
+        "test setup precondition: encryptPasswordIfNotUsingVariables should return a prefixed value");
+
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName("TestRest");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("TestRest");
+    pipelineMeta.addTransform(transformMeta);
+
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl("http://example.com");
+    meta.setApplicationType(RestMeta.APPLICATION_TYPE_JSON);
+    meta.setResultField(new ResultField());
+    // Same shape as an httpPassword coming through a variable: the caller passes the
+    // encrypted value indirectly and expects the transform to decrypt on init.
+    meta.setHttpPassword("${HTTP_PWD}");
+    meta.setTrustStoreFile("/tmp/does-not-need-to-exist.jks");
+    meta.setTrustStorePassword("${TRUST_PWD}");
+
+    RestData data = new RestData();
+
+    Rest rest =
+        new Rest(transformMeta, meta, data, 1, pipelineMeta, spy(new LocalPipelineEngine()));
+    rest.setMetadataProvider(mock(IHopMetadataProvider.class));
+    rest.setVariable("HTTP_PWD", encrypted);
+    rest.setVariable("TRUST_PWD", encrypted);
+
+    rest.init();
+
+    // httpPassword has always been decrypted here; asserting alongside trustStorePassword
+    // makes the parity with the pre-existing branch explicit.
+    assertEquals(plaintext, data.realHttpPassword);
+    assertEquals(plaintext, data.trustStorePassword);
+  }
 }

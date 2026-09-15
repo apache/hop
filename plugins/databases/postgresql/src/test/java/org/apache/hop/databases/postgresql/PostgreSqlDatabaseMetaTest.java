@@ -19,10 +19,15 @@ package org.apache.hop.databases.postgresql;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -31,6 +36,9 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
+import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -703,7 +711,6 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getExtraOptionsHelpText());
     assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isUseSafePoints());
     assertTrue(nativeMeta.isSupportsBooleanDataType());
     assertTrue(nativeMeta.isSupportsTimestampDataType());
@@ -712,6 +719,9 @@ public class PostgreSqlDatabaseMetaTest {
   @Test
   void testSqlStatements() {
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields("FOO"));
+    assertEquals(
+        "SELECT pg_catalog.pg_get_viewdef(c.oid, true) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN ('v', 'm') AND c.relname = E'customer_address' AND n.nspname = E'public'",
+        nativeMeta.getSqlViewDefinition("public", "customer_address"));
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists("FOO"));
     assertEquals("SELECT FOO FROM BAR limit 1", nativeMeta.getSqlColumnExists("FOO", "BAR"));
     assertEquals("SELECT FOO FROM BAR limit 1", nativeMeta.getSqlQueryColumnFields("FOO", "BAR"));
@@ -762,17 +772,17 @@ public class PostgreSqlDatabaseMetaTest {
             "FOO", new ValueMetaNumber("BAR", 5, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(13, 3)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(10, 3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(13, 3)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(10, 3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(25, 4)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(21, 4)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 21, 4), "", false, "", false));
 
@@ -802,7 +812,7 @@ public class PostgreSqlDatabaseMetaTest {
             false)); // Bug here - invalid SQL
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(29, 7)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(22, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 7), "", false, "", false));
     assertEquals(
@@ -810,11 +820,13 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(12, 7)",
+        "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(7, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+    // An ALTER TABLE spells a column the way a CREATE TABLE does: through the dialect's type
+    // rules. Before those were consulted here, this produced "BAR  UNKNOWN".
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD COLUMN BAR INET",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 
@@ -868,5 +880,64 @@ public class PostgreSqlDatabaseMetaTest {
         nativeMeta.getSqlLockTables(new String[] {"FOO", "BAR"}));
 
     assertNull(nativeMeta.getSqlUnlockTables(new String[] {"FOO"}));
+  }
+
+  @Test
+  void testPluginIdAndName() {
+    assertEquals("POSTGRESQL", nativeMeta.getPluginId());
+    assertEquals("PostgreSQL", nativeMeta.getPluginName());
+
+    nativeMeta.setPluginName(null);
+    assertEquals("PostgreSQL", nativeMeta.getPluginName());
+
+    nativeMeta.setPluginId(null);
+    assertEquals("POSTGRESQL", nativeMeta.getPluginId());
+  }
+
+  @Test
+  void testDeserializationOfTestEdwJson() throws Exception {
+    HopClientEnvironment.init();
+    DatabasePluginType.getInstance().searchPlugins();
+
+    String json =
+        "{\n"
+            + "  \"rdbms\": {\n"
+            + "    \"POSTGRESQL\": {\n"
+            + "      \"sshTunnelUsePrivateKey\": false,\n"
+            + "      \"databaseName\": \"test_edw\",\n"
+            + "      \"pluginId\": \"POSTGRESQL\",\n"
+            + "      \"sshTunnelEnabled\": false,\n"
+            + "      \"accessType\": 0,\n"
+            + "      \"hostname\": \"localhost\",\n"
+            + "      \"password\": \"Encrypted 2be98afc86aa7f2e4cb79ce10ca97bcce\",\n"
+            + "      \"port\": \"54320\",\n"
+            + "      \"attributes\": {},\n"
+            + "      \"username\": \"test\"\n"
+            + "    }\n"
+            + "  },\n"
+            + "  \"name\": \"test_edw\"\n"
+            + "}";
+
+    JsonMetadataProvider provider =
+        new JsonMetadataProvider(
+            new HopTwoWayPasswordEncoder(),
+            "/tmp/test-metadata",
+            Variables.getADefaultVariableSpace());
+    JsonMetadataParser<DatabaseMeta> parser =
+        new JsonMetadataParser<>(DatabaseMeta.class, provider);
+
+    JsonFactory jsonFactory = new JsonFactory();
+    try (com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser(json)) {
+      jsonParser.nextToken();
+      DatabaseMeta databaseMeta = parser.loadJsonObject(DatabaseMeta.class, jsonParser);
+      assertNotNull(databaseMeta);
+      assertEquals("test_edw", databaseMeta.getName());
+      assertEquals("POSTGRESQL", databaseMeta.getPluginId());
+      assertEquals("PostgreSQL", databaseMeta.getPluginName());
+      assertEquals("localhost", databaseMeta.getHostname());
+      assertEquals("54320", databaseMeta.getPort());
+      assertEquals("test_edw", databaseMeta.getDatabaseName());
+      assertEquals("test", databaseMeta.getUsername());
+    }
   }
 }

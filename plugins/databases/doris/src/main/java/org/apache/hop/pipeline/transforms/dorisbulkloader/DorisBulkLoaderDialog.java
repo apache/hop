@@ -40,9 +40,11 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -193,7 +195,9 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     fdlTableName.right = new FormAttachment(middle, -margin);
     fdlTableName.top = new FormAttachment(wDatabaseName, margin);
     wlTableName.setLayoutData(fdlTableName);
-    wTableName = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTableName =
+        new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     wTableName.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TableName.Tooltip"));
     PropsUi.setLook(wTableName);
@@ -570,7 +574,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     focusTransformName();

@@ -17,11 +17,15 @@
 
 package org.apache.hop.databases.sapdb;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.ColumnTypeRules;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -29,9 +33,17 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "SAPDB",
     typeDescription = "MaxDB (SAP DB)",
-    documentationUrl = "/database/databases/sapdb.html")
+    documentationUrl = "/database/databases/sapdb.html",
+    classLoaderGroup = "sapdb-db")
 @GuiPlugin(id = "GUI-SAPDBDatabaseMeta")
 public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** An integer with no declared length is a Long, not a floating point column. Issue #4174. */
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return List.of(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG);
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -93,7 +105,7 @@ public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -115,7 +127,8 @@ public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         + " ALTER COLUMN "
         + v.getName()
         + " TYPE "
-        + getFieldDefinition(v, tk, pk, useAutoinc, false, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, false, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

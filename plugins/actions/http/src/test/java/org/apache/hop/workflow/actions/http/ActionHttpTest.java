@@ -18,6 +18,7 @@ package org.apache.hop.workflow.actions.http;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -50,5 +51,19 @@ class ActionHttpTest {
     assertEquals("txt", actionHttp.getTargetFilenameExtension());
     actionHttp.setTargetFilenameExtension("zip");
     assertEquals("zip", actionHttp.getTargetFilenameExtension());
+  }
+
+  @Test
+  void testCharsetFromContentType() {
+    assertEquals(StandardCharsets.UTF_8, ActionHttp.charsetFromContentType(null));
+    assertEquals(StandardCharsets.UTF_8, ActionHttp.charsetFromContentType("text/plain"));
+    assertEquals(
+        StandardCharsets.ISO_8859_1,
+        ActionHttp.charsetFromContentType("text/html; charset=ISO-8859-1"));
+    assertEquals(
+        StandardCharsets.UTF_8,
+        ActionHttp.charsetFromContentType("application/json; charset=\"UTF-8\""));
+    assertEquals(
+        StandardCharsets.UTF_8, ActionHttp.charsetFromContentType("text/plain; charset=no-such"));
   }
 }

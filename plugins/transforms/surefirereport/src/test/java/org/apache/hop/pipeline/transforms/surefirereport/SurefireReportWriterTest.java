@@ -26,9 +26,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.hop.pipeline.transforms.surefirereport.SurefireTestCase.Status;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.w3c.dom.Document;
 
 class SurefireReportWriterTest {
 
@@ -77,6 +79,47 @@ class SurefireReportWriterTest {
     assertTrue(xml.contains("]]]]><![CDATA[>"));
     assertTrue(xml.contains("hello "));
     assertTrue(xml.contains(" world"));
+  }
+
+  @Test
+  void colouredLogStaysParsableXml() throws Exception {
+    Path report = tempDir.resolve("surefile_dbt.xml");
+    // What dbt (and any other colourising CLI) leaves in a captured log.
+    String colouredLog = "\u001b[0m15:52:04  \u001b[32mRunning with dbt=1.8.0\u001b[0m\nDone.\n";
+    List<SurefireTestCase> cases = new ArrayList<>();
+    cases.add(
+        new SurefireTestCase(
+            "main-0001-dbt",
+            1.0,
+            Status.FAIL,
+            colouredLog,
+            "\u001b[31merror\u001b[0m",
+            "boom \u001b[1mhighlighted\u001b[0m",
+            "AssertionError"));
+
+    SurefireReportWriter.write(report, "dbt", cases);
+
+    String xml = Files.readString(report, StandardCharsets.UTF_8);
+    assertFalse(xml.contains("\u001b"), "no escape character may reach the report");
+    // The escape sequences go whole, so their printable tail does not litter the log either.
+    assertFalse(xml.contains("[0m"), xml);
+    assertTrue(xml.contains("Running with dbt=1.8.0"));
+    assertTrue(xml.contains("message=\"boom highlighted\""));
+
+    // The report has to be readable by an XML parser, that is the whole point.
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setNamespaceAware(true);
+    Document doc = factory.newDocumentBuilder().parse(report.toFile());
+    assertEquals(1, doc.getElementsByTagName("testcase").getLength());
+  }
+
+  @Test
+  void sanitizeDropsIllegalCharactersAndKeepsTheRest() {
+    assertEquals("ab", SurefireReportWriter.sanitize("a\u0000b\u0008"));
+    assertEquals("a\tb\nc\rd", SurefireReportWriter.sanitize("a\tb\nc\rd"));
+    assertEquals("", SurefireReportWriter.sanitize("\ud83d"));
+    assertEquals("\ud83d\ude00", SurefireReportWriter.sanitize("\ud83d\ude00"));
+    assertEquals("", SurefireReportWriter.sanitize(null));
   }
 
   @Test

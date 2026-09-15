@@ -110,22 +110,6 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     this("");
   }
 
-  public ActionFoldersCompare(ActionFoldersCompare a) {
-    super(a);
-    this.includeSubFolders = a.includeSubFolders;
-    this.compareFileContent = a.compareFileContent;
-    this.compareFileSize = a.compareFileSize;
-    this.compareOnly = a.compareOnly;
-    this.wildcard = a.wildcard;
-    this.filename1 = a.filename1;
-    this.filename2 = a.filename2;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionFoldersCompare(this);
-  }
-
   public String getRealWildcard() {
     return resolve(getWildcard());
   }

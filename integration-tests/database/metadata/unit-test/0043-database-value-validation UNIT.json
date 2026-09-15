@@ -1,0 +1,65 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "qty",
+          "data_set_field": "qty"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-dbvv-good",
+      "transform_name": "Good rows"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "nr_errors",
+          "data_set_field": "nr_errors"
+        },
+        {
+          "transform_field": "error_codes",
+          "data_set_field": "error_codes"
+        },
+        {
+          "transform_field": "error_fields",
+          "data_set_field": "error_fields"
+        },
+        {
+          "transform_field": "error_descriptions",
+          "data_set_field": "error_descriptions"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-dbvv-rejects",
+      "transform_name": "Rejects"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0043-database-value-validation UNIT",
+  "description": "Database value validation reports every failing field and lets good rows through",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0043-database-value-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

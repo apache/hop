@@ -19,9 +19,9 @@ package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -32,14 +32,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -170,6 +171,15 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
+    Button wbSchema = new Button(wGConnection, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.top = new FormAttachment(wConnection, margin);
+    fdbSchema.right = new FormAttachment(100, 0);
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaName());
+
     wSchema = new TextVar(variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
@@ -177,7 +187,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
     fdSchema.top = new FormAttachment(wConnection, margin);
-    fdSchema.right = new FormAttachment(100, 0);
+    fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
@@ -198,7 +208,9 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(wSchema, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.setToolTipText(BaseMessages.getString(PKG, "SQLFileOutputDialog.TargetTable.Tooltip"));
     wTable.addModifyListener(lsMod);
@@ -332,7 +344,9 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdbFilename.top = new FormAttachment(wStartNewLine, 0);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
@@ -846,6 +860,41 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     dispose();
   }
 
+  private void getSchemaName() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+        if (null != schemas && schemas.length > 0) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
+          String name = dialog.open();
+          if (name != null) {
+            wSchema.setText(name);
+          }
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Message"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Empty.Title"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
+            e);
+      }
+    }
+  }
+
   private void getTableName() {
     String connectionName = wConnection.getText();
     if (StringUtils.isEmpty(connectionName)) {
@@ -894,10 +943,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor editor =
-              new SqlEditor(
-                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-          editor.open();
+          DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(BaseMessages.getString(PKG, "SQLFileOutputDialog.NoSQL.DialogMessage"));

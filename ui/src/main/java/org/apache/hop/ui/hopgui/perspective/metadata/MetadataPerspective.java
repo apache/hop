@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -83,6 +83,8 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -229,7 +231,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   private static final int FILTER_DEBOUNCE_MS = 250;
 
-  @Getter private static MetadataPerspective instance;
+  private static MetadataPerspective instance;
 
   private HopGui hopGui;
   private SashForm sash;
@@ -274,6 +276,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     instance = this;
 
     this.metadataFileType = new MetadataFileType();
+  }
+
+  public static MetadataPerspective getInstance() {
+    try {
+      MetadataPerspective fromGui = HopGui.findSessionPerspective(MetadataPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   /**
@@ -1404,6 +1418,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
+      NamingSchemeWidgetSupport.attachShortcut(
+          text, hopGui.getVariables(), NamingSchemeTypes.HOP_METADATA);
       text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,
@@ -2161,8 +2177,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    */
   private static String toDisplayPath(String path, String projectHome) {
     if (!Utils.isEmpty(projectHome) && path.startsWith(projectHome)) {
-      String rel = path.substring(projectHome.length());
-      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
+      String rel = path.substring(projectHome.length()).replace(File.separatorChar, '/');
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : '/' + rel);
     }
     return path;
   }
@@ -2530,11 +2546,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           if (!typeFolder.isFolder() || knownKeys.contains(key)) {
             continue;
           }
+          List<FileObject> jsonFiles = HopVfs.findFiles(typeFolder, "json", false);
+          if (jsonFiles.isEmpty()) {
+            continue;
+          }
           String reason =
               BaseMessages.getString(PKG, "MetadataPerspective.Unknown.NoPluginForType", key);
           UnknownTypeModel unknownType =
               unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
-          for (FileObject jsonFile : HopVfs.findFiles(typeFolder, "json", false)) {
+          for (FileObject jsonFile : jsonFiles) {
             String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
             // The same element can live in a parent project as well: like anywhere else the first
             // provider which has it wins, so we don't list it twice.
@@ -3146,7 +3166,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         // by default. Seed each default-expanded node once per session so the default holds until
         // the user changes it.
         boolean defaultExpanded = "C".equals(path[0]) || "UC".equals(path[0]);
-        if (defaultExpanded && treeStateSeeded.add(String.join(" ", path))) {
+        if (defaultExpanded && treeStateSeeded.add(String.join("\0", path))) {
           TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
         }
         item.setExpanded(TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
@@ -3165,7 +3185,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     String[] path = treeMemoryPath(item);
     if (path != null) {
       TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, expanded);
-      treeStateSeeded.add(String.join(" ", path));
+      treeStateSeeded.add(String.join("\0", path));
     }
   }
 

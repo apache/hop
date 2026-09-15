@@ -70,11 +70,6 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     this("");
   }
 
-  @Override
-  public ActionCheckFilesLocked clone() {
-    return new ActionCheckFilesLocked(this);
-  }
-
   public ActionCheckFilesLocked(ActionCheckFilesLocked other) {
     super(other.getName(), other.getDescription(), other.getPluginId());
     this.checkedFiles = new ArrayList<>();

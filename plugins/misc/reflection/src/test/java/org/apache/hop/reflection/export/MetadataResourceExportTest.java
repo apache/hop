@@ -25,7 +25,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -135,15 +134,7 @@ class MetadataResourceExportTest {
 
     File zip = new File(tempDir, "export.zip");
     ResourceUtil.serializeResourceExportInterface(
-        zip.getAbsolutePath(),
-        mainMeta,
-        variables,
-        provider,
-        null,
-        null,
-        null,
-        null,
-        new HashMap<>());
+        zip.getAbsolutePath(), mainMeta, variables, provider, null, null, null, null);
 
     List<String> entries = new ArrayList<>();
     String metadataJson = null;
@@ -196,15 +187,7 @@ class MetadataResourceExportTest {
 
     File zip = new File(tempDir, "export.zip");
     ResourceUtil.serializeResourceExportInterface(
-        zip.getAbsolutePath(),
-        mainMeta,
-        variables,
-        provider,
-        null,
-        null,
-        null,
-        null,
-        new HashMap<>());
+        zip.getAbsolutePath(), mainMeta, variables, provider, null, null, null, null);
 
     List<String> entries = new ArrayList<>();
     String metadataJson = null;
@@ -262,15 +245,7 @@ class MetadataResourceExportTest {
 
     File zip = new File(tempDir, "export.zip");
     ResourceUtil.serializeResourceExportInterface(
-        zip.getAbsolutePath(),
-        mainMeta,
-        variables,
-        provider,
-        null,
-        null,
-        null,
-        null,
-        new HashMap<>());
+        zip.getAbsolutePath(), mainMeta, variables, provider, null, null, null, null);
 
     List<String> entries = new ArrayList<>();
     String metadataJson = null;

@@ -93,12 +93,6 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionWaitForFile je = (ActionWaitForFile) super.clone();
-    return je;
-  }
-
   public void setFilename(String filename) {
     this.filename = filename;
   }

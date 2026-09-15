@@ -284,11 +284,22 @@ public class MarketplaceRepositoriesPanel {
       item.setText(4, Const.NVL(repo.getId(), ""));
       item.setText(5, Const.NVL(repo.displayName(), ""));
       item.setText(6, Const.NVL(repo.getUrl(), ""));
-      item.setText(
-          7, repo.hasCredentials() || StringUtils.isNotBlank(repo.getUsername()) ? "Y" : "");
+      item.setText(7, authColumn(repo));
       item.setData(repo);
     }
     wTable.optimizeTableView();
+  }
+
+  /**
+   * Authentication shown in the list: the scheme that will actually be used, or nothing when the
+   * repository is contacted anonymously. A configured username with no password still shows, since
+   * that is a half-finished entry worth noticing rather than a deliberate anonymous one.
+   */
+  private static String authColumn(MarketplaceRepository repo) {
+    if (repo.hasCredentials()) {
+      return repo.effectiveAuthType();
+    }
+    return StringUtils.isNotBlank(repo.getUsername()) ? MarketplaceRepository.AUTH_BASIC : "";
   }
 
   private MarketplaceRepository selected() {
@@ -452,12 +463,38 @@ public class MarketplaceRepositoriesPanel {
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
 
+    Label wlAuthType = new Label(general, SWT.RIGHT);
+    PropsUi.setLook(wlAuthType);
+    wlAuthType.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.AuthType"));
+    FormData fdlAuthType = new FormData();
+    fdlAuthType.left = new FormAttachment(0, 0);
+    fdlAuthType.top = new FormAttachment(wUrl, margin);
+    fdlAuthType.right = new FormAttachment(middle, -margin);
+    wlAuthType.setLayoutData(fdlAuthType);
+    Combo wAuthType = new Combo(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wAuthType);
+    String authTypeTooltip =
+        BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.AuthType.Tooltip");
+    wlAuthType.setToolTipText(authTypeTooltip);
+    wAuthType.setToolTipText(authTypeTooltip);
+    wAuthType.setItems(
+        MarketplaceRepository.AUTH_AUTO,
+        MarketplaceRepository.AUTH_NONE,
+        MarketplaceRepository.AUTH_BASIC,
+        MarketplaceRepository.AUTH_TOKEN);
+    wAuthType.setText(Const.NVL(repo.getAuthType(), MarketplaceRepository.AUTH_AUTO).toLowerCase());
+    FormData fdAuthType = new FormData();
+    fdAuthType.left = new FormAttachment(middle, margin);
+    fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
+    fdAuthType.right = new FormAttachment(100, 0);
+    wAuthType.setLayoutData(fdAuthType);
+
     Label wlUser = new Label(general, SWT.RIGHT);
     PropsUi.setLook(wlUser);
     wlUser.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Username"));
     FormData fdlUser = new FormData();
     fdlUser.left = new FormAttachment(0, 0);
-    fdlUser.top = new FormAttachment(wUrl, margin);
+    fdlUser.top = new FormAttachment(wAuthType, margin);
     fdlUser.right = new FormAttachment(middle, -margin);
     wlUser.setLayoutData(fdlUser);
     Text wUser = new Text(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -570,7 +607,8 @@ public class MarketplaceRepositoriesPanel {
     wBrowserType.setItems(
         MarketplaceRepository.BROWSER_AUTO,
         MarketplaceRepository.BROWSER_NEXUS,
-        MarketplaceRepository.BROWSER_FORGEJO);
+        MarketplaceRepository.BROWSER_FORGEJO,
+        MarketplaceRepository.BROWSER_JFROG);
     wBrowserType.setText(
         Const.NVL(repo.getBrowserType(), MarketplaceRepository.BROWSER_AUTO).toLowerCase());
     FormData fdBrowserType = new FormData();
@@ -773,6 +811,9 @@ public class MarketplaceRepositoriesPanel {
           repo.setBrowserType(
               StringUtils.defaultIfBlank(
                   wBrowserType.getText().trim(), MarketplaceRepository.BROWSER_AUTO));
+          repo.setAuthType(
+              StringUtils.defaultIfBlank(
+                  wAuthType.getText().trim(), MarketplaceRepository.AUTH_AUTO));
           repo.setSearchQuery(StringUtils.trimToNull(wSearch.getText()));
           repo.setGroupIdFilter(StringUtils.trimToNull(wGroup.getText()));
           repo.setIncludeSnapshots(wSnapshots.getSelection());

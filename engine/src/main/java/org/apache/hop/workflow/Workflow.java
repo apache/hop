@@ -65,6 +65,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
@@ -287,6 +289,15 @@ public abstract class Workflow extends Variables
     return r;
   }
 
+  /** The VFS namespace of this execution, when it runs against metadata of its own. */
+  private HopVfsNamespace vfsNamespace;
+
+  /** What was bound to the thread before this execution, to put back when it finishes. */
+  private HopVfsNamespace previousVfsNamespace;
+
+  /** The metadata it was taken for. Kept so it is let go of by the same key it was taken with. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
   @Override
   public Result startExecution() {
 
@@ -307,6 +318,14 @@ public abstract class Workflow extends Variables
       setInitialized(true);
 
       setInternalHopVariables();
+
+      // A workflow carrying its own metadata - an export running on a Hop Server - resolves its
+      // named VFS connections in its own namespace, not in the one the server was started with.
+      vfsNamespaceProvider = getMetadataProvider();
+      vfsNamespace =
+          HopVfsNamespaces.acquire(
+              this, vfsNamespaceProvider, "workflow " + workflowMeta.getName());
+      previousVfsNamespace = HopVfsNamespaces.bindThread(vfsNamespace);
 
       // Run the workflow
       //
@@ -339,8 +358,8 @@ public abstract class Workflow extends Variables
         log.logBasic(BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED));
         fireExecutionFinishedListeners();
 
-        // release unused vfs connections
-        HopVfs.freeUnusedResources();
+        // release unused vfs connections, of the namespace this workflow resolved its files in
+        HopVfs.freeUnusedResources(this);
 
       } catch (HopException e) {
         result.setNrErrors(1);
@@ -349,6 +368,15 @@ public abstract class Workflow extends Variables
             BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
 
         emergencyWriteWorkflowTracker(result);
+      } finally {
+        // Only now: everything above can still touch files of this namespace, and closing it
+        // invalidates every file object resolved through it.
+        HopVfsNamespaces.restoreThread(previousVfsNamespace);
+        if (vfsNamespace != null) {
+          HopVfsNamespaces.release(vfsNamespaceProvider);
+          vfsNamespace = null;
+          vfsNamespaceProvider = null;
+        }
       }
     }
 

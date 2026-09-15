@@ -35,17 +35,20 @@ import org.eclipse.swt.widgets.Display;
  */
 public class DiffStyledTextComp extends StyledTextVar {
 
-  private static final Color COLOR_ADDITION = new Color(Display.getDefault(), 0, 128, 0); // Green
-  private static final Color COLOR_DELETION = new Color(Display.getDefault(), 255, 0, 0); // Red
-  private static final Color COLOR_FILE_HEADER =
-      new Color(Display.getDefault(), 0, 128, 128); // Cyan
-  private static final Color COLOR_HUNK_HEADER =
-      new Color(Display.getDefault(), 153, 102, 0); // Brown/Orange
+  private final Color colorAddition;
+  private final Color colorDeletion;
+  private final Color colorFileHeader;
+  private final Color colorHunkHeader;
 
   public DiffStyledTextComp(IVariables variables, Composite parent, int style) {
     super(variables, parent, style, false, false, true, STYLE_TYPE_DIFF); // No variable support
     // Set read-only and disable editing
     getTextWidget().setEditable(false);
+    Display display = parent.getDisplay();
+    colorAddition = new Color(display, 0, 128, 0);
+    colorDeletion = new Color(display, 255, 0, 0);
+    colorFileHeader = new Color(display, 0, 128, 128);
+    colorHunkHeader = new Color(display, 153, 102, 0);
   }
 
   /**
@@ -80,10 +83,10 @@ public class DiffStyledTextComp extends StyledTextVar {
 
       if (line.startsWith("+")) {
         // Addition line (green)
-        styleRange = new StyleRange(offset, lineLength, COLOR_ADDITION, null);
+        styleRange = new StyleRange(offset, lineLength, colorAddition, null);
       } else if (line.startsWith("-")) {
         // Deletion line (red)
-        styleRange = new StyleRange(offset, lineLength, COLOR_DELETION, null);
+        styleRange = new StyleRange(offset, lineLength, colorDeletion, null);
       } else if (line.startsWith("diff --git")
           || line.startsWith("+++")
           || line.startsWith("---")
@@ -94,13 +97,13 @@ public class DiffStyledTextComp extends StyledTextVar {
           || line.startsWith("rename from")
           || line.startsWith("rename to")) {
         // File header (cyan)
-        styleRange = new StyleRange(offset, lineLength, COLOR_FILE_HEADER, null);
+        styleRange = new StyleRange(offset, lineLength, colorFileHeader, null);
         if (line.startsWith("+++") || line.startsWith("---")) {
           styleRange.fontStyle = SWT.BOLD;
         }
       } else if (line.startsWith("@@")) {
         // Hunk header (brown/orange)
-        styleRange = new StyleRange(offset, lineLength, COLOR_HUNK_HEADER, null);
+        styleRange = new StyleRange(offset, lineLength, colorHunkHeader, null);
         styleRange.fontStyle = SWT.BOLD;
       }
 
@@ -115,7 +118,10 @@ public class DiffStyledTextComp extends StyledTextVar {
 
   @Override
   public void dispose() {
-    // Colors are shared and managed by Display, no need to dispose them explicitly
+    colorAddition.dispose();
+    colorDeletion.dispose();
+    colorFileHeader.dispose();
+    colorHunkHeader.dispose();
     super.dispose();
   }
 }

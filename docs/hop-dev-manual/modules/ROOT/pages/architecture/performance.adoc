@@ -1,0 +1,50 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: What is cheap and what is not on the per-row path, for people writing transforms.
+[[Architecture-Performance]]
+= Performance on the row hot path
+
+A transform's `processRow()` runs once per row.
+At a million rows, anything measured in microseconds is measured in seconds, and code that looks harmless in a dialog becomes the bottleneck.
+
+This page collects what is known about that path, so the same lessons are not relearned one transform at a time.
+
+== The shape of the problem
+
+Work that belongs in `init()`, done in `processRow()`::
+Resolving variables, looking up field indexes, building formatters, cloning row metadata.
+The classic mistake is calling something like `getFieldNames()` or `clone()` on the row metadata for every row when the layout has not changed since the first one.
+
+Allocation per row::
+A new object per row is a new object per million rows.
+Reusing a buffer held in the transform's data object is usually the fix.
+
+Logging::
+`LogChannel` checks the level before it builds a `LogMessage`, so a discarded call is cheap on the logging side — but the *argument* is not.
+`logDebug("row " + rowNr + " of " + total)` concatenates on every row whether or not anyone is listening, and `BaseMessages.getString(...)` does a bundle lookup on every row.
+Guard those behind `isDebug()`, and prefer not to log per row at all: a message that does pass the level check is expensive enough to dominate a fast transform.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Measured numbers rather than assertions: what a log line, a variable resolution and a row-metadata clone actually cost, and how those were measured.
+* How to profile a pipeline: JFR, what to record, and the fact that the default `jfr print` stack depth hides the frames that matter.
+* Where the engine itself spends time, and which of that a transform author can influence.
+* Row sets and backpressure: how buffer size interacts with throughput.
+* A checklist for reviewing a transform for hot-path problems.
+====

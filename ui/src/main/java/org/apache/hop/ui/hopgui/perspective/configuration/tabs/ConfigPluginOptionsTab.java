@@ -54,7 +54,6 @@ public class ConfigPluginOptionsTab {
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 
-  private static Map<String, Object> pluginDataMap = new HashMap<>();
   private Composite wPluginComposite;
 
   public ConfigPluginOptionsTab() {
@@ -96,7 +95,7 @@ public class ConfigPluginOptionsTab {
 
     // Load all configuration plugins and store their data
     //
-    pluginDataMap.clear();
+    pluginDataMap().clear();
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
     List<String> disabledIds = GuiRegistry.getDisabledGuiElements();
     java.util.List<IPlugin> configPlugins = pluginRegistry.getPlugins(ConfigPluginType.class);
@@ -120,7 +119,7 @@ public class ConfigPluginOptionsTab {
               Const.NVL(
                   TranslateUtil.translate(annotation.description(), emptySourceData.getClass()),
                   "");
-          pluginDataMap.put(name, sourceData);
+          pluginDataMap().put(name, sourceData);
         }
       } catch (Exception e) {
         new ErrorDialog(
@@ -150,7 +149,7 @@ public class ConfigPluginOptionsTab {
    * ConfigurationPerspective.
    */
   public static void showConfigPluginSettings(String pluginName, Composite targetComposite) {
-    Object pluginSourceData = pluginDataMap.get(pluginName);
+    Object pluginSourceData = pluginDataMap().get(pluginName);
     if (pluginSourceData == null) {
       return;
     }
@@ -204,7 +203,27 @@ public class ConfigPluginOptionsTab {
 
   /** Get all available plugin names for tree population */
   public static java.util.Set<String> getPluginNames() {
-    return pluginDataMap.keySet();
+    return pluginDataMap().keySet();
+  }
+
+  private static PluginOptionsData fallbackData;
+
+  private static Map<String, Object> pluginDataMap() {
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(PluginOptionsData.class, PluginOptionsData::new).map;
+    }
+    synchronized (ConfigPluginOptionsTab.class) {
+      if (fallbackData == null) {
+        fallbackData = new PluginOptionsData();
+      }
+      return fallbackData.map;
+    }
+  }
+
+  /** Per-session store of config-plugin GUI objects. */
+  static final class PluginOptionsData {
+    final Map<String, Object> map = new HashMap<>();
   }
 
   /** Show instruction message when no plugin is selected */

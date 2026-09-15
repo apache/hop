@@ -218,11 +218,6 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   @Override
-  public Object clone() {
-    return new ActionFtpDelete(this);
-  }
-
-  @Override
   public String getFtpConnectionName() {
     return Const.NVL(getName(), "FTP Delete");
   }

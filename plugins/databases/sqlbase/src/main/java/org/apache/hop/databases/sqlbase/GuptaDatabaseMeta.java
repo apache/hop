@@ -22,6 +22,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -29,7 +30,8 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "SQLBASE",
     typeDescription = "Gupta SQL Base",
-    documentationUrl = "/database/databases/sqlbase.html")
+    documentationUrl = "/database/databases/sqlbase.html",
+    classLoaderGroup = "sqlbase-db")
 @GuiPlugin(id = "GUI-SQLBaseDatabaseMeta")
 public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -117,7 +119,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -140,7 +142,8 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         CONST_ALTER_TABLE
             + tableName
             + " ADD "
-            + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+            + getColumnDefinition(
+                v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
     return retval;
   }
 

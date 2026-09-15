@@ -1,0 +1,121 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How a plugin can add support for a database specific type without any change to Hop or to the database plugin it extends.
+[[Database-ExtendingAnotherDialect]]
+= Extending a dialect you don't own
+
+Some types belong to one database and are worth real support: Oracle's `SDO_GEOMETRY`, PostGIS geometry, a vendor's vector or interval type.
+
+You can add these from your own plugin.
+Neither Hop nor the database plugin you are extending has to change.
+
+== The pieces
+
+Supporting a database specific type usually needs three things, and they do not all live in the same place.
+
+The Hop type::
+A value type plugin, so the value can travel between transforms, be compared, and be serialised.
+This part is not database specific.
+See xref:value-types.adoc[Value types].
+
+The mapping::
+A rule saying that this database's column of that name is this Hop type, and how it is spelled when writing.
+This is database specific and is what this page is about.
+
+The binding::
+How the value crosses JDBC, if the driver needs anything unusual.
+See xref:database/value-bindings.adoc[Moving values across JDBC].
+
+== Contributing rules
+
+[source,java]
+----
+@DatabaseTypeRulesPlugin(
+    id = "acme-oracle-geometry",
+    dialects = {"ORACLE"},
+    valueTypes = {"Geometry"},
+    classLoaderGroup = "oracle-db")
+public class OracleGeometryTypeRules implements IDatabaseTypeRuleProvider {
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return DatabaseTypes.rules()
+        .readNative("SDO_GEOMETRY").as(GEOMETRY)
+        .write(GEOMETRY).as("SDO_GEOMETRY")
+        .bind(GEOMETRY, new OracleGeometryBinding())
+        .build();
+  }
+}
+----
+
+`dialects`::
+Which dialects these rules apply to, named by the `type` of their `@DatabaseMetaPlugin` — `ORACLE`, `POSTGRESQL`, and so on.
+They are named as strings on purpose: you must not have to compile against the plugin you are extending.
+Leaving this empty applies the rules to every dialect.
+
+`valueTypes`::
+Value type names these rules need.
+If one is not installed the whole plugin is skipped silently, rather than failing, so you can ship optional support for a type the user may not have.
+
+`classLoaderGroup`::
+Join the dialect's group when your binding touches the driver's classes.
+See <<DriverClasses>>.
+
+== Targeting follows the class hierarchy
+
+A rule written for `POSTGRESQL` also applies to Redshift, Greenplum, CrateDB and CockroachDB, because their dialects extend the PostgreSQL one.
+
+Matching walks the dialect's superclasses and collects each `@DatabaseMetaPlugin` type it finds, so Redshift answers to `REDSHIFT` and to `POSTGRESQL`.
+You target the family by naming the one they extend.
+
+== Contributed rules are consulted first
+
+The order is: contributed rules, then the dialect's own, then the value types, then the standard JDBC mapping.
+
+So a plugin can add a type a dialect never had, and can also *correct* one a dialect gets wrong, without patching it.
+That second one is a sharp tool.
+If you use it, say so loudly in your plugin's documentation, because the behaviour a user gets will no longer match Hop's own.
+
+[[DriverClasses]]
+== Reaching the driver's classes
+
+This is the part that catches people out.
+
+Oracle hands back an `SDO_GEOMETRY` as an `oracle.sql.STRUCT`.
+That class is loaded by the classloader that loaded the Oracle driver, which is the Oracle plugin's.
+Your plugin has its own, so unwrapping the object from there fails with a message that looks impossible:
+
+----
+class oracle.sql.STRUCT cannot be cast to class oracle.sql.STRUCT
+----
+
+Two different classloaders, two different classes, same name.
+
+The fix is to join the group, by declaring the same `classLoaderGroup` as the plugin whose driver you need.
+Hop's database plugins name their group after the module: `oracle-db`, `postgres-db`, `mysql-db`, and so on.
+
+If you can avoid touching driver classes at all, do.
+A rule that claims a column by its type name and reads it with `getBytes` or `getString` needs no group and no coordination with anybody.
+PostGIS geometry arrives as well known binary and can be handled that way.
+
+== A checklist for a type plugin
+
+* The value type is a separate plugin, so the type is usable whatever the database.
+* The rules name their dialects by plugin type string, not by class.
+* `valueTypes` lists what you depend on, so an incomplete install degrades quietly.
+* You only join a `classLoaderGroup` if you genuinely need the driver's classes.
+* Values exchanged with the rest of Hop are driver neutral.

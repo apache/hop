@@ -55,17 +55,6 @@ public class FakeMeta extends BaseTransformMeta<Fake, FakeData> {
   }
 
   @Override
-  public FakeMeta clone() {
-    FakeMeta copy = (FakeMeta) super.clone();
-    copy.locale = locale;
-    copy.fields = new ArrayList<>();
-    for (FakeField field : fields) {
-      copy.fields.add(new FakeField(field));
-    }
-    return copy;
-  }
-
-  @Override
   public void setDefault() {
     locale = "en";
   }

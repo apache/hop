@@ -18,8 +18,11 @@
 package org.apache.hop.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Method;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.ImageData;
 import org.junit.jupiter.api.Test;
 
@@ -43,5 +46,17 @@ class SwtUniversalImageTest {
     assertEquals(16, data.width);
     assertEquals(8, data.height);
     assertEquals(0x80, data.getAlpha(0, 0));
+  }
+
+  @Test
+  void createDpiAwareImageSignatureDoesNotReferenceDesktopImageDataProvider() throws Exception {
+    Method method =
+        SwtUniversalImage.class.getMethod(
+            "createDpiAwareImage", Device.class, SwtUniversalImage.ImageDataAtZoom.class);
+    for (Class<?> type : method.getParameterTypes()) {
+      assertFalse(
+          type.getName().contains("ImageDataProvider"),
+          "RAP class loading resolves method signatures; keep ImageDataProvider off this API");
+    }
   }
 }

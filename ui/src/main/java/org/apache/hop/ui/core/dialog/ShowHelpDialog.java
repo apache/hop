@@ -17,14 +17,14 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -44,21 +44,23 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+/**
+ * Modeless documentation viewer parented to the current context shell (transform/action dialog or
+ * the main Hop GUI window).
+ */
 public class ShowHelpDialog extends Dialog {
+  public static final String SHELL_DATA_KEY = "hop.help.dialog";
+
   private static final Class<?> PKG = HopGui.class;
 
-  private static final String DOC_URL =
-      Const.getDocUrl(BasePropertyHandler.getProperty("documentationUrl"));
-  private static final String PREFIX = "https://help";
-  private static final String PRINT_PREFIX = "https://f1.help";
   private static final String PRINT_SCRIPT = "javascript:window.print();";
   private static final int MARGIN = 5;
+  private static final int DEFAULT_WIDTH = 900;
+  private static final int DEFAULT_HEIGHT = 700;
 
-  private boolean fromPrint;
-
-  private String dialogTitle;
+  private final String dialogTitle;
   private String url;
-  private String homeURL;
+  private final String homeURL;
 
   private Browser wBrowser;
 
@@ -69,22 +71,29 @@ public class ShowHelpDialog extends Dialog {
 
   private Shell shell;
 
-  public ShowHelpDialog(Shell parent, String dialogTitle, String url, String header) {
-    super(parent, SWT.NONE);
-    this.dialogTitle = BaseMessages.getString(PKG, "HopGui.Documentation.Hop.Title");
-    this.url = url;
-    try {
-      this.homeURL = new URL(DOC_URL).toString();
-    } catch (MalformedURLException e) {
-    }
+  public ShowHelpDialog(Shell parent, String url) {
+    this(parent, BaseMessages.getString(PKG, "HopGui.Documentation.Hop.Title"), url);
   }
 
   public ShowHelpDialog(Shell parent, String dialogTitle, String url) {
-    this(parent, dialogTitle, url, "");
+    super(parent, SWT.NONE);
+    this.dialogTitle =
+        Utils.isEmpty(dialogTitle)
+            ? BaseMessages.getString(PKG, "HopGui.Documentation.Hop.Title")
+            : dialogTitle;
+    this.url = url;
+    this.homeURL = Const.getDocUrl("");
   }
 
   protected Shell createShell(Shell parent) {
-    return new Shell(parent, BaseDialog.getDefaultDialogStyle());
+    return new Shell(parent, helpDialogStyle());
+  }
+
+  static int helpDialogStyle() {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return SWT.DIALOG_TRIM | SWT.RESIZE;
+    }
+    return SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
   }
 
   public void open() {
@@ -93,12 +102,26 @@ public class ShowHelpDialog extends Dialog {
     PropsUi props = PropsUi.getInstance();
 
     shell = createShell(parent);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(GuiResource.getInstance().getImageHelp());
     shell.setLayout(new FormLayout());
     shell.setText(dialogTitle);
     PropsUi.setLook(shell);
 
     Cursor cursorHand = new Cursor(display, SWT.CURSOR_HAND);
+    Color urlColor = new Color(display, props.contrastColor(101, 101, 101));
+    shell.addListener(SWT.Close, e -> PropsUi.getInstance().setScreen(new WindowProperty(shell)));
+    shell.addDisposeListener(
+        e -> {
+          if (cursorHand != null && !cursorHand.isDisposed()) {
+            cursorHand.dispose();
+          }
+          if (urlColor != null && !urlColor.isDisposed()) {
+            urlColor.dispose();
+          }
+          if (parent != null && !parent.isDisposed() && parent.getData(SHELL_DATA_KEY) == this) {
+            parent.setData(SHELL_DATA_KEY, null);
+          }
+        });
 
     ToolBar navigateToolBar = new ToolBar(shell, SWT.FLAT);
     FormData fdtoolBarBack = new FormData();
@@ -149,16 +172,35 @@ public class ShowHelpDialog extends Dialog {
     tltmPrint.setEnabled(true);
     tltmPrint.addListener(SWT.Selection, e -> print());
 
+    ToolItem tltmExternal = new ToolItem(printToolBar, SWT.NONE);
+    tltmExternal.setImage(GuiResource.getInstance().getImage("ui/images/html.svg"));
+    tltmExternal.setToolTipText(
+        BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.OpenExternal"));
+    tltmExternal.addListener(SWT.Selection, e -> openExternal());
+
     textURL = new Text(shell, SWT.BORDER);
     FormData fdtext = new FormData();
     fdtext.top = new FormAttachment(0, MARGIN);
     fdtext.right = new FormAttachment(printToolBar, -MARGIN);
     fdtext.left = new FormAttachment(navigateToolBar, MARGIN);
     textURL.setLayoutData(fdtext);
-    textURL.setForeground(new Color(display, props.contrastColor(101, 101, 101)));
+    textURL.setForeground(urlColor);
+    textURL.setText(Const.NVL(url, ""));
+    textURL.addListener(
+        SWT.DefaultSelection,
+        e -> {
+          String location = textURL.getText();
+          if (!Utils.isEmpty(location) && wBrowser != null && !wBrowser.isDisposed()) {
+            wBrowser.setUrl(location);
+          }
+        });
 
-    // Browser
-    wBrowser = new Browser(shell, SWT.NONE);
+    try {
+      wBrowser = new Browser(shell, SWT.NONE);
+    } catch (RuntimeException e) {
+      dispose();
+      throw e;
+    }
     FormData fdBrowser = new FormData();
     fdBrowser.top = new FormAttachment(textURL, MARGIN);
     fdBrowser.right = new FormAttachment(100, 0);
@@ -170,9 +212,18 @@ public class ShowHelpDialog extends Dialog {
 
     addProgressAndLocationListener();
 
-    textURL.setFocus();
+    shell.addListener(
+        SWT.Traverse,
+        e -> {
+          if (e.detail == SWT.TRAVERSE_ESCAPE) {
+            e.doit = false;
+            dispose();
+          }
+        });
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> ok());
+    BaseTransformDialog.setSize(shell, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    textURL.setFocus();
+    shell.open();
   }
 
   private void addProgressAndLocationListener() {
@@ -185,11 +236,7 @@ public class ShowHelpDialog extends Dialog {
 
           @Override
           public void completed(ProgressEvent event) {
-            if (fromPrint) {
-              wBrowser.execute(PRINT_SCRIPT);
-              fromPrint = false;
-            }
-            if (!EnvironmentUtils.getInstance().isWeb()) {
+            if (!EnvironmentUtils.getInstance().isWeb() && tltmBack != null) {
               // Browser in RAP does not implement back() and forward()
               setBackEnable(wBrowser.isBackEnabled());
               setForwardEnable(wBrowser.isForwardEnabled());
@@ -201,7 +248,7 @@ public class ShowHelpDialog extends Dialog {
         new LocationListener() {
           @Override
           public void changing(LocationEvent event) {
-            if (event.location.endsWith(".pdf")) {
+            if (event.location != null && event.location.endsWith(".pdf")) {
               try {
                 EnvironmentUtils.getInstance().openUrl(event.location);
               } catch (Exception e) {
@@ -213,7 +260,9 @@ public class ShowHelpDialog extends Dialog {
 
           @Override
           public void changed(LocationEvent event) {
-            textURL.setText(event.location);
+            if (event.location != null && textURL != null && !textURL.isDisposed()) {
+              textURL.setText(event.location);
+            }
           }
         };
     wBrowser.addProgressListener(progressListener);
@@ -237,29 +286,58 @@ public class ShowHelpDialog extends Dialog {
   }
 
   private void print() {
-    String printURL = wBrowser.getUrl();
-    if (printURL.startsWith(PREFIX)) {
-      printURL = printURL.replace(PREFIX, PRINT_PREFIX);
-      fromPrint = true;
-      wBrowser.setUrl(printURL);
-    } else {
-      wBrowser.execute(PRINT_SCRIPT);
+    wBrowser.execute(PRINT_SCRIPT);
+  }
+
+  private void openExternal() {
+    String location = wBrowser.getUrl();
+    if (Utils.isEmpty(location)) {
+      location = url;
+    }
+    try {
+      EnvironmentUtils.getInstance().openUrl(location);
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error opening URL", e);
     }
   }
 
   private void setBackEnable(boolean enable) {
-    tltmBack.setEnabled(enable);
+    if (tltmBack != null && !tltmBack.isDisposed()) {
+      tltmBack.setEnabled(enable);
+    }
   }
 
   private void setForwardEnable(boolean enable) {
-    tltmForward.setEnabled(enable);
+    if (tltmForward != null && !tltmForward.isDisposed()) {
+      tltmForward.setEnabled(enable);
+    }
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+    if (wBrowser != null && !wBrowser.isDisposed()) {
+      wBrowser.setUrl(url);
+    }
+    if (textURL != null && !textURL.isDisposed() && url != null) {
+      textURL.setText(url);
+    }
+  }
+
+  public boolean isDisposed() {
+    return shell == null || shell.isDisposed();
+  }
+
+  public void forceActive() {
+    if (shell != null && !shell.isDisposed()) {
+      shell.setMinimized(false);
+      shell.setActive();
+      shell.forceActive();
+    }
   }
 
   public void dispose() {
-    shell.dispose();
-  }
-
-  private void ok() {
-    dispose();
+    if (shell != null && !shell.isDisposed()) {
+      shell.dispose();
+    }
   }
 }

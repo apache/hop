@@ -51,6 +51,8 @@ public enum HopExtensionPoint {
   PipelineGraphMouseMoved("The mouse was moved on the canvas"),
   PipelineGraphMouseDoubleClick("A left or right button was double-clicked in a Pipeline"),
   PipelineBeforeDeleteTransforms("Pipeline transforms about to be deleted"),
+  PipelineTransformRenamed(
+      "A pipeline transform was renamed (TransformNameChange: pipeline, old name, new name)"),
 
   HopGuiPipelineMetaExecutionStart("Hop GUI initiates the execution of a pipeline (PipelineMeta)"),
   HopGuiPipelineExecutionConfiguration(
@@ -105,6 +107,7 @@ public enum HopExtensionPoint {
   AfterCheckTransforms("After a set of transforms has been checked for warnings/errors."),
   BeforeCheckTransform("Right before a transform is about to be verified."),
   AfterCheckTransform("After a transform has been checked for warnings/errors."),
+  AfterCheckActions("After a set of workflow actions has been checked for warnings/errors."),
 
   HopServerInit("Right before the Hop server starts"),
   HopServerStartup("Right after the Hop server has started and is fully functional"),
@@ -137,6 +140,21 @@ public enum HopExtensionPoint {
 
   HopGuiPipelineAfterClose("Called after a pipeline is closed in the Hop GUI (PipelineMeta)"),
   HopGuiWorkflowAfterClose("Called after a workflow is closed in the Hop GUI (WorkflowMeta)"),
+
+  /**
+   * Called before Hop GUI commits files to git, so that optional plugins can inspect what is about
+   * to be committed and refuse it. Payload is a GUI extension object (see ui module) carrying the
+   * git directory, the files being committed, and a cancel flag the listener sets to stop the
+   * commit.
+   *
+   * <p>Like git's own {@code pre-commit} hook this is called for commits the user authors, and not
+   * for revert or cherry-pick, which replay content that is already in the history.
+   *
+   * <p>Refusing the commit leaves the working tree and the index as they are, again as git's hook
+   * behaves: files which were already staged stay staged.
+   */
+  HopGuiFileBeforeCommit(
+      "Called before Hop GUI commits files to git (HopGuiFileBeforeCommitExtension)"),
 
   GetFieldsExtension("Get Fields dialog"),
 
@@ -173,10 +191,18 @@ public enum HopExtensionPoint {
    */
   HopGuiSearchMarketplace("Open the marketplace, searching for a plugin id (String)"),
 
-  HopImportStart("Executed at the start of the 'hop-import' command line tool"),
-  HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
+  /**
+   * Open or reuse an AI advisor session. Payload is {@code AiAdvisorOpenRequest}. Listened to by
+   * {@code hop-tech-ai}; hopper-edw and other plugins fire this instead of depending on that JAR.
+   */
+  HopGuiAiAdvisorOpenSession("Open an AI advisor session (AiAdvisorOpenRequest)"),
 
-  HopRestServiceStart("Called during Hop REST services startup"),
+  HopImportStart("Executed at the start of the 'hop-import' command line tool"),
+  HopImportTargetMetadataReady(
+      "The import target metadata provider has been created (HopImportBase)"),
+  HopImportRewriteMetadata(
+      "Imported files and connections have been written; rewrite metadata names (HopImportBase)"),
+  HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
   ;
 
   public String id;

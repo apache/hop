@@ -515,7 +515,6 @@ class DB2DatabaseMetaTest {
 
     assertEquals(32672, nativeMeta.getMaxVARCHARLength());
     assertTrue(nativeMeta.isSupportsBatchUpdates());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isSupportsSequences());
     assertEquals(":", nativeMeta.getExtraOptionIndicator());
     assertFalse(nativeMeta.isSupportsSequenceNoMaxValueOption());

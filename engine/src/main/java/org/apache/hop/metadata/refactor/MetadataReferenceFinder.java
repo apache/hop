@@ -17,12 +17,12 @@
 
 package org.apache.hop.metadata.refactor;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -36,9 +36,9 @@ import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.IVariables;
@@ -56,6 +56,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -207,8 +208,7 @@ public class MetadataReferenceFinder {
             // DataProbeLocation.sourcePipelineFilename)
             // are still discovered.
             Type[] typeArgs = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
-            if (typeArgs.length == 1 && typeArgs[0] instanceof Class) {
-              Class<?> itemClass = (Class<?>) typeArgs[0];
+            if (typeArgs.length == 1 && typeArgs[0] instanceof Class<?> itemClass) {
               if (fieldType != HopMetadataPropertyType.NONE) {
                 scanListItemClassForType(map, metadataKey, field.getName(), itemClass, fieldType);
               } else {
@@ -255,7 +255,7 @@ public class MetadataReferenceFinder {
   private <E> void scanEngineRunConfigPlugins(
       Map<HopMetadataPropertyType, List<MetadataClassField>> map,
       PluginRegistry registry,
-      Class<? extends org.apache.hop.core.plugins.IPluginType> pluginType,
+      Class<? extends IPluginType> pluginType,
       Class<E> engineClass,
       String containerMetadataKey,
       String nestedFieldName) {
@@ -326,6 +326,19 @@ public class MetadataReferenceFinder {
   }
 
   /**
+   * Normalizes a file path by trimming whitespace and converting all platform-specific file
+   * separators to forward slashes.
+   *
+   * @param path the file path to normalize
+   */
+  protected static @Nullable String normalizeFilePath(@Nullable String path) {
+    if (path == null) {
+      return null;
+    }
+    return path.trim().replace(File.separatorChar, '/');
+  }
+
+  /**
    * Returns {@code true} when the stored field value equals {@code filePath}, optionally resolving
    * variables (e.g. {@code ${PROJECT_HOME}/pipeline.hpl}) before comparing.
    */
@@ -333,14 +346,14 @@ public class MetadataReferenceFinder {
     if (value == null) {
       return false;
     }
-    String stored = value.toString().trim();
+    String stored = normalizeFilePath(value.toString());
     if (filePath.equals(stored)) {
       return true;
     }
     if (variables != null && !stored.isEmpty()) {
       try {
-        String resolved = variables.resolve(stored);
-        return resolved != null && resolved.trim().equals(filePath);
+        String resolved = normalizeFilePath(variables.resolve(stored));
+        return resolved.equals(filePath);
       } catch (Exception ignored) {
         // keep false
       }
@@ -358,8 +371,9 @@ public class MetadataReferenceFinder {
       String projectHome = variables.resolve(Const.VAR_PROJECT_HOME);
       if (projectHome != null && !projectHome.isEmpty() && newPath.startsWith(projectHome)) {
         String rel = newPath.substring(projectHome.length());
+        rel = rel.replace(File.separatorChar, '/');
         if (!rel.startsWith("/")) {
-          rel = "/" + rel;
+          rel = '/' + rel;
         }
         return Const.VAR_PROJECT_HOME + rel;
       }
@@ -475,6 +489,8 @@ public class MetadataReferenceFinder {
     if (StringUtils.isEmpty(filePath)) {
       return Collections.emptyList();
     }
+    filePath = normalizeFilePath(filePath);
+
     Set<String> tagNames = getFileReferenceTagNames();
     if (tagNames.isEmpty()) {
       return Collections.emptyList();
@@ -514,6 +530,7 @@ public class MetadataReferenceFinder {
     if (tagNames.isEmpty()) {
       return;
     }
+    oldPath = normalizeFilePath(oldPath);
     for (MetadataReferenceResult result : results) {
       replaceInFile(result.getFilePath(), tagNames, oldPath, newPath, variables);
     }
@@ -633,7 +650,7 @@ public class MetadataReferenceFinder {
    * Used when searching metadata objects for references to a renamed pipeline/workflow file.
    */
   private static final List<HopMetadataPropertyType> FILE_PATH_PROPERTY_TYPES =
-      Arrays.asList(
+      List.of(
           HopMetadataPropertyType.PIPELINE_FILE,
           HopMetadataPropertyType.WORKFLOW_FILE,
           HopMetadataPropertyType.HOP_FILE);
@@ -655,6 +672,8 @@ public class MetadataReferenceFinder {
     if (StringUtils.isEmpty(filePath)) {
       return Collections.emptyList();
     }
+    filePath = normalizeFilePath(filePath);
+
     List<MetadataObjectReference> results = new ArrayList<>();
     Set<MetadataObjectReference> seen = new HashSet<>();
     try {
@@ -770,6 +789,9 @@ public class MetadataReferenceFinder {
             if (target == null) {
               continue;
             }
+
+            oldPath = normalizeFilePath(oldPath);
+
             if (cf.listFieldName != null) {
               if (replaceFilePathInList(target, cf, oldPath, newPath, variables)) {
                 updated = true;
@@ -1129,8 +1151,6 @@ public class MetadataReferenceFinder {
       try (OutputStream out = HopVfs.getOutputStream(HopVfs.getFileObject(filePath), false)) {
         out.write(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
       }
-    } catch (HopXmlException e) {
-      throw new HopException("Error updating references in file: " + filePath, e);
     } catch (Exception e) {
       throw new HopException("Error updating references in file: " + filePath, e);
     }
@@ -1158,8 +1178,6 @@ public class MetadataReferenceFinder {
       try (OutputStream out = HopVfs.getOutputStream(HopVfs.getFileObject(filePath), false)) {
         out.write(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
       }
-    } catch (HopXmlException ex) {
-      throw new HopException("Error updating references in file: " + filePath, ex);
     } catch (Exception ex) {
       throw new HopException("Error updating references in file: " + filePath, ex);
     }
@@ -1189,20 +1207,10 @@ public class MetadataReferenceFinder {
       if (tagNames.contains(tagName)) {
         String value = XmlHandler.getNodeValue(node);
         if (value != null) {
-          String trimmed = value.trim();
-          boolean matches = trimmed.equals(elementName);
-          if (!matches && variables != null) {
-            try {
-              String resolved = variables.resolve(trimmed);
-              matches = resolved != null && resolved.trim().equals(elementName);
-            } catch (Exception ignored) {
-              // keep matches false
-            }
-          }
-          if (matches) {
+          if (matchesFilePath(value, elementName, variables)) {
             count[0]++;
             if (replace && node instanceof Element el && newNameForReplace != null) {
-              el.setTextContent(computeNewFilePath(trimmed, newNameForReplace, variables));
+              el.setTextContent(computeNewFilePath(value, newNameForReplace, variables));
             }
           }
         }

@@ -1,0 +1,81 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Where a jar ends up in the distribution, which classloader sees it, and why a duplicate copy causes trouble.
+[[Architecture-DependenciesClassloading]]
+= Dependencies and classloading
+
+Hop loads plugins from folders at runtime, which means dependency management is not only a Maven concern: where a jar lands decides which classloader sees it, and that decides whether your plugin works.
+
+== The layout
+
+`lib/core`::
+Shared by everything. One classloader, the parent of all plugin classloaders.
+
+`lib/jdbc`::
+JDBC drivers, kept apart because most of them cannot ship with Hop for licensing reasons. `DatabasePluginType` adds this folder as an extra library folder; `HOP_SHARED_JDBC_FOLDERS` can change it.
+
+`plugins/<category>/<plugin>/`::
+The plugin jar, with its private dependencies in a `lib/` subfolder next to it.
+
+Each plugin gets its own `URLClassLoader` over its own jar and its `lib/`, with the Hop classloader as parent — so a plugin sees `lib/core`, but `lib/core` never sees a plugin.
+
+== How Maven scope decides placement
+
+The shared assembly component `assemblies/shared/hop-plugin-libs.xml` routes by scope:
+
+[cols="1,3", options="header"]
+|===
+|Scope |Where it lands
+
+|`provided`
+|`lib/core`, unless it is Hop itself, SWT, SLF4J or another artifact on the shared exclude list.
+
+|`runtime` / `compile`
+|The plugin's own `lib/` folder.
+
+|`test` (JDBC drivers)
+|`lib/jdbc`, for the drivers a plugin declares.
+|===
+
+This is why the scope you pick in a plugin pom is a packaging decision, not just a compilation one.
+
+== Two rules
+
+Never ship a jar that is already in `lib/core`::
+The plugin classloader would find the parent's copy anyway, so the second copy is dead weight at best.
+At worst the two versions differ and behaviour depends on which classloader asked.
+`tools/find_duplicate_jars.sh` finds these.
+
+Plugins that must see each other's classes share a `classLoaderGroup`::
+A database dialect and its bulk loader, a VFS provider and its metadata type, an SFTP connection and the actions using it.
+Without it, an object created by one classloader will not cast to the class the other one knows — the failure looks like an impossible `ClassCastException` between two identically named classes.
+
+== Size
+
+`tools/check-assembly-size.sh` runs in CI and fails the build when the packages get too large; ASF Artifactory rejects uploads over roughly 850 MB.
+Adding a heavy dependency to a widely-used module is a distribution-wide cost.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* The scope convention in full, with what to do when a dependency is needed at compile time but shipped by something else.
+* Mixed-scope dependency graphs: when `compile` beats `provided` and what that does to placement.
+* `isSeparateClassLoaderNeeded`: what it actually does and the very few cases that need it.
+* Adding a dependency: the ASF category A/B/X rules and what they mean in practice.
+* Reading a plugin zip to check what shipped, before you open the pull request.
+====

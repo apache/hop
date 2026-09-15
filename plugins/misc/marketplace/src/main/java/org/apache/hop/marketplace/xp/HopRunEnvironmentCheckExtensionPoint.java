@@ -27,8 +27,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.EnvironmentDrift;
-import org.apache.hop.marketplace.env.HopEnvironmentLoader;
-import org.apache.hop.marketplace.env.HopEnvironmentSpec;
+import org.apache.hop.marketplace.env.HopInstallSpec;
+import org.apache.hop.marketplace.env.HopInstallSpecLoader;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.run.HopRunBase;
 
@@ -62,14 +62,14 @@ public class HopRunEnvironmentCheckExtensionPoint implements IExtensionPoint<Hop
       return;
     }
 
-    HopEnvironmentSpec env = HopEnvironmentLoader.load(envFile);
+    HopInstallSpec env = HopInstallSpecLoader.load(envFile);
     boolean enforce =
         env.isEnforceOnRun()
             || "true".equalsIgnoreCase(System.getProperty("hop.env.enforce", "false"))
             || "Y".equalsIgnoreCase(System.getProperty("hop.env.enforce", "N"));
     if (!enforce) {
       log.logDetailed(
-          "Found environment file "
+          "Found install spec file "
               + envFile
               + " (enforceOnRun=false); skipping drift check. Use hop marketplace validate -f "
               + envFile.getFileName());
@@ -85,14 +85,14 @@ public class HopRunEnvironmentCheckExtensionPoint implements IExtensionPoint<Hop
             || !drift.getMissingDependencies().isEmpty();
     if (hard) {
       throw new HopException(
-          "FATAL: Environment drift detected against "
+          "FATAL: Install spec drift detected against "
               + envFile
               + ":\n"
               + drift.formatReport()
               + "Run 'hop marketplace apply -f "
               + envFile
-              + "' to fix your environment.");
+              + "' to fix the local install.");
     }
-    log.logBasic("Environment file " + envFile + " matches local install.");
+    log.logBasic("Install spec file " + envFile + " matches local install.");
   }
 }

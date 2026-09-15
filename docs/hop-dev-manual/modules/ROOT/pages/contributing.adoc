@@ -1,0 +1,56 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How a change gets from your machine into Apache Hop: issues, branches, pull requests and review.
+[[Contributing]]
+= Contributing changes
+
+Apache Hop is developed by an open community, and contributing goes well beyond writing code.
+The project's contribution guides live on the website and are the authority on process:
+
+* https://hop.apache.org/community/contribution-guides/code-contribution-guide/[Code contribution guide]
+* https://hop.apache.org/community/contribution-guides/code-review-guide/[Code review guide]
+* https://hop.apache.org/community/contribution-guides/documentation-contribution-guide/[Documentation contribution guide]
+* https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation contribution guide]
+* https://hop.apache.org/community/contribution-guides/release-contribution-guide/[Release contribution guide]
+
+link:https://github.com/apache/hop/blob/main/CONTRIBUTING.md[CONTRIBUTING.md] in the repository root collects those links along with the ICLA requirements and how one becomes a committer.
+
+This page is about the mechanics on the code side.
+
+== Before you open a pull request
+
+* There is a https://github.com/apache/hop/issues[GitHub issue] for the change, and the pull request references it.
+* `./mvnw spotless:apply` has been run.
+* Every new file carries the Apache License 2.0 header, or RAT will fail the build.
+* The build passes locally — see xref:build-and-test.adoc[Building and testing].
+* New behaviour has a test. xref:testing/unit-testing.adoc[Unit tests] for logic, xref:integration-testing.adoc[integration tests] for anything that needs a pipeline to actually run, xref:testing/ui-testing.adoc[UI tests] for dialogs and widgets.
+* User-visible behaviour has documentation — see xref:writing-documentation.adoc[Writing documentation].
+
+== Getting help
+
+Questions are welcome on the https://hop.apache.org/community/mailing-list/[mailing lists], in https://github.com/apache/hop/discussions[GitHub Discussions], and on Slack.
+For a change large enough that you would rather not build it twice, ask on the dev list before starting.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Branch naming and commit message conventions as actually practised in this repository.
+* What reviewers look for, and what to expect in terms of turnaround.
+* Backporting to a release branch, and when that is appropriate.
+* Deprecation policy: how an API is removed, and over how many releases.
+====

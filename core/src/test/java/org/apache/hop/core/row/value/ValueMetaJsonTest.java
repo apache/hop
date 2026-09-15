@@ -20,6 +20,7 @@ package org.apache.hop.core.row.value;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -40,7 +41,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.Test;
@@ -235,23 +235,16 @@ class ValueMetaJsonTest {
     assertEquals(JsonNode.class, vm.getNativeDataTypeClass());
   }
 
+  /**
+   * The value type names no column type at all. It used to answer JSON for every database, which is
+   * a type most of them do not have; the ones that do say so in their own type rules, and the rest
+   * get the text column {@link org.apache.hop.core.database.types.ColumnTypeFallback} picks.
+   */
   @Test
   void testDatabaseColumnTypeDefinition() {
     ValueMetaJson vm = new ValueMetaJson("col");
-    IDatabase pg = mock(IDatabase.class);
-    when(pg.isPostgresVariant()).thenReturn(true);
     IDatabase other = mock(IDatabase.class);
-    when(other.isPostgresVariant()).thenReturn(false);
 
-    assertEquals("JSONB", vm.getDatabaseColumnTypeDefinition(pg, null, null, false, false, false));
-    assertEquals(
-        "col JSONB" + Const.CR,
-        vm.getDatabaseColumnTypeDefinition(pg, null, null, false, true, true));
-
-    assertEquals(
-        "JSON", vm.getDatabaseColumnTypeDefinition(other, null, null, false, false, false));
-    assertEquals(
-        "col JSON" + Const.CR,
-        vm.getDatabaseColumnTypeDefinition(other, null, null, false, true, true));
+    assertNull(vm.getDatabaseColumnTypeDefinition(other, null, null, false, false, false));
   }
 }

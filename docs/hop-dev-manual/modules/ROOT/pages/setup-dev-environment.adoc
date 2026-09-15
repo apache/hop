@@ -81,6 +81,17 @@ Run the following command to build Hop and run all unit tests:
 [source]
 mvn clean install
 
+On Linux a full reactor run also executes the SWT UI tests (`@Tag("uitest")`). Those tests open real dialogs; pointed at your desktop they steal keyboard focus for many minutes. Jenkins already wraps Maven in `xvfb-run`. Locally do the same with the helper, which uses host `xvfb-run` when installed and otherwise starts a tiny Xvfb Docker sidecar (Maven and GTK stay on the host):
+
+[source]
+----
+./tools/with-isolated-display.sh ./mvnw clean install
+----
+
+`-Puitest` means *only* UI tests, not "also enable them". `-Pskip-uitest` is the explicit escape hatch that excludes them. Failed UI tests already write a PNG under `screenshots/` while the shell is still up; do not add success-path screenshot capture.
+
+On macOS the SWT tests use Cocoa (`-XstartOnFirstThread` from the `swt-mac` profile). The helper cannot isolate those windows: a host Cocoa JVM has no X11 socket, and the Linux Xvfb sidecar is not visible to macOS SWT. The script prints a warning and runs the command on the interactive session. Use `-Pskip-uitest` for a focus-free local Mac build. Reviewing the sidecar itself is a Docker image/compose check; running the Linux GTK suite from a Mac host JVM is out of scope.
+
 Please make sure all the files you added or changed have the proper license header.
 You can run the following command to verify this:
 

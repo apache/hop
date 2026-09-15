@@ -348,14 +348,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   @Override
   public Object clone() {
     LdapInputMeta retval = (LdapInputMeta) super.clone();
-    if (inputFields != null) {
-      retval.inputFields = new ArrayList<>();
-      for (LdapInputField field : inputFields) {
-        if (field != null) {
-          retval.inputFields.add((LdapInputField) field.clone());
-        }
-      }
-    } else {
+    if (retval.inputFields == null) {
       retval.inputFields = new ArrayList<>();
     }
     return retval;
@@ -408,6 +401,23 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     this.trustAllCertificates = false;
     this.protocol = LdapProtocolFactory.getConnectionTypes(log).get(0);
     this.useCertificate = false;
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isDynamicSearch() || isDynamicFilter();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "LdapInputDialog.dynamicBase.Label")
+        + " / "
+        + BaseMessages.getString(PKG, "LdapInputDialog.dynamicFilter.Label");
   }
 
   @Override
@@ -500,21 +510,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     }
     remarks.add(cr);
 
-    // See if we get input...
-    if (input.length > 0) {
-      cr =
+    if (consumesMainInput() && input.length <= 0) {
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInput"),
-              transformMeta);
+              BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta));
     }
-    remarks.add(cr);
 
     // Check hostname
     if (Utils.isEmpty(host)) {

@@ -24,6 +24,7 @@ import org.apache.hop.beam.transform.PipelineTestBase;
 import org.apache.hop.beam.transforms.io.BeamInputMeta;
 import org.apache.hop.beam.transforms.io.BeamOutputMeta;
 import org.apache.hop.core.Condition;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -42,6 +43,7 @@ import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
 import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseTarget;
+import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 
 public class BeamPipelineMetaUtil {
 
@@ -89,6 +91,48 @@ public class BeamPipelineMetaUtil {
     beamOutputTransformMeta.setTransformPluginId("BeamOutput");
     pipelineMeta.addTransform(beamOutputTransformMeta);
     pipelineMeta.addPipelineHop(new PipelineHopMeta(dummyTransformMeta, beamOutputTransformMeta));
+
+    return pipelineMeta;
+  }
+
+  public static PipelineMeta generateWriteToLogPipelineMeta(
+      String pipelineName,
+      String inputTransformName,
+      String writeToLogTransformName,
+      String logMessage,
+      IHopMetadataProvider metadataProvider)
+      throws Exception {
+
+    IHopMetadataSerializer<FileDefinition> serializer =
+        metadataProvider.getSerializer(FileDefinition.class);
+    FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
+    serializer.save(customerFileDefinition);
+
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName(pipelineName);
+    pipelineMeta.setMetadataProvider(metadataProvider);
+
+    // Input transform reading the customers file
+    //
+    BeamInputMeta beamInputMeta = new BeamInputMeta();
+    beamInputMeta.setInputLocation(PipelineTestBase.INPUT_CUSTOMERS_FILE);
+    beamInputMeta.setFileDefinitionName(customerFileDefinition.getName());
+    TransformMeta beamInputTransformMeta = new TransformMeta(inputTransformName, beamInputMeta);
+    beamInputTransformMeta.setTransformPluginId("BeamInput");
+    pipelineMeta.addTransform(beamInputTransformMeta);
+
+    // Write to log transform, logging a distinctive message at BASIC level
+    //
+    WriteToLogMeta writeToLogMeta = new WriteToLogMeta();
+    writeToLogMeta.setLogLevel(LogLevel.BASIC);
+    writeToLogMeta.setDisplayHeader(true);
+    writeToLogMeta.setLogMessage(logMessage);
+    TransformMeta writeToLogTransformMeta =
+        new TransformMeta(writeToLogTransformName, writeToLogMeta);
+    writeToLogTransformMeta.setTransformPluginId("WriteToLog");
+    pipelineMeta.addTransform(writeToLogTransformMeta);
+    pipelineMeta.addPipelineHop(
+        new PipelineHopMeta(beamInputTransformMeta, writeToLogTransformMeta));
 
     return pipelineMeta;
   }

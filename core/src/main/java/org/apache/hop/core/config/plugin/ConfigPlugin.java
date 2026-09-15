@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ConfigPlugin {
+  String CATEGORY_ROOT = "root";
   String CATEGORY_CONFIG = "config";
   String CATEGORY_RUN = "run";
   String CATEGORY_SEARCH = "search";
@@ -35,10 +36,19 @@ public @interface ConfigPlugin {
   String CATEGORY_SERVER = "server";
   String CATEGORY_DOC = "doc";
   String CATEGORY_PYTHON = "python";
+  String CATEGORY_NAMING = "naming";
+  String CATEGORY_GUI = "gui";
+  String CATEGORY_EXPORT = "export";
 
   String id();
 
   String description() default "";
 
   String category() default CATEGORY_CONFIG;
+
+  /**
+   * Plugins sharing a group share a single class loader. Set this when the config plugin lives in a
+   * plugin folder that also uses {@code classLoaderGroup} on metadata or GUI types.
+   */
+  String classLoaderGroup() default "";
 }

@@ -292,6 +292,13 @@ public class HopPipelineMetaToBeamPipelineConverter {
 
     pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
 
+    // The log level for the per-transform pipelines executed inside the Beam workers.
+    // The engine sets this as a runtime variable on its live run configuration, but this converter
+    // reloads a fresh copy of the run configuration from the metadata, so that runtime variable is
+    // not present here. When it is absent we default to BASIC (the documented default of
+    // HopPipelineExecutionOptions and the behaviour of the local pipeline engine); defaulting to a
+    // lower level such as MINIMAL would silently swallow BASIC-level transform logging (e.g. the
+    // "Write to log" transform) when running on Beam.
     pipelineOptions
         .as(HopPipelineExecutionOptions.class)
         .setLogLevel(
@@ -299,7 +306,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
                 Const.NVL(
                     pipelineRunConfiguration.getVariable(
                         BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL),
-                    "MINIMAL")));
+                    LogLevel.BASIC.getCode())));
 
     pipelineOptions.setRunner(runnerClass);
   }

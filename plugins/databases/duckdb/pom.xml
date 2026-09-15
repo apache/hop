@@ -27,4 +27,25 @@
     <artifactId>hop-databases-duckdb</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Databases DuckDB</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs-jdbc</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- The driver is downloaded on demand at runtime, so it is only needed to test against. -->
+        <dependency>
+            <groupId>org.duckdb</groupId>
+            <artifactId>duckdb_jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

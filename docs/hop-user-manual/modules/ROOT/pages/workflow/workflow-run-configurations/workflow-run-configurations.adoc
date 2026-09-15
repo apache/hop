@@ -52,4 +52,5 @@ The available engine types are:
 
 * xref:workflow/workflow-run-configurations/native-local-workflow-engine.adoc[Local workflow engine]: this configuration runs pipelines on your machine
 * xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow engine]: this configuration runs workflows on a Hop Server using a defined Run Configuration.
+* xref:workflow/workflow-run-configurations/native-load-balancing-workflow-engine.adoc[Load-balancing workflow engine]: this configuration assigns each workflow execution to one Hop Server from a group.
 |===

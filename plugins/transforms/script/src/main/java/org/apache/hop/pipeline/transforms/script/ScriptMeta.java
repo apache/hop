@@ -62,18 +62,6 @@ public class ScriptMeta extends BaseTransformMeta<Script, ScriptData> implements
     fields = new ArrayList<>();
   }
 
-  public ScriptMeta(ScriptMeta m) {
-    this();
-    this.languageName = m.languageName;
-    m.scripts.forEach(s -> this.scripts.add(new SScript(s)));
-    m.fields.forEach(f -> this.fields.add(new SField(f)));
-  }
-
-  @Override
-  public ScriptMeta clone() {
-    return new ScriptMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta rowMeta,

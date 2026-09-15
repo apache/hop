@@ -144,4 +144,38 @@ public @interface GuiWidgetElement {
    * @return
    */
   Class<? extends IHopMetadata> metadata() default IHopMetadata.class;
+
+  /**
+   * Metadata plugin key (for example {@code ai-provider}) so a widget can target a metadata type
+   * without a compile dependency on that plugin. Empty uses {@link #metadata()}. When the plugin is
+   * not installed the widget is omitted.
+   */
+  String metadataKey() default "";
+
+  /**
+   * Optional naming-scheme type code for this widget ({@code file}, {@code folder}, {@code
+   * hop-variable}, …). Empty means: infer {@code file}/{@code folder} from {@link
+   * GuiElementType#FILENAME}/{@link GuiElementType#FOLDER}, otherwise the widget is not a name
+   * field. Does not replace {@link #type()}.
+   */
+  String namingSchemeType() default "";
+
+  /**
+   * Layout bucket inside the {@link #parentId()} tree. Empty (the default) keeps the widget on the
+   * flat form. When any sibling has a group, widgets are shown in that container ({@link
+   * #groupType()}).
+   */
+  String group() default "";
+
+  /** Sort key for the group among other groups. Compared as a string, same as {@link #order()}. */
+  String groupOrder() default "";
+
+  /** Optional image filename for the group (tab icon, list item, …). */
+  String groupImage() default "";
+
+  /**
+   * How groups on this {@link #parentId()} are shown. Repeat on every field; the first non-{@link
+   * GuiWidgetGroupType#NONE} value wins. Mixed types log a warning and fall back to tabs.
+   */
+  GuiWidgetGroupType groupType() default GuiWidgetGroupType.NONE;
 }

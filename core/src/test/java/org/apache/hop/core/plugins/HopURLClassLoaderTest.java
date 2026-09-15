@@ -18,6 +18,7 @@
 package org.apache.hop.core.plugins;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -63,6 +64,27 @@ class HopURLClassLoaderTest {
       assertNotNull(
           loader.getResource("probe/marker.txt"),
           "the jar's resource must be reachable after addJar");
+    }
+  }
+
+  @Test
+  void testSystemParentFirstClasses() throws Exception {
+    try (HopURLClassLoader loader =
+        new HopURLClassLoader(new URL[0], getClass().getClassLoader())) {
+      Class<?> mapperClass = loader.loadClass("com.fasterxml.jackson.databind.ObjectMapper");
+      assertEquals(com.fasterxml.jackson.databind.ObjectMapper.class, mapperClass);
+      assertEquals(getClass().getClassLoader(), mapperClass.getClassLoader());
+
+      Class<?> hopJsonClass = loader.loadClass("org.apache.hop.core.json.HopJson");
+      assertEquals(org.apache.hop.core.json.HopJson.class, hopJsonClass);
+      assertEquals(getClass().getClassLoader(), hopJsonClass.getClassLoader());
+
+      // Jackson modules are not shared: a plugin's own (e.g. Scala-version specific) copy must win
+      assertFalse(loader.isParentFirst("com.fasterxml.jackson.module.scala.DefaultScalaModule"));
+      assertFalse(loader.isParentFirst("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule"));
+      assertTrue(loader.isParentFirst("com.fasterxml.jackson.databind.ObjectMapper"));
+      assertTrue(loader.isParentFirst("com.fasterxml.jackson.core.JsonParser"));
+      assertTrue(loader.isParentFirst("com.fasterxml.jackson.annotation.JsonProperty"));
     }
   }
 }

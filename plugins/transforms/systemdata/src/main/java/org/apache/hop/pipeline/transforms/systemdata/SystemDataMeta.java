@@ -68,8 +68,8 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
   }
 
   @Override
-  public Object clone() {
-    return new SystemDataMeta(this);
+  public boolean canStartWithoutInput() {
+    return true;
   }
 
   public SystemDataMeta(SystemDataMeta m) {

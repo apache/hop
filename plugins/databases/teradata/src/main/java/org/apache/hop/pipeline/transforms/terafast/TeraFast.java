@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -241,8 +243,9 @@ public class TeraFast extends BaseTransform<TeraFastMeta, TeraFastData> {
             break;
           case IValueMeta.TYPE_BINARY:
             byte[] byt = iRowMeta.getBinary(row, i);
-            // REVIEW - this does an implicit byt.toString, which can't be what was intended.
-            dataFilePrintStream.print(byt);
+            if (byt != null) {
+              dataFilePrintStream.print(hexFieldForFastLoad(byt));
+            }
             break;
           default:
             throw new HopException(
@@ -253,6 +256,17 @@ public class TeraFast extends BaseTransform<TeraFastMeta, TeraFastData> {
       dataFilePrintStream.print(FastloadControlBuilder.DATAFILE_COLUMN_SEPERATOR);
     }
     dataFilePrintStream.print(Const.CR);
+  }
+
+  /** FastLoad VARTEXT reads BYTE/VARBYTE values as hexadecimal strings with no prefix. */
+  @VisibleForTesting
+  static String hexFieldForFastLoad(byte[] bytes) {
+    return bytes == null ? null : Hex.encodeHexString(bytes);
+  }
+
+  @VisibleForTesting
+  void setDataFilePrintStream(PrintStream printStream) {
+    this.dataFilePrintStream = printStream;
   }
 
   private String pad(IValueMeta iValueMeta, String data) {

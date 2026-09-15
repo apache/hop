@@ -20,6 +20,8 @@ package org.apache.hop.databases.cratedb;
 import java.util.List;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
@@ -32,6 +34,24 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
     classLoaderGroup = "crate-db")
 @GuiPlugin(id = "GUI-CrateDBDatabaseMeta")
 public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
+
+  /**
+   * CrateDB is Postgres derived but names these differently: a document goes in an OBJECT and an
+   * address in an IP, and it has neither JSONB nor INET.
+   */
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          .write(IValueMeta.TYPE_JSON)
+          .as("OBJECT")
+          .write(IValueMeta.TYPE_INET)
+          .as("IP")
+          .include(PostgreSqlDatabaseMeta.POSTGRES_TYPE_RULES)
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   private static final String SEQUENCES_NOT_SUPPORTED = "CrateDB does not support sequences";
 

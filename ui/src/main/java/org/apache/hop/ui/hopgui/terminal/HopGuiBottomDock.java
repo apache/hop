@@ -574,6 +574,15 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       unregisterTerminal(terminalId);
     }
 
+    Object toolContent = tabItem.getData(DATA_TOOL_CONTENT);
+    if (toolContent instanceof Control content && !content.isDisposed()) {
+      content.dispose();
+    }
+    Control tabControl = tabItem.getControl();
+    if (tabControl != null && !tabControl.isDisposed()) {
+      tabControl.dispose();
+    }
+
     tabItem.dispose();
   }
 

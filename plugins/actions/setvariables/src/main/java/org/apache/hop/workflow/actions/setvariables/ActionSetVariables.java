@@ -167,19 +167,6 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     this("");
   }
 
-  public ActionSetVariables(ActionSetVariables other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.filename = other.getFilename();
-    this.fileVariableType = other.getFileVariableType();
-    this.replaceVars = other.isReplaceVars();
-    this.variableDefinitions = other.getVariableDefinitions();
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionSetVariables(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) throws HopException {
     result.setResult(true);

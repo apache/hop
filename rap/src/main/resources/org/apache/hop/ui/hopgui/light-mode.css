@@ -181,6 +181,13 @@ Button[TOGGLE][FLAT] {
     text-shadow: 0 1px 0 #ffffff;
 }
 
+/* Compact padding so a 16px help icon fits the same height as text-only OK/Cancel. */
+Button[PUSH].helpButton,
+Button[PUSH][BORDER].helpButton,
+Button[PUSH][FLAT].helpButton {
+    padding: 4px 12px;
+}
+
 Button[ARROW],
 Button[ARROW][BORDER],
 Button[ARROW][FLAT] {

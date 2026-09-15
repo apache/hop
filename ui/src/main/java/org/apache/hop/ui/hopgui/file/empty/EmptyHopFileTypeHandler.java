@@ -18,7 +18,7 @@
 package org.apache.hop.ui.hopgui.file.empty;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
@@ -173,7 +173,7 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
 
   @Override
   public Map<String, Object> getStateProperties() {
-    return Collections.emptyMap();
+    return new HashMap<>();
   }
 
   @Override

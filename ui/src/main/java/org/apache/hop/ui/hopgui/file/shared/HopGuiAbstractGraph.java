@@ -179,32 +179,42 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
 
   public abstract SnapAllignDistribute createSnapAlignDistribute();
 
+  /** Record an undo snapshot before a structural change. Overridden by pipeline/workflow graphs. */
+  protected void markUndoPoint() {
+    // no-op for graphs that do not implement snapshot undo
+  }
+
   @Override
   public void snapToGrid() {
     snapToGrid(ConstUi.GRID_SIZE);
   }
 
   private void snapToGrid(int size) {
+    markUndoPoint();
     createSnapAlignDistribute().snapToGrid(size);
     setChanged();
   }
 
   public void alignLeft() {
+    markUndoPoint();
     createSnapAlignDistribute().allignleft();
     setChanged();
   }
 
   public void alignRight() {
+    markUndoPoint();
     createSnapAlignDistribute().allignright();
     setChanged();
   }
 
   public void alignTop() {
+    markUndoPoint();
     createSnapAlignDistribute().alligntop();
     setChanged();
   }
 
   public void alignBottom() {
+    markUndoPoint();
     createSnapAlignDistribute().allignbottom();
     setChanged();
   }
@@ -212,12 +222,14 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
+    markUndoPoint();
     createSnapAlignDistribute().distributehorizontal();
     setChanged();
   }
 
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
+    markUndoPoint();
     createSnapAlignDistribute().distributevertical();
     setChanged();
   }

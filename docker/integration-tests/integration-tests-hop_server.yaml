@@ -23,14 +23,29 @@ services:
     depends_on:
       hop_server:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     links:
       - hop_server
+      - minio
 
   hop_server:
     image: apache/hop:Development
+    depends_on:
+      minio:
+        condition: service_healthy
+    links:
+      - minio
     build:
       context: ../../.
       dockerfile: docker/Dockerfile
+      # Same uid/gid as the test runner (JENKINS_UID from run-tests-docker.sh).
+      # hop-server writes mapped folders on /hop_server_volume (the host
+      # integration-tests/hop_server tree). The default image user is 501, so a
+      # 775 directory owned by the host user is AccessDenied (main-0015).
+      args:
+        - HOP_UID=${JENKINS_UID:-1000}
+        - HOP_GID=${JENKINS_GID:-1000}
     pull_policy: never
     hostname: hop-server
     ports:
@@ -42,6 +57,8 @@ services:
       - HOP_PROJECT_NAME=samples
       - HOP_PROJECT_FOLDER=/opt/hop/config/projects/samples
       - HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
+      - HOP_ENVIRONMENT_NAME=server-dev
+      - HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/hop_server_volume/server-env-config.json
     volumes:
       - ./../../integration-tests/hop_server/:/hop_server_volume
     healthcheck:
@@ -50,3 +67,23 @@ services:
       timeout: 10s
       retries: 6
       start_period: 120s
+
+  # Storage behind the "export-only-storage" VFS connection of main-0014. That connection lives in
+  # the client project's metadata-client-only folder, so it only ever reaches the server inside the
+  # export ZIP - which is what the test is about.
+  minio:
+    image: minio/minio
+    hostname: minio
+    environment:
+      MINIO_REGION: "local"
+      MINIO_REGION_NAME: "local"
+      MINIO_SCHEME: "http"
+      MINIO_ROOT_USER: "ApacheHopAccessKey"
+      MINIO_ROOT_PASSWORD: "ApacheHopSecretKey"
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s

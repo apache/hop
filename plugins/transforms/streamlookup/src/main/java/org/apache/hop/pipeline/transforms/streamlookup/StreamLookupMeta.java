@@ -112,11 +112,6 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
     this.lookup = new Lookup(m.lookup);
   }
 
-  @Override
-  public Object clone() {
-    return new StreamLookupMeta(this);
-  }
-
   /**
    * Keeps {@link #sourceTransformName} in sync when the lookup info stream is repointed from the
    * canvas (e.g. hop split, detach, drawing the info hop). Without this, {@link

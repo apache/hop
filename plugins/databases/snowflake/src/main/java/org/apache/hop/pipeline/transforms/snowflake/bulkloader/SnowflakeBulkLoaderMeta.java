@@ -78,6 +78,16 @@ public class SnowflakeBulkLoaderMeta
   public static final String ENCLOSURE = "\"";
   public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
   public static final String TIMESTAMP_FORMAT_STRING = "YYYY-MM-DD HH24:MI:SS.FF3";
+  public static final String TIME_FORMAT_STRING = "HH24:MI:SS.FF3";
+
+  /*
+   * The Java conversion masks matching the Snowflake file formats above.  Dates and timestamps have
+   * to be written to the temp files in exactly the format the COPY statement declares, otherwise
+   * Snowflake refuses to parse them.
+   */
+  public static final String DATE_MASK = "yyyy-MM-dd";
+  public static final String TIMESTAMP_MASK = "yyyy-MM-dd HH:mm:ss.SSS";
+  public static final String TIME_MASK = "HH:mm:ss.SSS";
 
   /** The valid location type codes */
   public static final String[] LOCATION_TYPE_CODES = {"user", "table", "internal_stage"};
@@ -755,16 +765,6 @@ public class SnowflakeBulkLoaderMeta
     return fileDate;
   }
 
-  /**
-   * Clones the transform so that it can be copied and used in clusters
-   *
-   * @return A copy of the transform
-   */
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   /** Sets the default values for all metadata attributes. */
   @Override
   public void setDefault() {
@@ -1068,6 +1068,7 @@ public class SnowflakeBulkLoaderMeta
       returnValue.append("ESCAPE_UNENCLOSED_FIELD = '\\\\' FIELD_OPTIONALLY_ENCLOSED_BY='\"' ");
       returnValue.append("SKIP_HEADER = 0 DATE_FORMAT = '").append(DATE_FORMAT_STRING).append("' ");
       returnValue.append("TIMESTAMP_FORMAT = '").append(TIMESTAMP_FORMAT_STRING).append("' ");
+      returnValue.append("TIME_FORMAT = '").append(TIME_FORMAT_STRING).append("' ");
       returnValue.append("TRIM_SPACE = ").append(trimWhitespace).append(" ");
       if (!StringUtils.isEmpty(nullIf)) {
         returnValue.append("NULL_IF = (");
@@ -1090,6 +1091,7 @@ public class SnowflakeBulkLoaderMeta
           .append(errorColumnMismatch)
           .append(" ");
       returnValue.append("COMPRESSION = 'GZIP' ");
+      returnValue.append("BINARY_FORMAT = 'HEX' ");
 
     } else if (dataType.equals(DATA_TYPE_CODES[DATA_TYPE_JSON])) {
       returnValue.append("'JSON' COMPRESSION = 'GZIP' STRIP_OUTER_ARRAY = FALSE ");

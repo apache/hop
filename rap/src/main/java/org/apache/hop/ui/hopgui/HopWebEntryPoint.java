@@ -36,6 +36,10 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
+import org.apache.hop.ui.hopgui.explorer.RapExplorerFileService;
+import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
+import org.apache.hop.ui.hopgui.notifications.NotificationService;
+import org.apache.hop.ui.hopgui.perspective.explorer.web.HopWebExplorerFileHelper;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -166,6 +170,9 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     String jsLocation = resourceManager.getLocation("js/canvas-zoom.js");
     jsLoader.require(jsLocation);
     jsLoader.require(resourceManager.getLocation("js/canvas-svg.js"));
+    jsLoader.require(resourceManager.getLocation("js/context-dialog-svg.js"));
+    // RAP's GC leaves image onload handlers alive after dispose; see the script.
+    jsLoader.require(resourceManager.getLocation("js/gc-pending-images.js"));
     jsLoader.require(resourceManager.getLocation("js/monaco-editor.js"));
     // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
     String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
@@ -250,7 +257,13 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // URL params were only for initial project/file; clear so they don't affect CLI/run.
     HopGui.getInstance().setCommandLineArguments(new ArrayList<>());
 
+    // Hop Web only delivers background asyncExec updates to the browser while a server
+    // push session is running. Start server push for the session so pipeline/workflow logs,
+    // notifications, and other async UI updates are pushed immediately without stalling.
+    ServerPushSessionFacade.start();
+
     HopWebUrlHelper.setUrlUpdater(new RapHopWebUrlUpdater());
+    HopWebExplorerFileHelper.setService(new RapExplorerFileService());
 
     // Persist open tabs when the session ends (browser close, timeout, etc.).
     // We use the session-cached audit manager so no request is needed.
@@ -260,15 +273,34 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
             new UISessionListener() {
               @Override
               public void beforeDestroy(UISessionEvent event) {
+                // Stop this session's notification polling and let go of its server push channel.
+                // Both are started per session, and nothing else would ever end them: the threads
+                // and the open push connection would otherwise accumulate for as long as the
+                // server runs. Done first, and on its own, so a disposed widget further down
+                // cannot skip it.
+                try {
+                  NotificationService.getInstance().stop();
+                  ServerPushSessionFacade.stop();
+                } catch (Exception e) {
+                  LogChannel.UI.logError(
+                      "Error stopping notifications and server push on session end", e);
+                }
                 try {
                   HopGui hopGui = HopGui.getInstance();
-                  if (hopGui == null || hopGui.auditDelegate == null) {
+                  if (hopGui == null) {
+                    return;
+                  }
+                  // Let go of this session's VFS namespace: it closes once nothing is using it,
+                  // and the sessions still running keep theirs.
+                  hopGui.releaseVfsNamespace();
+                  if (hopGui.auditDelegate == null) {
                     return;
                   }
                   if (hopGui.getShell() != null && hopGui.getShell().isDisposed()) {
                     return;
                   }
                   hopGui.auditDelegate.writeLastOpenFiles();
+                  DrillDownGuiPlugin.cleanupSession(hopGui.getId());
                 } catch (SWTException e) {
                   if (e.code != SWT.ERROR_WIDGET_DISPOSED) {
                     LogChannel.UI.logError("Error persisting open files on session end", e);
@@ -397,6 +429,18 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
   }
 
   /**
+   * Whether this shortcut is a plain character - a letter, a digit, punctuation or space - with no
+   * CTRL, ALT, SHIFT or command held down.
+   */
+  private static boolean isUnmodifiedPrintableCharacter(KeyboardShortcut shortcut, int keyCode) {
+    if (shortcut.isAlt() || shortcut.isControl() || shortcut.isCommand() || shortcut.isShift()) {
+      return false;
+    }
+    // Special keys (F1, arrows, HOME, ...) have bit 24 set and type nothing, so they are fine.
+    return keyCode >= 32 && keyCode < 127;
+  }
+
+  /**
    * Convert a KeyboardShortcut to RAP format for ACTIVE_KEYS / CANCEL_KEYS. RAP only supports CTRL,
    * ALT, SHIFT (not META), so we use CTRL+ for all command/control shortcuts; on Mac the browser
    * typically maps Cmd to CTRL when sending to the server.
@@ -410,13 +454,17 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     }
 
     int keyCode = shortcut.getKeyCode();
-    // Never register unmodified SPACE as a shortcut - it would capture every space key press
-    // and prevent typing space in text fields (see RAP ACTIVE_KEYS behavior).
-    if ((keyCode == ' ' || keyCode == 32)
-        && !shortcut.isAlt()
-        && !shortcut.isControl()
-        && !shortcut.isCommand()
-        && !shortcut.isShift()) {
+    // Never register a shortcut that is a printable character with no modifier held. RAP cancels
+    // the browser's own handling of every key it is told about, so registering one takes that
+    // character away from typing everywhere in Hop Web, whatever has the focus: the bare "z" that
+    // opens a referenced object on the pipeline canvas made it impossible to type the letter z
+    // anywhere, and searching the context dialog for "fuzzy match" arrived as "fuy match".
+    //
+    // Nothing is lost that a browser could have delivered: the key handler already refuses to act
+    // on an unmodified printable character while a text widget has the focus, so such a shortcut
+    // could only ever have fired on a canvas - and there is no way to tell the browser to cancel
+    // the key in one place and not in another.
+    if (isUnmodifiedPrintableCharacter(shortcut, keyCode)) {
       return null;
     }
 

@@ -29,8 +29,14 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.projects.config.ProjectsConfig;
 
 public class ProjectConfig {
+
+  /** Project config filenames recognised besides the declared `configFilename`. */
+  public static final String[] CONFIG_FILENAME_CANDIDATES = {
+    ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME, "hop-project.config"
+  };
 
   /**
    * VFS schemes that provide read-only access to archive contents (Zip, Jar and Tar family). See
@@ -131,21 +137,30 @@ public class ProjectConfig {
                 + "' does not exist");
       }
       String actualConfigFilename = variables.resolve(getConfigFilename());
+      if (StringUtils.isEmpty(actualConfigFilename)) {
+        actualConfigFilename = ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
+      }
+      FileObject configFile = actualHome.resolveFile(actualConfigFilename);
+      if (!configFile.exists()) {
+        for (String candidate : CONFIG_FILENAME_CANDIDATES) {
+          FileObject cand = actualHome.resolveFile(candidate);
+          if (cand.exists()) {
+            configFile = cand;
+            actualConfigFilename = candidate;
+            break;
+          }
+        }
+      }
       // Use VFS resolve so archive/HTTP URIs work (FilenameUtils.concat mangles schemes).
       // For plain local paths keep the previous FilenameUtils behaviour for compatibility.
       //
       String scheme = actualHome.getName().getScheme();
       if (scheme != null && !"file".equalsIgnoreCase(scheme)) {
-        FileObject configFile = actualHome.resolveFile(actualConfigFilename);
         return configFile.getName().getURI();
       }
       String fullFilename = FilenameUtils.concat(actualHome.toString(), actualConfigFilename);
       if (fullFilename == null) {
-        throw new HopException(
-            "Unable to determine full path to the configuration file '"
-                + actualConfigFilename
-                + "' in home folder '"
-                + actualHomeFolder);
+        return configFile.getName().getPath();
       }
       return fullFilename;
     } catch (Exception e) {

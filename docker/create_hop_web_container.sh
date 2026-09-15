@@ -24,7 +24,7 @@ cd "${0%/*}"
 # unzip files for docker image
 #
 unzip -qu ../assemblies/web/target/hop.war -d ../assemblies/web/target/webapp
-unzip -qu ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblies/plugins/dist/target/
+unzip -qu ../assemblies/plugins/target/hop-assemblies-*.zip -d ../assemblies/plugins/target/
 unzip -quj ../assemblies/lib-jdbc/target/hop-assemblies-*.zip -d ../assemblies/lib-jdbc/target/jdbc-drivers
 
 # copy recent changes in libraries...
@@ -39,11 +39,11 @@ cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 
 # copy recent changes to a few plugins
 #
-cp ../plugins/engines/beam/target/hop-plugins*.jar ../assemblies/plugins/dist/target/plugins/engines/beam/
+cp ../plugins/engines/beam/target/hop-plugins*.jar ../assemblies/plugins/target/plugins/engines/beam/
 
 #build docker image
 docker build ../ -f web.Dockerfile -t hop-web
 
 #cleanup
 rm -rf ../assemblies/web/target/webapp
-rm -rf ../assemblies/plugins/dist/target/plugins
+rm -rf ../assemblies/plugins/target/plugins

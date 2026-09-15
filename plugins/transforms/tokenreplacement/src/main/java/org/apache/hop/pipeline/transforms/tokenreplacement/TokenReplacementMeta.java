@@ -275,37 +275,6 @@ public class TokenReplacementMeta
     tokenEndString = "}";
   }
 
-  public TokenReplacementMeta(TokenReplacementMeta m) {
-    this();
-    this.inputType = m.inputType;
-    this.inputText = m.inputText;
-    this.inputFieldName = m.inputFieldName;
-    this.inputFileName = m.inputFileName;
-    this.inputFileNameInField = m.inputFileNameInField;
-    this.inputFileNameField = m.inputFileNameField;
-    this.addInputFileNameToResult = m.addInputFileNameToResult;
-    this.outputType = m.outputType;
-    this.outputFieldName = m.outputFieldName;
-    this.outputFileName = m.outputFileName;
-    this.outputFileNameInField = m.outputFileNameInField;
-    this.outputFileNameField = m.outputFileNameField;
-    this.appendOutputFileName = m.appendOutputFileName;
-    this.createParentFolder = m.createParentFolder;
-    this.outputFileFormat = m.outputFileFormat;
-    this.outputFileEncoding = m.outputFileEncoding;
-    this.splitEvery = m.splitEvery;
-    this.includeTransformNrInOutputFileName = m.includeTransformNrInOutputFileName;
-    this.includePartNrInOutputFileName = m.includePartNrInOutputFileName;
-    this.includeDateInOutputFileName = m.includeDateInOutputFileName;
-    this.includeTimeInOutputFileName = m.includeTimeInOutputFileName;
-    this.specifyDateFormatOutputFileName = m.specifyDateFormatOutputFileName;
-    this.dateFormatOutputFileName = m.dateFormatOutputFileName;
-    this.addOutputFileNameToResult = m.addOutputFileNameToResult;
-    this.tokenStartString = m.tokenStartString;
-    this.tokenEndString = m.tokenEndString;
-    m.tokenReplacementFields.forEach(f -> tokenReplacementFields.add(new TokenReplacementField(f)));
-  }
-
   public String getOutputFileEncoding() {
     return Const.NVL(
         outputFileEncoding, Const.getEnvironmentVariable(CONST_FILE_ENCODING, Const.UTF_8));
@@ -318,11 +287,6 @@ public class TokenReplacementMeta
       case "CR" -> "\r";
       default -> "";
     };
-  }
-
-  @Override
-  public Object clone() {
-    return new TokenReplacementMeta(this);
   }
 
   public String buildFilename(

@@ -778,16 +778,6 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
   }
 
   /**
-   * The engine writes a log line for every rejected row. On a transform whose job is to reject rows
-   * that log line costs far more than the validation itself, so it can be switched off while error
-   * rows keep flowing to the error handling hop.
-   */
-  @Override
-  protected boolean isLoggingErrorDescriptions() {
-    return !meta.isSuppressingErrorLog();
-  }
-
-  /**
    * Returns the field value for inclusion in validation messages, or a placeholder when logging of
    * failed data is suppressed.
    */

@@ -123,7 +123,6 @@ public class GuiResource {
   //
   private ManagedFont fontDefault;
   private ManagedFont fontGraph;
-  private ManagedFont fontNote;
   private ManagedFont fontFixed;
   private ManagedFont fontMedium;
   private ManagedFont fontMediumBold;
@@ -147,6 +146,7 @@ public class GuiResource {
   private SwtUniversalImage imageDeprecated;
   private SwtUniversalImage imageVariable;
   private SwtUniversalImage imageHash;
+  private SwtUniversalImage imageNaming;
   private SwtUniversalImage imagePipeline;
   private SwtUniversalImage imagePipelineDisabled;
   private SwtUniversalImage imagePipelineError;
@@ -231,6 +231,7 @@ public class GuiResource {
   @Getter private Image imageLocation;
   @Getter private Image imageMaximizePanel;
   @Getter private Image imageMinimizePanel;
+  @Getter private Image imageNotification;
   @Getter private Image imageDetachPanel;
   @Getter private Image imageDockPanel;
   @Getter private Image imageMarketplace;
@@ -442,7 +443,6 @@ public class GuiResource {
     //
     fontDefault.dispose();
     fontGraph.dispose();
-    fontNote.dispose();
     fontFixed.dispose();
     fontMedium.dispose();
     fontMediumBold.dispose();
@@ -463,6 +463,7 @@ public class GuiResource {
     imageMissing.dispose();
     imageVariable.dispose();
     imageHash.dispose();
+    imageNaming.dispose();
     imagePipeline.dispose();
     imagePipelineDisabled.dispose();
     imagePipelineError.dispose();
@@ -551,6 +552,7 @@ public class GuiResource {
     disposeImage(imageNavigateForward);
     disposeImage(imageNavigateUp);
     disposeImage(imageNote);
+    disposeImage(imageNotification);
     disposeImage(imagePaste);
     disposeImage(imagePause);
     disposeImage(imagePlugin);
@@ -670,11 +672,6 @@ public class GuiResource {
         (int) Math.round(1.5 + graphFontData.getHeight() / PropsUi.getNativeZoomFactor());
     graphFontData.setHeight(graphFontSize);
     fontGraph = new ManagedFont(display, graphFontData);
-
-    FontData noteFontData = props.getNoteFont();
-    int noteFontSize = (int) Math.round(noteFontData.getHeight() * props.getGlobalZoomFactor());
-    noteFontData.setHeight(noteFontSize);
-    fontNote = new ManagedFont(display, noteFontData);
 
     FontData fixedFontData = props.getFixedFont();
     int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * props.getGlobalZoomFactor());
@@ -798,6 +795,8 @@ public class GuiResource {
     imageDockPanel = loadAsResource(display, "ui/images/dock-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageNew = loadAsResource(display, "ui/images/new.svg", ConstUi.SMALL_ICON_SIZE);
     imageNote = loadAsResource(display, "ui/images/note.svg", ConstUi.SMALL_ICON_SIZE);
+    imageNotification =
+        loadAsResource(display, "ui/images/notification-bell.svg", ConstUi.SMALL_ICON_SIZE);
     imagePlugin = loadAsResource(display, "ui/images/plugin.svg", ConstUi.SMALL_ICON_SIZE);
     imagePrint = loadAsResource(display, "ui/images/print.svg", ConstUi.SMALL_ICON_SIZE);
     imageRefresh = loadAsResource(display, "ui/images/refresh.svg", ConstUi.SMALL_ICON_SIZE);
@@ -875,6 +874,7 @@ public class GuiResource {
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/false-disabled.svg");
     imageVariable = SwtSvgImageUtil.getImageAsResource(display, "ui/images/variable.svg");
     imageHash = SwtSvgImageUtil.getImageAsResource(display, "ui/images/hash.svg");
+    imageNaming = SwtSvgImageUtil.getImageAsResource(display, "ui/images/naming.svg");
     imageFile = SwtSvgImageUtil.getImageAsResource(display, "ui/images/file.svg");
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
     imagePartitionSchema =
@@ -1038,11 +1038,9 @@ public class GuiResource {
     return fontDefault.getFont();
   }
 
-  /**
-   * @return Returns the fontNote.
-   */
+  /** Fallback font for notes that do not set their own. Same as {@link #getFontGraph()}. */
   public Font getFontNote() {
-    return fontNote.getFont();
+    return fontGraph.getFont();
   }
 
   /**
@@ -1233,7 +1231,17 @@ public class GuiResource {
   private Image getZoomedImaged(
       SwtUniversalImage universalImage, Device device, int width, int height) {
     return universalImage.getAsBitmapForSize(
-        device, (int) (zoomFactor * width), (int) (zoomFactor * height));
+        device,
+        ConstUi.zoomedIconSize(width, zoomFactor),
+        ConstUi.zoomedIconSize(height, zoomFactor));
+  }
+
+  /**
+   * Tree/toolbar-sized bitmap of {@code image}, scaled by the current zoom factor. Do not dispose
+   * the returned image; it is cached on the universal image.
+   */
+  public Image getSmallIcon(SwtUniversalImage image) {
+    return getZoomedImaged(image, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**
@@ -1258,6 +1266,18 @@ public class GuiResource {
   /** Mini hash icon for TextVar expanded-integer notation indicator (matches variable mini). */
   public Image getImageHashMini() {
     return getZoomedImaged(imageHash, display, 12, 12);
+  }
+
+  /**
+   * @return the naming-scheme indicator image at standard small icon size
+   */
+  public Image getImageNaming() {
+    return getZoomedImaged(imageNaming, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  /** Mini N icon for TextVar naming-scheme shortcut indicator (matches variable mini). */
+  public Image getImageNamingMini() {
+    return getZoomedImaged(imageNaming, display, 12, 12);
   }
 
   public Image getImagePipeline() {

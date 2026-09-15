@@ -35,8 +35,9 @@ import org.junit.jupiter.api.Test;
 /**
  * SWTBot coverage for {@link BeamBQOutputDialog}. The dialog runs its own blocking event loop in
  * {@code open()}, so {@link SwtBotTestBase#withDialog} pumps it on the UI thread while assertions
- * drive it from a worker. Tagged {@code uitest} so it is excluded from the normal build (needs a
- * display); run with {@code mvn -pl plugins/engines/beam -Puitest test}.
+ * drive it from a worker. Tagged {@code uitest} so it is skipped when there is no display. The
+ * default reactor run still includes it on a desktop; wrap Maven with {@code
+ * tools/with-isolated-display.sh} so the dialog does not steal focus.
  */
 @Tag("uitest")
 class BeamBQOutputDialogTest extends SwtBotTestBase {

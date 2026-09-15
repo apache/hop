@@ -63,6 +63,8 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -124,6 +126,7 @@ public class CsvInputDialog extends BaseTransformDialog
   private AtomicBoolean previewBusy;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+  private MetaSelectionLine wNamingScheme;
   private Button wIgnoreFields;
 
   public CsvInputDialog(
@@ -247,7 +250,9 @@ public class CsvInputDialog extends BaseTransformDialog
       fdlFilename.left = new FormAttachment(0, 0);
       fdlFilename.right = new FormAttachment(middle, -margin);
       wlFilename.setLayoutData(fdlFilename);
-      wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      wFilename =
+          new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+              .enableNamingSchemes(NamingSchemeTypes.FILE);
       PropsUi.setLook(wFilename);
       wFilename.addModifyListener(lsMod);
       FormData fdFilename = new FormData();
@@ -516,6 +521,30 @@ public class CsvInputDialog extends BaseTransformDialog
     wSchemaDefinition.addSelectionListener(lsSelection);
     lastControl = wSchemaDefinition;
 
+    wNamingScheme =
+        MetaSelectionLine.forMetadataKey(
+            variables,
+            metadataProvider,
+            shell,
+            SWT.NONE,
+            "naming-scheme",
+            BaseMessages.getString(PKG, "CsvInputDialog.NamingScheme.Label"),
+            BaseMessages.getString(PKG, "CsvInputDialog.NamingScheme.Tooltip"));
+    if (wNamingScheme != null) {
+      PropsUi.setLook(wNamingScheme);
+      FormData fdNamingScheme = new FormData();
+      fdNamingScheme.left = new FormAttachment(0, 0);
+      fdNamingScheme.top = new FormAttachment(lastControl, margin);
+      fdNamingScheme.right = new FormAttachment(100, 0);
+      wNamingScheme.setLayoutData(fdNamingScheme);
+      try {
+        wNamingScheme.fillItems();
+      } catch (Exception e) {
+        log.logError("Error getting naming scheme items", e);
+      }
+      lastControl = wNamingScheme;
+    }
+
     // Ignore manual schema
     //
     Label wlIgnoreFields = new Label(shell, SWT.RIGHT);
@@ -580,6 +609,7 @@ public class CsvInputDialog extends BaseTransformDialog
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaBase.trimTypeDesc),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(variables, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
@@ -742,8 +772,18 @@ public class CsvInputDialog extends BaseTransformDialog
         wFields.removeEmptyRows();
         wFields.setRowNums();
         wFields.optWidth(true);
+        NamingSchemeColumnApplierRegistry.getInstance()
+            .applyAnnotatedColumns(wFields, metadataProvider, getNamingSchemeName());
       }
     }
+  }
+
+  @Override
+  public String getNamingSchemeName() {
+    if (wNamingScheme != null && !wNamingScheme.isDisposed()) {
+      return wNamingScheme.getText();
+    }
+    return inputMeta.getNamingScheme();
   }
 
   protected void setFlags() {
@@ -812,6 +852,9 @@ public class CsvInputDialog extends BaseTransformDialog
     wAddResult.setSelection(inputMeta.isAddResult());
     wEncoding.setText(Const.NVL(inputMeta.getEncoding(), ""));
     wSchemaDefinition.setText(Const.NVL(inputMeta.getSchemaDefinition(), ""));
+    if (wNamingScheme != null) {
+      wNamingScheme.setText(Const.NVL(inputMeta.getNamingScheme(), ""));
+    }
     wIgnoreFields.setSelection(inputMeta.isIgnoreFields());
 
     final List<String> fieldName = newFieldNames == null ? new ArrayList() : newFieldNames;
@@ -867,6 +910,9 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setNewlinePossibleInFields(wNewlinePossible.getSelection());
     inputMeta.setEncoding(wEncoding.getText());
     inputMeta.setSchemaDefinition(wSchemaDefinition.getText());
+    if (wNamingScheme != null) {
+      inputMeta.setNamingScheme(wNamingScheme.getText());
+    }
     inputMeta.setIgnoreFields(wIgnoreFields.getSelection());
 
     inputMeta.getInputFields().clear();

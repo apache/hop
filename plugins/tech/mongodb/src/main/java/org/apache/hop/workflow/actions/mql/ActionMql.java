@@ -78,12 +78,6 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionMql je = (ActionMql) super.clone();
-    return je;
-  }
-
   public void setMql(String mql) {
     this.mql = mql;
   }

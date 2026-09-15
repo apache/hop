@@ -79,25 +79,6 @@ public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSche
     transformsToMerge = new ArrayList<>();
   }
 
-  public StreamSchemaMeta(StreamSchemaMeta m) {
-    this();
-    m.transformsToMerge.forEach(t -> this.transformsToMerge.add(new TransformToMerge(t)));
-  }
-
-  /**
-   * This method is used when a transform is duplicated in Spoon. It needs to return a deep copy of
-   * this transform meta object. Be sure to create proper deep copies if the transform configuration
-   * is stored in modifiable objects.
-   *
-   * <p>See RowGeneratorMeta.clone() for an example on creating a deep copy.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public StreamSchemaMeta clone() {
-    return new StreamSchemaMeta(this);
-  }
-
   /**
    * Prevents error box from popping up when sending in different row formats. Note you will still
    * get an error if you try to run the pipeline in safe mode.

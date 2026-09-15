@@ -1,0 +1,14 @@
+{
+  "variables": [
+    {
+      "name": "MARQUEZ_API",
+      "value": "http://marquez:5000",
+      "description": "Base URL of the Marquez OpenLineage collector (see the docker compose yml file)"
+    },
+    {
+      "name": "OPENLINEAGE_NAMESPACE",
+      "value": "hop",
+      "description": "The OpenLineage job namespace both the Hop sink and dbt report into; 0003-validate-lineage asserts both jobs are there"
+    }
+  ]
+}

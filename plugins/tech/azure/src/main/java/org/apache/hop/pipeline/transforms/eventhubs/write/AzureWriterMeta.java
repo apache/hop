@@ -58,20 +58,6 @@ public class AzureWriterMeta extends BaseTransformMeta<AzureWrite, AzureWriterDa
     super();
   }
 
-  public AzureWriterMeta(AzureWriterMeta m) {
-    this.namespace = m.namespace;
-    this.eventHubName = m.eventHubName;
-    this.sasKeyName = m.sasKeyName;
-    this.sasKey = m.sasKey;
-    this.batchSize = m.batchSize;
-    this.messageField = m.messageField;
-  }
-
-  @Override
-  public AzureWriterMeta clone() {
-    return new AzureWriterMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

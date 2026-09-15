@@ -165,7 +165,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         long startTime = System.currentTimeMillis();
 
         // Origin host for routing + preemptive Basic auth cache (proxy is on the client, not here).
-        HttpHost target = HttpHost.create(uri);
+        HttpHost target = HttpClientManager.createHttpHost(uri);
 
         HttpClientContext localContext = HttpClientContext.create();
         if (StringUtils.isNotBlank(data.realHttpLogin)) {

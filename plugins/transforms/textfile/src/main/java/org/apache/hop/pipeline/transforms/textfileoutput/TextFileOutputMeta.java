@@ -356,35 +356,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     setFileCompression(fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_NONE]);
   }
 
-  public TextFileOutputMeta(TextFileOutputMeta m) {
-    this();
-    this.createParentFolder = m.createParentFolder;
-    this.enclosure = m.enclosure;
-    this.enclosureFixDisabled = m.enclosureFixDisabled;
-    this.enclosureForced = m.enclosureForced;
-    this.encoding = m.encoding;
-    this.endedLine = m.endedLine;
-    this.fileCompression = m.fileCompression;
-    this.fileFormat = m.fileFormat;
-    this.fileNameField = m.fileNameField;
-    this.fileNameInField = m.fileNameInField;
-    this.footerEnabled = m.footerEnabled;
-    this.headerEnabled = m.headerEnabled;
-    this.ignoreFields = m.ignoreFields;
-    this.schemaDefinition = m.schemaDefinition;
-    this.separator = m.separator;
-    this.fileSettings = new FileSettings(m.fileSettings);
-    m.outputFields.forEach(
-        field -> {
-          this.outputFields.add(new TextFileField(field));
-        });
-  }
-
-  @Override
-  public Object clone() {
-    return new TextFileOutputMeta(this);
-  }
-
   /**
    * @param varSpace for variable substitution
    * @return At how many rows to split into another file.

@@ -56,6 +56,9 @@ public class MySqlBulkLoaderData extends BaseTransformData implements ITransform
 
   public IValueMeta[] bulkFormatMeta;
 
+  /** True for mapped fields whose stream type is Binary, aligned with {@link #keynrs}. */
+  public boolean[] binaryFields;
+
   public long bulkSize;
 
   /** Default constructor. */

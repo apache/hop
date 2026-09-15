@@ -139,12 +139,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   }
 
   @Override
-  public Object clone() {
-    UpdateMeta retval = (UpdateMeta) super.clone();
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     skipLookup = false;
     commitSize = "100";

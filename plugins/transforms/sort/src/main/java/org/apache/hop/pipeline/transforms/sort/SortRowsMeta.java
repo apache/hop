@@ -108,23 +108,6 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     onlyPassingUniqueRows = false;
   }
 
-  public SortRowsMeta(SortRowsMeta m) {
-    this();
-    this.directory = m.directory;
-    this.prefix = m.prefix;
-    this.sortSize = m.sortSize;
-    this.freeMemoryLimit = m.freeMemoryLimit;
-    this.onlyPassingUniqueRows = m.onlyPassingUniqueRows;
-    this.compressFiles = m.compressFiles;
-    this.compressFilesVariable = m.compressFilesVariable;
-    m.sortFields.forEach(f -> sortFields.add(new SortRowsField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new SortRowsMeta(this);
-  }
-
   /**
    * Returns the collation strength based on the passed in locale. Package protected for testing
    * purposes

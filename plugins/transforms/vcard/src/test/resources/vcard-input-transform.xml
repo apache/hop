@@ -22,6 +22,11 @@
     <ignore_empty_file>Y</ignore_empty_file>
     <do_not_fail_if_no_file>Y</do_not_fail_if_no_file>
     <encoding>UTF-8</encoding>
+    <accept_filenames>Y</accept_filenames>
+    <accept_transform_name>get filenames</accept_transform_name>
+    <passing_through_fields>Y</passing_through_fields>
+    <accept_field>filename</accept_field>
+    <add_to_result_filenames>Y</add_to_result_filenames>
     <files>
         <file>
             <name>${PROJECT_HOME}/files/vcard-input-sample.vcf</name>

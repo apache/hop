@@ -324,14 +324,21 @@ public class EnterValueDialog extends Dialog {
   public void getData() {
     wValueType.setText(valueMeta.getTypeDesc());
     try {
-      if (valueData != null) {
+      if (valueData instanceof String stringData && !valueMeta.isString()) {
+        // Raw unparsed constant (variable expression or a date stored in another format).
+        setInputText(stringData);
+      } else if (valueData != null) {
         String value = valueMeta.getString(valueData);
         if (value != null) {
           setInputText(value);
         }
       }
     } catch (HopValueException e) {
-      setInputText(valueMeta.toString());
+      if (valueData instanceof String stringData) {
+        setInputText(stringData);
+      } else {
+        setInputText(valueMeta.toString());
+      }
     }
     setFormats();
 

@@ -37,8 +37,10 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -116,7 +118,9 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     PropsUi.setLook(wlTargetFieldName);
     wlTargetFieldName.setLayoutData(
         FormDataBuilder.builder().top(lastControl, margin).left().right(middle, -margin).build());
-    wTargetFieldName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTargetFieldName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.HOP_FIELD);
     PropsUi.setLook(wTargetFieldName);
     wTargetFieldName.setLayoutData(
         FormDataBuilder.builder()
@@ -375,7 +379,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);

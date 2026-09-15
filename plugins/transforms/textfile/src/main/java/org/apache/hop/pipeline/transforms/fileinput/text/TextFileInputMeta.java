@@ -397,6 +397,15 @@ public class TextFileInputMeta
       injectionKeyDescription = "TextFileInput.Injection.IGNORE_FIELDS")
   private boolean ignoreFields;
 
+  /**
+   * Optional Naming Scheme applied to discovered field names when using Get Fields. Empty means
+   * auto-apply only when a unique matching scheme exists.
+   */
+  @HopMetadataProperty(
+      key = "namingScheme",
+      hopMetadataPropertyType = HopMetadataPropertyType.NAMING_SCHEME)
+  private String namingScheme;
+
   @HopMetadataProperty(inline = true)
   protected BaseFileInputAdditionalFields additionalOutputFields;
 
@@ -478,24 +487,13 @@ public class TextFileInputMeta
     content.rowLimit = 0L;
   }
 
-  public TextFileInputMeta(TextFileInputMeta m) {
-    this();
-    this.content = new Content(m.content);
-    this.errorCountField = m.errorCountField;
-    this.errorFieldsField = m.errorFieldsField;
-    this.errorLineSkipped = m.errorLineSkipped;
-    this.errorTextField = m.errorTextField;
-    this.ignoreFields = m.ignoreFields;
-    this.schemaDefinition = m.schemaDefinition;
-    this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
-    this.fileInput = new BaseFileInput(m.fileInput);
-    m.filters.forEach(filter -> this.filters.add(new TextFileFilter(filter)));
-    m.inputFields.forEach(f -> this.inputFields.add(new TextFileInputField(f.clone())));
-  }
-
+  /**
+   * {@link org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta} declares a covariant
+   * clone(), so this override is required even though it only delegates.
+   */
   @Override
   public TextFileInputMeta clone() {
-    return new TextFileInputMeta(this);
+    return (TextFileInputMeta) super.clone();
   }
 
   @Override

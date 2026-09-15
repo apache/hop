@@ -83,19 +83,6 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  public ActionPGPVerify(ActionPGPVerify a) {
-    super(a);
-    this.gpgLocation = a.gpgLocation;
-    this.filename = a.filename;
-    this.detachedFilename = a.detachedFilename;
-    this.useDetachedSignature = a.useDetachedSignature;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionPGPVerify(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) {
     result.setResult(false);

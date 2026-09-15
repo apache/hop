@@ -1,0 +1,55 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.hop.lint;
+
+/** Enumeration of target types that can be linted */
+public enum RuleTarget {
+  PIPELINE("Pipeline", "Hop Pipeline (.hpl)"),
+  WORKFLOW("Workflow", "Hop Workflow (.hwf)"),
+  DATABASE_CONNECTION("Database Connection", "Database connection metadata"),
+  TRANSFORM("Transform", "Individual pipeline transform"),
+  ACTION("Action", "Individual workflow action"),
+  HOP("Hop", "Connection between transforms/actions"),
+
+  /**
+   * Any Hop metadata object, scoped to a type with {@code appliesTo} — the metadata key, which is
+   * the folder name under {@code metadata/}: {@code rdbms}, {@code pipeline-run-configuration},
+   * {@code hop-server}, and any type a plugin registers.
+   */
+  METADATA("Metadata", "Any Hop metadata object (scope with appliesTo)");
+
+  private final String displayName;
+  private final String description;
+
+  RuleTarget(String displayName, String description) {
+    this.displayName = displayName;
+    this.description = description;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  @Override
+  public String toString() {
+    return displayName;
+  }
+}

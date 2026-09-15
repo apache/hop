@@ -19,6 +19,7 @@
 package org.apache.hop.databases.snowflake;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.Validate;
 import org.apache.hop.core.Const;
@@ -27,6 +28,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -47,6 +51,18 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     classLoaderGroup = "snowflake")
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
 public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // Snowflake holds a JSON document in a VARIANT; it has no type called JSON.
+          .write(IValueMeta.TYPE_JSON)
+          .as("VARIANT")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
@@ -146,7 +162,7 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   @Override
@@ -187,7 +203,8 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return CONST_ALTER_TABLE
         + tableName
         + " MODIFY COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

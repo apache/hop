@@ -162,7 +162,7 @@ public class RegexEvalHelperDialog extends Dialog {
     fdRegExScriptCompile.right = new FormAttachment(100, 0);
     wRegExScriptCompile.setLayoutData(fdRegExScriptCompile);
     wRegExScriptCompile.setEditable(false);
-    wRegExScriptCompile.setFont(GuiResource.getInstance().getFontNote());
+    wRegExScriptCompile.setFont(GuiResource.getInstance().getFontFixed());
 
     // ////////////////////////
     // START OF Values GROUP

@@ -26,6 +26,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -39,9 +42,25 @@ import org.apache.hop.core.util.Utils;
     type = "CLICKHOUSE",
     typeDescription = "ClickHouse",
     image = "clikhouse.svg",
-    documentationUrl = "/database/databases/clickhouse.html")
+    documentationUrl = "/database/databases/clickhouse.html",
+    classLoaderGroup = "clickhouse-db")
 @GuiPlugin(id = "GUI-ClickhouseDatabaseMeta")
 public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // Both are ClickHouse types. A server too old for the JSON one says so through its
+          // type list and the column becomes text instead.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
   private static final String UUID_N_NIL_PRI_KEY = "UUID NOT NULL PRIMARY KEY";
@@ -135,7 +154,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   @Override
@@ -150,7 +169,8 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return CONST_ALTER_TABLE
         + tableName
         + " MODIFY COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -111,10 +110,23 @@ public class ConfigurationPerspective implements IHopPerspective {
   private SearchMatcher searchMatcher = new SearchMatcher("", false, false, true);
   private Color highlightColor; // Custom neutral highlight color
   private Text searchBox;
-  @Getter private static ConfigurationPerspective instance;
+  private static ConfigurationPerspective instance;
 
   public ConfigurationPerspective() {
     instance = this;
+  }
+
+  public static ConfigurationPerspective getInstance() {
+    try {
+      ConfigurationPerspective fromGui =
+          HopGui.findSessionPerspective(ConfigurationPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   @Override
@@ -339,6 +351,21 @@ public class ConfigurationPerspective implements IHopPerspective {
     } else {
       currentSearchText = "";
       clearHighlights();
+    }
+  }
+
+  /** Update the category tree selection to match the currently displayed tab. */
+  private void syncTreeSelectionToTab(String tabText) {
+    if (categoryTree == null || categoryTree.isDisposed() || tabText == null) {
+      return;
+    }
+    // Find top-level tree item with matching text
+    for (TreeItem item : categoryTree.getItems()) {
+      if (tabText.equals(item.getText())) {
+        categoryTree.setSelection(item);
+        categoryTree.showSelection();
+        return;
+      }
     }
   }
 
@@ -873,6 +900,23 @@ public class ConfigurationPerspective implements IHopPerspective {
         showCategory(item.getText());
         break;
       }
+    }
+  }
+
+  /**
+   * Show the Notifications tab and select the Notifications item in the tree. Call this when
+   * opening notification settings from the notification panel.
+   */
+  public void showNotificationsTab() {
+    if (!isInitialized()) {
+      // There is no tree to navigate.
+      //
+      return;
+    }
+    Control notificationsPanel = categoryTabs.get("Notifications");
+    if (notificationsPanel != null && !notificationsPanel.isDisposed()) {
+      showCategory("Notifications", true);
+      syncTreeSelectionToTab("Notifications");
     }
   }
 

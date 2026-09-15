@@ -83,6 +83,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       remoteObject.listen("focusChanged", true);
       remoteObject.listen("selectionChanged", true);
       remoteObject.listen("findRequested", true);
+      remoteObject.listen("executeRequested", true);
       host.addListener(
           SWT.Dispose,
           event -> {
@@ -224,6 +225,23 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
                         ContentEditorActions.findAndReplace(RapMonacoEditorWidget.this);
                       } else {
                         ContentEditorActions.find(RapMonacoEditorWidget.this);
+                      }
+                    });
+                return;
+              }
+              if ("executeRequested".equals(event)) {
+                Display current = host.getDisplay();
+                if (current == null || host.isDisposed()) {
+                  return;
+                }
+                current.asyncExec(
+                    () -> {
+                      if (root.isDisposed()) {
+                        return;
+                      }
+                      Runnable action = IContentEditorWidget.executeActionOf(root);
+                      if (action != null) {
+                        action.run();
                       }
                     });
                 return;

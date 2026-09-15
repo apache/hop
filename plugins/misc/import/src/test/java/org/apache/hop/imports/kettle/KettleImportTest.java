@@ -111,6 +111,31 @@ class KettleImportTest {
     assertNull(databaseMeta.getIDatabase().getManualUrl());
   }
 
+  @Test
+  void caseVariantConnectionNamesAreDeduped() throws Exception {
+    String xml =
+        "<transformation>"
+            + "<connection><name>Database</name><type>GENERIC</type><access>Native</access></connection>"
+            + "</transformation>";
+    KettleImport kettleImport = new KettleImport();
+    invokeImportDbConnections(kettleImport, parse(xml));
+
+    DatabaseMeta otherCase = new DatabaseMeta();
+    otherCase.setName("DATABASE");
+    kettleImport.addDatabaseMeta("other.ktr", otherCase);
+
+    assertEquals(1, kettleImport.getConnectionsList().size());
+    assertEquals("Database", kettleImport.getConnectionsList().get(0).getName());
+  }
+
+  @Test
+  void csvFieldQuotesCommasAndDoublesQuotes() {
+    assertEquals("plain", KettleImport.csvField("plain"));
+    assertEquals("\"a,b\"", KettleImport.csvField("a,b"));
+    assertEquals("\"say \"\"hi\"\"\"", KettleImport.csvField("say \"hi\""));
+    assertEquals("", KettleImport.csvField(null));
+  }
+
   private static Document parse(String xml) throws Exception {
     try (ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))) {
       return XmlParserFactoryProducer.createSecureDocBuilderFactory()

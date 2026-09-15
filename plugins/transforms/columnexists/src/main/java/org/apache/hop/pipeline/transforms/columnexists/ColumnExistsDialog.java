@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -179,7 +180,9 @@ public class ColumnExistsDialog extends BaseTransformDialog {
           }
         });
 
-    wTablenameText = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTablenameText =
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     wTablenameText.setToolTipText(
         BaseMessages.getString(PKG, "ColumnExistsDialog.TablenameTextField.Tooltip"));
     PropsUi.setLook(wTablenameText);

@@ -44,9 +44,19 @@
         <filter-name>HopOidcAuth</filter-name>
         <filter-class>org.apache.hop.ui.hopgui.security.HopOidcAuthFilter</filter-class>
     </filter>
+    <!-- RBAC for the embedded Hop Server API. Runs after the auth filters so the container
+         principal is set. Maps each /hop/* endpoint to the permission its role must hold. -->
+    <filter>
+        <filter-name>HopServerAuthorization</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopServerAuthorizationFilter</filter-class>
+    </filter>
     <filter-mapping>
         <filter-name>HopBasicAuth</filter-name>
         <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>HopServerAuthorization</filter-name>
+        <url-pattern>/hop/*</url-pattern>
     </filter-mapping>
 
     <servlet>
@@ -63,6 +73,16 @@
         <url-pattern>/ui-dark</url-pattern>
     </servlet-mapping>
 
+    <!-- Path-shaped explorer file URLs so HTML in the RAP Browser has a directory base. -->
+    <servlet>
+        <servlet-name>ExplorerFile</servlet-name>
+        <servlet-class>org.apache.hop.ui.hopgui.explorer.ExplorerFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ExplorerFile</servlet-name>
+        <url-pattern>/explorer-file/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>welcome</servlet-name>
         <jsp-file>/docs/English/welcome/index.html</jsp-file>
@@ -75,6 +95,8 @@
     <servlet>
         <servlet-name>Server</servlet-name>
         <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+        <!-- Eager init so plugin /hop/* paths are registered with RBAC before the first request. -->
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>Server</servlet-name>

@@ -1,0 +1,94 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Driving the real Hop GUI in a test with SWTBot: the harness, how to run the tests, and the things that make UI tests different.
+[[Testing-UiTesting]]
+= UI tests with SWTBot
+
+Hop has a https://eclipse.dev/swtbot/[SWTBot] harness that opens real SWT widgets, drives them the way a user would, and asserts on what happened.
+Around sixty test classes use it today, covering dialogs, the canvas, table views and the file dialog.
+
+They are ordinary JUnit 5 tests, marked with a tag:
+
+[source,java]
+----
+@Tag("uitest")
+class TableViewClearAllTest extends SwtBotTestBase { ... }
+----
+
+== Running them
+
+A UI test needs a display, so how you run it matters.
+
+[source,bash]
+----
+./mvnw test -Puitest -pl rcp             # only the UI tests
+./mvnw clean install -Pskip-uitest       # everything except the UI tests
+----
+
+With neither profile the UI tests are included whenever a display is available.
+
+On Linux, wrap the command so the test shells do not steal your session:
+
+[source,bash]
+----
+./tools/with-isolated-display.sh ./mvnw test -Puitest -pl rcp
+----
+
+That script prefers `xvfb-run`, which is what CI uses, and falls back to the Xvfb sidecar in `docker/ui-tests/compose.yaml`.
+It deliberately refuses to point Maven at your current seat unless you force it with `HOP_ALLOW_INTERACTIVE_DISPLAY=1`.
+
+On macOS nothing extra is needed: the `swt-mac` profile adds `-XstartOnFirstThread` to the test JVM, which SWT requires.
+
+== The harness
+
+Tests extend `org.apache.hop.ui.testing.SwtBotTestBase`, which lives in the `hop-ui` test jar.
+The plugins parent already puts that jar, the RCP look-and-feel implementations and the SWTBot jars on every plugin's test classpath, so a plugin can add a UI test without touching its pom.
+
+Two entry points cover almost everything:
+
+`withScene(build, interactions)`::
+Builds widgets into a parent shell and then drives them.
+
+`withDialog(blockingOpener, interactions)`::
+For a dialog whose `open()` blocks — the opener runs on its own thread and the interactions run once the shell appears.
+
+Both take care of the parts that make SWT tests painful: creating and reusing the display, pumping the event loop, tearing the shells down afterwards, and failing cleanly instead of hanging.
+
+Two system properties are worth knowing:
+
+`-Dswtbot.test.timeoutMillis`::
+Hard ceiling per scene or dialog, 120 seconds by default.
+A modal box nobody dismissed would otherwise hold the build until CI kills the job hours later; when the deadline expires the harness tears the windows down and fails with the thread stacks.
+
+`-Dswtbot.test.holdMillis`::
+Keeps the window on screen after the interactions, so you can watch or screenshot it. Zero by default.
+
+== What UI tests are good for
+
+They catch the class of bug that unit tests structurally cannot: a widget that is never created, a listener wired to the wrong control, a dialog that NPEs because a field was disabled, a layout that collapses.
+`DisabledGuiWidgetsNpeTest` is a good example — it disables GUI elements the way a distribution can and asserts that nothing NPEs as a result.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Writing your first UI test: a worked example from empty file to green.
+* The helpers on the base class — `drainUi()`, `onUi(...)`, `buttonLabel(...)` — and when each is needed.
+* Why the tests live in `rcp` rather than in a module of their own, and where a plugin's own UI test should go.
+* Canvas testing: still an open area.
+* Debugging a UI test that fails only on CI.
+====

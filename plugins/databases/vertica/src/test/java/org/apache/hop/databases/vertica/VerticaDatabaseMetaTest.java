@@ -482,7 +482,6 @@ class VerticaDatabaseMetaTest {
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertTrue(nativeMeta.isSupportsSequences());
     assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isDisplaySizeTwiceThePrecision());
   }
 

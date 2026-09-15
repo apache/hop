@@ -22,6 +22,8 @@ import org.apache.hop.core.IAddUndoPosition;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 
 public class HopGuiUndoDelegate implements IAddUndoPosition {
   private HopGui hopGui;
@@ -35,6 +37,9 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   }
 
   public void addUndoNew(IUndo undoInterface, Object[] obj, int[] position, boolean nextAlso) {
+    if (recordSnapshot(undoInterface, nextAlso)) {
+      return;
+    }
     undoInterface.addUndo(obj, null, position, null, null, AbstractMeta.TYPE_UNDO_NEW, nextAlso);
     hopGui.setUndoMenu(undoInterface);
   }
@@ -46,6 +51,9 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
 
   // Undo delete object
   public void addUndoDelete(IUndo undoInterface, Object[] obj, int[] position, boolean nextAlso) {
+    if (recordSnapshot(undoInterface, nextAlso)) {
+      return;
+    }
     undoInterface.addUndo(obj, null, position, null, null, AbstractMeta.TYPE_UNDO_DELETE, nextAlso);
     hopGui.setUndoMenu(undoInterface);
   }
@@ -60,9 +68,10 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   // Change of transform, connection, hop or note...
   public void addUndoPosition(
       IUndo undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso) {
-    // It's better to store the indexes of the objects, not the objects
-    // itself!
-    undoInterface.addUndo(obj, null, pos, prev, curr, AbstractMeta.TYPE_UNDO_POSITION, false);
+    if (recordSnapshot(undoInterface, nextAlso)) {
+      return;
+    }
+    undoInterface.addUndo(obj, null, pos, prev, curr, AbstractMeta.TYPE_UNDO_POSITION, nextAlso);
     hopGui.setUndoMenu(undoInterface);
   }
 
@@ -74,8 +83,21 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   // Change of transform, connection, hop or note...
   public void addUndoChange(
       IUndo undoInterface, Object[] from, Object[] to, int[] pos, boolean nextAlso) {
+    if (recordSnapshot(undoInterface, nextAlso)) {
+      return;
+    }
     undoInterface.addUndo(from, to, pos, null, null, AbstractMeta.TYPE_UNDO_CHANGE, nextAlso);
     hopGui.setUndoMenu(undoInterface);
+  }
+
+  private boolean recordSnapshot(IUndo undoInterface, boolean nextAlso) {
+    IHopFileTypeHandler handler = hopGui.getActiveFileTypeHandler();
+    if (handler instanceof ISnapshotUndoSupport support && support.isUndoMeta(undoInterface)) {
+      support.recordAfterChange(nextAlso);
+      hopGui.setUndoMenu(support.canUndo(), support.canRedo());
+      return true;
+    }
+    return false;
   }
 
   /**

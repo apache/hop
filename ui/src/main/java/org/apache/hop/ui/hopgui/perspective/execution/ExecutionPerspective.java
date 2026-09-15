@@ -181,7 +181,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private static final String TAB_KEY_DELIMITER = "\t";
   public static final String SNAP_ID_EIL_REFRESH = "EILRefresh";
 
-  @Getter private static ExecutionPerspective instance;
+  private static ExecutionPerspective instance;
 
   private boolean onlyShowingParents = true;
   private boolean onlyShowingFailed;
@@ -225,6 +225,18 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   public ExecutionPerspective() {
     instance = this;
+  }
+
+  public static ExecutionPerspective getInstance() {
+    try {
+      ExecutionPerspective fromGui = HopGui.findSessionPerspective(ExecutionPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   /**

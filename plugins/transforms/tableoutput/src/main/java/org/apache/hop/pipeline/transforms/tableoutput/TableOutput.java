@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -474,9 +475,11 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if (sendToErrorRow) {
         if (batchProblem) {
           data.batchBuffer.add(outputRowData);
+          data.batchBindBuffer.add(insertRowData);
           outputRowData = null;
 
-          processBatchException(errorMessage, updateCounts, exceptionsList);
+          processBatchException(
+              insertStatement, tableName, errorMessage, updateCounts, exceptionsList);
         } else {
           // Simply add this row to the error row
           putError(rowMeta, r, 1L, errorMessage, null, "TOP001");
@@ -484,6 +487,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
       } else {
         data.batchBuffer.add(outputRowData);
+        data.batchBindBuffer.add(insertRowData);
         outputRowData = null;
 
         if (rowIsSafe) { // A commit was done and the rows are all safe (no error)
@@ -494,6 +498,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           }
           // Clear the buffer
           data.batchBuffer.clear();
+          data.batchBindBuffer.clear();
         }
       }
     } else {
@@ -506,41 +511,186 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     return outputRowData;
   }
 
-  private void processBatchException(
-      String errorMessage, int[] updateCounts, List<Exception> exceptionsList) throws HopException {
-    // There was an error with the commit
-    // We should put all the failing rows out there...
+  /**
+   * Route every row of a failed batch to the regular output or to the error stream.
+   *
+   * <p>JDBC lets a driver react to a failing statement in more than one way, and the update counts
+   * we get back mean different things as a result:
+   *
+   * <ul>
+   *   <li>Some drivers execute the whole batch and hand back one count per row, with {@link
+   *       Statement#EXECUTE_FAILED} at the rows that failed. SQL Server, MySQL and H2 do this.
+   *   <li>Some stop at the first failure. The array is then <em>shorter</em> than the batch: it
+   *       holds only the rows that succeeded before the failure, the row at {@code
+   *       updateCounts.length} is the one that failed, and the rows behind it were never sent to
+   *       the database at all. Oracle and Derby do this, and a failure on the very first row of the
+   *       batch gives us a zero-length array rather than a null one.
+   *   <li>Some report nothing usable and we get no counts at all.
+   * </ul>
+   *
+   * <p>Whichever we get, every row in the buffer has to leave here on exactly one of the two
+   * streams. Rows the counts array does not account for are not in the database, so they are
+   * rejects - silently dropping them is what used to make rows disappear on Oracle.
+   */
+  @VisibleForTesting
+  void processBatchException(
+      PreparedStatement insertStatement,
+      String tableName,
+      String errorMessage,
+      int[] updateCounts,
+      List<Exception> exceptionsList)
+      throws HopException {
+
+    int bufferSize = data.batchBuffer.size();
+
+    // More counts than rows means the counts belong to a different batch than the one we buffered,
+    // so the row a count refers to can't be worked out. Reporting the wrong rows on the wrong
+    // stream is worse than failing here, where the mismatch is still visible.
     //
-    if (updateCounts != null) {
+    if (updateCounts != null && updateCounts.length > bufferSize) {
+      throw new HopException(
+          "Unable to attribute batch errors to rows: the database returned "
+              + updateCounts.length
+              + " update counts for a batch of "
+              + bufferSize
+              + " buffered rows.");
+    }
+
+    // Re-driving the untried rows means binding them again, which is only unambiguous when the
+    // whole buffer belongs to the one statement that just failed. With the table name in a field or
+    // date partitioning the buffer interleaves rows for several tables, so the tail is reported
+    // rather than retried.
+    //
+    boolean canRetryTail =
+        insertStatement != null
+            && !meta.isTableNameInField()
+            && !meta.isPartitioningEnabled()
+            && data.batchBindBuffer.size() == bufferSize;
+
+    int from = 0;
+    int[] counts = updateCounts;
+    String message = errorMessage;
+    List<Exception> exceptions = exceptionsList == null ? List.of() : exceptionsList;
+
+    while (from < bufferSize) {
+
+      // Rows the database told us about, relative to where this attempt started.
+      //
+      int counted = counts == null ? 0 : counts.length;
       int errNr = 0;
-      for (int i = 0; i < updateCounts.length; i++) {
-        Object[] row = data.batchBuffer.get(i);
-        if (updateCounts[i] > 0) {
-          // send the error foward
+      for (int i = 0; counts != null && i < counted; i++) {
+        Object[] row = data.batchBuffer.get(from + i);
+        if (counts[i] != Statement.EXECUTE_FAILED) {
+          // Anything that isn't EXECUTE_FAILED is a success: a row count, or SUCCESS_NO_INFO from a
+          // driver that applied the row without saying how many rows it touched.
+          //
           putRow(data.outputRowMeta, row);
           incrementLinesOutput();
         } else {
-          String exMessage = errorMessage;
-          if (errNr < exceptionsList.size()) {
-            SQLException se = (SQLException) exceptionsList.get(errNr);
+          String exMessage = message;
+          if (errNr < exceptions.size()) {
+            exMessage = exceptions.get(errNr).toString();
             errNr++;
-            exMessage = se.toString();
           }
           putError(data.outputRowMeta, row, 1L, exMessage, null, "TOP0002");
         }
       }
-    } else {
-      // If we don't have update counts, it probably means the DB doesn't support it.
-      // In this case we don't have a choice but to consider all inserted rows to be error rows.
+      from += counted;
+
+      if (from >= bufferSize) {
+        break;
+      }
+
+      if (counts == null) {
+        // The driver gave us nothing to go on: it never said which rows it applied, so retrying
+        // could write a row twice. Everything still unaccounted for is reported instead.
+        //
+        for (int i = from; i < bufferSize; i++) {
+          putError(data.outputRowMeta, data.batchBuffer.get(i), 1L, message, null, "TOP0003");
+        }
+        break;
+      }
+
+      // A short counts array means the driver stopped here. This row is the one it refused, and it
+      // gets the database's own message.
       //
-      for (int i = 0; i < data.batchBuffer.size(); i++) {
-        Object[] row = data.batchBuffer.get(i);
-        putError(data.outputRowMeta, row, 1L, errorMessage, null, "TOP0003");
+      putError(data.outputRowMeta, data.batchBuffer.get(from), 1L, message, null, "TOP0002");
+      from++;
+
+      if (from >= bufferSize) {
+        break;
+      }
+
+      if (!canRetryTail) {
+        for (int i = from; i < bufferSize; i++) {
+          putError(
+              data.outputRowMeta,
+              data.batchBuffer.get(i),
+              1L,
+              notAttemptedMessage(message),
+              null,
+              "TOP0003");
+        }
+        break;
+      }
+
+      // The rows behind the failure were never sent, so they are still owed a write. Re-drive them
+      // as one batch: a batch that fails again comes back round this loop, which costs one extra
+      // round trip per bad row rather than a round trip per row.
+      //
+      try {
+        counts = retryBatch(insertStatement, from, bufferSize);
+        message = errorMessage;
+        exceptions = List.of();
+      } catch (HopDatabaseBatchException be) {
+        counts = be.getUpdateCounts();
+        message = be.toString();
+        exceptions = be.getExceptionsList() == null ? List.of() : be.getExceptionsList();
       }
     }
 
-    // Clear the buffer afterwards...
+    if (isDetailed()) {
+      logDetailed(
+          "Recovered a failed batch of " + bufferSize + " rows on table [" + tableName + "]");
+    }
+
+    // Clear the buffers afterwards...
     data.batchBuffer.clear();
+    data.batchBindBuffer.clear();
+  }
+
+  /**
+   * Re-binds and re-executes rows {@code [from, to)} of the batch buffer on the same prepared
+   * statement, and commits them.
+   *
+   * @return one update count per row submitted, so the caller can attribute them from {@code from}
+   * @throws HopDatabaseBatchException if this attempt fails in its turn, carrying whatever the
+   *     driver reported about it
+   */
+  private int[] retryBatch(PreparedStatement insertStatement, int from, int to)
+      throws HopException {
+    int[] counts;
+    try {
+      for (int i = from; i < to; i++) {
+        data.db.setValues(data.insertRowMeta, data.batchBindBuffer.get(i), insertStatement);
+        insertStatement.addBatch();
+      }
+      counts = insertStatement.executeBatch();
+      data.db.commit();
+      insertStatement.clearBatch();
+    } catch (SQLException ex) {
+      data.db.clearBatch(insertStatement);
+      data.db.commit(true);
+      throw Database.createHopDatabaseBatchException("Error updating batch", ex);
+    }
+    // executeBatch may return fewer counts than rows submitted; the caller handles that the same
+    // way it handles the original short array.
+    return counts;
+  }
+
+  private String notAttemptedMessage(String errorMessage) {
+    return BaseMessages.getString(
+        PKG, "TableOutput.Error.RowNotAttempted", Const.NVL(errorMessage, ""));
   }
 
   @Override
@@ -1232,6 +1382,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.db = null;
         data.preparedStatements = null;
         data.batchBuffer = null;
+        data.batchBindBuffer = null;
         data.commitCounterMap = null;
         data.outputRowMeta = null;
       }
@@ -1249,6 +1400,10 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
   }
 
   private void emptyAndCommitBatchBuffers(boolean dispose) {
+    // Which statement was being flushed when it threw, so a failure can be recovered against the
+    // statement that actually produced it.
+    PreparedStatement flushingStatement = null;
+    String flushingTable = null;
     try {
       for (String schemaTable : data.preparedStatements.keySet()) {
         // Get a commit counter per prepared statement to keep track of separate tables, etc.
@@ -1259,6 +1414,8 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
 
         PreparedStatement insertStatement = data.preparedStatements.get(schemaTable);
+        flushingStatement = insertStatement;
+        flushingTable = schemaTable;
         data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter, dispose);
         data.commitCounterMap.put(schemaTable, 0);
       }
@@ -1269,12 +1426,21 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       }
       // Clear the buffer
       data.batchBuffer.clear();
+      data.batchBindBuffer.clear();
     } catch (HopDatabaseBatchException be) {
       if (getTransformMeta().isDoingErrorHandling()) {
         // Right at the back we are experiencing a batch commit problem...
         // OK, we have the numbers...
         try {
-          processBatchException(be.toString(), be.getUpdateCounts(), be.getExceptionsList());
+          // The statement is still open here: Database.emptyAndCommit only closes it after a
+          // successful executeBatch, so a failure leaves it usable and dispose()'s own finally
+          // closes it afterwards. The last partial batch gets the same recovery as any other.
+          processBatchException(
+              flushingStatement,
+              flushingTable,
+              be.toString(),
+              be.getUpdateCounts(),
+              be.getExceptionsList());
         } catch (HopException e) {
           logError("Unexpected error processing batch error", e);
           setErrors(1);

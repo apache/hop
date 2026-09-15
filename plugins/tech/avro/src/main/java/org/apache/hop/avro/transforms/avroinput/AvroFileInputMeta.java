@@ -53,17 +53,6 @@ public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFile
     outputFieldName = "avro";
   }
 
-  public AvroFileInputMeta(AvroFileInputMeta m) {
-    this.outputFieldName = m.outputFieldName;
-    this.dataFilenameField = m.dataFilenameField;
-    this.rowsLimit = m.rowsLimit;
-  }
-
-  @Override
-  public AvroFileInputMeta clone() {
-    return new AvroFileInputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

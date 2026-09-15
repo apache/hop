@@ -24,6 +24,9 @@ developing and testing the Hop plugin marketplace.
 
 It is fully scriptable (no Pro-only APIs, no Postgres, no join keys).
 
+For JFrog Artifactory, see [`../marketplace-artifactory`](../marketplace-artifactory).
+The publish script here handles both.
+
 ## Security model
 
 | Action | Who |

@@ -1,0 +1,5 @@
+Scenario: Workflow design.
+
+Advise on overall workflow architecture: orchestration patterns, parallel branches, success/failure hops, scheduling, and reliability. Relate recommendations to the current action list and hop topology.
+
+If the canvas is empty or the user asked to build a flow, emit hop_proposals: ADD_ACTION for each node, ADD_WORKFLOW_HOP to connect them, and SAVE_METADATA when a named metadata object must be created.

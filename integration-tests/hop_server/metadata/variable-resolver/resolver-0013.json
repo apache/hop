@@ -1,0 +1,13 @@
+{
+  "virtualPath": "",
+  "name": "resolver-0013",
+  "description": "Resolves a variable by running a referenced pipeline with the 'local-export-only' pipeline run configuration. That run configuration only exists in the client project (metadata-client-only folder), never in the Hop Server's own metadata, so the resolver can only work when it is resolved against the metadata bundled in the export (#8096).",
+  "variable-resolver": {
+    "Variable-Resolver-Pipeline": {
+      "outputTransformName": "OUTPUT",
+      "filename": "${PROJECT_HOME}/reflection/0013-resolver.hpl",
+      "expressionVariableName": "VARIABLE_TO_RESOLVE",
+      "runConfigurationName": "local-export-only"
+    }
+  }
+}

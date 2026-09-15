@@ -31,6 +31,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
 import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -243,7 +244,20 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
       // OK, what's the result of our search?
       getData(meta, false, reloadAllFields, newFieldNames);
     }
+    NamingSchemeColumnApplierRegistry.getInstance()
+        .applyAnnotatedColumns(
+            getFieldsTable(),
+            getPipelineMeta() != null ? getPipelineMeta().getMetadataProvider() : null,
+            getNamingSchemeName());
     return message;
+  }
+
+  /**
+   * Optional Naming Scheme metadata name used when Get Fields auto-applies. Default: none (unique
+   * matching scheme or General fallback).
+   */
+  default String getNamingSchemeName() {
+    return null;
   }
 
   default TableItem getTableItem(final String fieldName) {

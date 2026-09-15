@@ -30,12 +30,20 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MonetDBDatabaseMetaTest {
 
   private MonetDBDatabaseMeta nativeMeta;
+
+  @AfterEach
+  void tearDownAfter() {
+    // getFieldDefinition() reads this static ThreadLocal, so leaving it set leaks into every
+    // later test on the same thread.
+    MonetDBDatabaseMeta.safeModeLocal.remove();
+  }
 
   @BeforeEach
   void setupBefore() {

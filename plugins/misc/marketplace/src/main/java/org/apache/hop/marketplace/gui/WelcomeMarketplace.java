@@ -106,7 +106,7 @@ public class WelcomeMarketplace {
       type = GuiElementType.LINK,
       label =
           "\nTo install all optional plugins that used to ship in the fat client:\n\n"
-              + "  • GUI: open the marketplace, select full-client-env.yaml as the environment file "
+              + "  • GUI: open the marketplace, Install spec tab, select full-client-env.yaml "
               + "(pre-filled when present at the install root), click Apply, then restart Hop.\n"
               + "  • CLI (from the Hop install directory):\n\n"
               + "      ./hop marketplace apply -f full-client-env.yaml\n\n"

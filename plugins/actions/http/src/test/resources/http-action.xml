@@ -38,6 +38,7 @@
     <proxy_port>8080</proxy_port>
     <non_proxy_hosts/>
     <addfilenameresult>Y</addfilenameresult>
+    <reply_variable>HTTP_REPLY</reply_variable>
     <headers>
         <header>
             <header_name>accept</header_name>

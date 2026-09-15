@@ -141,7 +141,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         // Preemptive Basic auth: AuthCache must be keyed to the origin host (same as the request
         // target). Proxy routing is configured on the client via RequestConfig — do not pass the
         // proxy as HttpHost here (breaks credentials + preemptive cache matching in HttpClient 5).
-        HttpHost target = HttpHost.create(uri);
+        HttpHost target = HttpClientManager.createHttpHost(uri);
 
         httpResponse =
             httpClient.execute(

@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fn",
+          "data_set_field": "fn"
+        },
+        {
+          "transform_field": "uid",
+          "data_set_field": "uid"
+        },
+        {
+          "transform_field": "email",
+          "data_set_field": "email"
+        }
+      ],
+      "field_order": [
+        "fn",
+        "uid",
+        "email"
+      ],
+      "data_set_name": "golden-vcard-accept-filenames",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0111-vcard-input-accept-filenames UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0111-vcard-input-accept-filenames.hpl"
+}

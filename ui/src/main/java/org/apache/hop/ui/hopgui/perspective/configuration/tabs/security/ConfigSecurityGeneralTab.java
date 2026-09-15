@@ -29,6 +29,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -43,6 +44,7 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
 
   private Combo wMode;
   private Text wWelcome;
+  private Button wAllowServerApi;
 
   public ConfigSecurityGeneralTab() {
     // Instantiated by ConfigSecurityTab / @GuiTab system
@@ -99,7 +101,21 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
     wWelcome.setLayoutData(fdWelcome);
     last = wWelcome;
 
-    SecurityConfigUi.addHint(content, last, "ConfigSecurityTab.Welcome.Hint", margin);
+    last = SecurityConfigUi.addHint(content, last, "ConfigSecurityTab.Welcome.Hint", margin);
+
+    wAllowServerApi = new Button(content, SWT.CHECK);
+    PropsUi.setLook(wAllowServerApi);
+    wAllowServerApi.setText(BaseMessages.getString(PKG, "ConfigSecurityTab.AllowServerApi.Label"));
+    wAllowServerApi.setToolTipText(
+        BaseMessages.getString(PKG, "ConfigSecurityTab.AllowServerApi.Tooltip"));
+    FormData fdAllowServerApi = new FormData();
+    fdAllowServerApi.left = new FormAttachment(mid, margin);
+    fdAllowServerApi.top = new FormAttachment(last, margin * 2);
+    fdAllowServerApi.right = new FormAttachment(100, 0);
+    wAllowServerApi.setLayoutData(fdAllowServerApi);
+    last = wAllowServerApi;
+
+    SecurityConfigUi.addHint(content, last, "ConfigSecurityTab.AllowServerApi.Hint", margin);
     SecurityConfigUi.finishTabLayout(content);
   }
 
@@ -112,6 +128,9 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
       wWelcome.setText(Const.NVL(config.getWelcomeMessage(), ""));
       wWelcome.setMessage(HopSecurityConfig.DEFAULT_WELCOME_MESSAGE);
     }
+    if (wAllowServerApi != null && !wAllowServerApi.isDisposed()) {
+      wAllowServerApi.setSelection(config.isAllowUnauthenticatedServerApi());
+    }
   }
 
   @Override
@@ -121,6 +140,9 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
     }
     if (wWelcome != null && !wWelcome.isDisposed()) {
       config.setWelcomeMessage(wWelcome.getText());
+    }
+    if (wAllowServerApi != null && !wAllowServerApi.isDisposed()) {
+      config.setAllowUnauthenticatedServerApi(wAllowServerApi.getSelection());
     }
   }
 

@@ -33,4 +33,15 @@ public @interface GuiPlugin {
   String name() default "";
 
   String description() default "";
+
+  /**
+   * The class loader group this GUI plugin belongs to. Plugins sharing a group share a single class
+   * loader. Set this on a {@code @GuiPlugin} that is also a {@code @HopMetadata} (or otherwise
+   * lives in a grouped plugin folder) so editor widgets and Test buttons see the same class as the
+   * metadata serializer. Without it {@code GuiPluginType} loads a second copy and a button method
+   * that casts the editor object throws {@link ClassCastException}.
+   *
+   * @return the class loader group, empty for the default one-class-loader-per-plugin-folder
+   */
+  String classLoaderGroup() default "";
 }

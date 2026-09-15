@@ -308,7 +308,7 @@ public class SqlEditor {
     StringBuilder message = new StringBuilder();
     ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
 
-    startSqlCancelWatcherVirtualThread(pmd);
+    DatabaseProgressCancelWatcher.startIfDesktop(pmd, activeDb::get, "Hop-SqlEditor-CancelWatcher");
 
     try {
       pmd.run(true, monitor -> runSqlScriptWithMonitor(monitor, databaseMeta, sqlScript, message));
@@ -328,34 +328,6 @@ public class SqlEditor {
     dialog.open();
   }
 
-  private void startSqlCancelWatcherVirtualThread(ProgressMonitorDialog pmd) {
-    Thread.ofVirtual()
-        .name("Hop-SqlEditor-CancelWatcher")
-        .start(
-            () -> {
-              IProgressMonitor monitor = pmd.getProgressMonitor();
-              while (pmd.getShell() == null
-                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-                try {
-                  Thread.sleep(100);
-                } catch (InterruptedException e) {
-                  Thread.currentThread().interrupt();
-                  break;
-                }
-              }
-              if (monitor.isCanceled()) {
-                Database db = activeDb.get();
-                if (db != null) {
-                  try {
-                    db.cancelQuery();
-                  } catch (Exception ignored) {
-                    // ignore
-                  }
-                }
-              }
-            });
-  }
-
   private void runSqlScriptWithMonitor(
       IProgressMonitor monitor,
       DatabaseMeta databaseMeta,
@@ -372,6 +344,7 @@ public class SqlEditor {
       if (timeoutSeconds > 0) {
         db.setStatementQueryTimeoutSeconds(timeoutSeconds);
       }
+      db.setQueryLimit(1000);
       db.connect();
 
       int[] nrStats = {0};

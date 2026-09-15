@@ -140,12 +140,6 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    XmlWellFormed je = (XmlWellFormed) super.clone();
-    return je;
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     result.setNrErrors(1);

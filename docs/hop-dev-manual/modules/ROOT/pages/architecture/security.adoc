@@ -1,0 +1,61 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: What Hop's threat model says, what it means when you write code, and how to report a vulnerability.
+[[Architecture-Security]]
+= Security for developers
+
+Hop has a written security policy and a written threat model, both in the repository root.
+Read them before adding anything that accepts input from outside the process.
+
+link:https://github.com/apache/hop/blob/main/SECURITY.md[SECURITY.md]::
+The policy: how to report a vulnerability, and pointers to deployment hardening.
+
+link:https://github.com/apache/hop/blob/main/THREAT_MODEL.md[THREAT_MODEL.md]::
+What is in scope and out of scope, the trust boundaries, which inputs are trusted and which are not, the adversary model, the properties Hop provides and explicitly does *not* provide, and how reports are triaged.
+
+== Reporting a vulnerability
+
+Report privately to `security@apache.org`, following the https://www.apache.org/security/[ASF security process].
+Do not open a GitHub issue or a pull request for a security report — that publishes it.
+
+== What it means when you write code
+
+The threat model is not background reading; it decides whether something is a bug.
+Three consequences come up most often:
+
+A pipeline or workflow file is trusted input::
+Hop executes what it is given, including SQL, scripts and expressions.
+"A malicious `.hpl` can run code" is by design, not a vulnerability.
+
+Hop Server is inside one trust domain::
+Everything an authenticated caller can reach, they can reach fully.
+A xref:plugin-types/execution-observability.adoc[server servlet plugin] adds to that surface: authentication is the server's job, but what the endpoint exposes and what it does with its input is entirely yours.
+
+Password obfuscation is not encryption::
+The default encoder keeps passwords out of plain sight in files.
+It does not protect them from anyone holding the files.
+Do not build a feature whose safety depends on it.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* A short checklist for a pull request that touches input handling, file paths or credentials.
+* Dependency and CVE handling: how vulnerable dependencies are tracked and updated.
+* What the automated scanners are configured to check, and how to read their findings.
+* Secrets in a plugin: how to hold one so it is never serialized or logged.
+====

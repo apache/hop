@@ -123,20 +123,6 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     outputFields = new ArrayList<>();
   }
 
-  public AddXmlMeta(AddXmlMeta m) {
-    this();
-    this.encoding = m.encoding;
-    this.omitDetails = new OmitDetails(m.omitDetails);
-    this.rootNode = m.rootNode;
-    this.valueName = m.valueName;
-    m.outputFields.forEach(f -> outputFields.add(new XmlField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new AddXmlMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

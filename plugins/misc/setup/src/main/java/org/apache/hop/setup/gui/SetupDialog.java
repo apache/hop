@@ -17,6 +17,7 @@
 
 package org.apache.hop.setup.gui;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
@@ -38,6 +39,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -527,7 +529,7 @@ public class SetupDialog extends Dialog {
         spec.setWriteScript(true);
         spec.setDryRun(true);
       }
-      HopEnvironmentApplyResult result = new HopEnvironmentApplier().apply(spec);
+      HopEnvironmentApplyResult result = applyEnvironment(spec);
       if (dryRun || web) {
         StringBuilder preview = new StringBuilder(result.describe());
         result
@@ -559,6 +561,40 @@ public class SetupDialog extends Dialog {
           BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
           e);
     }
+  }
+
+  /**
+   * Writing user-level variables makes Windows broadcast an environment change to every top-level
+   * window and wait for each one to answer. On the UI thread that blocks the very windows expected
+   * to answer, which costs about 25 seconds per variable, so the work runs on a background thread
+   * while the event loop keeps dispatching.
+   */
+  private HopEnvironmentApplyResult applyEnvironment(HopEnvironmentSpec spec) throws Exception {
+    if (spec.isDryRun()) {
+      return new HopEnvironmentApplier().apply(spec);
+    }
+    HopEnvironmentApplyResult[] applied = new HopEnvironmentApplyResult[1];
+    try {
+      new ProgressMonitorDialog(shell)
+          .run(
+              false,
+              monitor -> {
+                monitor.beginTask(BaseMessages.getString(PKG, "SetupDialog.Apply.Progress"), 1);
+                try {
+                  applied[0] = new HopEnvironmentApplier().apply(spec);
+                } catch (Exception e) {
+                  throw new InvocationTargetException(e);
+                }
+                monitor.worked(1);
+                monitor.done();
+              });
+    } catch (InvocationTargetException e) {
+      if (e.getCause() instanceof Exception cause) {
+        throw cause;
+      }
+      throw e;
+    }
+    return applied[0];
   }
 
   private void cancel() {

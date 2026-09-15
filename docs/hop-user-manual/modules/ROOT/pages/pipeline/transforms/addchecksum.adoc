@@ -17,28 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add a Checksum transform calculates checksums for one or more fields in the input stream and adds this to the output as a new field.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/checksum.svg[Add a Checksum Icon, role="image-doc-icon"] Add a checksum
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Add a Checksum transform calculates checksums for one or more fields in the input stream and adds this to the output as a new field.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 
@@ -66,3 +51,8 @@ Like the prefix, this can be used to distinguish hash keys from different topics
 |Fields used in the checksum|The names of the fields to include in the checksum calculation.
 Note: You can use the "Get Fields" button to insert all input fields from previous transforms.
 |===
+
+== See also
+
+* xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots] — storing an MD5 or SHA hash of a row and comparing it on the next run
+

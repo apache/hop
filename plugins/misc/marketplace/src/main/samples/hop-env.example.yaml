@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Example declarative Hop environment (copy to hop-env.yaml in your project or install).
+# Example Hop install spec (copy to hop-env.yaml in your project or install).
 # Apply with:
 #   hop marketplace apply -f hop-env.yaml
 #   hop marketplace apply -f hop-env.yaml --prune

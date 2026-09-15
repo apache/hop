@@ -51,8 +51,9 @@ import org.junit.jupiter.api.Test;
  * real OK/Cancel buttons are clicked so the dialog's own {@code ok()}/{@code cancel()} logic is
  * what gets exercised.
  *
- * <p>Tagged {@code uitest} so it is skipped on headless machines; run with {@code mvn -pl
- * plugins/transforms/constant -Puitest test}.
+ * <p>Tagged {@code uitest} so it is skipped when there is no display. The default reactor run still
+ * includes it on a desktop; wrap Maven with {@code tools/with-isolated-display.sh} so the dialog
+ * does not steal focus.
  */
 @Tag("uitest")
 class ConstantDialogTest extends SwtBotTestBase {

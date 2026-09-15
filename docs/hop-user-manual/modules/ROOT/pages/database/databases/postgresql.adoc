@@ -30,3 +30,11 @@ under the License.
 |Documentation | https://jdbc.postgresql.org/documentation/head/index.html[Documentation Link]
 |JDBC Url  | jdbc:postgresql://host:port/database
 |===
+
+== Numeric DDL in 2.20
+
+Hop Number/BigNumber *length* is the total number of significant digits (the database precision), not the digits before the decimal.
+
+Table Output and similar DDL therefore emit `NUMERIC(length, scale)`.
+A field authored as length 10, precision 3 generates `NUMERIC(10, 3)`.
+In 2.19 and earlier the PostgreSQL dialect added length and scale and emitted `NUMERIC(13, 3)` for that same metadata.

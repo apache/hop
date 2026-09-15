@@ -137,21 +137,6 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     this.fileDetails = new FileDetails();
   }
 
-  public PropertyOutputMeta(PropertyOutputMeta m) {
-    this();
-    this.comment = m.comment;
-    this.keyField = m.keyField;
-    this.valueField = m.valueField;
-    this.fileNameInField = m.fileNameInField;
-    this.fileNameField = m.fileNameField;
-    this.fileDetails = new FileDetails(m.fileDetails);
-  }
-
-  @Override
-  public Object clone() {
-    return new PropertyOutputMeta(this);
-  }
-
   public String[] getFiles(IVariables variables) {
     int copies = 1;
     int parts = 1;

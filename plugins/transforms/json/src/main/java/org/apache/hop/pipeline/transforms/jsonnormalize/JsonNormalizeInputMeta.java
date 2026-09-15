@@ -240,38 +240,6 @@ public class JsonNormalizeInputMeta
     ignoreMissingField = true;
   }
 
-  public JsonNormalizeInputMeta(JsonNormalizeInputMeta m) {
-    this();
-    this.addResultFile = m.addResultFile;
-    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    this.filenameField = m.filenameField;
-    this.includeFilename = m.includeFilename;
-    this.includeRowNumber = m.includeRowNumber;
-    this.inFields = m.inFields;
-    this.sourceAFile = m.sourceAFile;
-    this.ignoringEmptyFile = m.ignoringEmptyFile;
-    this.readUrl = m.readUrl;
-    this.removeSourceField = m.removeSourceField;
-    this.rowLimit = m.rowLimit;
-    this.rowNumberField = m.rowNumberField;
-    this.valueField = m.valueField;
-    this.recordPath = m.recordPath;
-    this.fieldSeparator = m.fieldSeparator;
-    this.maxFlattenDepth = m.maxFlattenDepth;
-    this.arrayHandling = m.arrayHandling;
-    this.beyondDepthBehavior = m.beyondDepthBehavior;
-    this.ignoreMissingField = m.ignoreMissingField;
-    this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
-    this.fileInput = new BaseFileInput(m.fileInput);
-    m.inputFields.forEach(f -> inputFields.add(new JsonInputField(f)));
-    syncFieldSourceFlags();
-  }
-
-  @Override
-  public JsonNormalizeInputMeta clone() {
-    return new JsonNormalizeInputMeta(this);
-  }
-
   public String getShortFileNameField() {
     return additionalOutputFields.getShortFilenameField();
   }
@@ -352,6 +320,22 @@ public class JsonNormalizeInputMeta
   public void setInFields(boolean inFields) {
     this.inFields = inFields;
     fileInput.setAcceptingFilenames(inFields);
+    resetTransformIoMeta();
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isInFields();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isInFields();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "JsonNormalizeInputMeta.MainInputRequirementHint");
   }
 
   public boolean includeFilename() {
@@ -461,22 +445,14 @@ public class JsonNormalizeInputMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (!isInFields()) {
-      if (input.length <= 0) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInputExpected"),
-                transformMeta);
-        remarks.add(cr);
-      } else {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInput"),
-                transformMeta);
-        remarks.add(cr);
-      }
+    if (isInFields() && input.length <= 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "JsonNormalizeInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta);
+      remarks.add(cr);
     }
 
     if (getInputFields().isEmpty()) {

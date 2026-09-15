@@ -27,6 +27,7 @@ import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.apache.hop.vfs.minio.metadata.MinioMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,7 +99,27 @@ class MinioVfsPluginTest {
 
     assertNotNull(annotation, "VfsPlugin annotation should not be null");
     assertEquals("minio", annotation.type(), "Plugin type should be 'minio'");
-    assertEquals("S3 VFS plugin", annotation.typeDescription(), "Type description should match");
+    assertEquals("Minio VFS plugin", annotation.typeDescription(), "Type description should match");
+  }
+
+  @Test
+  void connectionMetadataSharesTheClassLoaderGroupOfThisPlugin() {
+    // The plugin reads MinioMeta objects it did not deserialize itself when the connections come
+    // from a resource export.
+    String pluginGroup =
+        plugin
+            .getClass()
+            .getAnnotation(org.apache.hop.core.vfs.plugin.VfsPlugin.class)
+            .classLoaderGroup();
+    String metadataGroup =
+        MinioMeta.class
+            .getAnnotation(org.apache.hop.metadata.api.HopMetadata.class)
+            .classLoaderGroup();
+
+    assertEquals(
+        pluginGroup,
+        metadataGroup,
+        "MinioMeta and the Minio VFS plugin must share a class loader group");
   }
 
   @Test

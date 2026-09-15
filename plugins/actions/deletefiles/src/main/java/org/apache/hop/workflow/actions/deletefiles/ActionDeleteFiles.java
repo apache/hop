@@ -19,7 +19,6 @@ package org.apache.hop.workflow.actions.deletefiles;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -86,18 +85,6 @@ public class ActionDeleteFiles extends ActionBase {
 
   public ActionDeleteFiles() {
     this("");
-  }
-
-  public ActionDeleteFiles(ActionDeleteFiles other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.argFromPrevious = other.argFromPrevious;
-    this.includeSubfolders = other.includeSubfolders;
-    this.fileItems = new ArrayList<>(other.fileItems);
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionDeleteFiles(this);
   }
 
   @Override

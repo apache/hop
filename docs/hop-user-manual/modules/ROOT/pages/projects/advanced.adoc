@@ -18,8 +18,6 @@ under the License.
 :imagesdir: ../../../assets/images
 :page-pagination:
 :page-pagination-no-next:
-:openvar: ${
-:closevar: }
 :description: The 2 main things that define a project are its name and its home folder. Projects and environments as such are defined in the central Hop configuration file hop-config.json. By default this file lives in the config/ folder of your Hop client distribution. You can change that folder by setting the HOP_CONFIG_FOLDER environment variable on your system.
 
 
@@ -95,6 +93,13 @@ Let's take a look at it:
   "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
   "enforcingExecutionInHome" : true,
   "parentProjectName" : "default",
+  "parentProjectFolders" : [ {
+    "folder" : "templates",
+    "copyOnce" : true,
+    "copyOnEnable" : false,
+    "overwrite" : false,
+    "exclusionWildcard" : ".*\\.tmp"
+  } ],
   "config" : {
     "variables" : [ ]
   }
@@ -124,12 +129,17 @@ Hop also sets a few built-in project variables when a project is activated:
 
 Use the parent variables to reference shared assets without fragile relative paths, for example:
 
-`{openvar}PARENT_PROJECT_HOME{closevar}/SHARED_PIPELINES/example.hpl`
+`+${PARENT_PROJECT_HOME}/SHARED_PIPELINES/example.hpl+`
 
 ==== Parent projects
 
 As you can see from the project configuration file (`parentProjectName`), a project can have a parent from which it will inherit all the metadata objects as well as all the variables that are defined in it.
-When a parent is configured, Hop also sets `{openvar}PARENT_PROJECT_HOME{closevar}` and `{openvar}PARENT_PROJECT_NAME{closevar}` so pipelines and environment config files can point into the parent project home (for example shared pipelines or secrets kept outside the child repository).
+When a parent is configured, Hop also sets `+${PARENT_PROJECT_HOME}+` and `+${PARENT_PROJECT_NAME}+` so pipelines and environment config files can point into the parent project home (for example shared pipelines or secrets kept outside the child repository).
+
+Optional `parentProjectFolders` entries copy files from those parent folders into the child project home.
+Each entry can copy once (when the destination is empty), copy every time the project is enabled, overwrite existing files, and skip files with a Java regular expression wildcard.
+The child's `project-config.json` and `.git` directories are never overwritten.
+See xref:projects/projects-environments.adoc[Projects and Environments] for the Project Properties dialog.
 
 === Environment configuration
 
@@ -162,6 +172,50 @@ System property `HOP_CONFIG_FOLDER` can also be used to point to a different fol
 =====
 
 &nbsp; +
+
+== Use a project without hop-config.json
+
+You can run or open a project for a single process without adding it to `hop-config.json`.
+Hop registers the project in memory, points metadata at `+${PROJECT_HOME}/metadata+`, and does not write the registration back to disk.
+
+This is useful when the project is provided by another system (a checkout, a zip, a container mount) and you do not want to mutate the Hop configuration.
+
+[source,bash]
+----
+hop --project-locations my-project=/path/to/project run -f pipeline.hpl -r local
+hop --project-locations my-project=/path/to/project gui -j my-project -f pipeline.hpl
+----
+
+`--project-locations` (short `-pl`) accepts a comma-separated list of:
+
+* `name=/path/to/folder`
+* `name=/path/to/archive.zip` or `name=/path/to/archive.jar` (opened read-only through VFS)
+* `name=/path/to/folder:custom-config.json` when the project file is not `project-config.json`
+* a bare folder or archive: if the folder itself is a project (`project-config.json` or `hop-project.config`), it is registered under the folder name. If it is a parent of several project folders, each child with a project config file is registered.
+
+When more than one project is listed or discovered, Hop enables the leaf project (a child that references a parent).
+Parent metadata is still inherited.
+
+A zip export may also contain `metadata.json` and `variables.json`. Those files are loaded only for archive or JSON-export layouts (no `metadata/` folder), not for a normal project that happens to contain them.
+
+Optional environment files for that process:
+
+[source,bash]
+----
+hop --project-locations edw=/data/edw --environments edw-prod=/data/edw-prod.json \
+    run -e edw-prod -f load.hpl -r local
+----
+
+`--environments` uses `name=[project:]file1;file2`.
+If the project name is omitted, Hop infers it from the registered projects.
+`--environment-conf-files` (also `--environment-config-files`) adds extra variable files to the enabled project or environment.
+
+`-ime` / `--in-memory` keeps Hop configuration in memory even when you are not using `--project-locations`.
+The same behaviour can be enabled with the `+${HOP_CONFIG_IN_MEMORY}+` system variable set to `Y`.
+
+These options are available on the `hop` root command (so they apply before `run`, `gui`, `search`, and so on) and on the subcommands themselves (`hop run -pl ...`, `hop gui -pl ...`).
+
+See xref:hop-tools/hop.adoc[hop], xref:hop-run/index.adoc[hop run] and xref:hop-tools/hop-gui.adoc[hop gui] for the full option lists.
 
 == Command Line Project Configuration
 

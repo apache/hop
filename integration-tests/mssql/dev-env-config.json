@@ -1,0 +1,39 @@
+{
+  "variables": [
+    {
+      "name": "MSSQL_USER",
+      "value": "SA",
+      "description": "Both servers run as sa; the containers are throwaway"
+    },
+    {
+      "name": "MSSQL_PASSWORD",
+      "value": "StrongPassword123!",
+      "description": ""
+    },
+    {
+      "name": "MSSQL_DATABASE",
+      "value": "master",
+      "description": ""
+    },
+    {
+      "name": "MSSQL_2022_HOST",
+      "value": "mssql2022",
+      "description": "SQL Server 2022: the last version without a JSON column type"
+    },
+    {
+      "name": "MSSQL_2022_PORT",
+      "value": "1433",
+      "description": ""
+    },
+    {
+      "name": "MSSQL_2025_HOST",
+      "value": "mssql2025",
+      "description": "SQL Server 2025: the first version with a native JSON column type"
+    },
+    {
+      "name": "MSSQL_2025_PORT",
+      "value": "1433",
+      "description": ""
+    }
+  ]
+}

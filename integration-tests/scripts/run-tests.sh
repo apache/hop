@@ -251,6 +251,30 @@ for testcase in root.iter("testcase"):
 PYTHON_PARSE_SUREFIRE
 }
 
+# Write a captured log into a CDATA section with everything XML 1.0 cannot carry removed.
+# A test that shells out to a colourising CLI (dbt does) otherwise leaves an ESC (0x1b) in the log
+# and the whole report becomes unparsable: Jenkins' JUnit plugin then reports nothing at all for
+# the project. Terminal escape sequences go whole rather than only their ESC, so their printable
+# tail ("[0m") does not litter the report, and a literal CDATA terminator in the log is split.
+# python3 (installed in the IT image) rather than sed, so the filtering does not depend on the
+# GNU/BSD sed difference in escape handling.
+cat_cdata_safe() {
+  python3 - "$1" <<'PYTHON_CDATA_SAFE'
+import re
+import sys
+
+ANSI = re.compile("\x1b\\[[0-?]*[ -/]*[@-~]")
+ILLEGAL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
+
+try:
+    with open(sys.argv[1], "r", encoding="utf-8", errors="replace") as f:
+        text = f.read()
+except OSError:
+    text = ""
+sys.stdout.write(ILLEGAL.sub("", ANSI.sub("", text)).replace("]]>", "]]]]><![CDATA[>"))
+PYTHON_CDATA_SAFE
+}
+
 # Run hop-run.sh with the usual tee redirection, bounded by HOP_IT_TIMEOUT (see above).
 # Returns hop-run's own exit code, or 124 when the watchdog had to kill a stuck run.
 run_hop_with_watchdog() {
@@ -352,7 +376,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   #cleanup project testcases
   rm -f "${TMP_TESTCASES}"
 
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
 
     # If there is a file called disabled.txt the project is disabled, unless the run explicitly
     # opted in with INCLUDE_DISABLED=true (see run-tests-docker.sh).
@@ -451,9 +475,9 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
             echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}_timeout\" time=\"$total_duration\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">"
             echo "<testcase name=\"suite_timeout\" time=\"$test_duration\"><failure type=\"suite_timeout\">hop-run did not finish within ${HOP_IT_TIMEOUT}s</failure><system-out><![CDATA["
-            cat /tmp/test_output
+            cat_cdata_safe /tmp/test_output
             echo "]]></system-out><system-err><![CDATA["
-            cat /tmp/test_output_err
+            cat_cdata_safe /tmp/test_output_err
             echo "]]></system-err></testcase></testsuite>"
           } >"${TIMEOUT_REPORT}"
         fi
@@ -465,9 +489,9 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "<testcase name=\"suite_startup\" time=\"$test_duration\"><failure type=\"suite_startup\"></failure><system-out><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
-            cat /tmp/test_output >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            cat_cdata_safe /tmp/test_output >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "]]></system-out><system-err><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
-            cat /tmp/test_output_err >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            cat_cdata_safe /tmp/test_output_err >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "]]></system-err></testcase></testsuite>" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
           fi
         fi
@@ -584,12 +608,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<failure type=\"$test_name\"></failure>" >>${TMP_TESTCASES}
             echo "<system-out>" >>${TMP_TESTCASES}
             echo "<![CDATA[" >>${TMP_TESTCASES}
-            cat /tmp/test_output >>${TMP_TESTCASES}
+            cat_cdata_safe /tmp/test_output >>${TMP_TESTCASES}
             echo "]]>" >>${TMP_TESTCASES}
             echo "</system-out>" >>${TMP_TESTCASES}
             echo "<system-err>" >>${TMP_TESTCASES}
             echo "<![CDATA[" >>${TMP_TESTCASES}
-            cat /tmp/test_output_err >>${TMP_TESTCASES}
+            cat_cdata_safe /tmp/test_output_err >>${TMP_TESTCASES}
             echo "]]>" >>${TMP_TESTCASES}
             echo "</system-err>" >>${TMP_TESTCASES}
             echo "</testcase>" >>${TMP_TESTCASES}
@@ -601,7 +625,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
             echo "<system-out>" >>${TMP_TESTCASES}
             echo "<![CDATA[" >>${TMP_TESTCASES}
-            cat /tmp/test_output >>${TMP_TESTCASES}
+            cat_cdata_safe /tmp/test_output >>${TMP_TESTCASES}
             echo "]]>" >>${TMP_TESTCASES}
             echo "</system-out>" >>${TMP_TESTCASES}
             echo "</testcase>" >>${TMP_TESTCASES}

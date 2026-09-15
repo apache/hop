@@ -1543,6 +1543,10 @@
                     <artifactId>log4j-slf4j2-impl</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.glassfish.jersey.containers</groupId>
+                    <artifactId>jersey-container-servlet-core</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.lz4</groupId>
                     <artifactId>lz4-java</artifactId>
                 </exclusion>
@@ -1640,6 +1644,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-uniquerows</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-writetolog</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

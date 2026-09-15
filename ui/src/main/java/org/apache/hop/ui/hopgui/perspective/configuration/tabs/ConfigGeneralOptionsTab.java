@@ -520,7 +520,7 @@ public class ConfigGeneralOptionsTab {
     expandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wGeneralComp.isDisposed() && !sGeneralComp.isDisposed()) {
@@ -532,7 +532,7 @@ public class ConfigGeneralOptionsTab {
     expandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wGeneralComp.isDisposed() && !sGeneralComp.isDisposed()) {

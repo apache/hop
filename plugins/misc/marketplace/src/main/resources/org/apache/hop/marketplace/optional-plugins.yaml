@@ -86,6 +86,12 @@ plugins:
   #
   # Technology
   #
+  - artifactId: hop-action-dbt
+    name: dbt
+    category: Technology
+    description: Workflow action and metadata type that run dbt Core and stitch its OpenLineage into Hop. Needs dbt Core installed on the machine that runs the workflow.
+    installPath: plugins/actions/dbt
+    modulePath: plugins/actions/dbt
   - artifactId: hop-tech-cassandra
     name: Cassandra
     category: Technology
@@ -205,6 +211,12 @@ plugins:
     description: MinIO
     installPath: plugins/tech/minio
     modulePath: plugins/tech/minio
+  - artifactId: hop-tech-hadoop
+    name: Hadoop HDFS
+    category: Technology
+    description: HDFS via WebHDFS, HttpFS or Knox (Kerberos). No Hadoop client libraries.
+    installPath: plugins/tech/hadoop
+    modulePath: plugins/tech/hadoop
   - artifactId: hop-tech-databricks
     name: Databricks
     category: Technology
@@ -232,12 +244,12 @@ plugins:
     description: Generate Hop documentation
     installPath: plugins/misc/documentation
     modulePath: plugins/misc/documentation
-  - artifactId: hop-misc-import
-    name: Import
+  - artifactId: hop-misc-lint
+    name: Lint
     category: Miscellaneous
-    description: Import Kettle / Pentaho Data Integration metadata
-    installPath: plugins/misc/import
-    modulePath: plugins/misc/import
+    description: Check pipelines, workflows and metadata against lint rules, in Hop Gui and with the hop lint command
+    installPath: plugins/misc/lint
+    modulePath: plugins/misc/lint
   - artifactId: hop-misc-mail
     name: Mail
     category: Miscellaneous

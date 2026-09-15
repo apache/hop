@@ -169,37 +169,6 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  public ActionSftp(ActionSftp a) {
-    super(a);
-    this.connection = a.connection;
-    this.serverName = a.serverName;
-    this.serverPort = a.serverPort;
-    this.userName = a.userName;
-    this.password = a.password;
-    this.sftpDirectory = a.sftpDirectory;
-    this.targetDirectory = a.targetDirectory;
-    this.wildcard = a.wildcard;
-    this.remove = a.remove;
-    this.addFilenameToResult = a.addFilenameToResult;
-    this.createTargetFolder = a.createTargetFolder;
-    this.copyPrevious = a.copyPrevious;
-    this.useKeyFilename = a.useKeyFilename;
-    this.preserveTargetFileTimestamp = a.preserveTargetFileTimestamp;
-    this.keyFilename = a.keyFilename;
-    this.keyPassPhrase = a.keyPassPhrase;
-    this.compression = a.compression;
-    this.proxyType = a.proxyType;
-    this.proxyHost = a.proxyHost;
-    this.proxyPort = a.proxyPort;
-    this.proxyUsername = a.proxyUsername;
-    this.proxyPassword = a.proxyPassword;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionSftp(this);
-  }
-
   /** Whether this action gets its server settings from a named SFTP connection. */
   public boolean isUsingConnection() {
     return StringUtils.isNotEmpty(connection);

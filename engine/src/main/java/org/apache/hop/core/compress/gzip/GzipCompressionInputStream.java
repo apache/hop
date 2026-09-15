@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.compress.gzip;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
@@ -25,30 +26,24 @@ import org.apache.hop.core.compress.ICompressionProvider;
 
 public class GzipCompressionInputStream extends CompressionInputStream {
 
+  private static final int GZIP_BUFFER = 64 * 1024;
+
   public GzipCompressionInputStream(InputStream in, ICompressionProvider provider)
       throws IOException {
     super(getDelegate(in), provider);
   }
 
   protected static GZIPInputStream getDelegate(InputStream in) throws IOException {
-    GZIPInputStream delegate = null;
     if (in instanceof GZIPInputStream gzipInputStream) {
-      delegate = gzipInputStream;
-    } else {
-      delegate = new GZIPInputStream(in);
+      return gzipInputStream;
     }
-    return delegate;
+    InputStream buffered =
+        in instanceof BufferedInputStream ? in : new BufferedInputStream(in, GZIP_BUFFER);
+    return new GZIPInputStream(buffered, GZIP_BUFFER);
   }
 
   @Override
   public void close() throws IOException {
-    GZIPInputStream gis = (GZIPInputStream) delegate;
-    gis.close();
-  }
-
-  @Override
-  public int read() throws IOException {
-    GZIPInputStream gis = (GZIPInputStream) delegate;
-    return gis.read();
+    delegate.close();
   }
 }

@@ -17,18 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -37,18 +39,38 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.databases.redshift.RedshiftDatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 
 public class RedshiftBulkLoader
     extends BaseTransform<RedshiftBulkLoaderMeta, RedshiftBulkLoaderData> {
   private static final Class<?> PKG =
       RedshiftBulkLoader.class; // for i18n purposes, needed by Translator2!!
+
+  /** Size of the buffer we put in front of the (remote) output stream. */
+  private static final int OUTPUT_BUFFER_SIZE = 128 * 1024;
+
+  /** Placeholder written instead of the AWS credentials when the COPY statement is logged. */
+  private static final String CREDENTIALS_MASK = "<credentials hidden>";
+
+  /**
+   * ISO 8601, with milliseconds. Redshift coerces this into either a DATE or a TIMESTAMP column --
+   * a DATE truncates the time, a TIMESTAMP keeps it -- so both Hop types can be written with full
+   * precision and let the target column decide what to keep.
+   */
+  private static final String TIMESTAMP_CONVERSION_MASK = "yyyy-MM-dd HH:mm:ss.SSS";
 
   public RedshiftBulkLoader(
       TransformMeta transformMeta,
@@ -65,19 +87,25 @@ public class RedshiftBulkLoader
 
     if (super.init()) {
       try {
-        // Validating that the connection has been defined.
+        // Validating that the connection and the S3 file have been defined.
         verifyDatabaseConnection();
+        verifyFileSettings();
         data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
         if (meta.isStreamToS3Csv()) {
-          // get the file output stream to write to S3
+          String target = resolve(meta.getCopyFromFilename());
+          ensureParentFolderExists(target);
+          // Get the file output stream to write to S3. Every field is written as a separate
+          // chunk of bytes, so a buffer in front of the (remote) stream matters a lot here.
           data.writer =
-              HopVfs.getOutputStream(resolve(meta.getCopyFromFilename()), false, variables);
+              new BufferedOutputStream(
+                  HopVfs.getOutputStream(target, false, variables), OUTPUT_BUFFER_SIZE);
         }
 
         data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
         getDbFields();
+        verifyTableFields();
 
         if (isBasic()) {
           logBasic(
@@ -104,144 +132,148 @@ public class RedshiftBulkLoader
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
 
     if (r == null) { // no more input to be expected...
-      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
-        truncateTable();
-      }
-
-      if (!first) {
-        try {
-          data.close();
-          closeFile();
-          String copyStmt = buildCopyStatementSqlString();
-          Connection conn = data.db.getConnection();
-          try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(copyStmt);
-            conn.commit();
-          }
-          conn.close();
-        } catch (SQLException sqle) {
-          setErrors(1);
-          stopAll();
-          setOutputDone(); // signal end to receiver(s)
-          throw new HopDatabaseException("Error executing COPY statements", sqle);
-        } catch (IOException ioe) {
-          setErrors(1);
-          stopAll();
-          setOutputDone(); // signal end to receiver(s)
-          throw new HopTransformException("Error releasing resources", ioe);
-        }
-      }
-
+      endOfStream();
       return false;
     }
 
-    if (first && meta.isStreamToS3Csv()) {
-
+    if (first) {
       first = false;
-      data.fieldnrs = new HashMap<>();
+      data.rowsReceived = true;
 
       if (meta.isTruncateTable()) {
         truncateTable();
       }
 
-      data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(data.insertRowMeta, getTransformName(), null, null, this, metadataProvider);
-
       if (meta.isStreamToS3Csv()) {
-        // Do noting
-      }
-
-      // write all fields in the stream to Redshift
-      if (!meta.specifyFields()) {
-
-        // Just take the whole input row
-        data.insertRowMeta = getInputRowMeta().clone();
-        data.selectedRowFieldIndices = new int[data.insertRowMeta.size()];
-
-        try {
-          getDbFields();
-        } catch (HopException e) {
-          logError("Error getting database fields", e);
-          setErrors(1);
-          stopAll();
-          setOutputDone(); // signal end to receiver(s)
-          return false;
-        }
-
-        for (int i = 0; i < meta.getFields().size(); i++) {
-          int streamFieldLocation =
-              data.insertRowMeta.indexOfValue(meta.getFields().get(i).getStreamField());
-          if (streamFieldLocation < 0) {
-            throw new HopTransformException(
-                "Field ["
-                    + meta.getFields().get(i).getStreamField()
-                    + "] couldn't be found in the input stream!");
-          }
-
-          int dbFieldLocation = -1;
-          for (int e = 0; e < data.dbFields.size(); e++) {
-            String[] field = data.dbFields.get(e);
-            if (field[0].equalsIgnoreCase(meta.getFields().get(i).getDatabaseField())) {
-              dbFieldLocation = e;
-              break;
-            }
-          }
-          if (dbFieldLocation < 0) {
-            throw new HopException(
-                "Field ["
-                    + meta.getFields().get(i).getDatabaseField()
-                    + "] couldn't be found in the table!");
-          }
-
-          data.fieldnrs.put(
-              meta.getFields().get(i).getDatabaseField().toUpperCase(), streamFieldLocation);
-        }
-
-      } else {
-
-        // use the columns/fields mapping.
-        int numberOfInsertFields = meta.getFields().size();
-        data.insertRowMeta = new RowMeta();
-
-        // Cache the position of the selected fields in the row array
-        data.selectedRowFieldIndices = new int[numberOfInsertFields];
-        for (int i = 0; i < meta.getFields().size(); i++) {
-          RedshiftBulkLoaderField vbf = meta.getFields().get(i);
-          String inputFieldName = vbf.getStreamField();
-          int inputFieldIdx = i;
-          if (inputFieldIdx < 0) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG,
-                    "RedshiftBulkLoader.Exception.FieldRequired",
-                    inputFieldName)); //$NON-NLS-1$
-          }
-          data.selectedRowFieldIndices[i] = inputFieldIdx;
-
-          String insertFieldName = vbf.getDatabaseField();
-          IValueMeta inputValueMeta = getInputRowMeta().getValueMeta(inputFieldIdx);
-          if (inputValueMeta == null) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG,
-                    "RedshiftBulkLoader.Exception.FailedToFindField",
-                    vbf.getStreamField())); // $NON-NLS-1$
-          }
-          IValueMeta insertValueMeta = inputValueMeta.clone();
-          insertValueMeta.setName(insertFieldName);
-          data.insertRowMeta.addValueMeta(insertValueMeta);
-          data.fieldnrs.put(
-              meta.getFields().get(i).getDatabaseField().toUpperCase(), inputFieldIdx);
-        }
+        prepareRowMapping();
       }
     }
 
     if (meta.isStreamToS3Csv()) {
       writeRowToFile(data.outputRowMeta, r);
       putRow(data.outputRowMeta, r);
+    } else {
+      // We are loading a file that already exists on S3, the stream itself is only a trigger.
+      putRow(getInputRowMeta(), r);
     }
 
     return true;
+  }
+
+  /**
+   * Close the file we streamed to S3 (if any) and fire the COPY statement.
+   *
+   * @throws HopException in case the statement failed or resources could not be released
+   */
+  private void endOfStream() throws HopException {
+    if (!data.rowsReceived && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
+      truncateTable();
+    }
+
+    if (!shouldExecuteCopy()) {
+      return;
+    }
+
+    // The file has to be complete on S3 before Redshift reads it.
+    if (!closeFile()) {
+      setErrors(1);
+      stopAll();
+      setOutputDone(); // signal end to receiver(s)
+      throw new HopTransformException("Error releasing resources");
+    }
+
+    try {
+      String copyStmt = buildCopyStatementSqlString(false);
+      if (isDebug()) {
+        logDebug("copy stmt: " + buildCopyStatementSqlString(true));
+      }
+      try (Statement stmt = data.db.getConnection().createStatement()) {
+        stmt.executeUpdate(copyStmt);
+      }
+      data.db.commit();
+    } catch (SQLException sqle) {
+      setErrors(1);
+      stopAll();
+      setOutputDone(); // signal end to receiver(s)
+      throw new HopDatabaseException("Error executing COPY statements", sqle);
+    }
+  }
+
+  /**
+   * When we stream the rows to S3 ourselves there is nothing to load if the stream was empty. When
+   * we load a file that is already on S3 the load only depends on the "only when we have rows"
+   * option.
+   *
+   * @return true if the COPY statement has to be executed
+   */
+  boolean shouldExecuteCopy() {
+    if (meta.isStreamToS3Csv()) {
+      return data.rowsReceived;
+    }
+    return data.rowsReceived || !meta.isOnlyWhenHaveRows();
+  }
+
+  /**
+   * Resolve, once, which field of the input row ends up in which column of the CSV file, together
+   * with the value meta used to render it. Doing this per row is what used to make this transform
+   * slow: it allocated and scanned the list of field names for every single field of every row.
+   *
+   * @throws HopException in case a configured field is not present on the input stream
+   */
+  void prepareRowMapping() throws HopException {
+    IRowMeta inputRowMeta = getInputRowMeta();
+    data.outputRowMeta = inputRowMeta.clone();
+
+    // Both modes build the same mapping: without an explicit field list every field of the row is
+    // written, in the order it arrives. Keeping one shape means date handling and everything else
+    // below applies either way -- when the two paths were separate, only the explicit one ever
+    // converted its dates.
+    int count = meta.isSpecifyFields() ? meta.getFields().size() : inputRowMeta.size();
+    data.insertRowMeta = new RowMeta();
+    data.streamFieldIndexes = new int[count];
+    data.writeValueMeta = new IValueMeta[count];
+    data.sourceValueMeta = new IValueMeta[count];
+
+    for (int i = 0; i < count; i++) {
+      String streamField =
+          meta.isSpecifyFields()
+              ? meta.getFields().get(i).getStreamField()
+              : inputRowMeta.getValueMeta(i).getName();
+      String databaseField =
+          meta.isSpecifyFields() ? meta.getFields().get(i).getDatabaseField() : streamField;
+
+      int index = meta.isSpecifyFields() ? inputRowMeta.indexOfValue(streamField) : i;
+      if (index < 0 && meta.isErrorColumnMismatch()) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "RedshiftBulkLoader.Exception.FailedToFindField", streamField));
+      }
+      data.streamFieldIndexes[i] = index;
+
+      IValueMeta inputValueMeta =
+          index >= 0 ? inputRowMeta.getValueMeta(index) : new ValueMetaString(streamField);
+
+      // Dates and timestamps are written in the format the COPY statement declares. A Hop Date
+      // carries a time of day just as a Timestamp does, so both are written whole and the target
+      // column decides whether to keep the time.
+      IValueMeta writeValueMeta = inputValueMeta;
+      IValueMeta sourceValueMeta = null;
+      if (inputValueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+          || inputValueMeta.getType() == IValueMeta.TYPE_DATE) {
+        writeValueMeta = new ValueMetaDate();
+        writeValueMeta.setConversionMask(TIMESTAMP_CONVERSION_MASK);
+        sourceValueMeta = inputValueMeta;
+      }
+      data.writeValueMeta[i] = writeValueMeta;
+      data.sourceValueMeta[i] = sourceValueMeta;
+
+      IValueMeta insertValueMeta = inputValueMeta.clone();
+      insertValueMeta.setName(databaseField);
+      data.insertRowMeta.addValueMeta(insertValueMeta);
+    }
+
+    // What the COPY statement has to name, since the file holds these columns and no others.
+    data.columnNames = data.insertRowMeta.getFieldNames();
   }
 
   /**
@@ -271,8 +303,16 @@ public class RedshiftBulkLoader
     return returnValue;
   }
 
-  private String buildCopyStatementSqlString() {
+  /**
+   * Build the Redshift COPY statement for the file on S3.
+   *
+   * @param maskCredentials when true the AWS credentials are replaced by a placeholder, so the
+   *     statement can safely be written to the log
+   * @return the COPY statement
+   */
+  String buildCopyStatementSqlString(boolean maskCredentials) throws HopException {
     final DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
+    boolean csv = isCsvFormat();
 
     StringBuilder sb = new StringBuilder(150);
     sb.append("COPY ");
@@ -283,74 +323,167 @@ public class RedshiftBulkLoader
             data.db.resolve(meta.getSchemaName()),
             data.db.resolve(meta.getTableName())));
 
-    if (meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")) {
+    // Name the columns the file holds. Without this Redshift expects a value for every column of
+    // the table, in table order, and a narrower file fails with "Delimiter not found".
+    String[] columns = copyColumnNames();
+    if (csv && columns.length > 0) {
       sb.append(" (");
-      List<RedshiftBulkLoaderField> fieldList = meta.getFields();
-      for (int i = 0; i < fieldList.size(); i++) {
-        RedshiftBulkLoaderField field = fieldList.get(i);
+      for (int i = 0; i < columns.length; i++) {
         if (i > 0) {
-          sb.append(", ").append(field.getDatabaseField());
-        } else {
-          sb.append(field.getDatabaseField());
+          sb.append(", ");
         }
+        sb.append(columns[i]);
       }
       sb.append(")");
     }
 
-    sb.append(" FROM '" + resolve(meta.getCopyFromFilename()) + "'");
-    if (meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")) {
+    sb.append(" FROM '").append(resolve(meta.getCopyFromFilename())).append("'");
+    if (csv) {
       sb.append(" DELIMITER ',' ");
       sb.append(" CSV QUOTE AS '\"'");
       sb.append(" NULL '' ");
       sb.append(" EMPTYASNULL ");
-      sb.append("DATEFORMAT AS 'YYYY/MM/DD' ");
-      sb.append("TIMEFORMAT AS 'YYYY/MM/DD HH:MI:SS'");
+      // 'auto' is the only setting that accepts fractional seconds; the explicit TIMEFORMAT
+      // patterns have no token for them, so a value carrying milliseconds is rejected.
+      sb.append("DATEFORMAT AS 'auto' ");
+      sb.append("TIMEFORMAT AS 'auto'");
     }
     if (meta.isUseAwsIamRole()) {
-      sb.append(" iam_role '" + meta.getAwsIamRole() + "'");
-    } else if (meta.isUseCredentials()) {
-      String awsAccessKeyId = "";
-      String awsSecretAccessKey = "";
-      if (meta.isUseSystemEnvVars()) {
-        awsAccessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
-        awsSecretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+      sb.append(" iam_role '")
+          .append(maskCredentials ? CREDENTIALS_MASK : resolve(meta.getAwsIamRole()))
+          .append("'");
+    } else if (meta.isUseConnectionCredentials() || meta.isUseCredentials()) {
+      if (maskCredentials) {
+        sb.append(" CREDENTIALS '").append(CREDENTIALS_MASK).append("'");
       } else {
-        awsAccessKeyId = resolve(meta.getAwsAccessKeyId());
-        awsSecretAccessKey = resolve(meta.getAwsSecretAccessKey());
+        sb.append(" CREDENTIALS '").append(buildCredentialsClause()).append("'");
       }
-      sb.append(
-          " CREDENTIALS 'aws_access_key_id="
-              + awsAccessKeyId
-              + ";aws_secret_access_key="
-              + awsSecretAccessKey
-              + "'");
     }
-    if (!StringUtils.isEmpty(meta.getLoadFromExistingFileFormat())
-        && meta.getLoadFromExistingFileFormat().equals("Parquet")) {
+    if (RedshiftBulkLoaderMeta.FILE_FORMAT_PARQUET.equals(meta.getLoadFromExistingFileFormat())) {
       sb.append(" FORMAT AS PARQUET;");
-    }
-
-    if (isDebug()) {
-      logDebug("copy stmt: " + sb);
     }
 
     return sb.toString();
   }
 
-  private Object[] writeToOutputStream(Object[] r) {
-    assert (r != null);
+  /**
+   * The body of the COPY statement's CREDENTIALS clause, from wherever this transform is configured
+   * to get its AWS credentials.
+   *
+   * @return the credential key/value pairs, without the surrounding quotes
+   * @throws HopException when the credentials cannot be worked out
+   */
+  private String buildCredentialsClause() throws HopException {
+    String accessKeyId;
+    String secretAccessKey;
+    String sessionToken = null;
 
-    Object[] insertRowData = r;
-    Object[] outputRowData = r;
-
-    if (meta.specifyFields()) {
-      insertRowData = new Object[data.selectedRowFieldIndices.length];
-      for (int idx = 0; idx < data.selectedRowFieldIndices.length; idx++) {
-        insertRowData[idx] = r[data.selectedRowFieldIndices[idx]];
+    if (meta.isUseConnectionCredentials()) {
+      AwsCredentials credentials = resolveConnectionCredentials();
+      accessKeyId = credentials.accessKeyId();
+      secretAccessKey = credentials.secretAccessKey();
+      if (credentials instanceof AwsSessionCredentials session) {
+        sessionToken = session.sessionToken();
       }
+    } else if (meta.isUseSystemEnvVars()) {
+      accessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
+      secretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+      sessionToken = System.getenv("AWS_SESSION_TOKEN");
+    } else {
+      accessKeyId = resolve(meta.getAwsAccessKeyId());
+      secretAccessKey = resolve(meta.getAwsSecretAccessKey());
     }
 
-    return outputRowData;
+    StringBuilder clause = new StringBuilder();
+    clause
+        .append("aws_access_key_id=")
+        .append(Const.NVL(accessKeyId, ""))
+        .append(";aws_secret_access_key=")
+        .append(Const.NVL(secretAccessKey, ""));
+    if (StringUtils.isNotEmpty(sessionToken)) {
+      clause.append(";token=").append(sessionToken);
+    }
+    return clause.toString();
+  }
+
+  /**
+   * Take the credentials the Redshift connection is configured with. A connection holding an access
+   * key hands it straight over; one pointing at a profile or leaving it to the AWS default chain is
+   * resolved here, so the COPY statement gets a concrete key -- including a session token when the
+   * credentials are temporary.
+   *
+   * @return the credentials to put in the COPY statement
+   * @throws HopException when the connection has no AWS credentials to give
+   */
+  private AwsCredentials resolveConnectionCredentials() throws HopException {
+    IDatabase database = data.databaseMeta == null ? null : data.databaseMeta.getIDatabase();
+    if (!(database instanceof RedshiftDatabaseMeta redshift)) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Error.NotARedshiftConnection"));
+    }
+
+    try {
+      switch (redshift.getAuthenticationType()) {
+        case IAM_CREDENTIALS:
+          String key = Const.NVL(resolve(redshift.getAwsAccessKeyId()), "");
+          String secret = Const.NVL(decrypt(redshift.getAwsSecretAccessKey()), "");
+          String token = decrypt(redshift.getAwsSessionToken());
+          return StringUtils.isEmpty(token)
+              ? AwsBasicCredentials.create(key, secret)
+              : AwsSessionCredentials.create(key, secret, token);
+        case IAM_PROFILE:
+          return ProfileCredentialsProvider.builder()
+              .profileName(resolve(redshift.getAwsProfile()))
+              .build()
+              .resolveCredentials();
+        case IAM_DEFAULT_CHAIN:
+          return DefaultCredentialsProvider.create().resolveCredentials();
+        default:
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "RedshiftBulkLoaderMeta.Error.ConnectionHasNoAwsCredentials"));
+      }
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Error.CredentialsNotResolved"), e);
+    }
+  }
+
+  private String decrypt(String value) {
+    return Encr.decryptPasswordOptionallyEncrypted(resolve(value));
+  }
+
+  /**
+   * The columns the COPY statement should name.
+   *
+   * <p>An explicit mapping says it outright. Without one, the columns are known only for a file
+   * this transform wrote itself, where they are the fields of the stream. A pre-existing file with
+   * no mapping is the one case we cannot speak for, so the statement stays silent and Redshift
+   * matches the file against the table positionally.
+   *
+   * @return the column names, empty when they cannot be established
+   */
+  private String[] copyColumnNames() {
+    if (meta.isSpecifyFields()) {
+      return meta.getFields().stream()
+          .map(RedshiftBulkLoaderField::getDatabaseField)
+          .toArray(String[]::new);
+    }
+    if (meta.isStreamToS3Csv() && data.columnNames != null) {
+      return data.columnNames;
+    }
+    return new String[0];
+  }
+
+  /**
+   * @return true when the file we load is a CSV file: either one we streamed to S3 ourselves, or an
+   *     existing one the user declared as CSV
+   */
+  private boolean isCsvFormat() {
+    return meta.isStreamToS3Csv()
+        || RedshiftBulkLoaderMeta.FILE_FORMAT_CSV.equals(meta.getLoadFromExistingFileFormat());
   }
 
   /**
@@ -364,15 +497,15 @@ public class RedshiftBulkLoader
   private void getDbFields() throws HopException {
     data.dbFields = new ArrayList<>();
 
-    IRowMeta rowMeta = null;
+    String schemaName = resolve(meta.getSchemaName());
+    String tableName = resolve(meta.getTableName());
 
-    if (!StringUtils.isEmpty(resolve(meta.getSchemaName()))) {
-      rowMeta = data.db.getTableFields(meta.getSchemaName() + "." + meta.getTableName());
-    } else {
-      rowMeta = data.db.getTableFields(meta.getTableName());
-    }
+    IRowMeta rowMeta =
+        StringUtils.isEmpty(schemaName)
+            ? data.db.getTableFields(tableName)
+            : data.db.getTableFields(schemaName + "." + tableName);
     try {
-      if (rowMeta.isEmpty()) {
+      if (rowMeta == null || rowMeta.isEmpty()) {
         throw new HopException("No fields found in table");
       }
 
@@ -396,11 +529,82 @@ public class RedshiftBulkLoader
   }
 
   /**
+   * Make sure the folder the staging file goes in exists. This file is the transform's own
+   * business, so there is nothing to ask the user about: on S3 a prefix only exists while an object
+   * sits under it, and a brand new path would otherwise be refused with "Parent directory ... does
+   * not exist".
+   *
+   * @param filename the file about to be written
+   * @throws HopException when the folder is missing and cannot be created
+   */
+  void ensureParentFolderExists(String filename) throws HopException {
+    try {
+      FileObject parent = HopVfs.getFileObject(filename, variables).getParent();
+      if (parent == null || parent.exists()) {
+        return;
+      }
+      parent.createFolder();
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "RedshiftBulkLoader.Log.ParentFolderCreated", HopVfs.getFriendlyURI(parent)));
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "RedshiftBulkLoaderMeta.Error.CannotCreateParentFolder", filename),
+          e);
+    }
+  }
+
+  /**
+   * The COPY statement always reads a file from S3, so we need to know which one. When we do not
+   * write that file ourselves we also need to know its format.
+   *
+   * @throws HopException when the file settings are incomplete
+   */
+  /**
+   * Fail before any row is read when a column was mapped to a table column that does not exist. The
+   * COPY statement would reject it anyway, but only after the whole file was written to S3.
+   *
+   * @throws HopException when a selected column is not a column of the target table
+   */
+  protected void verifyTableFields() throws HopException {
+    if (!meta.isSpecifyFields()) {
+      return;
+    }
+    for (RedshiftBulkLoaderField field : meta.getFields()) {
+      boolean found = false;
+      for (String[] dbField : data.dbFields) {
+        if (dbField[0].equalsIgnoreCase(field.getDatabaseField())) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new HopException(
+            "Field [" + field.getDatabaseField() + "] couldn't be found in the table!");
+      }
+    }
+  }
+
+  protected void verifyFileSettings() throws HopException {
+    if (StringUtils.isEmpty(resolve(meta.getCopyFromFilename()))) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Error.NoCopyFromFilename"));
+    }
+    if (!meta.isStreamToS3Csv() && StringUtils.isEmpty(meta.getLoadFromExistingFileFormat())) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Error.NoFileFormat"));
+    }
+  }
+
+  /**
    * Initialize the binary values of delimiters, enclosures, and escape characters
    *
    * @throws HopException
    */
-  private void initBinaryDataFields() throws HopException {
+  void initBinaryDataFields() throws HopException {
     try {
       data.binarySeparator = new byte[] {};
       data.binaryEnclosure = new byte[] {};
@@ -429,84 +633,24 @@ public class RedshiftBulkLoader
    * @param row The input row
    * @throws HopTransformException
    */
-  private void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+  void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
     try {
-
-      if (meta.isStreamToS3Csv() && !meta.isSpecifyFields()) {
-        /*
-         * Write all values in stream to text file.
-         */
-        for (int i = 0; i < rowMeta.size(); i++) {
-          if (i > 0 && data.binarySeparator.length > 0) {
-            data.writer.write(data.binarySeparator);
-          }
-          IValueMeta v = rowMeta.getValueMeta(i);
-          Object valueData = row[i];
-
-          // no special null value default was specified since no fields are specified at all
-          // As such, we pass null
-          //
-          writeField(v, valueData, null);
+      // The columns, in the order the COPY statement names them.
+      for (int i = 0; i < data.streamFieldIndexes.length; i++) {
+        if (i > 0) {
+          data.writer.write(data.binarySeparator);
         }
-        data.writer.write(data.binaryNewline);
-      } else if (meta.isStreamToS3Csv() && meta.isSpecifyFields()) {
-        /*
-         * Only write the fields specified!
-         */
-        for (int i = 0; i < meta.getFields().size(); i++) {
-          if (meta.getFields().get(i).getDatabaseField() != null) {
-            if (i > 0 && data.binarySeparator.length > 0) {
-              data.writer.write(data.binarySeparator);
-            }
-
-            IValueMeta v = null;
-            String streamFieldName = meta.getFields().get(i).getStreamField();
-            String[] rowFields = data.outputRowMeta.getFieldNames();
-            String streamFieldType = "";
-            int streamIndex = -1;
-            for (int j = 0; j < rowFields.length; j++) {
-              if (streamFieldName.equals(rowFields[j])) {
-                v = rowMeta.getValueMeta(j);
-                streamIndex = j;
-              }
-            }
-
-            boolean needConversion = false;
-            if (v.getType() == IValueMeta.TYPE_TIMESTAMP) {
-              v = new ValueMetaDate();
-              v.setConversionMask("yyyy/MM/dd HH:mm:ss.SSS");
-              needConversion = true;
-            } else if (v.getType() == IValueMeta.TYPE_DATE) {
-              v = new ValueMetaDate();
-              v.setConversionMask("yyyy/MM/dd");
-              needConversion = true;
-            }
-
-            Object valueData = null;
-            if (streamIndex >= 0) {
-              if (needConversion) {
-                IValueMeta valueMeta = rowMeta.getValueMeta(streamIndex);
-                Object obj = row[streamIndex];
-                valueData = v.convertData(valueMeta, obj);
-              } else {
-                valueData = row[streamIndex];
-              }
-            } else if (meta.isErrorColumnMismatch()) {
-              throw new HopException(
-                  "Error column mismatch: Database streamField "
-                      + meta.getFields().get(i).getStreamField()
-                      + " not found on stream.");
-            }
-            writeField(v, valueData, data.binaryNullValue);
-          }
+        int index = data.streamFieldIndexes[i];
+        IValueMeta valueMeta = data.writeValueMeta[i];
+        Object valueData = null;
+        if (index >= 0) {
+          IValueMeta sourceMeta = data.sourceValueMeta[i];
+          valueData =
+              sourceMeta == null ? row[index] : valueMeta.convertData(sourceMeta, row[index]);
         }
-        data.writer.write(data.binaryNewline);
-      } else {
-        int jsonField = data.fieldnrs.get("json");
-        data.writer.write(
-            data.insertRowMeta.getString(row, jsonField).getBytes(StandardCharsets.UTF_8));
-        data.writer.write(data.binaryNewline);
+        writeField(valueMeta, valueData, data.binaryNullValue);
       }
+      data.writer.write(data.binaryNewline);
     } catch (Exception e) {
       throw new HopTransformException("Error writing line", e);
     }
@@ -535,42 +679,18 @@ public class RedshiftBulkLoader
       }
 
       if (str != null && str.length > 0) {
-        List<Integer> enclosures = null;
-        boolean writeEnclosures = false;
-
-        if (v.isString()) {
-          writeEnclosures = true;
-
-          if (containsSeparatorOrEnclosure(
-              str, data.binarySeparator, data.binaryEnclosure, data.escapeCharacters)) {
-            writeEnclosures = true;
-          }
-        }
+        // Strings are always enclosed, the COPY statement declares the same quote character.
+        // Anything else is enclosed only when its own content would otherwise break the row.
+        // JSON is the case that matters: Hop does not consider it a string, yet it is full of
+        // commas and quotes and is often pretty printed across several lines.
+        boolean writeEnclosures = v.isString() || needsEnclosure(str);
 
         if (writeEnclosures) {
           data.writer.write(data.binaryEnclosure);
-          enclosures = getEnclosurePositions(str);
-        }
-
-        if (enclosures == null) {
-          data.writer.write(str);
+          writeEscaped(str);
+          data.writer.write(data.binaryEnclosure);
         } else {
-          // Skip the enclosures, escape them instead...
-          int from = 0;
-          for (Integer enclosure : enclosures) {
-            // Minus one to write the escape before the enclosure
-            int position = enclosure;
-            data.writer.write(str, from, position - from);
-            data.writer.write(data.escapeCharacters); // write enclosure a second time
-            from = position;
-          }
-          if (from < str.length) {
-            data.writer.write(str, from, str.length - from);
-          }
-        }
-
-        if (writeEnclosures) {
-          data.writer.write(data.binaryEnclosure);
+          data.writer.write(str);
         }
       }
     } catch (Exception e) {
@@ -587,6 +707,13 @@ public class RedshiftBulkLoader
    * @throws HopValueException
    */
   private byte[] formatField(IValueMeta v, Object valueData) throws HopValueException {
+    if (v.isBinary()) {
+      byte[] bytes = v.getBinary(valueData);
+      if (bytes == null) {
+        return null;
+      }
+      return Hex.encodeHexString(bytes).getBytes(StandardCharsets.UTF_8);
+    }
     if (v.isString()) {
       if (v.isStorageBinaryString()
           && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE
@@ -633,136 +760,58 @@ public class RedshiftBulkLoader
   }
 
   /**
-   * Check if a string contains separators or enclosures. Can be used to determine if the string
-   * needs enclosures around it or not.
+   * Whether a value has to be enclosed to survive the trip through the CSV file: it is only safe to
+   * write bare when it holds no separator, no quote and no line break.
    *
-   * @param source The string to check
-   * @param separator The separator character(s)
-   * @param enclosure The enclosure character(s)
-   * @param escape The escape character(s)
-   * @return True if the string contains separators or enclosures
+   * @param str The bytes of the value
+   * @return true if the value must be enclosed
    */
-  private boolean containsSeparatorOrEnclosure(
-      byte[] source, byte[] separator, byte[] enclosure, byte[] escape) {
-    boolean result = false;
+  private boolean needsEnclosure(byte[] str) {
+    byte separator = data.binarySeparator.length > 0 ? data.binarySeparator[0] : 0;
+    byte enclosure = data.binaryEnclosure.length > 0 ? data.binaryEnclosure[0] : 0;
 
-    boolean enclosureExists = enclosure != null && enclosure.length > 0;
-    boolean separatorExists = separator != null && separator.length > 0;
-    boolean escapeExists = escape != null && escape.length > 0;
-
-    // Skip entire test if neither separator nor enclosure exist
-    if (separatorExists || enclosureExists || escapeExists) {
-
-      // Search for the first occurrence of the separator or enclosure
-      for (int index = 0; !result && index < source.length; index++) {
-        if (enclosureExists && source[index] == enclosure[0]) {
-
-          // Potential match found, make sure there are enough bytes to support a full match
-          if (index + enclosure.length <= source.length) {
-            // First byte of enclosure found
-            result = true; // Assume match
-            for (int i = 1; i < enclosure.length; i++) {
-              if (source[index + i] != enclosure[i]) {
-                // Enclosure match is proven false
-                result = false;
-                break;
-              }
-            }
-          }
-
-        } else if (separatorExists && source[index] == separator[0]) {
-
-          // Potential match found, make sure there are enough bytes to support a full match
-          if (index + separator.length <= source.length) {
-            // First byte of separator found
-            result = true; // Assume match
-            for (int i = 1; i < separator.length; i++) {
-              if (source[index + i] != separator[i]) {
-                // Separator match is proven false
-                result = false;
-                break;
-              }
-            }
-          }
-
-        } else if (escapeExists
-            && source[index] == escape[0]
-            && index + escape.length <= source.length) {
-          // Potential match found, make sure there are enough bytes to support a full match
-          // First byte of separator found
-          result = true; // Assume match
-          for (int i = 1; i < escape.length; i++) {
-            if (source[index + i] != escape[i]) {
-              // Separator match is proven false
-              result = false;
-              break;
-            }
-          }
-        }
+    for (byte b : str) {
+      if (b == separator || b == enclosure || b == '\n' || b == '\r') {
+        return true;
       }
     }
-    return result;
+    return false;
   }
 
   /**
-   * Gets the positions of any double quotes or backslashes in the string
+   * Write the value, doubling every occurrence of the enclosure character so the CSV file stays
+   * readable for the COPY statement. Only bytes that actually need escaping are copied separately,
+   * a value without enclosures is written in one go.
    *
-   * @param str The string to check
-   * @return The positions within the string of double quotes and backslashes.
+   * @param str The bytes of the value
+   * @throws IOException in case the value could not be written
    */
-  private List<Integer> getEnclosurePositions(byte[] str) {
-    List<Integer> positions = null;
-    // +1 because otherwise we will not find it at the end
-    for (int i = 0, len = str.length; i < len; i++) {
-      // verify if on position i there is an enclosure
-      //
-      boolean found = true;
-      for (int x = 0; found && x < data.binaryEnclosure.length; x++) {
-        if (str[i + x] != data.binaryEnclosure[x]) {
-          found = false;
-        }
-      }
+  private void writeEscaped(byte[] str) throws IOException {
+    if (data.binaryEnclosure.length == 0) {
+      data.writer.write(str);
+      return;
+    }
+    byte enclosure = data.binaryEnclosure[0];
 
-      if (!found) {
-        found = true;
-        for (int x = 0; found && x < data.escapeCharacters.length; x++) {
-          if (str[i + x] != data.escapeCharacters[x]) {
-            found = false;
-          }
-        }
-      }
-
-      if (found) {
-        if (positions == null) {
-          positions = new ArrayList<>();
-        }
-        positions.add(i);
+    int from = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str[i] == enclosure) {
+        data.writer.write(str, from, i - from);
+        data.writer.write(data.escapeCharacters); // write the enclosure a second time
+        from = i;
       }
     }
-    return positions;
+    data.writer.write(str, from, str.length - from);
   }
 
   @Override
   public void stopRunning() throws HopException {
     setStopped(true);
-    if (data.workerThread != null) {
-      synchronized (data.workerThread) {
-        if (data.workerThread.isAlive() && !data.workerThread.isInterrupted()) {
-          try {
-            data.workerThread.interrupt();
-            data.workerThread.join();
-          } catch (InterruptedException e) {
-            // Do nothing
-          }
-        }
-      }
-    }
-
     super.stopRunning();
   }
 
   void truncateTable() throws HopDatabaseException {
-    if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+    if ((getCopy() == 0) || !Utils.isEmpty(getPartitionId())) {
       data.db.truncateTable(resolve(meta.getSchemaName()), resolve(meta.getTableName()));
     }
   }
@@ -772,23 +821,17 @@ public class RedshiftBulkLoader
 
     setOutputDone();
 
-    try {
-      if (getErrors() > 0) {
-        data.db.rollback();
-      }
-    } catch (HopDatabaseException e) {
-      logError("Unexpected error rolling back the database connection.", e);
-    }
-
-    if (data.workerThread != null) {
-      try {
-        data.workerThread.join();
-      } catch (InterruptedException e) {
-        // Do nothing
-      }
-    }
+    // The stream is normally closed before the COPY statement runs, this catches the error paths.
+    closeFile();
 
     if (data.db != null) {
+      try {
+        if (getErrors() > 0) {
+          data.db.rollback();
+        }
+      } catch (HopDatabaseException e) {
+        logError("Unexpected error rolling back the database connection.", e);
+      }
       data.db.disconnect();
     }
     super.dispose();

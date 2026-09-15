@@ -71,6 +71,16 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return BeamSubscribeDialog.class.getName();
   }

@@ -181,27 +181,19 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     dynamicFilenameField = null;
   }
 
-  public LoadFileInputMeta(LoadFileInputMeta m) {
-    this();
-    this.addingResultFile = m.addingResultFile;
-    this.dynamicFilenameField = m.dynamicFilenameField;
-    this.encoding = m.encoding;
-    this.fileInField = m.fileInField;
-    this.filenameField = m.filenameField;
-    this.ignoreEmptyFile = m.ignoreEmptyFile;
-    this.ignoreMissingPath = m.ignoreMissingPath;
-    this.includeFilename = m.includeFilename;
-    this.includeRowNumber = m.includeRowNumber;
-    this.rowLimit = m.rowLimit;
-    this.rowNumberField = m.rowNumberField;
-    this.additionalFields = new BaseFileInputAdditionalFields(m.additionalFields);
-    m.inputFields.forEach(field -> this.inputFields.add(new LoadFileInputField(field)));
-    m.inputFiles.forEach(file -> this.inputFiles.add(new InputFile(file)));
+  @Override
+  public boolean consumesMainInput() {
+    return isFileInField();
   }
 
   @Override
-  public Object clone() {
-    return new LoadFileInputMeta(this);
+  public boolean canStartWithoutInput() {
+    return !isFileInField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "LoadFileInputDialog.FilenameInField.Label");
   }
 
   @Override

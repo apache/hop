@@ -40,6 +40,7 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -232,6 +233,27 @@ class WorkflowActionEvalTableContentTest {
     assertNull(action.getDatabase(), "Without a metadata provider nothing can be resolved");
     assertEquals(
         connectionName, action.getConnection(), "Resolving must not clear the connection name");
+  }
+
+  /**
+   * A workflow may hand the connection name in as a parameter, which is how one set of tests runs
+   * against two servers. Every other action and transform that names a connection resolves it.
+   */
+  @Test
+  void testConnectionNameIsResolved() throws Exception {
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    DatabaseMeta named = new DatabaseMeta();
+    named.setName("mssql-2025");
+    named.setDatabaseType("mock-db");
+    provider.getSerializer(DatabaseMeta.class).save(named);
+
+    action.setMetadataProvider(provider);
+    action.setVariable("MSSQL_CONNECTION", "mssql-2025");
+    action.setDatabaseMeta(null);
+    action.setConnection("${MSSQL_CONNECTION}");
+
+    assertNotNull(action.getDatabase(), "The variable has to be resolved to find the connection");
+    assertEquals("mssql-2025", action.getDatabase().getName());
   }
 
   @Test

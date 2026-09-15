@@ -77,22 +77,6 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
     columns = new ArrayList<>();
   }
 
-  public BeamBigtableOutputMeta(BeamBigtableOutputMeta m) {
-    this();
-    this.projectId = m.projectId;
-    this.instanceId = m.instanceId;
-    this.tableId = m.tableId;
-    this.keyField = m.keyField;
-    for (BigtableColumn column : this.columns) {
-      this.columns.add(new BigtableColumn(column));
-    }
-  }
-
-  @Override
-  public BeamBigtableOutputMeta clone() {
-    return new BeamBigtableOutputMeta(this);
-  }
-
   @Override
   public boolean isInput() {
     return false;

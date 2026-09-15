@@ -53,24 +53,12 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
     super();
   }
 
-  public SetValueFieldMeta(SetValueFieldMeta clone) {
-    super();
-    for (SetField field : clone.getFields()) {
-      fields.add(new SetField(field));
-    }
-  }
-
   public List<SetField> getFields() {
     return fields;
   }
 
   public void setFields(List<SetField> fields) {
     this.fields = fields;
-  }
-
-  @Override
-  public Object clone() {
-    return new SetValueFieldMeta(this);
   }
 
   @Override

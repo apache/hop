@@ -25,6 +25,9 @@ public class SystemProcessRunner implements IProcessRunner {
   @Override
   public int run(List<String> command) throws Exception {
     Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+    // A child reading its standard input only exits once it sees EOF, so release the write end
+    // immediately: powershell.exe otherwise keeps waiting for more commands and never terminates.
+    process.getOutputStream().close();
     try (InputStream in = process.getInputStream()) {
       in.readAllBytes();
     }

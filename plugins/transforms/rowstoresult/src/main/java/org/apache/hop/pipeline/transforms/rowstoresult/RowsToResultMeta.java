@@ -53,12 +53,6 @@ public class RowsToResultMeta extends BaseTransformMeta<RowsToResult, RowsToResu
     readData(transformNode);
   }
 
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
   private void readData(Node transformNode) {
     // Do nothing
   }

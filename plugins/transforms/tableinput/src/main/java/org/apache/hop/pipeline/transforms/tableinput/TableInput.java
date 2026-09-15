@@ -23,13 +23,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -58,35 +57,20 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private RowMetaAndData readStartDate() throws HopException {
-    if (isDetailed()) {
-      logDetailed("Reading from transform [" + data.infoStream.getTransformName() + "]");
-    }
-
+  /**
+   * Drain every incoming hop and concatenate the rows into one parameter list (legacy {@code IN
+   * (?,?,?)}).
+   */
+  private RowMetaAndData readAllParameterRows() throws HopException {
     IRowMeta parametersMeta = new RowMeta();
     Object[] parametersData = new Object[] {};
 
-    IRowSet rowSet = findInputRowSet(data.infoStream.getTransformName());
-    if (rowSet != null) {
-      Object[] rowData = getRowFrom(rowSet); // rows are originating from "lookup_from"
-      while (rowData != null) {
-        parametersData = RowDataUtil.addRowData(parametersData, parametersMeta.size(), rowData);
-        parametersMeta.addRowMeta(rowSet.getRowMeta());
-
-        rowData = getRowFrom(rowSet); // take all input rows if needed!
-      }
-
-      if (parametersMeta.isEmpty()) {
-        throw new HopException(
-            "Expected to read parameters from transform ["
-                + data.infoStream.getTransformName()
-                + "] but none were found.");
-      }
-    } else {
-      throw new HopException(
-          "Unable to find rowset to read from, perhaps transform ["
-              + data.infoStream.getTransformName()
-              + "] doesn't exist. (or perhaps you are trying a preview?)");
+    Object[] rowData = getRow();
+    while (rowData != null) {
+      IRowMeta rowMeta = getInputRowMeta();
+      parametersData =
+          TableInputParameters.append(parametersMeta, parametersData, rowMeta, rowData);
+      rowData = getRow();
     }
 
     return new RowMetaAndData(parametersMeta, parametersData);
@@ -100,44 +84,38 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       Object[] parameters;
       IRowMeta parametersMeta;
 
-      // Make sure we read data from source transforms...
-      if (data.infoStream.getTransformMeta() != null) {
-        if (meta.isExecuteEachInputRow()) {
-          if (isDetailed()) {
-            logDetailed(
-                "Reading single row from stream [" + data.infoStream.getTransformName() + "]");
-          }
-          data.rowSet = findInputRowSet(data.infoStream.getTransformName());
-          if (data.rowSet == null) {
-            throw new HopException(
-                "Unable to find rowset to read from, perhaps transform ["
-                    + data.infoStream.getTransformName()
-                    + "] doesn't exist. (or perhaps you are trying a preview?)");
-          }
-          parameters = getRowFrom(data.rowSet);
-          parametersMeta = data.rowSet.getRowMeta();
-        } else {
-          if (isDetailed()) {
-            logDetailed(
-                "Reading query parameters from stream ["
-                    + data.infoStream.getTransformName()
-                    + "]");
-          }
-          RowMetaAndData rowMetaAndData = readStartDate(); // Read values in lookup table (look)
-          parameters = rowMetaAndData.getData();
-          parametersMeta = rowMetaAndData.getRowMeta();
+      if (meta.isExecuteEachInputRow()) {
+        if (isDetailed()) {
+          logDetailed("Reading a parameter row from incoming hops");
         }
-        if (parameters != null && isDetailed()) {
-          logDetailed("Query parameters found = " + parametersMeta.getString(parameters));
+        parameters = getRow();
+        parametersMeta = getInputRowMeta();
+        if (parameters == null || parametersMeta == null || parametersMeta.isEmpty()) {
+          setOutputDone();
+          return false;
         }
       } else {
-        parameters = new Object[] {};
-        parametersMeta = new RowMeta();
+        if (isDetailed()) {
+          logDetailed("Reading all parameter rows from incoming hops");
+        }
+        RowMetaAndData assembled = readAllParameterRows();
+        parameters = assembled.getData();
+        parametersMeta = assembled.getRowMeta();
+        if (parameters == null) {
+          parameters = new Object[] {};
+        }
+        if (parametersMeta == null) {
+          parametersMeta = new RowMeta();
+        }
+        if (!Utils.isEmpty(meta.getLookup()) && parametersMeta.isEmpty()) {
+          throw new HopException(
+              "Expected to read parameters from incoming hops (Insert data from transform: "
+                  + meta.getLookup()
+                  + ") but none were found.");
+        }
       }
-
-      if (meta.isExecuteEachInputRow() && (parameters == null || parametersMeta.isEmpty())) {
-        setOutputDone(); // signal end to receiver(s)
-        return false; // stop immediately, nothing to do here.
+      if (parameters != null && !parametersMeta.isEmpty() && isDetailed()) {
+        logDetailed("Query parameters found = " + parametersMeta.getString(parameters));
       }
 
       boolean success = doQuery(parametersMeta, parameters);
@@ -147,7 +125,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     } else {
       if (data.thisRow != null) { // We can expect more rows
         try {
-          data.nextRow = data.db.getRow(data.rs, false);
+          data.nextRow = readConvertedRow(false);
         } catch (HopDatabaseException e) {
           if (e.getCause() instanceof SQLException && isStopped()) {
             // This exception indicates we tried reading a row after the statement
@@ -192,19 +170,16 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     return true;
   }
 
-  private @Nullable Boolean determineDoneReading()
-      throws HopTransformException, HopDatabaseException {
+  private @Nullable Boolean determineDoneReading() throws HopException {
     boolean done = false;
-    if (meta.isExecuteEachInputRow()) { // Try to get another row from the input stream
-      Object[] nextRow = getRowFrom(data.rowSet);
-      if (nextRow == null) { // Nothing more to get!
-
+    if (meta.isExecuteEachInputRow()) {
+      Object[] nextRow = getRow();
+      if (nextRow == null) {
         done = true;
       } else {
-        // First close the previous query, otherwise we run out of cursors!
         closePreviousQuery();
 
-        boolean success = doQuery(data.rowSet.getRowMeta(), nextRow); // OK, perform a new query
+        boolean success = doQuery(getInputRowMeta(), nextRow);
         if (!success) {
           return null;
         }
@@ -230,8 +205,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     }
   }
 
-  private boolean doQuery(IRowMeta parametersMeta, Object[] parameters)
-      throws HopDatabaseException {
+  private boolean doQuery(IRowMeta parametersMeta, Object[] parameters) throws HopException {
     boolean success = true;
 
     // Open the query with the optional parameters received from the source transforms.
@@ -248,16 +222,28 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       sql = resolve(sql);
     }
 
+    TableInputSql.Bound bound;
+    try {
+      bound = TableInputSql.prepare(meta.isUseNamedParameters(), sql, parametersMeta, parameters);
+    } catch (HopException e) {
+      logError(e.getMessage());
+      setErrors(1);
+      stopAll();
+      return false;
+    }
+    sql = bound.getJdbcSql();
+    IRowMeta boundMeta = bound.getParameterMeta();
+    Object[] boundData = bound.getParameterData();
+
     if (isDetailed()) {
       logDetailed("SQL query : " + sql);
     }
 
     try {
-      if (parametersMeta.isEmpty()) {
+      if (boundMeta == null || boundMeta.isEmpty()) {
         data.rs = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
       } else {
-        data.rs =
-            data.db.openQuery(sql, parametersMeta, parameters, ResultSet.FETCH_FORWARD, false);
+        data.rs = data.db.openQuery(sql, boundMeta, boundData, ResultSet.FETCH_FORWARD, false);
       }
     } catch (HopDatabaseException ex) {
       Throwable root = ex.getCause();
@@ -283,7 +269,23 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       success = false;
     } else {
       // Keep the metadata
-      data.rowMeta = data.db.getReturnRowMeta();
+      data.jdbcRowMeta = data.db.getReturnRowMeta();
+      data.specifiedMapping = null;
+      try {
+        if (meta.isSpecifyFields()) {
+          data.rowMeta = meta.createSpecifiedRowMeta(getTransformName(), this);
+          data.specifiedMapping =
+              meta.createSpecifiedMapping(
+                  data.jdbcRowMeta, data.rowMeta, meta.isValidateSpecifiedFields());
+        } else {
+          data.rowMeta = data.jdbcRowMeta;
+        }
+      } catch (HopException e) {
+        logError(e.getMessage());
+        setErrors(1);
+        stopAll();
+        return false;
+      }
 
       // Set the origin on the row metadata...
       if (data.rowMeta != null) {
@@ -299,10 +301,10 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
       // Get the first row...
       try {
-        data.thisRow = data.db.getRow(data.rs);
+        data.thisRow = readConvertedRow(true);
         if (data.thisRow != null) {
           incrementLinesInput();
-          data.nextRow = data.db.getRow(data.rs);
+          data.nextRow = readConvertedRow(true);
           if (data.nextRow != null) {
             incrementLinesInput();
           }
@@ -375,6 +377,11 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       boolean passed = true;
       if (Utils.isEmpty(meta.getSql()) && Utils.isEmpty(meta.getSqlFromFile())) {
         logError(BaseMessages.getString(PKG, "TableInput.Exception.SQLIsNeeded"));
+        passed = false;
+      }
+
+      if (meta.isSpecifyFields() && Utils.isEmpty(meta.getFields())) {
+        logError(BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
         passed = false;
       }
 
@@ -469,5 +476,34 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
   public boolean isWaitingForData() {
     return true;
+  }
+
+  private Object[] readConvertedRow(boolean firstRows) throws HopDatabaseException, HopException {
+    Object[] jdbcRow = firstRows ? data.db.getRow(data.rs) : data.db.getRow(data.rs, false);
+    return convertSpecifiedRow(jdbcRow);
+  }
+
+  private Object[] convertSpecifiedRow(Object[] jdbcRow) throws HopException {
+    if (jdbcRow == null || data.specifiedMapping == null || data.rowMeta == null) {
+      return jdbcRow;
+    }
+    Object[] output = RowDataUtil.allocateRowData(data.rowMeta.size());
+    for (int i = 0; i < data.specifiedMapping.length; i++) {
+      int sourceIndex = data.specifiedMapping[i];
+      IValueMeta sourceMeta = data.jdbcRowMeta.getValueMeta(sourceIndex);
+      IValueMeta targetMeta = data.rowMeta.getValueMeta(i);
+      try {
+        output[i] = targetMeta.convertData(sourceMeta, jdbcRow[sourceIndex]);
+      } catch (HopValueException e) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG,
+                "TableInput.Exception.SpecifiedFieldConversionError",
+                targetMeta.getName(),
+                e.getMessage()),
+            e);
+      }
+    }
+    return output;
   }
 }

@@ -64,9 +64,43 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+            The bulk loader can inherit the AWS credentials configured on the Redshift connection.
+            Reading them needs the dialect on the classpath, and the transform shares its
+            classLoaderGroup so the two see the same classes at runtime.
+        -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-redshift</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
+            <version>${aws-java-sdk.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>secretsmanager</artifactId>
             <version>${aws-java-sdk.version}</version>
             <scope>provided</scope>
             <exclusions>

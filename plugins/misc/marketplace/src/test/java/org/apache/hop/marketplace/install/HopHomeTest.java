@@ -66,4 +66,45 @@ class HopHomeTest {
       System.setProperty("user.dir", previous);
     }
   }
+
+  @Test
+  void resolveUsesConfiguredPluginFolderWhenUserDirIsNotHopHome() throws Exception {
+    Path hop = tempDir.resolve("hop-data");
+    Files.createDirectories(hop.resolve("plugins"));
+    String previousUserDir = System.getProperty("user.dir");
+    String previousPluginFolders = System.getProperty("HOP_PLUGIN_BASE_FOLDERS");
+    try {
+      System.setProperty("user.dir", tempDir.resolve("not-hop").toString());
+      System.setProperty("HOP_PLUGIN_BASE_FOLDERS", hop.resolve("plugins").toString());
+      assertEquals(hop.toAbsolutePath().normalize(), HopHome.resolve());
+    } finally {
+      restoreProperty("user.dir", previousUserDir);
+      restoreProperty("HOP_PLUGIN_BASE_FOLDERS", previousPluginFolders);
+    }
+  }
+
+  @Test
+  void resolveUsesParentOfConfiguredConfigFolder() throws Exception {
+    Path hop = tempDir.resolve("hop-web");
+    Files.createDirectories(hop.resolve("plugins"));
+    Files.createDirectories(hop.resolve("config"));
+    String previousUserDir = System.getProperty("user.dir");
+    String previousConfigFolder = System.getProperty("HOP_CONFIG_FOLDER");
+    try {
+      System.setProperty("user.dir", tempDir.resolve("not-hop").toString());
+      System.setProperty("HOP_CONFIG_FOLDER", hop.resolve("config").toString());
+      assertEquals(hop.toAbsolutePath().normalize(), HopHome.resolve());
+    } finally {
+      restoreProperty("user.dir", previousUserDir);
+      restoreProperty("HOP_CONFIG_FOLDER", previousConfigFolder);
+    }
+  }
+
+  private static void restoreProperty(String name, String value) {
+    if (value == null) {
+      System.clearProperty(name);
+    } else {
+      System.setProperty(name, value);
+    }
+  }
 }

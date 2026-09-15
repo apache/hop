@@ -23,8 +23,6 @@ under the License.
 
 :page-pagination:
 :page-pagination-no-back:
-:openvar: ${
-:closevar: }
 = Projects & Environments
 
 == Concepts and Architecture
@@ -45,7 +43,13 @@ To match standard development best practices you would check all these files int
 
 TIP: project variables should only be used when you need variables on the project level. All variables to connect to infrastructure, e.g. database connection parameters, mail servers etc that take different values in different environments should be created at the environment level.
 
+TIP: Never hard-code secrets or personal information in pipelines, workflows or metadata. Put them in environment configuration files as variables, or better in a keystore read with a xref:metadata-types/variable-resolver/index.adoc[variable resolver]. That pattern is required before you use the xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant]: inclusions send graph context to an external service. See xref:best-practices/index.adoc[Best practices: security].
+
 TIP: Project configurations are stored in hop-config.json, which is read from `hop/config` by default. Use the `HOP_CONFIG_FOLDER` operating system variable to store your Hop configuration in a folder outside your Hop folder. This will let you keep your project list if you switch Hop installations or upgrade to a newer Hop version.
+
+TIP: To run or open a project folder without adding it to `hop-config.json`, use `--project-locations`. See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json].
+
+TIP: In Hop Web Docker, keep *project homes* on a host folder or volume as well. The image's `default` and `samples` projects are only a starter layout. See xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
 
 Projects can inherit metadata and variables from a parent project.
 
@@ -55,7 +59,7 @@ Projects in Hop Gui will remember opened files, zoom levels and other UI setting
 
 What is typically not included in the set of project files are the metadata configurations and variable values required to make the project run correctly in a given environment.
 
-For example on a development laptop you might want to set a variable `{openvar}DB_HOSTNAME{closevar}` to `localhost`, on a production server this value might point to the production database server.
+For example on a development laptop you might want to set a variable `+${DB_HOSTNAME}+` to `localhost`, on a production server this value might point to the production database server.
 This is where Hop environments come in.
 
 Environment is short for Project Lifecycle Environment.
@@ -76,6 +80,6 @@ How those files get onto a running Hop Server is covered in xref:hop-server/depl
 
 ==== Import variables
 
-When you create or edit a lifecycle environment, the *Import variables* button scans the associated project for Unix-style variable expressions (`{openvar}VARIABLE_NAME{closevar}`) in pipelines, workflows and metadata objects (using the same project search infrastructure as the Hop Gui search perspective, with a regular expression for that pattern).
+When you create or edit a lifecycle environment, the *Import variables* button scans the associated project for Unix-style variable expressions (`+${VARIABLE_NAME}+`) in pipelines, workflows and metadata objects (using the same project search infrastructure as the Hop Gui search perspective, with a regular expression for that pattern).
 
-Variables that are already defined in one of the environment's configuration files, as well as runtime/project managed names such as `{openvar}PROJECT_HOME{closevar}`, are omitted. The remaining names are shown in a dialog where you can set values and descriptions, then save them to an existing environment configuration file or create a new one that is added to the environment.
+Variables that are already defined in one of the environment's configuration files, as well as runtime/project managed names such as `+${PROJECT_HOME}+`, are omitted. The remaining names are shown in a dialog where you can set values and descriptions, then save them to an existing environment configuration file or create a new one that is added to the environment.

@@ -180,11 +180,6 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     }
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   public boolean dynamicFromLabels() {
     return dynamicLabels(nodeFromField.getLabels());
   }

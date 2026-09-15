@@ -104,13 +104,6 @@ public class FileLockedMeta extends BaseTransformMeta<FileLocked, FileLockedData
   }
 
   @Override
-  public Object clone() {
-    FileLockedMeta retval = (FileLockedMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     resultfieldname = "result";
     addresultfilenames = false;

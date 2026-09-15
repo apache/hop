@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0004-pgp-encrypt-binary-roundtrip</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Encrypt without signing, writing binary rather than ASCII armour. This is the third
+  of the three action types and the only one that leaves the -a flag off, so it is the remaining
+  argument shape the other tests never build.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/10 00:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/10 00:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>create a throwaway keyring</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+set -e
+
+GNUPG_HOME=${PROJECT_HOME}/output/gnupg
+WRAPPER=${PROJECT_HOME}/output/gpg-in-project.sh
+
+GPG_BIN=$(command -v gpg || true)
+if [ -z "$GPG_BIN" ]; then
+  echo "gpg is not installed; the PGP actions cannot run without it"
+  exit 1
+fi
+
+rm -rf "$GNUPG_HOME"
+mkdir -p "$GNUPG_HOME"
+chmod 700 "$GNUPG_HOME"
+
+printf '#!/bin/sh\nexec "%s" --homedir "%s" "$@"\n' "$GPG_BIN" "$GNUPG_HOME" &gt; "$WRAPPER"
+chmod 700 "$WRAPPER"
+
+"$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback --passphrase '' \
+  --quiet --quick-generate-key "Hop Integration Test &lt;hop-it@example.org&gt;" default default never 2&gt;&amp;1
+
+printf 'id,amount\n9,900\n10,1000\n' &gt; ${PROJECT_HOME}/output/ledger.csv
+rm -f ${PROJECT_HOME}/output/ledger.csv.gpg ${PROJECT_HOME}/output/ledger-decrypted.csv
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>encrypt the file as binary</name>
+      <description/>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <gpglocation>${PROJECT_HOME}/output/gpg-in-project.sh</gpglocation>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <asciiMode>N</asciiMode>
+      <fields>
+        <field>
+          <action_type>encrypt</action_type>
+          <source_filefolder>${PROJECT_HOME}/output/ledger.csv</source_filefolder>
+          <wildcard/>
+          <userid>hop-it@example.org</userid>
+          <destination_filefolder>${PROJECT_HOME}/output/ledger.csv.gpg</destination_filefolder>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>460</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>the output is binary, not ASCII armour</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+set -e
+
+SEALED=${PROJECT_HOME}/output/ledger.csv.gpg
+
+if [ ! -s "$SEALED" ]; then
+  echo "no encrypted file was written"
+  exit 1
+fi
+
+# With asciiMode off the -a flag is not passed, so the output must not be armoured.
+if head -n 1 "$SEALED" | grep -q -- '-----BEGIN PGP MESSAGE-----'; then
+  echo "expected a binary OpenPGP message but found ASCII armour"
+  exit 1
+fi
+
+echo "binary OpenPGP message written"
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>680</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <fields>
+        <field>
+          <source_filefolder>${PROJECT_HOME}/output/ledger.csv.gpg</source_filefolder>
+          <passphrase/>
+          <destination_filefolder>${PROJECT_HOME}/output/ledger-decrypted.csv</destination_filefolder>
+          <wildcard/>
+        </field>
+      </fields>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <create_move_to_folder>N</create_move_to_folder>
+      <gpglocation>${PROJECT_HOME}/output/gpg-in-project.sh</gpglocation>
+      <name>decrypt the binary file</name>
+      <description/>
+      <type>PGP_DECRYPT_FILES</type>
+      <attributes/>
+      <xloc>900</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename1>${PROJECT_HOME}/output/ledger.csv</filename1>
+      <filename2>${PROJECT_HOME}/output/ledger-decrypted.csv</filename2>
+      <add_filename_result>N</add_filename_result>
+      <name>the round trip preserved the file</name>
+      <description/>
+      <type>FILE_COMPARE</type>
+      <attributes/>
+      <xloc>1120</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>The binary encrypt and decrypt round trip failed</message>
+      <loglevel>ERROR</loglevel>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>680</xloc>
+      <yloc>220</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>create a throwaway keyring</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>create a throwaway keyring</from>
+      <to>encrypt the file as binary</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>encrypt the file as binary</from>
+      <to>the output is binary, not ASCII armour</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>the output is binary, not ASCII armour</from>
+      <to>decrypt the binary file</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>decrypt the binary file</from>
+      <to>the round trip preserved the file</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>create a throwaway keyring</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>encrypt the file as binary</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>the output is binary, not ASCII armour</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>decrypt the binary file</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>the round trip preserved the file</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

@@ -17,43 +17,27 @@
 
 package org.apache.hop.www;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.UUID;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IEngineComponent;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.www.service.WebService;
+import org.apache.hop.www.service.PreparedWebService;
+import org.apache.hop.www.service.ServletWebServiceOutput;
+import org.apache.hop.www.service.WebServiceExecutor;
+import org.apache.hop.www.service.WebServiceRequest;
 
 @HopServerServlet(id = "webService", name = "Output the content of a field in a transform")
 public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -96,10 +80,9 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
     }
 
     IVariables variables = pipelineMap.getHopServerConfig().getVariables();
-
     IHopMetadataProvider metadataProvider = pipelineMap.getHopServerConfig().getMetadataProvider();
 
-    String webServiceName = request.getParameter("service");
+    String webServiceName = request.getParameter(WebServiceExecutor.PARAMETER_SERVICE);
     if (StringUtils.isEmpty(webServiceName)) {
       sendSafeError(
           response,
@@ -108,181 +91,19 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       return;
     }
 
-    String runConfigurationName = request.getParameter("runConfig");
-
     try {
-      IHopMetadataSerializer<WebService> serializer =
-          metadataProvider.getSerializer(WebService.class);
-      WebService webService = serializer.load(webServiceName);
-      if (webService == null) {
-        throw new HopException(
-            "Unable to find web service '"
-                + webServiceName
-                + "'.  You can set the metadata_folder in the Hop server XML configuration");
-      }
+      WebServiceRequest webServiceRequest = new WebServiceRequest(webServiceName);
+      webServiceRequest.setRunConfigurationName(
+          request.getParameter(WebServiceExecutor.PARAMETER_RUN_CONFIG));
+      webServiceRequest.setBodyContentSupplier(() -> readBody(request));
+      webServiceRequest.setHeaders(collectHeaders(request));
+      webServiceRequest.setParameters(collectParameters(request));
 
-      if (!webService.isEnabled()) {
-        throw new HopException("Web service '" + webServiceName + "' is disabled.");
-      }
+      PreparedWebService prepared =
+          new WebServiceExecutor(variables, metadataProvider, getPipelineMap())
+              .prepare(webServiceRequest);
 
-      // If a run configuration is set in the web service and none is specified here, we take it.
-      //
-      if (StringUtils.isEmpty(runConfigurationName)) {
-        runConfigurationName = variables.resolve(webService.getRunConfigurationName());
-      }
-
-      String filename = variables.resolve(webService.getFilename());
-      String transformName = variables.resolve(webService.getTransformName());
-      String fieldName = variables.resolve(webService.getFieldName());
-      String contentType = variables.resolve(webService.getContentType());
-      String statusCodeField = variables.resolve(webService.getStatusCode());
-      String bodyContentVariable = variables.resolve(webService.getBodyContentVariable());
-      String headerContentVariable = variables.resolve(webService.getHeaderContentVariable());
-
-      String bodyContent = "";
-      if (StringUtils.isNotEmpty(bodyContentVariable)) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        IOUtils.copy(request.getInputStream(), out);
-        bodyContent = out.toString(StandardCharsets.UTF_8);
-      }
-
-      String headerContent = "";
-      if (StringUtils.isNotEmpty(headerContentVariable)) {
-        // Create JSON object containing all request headers
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode headersJson = objectMapper.createObjectNode();
-
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-          String headerName = headerNames.nextElement();
-          String headerValue = request.getHeader(headerName);
-          headersJson.put(headerName, headerValue);
-        }
-
-        headerContent = objectMapper.writeValueAsString(headersJson);
-      }
-
-      if (StringUtils.isEmpty(contentType)) {
-        response.setContentType("text/plain");
-      } else {
-        response.setContentType(contentType);
-      }
-      response.setCharacterEncoding(Const.UTF_8);
-
-      String serverObjectId = UUID.randomUUID().toString();
-      SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject(CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null);
-      servletLoggingObject.setContainerObjectId(serverObjectId);
-
-      // Load and start the pipeline
-      // Output the data to the response output stream...
-      //
-      PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
-      IPipelineEngine<PipelineMeta> pipeline;
-      if (StringUtils.isEmpty(runConfigurationName)) {
-        pipeline = new LocalPipelineEngine(pipelineMeta, variables, servletLoggingObject);
-      } else {
-        pipeline =
-            PipelineEngineFactory.createPipelineEngine(
-                variables, runConfigurationName, metadataProvider, pipelineMeta);
-      }
-      pipeline.setContainerId(serverObjectId);
-
-      if (StringUtils.isNotEmpty(bodyContentVariable)) {
-        pipeline.setVariable(bodyContentVariable, Const.NVL(bodyContent, ""));
-      }
-
-      if (StringUtils.isNotEmpty(headerContentVariable)) {
-        pipeline.setVariable(headerContentVariable, Const.NVL(headerContent, ""));
-      }
-
-      // Set all the other parameters as variables/parameters...
-      //
-      String[] pipelineParameters = pipelineMeta.listParameters();
-      pipeline.copyParametersFromDefinitions(pipelineMeta);
-      for (String requestParameter : request.getParameterMap().keySet()) {
-        if ("service".equals(requestParameter)) {
-          continue;
-        }
-        String requestParameterValue = request.getParameter(requestParameter);
-        if (Const.indexOfString(requestParameter, pipelineParameters) < 0) {
-          pipeline.setVariable(requestParameter, Const.NVL(requestParameterValue, ""));
-        } else {
-          pipeline.setParameterValue(requestParameter, Const.NVL(requestParameterValue, ""));
-        }
-      }
-      pipeline.activateParameters(pipeline);
-
-      // See if we need to add this to the status map...
-      //
-      if (webService.isListingStatus()) {
-        PipelineExecutionConfiguration pipelineExecutionConfiguration =
-            new PipelineExecutionConfiguration();
-        PipelineConfiguration pipelineConfiguration =
-            new PipelineConfiguration(
-                pipelineMeta,
-                pipelineExecutionConfiguration,
-                new SerializableMetadataProvider(metadataProvider));
-        getPipelineMap()
-            .addPipeline(pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration);
-      }
-
-      // Allocate the threads...
-      pipeline.prepareExecution();
-
-      final OutputStream outputStream = response.getOutputStream();
-
-      // Add the row listener to the transform/field...
-      // TODO: add to all copies
-      //
-      IEngineComponent component = pipeline.findComponent(transformName, 0);
-      component.addRowListener(
-          new RowAdapter() {
-            @Override
-            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                throws HopTransformException {
-              try {
-                response.setStatus(rowMeta.getInteger(row, statusCodeField, 200L).intValue());
-
-                // Get the field index and metadata to detect field type
-                int fieldIndex = rowMeta.indexOfValue(fieldName);
-                if (fieldIndex < 0) {
-                  throw new HopTransformException("Field '" + fieldName + "' not found in row");
-                }
-
-                IValueMeta valueMeta = rowMeta.getValueMeta(fieldIndex);
-
-                // Check if field is binary type and handle accordingly
-                byte[] outputData;
-                if (valueMeta.getType() == IValueMeta.TYPE_BINARY) {
-                  // Binary output - get raw bytes without encoding conversion
-                  outputData = rowMeta.getBinary(row, fieldIndex);
-                  if (outputData == null) {
-                    outputData = new byte[0];
-                  }
-                } else {
-                  // Text output - convert to string and encode as UTF-8
-                  String outputString = rowMeta.getString(row, fieldName, "");
-                  outputData = outputString.getBytes(StandardCharsets.UTF_8);
-                }
-
-                outputStream.write(outputData);
-                outputStream.flush();
-              } catch (HopValueException e) {
-                throw new HopTransformException(
-                    "Error getting output field '"
-                        + fieldName
-                        + " from row: "
-                        + rowMeta.toStringMeta(),
-                    e);
-              } catch (IOException e) {
-                throw new HopTransformException("Error writing output of '" + fieldName + "'", e);
-              }
-            }
-          });
-
-      pipeline.startThreads();
-      pipeline.waitUntilFinished();
+      prepared.execute(new ServletWebServiceOutput(response));
 
     } catch (Exception e) {
       logError("Error producing web service output", e);
@@ -291,6 +112,34 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
           HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
           "Error producing web service output.");
     }
+  }
+
+  private static String readBody(HttpServletRequest request) throws HopException {
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      IOUtils.copy(request.getInputStream(), out);
+      return out.toString(StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new HopException("Error reading the web service request body", e);
+    }
+  }
+
+  private static Map<String, String> collectHeaders(HttpServletRequest request) {
+    Map<String, String> headers = new LinkedHashMap<>();
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      headers.put(headerName, request.getHeader(headerName));
+    }
+    return headers;
+  }
+
+  private static Map<String, String> collectParameters(HttpServletRequest request) {
+    Map<String, String> parameters = new LinkedHashMap<>();
+    for (String requestParameter : request.getParameterMap().keySet()) {
+      parameters.put(requestParameter, request.getParameter(requestParameter));
+    }
+    return parameters;
   }
 
   public String toString() {

@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.apache.commons.dbcp2.DelegatingConnection;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -61,9 +62,6 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
   private static final SimpleDateFormat SIMPLE_DATE_FORMAT =
       new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-  public static final String CONST_FIELD = "Field ";
-  public static final String CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN =
-      " must be a Date compatible type to match target column ";
   private FileOutputStream exceptionLog;
   private FileOutputStream rejectedLog;
 
@@ -107,64 +105,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
       IRowMeta tableMeta = meta.getRequiredFields(variables);
 
-      if (!meta.specifyFields()) {
-
-        // Just take the whole input row
-        data.insertRowMeta = getInputRowMeta().clone();
-        data.selectedRowFieldIndices = new int[data.insertRowMeta.size()];
-
-        data.colSpecs = new ArrayList<>(data.insertRowMeta.size());
-
-        for (int insertFieldIdx = 0; insertFieldIdx < data.insertRowMeta.size(); insertFieldIdx++) {
-          data.selectedRowFieldIndices[insertFieldIdx] = insertFieldIdx;
-          IValueMeta inputValueMeta = data.insertRowMeta.getValueMeta(insertFieldIdx);
-          IValueMeta insertValueMeta = inputValueMeta.clone();
-          IValueMeta targetValueMeta = tableMeta.getValueMeta(insertFieldIdx);
-          insertValueMeta.setName(targetValueMeta.getName());
-          data.insertRowMeta.setValueMeta(insertFieldIdx, insertValueMeta);
-          ColumnSpec cs = getColumnSpecFromField(inputValueMeta, insertValueMeta, targetValueMeta);
-          data.colSpecs.add(insertFieldIdx, cs);
-        }
-
-      } else {
-
-        int numberOfInsertFields = meta.getFields().size();
-        data.insertRowMeta = new RowMeta();
-        data.colSpecs = new ArrayList<>(numberOfInsertFields);
-
-        // Cache the position of the selected fields in the row array
-        data.selectedRowFieldIndices = new int[numberOfInsertFields];
-        for (int insertFieldIdx = 0; insertFieldIdx < numberOfInsertFields; insertFieldIdx++) {
-          VerticaBulkLoaderField vbf = meta.getFields().get(insertFieldIdx);
-          String inputFieldName = vbf.getFieldStream();
-          int inputFieldIdx = getInputRowMeta().indexOfValue(inputFieldName);
-          if (inputFieldIdx < 0) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG,
-                    "VerticaBulkLoader.Exception.FieldRequired",
-                    inputFieldName)); //$NON-NLS-1$
-          }
-          data.selectedRowFieldIndices[insertFieldIdx] = inputFieldIdx;
-
-          String insertFieldName = vbf.getFieldDatabase();
-          IValueMeta inputValueMeta = getInputRowMeta().getValueMeta(inputFieldIdx);
-          if (inputValueMeta == null) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG,
-                    "VerticaBulkLoader.Exception.FailedToFindField",
-                    vbf.getFieldStream())); // $NON-NLS-1$
-          }
-          IValueMeta insertValueMeta = inputValueMeta.clone();
-          insertValueMeta.setName(insertFieldName);
-          data.insertRowMeta.addValueMeta(insertValueMeta);
-
-          IValueMeta targetValueMeta = tableMeta.searchValueMeta(insertFieldName);
-          ColumnSpec cs = getColumnSpecFromField(inputValueMeta, insertValueMeta, targetValueMeta);
-          data.colSpecs.add(insertFieldIdx, cs);
-        }
-      }
+      prepareFieldMapping(getInputRowMeta(), tableMeta);
 
       try {
         data.pipedInputStream = new PipedInputStream();
@@ -292,8 +233,103 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     }
   }
 
+  /**
+   * Works out which incoming field feeds which column of the target table and how every value has
+   * to be encoded in Vertica's native binary format.
+   *
+   * <p>When the database fields are not specified explicitly the complete input row is loaded and
+   * the target column is looked up <b>by name</b>. The order in which the columns happen to be
+   * defined in the table is unrelated to the order of the fields on the stream, so matching them by
+   * position (as this transform used to do) silently loads values into the wrong columns or fails
+   * with a confusing type error.
+   *
+   * @param inputRowMeta the layout of the rows arriving at this transform
+   * @param tableMeta the layout of the target table
+   */
+  @VisibleForTesting
+  void prepareFieldMapping(IRowMeta inputRowMeta, IRowMeta tableMeta) throws HopException {
+    if (!meta.specifyFields()) {
+
+      // Just take the whole input row and match the columns on name.
+      data.insertRowMeta = inputRowMeta.clone();
+      data.selectedRowFieldIndices = new int[data.insertRowMeta.size()];
+
+      data.colSpecs = new ArrayList<>(data.insertRowMeta.size());
+
+      for (int insertFieldIdx = 0; insertFieldIdx < data.insertRowMeta.size(); insertFieldIdx++) {
+        data.selectedRowFieldIndices[insertFieldIdx] = insertFieldIdx;
+        IValueMeta inputValueMeta = data.insertRowMeta.getValueMeta(insertFieldIdx);
+        IValueMeta targetValueMeta = findTargetColumn(tableMeta, inputValueMeta.getName());
+        IValueMeta insertValueMeta = inputValueMeta.clone();
+        // Take over the name the way the database spells it: the COPY statement is built from it.
+        insertValueMeta.setName(targetValueMeta.getName());
+        data.insertRowMeta.setValueMeta(insertFieldIdx, insertValueMeta);
+        ColumnSpec cs = getColumnSpecFromField(inputValueMeta, insertValueMeta, targetValueMeta);
+        data.colSpecs.add(insertFieldIdx, cs);
+      }
+
+    } else {
+
+      int numberOfInsertFields = meta.getFields().size();
+      data.insertRowMeta = new RowMeta();
+      data.colSpecs = new ArrayList<>(numberOfInsertFields);
+
+      // Cache the position of the selected fields in the row array
+      data.selectedRowFieldIndices = new int[numberOfInsertFields];
+      for (int insertFieldIdx = 0; insertFieldIdx < numberOfInsertFields; insertFieldIdx++) {
+        VerticaBulkLoaderField vbf = meta.getFields().get(insertFieldIdx);
+        String inputFieldName = vbf.getFieldStream();
+        int inputFieldIdx = inputRowMeta.indexOfValue(inputFieldName);
+        if (inputFieldIdx < 0) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG, "VerticaBulkLoader.Exception.FieldRequired", inputFieldName)); // $NON-NLS-1$
+        }
+        data.selectedRowFieldIndices[insertFieldIdx] = inputFieldIdx;
+
+        String insertFieldName = vbf.getFieldDatabase();
+        IValueMeta inputValueMeta = inputRowMeta.getValueMeta(inputFieldIdx);
+        if (inputValueMeta == null) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG,
+                  "VerticaBulkLoader.Exception.FailedToFindField",
+                  vbf.getFieldStream())); // $NON-NLS-1$
+        }
+
+        IValueMeta targetValueMeta = findTargetColumn(tableMeta, insertFieldName);
+        IValueMeta insertValueMeta = inputValueMeta.clone();
+        insertValueMeta.setName(targetValueMeta.getName());
+        data.insertRowMeta.addValueMeta(insertValueMeta);
+
+        ColumnSpec cs = getColumnSpecFromField(inputValueMeta, insertValueMeta, targetValueMeta);
+        data.colSpecs.add(insertFieldIdx, cs);
+      }
+    }
+  }
+
+  /**
+   * Looks up a column in the target table, case insensitively, and reports a usable error when it
+   * simply isn't there.
+   */
+  private IValueMeta findTargetColumn(IRowMeta tableMeta, String columnName)
+      throws HopTransformException {
+    IValueMeta targetValueMeta = tableMeta.searchValueMeta(columnName);
+    if (targetValueMeta == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG,
+              "VerticaBulkLoader.Exception.ColumnNotFoundInTable",
+              Const.NVL(columnName, ""),
+              resolve(meta.getTableName()),
+              String.join(", ", tableMeta.getFieldNames())));
+    }
+    return targetValueMeta;
+  }
+
   private ColumnSpec getColumnSpecFromField(
-      IValueMeta inputValueMeta, IValueMeta insertValueMeta, IValueMeta targetValueMeta) {
+      IValueMeta inputValueMeta, IValueMeta insertValueMeta, IValueMeta targetValueMeta)
+      throws HopTransformException {
     if (isBasic()) {
       logBasic(
           "Mapping input field "
@@ -308,9 +344,18 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
               + ") ");
     }
 
+    if (targetValueMeta.getOriginalColumnTypeName() == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG,
+              "VerticaBulkLoader.Exception.UnknownColumnType",
+              insertValueMeta.getName())); // $NON-NLS-1$
+    }
+
     String targetColumnTypeName = targetValueMeta.getOriginalColumnTypeName().toUpperCase();
 
     switch (targetColumnTypeName) {
+        // Vertica reports every integer column as "Integer"; BIGINT is a SQL standard synonym.
       case "INTEGER", "BIGINT" -> {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.INTEGER_64);
       }
@@ -323,79 +368,39 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
       case "CHAR" -> {
         return new ColumnSpec(ColumnSpec.UserDefinedWidthType.CHAR, targetValueMeta.getLength());
       }
-      case "VARCHAR", "CHARACTER VARYING" -> {
+      case "VARCHAR", "CHARACTER VARYING", "LONG VARCHAR" -> {
         return new ColumnSpec(ColumnSpec.VariableWidthType.VARCHAR, targetValueMeta.getLength());
       }
       case "DATE" -> {
-        if (!inputValueMeta.isDate()) {
-          throw new IllegalArgumentException(
-              CONST_FIELD
-                  + inputValueMeta.getName()
-                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                  + insertValueMeta.getName());
-        } else {
-          return new ColumnSpec(ColumnSpec.ConstantWidthType.DATE);
-        }
+        requireDateCompatibleInput(inputValueMeta, insertValueMeta, targetColumnTypeName);
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.DATE);
       }
       case "TIME" -> {
-        if (!inputValueMeta.isDate()) {
-          throw new IllegalArgumentException(
-              CONST_FIELD
-                  + inputValueMeta.getName()
-                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                  + insertValueMeta.getName());
-        } else {
-          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIME);
-        }
+        requireDateCompatibleInput(inputValueMeta, insertValueMeta, targetColumnTypeName);
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIME);
       }
       case "TIMETZ" -> {
-        if (!inputValueMeta.isDate()) {
-          throw new IllegalArgumentException(
-              CONST_FIELD
-                  + inputValueMeta.getName()
-                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                  + insertValueMeta.getName());
-        } else {
-          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMETZ);
-        }
+        requireDateCompatibleInput(inputValueMeta, insertValueMeta, targetColumnTypeName);
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMETZ);
       }
       case "TIMESTAMP" -> {
-        if (!inputValueMeta.isDate()) {
-          throw new IllegalArgumentException(
-              CONST_FIELD
-                  + inputValueMeta.getName()
-                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                  + insertValueMeta.getName());
-        } else {
-          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMP);
-        }
+        requireDateCompatibleInput(inputValueMeta, insertValueMeta, targetColumnTypeName);
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMP);
       }
       case "TIMESTAMPTZ" -> {
-        if (!inputValueMeta.isDate()) {
-          throw new IllegalArgumentException(
-              CONST_FIELD
-                  + inputValueMeta.getName()
-                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                  + insertValueMeta.getName());
-        } else {
-          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMPTZ);
-        }
+        requireDateCompatibleInput(inputValueMeta, insertValueMeta, targetColumnTypeName);
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMPTZ);
       }
       case "INTERVAL", "INTERVAL DAY TO SECOND" -> {
-        if (!inputValueMeta.isDate()) {
-          throw new IllegalArgumentException(
-              CONST_FIELD
-                  + inputValueMeta.getName()
-                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                  + insertValueMeta.getName());
-        } else {
-          return new ColumnSpec(ColumnSpec.ConstantWidthType.INTERVAL);
-        }
+        requireDateCompatibleInput(inputValueMeta, insertValueMeta, targetColumnTypeName);
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.INTERVAL);
       }
+        // BINARY is a fixed width type: the value is padded with zeroes up to the column width,
+        // unlike VARBINARY which is written with a length prefix.
       case "BINARY" -> {
-        return new ColumnSpec(ColumnSpec.VariableWidthType.VARBINARY, targetValueMeta.getLength());
+        return new ColumnSpec(ColumnSpec.UserDefinedWidthType.BINARY, targetValueMeta.getLength());
       }
-      case "VARBINARY" -> {
+      case "VARBINARY", "LONG VARBINARY" -> {
         return new ColumnSpec(ColumnSpec.VariableWidthType.VARBINARY, targetValueMeta.getLength());
       }
       case "NUMERIC" -> {
@@ -404,9 +409,28 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
             targetValueMeta.getLength(),
             targetValueMeta.getPrecision());
       }
+      default ->
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG,
+                  "VerticaBulkLoader.Exception.ColumnTypeNotSupported",
+                  targetColumnTypeName,
+                  insertValueMeta.getName())); // $NON-NLS-1$
     }
-    throw new IllegalArgumentException(
-        "Column type " + targetColumnTypeName + " not supported."); // $NON-NLS-1$
+  }
+
+  private void requireDateCompatibleInput(
+      IValueMeta inputValueMeta, IValueMeta insertValueMeta, String targetColumnTypeName)
+      throws HopTransformException {
+    if (!inputValueMeta.isDate()) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG,
+              "VerticaBulkLoader.Exception.FieldMustBeDateCompatible",
+              inputValueMeta.getName(),
+              insertValueMeta.getName(),
+              targetColumnTypeName)); // $NON-NLS-1$
+    }
   }
 
   private void initializeWorker() {
@@ -448,7 +472,8 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     data.workerThread.start();
   }
 
-  private String buildCopyStatementSqlString() {
+  @VisibleForTesting
+  String buildCopyStatementSqlString() {
     final DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
 
     StringBuilder sb = new StringBuilder(150);

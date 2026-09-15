@@ -95,13 +95,6 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     this.normaliserFields = new ArrayList<>();
   }
 
-  public NormaliserMeta(NormaliserMeta meta) {
-    this();
-    for (NormaliserField field : meta.normaliserFields) {
-      normaliserFields.add(new NormaliserField(field));
-    }
-  }
-
   public Set<String> getFieldNames() {
     Set<String> fieldNames = new HashSet<>();
 
@@ -111,11 +104,6 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       }
     }
     return fieldNames;
-  }
-
-  @Override
-  public Object clone() {
-    return new NormaliserMeta(this);
   }
 
   @Override

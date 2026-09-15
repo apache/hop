@@ -62,6 +62,10 @@ class BaseDatabaseMetaTest {
     // Note - this method should only use native.
     // (each test run in its own thread).
     assertEquals("", nativeMeta.getLimitClause(5));
+    assertEquals(
+        "SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'v' AND TABLE_SCHEMA = 's'",
+        nativeMeta.getSqlViewDefinition("s", "v"));
+    assertNull(nativeMeta.getSqlObjectDdl("s", "t"));
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertFalse(nativeMeta.isNeedsPlaceHolder());
     assertEquals(DatabaseMeta.CLOB_LENGTH, nativeMeta.getMaxTextFieldLength());
@@ -362,5 +366,23 @@ class BaseDatabaseMetaTest {
     // original JDBC metadata preserved by clone
     assertEquals(pre.getOriginalColumnType(), out.getOriginalColumnType());
     assertEquals(pre.getOriginalColumnTypeName(), out.getOriginalColumnTypeName());
+  }
+
+  @Test
+  void testCustomizeValueFromSqlTypeJson() throws Exception {
+    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    when(rm.getColumnTypeName(1)).thenReturn("jsonb");
+
+    IValueMeta out = nativeMeta.customizeValueFromSqlType(buildPreMeta(), rm, 1);
+
+    assertEquals(IValueMeta.TYPE_JSON, out.getType());
+  }
+
+  @Test
+  void testCustomizeValueFromSqlTypeLeavesOtherTypesAlone() throws Exception {
+    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    when(rm.getColumnTypeName(1)).thenReturn("varchar");
+
+    assertNull(nativeMeta.customizeValueFromSqlType(buildPreMeta(), rm, 1));
   }
 }

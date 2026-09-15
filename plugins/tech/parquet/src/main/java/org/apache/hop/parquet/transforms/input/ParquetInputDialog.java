@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -95,7 +96,9 @@ public class ParquetInputDialog extends BaseTransformDialog {
     fdlMetaFilename.right = new FormAttachment(middle, -margin);
     fdlMetaFilename.top = new FormAttachment(lastControl, margin);
     wlMetaFilename.setLayoutData(fdlMetaFilename);
-    wMetaFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMetaFilename =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wMetaFilename);
     FormData fdMetaFilename = new FormData();
     fdMetaFilename.left = new FormAttachment(middle, 0);
@@ -161,6 +164,7 @@ public class ParquetInputDialog extends BaseTransformDialog {
               true,
               false),
         };
+    columns[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     wFields =
         new TableView(
             variables, shell, SWT.BORDER, columns, input.getFields().size(), false, null, props);

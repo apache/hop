@@ -44,6 +44,7 @@ public class PythonExplorerFileType
         new String[] {"*.py"},
         new String[] {"Python scripts"},
         FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_NEW,
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,

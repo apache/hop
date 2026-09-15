@@ -34,6 +34,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
@@ -57,8 +58,14 @@ public class ComboVar extends Composite {
 
   private CCombo wCombo;
   private Label wlImage;
+  private Label wNamingImage;
+  private FormData fdCombo;
 
   private ModifyListener modifyListenerTooltipText;
+
+  private boolean variablesEnabled = true;
+  private String namingSchemeType;
+  private boolean namingShortcutAttached;
 
   public ComboVar(IVariables variables, Composite composite, int flags) {
     this(variables, composite, flags, null, null, null);
@@ -113,7 +120,7 @@ public class ComboVar extends Composite {
     PropsUi.setLook(wCombo);
     modifyListenerTooltipText = getModifyListenerTooltipText(wCombo);
     wCombo.addModifyListener(modifyListenerTooltipText);
-    FormData fdCombo = new FormData();
+    fdCombo = new FormData();
     fdCombo.top = new FormAttachment(0, 0);
     fdCombo.left = new FormAttachment(0, 0);
     fdCombo.right = new FormAttachment(wlImage, 0);
@@ -123,6 +130,131 @@ public class ComboVar extends Composite {
         new ControlSpaceKeyAdapter(
             variables, wCombo, getCaretPositionInterface, insertTextInterface);
     wCombo.addKeyListener(controlSpaceKeyAdapter);
+  }
+
+  /**
+   * Enable or disable variable support. When disabled the {@code $} indicator is hidden and
+   * CTRL-SPACE no longer opens the variable popup.
+   *
+   * @param enabled true to keep the default variable behavior
+   * @return this widget for chaining
+   */
+  public ComboVar setVariablesEnabled(boolean enabled) {
+    this.variablesEnabled = enabled;
+    if (wlImage != null && !wlImage.isDisposed()) {
+      wlImage.setVisible(enabled);
+    }
+    if (wCombo != null && !wCombo.isDisposed() && controlSpaceKeyAdapter != null) {
+      wCombo.removeKeyListener(controlSpaceKeyAdapter);
+      if (enabled) {
+        wCombo.addKeyListener(controlSpaceKeyAdapter);
+      }
+    }
+    relayoutCombo();
+    return this;
+  }
+
+  public boolean isVariablesEnabled() {
+    return variablesEnabled;
+  }
+
+  /**
+   * Opt this field into naming-scheme shortcuts. {@code type} is a {@link NamingSchemeTypes} code.
+   *
+   * @param type scheme type code
+   * @return this widget for chaining
+   */
+  public ComboVar enableNamingSchemes(String type) {
+    this.namingSchemeType = type;
+    attachNamingShortcut();
+    if (wNamingImage == null && wCombo != null && !wCombo.isDisposed()) {
+      wNamingImage = new Label(this, SWT.NONE);
+      PropsUi.setLook(wNamingImage);
+      wNamingImage.setImage(GuiResource.getInstance().getImageNamingMini());
+      wNamingImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme"));
+      FormData fdlNaming = new FormData();
+      fdlNaming.top = new FormAttachment(0, 0);
+      wNamingImage.setLayoutData(fdlNaming);
+      TextWidgetShortcutKeyAdapter.attachIndicatorClick(
+          wNamingImage,
+          () ->
+              TextWidgetShortcutContext.builder()
+                  .control(wCombo)
+                  .variables(variables)
+                  .getText(this::getText)
+                  .setText(this::setText)
+                  .namingSchemeType(namingSchemeType)
+                  .variablesEnabled(variablesEnabled)
+                  .build());
+    }
+    relayoutCombo();
+    return this;
+  }
+
+  public ComboVar asNameField(String type) {
+    setVariablesEnabled(false);
+    return enableNamingSchemes(type);
+  }
+
+  public String getNamingSchemeType() {
+    return namingSchemeType;
+  }
+
+  private void attachNamingShortcut() {
+    if (namingShortcutAttached || wCombo == null || wCombo.isDisposed()) {
+      return;
+    }
+    wCombo.addKeyListener(
+        new TextWidgetShortcutKeyAdapter(
+            () ->
+                TextWidgetShortcutContext.builder()
+                    .control(wCombo)
+                    .variables(variables)
+                    .getText(this::getText)
+                    .setText(this::setText)
+                    .namingSchemeType(namingSchemeType)
+                    .variablesEnabled(variablesEnabled)
+                    .build()));
+    namingShortcutAttached = true;
+  }
+
+  private void relayoutCombo() {
+    if (fdCombo == null || wCombo == null || wCombo.isDisposed()) {
+      return;
+    }
+    Control right = null;
+    if (variablesEnabled && wlImage != null && !wlImage.isDisposed()) {
+      wlImage.setVisible(true);
+      FormData fdVar = (FormData) wlImage.getLayoutData();
+      if (fdVar != null) {
+        fdVar.right = new FormAttachment(100, 0);
+        wlImage.setLayoutData(fdVar);
+      }
+      right = wlImage;
+    } else if (wlImage != null && !wlImage.isDisposed()) {
+      wlImage.setVisible(false);
+    }
+    if (wNamingImage != null && !wNamingImage.isDisposed()) {
+      FormData fdNaming = (FormData) wNamingImage.getLayoutData();
+      if (fdNaming == null) {
+        fdNaming = new FormData();
+        fdNaming.top = new FormAttachment(0, 0);
+      }
+      if (right != null) {
+        fdNaming.right = new FormAttachment(right, 0);
+      } else {
+        fdNaming.right = new FormAttachment(100, 0);
+      }
+      wNamingImage.setLayoutData(fdNaming);
+      right = wNamingImage;
+    }
+    if (right != null) {
+      fdCombo.right = new FormAttachment(right, 0);
+    } else {
+      fdCombo.right = new FormAttachment(100, 0);
+    }
+    wCombo.setLayoutData(fdCombo);
+    layout(true, true);
   }
 
   /**
@@ -243,6 +375,9 @@ public class ComboVar extends Composite {
     }
     if (wlImage != null && !wlImage.isDisposed()) {
       wlImage.dispose();
+    }
+    if (wNamingImage != null && !wNamingImage.isDisposed()) {
+      wNamingImage.dispose();
     }
     super.dispose();
   }

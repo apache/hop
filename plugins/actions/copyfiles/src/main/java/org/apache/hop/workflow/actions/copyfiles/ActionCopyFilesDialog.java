@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -248,6 +249,7 @@ public class ActionCopyFilesDialog extends ActionDialog {
         };
 
     colinf[0].setUsingVariables(true);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.FOLDER);
     colinf[0].setToolTip(
         BaseMessages.getString(PKG, "ActionCopyFiles.Fields.SourceFileFolder.Tooltip"));
     colinf[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
@@ -256,6 +258,7 @@ public class ActionCopyFilesDialog extends ActionDialog {
     colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Wildcard.Tooltip"));
 
     colinf[2].setUsingVariables(true);
+    colinf[2].setNamingSchemeType(NamingSchemeTypes.FOLDER);
     colinf[2].setToolTip(
         BaseMessages.getString(PKG, "ActionCopyFiles.Fields.DestinationFileFolder.Tooltip"));
     colinf[2].setTextVarButtonSelectionListener(getFileSelectionAdapter());

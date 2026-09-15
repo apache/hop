@@ -19,9 +19,11 @@ package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -69,6 +71,17 @@ class MonetDbBulkLoaderTest {
 
     String result = transform.escapeOsPath("/path with spaces/file", false);
     assertEquals("/path\\ with\\ spaces/file", result);
+  }
+
+  @Test
+  void hexFieldForMonetDbCopy_usesPlainHex() throws Exception {
+    ValueMetaBinary meta = new ValueMetaBinary("hash");
+    assertEquals(
+        "deadbeef",
+        MonetDbBulkLoader.hexFieldForMonetDbCopy(
+            meta, new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}));
+    assertEquals("", MonetDbBulkLoader.hexFieldForMonetDbCopy(meta, new byte[0]));
+    assertNull(MonetDbBulkLoader.hexFieldForMonetDbCopy(meta, null));
   }
 
   @Test

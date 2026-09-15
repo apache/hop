@@ -25,6 +25,7 @@ import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -61,6 +62,10 @@ public class SnowflakeBulkLoaderData extends BaseTransformData implements ITrans
 
   // The metadata about the output row
   public IRowMeta outputRowMeta;
+
+  // The metadata used to write every field of the output row to the temp files.  Dates and
+  // timestamps carry the conversion mask Snowflake expects instead of the one from the stream.
+  public IValueMeta[] writeValueMetas;
 
   // Byte arrays for constant characters put into output files.
   public byte[] binarySeparator;

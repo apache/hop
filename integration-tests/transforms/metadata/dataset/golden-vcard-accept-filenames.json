@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-vcard-accept-filenames.csv",
+  "name": "golden-vcard-accept-filenames",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "fn",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "uid",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "email",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

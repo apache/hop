@@ -75,6 +75,19 @@ public class HopSecurityConfig {
   private String mode = AuthMode.NONE.name();
 
   /**
+   * Whether the embedded Hop Server API ({@code /hop/*}) is reachable in mode {@code NONE}.
+   *
+   * <p>In the authenticated modes ({@code BASIC}, {@code EXTERNAL}, {@code OAUTH2}) the API is
+   * always available and governed by role-based access control. Mode {@code NONE} has no user
+   * identity, so the API can only be all-open or all-closed: this flag decides which, and defaults
+   * to {@code false} (closed) so the default open Hop Web install does not expose unauthenticated
+   * pipeline and workflow execution. Set it to {@code true} (or {@code
+   * HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API}) to use Hop Web purely as an execution server behind
+   * your own network controls.
+   */
+  private boolean allowUnauthenticatedServerApi = false;
+
+  /**
    * Optional explicit mapping from container role name → Hop role id ({@code admin}, {@code user},
    * {@code operator}, {@code readonly}). When empty, built-in aliases in {@link HopRole} are used.
    */

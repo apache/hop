@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -282,6 +283,20 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     return (bool ? "t" : "f").getBytes(charset);
   }
 
+  /**
+   * Encodes binary data for PostgreSQL COPY text/CSV format. {@code bytea} accepts the hex form
+   * {@code \x} followed by two hex digits per byte.
+   */
+  @VisibleForTesting
+  static byte[] binaryFieldBytesForPgCopyText(
+      IValueMeta valueMeta, Object valueData, Charset charset) throws HopValueException {
+    byte[] bytes = valueMeta.getBinary(valueData);
+    if (bytes == null) {
+      return null;
+    }
+    return ("\\x" + Hex.encodeHexString(bytes)).getBytes(charset);
+  }
+
   private void writeRowToPostgres(IRowMeta rowMeta, Object[] r) throws HopException {
 
     try {
@@ -429,6 +444,13 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
                 if (big != null) {
                   pgCopyOut.write(big.toString().getBytes(clientEncoding));
                 }
+              }
+              break;
+            case IValueMeta.TYPE_BINARY:
+              byte[] binaryBytes =
+                  binaryFieldBytesForPgCopyText(valueMeta, valueData, clientEncoding);
+              if (binaryBytes != null) {
+                pgCopyOut.write(binaryBytes);
               }
               break;
             default:

@@ -103,21 +103,6 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
 
   public ActionDoc() {}
 
-  public ActionDoc(ActionDoc other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.targetParentFolder = other.targetParentFolder;
-    this.includingNotes = other.includingNotes;
-    this.includingParameters = other.includingParameters;
-    this.includingMetadata = other.includingMetadata;
-    this.generateHtml = other.generateHtml;
-    this.removeMarkdown = other.removeMarkdown;
-  }
-
-  @Override
-  public ActionDoc clone() {
-    return new ActionDoc(this);
-  }
-
   /**
    * Execute this action and return the result. In this case it means, just set the result boolean
    * in the Result class.

@@ -1,0 +1,17 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "feedback_size": "50000",
+      "sample_size": "100",
+      "sample_type_in_gui": "Last",
+      "rowset_size": "10000",
+      "safe_mode": false,
+      "show_feedback": false,
+      "topo_sort": false,
+      "gather_metrics": false
+    }
+  },
+  "configurationVariables": [],
+  "name": "local-export-only",
+  "description": "Local pipeline run configuration that only exists in the client project (second metadata folder ${PROJECT_HOME}/metadata-client-only). The Hop Server used by these tests registers ${PROJECT_HOME}/metadata as its metadata folder, so this run configuration is NOT part of the server's own metadata: it can only be found in the metadata bundled in the export ZIP. Used by main-0013 to prove the pipeline variable resolver resolves against the execution metadata instead of the server default metadata (#8096)."
+}

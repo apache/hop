@@ -291,7 +291,7 @@ public class HopGuiWorkflowActionDelegate {
         return;
       }
 
-      ActionMeta before = (ActionMeta) action.cloneDeep();
+      byte[] beforeSnapshot = workflowGraph.captureUndoSnapshot();
 
       IAction jei = action.getAction();
 
@@ -304,13 +304,7 @@ public class HopGuiWorkflowActionDelegate {
           // If so, we need to verify that the name is not already used in the workflow.
           //
           workflowMeta.renameActionIfNameCollides(action);
-
-          ActionMeta after = action.clone();
-          hopGui.undoDelegate.addUndoChange(
-              workflowMeta,
-              new ActionMeta[] {before},
-              new ActionMeta[] {after},
-              new int[] {workflowMeta.indexOfAction(action)});
+          workflowGraph.commitDialogUndo(beforeSnapshot);
         }
         workflowGraph.updateGui();
       } else {
@@ -343,7 +337,7 @@ public class HopGuiWorkflowActionDelegate {
     for (int i = workflow.nrWorkflowHops() - 1; i >= 0; i--) {
       WorkflowHopMeta hi = workflow.getWorkflowHop(i);
       for (int j = 0; j < actions.size() && hopIndex < hopIndexes.length; j++) {
-        if (hi.getFromAction().equals(actions.get(j)) || hi.getToAction().equals(actions.get(j))) {
+        if (actions.get(j).equals(hi.getFromAction()) || actions.get(j).equals(hi.getToAction())) {
           int idx = workflow.indexOfWorkflowHop(hi);
           workflowHops.add((WorkflowHopMeta) hi.clone());
           hopIndexes[hopIndex] = idx;
@@ -373,7 +367,7 @@ public class HopGuiWorkflowActionDelegate {
   public void deleteAction(WorkflowMeta workflowMeta, ActionMeta action) {
     for (int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i--) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop(i);
-      if (hi.getFromAction().equals(action) || hi.getToAction().equals(action)) {
+      if (action.equals(hi.getFromAction()) || action.equals(hi.getToAction())) {
         int idx = workflowMeta.indexOfWorkflowHop(hi);
         hopGui.undoDelegate.addUndoDelete(
             workflowMeta, new WorkflowHopMeta[] {(WorkflowHopMeta) hi.clone()}, new int[] {idx});

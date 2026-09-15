@@ -17,27 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/MAP.svg[Simple Mapping transform Icon, role="image-doc-icon"] Simple Mapping
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 Think of it as a re-usable function in programming – you pass some data into the function and it returns data back.
 In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform to retrieve rows of data from, as well as parameters to pass to the mapping.
@@ -45,6 +31,17 @@ In the Simple Mapping transform you can specify one xref:pipeline/transforms/map
 Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
 
 If you need more than one input or output, or info / target hops (for example a reusable Stream Lookup or Switch / Case), use xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] instead.
+
+== Create mapping from the canvas
+
+To extract an existing sequential chain into a mapping:
+
+. Select one transform, or a chain of transforms connected by hops (`A → B → C`).
+. Right-click a selected transform and choose *Create mapping*.
+. Save the new mapping pipeline (Mapping input, the selected transforms, Mapping output).
+. Hop replaces the selection with a Simple Mapping transform at the location of the first selected transform and rewires the surrounding hops.
+
+The selection must be a single path with at most one incoming hop and one outgoing hop. Splits, joins, extra info hops, and error hops that leave the selection are not supported; use Multi Mapping for those cases. Cancelling the save dialog leaves the original pipeline unchanged.
 
 == Options
 
@@ -74,4 +71,4 @@ In the samples project you can find two examples of the Simple Mapping transform
 
 In the sample files discussed above, the parent pipeline sends first and last name fields to the child, a calculation is performed and then a field is populated with the calculation and sent back.
 
-
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

@@ -67,7 +67,8 @@ import org.apache.hop.metadata.rest.client.RestOAuth2Grant;
     category = HopMetadataCategory.CONNECTIONS,
     documentationUrl = "/metadata-types/rest-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION,
-    supportsGlobalReplace = true)
+    supportsGlobalReplace = true,
+    classLoaderGroup = "rest")
 // It is optional to disable SSL/TLS
 @SuppressWarnings({"java:S5527", "java:S4830", "java:S4423"})
 public class RestConnection extends HopMetadataBase implements IHopMetadata {

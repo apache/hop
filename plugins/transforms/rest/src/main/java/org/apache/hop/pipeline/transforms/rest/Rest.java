@@ -2203,14 +2203,20 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         try {
           this.connection =
               metadataProvider.getSerializer(RestConnection.class).load(data.connectionName);
-          if (this.connection != null) {
-            this.connection.setVariables(this);
+          if (this.connection == null) {
+            throw new HopRuntimeException(
+                "REST connection " + data.connectionName + " could not be found");
           }
+          this.connection.setVariables(this);
           baseUrl = resolve(connection.getBaseUrl());
 
+        } catch (HopRuntimeException e) {
+          throw e;
         } catch (Exception e) {
+          // Keep the cause: a class loader split between the metadata plugin and this transform
+          // surfaces here as a ClassCastException, which is not a missing connection at all.
           throw new HopRuntimeException(
-              "REST connection " + meta.getConnectionName() + " could not be found");
+              "REST connection " + data.connectionName + " could not be loaded", e);
         }
       }
 
@@ -2254,7 +2260,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       data.trustStoreFile = resolve(meta.getTrustStoreFile());
-      data.trustStorePassword = resolve(meta.getTrustStorePassword());
+      // Decrypt the resolved trust store password like every other password field in Hop
+      // (see RestConnection.java, OracleDatabaseMeta.java, LdapSslProtocol.java, and the
+      // httpPassword branch a dozen lines above). Without this, an encrypted value that
+      // reaches the field through a variable is passed to the trust store loader verbatim
+      // and the SSL context cannot be built. See Apache Hop #8054.
+      data.trustStorePassword =
+          Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getTrustStorePassword()));
 
       String applicationType = NVL(meta.getApplicationType(), "");
       switch (applicationType) {

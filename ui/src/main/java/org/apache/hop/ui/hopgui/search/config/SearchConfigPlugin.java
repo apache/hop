@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.search.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +38,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
+@Getter
+@Setter
 @ConfigPlugin(
     id = "SearchConfigPlugin",
     description = "Configuration options for Hop GUI search",

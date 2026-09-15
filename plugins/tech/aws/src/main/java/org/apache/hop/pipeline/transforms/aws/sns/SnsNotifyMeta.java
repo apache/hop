@@ -244,22 +244,6 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
   }
 
   /**
-   * This method is used when a transform is duplicated in hop gui. It needs to return a deep copy
-   * of this transform's meta object. Be sure to create proper deep copies if the transform
-   * configuration is stored in modifiable objects.
-   *
-   * <p>See org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta.clone() for an example
-   * on creating a deep copy.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  /**
    * This method is called to determine the changes the transform is making to the row-stream. To
    * that end a IRowMeta object is passed in, containing the row-stream structure as it is when
    * entering the transform. This method must apply any changes the transform makes to the row

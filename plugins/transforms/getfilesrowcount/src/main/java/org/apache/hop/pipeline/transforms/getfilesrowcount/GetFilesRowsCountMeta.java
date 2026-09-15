@@ -104,25 +104,6 @@ public class GetFilesRowsCountMeta
     this.files = new ArrayList<>();
   }
 
-  public GetFilesRowsCountMeta(GetFilesRowsCountMeta m) {
-    this();
-    this.includeFilesCount = m.includeFilesCount;
-    this.filesCountFieldName = m.filesCountFieldName;
-    this.rowsCountFieldName = m.rowsCountFieldName;
-    this.rowSeparatorFormat = m.rowSeparatorFormat;
-    this.rowSeparator = m.rowSeparator;
-    this.fileFromField = m.fileFromField;
-    this.addResultFilename = m.addResultFilename;
-    this.outputFilenameField = m.outputFilenameField;
-    this.smartCount = m.smartCount;
-    m.files.forEach(f -> this.files.add(new GCFile(f)));
-  }
-
-  @Override
-  public GetFilesRowsCountMeta clone() {
-    return new GetFilesRowsCountMeta(this);
-  }
-
   @Override
   public void setDefault() {
     smartCount = false;
@@ -134,6 +115,21 @@ public class GetFilesRowsCountMeta
     rowsCountFieldName = "rowsCount";
     rowSeparatorFormat = SeparatorFormat.CR;
     rowSeparator = "";
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isFileFromField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFileFromField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FileField.Label");
   }
 
   @Override

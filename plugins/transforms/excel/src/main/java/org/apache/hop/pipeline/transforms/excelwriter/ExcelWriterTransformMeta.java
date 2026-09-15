@@ -155,11 +155,6 @@ public class ExcelWriterTransformMeta
   }
 
   @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  @Override
   public void setDefault() {
 
     headerEnabled = true;

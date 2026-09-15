@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.naming.NamingSchemeKinds;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 /** This represents a list of GUI elements under a certain heading or ID */
@@ -77,10 +79,19 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private Class<? extends ITypeFilename> typeFilename;
   private Class<? extends IHopMetadata> metadata;
+  private String metadataKey;
   private Method buttonMethod;
+
+  private String group;
+  private String groupOrder;
+  private String groupImage;
+  private GuiWidgetGroupType groupType;
+
+  private String namingSchemeType;
 
   public GuiElements() {
     children = new ArrayList<>();
+    groupType = GuiWidgetGroupType.NONE;
   }
 
   public GuiElements(GuiWidgetElement guiElement, Field field) {
@@ -115,7 +126,10 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
         getTranslation(guiElement.toolTip(), fieldPackageName, field.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
+    this.metadataKey = guiElement.metadataKey();
     this.buttonMethod = null;
+    this.namingSchemeType = resolveNamingSchemeType(guiElement, field);
+    copyGroup(guiElement, fieldPackageName, field.getDeclaringClass());
   }
 
   /**
@@ -155,8 +169,39 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
         getTranslation(guiElement.toolTip(), methodPackageName, method.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
+    this.metadataKey = guiElement.metadataKey();
     this.classLoader = classLoader;
     this.buttonMethod = method;
+    this.namingSchemeType = resolveNamingSchemeType(guiElement, null);
+    copyGroup(guiElement, methodPackageName, method.getDeclaringClass());
+  }
+
+  static String resolveNamingSchemeType(GuiWidgetElement guiElement, Field field) {
+    if (guiElement != null && StringUtils.isNotEmpty(guiElement.namingSchemeType())) {
+      return guiElement.namingSchemeType();
+    }
+    if (field != null) {
+      HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+      if (property != null && StringUtils.isNotEmpty(property.namingSchemeType())) {
+        return property.namingSchemeType();
+      }
+    }
+    if (guiElement != null) {
+      if (guiElement.type() == GuiElementType.FILENAME) {
+        return NamingSchemeKinds.FILE;
+      }
+      if (guiElement.type() == GuiElementType.FOLDER) {
+        return NamingSchemeKinds.FOLDER;
+      }
+    }
+    return "";
+  }
+
+  private void copyGroup(GuiWidgetElement guiElement, String i18nPackage, Class<?> resourceClass) {
+    this.group = getTranslation(guiElement.group(), i18nPackage, resourceClass);
+    this.groupOrder = guiElement.groupOrder();
+    this.groupImage = guiElement.groupImage();
+    this.groupType = guiElement.groupType();
   }
 
   /** Sort the children using the sort order. If no sort field is available we use the ID */
@@ -599,6 +644,14 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.metadata = metadata;
   }
 
+  public String getMetadataKey() {
+    return metadataKey;
+  }
+
+  public void setMetadataKey(String metadataKey) {
+    this.metadataKey = metadataKey;
+  }
+
   /**
    * Gets buttonMethod
    *
@@ -615,5 +668,49 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
    */
   public void setButtonMethod(Method buttonMethod) {
     this.buttonMethod = buttonMethod;
+  }
+
+  public String getGroup() {
+    return group;
+  }
+
+  public void setGroup(String group) {
+    this.group = group;
+  }
+
+  public String getGroupOrder() {
+    return groupOrder;
+  }
+
+  public void setGroupOrder(String groupOrder) {
+    this.groupOrder = groupOrder;
+  }
+
+  public String getGroupImage() {
+    return groupImage;
+  }
+
+  public void setGroupImage(String groupImage) {
+    this.groupImage = groupImage;
+  }
+
+  public GuiWidgetGroupType getGroupType() {
+    return groupType == null ? GuiWidgetGroupType.NONE : groupType;
+  }
+
+  public void setGroupType(GuiWidgetGroupType groupType) {
+    this.groupType = groupType;
+  }
+
+  public boolean hasGroup() {
+    return StringUtils.isNotEmpty(group);
+  }
+
+  public String getNamingSchemeType() {
+    return namingSchemeType;
+  }
+
+  public void setNamingSchemeType(String namingSchemeType) {
+    this.namingSchemeType = namingSchemeType;
   }
 }

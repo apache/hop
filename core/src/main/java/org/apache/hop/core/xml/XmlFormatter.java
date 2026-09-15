@@ -37,7 +37,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 public class XmlFormatter {
   private static final String TRANSFORM_PREFIX = "  ";
 
-  private static XMLInputFactory INPUT_FACTORY = XMLInputFactory.newInstance();
+  private static XMLInputFactory INPUT_FACTORY =
+      XmlParserFactoryProducer.createSecureXmlInputFactory();
   private static XMLOutputFactory OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
   static {

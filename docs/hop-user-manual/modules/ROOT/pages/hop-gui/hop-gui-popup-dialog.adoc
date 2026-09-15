@@ -55,6 +55,21 @@ Hover over an item to see its description and these shortcuts in the tooltip.
 
 TIP: Dropping a new transform or action on top of an existing hop can split that hop (same confirmation dialog as when you move an icon onto a hop).
 
+[[palette-tree]]
+== Palette tree
+
+Pipeline and workflow graphs also have an optional Spoon-style palette tree on the left of the canvas.
+
+* Use the **palette** toolbar button on the graph to show or hide the tree. It is hidden by default; the choice is remembered across restarts.
+* Categories (with **Favorites** at the top when you have any) list every transform or action, each with a small icon. Hover for the description.
+* Filter the tree from the text field above it. **Expand all**, **Collapse all**, and **Clear filter** sit on the toolbar under the filter.
+* **Drag** an item onto the canvas to place it. **Shift-drag** also creates a hop from the selected transform/action (or the last one in the graph).
+* **Double-click** (or press Enter) places the item at the last canvas click, or at the center of the visible canvas.
+* **Shift-double-click** adds the item you clicked (not the canvas selection), hops from the selected or last chained transform/action, places it to the right, and selects it so the next Shift-double-click continues the chain.
+* **ALT-Click** (Option-Click on macOS) or the tree context menu adds or removes a favorite.
+
+The canvas popup dialog described above stays available.
+
 == Creating Items
 
 When you create a new item, the dialog will show you a list of metadata items that can be created with a single click of a button.
@@ -180,13 +195,19 @@ The Hop options, available from both the workflow and pipeline editors, offer a 
 For pipelines, the dialog offers the following options:
 
 * Basic
-** **disable/enable hop**: enable the current hop (if disabled) or disable the current hop (if enabled). This option will only show the applicable options (e.g. 'enable hop' won't be shown for active hops and vice versa)
-** **delete hop**: delete the current hop
+** **disable/enable hop**: enable the current hop (if disabled) or disable the current hop (if enabled). This option will only show the applicable option (e.g. 'enable hop' won't be shown for active hops and vice versa).
+** **delete hop**: delete the current hop.
+** **Insert transform**: split the hop and insert a new transform.
 * Bulk
-** **Enable downstream hops**: enable the current hop, and all hops that follow later in the workflow (or pipeline).
-** **Disable downstream hops**: disable the current hop and all hops that follow later in the current workflow (or pipeline).
+** **Enable downstream hops**: enable the current hop and all hops that follow downstream in the pipeline.
+** **Disable downstream hops**: disable the current hop and all hops that follow downstream in the pipeline.
+** **Enable hops between selection**: enable all hops between selected transforms.
+** **Disable hops between selection**: disable all hops between selected transforms.
+* Data routing
+** **Distribute rows / Copy rows**: toggle whether the source transform distributes or copies rows to subsequent transforms. If the source transform is currently copying rows, **Distribute rows** is shown; if it is distributing rows, **Copy rows** is shown.
+** **Set partitioning / Remove partitioning**: configure or remove data partitioning on the target transform. If the target transform does not yet have partitioning configured, **Set partitioning** opens the partitioning dialog; if partitioning is already configured, **Remove partitioning** clears it.
 
-image:hop-gui/popup-hop-pipeline.png[Hop Gui Popup Dialog - Pipeline Hop Options, width="65%"]
+image:hop-gui/pipeline-hop-context-dialog-data-routing.png[Hop Gui Popup Dialog - Pipeline Hop Options, width="65%"]
 
 When working in a workflow, the hops popup dialog has all the options as the pipeline hop dialog, with one additional category:
 

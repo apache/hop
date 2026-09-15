@@ -45,6 +45,8 @@ public final class HopSecurityBootstrap {
   public static final String ENV_SECURITY_MODE = "HOP_WEB_SECURITY_MODE";
   public static final String ENV_ALLOW_DEFAULT_ADMIN = "HOP_WEB_ALLOW_DEFAULT_ADMIN";
   public static final String ENV_SEED_DEMO_USERS = "HOP_WEB_SEED_DEMO_USERS";
+  public static final String ENV_ALLOW_UNAUTHENTICATED_SERVER_API =
+      "HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API";
 
   public static final String ENV_OAUTH_ISSUER = "HOP_WEB_OAUTH_ISSUER";
   public static final String ENV_OAUTH_CLIENT_ID = "HOP_WEB_OAUTH_CLIENT_ID";
@@ -67,6 +69,7 @@ public final class HopSecurityBootstrap {
     try {
       HopUserStore.applyEnvironmentModeOverride();
       applyOauthEnvironmentOverrides();
+      applyServerApiEnvironmentOverride();
       HopSecurityConfig.clearCache();
       HopOidcClient.clearDiscoveryCache();
       HopSecurityConfig config = HopSecurityConfig.load();
@@ -115,6 +118,28 @@ public final class HopSecurityBootstrap {
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Hop security bootstrap failed", e);
+    }
+  }
+
+  /**
+   * Apply {@link #ENV_ALLOW_UNAUTHENTICATED_SERVER_API} into security-config.json when present.
+   * Only governs mode {@code NONE}; the authenticated modes always enforce RBAC on {@code /hop/*}.
+   */
+  public static void applyServerApiEnvironmentOverride() {
+    String value = env(ENV_ALLOW_UNAUTHENTICATED_SERVER_API);
+    if (value == null) {
+      return;
+    }
+    HopSecurityConfig config = HopSecurityConfig.load();
+    boolean allow = isTruthy(value);
+    if (config.isAllowUnauthenticatedServerApi() != allow) {
+      config.setAllowUnauthenticatedServerApi(allow);
+      HopSecurityConfig.save(config);
+      LogChannel.GENERAL.logBasic(
+          "Hop Server API in mode NONE set to "
+              + (allow ? "OPEN" : "CLOSED")
+              + " from "
+              + ENV_ALLOW_UNAUTHENTICATED_SERVER_API);
     }
   }
 

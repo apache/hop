@@ -862,4 +862,140 @@ class PipelineMetaTest {
     assertEquals("100", copy.getTransformErrorMetas().get(0).getSourceTransform().getName());
     assertNull(copy.getTransformErrorMetas().get(0).getTargetTransform());
   }
+
+  /**
+   * Issue #8128: deleting a transform used to leave the error handling of the transform feeding it
+   * pointing at a transform that is no longer in the pipeline, which was then written back to the
+   * file as a reference to a transform that isn't there.
+   */
+  @Test
+  void removingATransformDropsItsHopsAndTheErrorHandlingAimedAtIt() throws Exception {
+    TransformMeta source = new TransformMeta("REST client", new FakeMeta());
+    TransformMeta errorTarget = new TransformMeta("Dummy (do nothing)", new FakeMeta());
+    pipelineMeta.addTransform(source);
+    pipelineMeta.addTransform(errorTarget);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(source, errorTarget));
+
+    TransformErrorMeta errorMeta = new TransformErrorMeta(source, errorTarget);
+    errorMeta.setEnabled(true);
+    source.setTransformErrorMeta(errorMeta);
+
+    pipelineMeta.removeTransform(pipelineMeta.indexOfTransform(errorTarget));
+
+    assertEquals(0, pipelineMeta.nrPipelineHops(), "the hop to the deleted transform must be gone");
+    assertNull(
+        source.getTransformErrorMeta(),
+        "the error rows have nowhere to go, so the error handling must be gone too");
+    assertFalse(
+        pipelineMeta.getXml(new Variables()).contains("Dummy (do nothing)"),
+        "the deleted transform must not be named anywhere in the saved pipeline");
+  }
+
+  /**
+   * A hop naming a transform that the file does not contain resolves to null, so it is dropped
+   * rather than kept as half a hop that is neither drawn, executed, nor saved in one piece.
+   */
+  @Test
+  void loadingDropsAHopThatNamesATransformNotInTheFile() throws Exception {
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<pipeline>\n"
+            + "  <transform><type>Dummy</type><name>Gen</name></transform>\n"
+            + "  <transform><type>Dummy</type><name>Keep</name></transform>\n"
+            + "  <order>\n"
+            + "    <hop><from>Gen</from><to>Keep</to><enabled>Y</enabled></hop>\n"
+            + "    <hop><from>Gen</from><to>Renamed away</to><enabled>Y</enabled></hop>\n"
+            + "  </order>\n"
+            + "</pipeline>";
+
+    PipelineMeta loaded = new PipelineMeta();
+    loaded.loadXml(
+        XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG),
+        null,
+        metadataProvider,
+        new Variables());
+
+    assertEquals(1, loaded.nrPipelineHops(), "only the hop between two known transforms survives");
+    assertEquals("Gen", loaded.getPipelineHop(0).getFromTransform().getName());
+    assertEquals("Keep", loaded.getPipelineHop(0).getToTransform().getName());
+    assertFalse(
+        loaded.getXml(new Variables()).contains("Renamed away"),
+        "saving must not write the unresolvable reference back");
+  }
+
+  /** Issue #8128: the error handling of the reported pipeline pointed at a deleted transform. */
+  @Test
+  void loadingDropsErrorHandlingThatNamesATransformNotInTheFile() throws Exception {
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<pipeline>\n"
+            + "  <transform><type>Dummy</type><name>REST client</name></transform>\n"
+            + "  <transform_error_handling>\n"
+            + "    <error>\n"
+            + "      <source_transform>REST client</source_transform>\n"
+            + "      <target_transform>Dummy (do nothing)</target_transform>\n"
+            + "      <is_enabled>Y</is_enabled>\n"
+            + "    </error>\n"
+            + "  </transform_error_handling>\n"
+            + "</pipeline>";
+
+    PipelineMeta loaded = new PipelineMeta();
+    loaded.loadXml(
+        XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG),
+        null,
+        metadataProvider,
+        new Variables());
+
+    assertTrue(loaded.getTransformErrorMetas().isEmpty(), "the error handling has no target left");
+    assertFalse(loaded.findTransform("REST client").isDoingErrorHandling());
+    assertFalse(
+        loaded.getXml(new Variables()).contains("Dummy (do nothing)"),
+        "saving must not write the unresolvable reference back");
+  }
+
+  /**
+   * A disabled hop is a hop the user switched off, not a broken one: dropping unresolvable
+   * references may not touch it, nor the error handling that runs over it.
+   */
+  @Test
+  void loadingKeepsDisabledHopsAndTheirErrorHandling() throws Exception {
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<pipeline>\n"
+            + "  <transform><type>Dummy</type><name>Gen</name></transform>\n"
+            + "  <transform><type>Dummy</type><name>Good</name></transform>\n"
+            + "  <transform><type>Dummy</type><name>Errors</name></transform>\n"
+            + "  <order>\n"
+            + "    <hop><from>Gen</from><to>Good</to><enabled>N</enabled></hop>\n"
+            + "    <hop><from>Gen</from><to>Errors</to><enabled>N</enabled></hop>\n"
+            + "  </order>\n"
+            + "  <transform_error_handling>\n"
+            + "    <error>\n"
+            + "      <source_transform>Gen</source_transform>\n"
+            + "      <target_transform>Errors</target_transform>\n"
+            + "      <is_enabled>Y</is_enabled>\n"
+            + "    </error>\n"
+            + "  </transform_error_handling>\n"
+            + "</pipeline>";
+
+    PipelineMeta loaded = new PipelineMeta();
+    loaded.loadXml(
+        XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG),
+        null,
+        metadataProvider,
+        new Variables());
+
+    assertEquals(2, loaded.nrPipelineHops(), "both disabled hops must survive the load");
+    assertFalse(loaded.getPipelineHop(0).isEnabled());
+    assertFalse(loaded.getPipelineHop(1).isEnabled());
+    assertEquals(
+        1,
+        loaded.getTransformErrorMetas().size(),
+        "the error handling still has its target, so it stays");
+    assertEquals(2, countOf(loaded.getXml(new Variables()), "<enabled>N</enabled>"));
+  }
+
+  private static int countOf(String xml, String fragment) {
+    return xml.split(fragment, -1).length - 1;
+  }
 }

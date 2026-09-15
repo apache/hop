@@ -59,10 +59,18 @@ public class FtpVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<FtpConnection> connections =
           metadataProvider.getSerializer(FtpConnection.class).loadAll();
       for (FtpConnection connection : connections) {

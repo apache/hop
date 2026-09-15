@@ -25,9 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.PreparedStatement;
+import java.sql.Types;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.Test;
@@ -181,6 +187,32 @@ class ValueMetaInternetAddressTest {
     } catch (ArrayIndexOutOfBoundsException e) {
       // expected
     }
+  }
+
+  /**
+   * The value used to go over as Types.OTHER, which Oracle rejects with "invalid column type". A
+   * database with a native address type says what it wants with a binding of its own.
+   */
+  @Test
+  void testSetPreparedStatementValueWritesAString() throws Exception {
+    PreparedStatement ps = mock(PreparedStatement.class);
+
+    new ValueMetaInternetAddress("host")
+        .setPreparedStatementValue(
+            mock(DatabaseMeta.class), ps, 1, InetAddress.getByName("10.0.0.1"));
+
+    verify(ps).setString(1, "10.0.0.1");
+  }
+
+  @Test
+  void testSetPreparedStatementValueWritesANullAsANullString() throws Exception {
+    PreparedStatement ps = mock(PreparedStatement.class);
+
+    new ValueMetaInternetAddress("host")
+        .setPreparedStatementValue(mock(DatabaseMeta.class), ps, 1, null);
+
+    verify(ps).setNull(1, Types.VARCHAR);
+    verify(ps, never()).setNull(1, Types.OTHER);
   }
 
   @Test

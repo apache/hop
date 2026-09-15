@@ -147,27 +147,6 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     this.maxMatches = String.valueOf(DEFAULT_MAX_MATCHES);
   }
 
-  public FuzzyMatchMeta(FuzzyMatchMeta m) {
-    this();
-    this.algorithm = m.algorithm;
-    this.lookupField = m.lookupField;
-    this.mainStreamField = m.mainStreamField;
-    this.outputMatchField = m.outputMatchField;
-    this.outputValueField = m.outputValueField;
-    this.caseSensitive = m.caseSensitive;
-    this.minimalValue = m.minimalValue;
-    this.maximalValue = m.maximalValue;
-    this.separator = m.separator;
-    setMatchMode(m.getMatchMode());
-    this.maxMatches = m.maxMatches;
-    m.lookupValues.forEach(v -> this.lookupValues.add(new FMLookupValue(v)));
-  }
-
-  @Override
-  public FuzzyMatchMeta clone() {
-    return new FuzzyMatchMeta(this);
-  }
-
   @Override
   public void setDefault() {
     algorithm = NONE;

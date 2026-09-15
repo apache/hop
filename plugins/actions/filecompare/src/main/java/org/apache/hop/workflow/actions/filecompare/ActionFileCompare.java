@@ -80,18 +80,6 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
-  public ActionFileCompare(ActionFileCompare meta) {
-    super(meta.getName(), meta.getDescription(), meta.getPluginId());
-    this.filename1 = meta.filename1;
-    this.filename2 = meta.filename2;
-    this.addFilenameToResult = meta.addFilenameToResult;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionFileCompare(this);
-  }
-
   public String getRealFilename1() {
     return resolve(getFilename1());
   }

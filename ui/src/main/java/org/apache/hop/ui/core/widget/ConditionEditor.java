@@ -358,9 +358,17 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                                 new ValueMetaAndData(new ValueMetaString("constant"), null));
                       }
                     }
+                    IValueMeta valueMeta = v.createValueMeta();
+                    Object valueData;
+                    try {
+                      valueData = v.createValueData();
+                    } catch (Exception parseException) {
+                      // Keep the stored text so a mask/text mismatch or a variable expression
+                      // can still be edited instead of failing to open the dialog.
+                      valueData = v.getText();
+                    }
                     EnterValueDialog evd =
-                        new EnterValueDialog(
-                            shell, SWT.NONE, v.createValueMeta(), v.createValueData(), variables);
+                        new EnterValueDialog(shell, SWT.NONE, valueMeta, valueData, variables);
                     evd.setModalDialog(
                         true); // To keep the condition editor from being closed with a value dialog
                     // still

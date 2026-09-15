@@ -1,0 +1,175 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<style>
+  #hop-web-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100000010;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    transition: opacity 180ms ease-out;
+  }
+  #hop-web-splash.hop-web-splash--out {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .hop-web-splash-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+  .hop-web-splash-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    background: #033d5d;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hop-web-splash-logo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+  }
+  .hop-web-splash-title {
+    margin: 8px 0 0;
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+  .hop-web-splash-status {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .hop-web-splash-spinner {
+    width: 28px;
+    height: 28px;
+    margin-top: 8px;
+    border-radius: 50%;
+    border: 3px solid rgba(26, 143, 194, 0.25);
+    border-top-color: #1a8fc2;
+    animation: hop-web-splash-spin 0.8s linear infinite;
+  }
+  .hop-web-splash--light {
+    background: #f4f8fb;
+    color: #033d5d;
+  }
+  .hop-web-splash--light .hop-web-splash-status {
+    color: #5a6f7c;
+  }
+  .hop-web-splash--dark {
+    background: linear-gradient(145deg, #022a40 0%, #033d5d 42%, #0a5a82 100%);
+    color: #ffffff;
+  }
+  .hop-web-splash--dark .hop-web-splash-status {
+    color: #b9e5fa;
+  }
+  .hop-web-splash--dark .hop-web-splash-spinner {
+    border-color: rgba(185, 229, 250, 0.25);
+    border-top-color: #b9e5fa;
+  }
+  @keyframes hop-web-splash-spin {
+    to { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hop-web-splash-spinner { animation: none; }
+    #hop-web-splash { transition: none; }
+  }
+</style>
+<div id="hop-web-splash" class="hop-web-splash--{{theme}}" role="status" aria-live="polite" aria-busy="true">
+  <div class="hop-web-splash-card">
+    <div class="hop-web-splash-logo">
+      <img src="rwt-resources/ui/images/logo_hop.svg" width="72" height="72" alt="" onerror="this.style.visibility='hidden'"/>
+    </div>
+    <p class="hop-web-splash-title">Apache Hop Web</p>
+    <p class="hop-web-splash-status">Loading &hellip;</p>
+    <div class="hop-web-splash-spinner" aria-hidden="true"></div>
+  </div>
+</div>
+<script>
+(function() {
+  var splashId = "hop-web-splash";
+  var hidden = false;
+  function hide() {
+    if (hidden) {
+      return;
+    }
+    var el = document.getElementById(splashId);
+    hidden = true;
+    if (!el) {
+      return;
+    }
+    // Drop z-index immediately so web-tests (HopGuiPage.SHELL_TITLES, z>=100000)
+    // never treat this overlay as a RAP dialog, and Welcome stays clickable.
+    el.style.zIndex = "0";
+    el.style.pointerEvents = "none";
+    el.setAttribute("aria-busy", "false");
+    el.className += " hop-web-splash--out";
+    window.setTimeout(function() {
+      if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }, 200);
+  }
+  function hasRapUi() {
+    // Wait for the main toolbar, not an empty RAP Display/Shell. After Tomcat
+    // start the first /ui request spends seconds in HopGui.open() (class load +
+    // GuiResource); RAP may paint a blank shell before that work is flushed.
+    return !!document.querySelector("[id$='-toolbar-10010-new']");
+  }
+  var hideScheduled = false;
+  function check() {
+    if (hidden || hideScheduled || !hasRapUi()) {
+      return;
+    }
+    hideScheduled = true;
+    // Two animation frames: RAP flushes layout after creating Display, and on
+    // a cold load that work often lands on the next frame.
+    var waitFrame = window.requestAnimationFrame || function(cb) { window.setTimeout(cb, 16); };
+    waitFrame(function() {
+      waitFrame(function() {
+        hide();
+      });
+    });
+  }
+  function watch() {
+    if (!document.body) {
+      return;
+    }
+    var observer = new MutationObserver(check);
+    observer.observe(document.body, { childList: true, subtree: true });
+    check();
+  }
+  if (document.body) {
+    watch();
+  } else {
+    document.addEventListener("DOMContentLoaded", watch);
+  }
+  window.setTimeout(hide, 60000);
+})();
+</script>

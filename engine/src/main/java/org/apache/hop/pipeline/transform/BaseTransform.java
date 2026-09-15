@@ -28,10 +28,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -259,6 +261,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /** The list of IRowListener interfaces */
   protected List<IRowListener> rowListeners;
 
+  /** Read-only view of {@link #rowListeners}, created once: getRowListeners() runs per row. */
+  private List<IRowListener> rowListenersView;
+
   /** The list of destination-aware IRowToListener interfaces (target hops / putRowTo) */
   protected List<IRowToListener> rowToListeners;
 
@@ -438,6 +443,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     rowDistribution = transformMeta.getRowDistribution();
 
     rowListeners = new CopyOnWriteArrayList<>();
+    rowListenersView = Collections.unmodifiableList(rowListeners);
     rowToListeners = new CopyOnWriteArrayList<>();
     resultFiles = new HashMap<>();
     resultFilesLock = new ReentrantReadWriteLock();
@@ -590,11 +596,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         envSubFailed = true;
       }
 
-      // if we failed and environment subsutitue
-      return !envSubFailed;
+      // if we failed and environment substitute
+      if (envSubFailed) {
+        return false;
+      }
     }
 
-    return true;
+    return !hasDisallowedMainInputHops();
   }
 
   @Override
@@ -1540,10 +1548,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           break;
         }
       }
+      // Nothing is logged here on purpose. The row was handled: it went down the error handling
+      // hop that is by definition connected in this branch, carrying the description as a field,
+      // so anyone who wants it in the log routes that hop to a "Write to log" transform. An error
+      // hop is a hop, and the engine does not log the rows travelling down an ordinary one either.
+      // The unhandled case below is the one that is genuinely an error.
       incrementLinesRejected();
-      if (isLoggingErrorDescriptions() && !Utils.isEmpty(errorDescriptions)) {
-        logError(errorDescriptions);
-      }
     } else if (transformErrorMeta.isEnabled()) {
       String name =
           Objects.nonNull(transformErrorMeta.getTargetTransform())
@@ -2354,6 +2364,92 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       lastRowWrittenDate = new Date();
       outputRowSetsLock.readLock().unlock();
     }
+
+    if (!isStopped() && !isUnconsumedMainInputAllowed() && hasUnreadMainInput()) {
+      logDisallowedMainInput();
+      stopAll();
+    }
+  }
+
+  /**
+   * @return true if this transform is configured not to drain main input but has main predecessor
+   *     hops. Logs the error and increments the error count.
+   */
+  private boolean hasDisallowedMainInputHops() {
+    if (isUnconsumedMainInputAllowed() || !hasMainPredecessorsThatAreNotConsumed()) {
+      return false;
+    }
+    logDisallowedMainInput();
+    return true;
+  }
+
+  private boolean hasMainPredecessorsThatAreNotConsumed() {
+    if (meta == null || meta.consumesMainInput() || pipelineMeta == null || transformMeta == null) {
+      return false;
+    }
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousMainTransforms(transformMeta);
+    return mainPrev != null && !mainPrev.isEmpty();
+  }
+
+  private boolean isUnconsumedMainInputAllowed() {
+    return Const.toBoolean(getVariable(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT, "N"));
+  }
+
+  private void logDisallowedMainInput() {
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousMainTransforms(transformMeta);
+    String fromNames = "";
+    if (mainPrev != null && !mainPrev.isEmpty()) {
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < mainPrev.size(); i++) {
+        if (i > 0) {
+          builder.append(", ");
+        }
+        builder.append(mainPrev.get(i).getName());
+      }
+      fromNames = builder.toString();
+    }
+    String hint = meta.getMainInputRequirementHint();
+    if (Utils.isEmpty(hint)) {
+      logError(
+          BaseMessages.getString(
+              PKG, "BaseTransform.Log.DoesNotConsumeMainInput", getTransformName(), fromNames));
+    } else {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "BaseTransform.Log.DoesNotConsumeMainInput.Hint",
+              getTransformName(),
+              fromNames,
+              hint));
+    }
+    setErrors(getErrors() + 1);
+  }
+
+  @VisibleForTesting
+  boolean hasUnreadMainInput() {
+    if (!hasMainPredecessorsThatAreNotConsumed()) {
+      return false;
+    }
+    Set<String> names = new HashSet<>();
+    for (TransformMeta prev : pipelineMeta.findPreviousMainTransforms(transformMeta)) {
+      if (prev != null && prev.getName() != null) {
+        names.add(prev.getName());
+      }
+    }
+    inputRowSetsLock.readLock().lock();
+    try {
+      for (IRowSet rs : inputRowSets) {
+        if (rs == null || !names.contains(rs.getOriginTransformName())) {
+          continue;
+        }
+        if (rs.size() > 0 || !rs.isDone()) {
+          return true;
+        }
+      }
+      return false;
+    } finally {
+      inputRowSetsLock.readLock().unlock();
+    }
   }
 
   /**
@@ -2739,19 +2835,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   public void logRowlevel(String message, Object... arguments) {
     log.logRowlevel(message, arguments);
-  }
-
-  /**
-   * Whether rejected-row error descriptions should be written to the log.
-   *
-   * <p>Transforms that can produce a very large number of validation/rejection errors may override
-   * this to reduce log volume. Error rows are still sent to the error handling hop when configured.
-   *
-   * @return true when error descriptions should be logged (default)
-   * @since 2.19.0
-   */
-  protected boolean isLoggingErrorDescriptions() {
-    return true;
   }
 
   /**
@@ -3298,7 +3381,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public List<IRowListener> getRowListeners() {
-    return Collections.unmodifiableList(rowListeners);
+    if (rowListenersView == null) {
+      rowListenersView = Collections.unmodifiableList(rowListeners);
+    }
+    return rowListenersView;
   }
 
   @Override

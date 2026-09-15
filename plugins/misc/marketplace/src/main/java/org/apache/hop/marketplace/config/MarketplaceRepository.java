@@ -41,8 +41,28 @@ public class MarketplaceRepository {
   /** Forgejo / Gitea package registry ({@code /api/v1/packages/{owner}}). */
   public static final String BROWSER_FORGEJO = "forgejo";
 
+  /** JFrog Artifactory ({@code /api/search/aql} and {@code /api/storage}). */
+  public static final String BROWSER_JFROG = "jfrog";
+
   /** Marker in a Forgejo / Gitea package registry URL. */
   private static final String FORGEJO_PACKAGES_MARKER = "/api/packages/";
+
+  /** Marker in a JFrog Artifactory repository URL. */
+  private static final String ARTIFACTORY_MARKER = "/artifactory/";
+
+  /**
+   * Pick the scheme from what is configured: Basic when both parts resolve, anonymous otherwise.
+   */
+  public static final String AUTH_AUTO = "auto";
+
+  /** Never send credentials, even when the global {@code HOP_MARKETPLACE_*} variables are set. */
+  public static final String AUTH_NONE = "none";
+
+  /** HTTP Basic with username and password. */
+  public static final String AUTH_BASIC = "basic";
+
+  /** Bearer token; {@link #password} holds the token and the username is unused. */
+  public static final String AUTH_TOKEN = "token";
 
   private String id = MarketplaceConfig.DEFAULT_ASF_ID;
   private String name;
@@ -58,11 +78,14 @@ public class MarketplaceRepository {
   private String username;
 
   /**
-   * Optional HTTP Basic auth password, held in plain form in memory and obfuscated in
-   * hop-config.json (see {@link MarketplaceSecrets}). Obfuscation is not encryption, so for private
-   * repos prefer a variable ({@code ${MY_TOKEN}}), a variable resolver expression, or {@code
-   * HOP_MARKETPLACE_PASSWORD} — those keep the secret out of the file entirely. Do not set for
-   * anonymous ASF / Central / local Nexus.
+   * Optional secret, held in plain form in memory and obfuscated in hop-config.json (see {@link
+   * MarketplaceSecrets}). This is the Basic auth password, and with {@link #AUTH_TOKEN} it is the
+   * bearer token — one field so that obfuscation, variable resolution and the {@code
+   * HOP_MARKETPLACE_*} fallbacks apply to both without being written twice.
+   *
+   * <p>Obfuscation is not encryption, so for private repos prefer a variable ({@code ${MY_TOKEN}}),
+   * a variable resolver expression, or {@code HOP_MARKETPLACE_PASSWORD} — those keep the secret out
+   * of the file entirely. Do not set for anonymous ASF / Central / local Nexus.
    */
   @JsonSerialize(using = MarketplaceSecrets.Serializer.class)
   @JsonDeserialize(using = MarketplaceSecrets.Deserializer.class)
@@ -82,11 +105,27 @@ public class MarketplaceRepository {
   private String catalogUrl;
 
   /**
-   * Which repository-manager API live browsing speaks: {@code auto} (default), {@code nexus} or
-   * {@code forgejo}. Only used when {@link #browse} is true and no {@link #catalogUrl} is set;
-   * downloads are plain Maven layout unless {@link #urlTemplate} says otherwise.
+   * Which repository-manager API live browsing speaks: {@code auto} (default), {@code nexus},
+   * {@code forgejo} or {@code jfrog}. Only used when {@link #browse} is true and no {@link
+   * #catalogUrl} is set; downloads are plain Maven layout unless {@link #urlTemplate} says
+   * otherwise.
    */
   private String browserType = BROWSER_AUTO;
+
+  /**
+   * How this repository is authenticated: {@code auto} (default), {@code none}, {@code basic} or
+   * {@code token}.
+   *
+   * <p>{@code auto} reproduces the historical rule — Basic when a username and password both
+   * resolve, anonymous otherwise. It never selects {@code token}: the global {@code
+   * HOP_MARKETPLACE_PASSWORD} applies to every repository including public ones, so inferring a
+   * bearer token from a lone password would start sending that secret to hosts that today receive
+   * nothing. Token authentication is opt-in.
+   *
+   * <p>{@code none} is not the same as leaving credentials unset: it suppresses the environment
+   * credentials as well, which is how a public repository opts out of globally configured ones.
+   */
+  private String authType = AUTH_AUTO;
 
   /**
    * Optional download URL template for repositories that do not serve Maven layout — release
@@ -231,7 +270,18 @@ public class MarketplaceRepository {
     if (StringUtils.isNotBlank(password)) {
       return MarketplaceSecrets.resolve(password);
     }
-    return firstNonBlank(scopedEnv("PASSWORD"), env("HOP_MARKETPLACE_PASSWORD"));
+    return firstNonBlank(
+        scopedEnv("PASSWORD"), scopedEnv("TOKEN"), env("HOP_MARKETPLACE_PASSWORD"));
+  }
+
+  /**
+   * The bearer token used by {@link #AUTH_TOKEN}, which is the same secret as {@link
+   * #effectivePassword()}. {@code HOP_MARKETPLACE_<ID>_TOKEN} reads better than {@code _PASSWORD}
+   * for a token and resolves to the same value; there is no global {@code HOP_MARKETPLACE_TOKEN},
+   * because a token belongs to one repository rather than to all of them.
+   */
+  public String effectiveToken() {
+    return effectivePassword();
   }
 
   /**
@@ -246,20 +296,60 @@ public class MarketplaceRepository {
   }
 
   /**
-   * Resolved browse backend. When {@link #browserType} is blank or {@code auto}, a Forgejo / Gitea
-   * package registry URL ({@code .../api/packages/{owner}/maven}) selects {@code forgejo}; anything
-   * else falls back to {@code nexus}, which is the historical behaviour.
+   * Resolved browse backend. When {@link #browserType} is blank or {@code auto}, the URL decides: a
+   * Forgejo / Gitea package registry ({@code .../api/packages/{owner}/maven}) selects {@code
+   * forgejo} and an Artifactory repository ({@code .../artifactory/{repo}/}) selects {@code jfrog}.
+   * Anything else falls back to {@code nexus}, which is the historical behaviour.
+   *
+   * <p>Forgejo is tested first because its marker is the more specific of the two; a host serving
+   * both would otherwise be misread.
    */
   public String effectiveBrowserType() {
     if (StringUtils.isNotBlank(browserType) && !BROWSER_AUTO.equalsIgnoreCase(browserType.trim())) {
       return browserType.trim().toLowerCase(Locale.ROOT);
     }
-    return url != null && url.contains(FORGEJO_PACKAGES_MARKER) ? BROWSER_FORGEJO : BROWSER_NEXUS;
+    if (url == null) {
+      return BROWSER_NEXUS;
+    }
+    if (url.contains(FORGEJO_PACKAGES_MARKER)) {
+      return BROWSER_FORGEJO;
+    }
+    return url.contains(ARTIFACTORY_MARKER) ? BROWSER_JFROG : BROWSER_NEXUS;
   }
 
-  public boolean hasCredentials() {
+  /**
+   * Resolved authentication scheme. An explicit {@link #authType} is returned as configured, even
+   * when the credentials it needs are missing: reporting the requested scheme is what lets {@link
+   * MarketplaceHttp#authHint} say that {@code basic} was asked for but no username resolved,
+   * instead of silently falling back to anonymous and returning an unexplained 401.
+   *
+   * <p>{@code auto} resolves to {@link #AUTH_BASIC} when a username and password both resolve and
+   * {@link #AUTH_NONE} otherwise, which is exactly how this class behaved before {@code authType}
+   * existed.
+   */
+  public String effectiveAuthType() {
+    if (StringUtils.isNotBlank(authType) && !AUTH_AUTO.equalsIgnoreCase(authType.trim())) {
+      return authType.trim().toLowerCase(Locale.ROOT);
+    }
     return StringUtils.isNotBlank(effectiveUsername())
-        && StringUtils.isNotBlank(effectivePassword());
+            && StringUtils.isNotBlank(effectivePassword())
+        ? AUTH_BASIC
+        : AUTH_NONE;
+  }
+
+  /**
+   * True when a request for this repository will carry an Authorization header — the scheme is one
+   * that authenticates, and everything it needs resolves. An unrecognised {@link #authType} sends
+   * nothing rather than guessing.
+   */
+  public boolean hasCredentials() {
+    return switch (effectiveAuthType()) {
+      case AUTH_BASIC ->
+          StringUtils.isNotBlank(effectiveUsername())
+              && StringUtils.isNotBlank(effectivePassword());
+      case AUTH_TOKEN -> StringUtils.isNotBlank(effectiveToken());
+      default -> false;
+    };
   }
 
   private static String firstNonBlank(String... values) {

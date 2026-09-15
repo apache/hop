@@ -36,7 +36,7 @@ public class DatabaseCache {
   }
 
   public List<Object[]> getRowsFromCache(RowMetaAndData key) {
-    return cache.getOrDefault(key, null);
+    return cache.get(key);
   }
 
   public void putRowsIntoCache(RowMetaAndData key, List<Object[]> values) {

@@ -1,0 +1,149 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[CdcLogSniffing]]
+:imagesdir: ../../assets/images
+:description: Ingest change events produced by log sniffers such as Debezium or Oracle GoldenGate with Apache Hop.
+
+= CDC: log sniffing
+
+Log sniffing is CDC in the original sense: a product reads the database redo log, write-ahead log, or trail, and emits one event per insert, update, or delete. Apache Hop does not mine those logs. It *consumes* the events that Debezium, Oracle GoldenGate, and similar tools already produce.
+
+If no such product is in place, use xref:how-to-guides/cdc-filtered-selection.adoc[filtered selection] or xref:how-to-guides/cdc-snapshot-comparison.adoc[snapshot comparison] instead.
+
+== What Hop reads
+
+The log product chooses the landing zone. Hop already has an input transform for the common ones:
+
+[cols="1,2,2",options="header"]
+|===
+|Landing zone
+|Typical producer
+|Hop transform
+
+|Kafka topic
+|Debezium, GoldenGate for Kafka, and similar
+|xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer]
+
+|JMS queue or topic
+|GoldenGate, ESB, or a custom publisher
+|xref:pipeline/transforms/jms-consumer.adoc[JMS consumer]
+
+|Staging / CDC table
+|GoldenGate replicating into a database, or a connector that writes to JDBC
+|xref:pipeline/transforms/tableinput.adoc[Table Input]
+
+|JSON or Avro files
+|Dumped topics, object storage, or trail-to-file
+|xref:pipeline/transforms/jsoninput.adoc[JSON Input], xref:pipeline/transforms/jsonnormalizeinput.adoc[JSON Normalize Input], xref:pipeline/transforms/avro-file-input.adoc[Avro File Input], xref:pipeline/transforms/avro-decode.adoc[Avro Decode]
+|===
+
+This page does not describe how to install or configure Debezium or GoldenGate. Treat those products as given, and design the Hop pipeline around the records they emit.
+
+== A typical apply pipeline
+
+[source,text]
+----
+Kafka consumer / JMS consumer / Table Input
+        |
+        v
+JSON Input / Avro Decode / Select Values     (parse payload)
+        |
+        v
+Switch / Case  or  Filter Rows               (route on operation)
+        |
+        +-- insert / create / snapshot --> Insert / Update
+        +-- update                     --> Insert / Update  or  Update
+        +-- delete / tombstone         --> Delete
+----
+
+When the payload already looks like a Merge Rows flag (`new` / `changed` / `deleted`), xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize after merge] can apply the whole stream in one transform.
+
+== Debezium-style envelopes
+
+Debezium (and several other Kafka CDC connectors) wrap each change in a JSON or Avro envelope. The fields Hop usually needs are:
+
+[cols="1,3",options="header"]
+|===
+|Field
+|Meaning
+
+|`op`
+|Operation: `c` create, `u` update, `d` delete, `r` snapshot / read
+
+|`after`
+|Row image after the change. Absent or null on deletes.
+
+|`before`
+|Row image before the change. Used for updates and for the key on deletes.
+
+|`source.ts_ms` (and similar)
+|Source commit time, useful for ordering or late-arrival checks
+|===
+
+A compact example (field names vary by connector version and configuration):
+
+[source,json]
+----
+{
+  "op": "u",
+  "before": { "id": 42, "name": "Ada",   "city": "London" },
+  "after":  { "id": 42, "name": "Ada",   "city": "Paris"  },
+  "source": { "ts_ms": 1710000000000, "table": "customer" }
+}
+----
+
+Read the Kafka `message` field with xref:pipeline/transforms/jsoninput.adoc[JSON Input] (or xref:pipeline/transforms/jsonnormalizeinput.adoc[JSON Normalize Input] when each record is an object you want flattened). Pull `op`, the key columns, and the `after.*` payload. For `op = d`, take the key from `before` (or from the Kafka record key) because `after` is empty.
+
+Route with xref:pipeline/transforms/switchcase.adoc[Switch / Case] on `op`:
+
+* `c` and `r` → insert (or Insert / Update)
+* `u` → update (or Insert / Update)
+* `d` → xref:pipeline/transforms/delete.adoc[Delete]
+
+Snapshot / read events (`r`) appear when a connector dumps the current table. Treat them as inserts or upserts so a new consumer can catch up.
+
+== GoldenGate-style records
+
+Oracle GoldenGate (and trail-based siblings) typically emit an operation type plus an after-image, and a before-image when the configuration includes it. The names differ by adapter:
+
+* Kafka / JSON: fields such as `op_type` (`I` / `U` / `D`), `table`, and nested before/after objects
+* A replicate table: extra columns for operation, commit timestamp, and trail position next to the business columns
+
+The Hop pipeline is the same as for Debezium: Table Input or Kafka consumer → parse → Switch / Case on the operation → apply. If GoldenGate lands only the after-image of deletes as a key, that is enough for the Delete transform.
+
+== Kafka notes that matter for CDC
+
+The xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer] runs a sub-pipeline that must start with an Injector. Two operating modes are common:
+
+* *Long-lived*: leave the consumer running and process batches by *Duration* and/or *Number of records*. Use this for near-real-time apply.
+* *Scheduled drain*: enable *Stop when idle* (and an idle timeout) so a workflow can start the pipeline, empty the topic, and finish. That is the “queue + schedule” pattern.
+
+Prefer *Offset management: when batch completed* so a failed sub-pipeline does not commit past records it never applied.
+
+A consumer group assigns partitions. Do not assume a global order across partitions. Apply by primary key so a later event for the same key wins even if another partition is behind.
+
+Delete events may be Kafka *tombstones* (a key with a null payload). Map the key and treat a null message as a delete.
+
+== Idempotency
+
+Replay is normal: a consumer restarts, a connector rewinds, or you re-process a staging table. Apply by primary key (Insert / Update, or a merge on the target) so the same event applied twice does not duplicate a row. Do not use a plain Table Output insert unless the target rejects duplicates.
+
+== When not to use this approach
+
+Hop will not read a redo log, WAL, or GoldenGate trail by itself. If the source has no CDC product, pick xref:how-to-guides/cdc-filtered-selection.adoc[filtered selection] or xref:how-to-guides/cdc-snapshot-comparison.adoc[snapshot comparison].
+
+See also: xref:how-to-guides/change-data-capture.adoc[Change Data Capture overview].

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,10 +25,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -42,6 +45,8 @@ import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -68,6 +73,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private TextComposite wSql;
+
+  private TextVar wSqlFromFile;
 
   private Text wLimit;
 
@@ -156,13 +163,57 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     fdCacheSize.top = new FormAttachment(wCache, margin);
     wCacheSize.setLayoutData(fdCacheSize);
 
+    // Load SQL from file
+    Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
+    wlSqlFromFile.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.LoadSqlFromFile"));
+    PropsUi.setLook(wlSqlFromFile);
+    FormData fdlSqlFromFile = new FormData();
+    fdlSqlFromFile.left = new FormAttachment(0, 0);
+    fdlSqlFromFile.right = new FormAttachment(middle, -margin);
+    fdlSqlFromFile.top = new FormAttachment(wCacheSize, margin);
+    wlSqlFromFile.setLayoutData(fdlSqlFromFile);
+    Button wbSqlFromFile = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wbSqlFromFile);
+    wbSqlFromFile.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Browse"));
+    FormData fdbSqlFromFile = new FormData();
+    fdbSqlFromFile.right = new FormAttachment(100, 0);
+    fdbSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wbSqlFromFile.setLayoutData(fdbSqlFromFile);
+
+    wSqlFromFile = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSqlFromFile);
+    wSqlFromFile.addModifyListener(lsMod);
+    FormData fdSqlFromFile = new FormData();
+    fdSqlFromFile.left = new FormAttachment(middle, 0);
+    fdSqlFromFile.right = new FormAttachment(wbSqlFromFile, -margin);
+    fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wSqlFromFile.setLayoutData(fdSqlFromFile);
+    wbSqlFromFile.addListener(
+        SWT.Selection,
+        e -> {
+          String path =
+              BaseDialog.presentFileDialog(
+                  shell,
+                  wSqlFromFile,
+                  variables,
+                  new String[] {"*.sql", "*"},
+                  new String[] {
+                    BaseMessages.getString(PKG, "DatabaseJoinDialog.SqlFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  },
+                  false);
+          if (path != null) {
+            loadSqlFromFileAndSetReadOnly();
+          }
+        });
+
     // SQL editor...
     Label wlSql = new Label(shell, SWT.NONE);
     wlSql.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.SQL.Label"));
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wCacheSize, margin);
+    fdlSql.top = new FormAttachment(wbSqlFromFile, margin);
     wlSql.setLayoutData(fdlSql);
 
     wSql =
@@ -177,6 +228,12 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     wSql.addLineStyleListener(getSqlReservedWords());
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
+    wSqlFromFile.addModifyListener(
+        e -> {
+          if (Utils.isEmpty(wSqlFromFile.getText())) {
+            wSql.setEditable(true);
+          }
+        });
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
@@ -367,7 +424,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     focusTransformName();
@@ -388,6 +445,9 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
+      return List.of();
+    }
     return Arrays.stream(databaseMeta.getReservedWords()).toList();
   }
 
@@ -411,6 +471,28 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
             PKG, "DatabaseJoinDialog.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
+  private void loadSqlFromFileAndSetReadOnly() {
+    String path = variables.resolve(wSqlFromFile.getText());
+    if (Utils.isEmpty(path)) {
+      wSql.setEditable(true);
+      return;
+    }
+    try {
+      String content = HopVfs.getTextFileContent(path, StandardCharsets.UTF_8);
+      wSql.setText(content);
+      wSql.setEditable(false);
+    } catch (HopFileException e) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+      mb.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.InvalidConnection.DialogTitle"));
+      mb.setMessage(
+          BaseMessages.getString(PKG, "DatabaseJoinDialog.CouldNotLoadSqlFromFile", path)
+              + Const.CR
+              + e.getMessage());
+      mb.open();
+      wSql.setEditable(true);
+    }
+  }
+
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.GettingKeyInfo"));
@@ -421,6 +503,12 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     wCacheSize.setText("" + input.getCacheSize());
 
     wSql.setText(Const.NVL(input.getSql(), ""));
+    wSqlFromFile.setText(Const.NVL(input.getSqlFromFile(), ""));
+    if (!Utils.isEmpty(wSqlFromFile.getText())) {
+      loadSqlFromFileAndSetReadOnly();
+    } else {
+      wSql.setEditable(true);
+    }
     wLimit.setText("" + input.getRowLimit());
     wOuter.setSelection(input.isOuterJoin());
     wUseVars.setSelection(input.isReplaceVariables());
@@ -459,6 +547,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     input.setCacheSize(Const.toInt(wCacheSize.getText(), 0));
     input.setRowLimit(Const.toIntExpanded(wLimit.getText(), 0));
     input.setSql(wSql.getText());
+    input.setSqlFromFile(wSqlFromFile.getText());
     input.setOuterJoin(wOuter.getSelection());
     input.setReplaceVariables(wUseVars.getSelection());
     logDebug(

@@ -29,14 +29,15 @@
     <name>Hop Plugins Miscellaneous</name>
 
     <modules>
-        <module>async</module>
         <module>debug</module>
         <module>documentation</module>
         <module>execution-database</module>
         <module>git</module>
         <module>import</module>
+        <module>lint</module>
         <module>mail</module>
         <module>marketplace</module>
+        <module>naming</module>
         <module>passwords</module>
         <module>projects</module>
         <module>py4j</module>

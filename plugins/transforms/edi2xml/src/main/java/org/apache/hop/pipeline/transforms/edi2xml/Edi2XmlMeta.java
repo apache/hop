@@ -57,17 +57,6 @@ public class Edi2XmlMeta extends BaseTransformMeta<Edi2Xml, Edi2XmlData> {
     inputField = "";
   }
 
-  public Edi2XmlMeta(Edi2XmlMeta m) {
-    this();
-    this.outputField = m.outputField;
-    this.inputField = m.inputField;
-  }
-
-  @Override
-  public Edi2XmlMeta clone() {
-    return new Edi2XmlMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta r,

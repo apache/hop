@@ -50,6 +50,7 @@ Click the File system name to access more detailed file system documentation.
 |xref:vfs/dropbox-vfs.adoc[Dropbox]|Provides access to Dropbox|`dropbox://`
 |xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]|Provides access to Google Cloud Storage buckets|`gs://`
 |xref:vfs/google-drive-vfs.adoc[Google Drive]|Provides access to Google Drive folders|`googledrive://`
+|xref:vfs/hdfs-vfs.adoc[HDFS]|Named connection to HDFS via HttpFS, Knox or WebHDFS (marketplace plugin `hop-tech-hadoop`)|`+<connectionName>:///path+`
 |xref:metadata-types/minio-connection.adoc[Minio connection]|Provides access to S3-compatible endpoints via a named Minio connection (metadata)|`+<connectionName>://+`
 |xref:metadata-types/webdav-connection.adoc[WebDAV Connection]|Provides access to WebDAV servers, either via the static schemes or a named connection (metadata)|`webdav4://`, `webdav4s://`, or `+<connectionName>://+`
 |===
@@ -88,6 +89,14 @@ a|URI Format
 Where `absolute-path` is a valid absolute file name for the local platform.
 UNC paths are accepted by Apache VFS, but are not reliably supported in Hop — see <<windows-unc-paths, Windows UNC paths>>.
 
+Hop supports using the tilde character (`~`) at the start of a local file path to represent the current user's home directory (`${user.home}`). This works across all operating systems, including Windows (with both `\` and `/`), macOS, and Linux.
+
+* Bare tilde: `~` resolves to `${user.home}` (e.g. `/home/someuser` or `C:\Users\someuser`).
+* With path separators: `~/somedir` or `~\somedir` resolves to `${user.home}/somedir` or `${user.home}\somedir`.
+* With `file:` scheme: `file://~/somedir` or `file:~/somedir`.
+
+NOTE: The tilde character is only expanded when it is at the **start** of a path. A tilde appearing anywhere else in a path (such as `/opt/hop/~` or `my~file.txt`) or followed by non-separator characters (such as `~otheruser` or `~temp`) is treated literally and is not expanded.
+
 Examples
 
 * `+file:///home/someuser/somedir+`
@@ -96,6 +105,9 @@ Examples
 * `+/home/someuser/somedir+`
 * `+c:\program files\some dir+`
 * `+c:/program files/some dir+`
+* `+~/somedir+`
+* `+~\somedir+`
+* `+file://~/somedir+`
 
 
 //

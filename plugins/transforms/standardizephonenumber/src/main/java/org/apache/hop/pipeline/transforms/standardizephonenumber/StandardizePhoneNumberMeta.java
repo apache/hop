@@ -75,19 +75,6 @@ public class StandardizePhoneNumberMeta
     super();
   }
 
-  public StandardizePhoneNumberMeta(StandardizePhoneNumberMeta meta) {
-    super();
-
-    for (StandardizePhoneField field : meta.getFields()) {
-      fields.add(new StandardizePhoneField(field));
-    }
-  }
-
-  @Override
-  public Object clone() {
-    return new StandardizePhoneNumberMeta(this);
-  }
-
   @Override
   public void setDefault() {
     // Do nothing
@@ -105,35 +92,34 @@ public class StandardizePhoneNumberMeta
     try {
       // add the extra fields if specified
       for (StandardizePhoneField standardize : this.getFields()) {
+        String inputField = resolveName(variables, standardize.getInputField());
+        String outputField = resolveName(variables, standardize.getOutputField());
+        String numberTypeField = resolveName(variables, standardize.getNumberTypeField());
+        String isValidNumberField = resolveName(variables, standardize.getIsValidNumberField());
 
         // add the output fields if specified
-        int index = inputRowMeta.indexOfValue(standardize.getInputField());
-        IValueMeta valueMeta = inputRowMeta.getValueMeta(index);
-        if (!Utils.isEmpty(standardize.getOutputField())
-            && !standardize.getOutputField().equals(standardize.getInputField())) {
+        int index = inputRowMeta.indexOfValue(inputField);
+        IValueMeta valueMeta = index >= 0 ? inputRowMeta.getValueMeta(index) : null;
+        if (!Utils.isEmpty(outputField) && !outputField.equals(inputField)) {
           // created output field only if name changed
-          valueMeta =
-              ValueMetaFactory.createValueMeta(
-                  standardize.getOutputField(), IValueMeta.TYPE_STRING);
+          valueMeta = ValueMetaFactory.createValueMeta(outputField, IValueMeta.TYPE_STRING);
 
           inputRowMeta.addValueMeta(valueMeta);
         }
-        valueMeta.setOrigin(name);
+        if (valueMeta != null) {
+          valueMeta.setOrigin(name);
+        }
 
         // add result phone number type
-        if (!Utils.isEmpty(standardize.getNumberTypeField())) {
-          valueMeta =
-              ValueMetaFactory.createValueMeta(
-                  standardize.getNumberTypeField(), IValueMeta.TYPE_STRING);
+        if (!Utils.isEmpty(numberTypeField)) {
+          valueMeta = ValueMetaFactory.createValueMeta(numberTypeField, IValueMeta.TYPE_STRING);
           valueMeta.setOrigin(name);
           inputRowMeta.addValueMeta(valueMeta);
         }
 
         // add result is valid number
-        if (!Utils.isEmpty(standardize.getIsValidNumberField())) {
-          valueMeta =
-              ValueMetaFactory.createValueMeta(
-                  standardize.getIsValidNumberField(), IValueMeta.TYPE_BOOLEAN);
+        if (!Utils.isEmpty(isValidNumberField)) {
+          valueMeta = ValueMetaFactory.createValueMeta(isValidNumberField, IValueMeta.TYPE_BOOLEAN);
           valueMeta.setOrigin(name);
           inputRowMeta.addValueMeta(valueMeta);
         }
@@ -186,32 +172,35 @@ public class StandardizePhoneNumberMeta
 
       // Check only if input fields
       for (StandardizePhoneField standardize : fields) {
+        String inputField = resolveName(variables, standardize.getInputField());
+        String outputField = resolveName(variables, standardize.getOutputField());
+        String countryField = resolveName(variables, standardize.getCountryField());
 
         // See if there are missing input streams
         IValueMeta valueMeta = null;
         if (prev != null) {
-          valueMeta = prev.searchValueMeta(standardize.getInputField());
+          valueMeta = prev.searchValueMeta(inputField);
         }
         if (valueMeta == null) {
           String message =
               BaseMessages.getString(
                   PKG,
                   "StandardizePhoneNumberMeta.CheckResult.MissingInputField",
-                  Const.NVL(standardize.getInputField(), standardize.getOutputField()));
+                  Const.NVL(inputField, outputField));
           remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
         }
 
-        // See if there are missing input streams
-        if (prev != null) {
-          valueMeta = prev.searchValueMeta(standardize.getCountryField());
-        }
-        if (valueMeta == null) {
-          String message =
-              BaseMessages.getString(
-                  PKG,
-                  "StandardizePhoneNumberMeta.CheckResult.MissingCountryField",
-                  standardize.getCountryField());
-          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
+        // Country field is optional when a default country is used
+        if (!Utils.isEmpty(countryField)) {
+          valueMeta = prev != null ? prev.searchValueMeta(countryField) : null;
+          if (valueMeta == null) {
+            String message =
+                BaseMessages.getString(
+                    PKG,
+                    "StandardizePhoneNumberMeta.CheckResult.MissingCountryField",
+                    countryField);
+            remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
+          }
         }
       }
 
@@ -254,5 +243,12 @@ public class StandardizePhoneNumberMeta
 
   public void setFields(final List<StandardizePhoneField> standardizes) {
     this.fields = standardizes;
+  }
+
+  static String resolveName(IVariables variables, String name) {
+    if (Utils.isEmpty(name) || variables == null) {
+      return name;
+    }
+    return variables.resolve(name);
   }
 }

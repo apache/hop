@@ -28,7 +28,10 @@ Describes a test for a pipeline. During the test, alternative data sets are used
 
 When the result set produced by the pipeline execution matches the expected result (golden data set), the test succeeds. If the generated results do not match what was expected, the test fails.
 
-Specific transforms in a pipeline can be bypassed or removed for testing for addtional flexibility.
+Transforms with an input data set are replaced with an Injector (the static data set rows are injected).
+Transforms with a golden data set are replaced with a Dummy so the test does not write to a file or a database; the rows flowing *into* that transform are compared to the golden data set.
+
+Specific transforms in a pipeline can be bypassed or removed for testing for additional flexibility.
 
 Additionally, unit tests can be executed in bulk.
 

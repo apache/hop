@@ -34,7 +34,9 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
@@ -111,6 +113,7 @@ public class SetVariableDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableName"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[1].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableType"),
@@ -163,7 +166,7 @@ public class SetVariableDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     input.setChanged(changed);

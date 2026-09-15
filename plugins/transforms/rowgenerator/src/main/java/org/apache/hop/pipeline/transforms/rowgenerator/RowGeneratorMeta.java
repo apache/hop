@@ -93,23 +93,6 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     lastTimeField = "FiveSecondsAgo";
   }
 
-  public RowGeneratorMeta(RowGeneratorMeta m) {
-    this.neverEnding = m.neverEnding;
-    this.intervalInMs = m.intervalInMs;
-    this.rowTimeField = m.rowTimeField;
-    this.lastTimeField = m.lastTimeField;
-    this.rowLimit = m.rowLimit;
-    this.fields = new ArrayList<>();
-    for (GeneratorField field : m.fields) {
-      this.fields.add(new GeneratorField(field));
-    }
-  }
-
-  @Override
-  public RowGeneratorMeta clone() {
-    return new RowGeneratorMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,
@@ -211,5 +194,15 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
   @Override
   public ITransformIOMeta getTransformIOMeta() {
     return new TransformIOMeta(false, true, false, false, false, false);
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
   }
 }

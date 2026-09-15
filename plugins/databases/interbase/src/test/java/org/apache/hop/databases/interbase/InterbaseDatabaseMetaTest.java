@@ -748,7 +748,6 @@ class InterbaseDatabaseMetaTest {
         nativeMeta.getReservedWords());
     assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
     assertFalse(nativeMeta.isSupportsBatchUpdates());
-    assertFalse(nativeMeta.isSupportsGetBlob());
   }
 
   @Test

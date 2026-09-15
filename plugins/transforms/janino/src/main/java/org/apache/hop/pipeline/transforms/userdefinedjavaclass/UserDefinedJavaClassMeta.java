@@ -220,20 +220,6 @@ public class UserDefinedJavaClassMeta
     usageParameters = new ArrayList<>();
   }
 
-  public UserDefinedJavaClassMeta(UserDefinedJavaClassMeta m) {
-    this();
-    this.cookedTransformClass = null;
-    this.clearingResultFields = m.clearingResultFields;
-    m.fields.forEach(f -> this.fields.add(new FieldInfo(f)));
-    m.definitions.forEach(d -> this.definitions.add(new UserDefinedJavaClassDef(d)));
-    m.infoTransformDefinitions.forEach(
-        d -> this.infoTransformDefinitions.add(new InfoTransformDefinition(d)));
-    m.targetTransformDefinitions.forEach(
-        d -> this.targetTransformDefinitions.add(new TargetTransformDefinition(d)));
-    m.usageParameters.forEach(u -> this.usageParameters.add(new UsageParameter(u)));
-    this.javaTargetVersion = m.javaTargetVersion;
-  }
-
   @VisibleForTesting
   Class<?> cookClass(UserDefinedJavaClassDef def, ClassLoader clsLoader)
       throws CompileException, IOException, HopTransformException {
@@ -385,11 +371,6 @@ public class UserDefinedJavaClassMeta
     this.definitions.clear();
     this.definitions = orderDefinitions(definitions);
     hasChanged = true;
-  }
-
-  @Override
-  public UserDefinedJavaClassMeta clone() {
-    return new UserDefinedJavaClassMeta(this);
   }
 
   private boolean checkClassCooked(ILogChannel logChannel) {

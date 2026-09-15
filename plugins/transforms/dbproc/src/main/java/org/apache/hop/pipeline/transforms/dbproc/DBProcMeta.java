@@ -80,22 +80,6 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
     this.result = new ProcResult();
   }
 
-  public DBProcMeta(DBProcMeta m) {
-    this();
-    this.connection = m.connection;
-    this.procedure = m.procedure;
-    for (ProcArgument argument : m.arguments) {
-      this.arguments.add(new ProcArgument(argument));
-    }
-    this.result = new ProcResult(m.result);
-    this.autoCommit = m.autoCommit;
-  }
-
-  @Override
-  public DBProcMeta clone() {
-    return new DBProcMeta(this);
-  }
-
   @Override
   public void setDefault() {
     connection = null;

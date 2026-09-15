@@ -1,0 +1,8 @@
+# A local dbt install, when you run the tests outside the test container
+.venv/
+
+# Written by dbt when the tests run
+dbt-project/target/
+dbt-project/logs/
+dbt-project/dbt_packages/
+dbt-project/.user.yml

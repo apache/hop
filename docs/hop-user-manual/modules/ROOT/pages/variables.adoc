@@ -16,8 +16,6 @@ under the License.
 ////
 [[Variables]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Well-designed Hop solutions never use hard coded values. Hop offers variables on the global, project and environment levels, and allows workflows and parameters to provide parameters, to set and read variables in runtime etc.
 
 :TOC:
@@ -40,7 +38,7 @@ In the Hop user interface all places where you can enter a variable have a '$' s
 
 image::variable-indicator.png[The variable indicatorm, width="65%"]
 
-You can specify a variable by referencing it between an opening `{openvar}` and a closing `{closevar}`.
+You can specify a variable by referencing it between an opening `+${+` and a closing `+}+`.
 
 [source]
 ${VARIABLE_NAME}
@@ -55,6 +53,16 @@ ${ENVIRONMENT_HOME}/input/source-file.txt
 
 // CTRL-space snippet
 include::snippets/variables/control-space.adoc[]
+
+== User home directory shortcut (~)
+
+In file and folder paths, Hop automatically expands a leading tilde character (`~`) to the current user's home directory (`${user.home}`). This works across all operating systems (Linux, macOS, and Windows with both `\` and `/`):
+
+* `~` resolves to `${user.home}`
+* `~/projects/my-project` resolves to `${user.home}/projects/my-project`
+* `~\projects\my-project` resolves to `${user.home}\projects\my-project`
+
+NOTE: The tilde character is only expanded at the beginning of a path (e.g. `~`, `~/...`, `~\...`). A tilde anywhere else in a string (e.g. `folder/~` or `foo~bar`) or followed by non-separator characters (e.g. `~user`) is treated as a literal character.
 
 == Hexadecimal values
 
@@ -154,7 +162,8 @@ When the pipeline or workflow starts, each parameter is activated as a variable 
 Pass parameters from a parent through the *Parameters* tab of a xref:workflow/actions/pipeline.adoc[Pipeline] action, xref:workflow/actions/workflow.adoc[Workflow] action, xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], or xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor].
 Declare the same names on the receiving pipeline or workflow.
 
-How parameters differ from fields and from other variables, including inheritance and override rules, is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+How parameters differ from fields and from other variables is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+The exact rules that decide which value a parameter ends up with when one pipeline or workflow starts another are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
 
 === System properties
 
@@ -166,7 +175,7 @@ You can add your own system variables to the ones that come with Apache Hop by d
 
 image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
-These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `{openvar}HOP_CONFIG_FOLDER{closevar}` location.
+These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
 
 CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
@@ -225,6 +234,7 @@ Otherwise by default a NULL is returned when all values are NULL.
 Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL.
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
 |HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
+|HOP_ALLOW_UNCONSUMED_MAIN_INPUT|N|Set this variable to Y to start a pipeline that has main hops into transforms that do not consume input (for example existing files whose upstream produces no rows). Default N fails init and stops on leftover input. Verify still reports an error. See xref:pipeline/pipeline-sources.adoc[Pipeline sources].
 |HOP_BATCHING_ROWSET|N|Set this variable to 'Y' if you want to test a more efficient batching row set.
 |HOP_DATABASE_CONNECTION_TIMEOUT|30|Default login/connection timeout in **seconds** applied when opening a JDBC database connection (maps to `DriverManager.setLoginTimeout`).
 Defaults to `30`; set to `0` to impose no timeout (a stalled connect can then block indefinitely).
@@ -321,6 +331,7 @@ Additionally, the following environment variables can help you to add even more 
 |===
 |Variable|Default|Description
 |HOP_AUTO_CREATE_CONFIG|N|Set this variable to 'Y' to automatically create config file when it's missing.
+|HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `+${HOP_CONFIG_IN_MEMORY}+` equivalent on the command line is `-ime` / `--in-memory`.
 |HOP_METADATA_FOLDER|-|The system environment variable pointing to the alternative location for the Hop metadata folder
 |HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
 |HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.

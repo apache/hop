@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -50,6 +51,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -59,6 +61,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
 
   private ActionWorkflow action;
   private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
+  private Label wlWaitTimeout;
+  private TextVar wWaitTimeout;
 
   private static final String[] FILE_FILTERLOGNAMES =
       new String[] {
@@ -97,7 +101,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
     shell.setText(BaseMessages.getString(PKG, "ActionWorkflow.Header"));
 
     wlPath.setText(BaseMessages.getString(PKG, "ActionWorkflow.WorkflowFile.Label"));
-    wPassParams.setText(BaseMessages.getString(PKG, "ActionWorkflow.PassAllParameters.Label"));
+    wPassParams.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
 
     wWaitingToFinish = new Button(gExecution, SWT.CHECK);
     PropsUi.setLook(wWaitingToFinish);
@@ -106,6 +112,24 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
     fdWait.top = new FormAttachment(wEveryRow, 10);
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
+    wWaitingToFinish.addListener(SWT.Selection, e -> enableWaitTimeout());
+
+    wlWaitTimeout = new Label(gExecution, SWT.LEFT);
+    PropsUi.setLook(wlWaitTimeout);
+    wlWaitTimeout.setText(BaseMessages.getString(PKG, "ActionWorkflow.WaitTimeout.Label"));
+    FormData fdlWaitTimeout = new FormData();
+    fdlWaitTimeout.top = new FormAttachment(wWaitingToFinish, 10);
+    fdlWaitTimeout.left = new FormAttachment(0, 0);
+    wlWaitTimeout.setLayoutData(fdlWaitTimeout);
+
+    wWaitTimeout = new TextVar(variables, gExecution, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWaitTimeout);
+    wWaitTimeout.setToolTipText(BaseMessages.getString(PKG, "ActionWorkflow.WaitTimeout.Tooltip"));
+    FormData fdWaitTimeout = new FormData();
+    fdWaitTimeout.top = new FormAttachment(wlWaitTimeout, 0, SWT.CENTER);
+    fdWaitTimeout.left = new FormAttachment(wlWaitTimeout, 10);
+    fdWaitTimeout.right = new FormAttachment(100, 0);
+    wWaitTimeout.setLayoutData(fdWaitTimeout);
 
     // force reload from file specification
     wbGetParams.addListener(SWT.Selection, e -> getParameters(null));
@@ -244,6 +268,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
     wAppendLogfile.setSelection(action.isSetAppendLogfile());
     wCreateParentFolder.setSelection(action.isCreateParentFolder());
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
+    wWaitTimeout.setText(Const.NVL(action.getWaitTimeout(), ""));
+    enableWaitTimeout();
 
     try {
       List<String> runConfigurations =
@@ -331,8 +357,15 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
     action.setExecPerRow(wEveryRow.getSelection());
     action.setSetAppendLogfile(wAppendLogfile.getSelection());
     action.setWaitingToFinish(wWaitingToFinish.getSelection());
+    action.setWaitTimeout(wWaitTimeout.getText());
     action.setCreateParentFolder(wCreateParentFolder.getSelection());
     action.setRunConfiguration(wRunConfiguration.getText());
+  }
+
+  private void enableWaitTimeout() {
+    boolean enabled = wWaitingToFinish.getSelection();
+    wlWaitTimeout.setEnabled(enabled);
+    wWaitTimeout.setEnabled(enabled);
   }
 
   @Override

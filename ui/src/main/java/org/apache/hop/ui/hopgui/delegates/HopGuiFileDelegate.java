@@ -17,9 +17,6 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +28,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.IDiagramExporter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -41,8 +40,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -52,18 +49,19 @@ import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.dialog.DiagramExportDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.swt.SWT;
 
 public class HopGuiFileDelegate {
@@ -271,7 +269,10 @@ public class HopGuiFileDelegate {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE)) {
-        boolean removed = perspective.remove(typeHandler);
+        boolean removed =
+            typeHandler instanceof DatabaseSqlEditorTab sqlTab
+                ? sqlTab.requestClose()
+                : perspective.remove(typeHandler);
         if (removed) {
           hopGui.auditDelegate.writeLastOpenFiles();
         }
@@ -305,30 +306,40 @@ public class HopGuiFileDelegate {
 
   public void closeAllFiles() {
     this.isClosing = true;
-    for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
-      List<TabItemHandler> tabItemHandlers = perspective.getItems();
-      if (tabItemHandlers != null) {
-        // Copy the list to avoid changing the list we're editing (closing items)
-        //
-        List<TabItemHandler> handlers = new ArrayList<>(tabItemHandlers);
-        for (TabItemHandler tabItemHandler : handlers) {
-          IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
-          typeHandler.close();
+    try {
+      for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
+        List<TabItemHandler> tabItemHandlers = perspective.getItems();
+        if (tabItemHandlers != null) {
+          // Copy the list to avoid changing the list we're editing (closing items)
+          //
+          List<TabItemHandler> handlers = new ArrayList<>(tabItemHandlers);
+          for (TabItemHandler tabItemHandler : handlers) {
+            IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
+            typeHandler.close();
+          }
         }
       }
-    }
 
-    // Execution Information tabs are not IHopFileTypeHandlers, so they never appear in
-    // getItems(). Close them explicitly so project switches (and File → Close All) do not leave
-    // viewers from the previous project open. Callers that need to remember tabs (project switch)
-    // must call ExecutionPerspective.saveState() first.
-    //
-    ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
-    if (executionPerspective != null) {
-      executionPerspective.closeAllTabs();
-    }
+      // Execution Information tabs are not IHopFileTypeHandlers, so they never appear in
+      // getItems(). Close them explicitly so project switches (and File → Close All) do not leave
+      // viewers from the previous project open. Callers that need to remember tabs (project switch)
+      // must call ExecutionPerspective.saveState() first.
+      //
+      ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
+      if (executionPerspective != null) {
+        executionPerspective.closeAllTabs();
+      }
+    } finally {
+      this.isClosing = false;
 
-    this.isClosing = false;
+      IHopFileTypeHandler activeHandler = hopGui.getActiveFileTypeHandler();
+      if (activeHandler == null) {
+        hopGui.handleFileCapabilities(new EmptyFileType(), false, false, false);
+      } else {
+        hopGui.handleFileCapabilities(
+            activeHandler.getFileType(), activeHandler, activeHandler.hasChanged(), false, false);
+      }
+    }
   }
 
   /** When the app exits we need to see if all open files are saved in all perspectives... */
@@ -444,84 +455,107 @@ public class HopGuiFileDelegate {
     }
   }
 
-  public void exportToSvg() {
+  public void exportDiagram() {
     if (!HopSecurityUi.check(Permission.FILE_EXPORT)) {
       return;
     }
     try {
+      Object subject = null;
+      IVariables variables = hopGui.getVariables();
+      String proposedName = "diagram.svg";
+      String sourceFilename = null;
 
-      String svgXml = null;
-      IVariables variables = null;
-      String proposedName = null;
-
-      HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
-      if (pipelineGraph != null) {
-        PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
-        variables = pipelineGraph.getVariables();
-
-        svgXml =
-            PipelineSvgPainter.generatePipelineSvg(
-                pipelineMeta, 1.0f, pipelineGraph.getVariables());
-
-        proposedName = pipelineMeta.getName() + ".svg";
-      }
-
-      HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
-      if (workflowGraph != null) {
-        WorkflowMeta workflowMeta = workflowGraph.getWorkflowMeta();
-        variables = workflowGraph.getVariables();
-
-        svgXml =
-            WorkflowSvgPainter.generateWorkflowSvg(
-                workflowMeta, 1.0f, workflowGraph.getVariables());
-
-        proposedName = workflowMeta.getName() + ".svg";
-      }
-
-      if (svgXml != null) {
-
-        String proposedFilename =
-            variables.getVariable("user.home") + File.separator + proposedName;
-        FileObject proposedFile = HopVfs.getFileObject(proposedFilename);
-
-        String filename =
-            BaseDialog.presentFileDialog(
-                true,
-                hopGui.getShell(),
-                null,
-                variables,
-                proposedFile,
-                new String[] {"*.svg"},
-                new String[] {"SVG Files"},
-                true);
-        if (filename != null) {
-          String realFilename = variables.resolve(filename);
-
-          FileObject file = HopVfs.getFileObject(realFilename);
-          if (file.exists()) {
-            MessageBox box =
-                new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-            box.setText("File exists");
-            box.setMessage("This file already exists. Do you want to overwrite it?");
-            int answer = box.open();
-            if ((answer & SWT.YES) == 0) {
-              return;
-            }
-          }
-          OutputStream outputStream = null;
-          try {
-            outputStream = HopVfs.getOutputStream(file, false);
-            outputStream.write(svgXml.getBytes(StandardCharsets.UTF_8));
-          } finally {
-            if (outputStream != null) {
-              outputStream.close();
-            }
-          }
+      IHopFileTypeHandler activeHandler = hopGui.getActiveFileTypeHandler();
+      if (activeHandler != null) {
+        subject = activeHandler.getSubject();
+        if (activeHandler.getVariables() != null) {
+          variables = activeHandler.getVariables();
+        }
+        if (StringUtils.isNotEmpty(activeHandler.getName())) {
+          proposedName = activeHandler.getName() + ".svg";
+        }
+        if (StringUtils.isNotEmpty(activeHandler.getFilename())) {
+          sourceFilename = activeHandler.getFilename();
         }
       }
 
+      if (subject == null) {
+        HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+        if (pipelineGraph != null) {
+          subject = pipelineGraph.getPipelineMeta();
+          variables = pipelineGraph.getVariables();
+          proposedName = pipelineGraph.getPipelineMeta().getName() + ".svg";
+          sourceFilename = pipelineGraph.getPipelineMeta().getFilename();
+        }
+      }
+
+      if (subject == null) {
+        HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
+        if (workflowGraph != null) {
+          subject = workflowGraph.getWorkflowMeta();
+          variables = workflowGraph.getVariables();
+          proposedName = workflowGraph.getWorkflowMeta().getName() + ".svg";
+          sourceFilename = workflowGraph.getWorkflowMeta().getFilename();
+        }
+      }
+
+      if (subject == null) {
+        return;
+      }
+
+      List<IDiagramExporter<?>> exporters =
+          DiagramExportService.getInstance().findExportersForSubject(subject);
+      if (exporters.isEmpty()) {
+        MessageBox box = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
+        box.setText(
+            BaseMessages.getString(
+                DiagramExportDialog.class, "DiagramExportDialog.NoExporters.Title"));
+        box.setMessage(
+            BaseMessages.getString(
+                DiagramExportDialog.class, "DiagramExportDialog.NoExporters.Message"));
+        box.open();
+        return;
+      }
+
+      String defaultFilename = proposedExportFilename(variables, sourceFilename, proposedName);
+
+      DiagramExportDialog dialog =
+          new DiagramExportDialog(
+              hopGui.getActiveShell(),
+              variables,
+              hopGui.getMetadataProvider(),
+              subject,
+              defaultFilename);
+      dialog.open();
+
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error exporting to SVG", e);
+      new ErrorDialog(
+          hopGui.getActiveShell(),
+          CONST_ERROR,
+          BaseMessages.getString(DiagramExportDialog.class, "DiagramExportDialog.Error.Message"),
+          e);
     }
+  }
+
+  static String proposedExportFilename(
+      IVariables variables, String sourceFilename, String proposedName) {
+    try {
+      if (StringUtils.isNotEmpty(sourceFilename)) {
+        FileObject current = HopVfs.getFileObject(variables.resolve(sourceFilename));
+        FileObject parent = current.getParent();
+        if (parent != null) {
+          FileObject target = parent.resolveFile(proposedName);
+          return HopVfs.separatorsToUnix(target.getName().getURI());
+        }
+      }
+    } catch (Exception e) {
+      // Fall back to the user home directory.
+    }
+    String userHome = variables.getVariable("user.home", ".");
+    return HopVfs.separatorsToUnix(userHome + "/" + proposedName);
+  }
+
+  public void exportToSvg() {
+    exportDiagram();
   }
 }

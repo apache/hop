@@ -74,16 +74,6 @@ public class CypherBuilderMeta extends BaseTransformMeta<CypherBuilder, CypherBu
     this.operations = new ArrayList<>();
   }
 
-  public CypherBuilderMeta(CypherBuilderMeta meta) {
-    this();
-    this.connectionName = meta.connectionName;
-    this.batchSize = meta.batchSize;
-    this.unwindAlias = meta.unwindAlias;
-    this.retries = meta.retries;
-    meta.parameters.forEach(p -> this.parameters.add(p.clone()));
-    meta.operations.forEach(o -> this.operations.add(o.clone()));
-  }
-
   @Override
   public void setDefault() {
     batchSize = "1000";
@@ -154,11 +144,6 @@ public class CypherBuilderMeta extends BaseTransformMeta<CypherBuilder, CypherBu
       }
     }
     return false;
-  }
-
-  @Override
-  public CypherBuilderMeta clone() {
-    return new CypherBuilderMeta(this);
   }
 
   public IOperation findOperation(String operationName) {

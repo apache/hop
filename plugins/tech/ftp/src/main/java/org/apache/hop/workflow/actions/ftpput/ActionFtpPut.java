@@ -188,12 +188,6 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   @Override
-  @SuppressWarnings("java:S2975")
-  public ActionFtpPut clone() {
-    return new ActionFtpPut(this);
-  }
-
-  @Override
   public String getFtpConnectionName() {
     return Const.NVL(getName(), "FTP Put");
   }

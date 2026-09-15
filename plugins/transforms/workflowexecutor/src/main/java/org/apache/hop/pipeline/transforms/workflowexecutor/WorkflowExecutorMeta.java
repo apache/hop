@@ -88,6 +88,13 @@ public class WorkflowExecutorMeta
       hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
   private String runConfigurationName;
 
+  /**
+   * Maximum time to wait for the child workflow to complete, in milliseconds. Empty or 0 means wait
+   * indefinitely.
+   */
+  @HopMetadataProperty(key = "wait_timeout")
+  private String waitTimeout;
+
   @HopMetadataProperty(
       key = "filename",
       hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_FILE)

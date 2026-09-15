@@ -1,0 +1,27 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="42px" height="42px" viewBox="0 0 42 42">
+  <rect x="4" y="7" width="24" height="28" rx="2" fill="#C9E8FB" stroke="#0E3A5A" stroke-width="1.6"/>
+  <rect x="4" y="7" width="24" height="6" fill="#0E3A5A"/>
+  <line x1="4" y1="19" x2="28" y2="19" stroke="#0E3A5A" stroke-width="1"/>
+  <line x1="4" y1="27" x2="28" y2="27" stroke="#0E3A5A" stroke-width="1"/>
+  <line x1="12" y1="13" x2="12" y2="35" stroke="#0E3A5A" stroke-width="1"/>
+  <line x1="20" y1="13" x2="20" y2="35" stroke="#0E3A5A" stroke-width="1"/>
+  <circle cx="32" cy="30" r="8" fill="#0CB20F"/>
+  <polyline points="27.5,30 30.5,33 36.5,26.5" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

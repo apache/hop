@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-odata-input.csv",
+  "name": "golden-odata-input",
+  "description": "First three Northwind Products by ProductID",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "ProductID",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "ProductName",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

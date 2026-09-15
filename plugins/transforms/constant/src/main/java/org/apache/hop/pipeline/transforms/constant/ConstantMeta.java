@@ -69,11 +69,6 @@ public class ConstantMeta extends BaseTransformMeta<Constant, ConstantData> {
   }
 
   @Override
-  public Object clone() {
-    return (ConstantMeta) super.clone();
-  }
-
-  @Override
   public void getFields(
       IRowMeta rowMeta,
       String name,

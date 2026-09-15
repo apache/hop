@@ -158,8 +158,7 @@ public class HopGuiWorkflowClipboardDelegate {
       // This is the offset:
       Point offset = new Point(location.x - min.x, location.y - min.y);
 
-      // Undo/redo object positions...
-      int[] position = new int[actions.length];
+      workflowGraph.markUndoPoint();
 
       for (int i = 0; i < actions.length; i++) {
         Point p = actions[i].getLocation();
@@ -170,7 +169,6 @@ public class HopGuiWorkflowClipboardDelegate {
         actionsOldNames.add(name);
         actions[i].setName(workflowMeta.getAlternativeActionName(name));
         workflowMeta.addAction(actions[i]);
-        position[i] = workflowMeta.indexOfAction(actions[i]);
         actions[i].setSelected(true);
       }
 
@@ -188,20 +186,7 @@ public class HopGuiWorkflowClipboardDelegate {
         note.setSelected(true);
       }
 
-      // Save undo information too...
-      hopGui.undoDelegate.addUndoNew(workflowMeta, actions, position, false);
-
-      int[] hopPos = new int[hops.length];
-      for (int i = 0; i < hops.length; i++) {
-        hopPos[i] = workflowMeta.indexOfWorkflowHop(hops[i]);
-      }
-      hopGui.undoDelegate.addUndoNew(workflowMeta, hops, hopPos, true);
-
-      int[] notePos = new int[notes.length];
-      for (int i = 0; i < notes.length; i++) {
-        notePos[i] = workflowMeta.indexOfNote(notes[i]);
-      }
-      hopGui.undoDelegate.addUndoNew(workflowMeta, notes, notePos, true);
+      // Undo was recorded once before adding the pasted objects.
 
     } catch (HopException e) {
       // See if this was different (non-XML) content

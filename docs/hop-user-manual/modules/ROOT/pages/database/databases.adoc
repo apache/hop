@@ -16,8 +16,6 @@ under the License.
 ////
 [[database-plugins]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: Documentation about relational database connections
 
 :TOC:
@@ -29,7 +27,7 @@ Apache Hop has optimized support for many database types. If you are using an un
 To create a database connection go to the metadata perspective, right-click on `Relational Database Connections` and select `New`.
 
 The connection is saved in a central location and can then be used by all pipelines and workflows.
-If you have set your project to work with Hop, the database information will be in the `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` folder. For each connection, a separate .json file will be generated in this folder. This json file will have the name of the connection and will contain all of the connection information.
+If you have set your project to work with Hop, the database information will be in the `+${PROJECT_HOME}/metadata/rdbms+` folder. For each connection, a separate .json file will be generated in this folder. This json file will have the name of the connection and will contain all of the connection information.
 
 TIP: Prefer variables for host, port, database name, username and password instead of hard-coded values.
 The same connection metadata can then run unchanged in Development, Test, Acceptance and Production (DTAP) by loading different environment configuration files.
@@ -50,10 +48,10 @@ You can change names, values and descriptions.
 Leave values empty when you want a template without secrets or environment-specific data.
 +
 image::database/generate-variables-proposals.png[Proposed environment variables for connection EDW,width="90%"]
-. When asked, choose whether to create or update an environment configuration JSON file, and pick a filename (for example `{openvar}PROJECT_HOME{closevar}/EDW-config.json`).
+. When asked, choose whether to create or update an environment configuration JSON file, and pick a filename (for example `+${PROJECT_HOME}/EDW-config.json+`).
 +
 image::database/generate-variables-save-as-env-config-file-question.png[Prompt to create or update an environment configuration JSON file for DTAP,width="70%"]
-. The editor replaces the connection fields with variable expressions such as `{openvar}EDW_HOSTNAME{closevar}`.
+. The editor replaces the connection fields with variable expressions such as `+${EDW_HOSTNAME}+`.
 
 For a connection named `EDW`, Hop typically proposes:
 
@@ -75,7 +73,7 @@ Each variable gets a short description (for example “Hostname for database con
 In the review dialog you can encode sensitive values with the *Encode value* action if you store them encrypted in the configuration file.
 
 After the file is written, add it to the configuration files list of the relevant xref:projects/projects-environments.adoc[lifecycle environment] so Hop loads the variables when that environment is selected.
-Paths in the file dialog may use variables such as `{openvar}PROJECT_HOME{closevar}`; Hop resolves them when reading or writing the file.
+Paths in the file dialog may use variables such as `+${PROJECT_HOME}+`; Hop resolves them when reading or writing the file.
 
 === DTAP and empty configuration files
 
@@ -94,7 +92,7 @@ Those files are typically *not* the empty template: they are deployed with the s
 Point each Hop xref:projects/projects-environments.adoc[environment] at its own configuration file(s).
 
 . *Keep pipelines and connection metadata environment-agnostic*
-Because the RDBMS connection stores only expressions like `{openvar}EDW_HOSTNAME{closevar}`, the same metadata under `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` works in every stage.
+Because the RDBMS connection stores only expressions like `+${EDW_HOSTNAME}+`, the same metadata under `+${PROJECT_HOME}/metadata/rdbms+` works in every stage.
 You switch behavior by selecting a different environment (and therefore a different set of variable values), not by editing connections or pipelines.
 
 TIP: Store environment-specific configuration files *outside* the project home when they contain secrets or production endpoints.

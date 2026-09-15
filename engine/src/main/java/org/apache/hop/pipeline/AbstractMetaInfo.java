@@ -49,11 +49,27 @@ public abstract class AbstractMetaInfo {
   @HopMetadataProperty(key = "modified_date")
   protected Date modifiedDate;
 
+  /**
+   * The version of Hop that created this. Initialized empty rather than to the running version: the
+   * XML deserializer only assigns a field when its element is present, so a real version defaulted
+   * here would survive both loading a file written before this element existed and every undo,
+   * which clears and re-deserializes. That file would then claim to have been created by whichever
+   * version happened to open it. An empty value makes no such claim and reads as "unknown".
+   */
+  @HopMetadataProperty(key = "created_hop_version")
+  protected String createdHopVersion;
+
+  /** The version of Hop that last saved this. Initialized empty for the same reason, see above. */
+  @HopMetadataProperty(key = "modified_hop_version")
+  protected String modifiedHopVersion;
+
   protected AbstractMetaInfo() {
     this.nameSynchronizedWithFilename = true;
     this.createdDate = new Date();
     this.modifiedDate = new Date();
     this.createdUser = "-";
     this.modifiedUser = "-";
+    this.createdHopVersion = "";
+    this.modifiedHopVersion = "";
   }
 }

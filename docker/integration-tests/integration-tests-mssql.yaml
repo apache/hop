@@ -1,0 +1,81 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# SQL Server tests, run against two versions at once.
+#
+# 2025 is the first version with a JSON column type and 2022 the last without one, so the same
+# workflows against both is what keeps Hop honest about a type only some servers have: each test
+# names the connection it wants and what it expects that server to have made of the column.
+services:
+  integration_test_mssql:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      mssql2022:
+        condition: service_healthy
+      mssql2025:
+        condition: service_healthy
+    links:
+      - mssql2022
+      - mssql2025
+    volumes:
+      - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
+
+  mssql2022:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=StrongPassword123!
+    ports:
+      - "1433"
+    healthcheck:
+      # Ready means "answers a query", not "has the port open": SQL Server listens well before it
+      # will take a login, and the tests connect the moment they start.
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 18
+      start_period: 30s
+    volumes:
+      # BULK INSERT reads the file on the server, so it has to be here as well as in the test
+      # container.
+      - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
+
+  mssql2025:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=StrongPassword123!
+    ports:
+      - "1433"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 18
+      start_period: 30s
+    volumes:
+      - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv

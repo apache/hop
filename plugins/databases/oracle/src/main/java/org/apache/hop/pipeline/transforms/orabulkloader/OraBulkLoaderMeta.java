@@ -52,7 +52,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::OraBulkLoader.Keywords",
     documentationUrl = "/pipeline/transforms/orabulkloader.html",
-    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT},
+    classLoaderGroup = "oracle-db")
 @RelationalLineage(
     operation = RelationalIoOperation.WRITE,
     overwriteWhen = {"TRUNCATE", "REPLACE"})

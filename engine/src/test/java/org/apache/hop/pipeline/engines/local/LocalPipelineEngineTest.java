@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.engines.local;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
@@ -27,8 +28,11 @@ import static org.mockito.Mockito.verify;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -69,6 +73,59 @@ class LocalPipelineEngineTest {
     assertTrue(exception.getMessage().contains("Unable to attach the samplers"));
     verify(pipeline).disposeInitializedTransforms();
     assertTrue(pipeline.isFinished(), "The pipeline should be flagged as finished");
+  }
+
+  /**
+   * Issue #3861: a pipeline that fails after preparation used to be reported as a clean finish,
+   * with nothing on the status page to say why it never produced a row.
+   */
+  @Test
+  void preparationFailureAfterInitIsReportedAsAnError() {
+    LocalPipelineEngine pipeline =
+        new LocalPipelineEngine(new PipelineMeta()) {
+          @Override
+          public void addTransformExecutionSamplers() throws HopException {
+            throw new HopException("Unable to attach the samplers");
+          }
+        };
+    pipeline.setLogChannel(mock(ILogChannel.class));
+
+    assertThrows(HopException.class, pipeline::prepareExecution);
+
+    assertTrue(pipeline.getErrors() > 0, "The failure should be counted as an error");
+    assertTrue(
+        pipeline.getStatusDescription().contains("with errors"), pipeline.getStatusDescription());
+    assertTrue(
+        logOf(pipeline).contains("Unable to attach the samplers"),
+        "The failure should be in the pipeline log: " + logOf(pipeline));
+  }
+
+  /**
+   * Issue #3861: when preparation fails part way through, the pipeline is left flagged as preparing
+   * and so never reaches a terminal state. A Hop server keeps such an object in its map forever,
+   * because the timer that purges stale objects only collects finished or stopped ones.
+   */
+  @Test
+  void preparationFailureLeavesThePipelineInATerminalState() {
+    LocalPipelineEngine pipeline =
+        new LocalPipelineEngine(new PipelineMeta()) {
+          @Override
+          public void activateParameters(IVariables variables) {
+            throw new IllegalStateException("Preparation blew up half way through");
+          }
+        };
+    pipeline.setLogChannel(mock(ILogChannel.class));
+
+    assertThrows(IllegalStateException.class, pipeline::prepareExecution);
+
+    assertFalse(pipeline.isPreparing(), "A failed preparation may not stay flagged as preparing");
+    assertFalse(
+        pipeline.isInitializing(), "A failed preparation may not stay flagged as initializing");
+    assertTrue(pipeline.isStopped(), "A failed preparation should leave a terminal state");
+    assertEquals(Pipeline.STRING_STOPPED, pipeline.getStatusDescription());
+    assertTrue(
+        logOf(pipeline).contains("Preparation blew up half way through"),
+        "The failure should be in the pipeline log: " + logOf(pipeline));
   }
 
   @Test
@@ -117,5 +174,10 @@ class LocalPipelineEngineTest {
     combi.transform = transform;
     combi.data = data;
     return combi;
+  }
+
+  /** The pipeline log as a Hop server would serve it on the status page. */
+  private static String logOf(LocalPipelineEngine pipeline) {
+    return HopLogStore.getAppender().getBuffer(pipeline.getLogChannelId(), false).toString();
   }
 }

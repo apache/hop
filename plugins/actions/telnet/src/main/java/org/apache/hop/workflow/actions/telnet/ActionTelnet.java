@@ -72,12 +72,6 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionTelnet je = (ActionTelnet) super.clone();
-    return je;
-  }
-
   public String getPort() {
     return port;
   }

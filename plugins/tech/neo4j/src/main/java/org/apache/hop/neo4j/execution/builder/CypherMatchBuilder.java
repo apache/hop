@@ -60,7 +60,7 @@ public class CypherMatchBuilder extends BaseCypherBuilder {
         cypher.append(", ");
       }
       cypher.append(key).append(" : $").append(param);
-      parameters.put(param, value);
+      addParameter(param, value);
     }
     cypher.append(" }) ");
     return this;

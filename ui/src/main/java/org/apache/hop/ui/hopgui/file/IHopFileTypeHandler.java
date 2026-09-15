@@ -146,7 +146,10 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    * Describe the state properties of the file being handled: zoomLevel, scrollX, scrollY, active,
    * ...
    *
-   * @return The state properties
+   * <p>Callers may copy this map. Returning an immutable empty map is allowed; do not assume the
+   * returned instance will be mutated.
+   *
+   * @return The state properties, never {@code null}
    */
   Map<String, Object> getStateProperties();
 

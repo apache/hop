@@ -107,26 +107,6 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     encoding = Const.UTF_8;
   }
 
-  public XmlJoinMeta(XmlJoinMeta m) {
-    this();
-    this.complexJoin = m.complexJoin;
-    this.encoding = m.encoding;
-    this.joinCompareField = m.joinCompareField;
-    this.omitNullValues = m.omitNullValues;
-    this.omitXmlHeader = m.omitXmlHeader;
-    this.sourceXmlField = m.sourceXmlField;
-    this.sourceXmlTransform = m.sourceXmlTransform;
-    this.targetXmlField = m.targetXmlField;
-    this.targetXmlTransform = m.targetXmlTransform;
-    this.targetXPath = m.targetXPath;
-    this.valueXmlField = m.valueXmlField;
-  }
-
-  @Override
-  public Object clone() {
-    return new XmlJoinMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

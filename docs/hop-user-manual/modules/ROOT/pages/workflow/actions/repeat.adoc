@@ -17,8 +17,6 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Repeat action repeats the pipeline or workflow of your choice until a certain condition is met.
-:openvar: ${
-:closevar: }
 
 = Repeat
 
@@ -37,7 +35,7 @@ TIP: If you use a variable name for the file to repeat, ensure a default paramet
 TIP: A variable set with a scope of 'valid in the JVM' in a pipeline will not be accessible upstream of a repeating pipeline.
 
 == Example
-The samples project example: `/loops/repeat-action.hwf` and `child-check-set-counter-value.hpl` runs a pipeline that increments a `{openvar}COUNTER{closevar}` variable with each run. If the variable values exceeds 10, a variable `{openvar}END_LOOP{closevar}` is set.
+The samples project example: `/loops/repeat-action.hwf` and `child-check-set-counter-value.hpl` runs a pipeline that increments a `+${COUNTER}+` variable with each run. If the variable values exceeds 10, a variable `+${END_LOOP}+` is set.
 This variable is detected by the Repeat action, and the loop stops. Because the Variable scope of `COUNTER` in the workflow is set to “Valid in the current workflow”, when you set `COUNTER` in the child the new value goes upstream.
 
 
@@ -80,3 +78,5 @@ If the option ```Keep variable values after execution``` is set we evaluate the 
 To send Parameters to a Repeat Action, set the parameters/variables name and Value columns. Value can be hard-coded or reference a parameter/variable name. Parameters do not automatically flow through a Repeat Action.
 
 |===
+
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

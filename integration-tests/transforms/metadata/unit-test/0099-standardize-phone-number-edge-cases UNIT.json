@@ -1,0 +1,48 @@
+{
+  "variableValues": [
+    {
+      "key": "OUTPUT_FIELD",
+      "value": "E164_OUT"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "CASE",
+          "data_set_field": "CASE"
+        },
+        {
+          "transform_field": "E164_OUT",
+          "data_set_field": "E164_OUT"
+        },
+        {
+          "transform_field": "TYPE",
+          "data_set_field": "TYPE"
+        },
+        {
+          "transform_field": "VALID",
+          "data_set_field": "VALID"
+        }
+      ],
+      "field_order": [
+        "CASE",
+        "E164_OUT",
+        "TYPE",
+        "VALID"
+      ],
+      "transform_name": "Preview",
+      "data_set_name": "golden-standardize-phone-number"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0099-standardize-phone-number-edge-cases UNIT",
+  "description": "Standardize phone number edge cases: parse failure, empty number, country trim, variables",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0099-standardize-phone-number-edge-cases.hpl",
+  "test_type": "UNIT_TEST"
+}

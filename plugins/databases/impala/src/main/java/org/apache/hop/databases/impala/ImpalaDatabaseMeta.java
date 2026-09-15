@@ -23,6 +23,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -34,9 +35,17 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     type = "CLOUDERA-IMPALA",
     typeDescription = "Cloudera Impala",
     image = "impala.svg",
-    documentationUrl = "/database/databases/cloudera-impala")
+    documentationUrl = "/database/databases/cloudera-impala",
+    classLoaderGroup = "impala-db")
 @GuiPlugin(id = "GUI-ClouderaImpalaDatabaseMeta")
 public class ImpalaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** Impala limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
   private static final int VARCHAR_LIMIT = 65_535;
 
@@ -111,7 +120,8 @@ public class ImpalaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   @Override
@@ -125,7 +135,8 @@ public class ImpalaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

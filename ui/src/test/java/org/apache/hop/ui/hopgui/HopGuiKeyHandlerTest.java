@@ -33,6 +33,8 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -110,6 +112,56 @@ class HopGuiKeyHandlerTest {
     }
   }
 
+  /**
+   * Pipeline graphs bind Space to "show output fields". That must not eat Space in a filter Text
+   * (the palette tree search box).
+   */
+  public static class SpaceGraph {
+    public int spaces;
+    public int letters;
+
+    @GuiKeyboardShortcut(key = ' ')
+    @GuiOsxKeyboardShortcut(key = ' ')
+    public void showOutputFields() {
+      spaces++;
+    }
+
+    @GuiKeyboardShortcut(key = 'z')
+    @GuiOsxKeyboardShortcut(key = 'z')
+    public void openReferencedObject() {
+      letters++;
+    }
+  }
+
+  @Test
+  void spaceAndLettersAreLeftToTextWidgets() {
+    SpaceGraph graph = new SpaceGraph();
+    registerShortcutsLikeHopGuiEnvironment(SpaceGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      KeyEvent spaceInText = keyEvent(mock(Text.class), SWT.SPACE, SWT.NONE);
+      spaceInText.character = ' ';
+      keyHandler.keyPressed(spaceInText);
+      assertEquals(0, graph.spaces, "Space must type into text widgets, not run graph shortcuts");
+      assertTrue(spaceInText.doit, "Space must not be consumed when a text widget has focus");
+
+      KeyEvent letterInText = keyEvent(mock(Text.class), 'z', SWT.NONE);
+      letterInText.character = 'z';
+      keyHandler.keyPressed(letterInText);
+      assertEquals(
+          0, graph.letters, "Letters must type into text widgets, not run graph shortcuts");
+
+      KeyEvent spaceOnCanvas = canvasKey(SWT.SPACE, SWT.NONE);
+      spaceOnCanvas.character = ' ';
+      keyHandler.keyPressed(spaceOnCanvas);
+      assertEquals(1, graph.spaces, "Space on the canvas still runs the graph shortcut");
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
   @Test
   void arrowKeysAreLeftToTablesAndTrees() {
     NavigationGraph graph = new NavigationGraph();
@@ -164,6 +216,24 @@ class HopGuiKeyHandlerTest {
   }
 
   @Test
+  void doesNotAttachToWidgetsThatOnlyPassOnTheirListeners() {
+    // MetaSelectionLine and StyledTextComp delegate addListener() instead of addKeyListener(), so
+    // they were not recognised and opening a metadata editor threw a NullPointerException.
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    Shell shell = mock(Shell.class);
+    MetaSelectionLine<?> metaSelectionLine = mock(MetaSelectionLine.class);
+    when(metaSelectionLine.getShell()).thenReturn(shell);
+    StyledTextComp styledTextComp = mock(StyledTextComp.class);
+    when(styledTextComp.getShell()).thenReturn(shell);
+    keyHandler.addHandledShell(null, shell);
+
+    assertFalse(keyHandler.attachTo(metaSelectionLine));
+    verify(metaSelectionLine, never()).addKeyListener(keyHandler);
+    assertFalse(keyHandler.attachTo(styledTextComp));
+    verify(styledTextComp, never()).addKeyListener(keyHandler);
+  }
+
+  @Test
   void doesNotAttachToTheTerminalWidget() {
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     Shell shell = mock(Shell.class);
@@ -174,6 +244,20 @@ class HopGuiKeyHandlerTest {
 
     assertFalse(keyHandler.attachTo(terminalWidget));
     verify(terminalWidget, never()).addKeyListener(keyHandler);
+  }
+
+  @Test
+  void separateHandlersDoNotShareParentObjects() {
+    HopGuiKeyHandler first = new HopGuiKeyHandler();
+    HopGuiKeyHandler second = new HopGuiKeyHandler();
+    Object parent = new Object();
+
+    first.addParentObjectToHandle(parent);
+
+    assertTrue(first.parentObjects.contains(parent));
+    assertFalse(
+        second.parentObjects.contains(parent),
+        "Each RAP UISession must have its own key handler parent set");
   }
 
   @Test

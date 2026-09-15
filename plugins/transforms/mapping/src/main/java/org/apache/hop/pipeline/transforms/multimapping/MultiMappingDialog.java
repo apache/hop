@@ -362,7 +362,9 @@ public class MultiMappingDialog extends BaseTransformDialog {
 
     Button wInheritAll = new Button(composite, SWT.CHECK);
     PropsUi.setLook(wInheritAll);
-    wInheritAll.setText(BaseMessages.getString(PKG, "MultiMappingDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
     FormData fdInherit = new FormData();
     fdInherit.left = new FormAttachment(0, 0);
     fdInherit.bottom = new FormAttachment(100, 0);

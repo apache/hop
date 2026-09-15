@@ -248,7 +248,15 @@ public class HopGuiPipelineCheckDelegate {
     }
   }
 
-  private void refresh(List<ICheckResult> remarks) {
+  /**
+   * Show these remarks in the Problems tab.
+   *
+   * <p>Public so that plugins which produce their own pipeline checks, such as a linter, can add
+   * their findings next to Hop's own instead of opening a panel of their own.
+   *
+   * @param remarks the remarks to show
+   */
+  public void refresh(List<ICheckResult> remarks) {
     wTree.setRedraw(false);
     wTree.removeAll();
 

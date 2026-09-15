@@ -31,6 +31,8 @@ This is where xref:pipeline/pipelines.adoc[pipelines] and xref:workflow/workflow
 
 Pipelines and workflow files can be opened or created. At that point they appear in new tabs in this perspective.
 
+An optional Spoon-style palette tree of transforms or actions can be shown on the left of the canvas with the palette button on the graph toolbar (hidden by default). See xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[the palette tree] in the popup dialog page.
+
 For more information on how to get started with pipelines, see the xref:getting-started/hop-gui-pipelines.adoc[Pipelines getting started guide].
 
 For more information on how to get started with workflow, see the xref:getting-started/hop-gui-workflows.adoc[Workflows getting started guide].

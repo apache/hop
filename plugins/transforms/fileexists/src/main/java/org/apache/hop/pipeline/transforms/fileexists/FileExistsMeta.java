@@ -137,12 +137,6 @@ public class FileExistsMeta extends BaseTransformMeta<FileExists, FileExistsData
   }
 
   @Override
-  public Object clone() {
-    FileExistsMeta retval = (FileExistsMeta) super.clone();
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     resultfieldname = "result";
     filetypefieldname = null;

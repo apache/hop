@@ -41,6 +41,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -831,6 +832,14 @@ public class Condition implements Cloneable {
       length = valueMeta.getLength();
       precision = valueMeta.getPrecision();
       mask = valueMeta.getConversionMask();
+      // Persist the mask getString() actually used so later loads do not depend on
+      // HOP_DEFAULT_DATE_FORMAT remaining unchanged.
+      if (valueMeta.isDate() && Utils.isEmpty(mask)) {
+        mask =
+            valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+                ? ValueMetaBase.DEFAULT_TIMESTAMP_FORMAT_MASK
+                : ValueMetaBase.DEFAULT_DATE_FORMAT_MASK;
+      }
     }
 
     public int getHopType() {
@@ -854,23 +863,64 @@ public class Condition implements Cloneable {
     }
 
     /**
-     * Convert the text stored to the desired data type in a compatible way
+     * Convert the text stored to the desired data type in a compatible way.
      *
-     * @return
+     * <p>Date and Timestamp constants historically stored {@code text} in Hop's compatible date
+     * format ({@code yyyy/MM/dd HH:mm:ss.SSS}) while keeping the user-selected conversion mask.
+     * Parse with the stored mask first, then fall back to that compatible format and the type
+     * default so both new and legacy pipelines work.
      */
     public Object createValueData() throws HopException {
       if (isNullValue()) {
         return null;
       }
       IValueMeta valueMeta = createValueMeta();
-
-      ValueMetaAndData val = new ValueMetaAndData(valueMeta.getName(), text);
-      val.setValueMeta(valueMeta);
-
       IValueMeta stringValueMeta = new ValueMetaString(valueMeta.getName());
-      stringValueMeta.setConversionMetadata(valueMeta);
+      if (valueMeta.isDate()) {
+        return convertDateConstant(valueMeta, stringValueMeta);
+      }
 
-      return stringValueMeta.convertDataUsingConversionMetaData(val.getValueData());
+      stringValueMeta.setConversionMetadata(valueMeta);
+      return stringValueMeta.convertDataUsingConversionMetaData(text);
+    }
+
+    private Object convertDateConstant(IValueMeta valueMeta, IValueMeta stringValueMeta)
+        throws HopException {
+      HopValueException firstError = null;
+      for (String tryMask : dateConstantMasks(valueMeta)) {
+        IValueMeta parseMeta = valueMeta.clone();
+        parseMeta.setConversionMask(tryMask);
+        stringValueMeta.setConversionMetadata(parseMeta);
+        try {
+          return stringValueMeta.convertDataUsingConversionMetaData(text);
+        } catch (HopValueException e) {
+          if (firstError == null) {
+            firstError = e;
+          }
+        }
+      }
+      if (firstError != null) {
+        throw firstError;
+      }
+      throw new HopValueException("Unable to convert constant [" + text + "] to a date");
+    }
+
+    private List<String> dateConstantMasks(IValueMeta valueMeta) {
+      List<String> masks = new ArrayList<>();
+      addDateConstantMask(masks, mask);
+      addDateConstantMask(masks, ValueMetaBase.COMPATIBLE_DATE_FORMAT_PATTERN);
+      addDateConstantMask(
+          masks,
+          valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+              ? ValueMetaBase.DEFAULT_TIMESTAMP_FORMAT_MASK
+              : ValueMetaBase.DEFAULT_DATE_FORMAT_MASK);
+      return masks;
+    }
+
+    private void addDateConstantMask(List<String> masks, String candidate) {
+      if (StringUtils.isNotEmpty(candidate) && !masks.contains(candidate)) {
+        masks.add(candidate);
+      }
     }
   }
 

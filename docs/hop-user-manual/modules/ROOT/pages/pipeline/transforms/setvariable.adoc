@@ -17,26 +17,12 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Set Variables transform allows you to set variables in a workflow or in the virtual machine.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/setvariable.svg[Set Variables transform Icon, role="image-doc-icon"] Set Variables
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 Set Variables allows you to set variables from fields. By clicking the Get Fields button it will automatically fill in all the fields from the data row and fill in variable names in all-caps. Verify the scope is correct.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 This transform accepts one (and only one) row of data to set the value of a variable. It is important to isolate a single row for this transform, a simple way to do this is using the xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
 

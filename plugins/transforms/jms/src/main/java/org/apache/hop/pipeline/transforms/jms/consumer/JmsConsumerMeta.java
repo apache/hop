@@ -101,6 +101,16 @@ public class JmsConsumerMeta extends BaseTransformMeta<JmsConsumer, JmsConsumerD
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return JmsConsumerDialog.class.getName();
   }

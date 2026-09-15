@@ -140,34 +140,6 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     sourceFiles = new ArrayList<>();
   }
 
-  public ActionEvalFilesMetrics(ActionEvalFilesMetrics a) {
-    super(a);
-    this.scale = a.scale;
-    this.sourceFilesType = a.sourceFilesType;
-    this.evaluationType = a.evaluationType;
-    this.compareValue = a.compareValue;
-    this.minValue = a.minValue;
-    this.maxValue = a.maxValue;
-    this.successConditionType = a.successConditionType;
-    this.resultFilenamesWildcard = a.resultFilenamesWildcard;
-    this.resultFieldFile = a.resultFieldFile;
-    this.resultFieldWildcard = a.resultFieldWildcard;
-    this.resultFieldIncludeSubFolders = a.resultFieldIncludeSubFolders;
-    this.realCompareValue = a.realCompareValue;
-    this.realMinValue = a.realMinValue;
-    this.realMaxValue = a.realMaxValue;
-    this.realEvaluationValue = a.realEvaluationValue;
-    this.realFilesCount = a.realFilesCount;
-    this.nrErrors = a.nrErrors;
-    this.sourceFiles = new ArrayList<>();
-    a.sourceFiles.forEach(f -> this.sourceFiles.add(new SourceFile(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionEvalFilesMetrics(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) throws HopException {
     result.setNrErrors(1);

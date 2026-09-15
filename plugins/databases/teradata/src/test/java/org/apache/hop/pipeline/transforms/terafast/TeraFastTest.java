@@ -17,14 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -103,5 +112,43 @@ class TeraFastTest {
     assertTrue(cmd.contains("-e"));
     assertTrue(
         cmd.contains(logPath) || cmd.replace('\\', '/').contains(logPath.replace('\\', '/')));
+  }
+
+  @Test
+  void hexFieldForFastLoad_usesPlainHex() {
+    assertEquals(
+        "deadbeef",
+        TeraFast.hexFieldForFastLoad(
+            new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}));
+    assertEquals("", TeraFast.hexFieldForFastLoad(new byte[0]));
+    assertNull(TeraFast.hexFieldForFastLoad(null));
+  }
+
+  @Test
+  void writesBinaryValuesAsHex() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta transformMeta = new TransformMeta("test", new TeraFastMeta());
+    pipelineMeta.addTransform(transformMeta);
+
+    TeraFast transform =
+        new TeraFast(
+            transformMeta,
+            new TeraFastMeta(),
+            new TeraFastData(),
+            0,
+            pipelineMeta,
+            new LocalPipelineEngine(pipelineMeta));
+
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    transform.setDataFilePrintStream(new PrintStream(buffer, true, StandardCharsets.UTF_8));
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaBinary("hash"));
+    transform.writeToDataFile(
+        rowMeta, new Object[] {new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}});
+
+    assertEquals(
+        "deadbeef" + FastloadControlBuilder.DATAFILE_COLUMN_SEPERATOR + Const.CR,
+        buffer.toString(StandardCharsets.UTF_8));
   }
 }

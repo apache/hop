@@ -28,6 +28,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -139,7 +140,13 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         return null;
       }
       if (getTransformMeta().isDoingErrorHandling()) {
-        putError(getInputRowMeta(), row, 1L, "No lookup found", null, "DBL001");
+        putError(
+            getInputRowMeta(),
+            row,
+            1L,
+            buildLookupFailureDescription(lookupRow),
+            String.join(", ", data.lookupMeta.getFieldNames()),
+            "DBL001");
 
         // return false else we would still be processed.
         return null;
@@ -262,6 +269,46 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         data.nullif[i] = null;
       }
     }
+  }
+
+  /**
+   * Describes a lookup that found nothing. The description ends up both on the error stream, as the
+   * error description field, and in the log at debug level, so it has to name the table that was
+   * queried and the key values that missed - a bare "No lookup found" repeated per row says
+   * nothing. It is deliberately not translated: it is a value on the error stream that pipelines
+   * filter on, so it has to read the same in every locale.
+   */
+  private String buildLookupFailureDescription(Object[] lookupRow) {
+    StringBuilder description = new StringBuilder("No lookup found");
+
+    String table = resolve(meta.getTableName());
+    if (!Utils.isEmpty(table)) {
+      description.append(" in ");
+      String schema = resolve(meta.getSchemaName());
+      if (!Utils.isEmpty(schema)) {
+        description.append(schema).append('.');
+      }
+      description.append(table);
+    }
+
+    if (!data.lookupMeta.isEmpty()) {
+      description.append(" for ");
+      for (int i = 0; i < data.lookupMeta.size(); i++) {
+        IValueMeta valueMeta = data.lookupMeta.getValueMeta(i);
+        if (i > 0) {
+          description.append(", ");
+        }
+        description.append(valueMeta.getName()).append('=');
+        try {
+          description.append(valueMeta.getString(lookupRow[i]));
+        } catch (HopValueException e) {
+          // a key we cannot render is no reason to fail the row: it is already being rejected
+          description.append('?');
+        }
+      }
+    }
+
+    return description.toString();
   }
 
   private void initLookupMeta() throws HopException {

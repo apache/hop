@@ -48,16 +48,6 @@ public class DbImpactInputMeta extends BaseTransformMeta<DbImpactInput, DbImpact
 
   public DbImpactInputMeta() {}
 
-  public DbImpactInputMeta(DbImpactInputMeta m) {
-    this();
-    this.fileNameField = m.fileNameField;
-  }
-
-  @Override
-  public DbImpactInputMeta clone() {
-    return new DbImpactInputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta rowMeta,

@@ -122,12 +122,13 @@ class NettezaValueMetaBaseTest {
     when(metaData.getColumnType(2)).thenReturn(Types.TIME);
 
     obj.type = IValueMeta.TYPE_DATE;
-    // call to testing method
-    obj.getValueFromResultSet(iDatabase, resultSet, 0);
+    // Through the dialect, which is where the engine asks for a value and where Netezza's
+    // handling of its driver now lives.
+    iDatabase.getValueFromResultSet(resultSet, obj, 0);
     // for jdbc Date type getDate method called
     verify(resultSet, times(1)).getDate(anyInt());
 
-    obj.getValueFromResultSet(iDatabase, resultSet, 1);
+    iDatabase.getValueFromResultSet(resultSet, obj, 1);
     // for jdbc Time type getTime method called
     verify(resultSet, times(1)).getTime(anyInt());
   }

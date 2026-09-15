@@ -81,7 +81,7 @@ public class Execution {
   private LogLevel logLevel;
 
   /** The parameters used to execute */
-  private Map<String, String> parameterValues;
+  @JsonIgnore private Map<String, String> parameterValues;
 
   /** Details about the environment */
   private Map<String, String> environmentDetails;

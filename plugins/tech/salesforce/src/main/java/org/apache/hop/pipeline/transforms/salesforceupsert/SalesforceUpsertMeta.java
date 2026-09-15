@@ -77,22 +77,6 @@ public class SalesforceUpsertMeta
   }
 
   @Override
-  public Object clone() {
-    SalesforceUpsertMeta retval = (SalesforceUpsertMeta) super.clone();
-
-    // Initialize the fields list
-    retval.fields = new ArrayList<>();
-
-    for (int i = 0; i < fields.size(); i++) {
-      if (fields.get(i) != null) {
-        //        retval.inputFields.get(i) = (SalesforceInputField) inputFields.get(i).clone();
-        retval.fields.add((SalesforceInsertField) fields.get(i).clone());
-      }
-    }
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     super.setDefault();
     setFields(new ArrayList<>());
@@ -148,18 +132,18 @@ public class SalesforceUpsertMeta
 
     CheckResult cr;
 
-    // See if we get input...
+    // See if we have input streams leading to this transform!
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoInputExpected"),
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoInput"),
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.ExpectedInputError"),
               transformMeta);
     }
     remarks.add(cr);

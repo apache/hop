@@ -36,7 +36,7 @@ import org.apache.hop.core.variables.resolver.VariableResolver;
 import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -118,7 +118,13 @@ public class VariableResolverPipeline implements IVariableResolver {
 
   @Override
   public String resolve(String expression, IVariables variables) throws HopException {
-    MultiMetadataProvider metadataProvider = HopMetadataInstance.getMetadataProvider();
+    // Prefer the metadata of the current execution (exported/bundled metadata on a remote server)
+    // so referenced run configurations are resolved from the ZIP, not the server's default
+    // project. See Apache Hop issue #8096.
+    IHopMetadataProvider metadataProvider = variables.findExecutionMetadataProvider();
+    if (metadataProvider == null) {
+      metadataProvider = HopMetadataInstance.getMetadataProvider();
+    }
     String pipelineFilename = variables.resolve(filename);
     if (StringUtils.isEmpty(pipelineFilename)) {
       throw new HopException(

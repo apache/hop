@@ -172,4 +172,18 @@ public interface IHopImport {
    * @param metadataProvider The metadataProvider to set
    */
   void setMetadataProvider(MultiMetadataProvider metadataProvider);
+
+  /** When true, a hop-metadata (or general) naming scheme in the target is applied. */
+  default void setApplyNamingSchemes(boolean applyNamingSchemes) {}
+
+  default boolean isApplyNamingSchemes() {
+    return true;
+  }
+
+  /** Optional explicit naming-scheme metadata name to apply to relational connections. */
+  default void setNamingSchemeName(String namingSchemeName) {}
+
+  default String getNamingSchemeName() {
+    return null;
+  }
 }

@@ -93,12 +93,6 @@ public abstract class SalesforceTransformMeta<
   private String salesforceConnection;
 
   @Override
-  public Object clone() {
-    SalesforceTransformMeta retval = (SalesforceTransformMeta) super.clone();
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     setTargetUrl(SalesforceConnectionUtils.TARGET_DEFAULT_URL);
     setUsername("");

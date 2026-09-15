@@ -18,8 +18,13 @@
 package org.apache.hop.core.security.oidc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.List;
 import java.util.Map;
@@ -82,5 +87,51 @@ class HopOidcClientTest {
     HopSecurityContext ctx = client.toSecurityContext(claims);
     assertTrue(ctx.allows(Permission.RUN_EXECUTE));
     assertTrue(!ctx.allows(Permission.FILE_SAVE));
+  }
+
+  @Test
+  void idTokenClaimsRequireIssuerAndAudience() {
+    HopSecurityConfig config = new HopSecurityConfig();
+    config.setOauthIssuerUrl("https://issuer.example");
+    config.setOauthClientId("hop-web");
+    HopOidcClient client = new HopOidcClient(config);
+
+    JWTClaimsSet missingIssuer =
+        new JWTClaimsSet.Builder().audience("hop-web").subject("sub-1").build();
+    assertThrows(
+        IllegalStateException.class, () -> client.validateIdTokenClaims(missingIssuer, null));
+
+    JWTClaimsSet missingAudience =
+        new JWTClaimsSet.Builder().issuer("https://issuer.example").subject("sub-1").build();
+    assertThrows(
+        IllegalStateException.class, () -> client.validateIdTokenClaims(missingAudience, null));
+
+    JWTClaimsSet wrongAudience =
+        new JWTClaimsSet.Builder()
+            .issuer("https://issuer.example")
+            .audience("someone-else")
+            .subject("sub-1")
+            .build();
+    assertThrows(
+        IllegalStateException.class, () -> client.validateIdTokenClaims(wrongAudience, null));
+
+    JWTClaimsSet valid =
+        new JWTClaimsSet.Builder()
+            .issuer("https://issuer.example")
+            .audience("hop-web")
+            .subject("sub-1")
+            .build();
+    client.validateIdTokenClaims(valid, null);
+  }
+
+  @Test
+  void jwkSourceIsCachedPerUri() {
+    JWKSource<SecurityContext> first = HopOidcClient.jwkSource("https://issuer.example/jwks");
+    JWKSource<SecurityContext> second = HopOidcClient.jwkSource("https://issuer.example/jwks");
+    assertSame(first, second);
+    HopOidcClient.clearDiscoveryCache();
+    JWKSource<SecurityContext> third = HopOidcClient.jwkSource("https://issuer.example/jwks");
+    assertNotSame(first, third);
+    HopOidcClient.clearDiscoveryCache();
   }
 }

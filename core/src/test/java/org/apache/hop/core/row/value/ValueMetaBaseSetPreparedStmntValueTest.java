@@ -53,6 +53,9 @@ class ValueMetaBaseSetPreparedStmntValueTest {
   void setUp() {
     dbMeta = mock(DatabaseMeta.class);
     IDatabase iDb = mock(BaseDatabaseMeta.class);
+    // DatabaseMeta.supportsTimeStampToDateConversion() just forwards to the dialect, so stubbing
+    // only the one on DatabaseMeta leaves the two disagreeing.
+    when(iDb.isSupportsTimeStampToDateConversion()).thenReturn(true);
     when(dbMeta.supportsTimeStampToDateConversion()).thenReturn(true);
     when(dbMeta.getIDatabase()).thenReturn(iDb);
     ps = mock(PreparedStatement.class);

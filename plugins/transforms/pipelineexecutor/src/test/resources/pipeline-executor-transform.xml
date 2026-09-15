@@ -28,6 +28,7 @@
         <schema_name/>
     </partitioning>
     <run_configuration>local</run_configuration>
+    <wait_timeout>1500</wait_timeout>
     <filename>${PROJECT_HOME}/loops/child-loops-log-counter.hpl</filename>
     <filenameInField>N</filenameInField>
     <filenameField/>

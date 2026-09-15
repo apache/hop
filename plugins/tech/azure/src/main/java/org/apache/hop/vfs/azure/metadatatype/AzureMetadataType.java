@@ -33,7 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     image = "ui/images/authentication.svg",
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/azure-authentication.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION,
+    classLoaderGroup = "vfs-azure")
 @Getter
 @Setter
 public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {

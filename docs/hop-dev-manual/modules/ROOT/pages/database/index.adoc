@@ -1,0 +1,74 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: A database plugin teaches Hop to speak to one database. This is what such a plugin is made of and how the pieces fit together.
+[[Database-Index]]
+= Database plugins
+
+A database plugin teaches Hop to speak to one database.
+Hop ships around fifty of them, and writing another is one of the more common reasons to extend Hop.
+
+This section is about writing one.
+For connecting to a database that already has a plugin, see the xref:manual::database/databases.adoc[database pages in the user manual] instead.
+
+== What a database plugin is made of
+
+A database plugin is rarely a single class.
+In Hop's own plugins you will usually find some combination of these.
+
+The dialect::
+An implementation of `IDatabase`, almost always by extending `BaseDatabaseMeta`, carrying the `@DatabaseMetaPlugin` annotation.
+It answers everything Hop needs to know about the database: how to build a URL, which driver class to load, what its SQL looks like, and how its column types map onto Hop's.
+This is the only mandatory part.
+See xref:database/creating-a-dialect.adoc[Creating a dialect].
+
+The JDBC driver::
+Hop does not ship most drivers, for licensing reasons.
+The plugin declares the dependency and the driver jar is dropped into the plugin's folder by whoever installs it.
+
+Column type rules::
+How a column of this database becomes a Hop value, and how a Hop value is written back as a column definition.
+See xref:database/column-types.adoc[Column types and type rules].
+
+Value bindings::
+Only needed when a driver has a quirk in how it hands over the values themselves, rather than in how the types are named.
+See xref:database/value-bindings.adoc[Moving values across JDBC].
+
+Transforms and actions::
+Many database plugins also ship a bulk loader, because loading a million rows through JDBC is rarely the fastest route.
+These are ordinary transform plugins that happen to live in the same module.
+
+== How the pieces find each other
+
+Everything is discovered by annotation.
+`@DatabaseMetaPlugin` on the dialect makes it appear in the connection dialog; `@Transform` on a bulk loader makes it appear in the transform list.
+
+The one piece of wiring worth understanding early is `classLoaderGroup`.
+Plugins in the same group share one classloader, which is how a bulk loader in the same module can use classes from the JDBC driver the dialect loaded.
+Every class in a database plugin should carry the same group, or one of them ends up in a classloader of its own and cannot see the driver.
+
+That mechanism is also what lets a plugin from somewhere else reach a driver's classes, which is what makes it possible to support a database specific type without changing Hop.
+See xref:database/extending-another-dialect.adoc[Extending a dialect you don't own].
+
+== Where to start
+
+If you are adding a database Hop does not support yet, read xref:database/creating-a-dialect.adoc[Creating a dialect] first, then xref:database/column-types.adoc[Column types and type rules].
+
+If you are adding a type to a database Hop already supports, go straight to xref:database/extending-another-dialect.adoc[Extending a dialect you don't own].
+
+If you maintain a plugin written before the type rules existed, see xref:database/migrating-from-variants.adoc[Migrating from isXVariant()].
+
+Whatever you are doing, read xref:database/testing.adoc[Testing a database plugin] before you change anything that generates SQL.

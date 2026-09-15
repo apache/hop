@@ -272,8 +272,8 @@ public final class PluginDiscovery {
   }
 
   /**
-   * Live list for one repository: Nexus zip search (or catalog URL), enriched with any plugin
-   * metadata from the repository definition.
+   * Live list for one repository: a catalog URL when one is set, otherwise the browse API the
+   * repository resolves to, enriched with any plugin metadata from the repository definition.
    */
   public static List<OptionalPluginInfo> discoverRepoLive(
       MarketplaceRepository repo, String filter, ILogChannel log) throws Exception {
@@ -285,21 +285,18 @@ public final class PluginDiscovery {
     if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
       live = RemotePluginCatalog.load(repo);
       live = RemotePluginCatalog.filter(live, repo, filter);
-    } else if (MarketplaceRepository.BROWSER_FORGEJO.equals(repo.effectiveBrowserType())) {
-      // Checked before the Nexus guard: a Forgejo registry URL has no /repository/ segment.
-      live = ForgejoRepositoryBrowser.browse(repo, filter, log);
-    } else if (NexusRepositoryBrowser.isNexusBrowseUrl(repo.getUrl())) {
-      live = NexusRepositoryBrowser.browse(repo, filter, log);
     } else {
-      // ASF public / Maven Central: install-only layout; Apache optionals come from the bundled
-      // catalog. Optional definition plugins still surface for browse=true non-Nexus repos.
-      live = List.of();
-      if (log != null) {
-        log.logDetailed(
-            "Repository '"
-                + repo.getId()
-                + "' is not a Nexus browse URL; using definition plugin metadata only if present.");
-      }
+      // One decision, taken from the resolved browse type. Mixing it with a per-browser URL guard
+      // makes the order of the branches significant, which is how a new backend gets shadowed by
+      // an older one that happens to be checked first.
+      live =
+          switch (repo.effectiveBrowserType()) {
+            case MarketplaceRepository.BROWSER_FORGEJO ->
+                ForgejoRepositoryBrowser.browse(repo, filter, log);
+            case MarketplaceRepository.BROWSER_JFROG ->
+                JfrogRepositoryBrowser.browse(repo, filter, log);
+            default -> nexusOrNothing(repo, filter, log);
+          };
     }
 
     // If live listing is empty but definition has explicit plugins, use those (not a cache —
@@ -311,6 +308,25 @@ public final class PluginDiscovery {
     }
 
     return enrichWithDefinitionMetadata(live, repo);
+  }
+
+  /**
+   * Nexus REST search needs a {@code …/repository/<name>/} base. ASF public and Maven Central are
+   * install-only layouts and have none, so they list nothing here; their optional plugins come from
+   * the bundled catalog, and definition plugin metadata still surfaces for a browse=true entry.
+   */
+  private static List<OptionalPluginInfo> nexusOrNothing(
+      MarketplaceRepository repo, String filter, ILogChannel log) throws HopException {
+    if (NexusRepositoryBrowser.isNexusBrowseUrl(repo.getUrl())) {
+      return NexusRepositoryBrowser.browse(repo, filter, log);
+    }
+    if (log != null) {
+      log.logDetailed(
+          "Repository '"
+              + repo.getId()
+              + "' is not a Nexus browse URL; using definition plugin metadata only if present.");
+    }
+    return List.of();
   }
 
   /**

@@ -124,11 +124,6 @@ public class TransformMetaStructureMeta
   }
 
   @Override
-  public TransformMetaStructureMeta clone() {
-    return (TransformMetaStructureMeta) super.clone();
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,

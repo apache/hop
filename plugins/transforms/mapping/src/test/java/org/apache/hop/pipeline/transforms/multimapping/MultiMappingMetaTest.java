@@ -73,7 +73,7 @@ class MultiMappingMetaTest {
     assertTrue(meta.getInputMappings().get(0).isMainDataPath());
     assertTrue(meta.getInputMappings().get(0).isRenamingOnOutput());
 
-    MultiMappingMeta copy = meta.clone();
+    MultiMappingMeta copy = (MultiMappingMeta) meta.clone();
     assertEquals(1, copy.getInputMappings().size());
     copy.getInputMappings().get(0).setInputTransformName("changed");
     assertTrue(

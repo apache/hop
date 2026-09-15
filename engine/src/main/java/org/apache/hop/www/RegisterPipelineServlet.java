@@ -53,13 +53,18 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
     // Parse the XML, create a pipeline configuration
     PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml(xml);
 
-    IPipelineEngine<PipelineMeta> pipeline = createPipeline(pipelineConfiguration);
+    try {
+      IPipelineEngine<PipelineMeta> pipeline =
+          createPipeline(pipelineConfiguration, HopServerAdmission.parseMaxConcurrent(request));
 
-    String message =
-        "Pipeline '"
-            + pipeline.getPipelineMeta().getName()
-            + "' was added to HopServer with id "
-            + pipeline.getContainerId();
-    return new WebResult(WebResult.STRING_OK, message, pipeline.getContainerId());
+      String message =
+          "Pipeline '"
+              + pipeline.getPipelineMeta().getName()
+              + "' was added to HopServer with id "
+              + pipeline.getContainerId();
+      return new WebResult(WebResult.STRING_OK, message, pipeline.getContainerId());
+    } catch (HopServerAtCapacityException e) {
+      return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
+    }
   }
 }

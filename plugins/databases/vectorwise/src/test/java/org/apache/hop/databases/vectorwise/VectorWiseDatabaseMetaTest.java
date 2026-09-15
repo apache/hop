@@ -17,7 +17,6 @@
 package org.apache.hop.databases.vectorwise;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -65,8 +64,6 @@ class VectorWiseDatabaseMetaTest {
 
     assertEquals(
         "CALL VECTORWISE( COMBINE 'FOO - FOO' )", nativeMeta.getTruncateTableStatement("FOO"));
-
-    assertFalse(nativeMeta.isSupportsGetBlob());
   }
 
   @Test

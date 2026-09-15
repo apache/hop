@@ -20,6 +20,9 @@ REM
 setlocal EnableDelayedExpansion
 
 REM switch to script directory
+REM The JVM runs from the Hop installation, so user.dir is never where the user typed the
+REM command. Remember the directory they were in, for subcommands which take a path from them.
+set _ORIGINDIR=%CD%
 cd /D %~dp0
 
 REM Optional user-level env written by `hop setup` (does not override already-set variables)
@@ -54,49 +57,52 @@ if not "%HOP_JAVA_HOME%"=="" (
 REM # Settings for all OSses
 REM
 
-if "%HOP_OPTIONS%"=="" set HOP_OPTIONS="-Xmx2048m"
+REM HOP_OPTIONS is user input. The launcher accumulates its own flags in _HOP_OPTIONS so
+REM the expanded value is never exported to the java process and fed back into the setup dialog.
+set "_HOP_OPTIONS=%HOP_OPTIONS%"
+if "%_HOP_OPTIONS%"=="" set _HOP_OPTIONS="-Xmx2048m"
 
 REM See if we need to enable some remote debugging options for our developers.
 REM
 FOR %%a in (%*) DO (
   if "%%~a" == "--dev-debug" (
-    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5010
+    set _HOP_OPTIONS=%_HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5010
   )
   if "%%~a" == "--dev-debug-wait" (
-    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010
+    set _HOP_OPTIONS=%_HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010
   )
 )
 
 REM Pass HOP variables if they're set.
 REM
 if not "%HOP_AUDIT_FOLDER%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUDIT_FOLDER="%HOP_AUDIT_FOLDER%"
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_AUDIT_FOLDER="%HOP_AUDIT_FOLDER%"
 ) else (
-   set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUDIT_FOLDER=.\audit
+   set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_AUDIT_FOLDER=.\audit
 )
 if not "%HOP_CONFIG_FOLDER%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_CONFIG_FOLDER="%HOP_CONFIG_FOLDER%"
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_CONFIG_FOLDER="%HOP_CONFIG_FOLDER%"
 )
 if not "%HOP_SHARED_JDBC_FOLDERS%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_SHARED_JDBC_FOLDERS="%HOP_SHARED_JDBC_FOLDERS%"
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_SHARED_JDBC_FOLDERS="%HOP_SHARED_JDBC_FOLDERS%"
 )
 if not "%HOP_PLUGIN_BASE_FOLDERS%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLUGIN_BASE_FOLDERS="%HOP_PLUGIN_BASE_FOLDERS%"
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_PLUGIN_BASE_FOLDERS="%HOP_PLUGIN_BASE_FOLDERS%"
 )
 if not "%HOP_PASSWORD_ENCODER_PLUGIN%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PASSWORD_ENCODER_PLUGIN=%HOP_PASSWORD_ENCODER_PLUGIN%
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_PASSWORD_ENCODER_PLUGIN=%HOP_PASSWORD_ENCODER_PLUGIN%
 )
 if not "%HOP_AES_ENCODER_KEY%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AES_ENCODER_KEY=%HOP_AES_ENCODER_KEY%
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_AES_ENCODER_KEY=%HOP_AES_ENCODER_KEY%
 )
 if not "%HOP_AES_ENCODER_KEY_FILE%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AES_ENCODER_KEY_FILE=%HOP_AES_ENCODER_KEY_FILE%
+  set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_AES_ENCODER_KEY_FILE=%HOP_AES_ENCODER_KEY_FILE%
 )
 
-set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_OS=Windows
-set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_RUNTIME=Run
-set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUTO_CREATE_CONFIG=Y
-set HOP_OPTIONS=%HOP_OPTIONS% --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/sun.nio.cs=ALL-UNNAMED --add-opens java.base/sun.security.action=ALL-UNNAMED --add-opens java.base/sun.util.calendar=ALL-UNNAMED --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_PLATFORM_OS=Windows
+set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_PLATFORM_RUNTIME=Run
+set _HOP_OPTIONS=%_HOP_OPTIONS% -DHOP_AUTO_CREATE_CONFIG=Y
+set _HOP_OPTIONS=%_HOP_OPTIONS% --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/sun.nio.cs=ALL-UNNAMED --add-opens java.base/sun.security.action=ALL-UNNAMED --add-opens java.base/sun.util.calendar=ALL-UNNAMED --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED
 
 REM ===[Collect command line arguments...]======================================
 REM
@@ -104,5 +110,5 @@ set _cmdline=%*
 
 :Run
 
-%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.hop.Hop %_cmdline%%
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% -Dhop.origin.dir="%_ORIGINDIR%" %_HOP_OPTIONS% org.apache.hop.hop.Hop %_cmdline%%
 

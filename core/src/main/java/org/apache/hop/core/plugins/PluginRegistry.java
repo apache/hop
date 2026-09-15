@@ -28,6 +28,7 @@ import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -355,6 +356,11 @@ public class PluginRegistry {
     }
   }
 
+  /**
+   * Add the libraries of a plugin to a class loader it shares with other plugins. Libraries the
+   * class loader already carries are skipped, so this is safe to call every time a plugin joins an
+   * existing class loader.
+   */
   private void addToClassLoader(IPlugin plugin, HopURLClassLoader ucl)
       throws MalformedURLException {
     String[] patterns = parentClassloaderPatternMap.get(plugin);
@@ -363,10 +369,14 @@ public class PluginRegistry {
       ((HopSelectiveParentFirstClassLoader) ucl).addPatterns(patterns);
     }
 
+    Set<URL> present = new HashSet<>(Arrays.asList(ucl.getURLs()));
     for (String jarFile : plugin.getLibraries()) {
       File jarfile = new File(jarFile);
-      ucl.addURL(
-          new URL(URLDecoder.decode(jarfile.toURI().toURL().toString(), StandardCharsets.UTF_8)));
+      URL url =
+          new URL(URLDecoder.decode(jarfile.toURI().toURL().toString(), StandardCharsets.UTF_8));
+      if (present.add(url)) {
+        ucl.addURL(url);
+      }
     }
   }
 
@@ -903,13 +913,14 @@ public class PluginRegistry {
                   inverseClassLoaderLookup.computeIfAbsent(ucl, k -> new HashSet<>()).add(plugin);
                   classLoaderGroupsMap.put(plugin.getClassLoaderGroup(), ucl);
                 } else {
-                  // we have a classloader, but does it have this plugin?
-                  try {
-                    ucl.loadClass(plugin.getClassMap().values().iterator().next());
-                  } catch (ClassNotFoundException ignored) {
-                    // missed, add it to the classloader
-                    addToClassLoader(plugin, (HopURLClassLoader) ucl);
-                  }
+                  // The group's class loader was created for whichever plugin of the group was
+                  // asked for first, so it doesn't necessarily carry this plugin's libraries.
+                  // Checking whether the plugin's own class loads isn't good enough: two plugins
+                  // in the same jar pass that check while still needing different libraries. A
+                  // database plugin adds the shared JDBC folders, the bulk loader transform next
+                  // to it doesn't, and the loser of that race ends up without its driver (#8133).
+                  //
+                  addToClassLoader(plugin, (HopURLClassLoader) ucl);
                 }
               } else {
                 // fallthrough folder based plugin
@@ -922,13 +933,10 @@ public class PluginRegistry {
                     inverseClassLoaderLookup.computeIfAbsent(ucl, k -> new HashSet<>()).add(plugin);
                     folderBasedClassLoaderMap.put(plugin.getPluginDirectory().toString(), ucl);
                   } else {
-                    // we have a classloader, but does it have this plugin?
-                    try {
-                      ucl.loadClass(plugin.getClassMap().values().iterator().next());
-                    } catch (ClassNotFoundException ignored) {
-                      // missed, add it to the classloader
-                      addToClassLoader(plugin, (HopURLClassLoader) ucl);
-                    }
+                    // Same as above: make sure the shared class loader carries the libraries of
+                    // every plugin using it, not just of the one that created it.
+                    //
+                    addToClassLoader(plugin, (HopURLClassLoader) ucl);
                   }
                 } else {
                   ucl = classLoaders.get(plugin);

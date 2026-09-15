@@ -17,31 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Pipeline Executor transform allows you to execute a Hop pipeline from within a pipeline.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/pipelineexecutor.svg[Pipeline Executor transform Icon, role="image-doc-icon"] Pipeline Executor
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 
 The Pipeline Executor transform allows you to execute a Hop pipeline from within a pipeline.
 It is similar to the Workflow Executor transform, but works with pipelines.
-
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Usage
 The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. 
@@ -51,7 +35,7 @@ Optionally, you can use a "Get rows from result" transform in a pipeline to fetc
 You can either run the same pipeline for each row by specifying a pipeline name to execute, or accept a pipeline name from an incoming field (from a table for example).
 You can launch multiple copies of the transform to run in parallel.
 
-*Parameters*: Can map sub pipeline parameters to fields in your current pipeline. If you enable the "Inherit all variables from pipeline" option, all the parameters/variables defined in the parent pipeline are passed to the pipeline. However, only the parameters defined on the Parameters tab are set per data input row to the pipeline.
+*Parameters*: Can map sub pipeline parameters to fields in your current pipeline. Only the parameters defined on the Parameters tab are set per data input row. The "Pass parent values to matching parameters" option decides what happens to the child's other parameters: with it on they are seeded from this pipeline's value of the same name, with it off they keep their own default. The child inherits this pipeline's variables either way.
 
 *Output hop connector options*: If you select the incorrect output option for the pipeline executor, it may not return the data expected.
 
@@ -104,13 +88,16 @@ The filename may contain variables (for example, you can use the built-in Intern
 
 *NOTE:* It must be considered that, by specifying the pipeline file name using this option, we can experience a little performance penalty because the pipeline that will be executed will be initialized at runtime and not during the initialization phase as usual. On the other side this option gives greater flexibility in specifying the pipeline filename dynamically and this could be useful for many use-cases.
 |Run configuration|Specify the Pipeline Run Configuration to be used for execution.
+|Stop after (milliseconds)|Maximum time to wait for the child pipeline to complete. Empty or 0 means wait indefinitely. When the time is reached the child pipeline is stopped and the execution-results stream reports a failure (`ExecutionResult=N`, `ExecutionNrErrors>=1`). The value may contain a variable.
 
 |===
 
 === Parameters Tab
 
 In this tab you can specify which field to use to set a certain parameter or variable value. If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
-TIP: If you leave the "Inherit all variables from pipeline" option checked (it is by default), all the variables defined in the current pipeline are passed to the child pipeline.
+TIP: The child pipeline always inherits the variables defined in this pipeline. "Pass parent values to matching parameters" (checked by default) additionally seeds a parameter the child declares from this pipeline's value of the same name; unchecking it makes the child keep its own defaults.
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
+
 
 Parameters and variables are passed *downstream* when the child pipeline starts (once per executor iteration).
 They are not sent back to the parent.

@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -305,7 +306,9 @@ public class YamlInputDialog extends BaseTransformDialog {
     fdbaFilename.top = new FormAttachment(wOutputField, margin);
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
@@ -733,6 +736,7 @@ public class YamlInputDialog extends BaseTransformDialog {
         };
 
     colInf[0].setUsingVariables(true);
+    colInf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colInf[0].setToolTip(
         BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Name.Column.Tooltip"));
     colInf[1].setUsingVariables(true);

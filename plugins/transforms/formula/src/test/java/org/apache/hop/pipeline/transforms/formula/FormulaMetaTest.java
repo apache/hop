@@ -67,7 +67,7 @@ class FormulaMetaTest {
     // This is what the transform dialog does when snapshotting the "before" state: the snapshot
     // must survive the dialog clearing and repopulating the live list, otherwise the change goes
     // unnoticed and the pipeline can't be saved.
-    FormulaMeta before = formulaMeta.clone();
+    FormulaMeta before = (FormulaMeta) formulaMeta.clone();
 
     formulaMeta.getFormulas().clear();
     formulaMeta.getFormulas().add(new FormulaMetaFunction("test", "2+2", 1, 10, 2, "", false));

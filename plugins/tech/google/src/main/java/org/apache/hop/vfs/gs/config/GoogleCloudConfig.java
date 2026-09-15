@@ -39,6 +39,14 @@ public class GoogleCloudConfig {
   private String connectionTimeout;
   private String readTimeout;
 
+  /**
+   * Retry operations that the GCS client considers non-idempotent (object create, delete, starting
+   * an upload). The client only retries idempotent calls by default, so without this the retry
+   * settings above never apply to writes. Off by default: a retried delete can come back 404 once
+   * the first attempt succeeded server-side, and a retried create is a last-write-wins overwrite.
+   */
+  private Boolean retryNonIdempotentOperations;
+
   /** Cache TTL in seconds for list-result caching (same as S3/MinIO/Azure). */
   private String cacheTtlSeconds;
 
@@ -54,6 +62,7 @@ public class GoogleCloudConfig {
     maxRpcTimeout = "50";
     connectionTimeout = "20";
     readTimeout = "20";
+    retryNonIdempotentOperations = false;
     cacheTtlSeconds = "5";
   }
 
@@ -71,6 +80,7 @@ public class GoogleCloudConfig {
     maxRpcTimeout = config.maxRpcTimeout;
     connectionTimeout = config.connectionTimeout;
     readTimeout = config.readTimeout;
+    retryNonIdempotentOperations = config.retryNonIdempotentOperations;
     cacheTtlSeconds = config.cacheTtlSeconds;
   }
 }

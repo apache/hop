@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -497,7 +498,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
           Arrays.sort(prevTransformFieldNames);
           fieldColumn.setComboValues(prevTransformFieldNames);
         };
-    new Thread(fieldLoader).start();
+    BackgroundThreadFacade.start(fieldLoader);
   }
 
   /** This method fills the ComboVar with common AWS region IDs (SNS-supported). */

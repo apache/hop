@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "ProductID",
+          "data_set_field": "ProductID"
+        },
+        {
+          "transform_field": "ProductName",
+          "data_set_field": "ProductName"
+        }
+      ],
+      "field_order": [
+        "ProductID"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-odata-input"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0109-odata-input UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0109-odata-input.hpl",
+  "test_type": "UNIT_TEST"
+}

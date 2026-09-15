@@ -64,6 +64,8 @@ public class RepeatDialog extends ActionDialog {
   private TextVar wVariableValue;
   private TextVar wDelay;
   private Button wKeepValues;
+
+  private Button wPassParams;
   private TableView wParameters;
 
   private Button wLogFileEnabled;
@@ -217,6 +219,27 @@ public class RepeatDialog extends ActionDialog {
     fdKeepValues.top = new FormAttachment(wlKeepValues, 0, SWT.CENTER);
     wKeepValues.setLayoutData(fdKeepValues);
     lastControl = wlKeepValues;
+
+    Label wlPassParams = new Label(shell, SWT.RIGHT);
+    wlPassParams.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wlPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
+    PropsUi.setLook(wlPassParams);
+    FormData fdlPassParams = new FormData();
+    fdlPassParams.left = new FormAttachment(0, 0);
+    fdlPassParams.right = new FormAttachment(middle, -margin);
+    fdlPassParams.top = new FormAttachment(lastControl, margin);
+    wlPassParams.setLayoutData(fdlPassParams);
+    wPassParams = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
+    PropsUi.setLook(wPassParams);
+    FormData fdPassParams = new FormData();
+    fdPassParams.left = new FormAttachment(middle, 0);
+    fdPassParams.right = new FormAttachment(100, 0);
+    fdPassParams.top = new FormAttachment(wlPassParams, 0, SWT.CENTER);
+    wPassParams.setLayoutData(fdPassParams);
+    lastControl = wlPassParams;
 
     Group wLogFileGroup = new Group(shell, SWT.SHADOW_NONE);
     PropsUi.setLook(wLogFileGroup);
@@ -480,6 +503,7 @@ public class RepeatDialog extends ActionDialog {
     wVariableValue.setText(Const.NVL(action.getVariableValue(), ""));
     wDelay.setText(Const.NVL(action.getDelay(), ""));
     wKeepValues.setSelection(action.isKeepingValues());
+    wPassParams.setSelection(action.isPassingAllParameters());
 
     wLogFileEnabled.setSelection(action.isLogFileEnabled());
     wLogFileBase.setText(Const.NVL(action.getLogFileBase(), ""));
@@ -571,6 +595,7 @@ public class RepeatDialog extends ActionDialog {
     action.setVariableValue(wVariableValue.getText());
     action.setDelay(wDelay.getText());
     action.setKeepingValues(wKeepValues.getSelection());
+    action.setPassingAllParameters(wPassParams.getSelection());
 
     action.setLogFileEnabled(wLogFileEnabled.getSelection());
     action.setLogFileAppended(wLogFileAppended.getSelection());

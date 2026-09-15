@@ -33,6 +33,7 @@ class WorkflowExecutorMetaTest {
             "/workflow-executor-transform.xml", WorkflowExecutorMeta.class);
 
     assertEquals("${PROJECT_HOME}/loops/child-workflow-executor.hwf", meta.getFilename());
+    assertEquals("1500", meta.getWaitTimeout());
     assertFalse(meta.isFilenameInField());
     assertEquals("", meta.getFilenameField() == null ? "" : meta.getFilenameField());
     assertEquals("ExecutionTime", meta.getExecutionTimeField());
@@ -86,6 +87,7 @@ class WorkflowExecutorMetaTest {
     assertEquals(clone.getResultFilesFileNameField(), meta.getResultFilesFileNameField());
     assertEquals(clone.getResultRowsField().size(), meta.getResultRowsField().size());
     assertEquals(clone.getParameters().size(), meta.getParameters().size());
+    assertEquals(clone.getWaitTimeout(), meta.getWaitTimeout());
   }
 
   @Test

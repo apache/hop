@@ -62,8 +62,9 @@ import org.junit.jupiter.api.Test;
  * #editingTheTypeCellStaysInTheTypeColumn()} is the same scene on a plain CCOMBO column, which is
  * committed correctly today.
  *
- * <p>Tagged {@code uitest} so it is skipped on headless machines; run with {@code mvn -pl
- * plugins/transforms/selectvalues -Puitest test}.
+ * <p>Tagged {@code uitest} so it is skipped when there is no display. The default reactor run still
+ * includes it on a desktop; wrap Maven with {@code tools/with-isolated-display.sh} so the dialog
+ * does not steal focus.
  */
 @Tag("uitest")
 class SelectValuesDialogMetaTabTest extends SwtBotTestBase {

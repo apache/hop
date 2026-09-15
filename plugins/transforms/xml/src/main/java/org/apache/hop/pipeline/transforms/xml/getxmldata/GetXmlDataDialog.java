@@ -52,6 +52,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -390,7 +391,9 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     fdbaFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(modLs);
     FormData fdFilename = new FormData();
@@ -1006,6 +1009,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
         };
 
     colinf[0].setUsingVariables(true);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[0].setToolTip(
         BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Name.Column.Tooltip"));
     colinf[1].setUsingVariables(true);

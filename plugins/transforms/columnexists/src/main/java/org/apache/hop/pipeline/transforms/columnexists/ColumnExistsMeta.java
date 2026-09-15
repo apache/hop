@@ -187,13 +187,6 @@ public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExis
   }
 
   @Override
-  public Object clone() {
-    ColumnExistsMeta retval = (ColumnExistsMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     databaseName = null;
     schemaname = null;

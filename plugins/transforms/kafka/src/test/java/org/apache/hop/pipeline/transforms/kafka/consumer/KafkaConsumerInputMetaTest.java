@@ -249,7 +249,7 @@ class KafkaConsumerInputMetaTest {
     meta.setStopWhenIdle(true);
     meta.setMaxIdleTimeMs("2500");
 
-    KafkaConsumerInputMeta copy = meta.clone();
+    KafkaConsumerInputMeta copy = (KafkaConsumerInputMeta) meta.clone();
     assertTrue(copy.isStopWhenIdle());
     assertEquals("2500", copy.getMaxIdleTimeMs());
   }

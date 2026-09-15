@@ -245,7 +245,7 @@ if docker info >/dev/null 2>&1; then
 fi
 
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
     if [ -d "$d" ] && { [ ! -f "$d/disabled.txt" ] || is_included "$(basename "$d")"; }; then
       # Project root: MDI target_file=…-injected.hpl writes here.
       chmod a+rwx "$d" 2>/dev/null || true
@@ -427,7 +427,7 @@ EOF
 # Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
-  if [[ "$d" == *"scripts/" ]] || [[ "$d" == *"surefire-reports/" ]] || [[ "$d" == *"hopweb/" ]]; then
+  if [[ "$d" == *"scripts/" ]] || [[ "$d" == *"surefire-reports/" ]]; then
     continue
   fi
 
@@ -473,16 +473,16 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
     echo "Project compose exists."
     EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
     # Rebuild project images so SPARK_VERSION (and similar) build args take effect.
-    # hop_server also must rebuild: its hop-server service image (apache/hop:Development
-    # from docker/Dockerfile) otherwise stays cached and can miss client-side assembly
-    # plugins needed by remote-export ITs (main-0008/0009/0010).
+    # hop_server and load-balance must rebuild: their hop-server service image
+    # (apache/hop:Development from docker/Dockerfile) otherwise stays cached and can
+    # miss client-side assembly plugins (remote-export ITs, LoadBalancing engine).
     if [ "${PROJECT_NAME}" = "spark" ]; then
       echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
         docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
         || COMPOSE_EXIT=$?
-    elif [ "${PROJECT_NAME}" = "hop_server" ]; then
-      echo "Rebuilding hop_server images so remote Hop Server matches current assemblies"
+    elif [ "${PROJECT_NAME}" = "hop_server" ] || [ "${PROJECT_NAME}" = "load-balance" ]; then
+      echo "Rebuilding ${PROJECT_NAME} images so remote Hop Server matches current assemblies"
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
         docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
         || COMPOSE_EXIT=$?

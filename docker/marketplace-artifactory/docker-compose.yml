@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Local JFrog Artifactory OSS for Hop marketplace testing.
+# Usage: ./docker/marketplace-artifactory/start.sh
+#
+services:
+  # Artifactory 7.98 removed the bundled Derby database and refuses to start without PostgreSQL
+  # ("DB Type derby is not allowed"), so the database is part of the stack rather than optional.
+  postgres:
+    image: postgres:16-alpine
+    container_name: hop-marketplace-artifactory-db
+    environment:
+      POSTGRES_DB: artifactory
+      POSTGRES_USER: artifactory
+      POSTGRES_PASSWORD: artifactory
+    volumes:
+      - hop-artifactory-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U artifactory -d artifactory"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  artifactory:
+    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.98.7
+    container_name: hop-marketplace-artifactory
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      # 8082 is the platform router and serves every REST endpoint Hop uses.
+      - "8082:8082"
+      - "8081:8081"
+    volumes:
+      - hop-artifactory-data:/var/opt/jfrog/artifactory
+    environment:
+      JF_SHARED_DATABASE_TYPE: postgresql
+      JF_SHARED_DATABASE_DRIVER: org.postgresql.Driver
+      JF_SHARED_DATABASE_URL: jdbc:postgresql://postgres:5432/artifactory
+      JF_SHARED_DATABASE_USERNAME: artifactory
+      JF_SHARED_DATABASE_PASSWORD: artifactory
+      # Supplying either key turns off the entrypoint's key generation, so both have to be given.
+      # Without them the services sit in "Master key is missing" / "Cluster join: Join key is
+      # missing" and 8082 never starts listening. Throwaway keys for a local sandbox — never
+      # reuse them anywhere real.
+      JF_SHARED_SECURITY_MASTERKEY: "1d0f4a5e8b2c7d3f6a9e0b1c4d7f2a5e8b3c6d9f0a1e4b7c2d5f8a3e6b9c0d1f"
+      JF_SHARED_SECURITY_JOINKEY: "9f2c5a8e1b4d7f0a3c6e9b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2c"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8082/artifactory/api/system/ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 180s
+
+volumes:
+  hop-artifactory-data:
+  hop-artifactory-db:

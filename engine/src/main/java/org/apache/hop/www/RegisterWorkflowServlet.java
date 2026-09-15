@@ -53,13 +53,18 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
     // Parse the XML, create a workflow configuration
     WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml(xml, variables);
 
-    IWorkflowEngine<WorkflowMeta> workflow = createWorkflow(workflowConfiguration);
+    try {
+      IWorkflowEngine<WorkflowMeta> workflow =
+          createWorkflow(workflowConfiguration, HopServerAdmission.parseMaxConcurrent(request));
 
-    String message =
-        "Workflow '"
-            + workflow.getWorkflowName()
-            + "' was added to the list with id "
-            + workflow.getContainerId();
-    return new WebResult(WebResult.STRING_OK, message, workflow.getContainerId());
+      String message =
+          "Workflow '"
+              + workflow.getWorkflowName()
+              + "' was added to the list with id "
+              + workflow.getContainerId();
+      return new WebResult(WebResult.STRING_OK, message, workflow.getContainerId());
+    } catch (HopServerAtCapacityException e) {
+      return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
+    }
   }
 }

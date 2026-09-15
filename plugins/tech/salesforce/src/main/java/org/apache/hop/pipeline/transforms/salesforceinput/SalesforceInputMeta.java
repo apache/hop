@@ -219,6 +219,16 @@ public class SalesforceInputMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   @Injection(name = "RETRIEVE")
   public void setRecordsFilterDesc(String recordsFilterDesc) {
     this.recordsFilterCode = SalesforceConnectionUtils.getRecordsFilterByDesc(recordsFilterDesc);
@@ -257,25 +267,6 @@ public class SalesforceInputMeta
    */
   public boolean includeDeletionDate() {
     return includeDeletionDate;
-  }
-
-  @Override
-  public Object clone() {
-    SalesforceInputMeta retval = (SalesforceInputMeta) super.clone();
-    retval.fields = new ArrayList<>();
-
-    int nrFields = fields.size();
-
-    //    retval.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      if (fields.get(i) != null) {
-        //        retval.inputFields.get(i) = (SalesforceInputField) inputFields.get(i).clone();
-        retval.fields.add((SalesforceInputField) fields.get(i).clone());
-      }
-    }
-
-    return retval;
   }
 
   @Override

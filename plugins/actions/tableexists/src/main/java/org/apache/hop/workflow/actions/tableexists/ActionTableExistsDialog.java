@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -128,7 +129,9 @@ public class ActionTableExistsDialog extends ActionDialog {
     wbTable.setLayoutData(fdbTable);
     wbTable.addListener(SWT.Selection, e -> getTableName());
 
-    wTablename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTablename =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTablename);
     wTablename.addModifyListener(lsMod);
     FormData fdTablename = new FormData();
@@ -191,9 +194,7 @@ public class ActionTableExistsDialog extends ActionDialog {
       try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
-
         if (null != schemas && schemas.length > 0) {
-          schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   shell,
@@ -201,11 +202,10 @@ public class ActionTableExistsDialog extends ActionDialog {
                   BaseMessages.getString(
                       PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText()),
                   BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
-          String d = dialog.open();
-          if (d != null) {
-            wSchemaname.setText(Const.NVL(d.toString(), ""));
+          String name = dialog.open();
+          if (name != null) {
+            wSchemaname.setText(name);
           }
-
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setMessage(

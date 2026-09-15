@@ -108,10 +108,12 @@ class JavaFilterMetaTest {
   // ------------------------------------------------------------------ setDefault
 
   @Test
-  void setDefault_setsConditionToTrue() {
+  void setDefault_setsAConditionThatKeepsEveryRow() {
     JavaFilterMeta meta = new JavaFilterMeta();
     meta.setDefault();
-    assertEquals("true", meta.getCondition());
+
+    assertEquals(JavaFilterMeta.DEFAULT_CONDITION, meta.getCondition());
+    assertEquals("true ? true : false", meta.getCondition());
   }
 
   // ------------------------------------------------------------------ clone

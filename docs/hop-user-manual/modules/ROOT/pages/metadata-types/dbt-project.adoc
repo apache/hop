@@ -1,0 +1,48 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Register a dbt Core project once and reference it from the dbt actions in your workflows.
+
+= dbt Project
+
+== Description
+
+This metadata type registers a https://docs.getdbt.com/[dbt Core] project in your Hop project: where it lives on disk, how its profiles are resolved, which target it uses by default and which dbt executable runs it.
+
+It is referenced by name from the xref:workflow/actions/dbt.adoc[dbt] workflow action, in the same way a relational database connection is: define it once, use it from as many actions as you like, and change the location or the runtime in one place.
+
+NOTE: Every field supports variables, so the same metadata object can point at a different checkout or a different dbt installation per environment.
+
+== Options
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
+|Name|The name of this dbt project. This is the name the dbt actions refer to.
+|Project directory|The directory holding `dbt_project.yml`. dbt runs with this as its working directory and receives it as `--project-dir`.
+|Profiles directory|The directory holding `profiles.yml`, passed to dbt as `--profiles-dir`. Left empty, dbt looks in its own default location (`~/.dbt`).
+|Default target|The dbt target used when a dbt action does not name one of its own.
+|dbt executable|The dbt command to run, as a name on the `PATH` or an absolute path. Defaults to `dbt`. Point it at a virtual environment (`/opt/dbt-venv/bin/dbt`) or at a wrapper script when dbt runs in a container.
+|dbt-ol executable|The command used instead of *dbt executable* when a dbt action has *Emit OpenLineage* enabled. Defaults to `dbt-ol`, the wrapper from the `openlineage-dbt` package.
+|===
+
+== Test
+
+The *Test* button runs `dbt debug` against the project with the settings above, and shows dbt's output. It checks the same things dbt checks on the command line: that the executable can be started, that `dbt_project.yml` and `profiles.yml` are found and parse, and that the warehouse connection for the target works.
+
+Credentials are configured on the dbt action rather than here, so a profile that reads its password from `env_var()` will report a connection failure in this test while running correctly from a workflow.

@@ -273,7 +273,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
             logDetailed(BaseMessages.getString(PKG, "DatabaseJoin.Log.ConnectedToDB"));
           }
 
-          String sql = meta.getSql();
+          String sql = meta.getEffectiveSql(variables);
           if (meta.isReplaceVariables()) {
             sql = resolve(sql);
           }

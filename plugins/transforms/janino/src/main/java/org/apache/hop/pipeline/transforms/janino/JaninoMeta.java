@@ -79,12 +79,6 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
     this.functions = new ArrayList<>();
   }
 
-  public JaninoMeta(JaninoMeta m) {
-    this();
-    m.functions.forEach(f -> this.functions.add(new JaninoMetaFunction(f)));
-    this.javaTargetVersion = m.javaTargetVersion;
-  }
-
   /**
    * Resolved Janino compiler source/target version (major Java version number), for backwards
    * compatibility when pipelines omit {@link #javaTargetVersion} or contain invalid values.
@@ -95,11 +89,6 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
       return JAVA_TARGET_VERSION_DEFAULT;
     }
     return javaTargetVersion;
-  }
-
-  @Override
-  public Object clone() {
-    return new JaninoMeta(this);
   }
 
   @Override

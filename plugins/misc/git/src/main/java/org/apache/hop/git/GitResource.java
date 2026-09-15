@@ -22,6 +22,7 @@ import lombok.Getter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 
@@ -64,10 +65,8 @@ public class GitResource {
   @Getter private final Image resetImage;
   @Getter private final Image tagImage;
 
-  private static GitResource instance;
-
   /** Utility class */
-  private GitResource() {
+  GitResource() {
     GuiResource resource = GuiResource.getInstance();
 
     textInsertForegroundColor = resource.getColor(0, 255, 0);
@@ -118,11 +117,19 @@ public class GitResource {
     tagImage = getImage("tag.svg");
   }
 
+  private static GitResource fallback;
+
   public static GitResource getInstance() {
-    if (instance == null) {
-      instance = new GitResource();
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      return hopGui.getSessionSingleton(GitResource.class, GitResource::new);
     }
-    return instance;
+    synchronized (GitResource.class) {
+      if (fallback == null) {
+        fallback = new GitResource();
+      }
+      return fallback;
+    }
   }
 
   public Image getImage(String location) {

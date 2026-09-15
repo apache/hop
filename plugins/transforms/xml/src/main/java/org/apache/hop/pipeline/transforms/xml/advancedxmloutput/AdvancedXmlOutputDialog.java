@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -747,7 +748,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
             logError(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.ErrorGettingFields"), e);
           }
         };
-    new Thread(r, "AdvancedXMLOutput-FieldLookup").start();
+    BackgroundThreadFacade.start(r, "AdvancedXMLOutput-FieldLookup");
   }
 
   /** Synchronous re-fetch triggered by the "Get fields" button. */

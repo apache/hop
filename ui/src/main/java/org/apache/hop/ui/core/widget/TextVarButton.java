@@ -28,10 +28,13 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class TextVarButton extends TextVar {
+
+  private Button browseButton;
 
   public TextVarButton(
       IVariables variables,
@@ -73,6 +76,7 @@ public class TextVarButton extends TextVar {
     this.setLayout(formLayout);
 
     Button button = new Button(this, SWT.PUSH);
+    this.browseButton = button;
     PropsUi.setLook(button);
     button.setText("...");
     FormData fdButton = new FormData();
@@ -85,22 +89,24 @@ public class TextVarButton extends TextVar {
       button.addSelectionListener(selectionListener);
     }
 
-    // Add the variable $ image on the top right of the control
+    // Add the variable $ image on the top right of the control (left of the browse button)
     //
-    Label wlImage = new Label(this, SWT.NONE);
-    wlImage.setImage(GuiResource.getInstance().getImageVariableMini());
-    wlImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
+    wVariableImage = new Label(this, SWT.NONE);
+    PropsUi.setLook(wVariableImage);
+    wVariableImage.setImage(GuiResource.getInstance().getImageVariableMini());
+    wVariableImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
     fdlImage.top = new FormAttachment(0, 0);
     fdlImage.right = new FormAttachment(button, 0);
-    wlImage.setLayoutData(fdlImage);
+    wVariableImage.setLayoutData(fdlImage);
 
     // add a text field on it...
     wText = new Text(this, flags);
-    FormData fdText = new FormData();
+    PropsUi.setLook(wText);
+    fdText = new FormData();
     fdText.top = new FormAttachment(0, 0);
     fdText.left = new FormAttachment(0, 0);
-    fdText.right = new FormAttachment(wlImage, 0);
+    fdText.right = new FormAttachment(wVariableImage, 0);
     fdText.bottom = new FormAttachment(100, 0);
     wText.setLayoutData(fdText);
 
@@ -111,5 +117,10 @@ public class TextVarButton extends TextVar {
         new ControlSpaceKeyAdapter(
             variables, wText, getCaretPositionInterface, insertTextInterface);
     wText.addKeyListener(controlSpaceKeyAdapter);
+  }
+
+  @Override
+  protected Control getRightmostFixedControl() {
+    return browseButton;
   }
 }

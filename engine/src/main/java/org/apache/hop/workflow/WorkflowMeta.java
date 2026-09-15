@@ -64,6 +64,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -83,6 +84,7 @@ import org.w3c.dom.Node;
  */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-workflow")
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
   public static final String WORKFLOW_EXTENSION = ".hwf";
@@ -390,7 +392,7 @@ public class WorkflowMeta extends AbstractMeta
       throws HopXmlException {
     try {
       // OK, try to load using the VFS stuff...
-      Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(filename));
+      Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(filename, variables));
       if (doc != null) {
         // The workflowNode
         Node workflowNode = XmlHandler.getSubNode(doc, XML_TAG);
@@ -449,6 +451,23 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
+   * Replace this workflow's persisted content from a snapshot XML node. Used by GUI undo/redo.
+   *
+   * <p>Does not fire {@code WorkflowMetaLoaded} (undo is not a file open) and does not call {@link
+   * #clearChanged()} — the caller decides the dirty flag.
+   */
+  public void restoreContentFromXml(
+      Node workflowNode, String filename, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    this.metadataProvider = metadataProvider;
+    clear();
+    setFilename(filename);
+    XmlMetadataUtil.deSerializeFromXml(
+        null, null, workflowNode, WorkflowMeta.class, this, metadataProvider);
+    lookupReferencesAfterLoading();
+  }
+
+  /**
    * After loading there can still be some references to other transforms or indeed this pipeline
    * that need to be set. This is happening here.
    */
@@ -466,6 +485,31 @@ public class WorkflowMeta extends AbstractMeta
       //
       if (action instanceof MissingAction missingAction) {
         addMissingAction(missingAction);
+      }
+    }
+    dropHopsToActionsNotInTheFile();
+  }
+
+  /**
+   * A hop naming an action that the file does not contain - a name left behind by a rename or by an
+   * action that was deleted elsewhere - is resolved to null while de-serializing. Half of a hop is
+   * of no use to anyone: it is not drawn, it is not executed, and saving the workflow again writes
+   * it back with one end missing. So it is dropped here, and the user is told about it.
+   */
+  private void dropHopsToActionsNotInTheFile() {
+    for (int i = workflowHops.size() - 1; i >= 0; i--) {
+      WorkflowHopMeta hop = workflowHops.get(i);
+      ActionMeta from = hop.getFromAction();
+      ActionMeta to = hop.getToAction();
+      if (from == null || to == null) {
+        workflowHops.remove(i);
+        ActionMeta known = from == null ? to : from;
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "WorkflowMeta.Log.RemovedHopToUnknownAction",
+                known == null ? "?" : known.getName(),
+                Const.NVL(filename, getName())));
       }
     }
   }
@@ -593,8 +637,23 @@ public class WorkflowMeta extends AbstractMeta
       if (deleted.getAction() instanceof MissingAction missingAction) {
         removeMissingAction(missingAction);
       }
+      // No hop may keep pointing at an action that is no longer in the workflow: a hop that
+      // outlives its action is written back to the file as a reference to an action that isn't
+      // there.
+      //
+      removeHopsAttachedTo(deleted);
     }
     setChanged();
+  }
+
+  /** Drops every hop that starts or ends at an action. */
+  private void removeHopsAttachedTo(ActionMeta action) {
+    for (int i = workflowHops.size() - 1; i >= 0; i--) {
+      WorkflowHopMeta hop = workflowHops.get(i);
+      if (action.equals(hop.getFromAction()) || action.equals(hop.getToAction())) {
+        workflowHops.remove(i);
+      }
+    }
   }
 
   /**
@@ -779,7 +838,7 @@ public class WorkflowMeta extends AbstractMeta
     for (WorkflowHopMeta hop : workflowHops) {
       // Look at all the hops
 
-      if (hop.isEnabled() && hop.getToAction().equals(to)) {
+      if (hop.isEnabled() && to.equals(hop.getToAction())) {
         count++;
       }
     }
@@ -800,7 +859,7 @@ public class WorkflowMeta extends AbstractMeta
     for (WorkflowHopMeta hop : workflowHops) {
       // Look at all the hops
 
-      if (hop.isEnabled() && hop.getToAction().equals(to)) {
+      if (hop.isEnabled() && to.equals(hop.getToAction())) {
         if (count == nr) {
           return hop.getFromAction();
         }
@@ -1536,9 +1595,18 @@ public class WorkflowMeta extends AbstractMeta
         if (action != null) {
           checkAction(remarks, monitor, variables, metadataProvider, actionMeta, action);
         }
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkAction(
+                actionMeta, variables, metadataProvider));
         // Progress bar...
         monitor.worked(worked++);
       }
+
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL,
+          variables,
+          HopExtensionPoint.AfterCheckActions.id,
+          new CheckActionsExtension(remarks, variables, this, actions, metadataProvider));
 
       monitor.done();
     } catch (Exception e) {
@@ -1942,5 +2010,41 @@ public class WorkflowMeta extends AbstractMeta
   @Override
   public void setModifiedUser(String modifiedUser) {
     info.setModifiedUser(modifiedUser);
+  }
+
+  /**
+   * Gets the version of Hop that created the workflow.
+   *
+   * @return the Hop version that created the workflow, or null when it isn't known.
+   */
+  public String getCreatedHopVersion() {
+    return info.getCreatedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that created the workflow.
+   *
+   * @param createdHopVersion The Hop version to set.
+   */
+  public void setCreatedHopVersion(String createdHopVersion) {
+    info.setCreatedHopVersion(createdHopVersion);
+  }
+
+  /**
+   * Gets the version of Hop that last saved the workflow.
+   *
+   * @return the Hop version that last saved the workflow, or null when it isn't known.
+   */
+  public String getModifiedHopVersion() {
+    return info.getModifiedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that last saved the workflow.
+   *
+   * @param modifiedHopVersion The Hop version to set.
+   */
+  public void setModifiedHopVersion(String modifiedHopVersion) {
+    info.setModifiedHopVersion(modifiedHopVersion);
   }
 }

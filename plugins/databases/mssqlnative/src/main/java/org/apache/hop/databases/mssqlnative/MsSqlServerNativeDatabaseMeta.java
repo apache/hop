@@ -39,7 +39,8 @@ import org.eclipse.swt.widgets.Control;
     type = "MSSQLNATIVE",
     typeDescription = "MS SQL Server (Native)",
     image = "microsoft-sql.svg",
-    documentationUrl = "/database/databases/mssqlnative.html")
+    documentationUrl = "/database/databases/mssqlnative.html",
+    classLoaderGroup = "mssqlnative-db")
 @GuiPlugin(id = "GUI-MSSQLServerNativeDatabaseMeta")
 public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     implements IGuiPluginCompositeWidgetsListener {
@@ -177,11 +178,6 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   public String getSqlListOfSchemas() {
     // Do not inherit from the old MS SQL driver.
     return null;
-  }
-
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
   }
 
   @Override

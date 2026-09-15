@@ -48,10 +48,18 @@ public class WebDavVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<WebDavConnection> connections =
           metadataProvider.getSerializer(WebDavConnection.class).loadAll();
       for (WebDavConnection connection : connections) {

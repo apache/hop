@@ -43,6 +43,7 @@ public class JsonExplorerFileType extends BaseTextExplorerFileType<JsonExplorerF
         new String[] {"*.json"},
         new String[] {"JSON files"},
         FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_NEW,
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,

@@ -180,48 +180,6 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     this("");
   }
 
-  public ActionPGPDecryptFiles(ActionPGPDecryptFiles a) {
-    super(a);
-    this.argFromPrevious = a.argFromPrevious;
-    this.includeSubFolders = a.includeSubFolders;
-    this.addResultFilenames = a.addResultFilenames;
-    this.destinationIsAFile = a.destinationIsAFile;
-    this.createDestinationFolder = a.createDestinationFolder;
-    this.nrErrorsLessThan = a.nrErrorsLessThan;
-    this.successCondition = a.successCondition;
-    this.addDate = a.addDate;
-    this.addTime = a.addTime;
-    this.specifyFormat = a.specifyFormat;
-    this.dateTimeFormat = a.dateTimeFormat;
-    this.addDateBeforeExtension = a.addDateBeforeExtension;
-    this.doNotKeepFolderStructure = a.doNotKeepFolderStructure;
-    this.ifFileExists = a.ifFileExists;
-    this.destinationFolder = a.destinationFolder;
-    this.ifMovedFileExists = a.ifMovedFileExists;
-    this.movedDateTimeFormat = a.movedDateTimeFormat;
-    this.addMovedDateBeforeExtension = a.addMovedDateBeforeExtension;
-    this.addMovedDate = a.addMovedDate;
-    this.addMovedTime = a.addMovedTime;
-    this.specifyMoveFormat = a.specifyMoveFormat;
-    this.createMoveToFolder = a.createMoveToFolder;
-    this.gpgLocation = a.gpgLocation;
-    this.filesToDecrypt = new ArrayList<>();
-    a.filesToDecrypt.forEach(f -> filesToDecrypt.add(new FileToDecrypt(f)));
-
-    this.daf = null;
-    this.gpg = null;
-    this.nrErrors = 0;
-    this.nrSuccess = 0;
-    this.successConditionBroken = false;
-    this.successConditionBrokenExit = false;
-    this.limitFiles = 0;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionPGPDecryptFiles(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) throws HopException {
     List<RowMetaAndData> rows = result.getRows();

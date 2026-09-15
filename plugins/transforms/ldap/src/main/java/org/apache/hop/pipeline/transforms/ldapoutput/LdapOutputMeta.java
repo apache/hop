@@ -502,14 +502,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   @Override
   public Object clone() {
     LdapOutputMeta retval = (LdapOutputMeta) super.clone();
-    if (fields != null) {
-      retval.fields = new ArrayList<>();
-      for (LdapOutputField field : fields) {
-        retval.fields.add(
-            new LdapOutputField(
-                field.getUpdateLookup(), field.getUpdateStream(), field.isUpdate()));
-      }
-    } else {
+    if (retval.fields == null) {
       retval.fields = new ArrayList<>();
     }
     return retval;

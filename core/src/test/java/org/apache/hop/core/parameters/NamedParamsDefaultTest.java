@@ -79,17 +79,19 @@ class NamedParamsDefaultTest {
   }
 
   @Test
-  void testActivateParametersPrefersExistingVariableOverNonEmptyDefault() throws Exception {
-    // Nested pipelines often declare HOSTNAME default "localhost"; that must not clobber env.
+  void testActivateParametersNonEmptyDefaultWinsOverExistingVariable() throws Exception {
+    // Issue #8084: a declared parameter isolates its owner from an unrelated, same-named
+    // variable that happens to sit in the caller's scope. Nothing was passed to my-param, so
+    // its own default applies - not the value some other pipeline left behind on the workflow.
     Variables variables = new Variables();
-    variables.setVariable("HOSTNAME", "http");
+    variables.setVariable("my-param", "producer-value");
 
-    namedParams.addParameterDefinition("HOSTNAME", "localhost", "HTTP host");
+    namedParams.addParameterDefinition("my-param", "consumer-default", "Own default");
     namedParams.addParameterDefinition("ONLY_DEFAULT", "from-default", "No prior variable");
 
     namedParams.activateParameters(variables);
 
-    assertEquals("http", variables.getVariable("HOSTNAME"));
+    assertEquals("consumer-default", variables.getVariable("my-param"));
     assertEquals("from-default", variables.getVariable("ONLY_DEFAULT"));
   }
 

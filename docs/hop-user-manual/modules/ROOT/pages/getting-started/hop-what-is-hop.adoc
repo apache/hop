@@ -52,7 +52,7 @@ Depending on the engine and selected functionality, your data can be processed i
 A number of common use cases for Hop are:
 
 * Loading large data sets into databases taking advantage of the cloud, clustered, and massively parallel processing environments.
-* Data warehouse population with built-in support for Slowly Changing Dimensions (SCD), Change Data Capture (CDC), and surrogate key creation.
+* Data warehouse population with built-in support for Slowly Changing Dimensions (SCD), xref:how-to-guides/change-data-capture.adoc[Change Data Capture (CDC)], and surrogate key creation.
 * Integrate between diverse data architectures, combining relational databases, files, NoSQL databases like Neo4j, MongoDB, Cassandra etc
 * Data migration between different databases and applications.
 * Data profiling and data cleansing.

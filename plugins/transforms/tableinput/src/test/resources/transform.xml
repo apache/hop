@@ -24,4 +24,22 @@
     <sql>SELECT ID, NAME FROM PUBLIC.DDLTEST WHERE NAME = ?</sql>
     <sql_from_file/>
     <variables_active>Y</variables_active>
+    <specify_fields>Y</specify_fields>
+    <validate_specified_fields>Y</validate_specified_fields>
+    <fields>
+        <field>
+            <name>ID</name>
+            <type>Integer</type>
+            <length>-1</length>
+            <precision>-1</precision>
+            <format/>
+        </field>
+        <field>
+            <name>NAME</name>
+            <type>String</type>
+            <length>-1</length>
+            <precision>-1</precision>
+            <format/>
+        </field>
+    </fields>
 </transform>

@@ -16,8 +16,6 @@ under the License.
 ////
 [[DeployExportResources]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: Run a bare Hop Server and send it work from hop-run, Hop Gui or Airflow with a remote run configuration and export resources enabled.
 
 = Remote run with export resources
@@ -37,8 +35,8 @@ When export resources is enabled, Hop walks the parent pipeline or workflow and 
 It then:
 
 * serializes the client's project metadata to `metadata.json` inside the ZIP
-* rewrites sibling Hop files to `{openvar}Internal.Entry.Current.Folder{closevar}/...`
-* rewrites named data folders to `{openvar}DATA_PATH_n{closevar}/...`
+* rewrites sibling Hop files to `+${Internal.Entry.Current.Folder}/...+`
+* rewrites named data folders to `+${DATA_PATH_n}/...+`
 * adds the execution configuration XML, including the variables that were resolved on the client
 * sends the ZIP to the server, which runs from the archive *without* unzipping it into a project home
 
@@ -49,15 +47,15 @@ The remote run configuration has two folder fields that matter as soon as you to
 |Option |What to put there
 
 |Named resources reference source folder
-|Typically `{openvar}PROJECT_HOME{closevar}`
+|Typically `+${PROJECT_HOME}+`
 
 |Named resources reference target folder
 |A directory that *exists on the server* (or is mounted there)
 |===
 
-Result: `{openvar}DATA_PATH_1{closevar}` is set to the target mapping of that folder, for example `/data/incoming`.
+Result: `+${DATA_PATH_1}+` is set to the target mapping of that folder, for example `/data/incoming`.
 
-If you leave the target empty, `{openvar}DATA_PATH_n{closevar}` keeps the *client's* absolute path, which is almost never valid on the server.
+If you leave the target empty, `+${DATA_PATH_n}+` keeps the *client's* absolute path, which is almost never valid on the server.
 
 The same options are documented on the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] and xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] pages.
 
@@ -79,7 +77,7 @@ A "Write to file" transform with a hardcoded laptop path will fail on the server
 
 Practical rules:
 
-* Express every path as a variable (`{openvar}PROJECT_HOME{closevar}`, `{openvar}DATA_IN{closevar}`, ...), never as a developer laptop path.
+* Express every path as a variable (`+${PROJECT_HOME}+`, `+${DATA_IN}+`, ...), never as a developer laptop path.
 * Prefer environment *variables* over sidecar files if you must use this pattern.
 * Pre-stage shared files on the server and set the named-resource target folder to that location.
 * If the project has many file dependencies, use xref:hop-server/deploy-project-image.adoc[a project image] or a xref:hop-server/deploy-git-checkout.adoc[git checkout] instead.
@@ -93,14 +91,14 @@ You do not pass `-j` as well.
 ----
 hop-run.sh -e prod \
   -r remote-on-server \
-  -f '{openvar}PROJECT_HOME{closevar}/main.hwf'
+  -f '${PROJECT_HOME}/main.hwf'
 ----
 
 `remote-on-server` is a Remote run configuration in the project metadata:
 
 * Hop Server host, port and credentials
 * *Export linked resources to server?* enabled
-* Named resources source folder: `{openvar}PROJECT_HOME{closevar}`
+* Named resources source folder: `+${PROJECT_HOME}+`
 * Named resources target folder: a path that exists on the server, for example `/data/project`
 
 Hop Gui uses the same run configuration.
@@ -127,7 +125,7 @@ run_on_hop_server = BashOperator(
     bash_command=(
         "hop-run.sh -e prod "
         "-r remote-on-server "
-        "-f '{openvar}PROJECT_HOME{closevar}/main.hwf'"
+        "-f '${PROJECT_HOME}/main.hwf'"
     ),
 )
 ----

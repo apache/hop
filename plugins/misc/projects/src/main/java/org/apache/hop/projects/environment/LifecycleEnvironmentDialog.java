@@ -36,6 +36,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.AttributesDialogExtension;
@@ -47,9 +48,12 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -77,7 +81,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Text wName;
+  private TextVar wName;
   private Combo wPurpose;
   private Combo wProject;
   private Text wCanvasText;
@@ -153,6 +157,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, event -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOK, wCancel}, margin * 3, null);
+    HelpUtils.createHelpButton(shell, Const.getDocUrl(Defaults.DOCUMENTATION_URI));
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder);
@@ -171,6 +176,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     attributesContext.setProjectName(environment.getProjectName());
     attributesContext.setEnvironmentName(environment.getName());
     attributesContext.setPurpose(environment.getPurpose());
+    // Tabs resolve project relative paths against this; without it they fall back to the Hop
+    // install directory (issue #8012).
+    attributesContext.setProjectHome(projectHomeOf(environment.getProjectName()));
     if (environment.getConfigurationFiles() != null) {
       attributesContext.setConfigurationFiles(new ArrayList<>(environment.getConfigurationFiles()));
     }
@@ -221,7 +229,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wName =
+        new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
@@ -346,6 +356,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
               false),
         };
     columnInfo[0].setUsingVariables(true);
+    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
 
     wConfigFiles =
         new TableView(
@@ -723,6 +734,25 @@ public class LifecycleEnvironmentDialog extends Dialog {
   public void dispose() {
     props.setScreen(new WindowProperty(shell));
     shell.dispose();
+  }
+
+  /**
+   * The home folder of the project this environment belongs to, with variables expanded. Empty when
+   * the project is unknown or has no home configured.
+   */
+  private String projectHomeOf(String projectName) {
+    if (StringUtils.isEmpty(projectName)) {
+      return null;
+    }
+    try {
+      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+      ProjectConfig projectConfig = config == null ? null : config.findProjectConfig(projectName);
+      String home = projectConfig == null ? null : projectConfig.getProjectHome();
+      return StringUtils.isEmpty(home) ? null : variables.resolve(home);
+    } catch (Exception e) {
+      // Best effort: an unreadable projects config must not stop the dialog from opening.
+      return null;
+    }
   }
 
   private void getData() {

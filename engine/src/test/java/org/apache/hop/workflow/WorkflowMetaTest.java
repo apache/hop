@@ -34,6 +34,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
@@ -440,5 +441,94 @@ class WorkflowMetaTest {
     assertTrue(copy23.isUnconditional());
     assertEquals(copy2, copy23.getFrom());
     assertEquals(copy3, copy23.getTo());
+  }
+
+  /**
+   * A hop naming an action that the file does not contain - the state {@code
+   * main-0012-fuzzymatch.hwf} was in before <a href="https://github.com/apache/hop/pull/7989">
+   * #7989</a> - resolves to null, so it is dropped rather than kept as half a hop that is neither
+   * drawn, executed, nor saved in one piece.
+   */
+  @Test
+  void loadingDropsAHopThatNamesAnActionNotInTheFile() throws Exception {
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<workflow>\n"
+            + "  <name>fuzzymatch</name>\n"
+            + "  <actions>\n"
+            + "    <action><name>Start</name><type>ActionFake</type></action>\n"
+            + "    <action><name>Run Fuzzy match tests</name><type>ActionFake</type></action>\n"
+            + "  </actions>\n"
+            + "  <hops>\n"
+            + "    <hop><from>Start</from><to>Run Group By tests</to><enabled>Y</enabled></hop>\n"
+            + "  </hops>\n"
+            + "</workflow>";
+
+    // Dropping the hop is logged, and logging needs a log store to write to.
+    HopLogStore.init();
+
+    WorkflowMeta loaded = new WorkflowMeta();
+    loaded.loadXml(
+        XmlHandler.loadXmlString(xml, WorkflowMeta.XML_TAG),
+        null,
+        new MemoryMetadataProvider(),
+        variables);
+
+    assertEquals(2, loaded.nrActions());
+    assertEquals(0, loaded.nrWorkflowHops(), "the hop points at an action that is not in the file");
+    assertFalse(
+        loaded.getXml(variables).contains("Run Group By tests"),
+        "saving must not write the unresolvable reference back");
+  }
+
+  /** Deleting an action takes the hops attached to it along, whoever does the deleting. */
+  @Test
+  void removingAnActionDropsTheHopsAttachedToIt() {
+    ActionMeta first = new ActionMeta(new ActionDummy());
+    first.setName("first");
+    ActionMeta second = new ActionMeta(new ActionDummy());
+    second.setName("second");
+    ActionMeta third = new ActionMeta(new ActionDummy());
+    third.setName("third");
+    workflowMeta.addAction(first);
+    workflowMeta.addAction(second);
+    workflowMeta.addAction(third);
+    workflowMeta.addWorkflowHop(new WorkflowHopMeta(first, second));
+    workflowMeta.addWorkflowHop(new WorkflowHopMeta(second, third));
+
+    workflowMeta.removeAction(workflowMeta.indexOfAction(second));
+
+    assertEquals(0, workflowMeta.nrWorkflowHops(), "both hops were attached to the deleted action");
+  }
+
+  /**
+   * A disabled hop is a hop the user switched off, not a broken one: dropping unresolvable
+   * references may not touch it.
+   */
+  @Test
+  void loadingKeepsDisabledHops() throws Exception {
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<workflow>\n"
+            + "  <name>disabled</name>\n"
+            + "  <actions>\n"
+            + "    <action><name>Start</name><type>ActionFake</type></action>\n"
+            + "    <action><name>Second</name><type>ActionFake</type></action>\n"
+            + "  </actions>\n"
+            + "  <hops>\n"
+            + "    <hop><from>Start</from><to>Second</to><enabled>N</enabled></hop>\n"
+            + "  </hops>\n"
+            + "</workflow>";
+
+    WorkflowMeta loaded = new WorkflowMeta();
+    loaded.loadXml(
+        XmlHandler.loadXmlString(xml, WorkflowMeta.XML_TAG),
+        null,
+        new MemoryMetadataProvider(),
+        variables);
+
+    assertEquals(1, loaded.nrWorkflowHops(), "the disabled hop must survive the load");
+    assertFalse(loaded.getWorkflowHop(0).isEnabled());
+    assertTrue(loaded.getXml(variables).contains("<enabled>N</enabled>"));
   }
 }

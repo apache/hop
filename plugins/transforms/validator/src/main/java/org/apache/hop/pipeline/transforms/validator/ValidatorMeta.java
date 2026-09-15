@@ -92,16 +92,6 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
       injectionKeyDescription = "Validator.Injection.SUPPRESS_LOG_FAILED_DATA")
   private boolean suppressingLogFailedData;
 
-  /**
-   * When true, no log line is written for every rejected row. Error rows are still sent to the
-   * error handling hop. Defaults to false so existing pipelines keep logging every rejected row.
-   */
-  @HopMetadataProperty(
-      key = "suppress_error_log",
-      injectionKey = "SUPPRESS_ERROR_LOG",
-      injectionKeyDescription = "Validator.Injection.SUPPRESS_ERROR_LOG")
-  private boolean suppressingErrorLog;
-
   /** The standard new validation stream */
   @Getter @Setter
   private static IStream newValidation =
@@ -114,21 +104,6 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
 
   public ValidatorMeta() {
     this.validations = new ArrayList<>();
-  }
-
-  public ValidatorMeta(ValidatorMeta m) {
-    this();
-    m.validations.forEach(v -> this.validations.add(new Validation(v)));
-    this.validatingAll = m.validatingAll;
-    this.concatenatingErrors = m.concatenatingErrors;
-    this.concatenationSeparator = m.concatenationSeparator;
-    this.suppressingLogFailedData = m.suppressingLogFailedData;
-    this.suppressingErrorLog = m.suppressingErrorLog;
-  }
-
-  @Override
-  public ValidatorMeta clone() {
-    return new ValidatorMeta(this);
   }
 
   @Override

@@ -90,6 +90,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
@@ -192,6 +194,19 @@ public abstract class Pipeline
 
   /** The pipeline metadata to execute. */
   protected PipelineMeta pipelineMeta;
+
+  /**
+   * The way this engine drives the transforms. {@link PipelineMeta.PipelineType#Normal} gives every
+   * transform its own thread and blocking row sets; {@link
+   * PipelineMeta.PipelineType#SingleThreaded} leaves the transforms to be driven one iteration at a
+   * time by a {@link SingleThreadedPipelineExecutor}.
+   *
+   * <p>This belongs to the engine, never to the pipeline metadata: the same pipeline can be run
+   * either way and nothing about the run may be written back into the design-time metadata.
+   * Transforms that embed a sub-pipeline (Simple Mapping, Kafka Consumer, the Beam and Spark
+   * workers) set this on the child engine they create.
+   */
+  @Getter @Setter private PipelineMeta.PipelineType pipelineType = PipelineMeta.PipelineType.Normal;
 
   /** The MetaStore to use */
   protected IHopMetadataProvider metadataProvider;
@@ -563,8 +578,73 @@ public abstract class Pipeline
    *
    * @throws HopException in case the pipeline could not be prepared (initialized)
    */
+  /** The VFS namespace of this execution, when it runs against metadata of its own. */
+  private HopVfsNamespace vfsNamespace;
+
+  /** The metadata it was taken for. Kept so it is let go of by the same key it was taken with. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
   @Override
   public void prepareExecution() throws HopException {
+    // A pipeline carrying its own metadata - an export running on a Hop Server - resolves its
+    // named VFS connections in its own namespace, not in the one the server was started with.
+    vfsNamespaceProvider = getMetadataProvider();
+    vfsNamespace =
+        HopVfsNamespaces.acquire(this, vfsNamespaceProvider, "pipeline " + pipelineMeta.getName());
+    HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
+    boolean prepared = false;
+    try {
+      prepareExecutionInternal();
+      prepared = true;
+    } catch (Throwable e) {
+      // Still on the bound namespace: bringing the pipeline down can touch its files.
+      flagPreparationFailure(e);
+      throw e;
+    } finally {
+      HopVfsNamespaces.restoreThread(previous);
+      if (!prepared) {
+        // Preparation failed, so nothing will ever finish this pipeline and let the namespace go.
+        // On a server that would leak a file system manager for every export that fails to start.
+        releaseVfsNamespace();
+      }
+    }
+  }
+
+  /** Let go of the VFS namespace of this execution, once and by the key it was taken with. */
+  private void releaseVfsNamespace() {
+    if (vfsNamespace != null) {
+      HopVfsNamespaces.release(vfsNamespaceProvider);
+      vfsNamespace = null;
+      vfsNamespaceProvider = null;
+    }
+  }
+
+  /**
+   * A pipeline whose preparation failed never runs, and never reaches a terminal state by itself:
+   * it is left flagged as preparing or initializing. A Hop server keeps such an object in its map
+   * forever, because the timer that purges stale objects only collects the ones that are finished
+   * or stopped. Stop the pipeline and record the error so it is reported as a failure and can be
+   * cleaned up. See issue #3861.
+   */
+  protected void flagPreparationFailure(Throwable e) {
+    errors.incrementAndGet();
+    // Nothing else logs this: the exception travels up to whoever asked for the execution, which
+    // on a server is an HTTP reply that the pipeline's own log never sees. Report it the way a
+    // pipeline reports any other error, so it shows up wherever the log does.
+    if (e != null) {
+      log.logError(
+          BaseMessages.getString(PKG, "Pipeline.Log.ErrorPreparingPipeline", e.getMessage()), e);
+    }
+    if (isFinished() || isStopped()) {
+      // An inner failure handler already brought the pipeline to a terminal state.
+      return;
+    }
+    // Stopping is the terminal state this pipeline can still reach through the normal path: it
+    // releases whatever was already initialized and alerts the execution stopped listeners.
+    stopAll();
+  }
+
+  private void prepareExecutionInternal() throws HopException {
     setPreparing(true);
     executionStartDate = new Date();
     setRunning(false);
@@ -775,7 +855,7 @@ public abstract class Pipeline
         if (dispatchType != TYPE_DISP_N_M) {
           for (int c = 0; c < nrCopies; c++) {
             IRowSet rowSet;
-            switch (pipelineMeta.getPipelineType()) {
+            switch (getPipelineType()) {
               case Normal:
                 // This is a temporary patch until the batching rowset has proven
                 // to be working in all situations.
@@ -800,8 +880,7 @@ public abstract class Pipeline
                 break;
 
               default:
-                throw new HopException(
-                    "Unhandled pipeline type: " + pipelineMeta.getPipelineType());
+                throw new HopException("Unhandled pipeline type: " + getPipelineType());
             }
 
             switch (dispatchType) {
@@ -1251,6 +1330,15 @@ public abstract class Pipeline
    */
   @Override
   public void startThreads() throws HopException {
+    HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
+    try {
+      startThreadsInternal();
+    } finally {
+      HopVfsNamespaces.restoreThread(previous);
+    }
+  }
+
+  private void startThreadsInternal() throws HopException {
     // Now prepare to start all the threads...
     //
     nrOfFinishedTransforms = 0;
@@ -1391,8 +1479,8 @@ public abstract class Pipeline
           // Safe here: all transform threads have finished before this listener runs.
           cleanupRowSets();
 
-          // release unused vfs connections
-          HopVfs.freeUnusedResources();
+          // release unused vfs connections, of the namespace this pipeline resolved its files in
+          HopVfs.freeUnusedResources(this);
         };
     // This should always be done first so that the other listeners achieve a clean state to start
     // from (setFinished and
@@ -1402,7 +1490,7 @@ public abstract class Pipeline
 
     setRunning(true);
 
-    switch (pipelineMeta.getPipelineType()) {
+    switch (getPipelineType()) {
       case Normal:
 
         // Now start all the threads...
@@ -1498,6 +1586,10 @@ public abstract class Pipeline
     //
     ExtensionPointHandler.callExtensionPoint(
         log, this, HopExtensionPoint.PipelineCompleted.id, this);
+
+    // Only now: everything above can still touch files of this namespace, and closing it
+    // invalidates every file object resolved through it - the result files carry those.
+    releaseVfsNamespace();
   }
 
   public void pipelineCompleted() throws HopException {
@@ -1795,14 +1887,20 @@ public abstract class Pipeline
   /** Stops all transforms from running, and alerts any registered listeners. */
   @Override
   public void stopAll() {
-    if (transforms == null || isAlreadyStopped.get()) {
+    if (isAlreadyStopped.get()) {
       return;
     }
 
-    transforms.forEach(combi -> stopTransform(combi, false));
+    // A pipeline that never got as far as allocating its transforms can still be stopped: it just
+    // has nothing to stop. Bailing out here used to leave it without a terminal state.
+    if (transforms != null) {
+      transforms.forEach(combi -> stopTransform(combi, false));
+    }
 
-    // if it is stopped it is not paused
+    // if it is stopped it is not paused, nor is it still preparing or initializing
     setPaused(false);
+    setPreparing(false);
+    setInitializing(false);
     setStopped(true);
     isAlreadyStopped.set(true);
 
@@ -2148,11 +2246,10 @@ public abstract class Pipeline
 
     // We are going to add an extra IRowSet to this iTransform.
     IRowSet rowSet =
-        switch (pipelineMeta.getPipelineType()) {
+        switch (getPipelineType()) {
           case Normal -> new BlockingRowSet(rowSetSize);
           case SingleThreaded -> new QueueRowSet();
-          default ->
-              throw new HopException("Unhandled pipeline type: " + pipelineMeta.getPipelineType());
+          default -> throw new HopException("Unhandled pipeline type: " + getPipelineType());
         };
 
     // Add this rowset to the list of active rowsets for the selected transform

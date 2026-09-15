@@ -147,6 +147,16 @@ public class LabelTextVar extends Composite {
     wText.addTraverseListener(tl);
   }
 
+  public LabelTextVar enableNamingSchemes(String type) {
+    wText.enableNamingSchemes(type);
+    return this;
+  }
+
+  public LabelTextVar asNameField(String type) {
+    wText.asNameField(type);
+    return this;
+  }
+
   public Text getTextWidget() {
     return wText.getTextWidget();
   }

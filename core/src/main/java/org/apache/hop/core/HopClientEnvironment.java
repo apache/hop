@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.types.DatabaseTypeRulesPluginType;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
@@ -78,12 +79,15 @@ public class HopClientEnvironment {
     init(
         List.of(
             LoggingPluginType.getInstance(),
+            org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),
             ValueMetaPluginType.getInstance(),
             DatabasePluginType.getInstance(),
+            DatabaseTypeRulesPluginType.getInstance(),
             ExtensionPointPluginType.getInstance(),
             TwoWayPasswordEncoderPluginType.getInstance(),
             VariableResolverPluginType.getInstance(),
-            VfsPluginType.getInstance()));
+            VfsPluginType.getInstance(),
+            org.apache.hop.core.diagram.DiagramExporterPluginType.getInstance()));
   }
 
   public static synchronized void init(List<IPluginType> pluginsToLoad) throws HopException {

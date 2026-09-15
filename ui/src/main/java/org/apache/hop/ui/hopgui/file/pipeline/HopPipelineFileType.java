@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -167,6 +168,10 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       //
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(BaseMessages.getString(PKG, "HopPipelineFileType.New.Text"));
+
+      // Record the version of Hop creating this pipeline
+      //
+      pipelineMeta.setCreatedHopVersion(Const.NVL(Const.getHopVersion(), ""));
 
       // Pass the MetadataProvider for reference lookups
       //

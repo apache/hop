@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
@@ -42,6 +41,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
 import org.apache.hop.lineage.model.FileIoOperation;
@@ -651,7 +651,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   @Override
   public boolean init() {
     if (super.init()) {
-      data.staxInstance = XMLInputFactory.newInstance(); // could select the parser later on
+      data.staxInstance = XmlParserFactoryProducer.createSecureXmlInputFactory();
       data.staxInstance.setProperty("javax.xml.stream.isCoalescing", false);
       data.filenr = 0;
       if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).isEmpty()

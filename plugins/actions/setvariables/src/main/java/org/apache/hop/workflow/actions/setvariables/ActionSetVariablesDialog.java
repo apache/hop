@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -98,7 +99,9 @@ public class ActionSetVariablesDialog extends ActionDialog {
     fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(0, margin);
     wlFilename.setLayoutData(fdlFilename);
-    wFilename = new TextVar(variables, gFilename, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, gFilename, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
@@ -200,6 +203,7 @@ public class ActionSetVariablesDialog extends ActionDialog {
           false),
     };
     colinf[0].setUsingVariables(true);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[1].setUsingVariables(true);
 
     wFields =

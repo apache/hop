@@ -84,6 +84,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
+import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
@@ -173,6 +174,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private Dataset<Row> resultDataset;
   private Thread sparkThread;
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkNativeMetricsListener metricsListener;
   private SparkExecutionDataAccumulator sampleDataAccumulator;
   private Timer metricsRefreshTimer;
 
@@ -296,6 +298,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       metricsAccumulator = new SparkTransformMetricsAccumulator();
       sparkSession.sparkContext().register(metricsAccumulator, "hop-transform-metrics");
       converter.setMetricsAccumulator(metricsAccumulator);
+      // Native Dataset stages: Spark's own SQL metrics → same accumulator, via a listener
+      metricsListener = new SparkNativeMetricsListener(metricsAccumulator);
+      metricsListener.addTo(sparkSession.sparkContext());
+      converter.setMetricsListener(metricsListener);
       sampleDataAccumulator = new SparkExecutionDataAccumulator();
       sparkSession.sparkContext().register(sampleDataAccumulator, "hop-execution-sample-data");
       converter.setSampleDataAccumulator(sampleDataAccumulator);
@@ -350,6 +356,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   }
                   ExecutorUtil.cleanup(metricsRefreshTimer);
                   try {
+                    if (metricsListener != null && sparkSession != null) {
+                      // Drain the listener bus so the last task events are in the accumulator
+                      metricsListener.flush(sparkSession.sparkContext(), 5000L);
+                    }
                     populateEngineMetrics();
                   } catch (Exception emEx) {
                     logChannel.logError("Error populating final engine metrics", emEx);
@@ -604,11 +614,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               updatePipelineState(iLocation);
             } catch (Exception e) {
               if (logChannel != null) {
-                logChannel.logBasic(
+                logChannel.logError(
                     "Warning: unable to register execution info at location "
                         + executionInfoLocation.getName()
-                        + " (non-fatal): "
-                        + e.getMessage());
+                        + " (non-fatal)",
+                    e);
               }
             }
           }
@@ -1207,6 +1217,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   public void cleanup() {
     ExecutorUtil.cleanup(metricsRefreshTimer);
     ExecutorUtil.cleanup(executionInfoTimer);
+    if (sparkSession != null && metricsListener != null) {
+      // Shared / nested sessions keep running: never leave a stale listener behind
+      metricsListener.removeFrom(sparkSession.sparkContext());
+      metricsListener = null;
+    }
     if (sparkSession != null) {
       try {
         // Only stop sessions this engine created. Nested Pipeline Executor children and

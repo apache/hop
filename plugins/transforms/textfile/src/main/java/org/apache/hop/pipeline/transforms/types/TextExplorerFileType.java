@@ -43,6 +43,7 @@ public class TextExplorerFileType extends BaseTextExplorerFileType<TextExplorerF
         new String[] {"*.txt"},
         new String[] {"TXT files"},
         FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_NEW,
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,

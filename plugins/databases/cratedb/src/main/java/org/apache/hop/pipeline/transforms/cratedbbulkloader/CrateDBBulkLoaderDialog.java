@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
@@ -45,16 +44,18 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -216,7 +217,9 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(lastControl, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
@@ -382,7 +385,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
   }
 
   private void addAwsAuthenticationTab(
@@ -431,6 +434,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
             toggleKeysSelection();
           }
         });
@@ -1020,43 +1024,23 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (!StringUtils.isEmpty(input.getConnection())) {
-      wConnection.setText(input.getConnection());
-    }
-    if (!StringUtils.isEmpty(input.getSchemaName())) {
-      wSchema.setText(input.getSchemaName());
-    }
-    if (!StringUtils.isEmpty(input.getTableName())) {
-      wTable.setText(input.getTableName());
-    }
+    wConnection.setText(Const.NVL(input.getConnection(), ""));
+    wSchema.setText(Const.NVL(input.getSchemaName(), ""));
+    wTable.setText(Const.NVL(input.getTableName(), ""));
 
     wUseHTTPEndpoint.setSelection(input.isUseHttpEndpoint());
-
-    if (input.isUseHttpEndpoint()) {
-      wHttpEndpoint.setText(input.getHttpEndpoint());
-      wBatchSize.setText(Const.NVL(input.getBatchSize(), ""));
-      wHttpLogin.setText(Const.NVL(input.getHttpLogin(), ""));
-      wHttpPassword.setText(Const.NVL(input.getHttpPassword(), ""));
-    }
+    wHttpEndpoint.setText(Const.NVL(input.getHttpEndpoint(), ""));
+    wBatchSize.setText(Const.NVL(input.getBatchSize(), ""));
+    wHttpLogin.setText(Const.NVL(input.getHttpLogin(), ""));
+    wHttpPassword.setText(Const.NVL(input.getHttpPassword(), ""));
 
     wUseSystemVars.setSelection(input.isUseSystemEnvVars());
-    if (!input.isUseSystemEnvVars()) {
-      if (!StringUtil.isEmpty(input.getAwsAccessKeyId())) {
-        wAccessKeyId.setText(input.getAwsAccessKeyId());
-      }
-      if (!StringUtils.isEmpty(input.getAwsSecretAccessKey())) {
-        wSecretAccessKey.setText(input.getAwsSecretAccessKey());
-      }
-    }
+    wAccessKeyId.setText(Const.NVL(input.getAwsAccessKeyId(), ""));
+    wSecretAccessKey.setText(Const.NVL(input.getAwsSecretAccessKey(), ""));
 
     wStreamToRemoteCsv.setSelection(input.isStreamToS3Csv());
-    if (!StringUtils.isEmpty(input.getReadFromFilename())) {
-      wReadFromFilename.setText(input.getReadFromFilename());
-    }
-
-    if (!StringUtils.isEmpty(input.getVolumeMapping())) {
-      wLocalRemoteVolumeMapping.setText(input.getVolumeMapping());
-    }
+    wReadFromFilename.setText(Const.NVL(input.getReadFromFilename(), ""));
+    wLocalRemoteVolumeMapping.setText(Const.NVL(input.getVolumeMapping(), ""));
 
     // wTruncate.setSelection(input.isTruncateTable());
     // wOnlyWhenHaveRows.setSelection(input.isOnlyWhenHaveRows());
@@ -1083,44 +1067,22 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
 
   private void getInfo(CrateDBBulkLoaderMeta info) {
 
-    if (!StringUtils.isEmpty(wConnection.getText())) {
-      info.setConnection(wConnection.getText());
-    }
-
-    if (!StringUtils.isEmpty(wSchema.getText())) {
-      info.setSchemaName(wSchema.getText());
-    }
-
-    if (!StringUtils.isEmpty(wTable.getText())) {
-      info.setTablename(wTable.getText());
-    }
+    info.setConnection(wConnection.getText());
+    info.setSchemaName(wSchema.getText());
+    info.setTablename(wTable.getText());
 
     info.setUseHttpEndpoint(wUseHTTPEndpoint.getSelection());
-    if (wUseHTTPEndpoint.getSelection()) {
-      info.setHttpEndpoint(wHttpEndpoint.getText());
-      info.setBatchSize(wBatchSize.getText());
-      info.setHttpLogin(wHttpLogin.getText());
-      info.setHttpPassword(wHttpPassword.getText());
-    }
+    info.setHttpEndpoint(wHttpEndpoint.getText());
+    info.setBatchSize(wBatchSize.getText());
+    info.setHttpLogin(wHttpLogin.getText());
+    info.setHttpPassword(wHttpPassword.getText());
 
-    if (wUseSystemVars.getSelection()) {
-      info.setUseSystemEnvVars(wUseSystemVars.getSelection());
-    } else {
-      info.setUseSystemEnvVars(wUseSystemVars.getSelection());
-      if (!StringUtils.isEmpty(wAccessKeyId.getText())) {
-        info.setAwsAccessKeyId(wAccessKeyId.getText());
-      }
-      if (!StringUtil.isEmpty(wSecretAccessKey.getText())) {
-        info.setAwsSecretAccessKey(wSecretAccessKey.getText());
-      }
-    }
-    // info.setTruncateTable(wTruncate.getSelection());
-    // info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
+    info.setUseSystemEnvVars(wUseSystemVars.getSelection());
+    info.setAwsAccessKeyId(wAccessKeyId.getText());
+    info.setAwsSecretAccessKey(wSecretAccessKey.getText());
+
     info.setStreamToS3Csv(wStreamToRemoteCsv.getSelection());
-
-    if (!StringUtils.isEmpty(wReadFromFilename.getText())) {
-      info.setReadFromFilename(wReadFromFilename.getText());
-    }
+    info.setReadFromFilename(wReadFromFilename.getText());
 
     info.setSpecifyFields(wSpecifyFields.getSelection());
 
@@ -1286,10 +1248,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor sqledit =
-              new SqlEditor(
-                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-          sqledit.open();
+          DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(BaseMessages.getString(PKG, "CrateDBBulkLoaderDialog.NoSQL.DialogMessage"));

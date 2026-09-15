@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Kafka consumer transform pulls data from a Kafka topic.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/KafkaConsumerInput.svg[Kafka consumer transform Icon, role="image-doc-icon"] Kafka consumer
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Kafka consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
@@ -45,19 +43,6 @@ To stop after the topic has been drained, enable *Stop when idle* on the Batch t
 You can also use the Abort transform in your parent or sub-pipeline to stop consuming records for other conditions.
 
 For example, you can run the parent pipeline on a timed schedule, drain a topic once per hour with stop-when-idle, or abort the sub-pipeline if sensor data exceeds a preset range.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 
@@ -231,3 +216,7 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 |ALL
 
 |===
+
+== See also
+
+* xref:how-to-guides/cdc-log-sniffing.adoc[CDC: log sniffing] — consuming Debezium, GoldenGate, or similar change events from a Kafka topic

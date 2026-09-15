@@ -471,6 +471,44 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     }
   }
 
+  /**
+   * A technical key described the way the lookup's own row metadata describes it.
+   *
+   * <p>That metadata comes from the key column, so it says what a SELECT reads back: a
+   * numeric(38,0) key reads back as a BigNumber. A generated key is a Long whatever the column is,
+   * whether it came from a sequence, from the table maximum, or from the driver's generated keys,
+   * so the two disagree the moment a row is inserted. Everything downstream of the insert reads the
+   * row through this metadata, the cache included, because it serialises with a clone of it. Issue
+   * #8130.
+   */
+  private Object asLookupType(Object technicalKey) throws HopValueException {
+    if (data.returnRowMeta == null || data.returnRowMeta.isEmpty()) {
+      return technicalKey;
+    }
+    return asType(data.returnRowMeta.getValueMeta(0), technicalKey);
+  }
+
+  /**
+   * A value described the way the given metadata describes it.
+   *
+   * <p>How the value is read is decided by what it actually is, not by what any row metadata
+   * claims. That is the point: the disagreement between the two is exactly what this repairs, so
+   * taking either side's word for it would reintroduce the fault.
+   *
+   * <p>Static and package private so the conversion can be tested on its own: this is the part that
+   * used to throw, and it should not take a database to find that out again.
+   */
+  static Object asType(IValueMeta targetMeta, Object value) throws HopValueException {
+    if (value == null || targetMeta == null) {
+      return value;
+    }
+    IValueMeta actualMeta = ValueMetaFactory.guessValueMetaInterface(value);
+    if (actualMeta == null || actualMeta.getType() == targetMeta.getType()) {
+      return value;
+    }
+    return targetMeta.convertData(actualMeta, value);
+  }
+
   private synchronized Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     DLFields f = meta.getFields();
 
@@ -586,7 +624,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     if (!meta.isUpdate()) {
       if (returnRow == null) {
         returnRow = new Object[data.returnRowMeta.size()];
-        returnRow[0] = data.notFoundTk;
+        returnRow[0] = asLookupType(data.notFoundTk);
 
         if (meta.getCacheSize() >= 0) { // need -oo to +oo as well...
           returnRow[returnRow.length - 2] = data.minDate;
@@ -672,14 +710,15 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
          * row.fieldnrs)
          */
         technicalKey =
-            dimInsert(
-                data.inputRowMeta,
-                row,
-                technicalKey,
-                true,
-                valueVersion,
-                valueDateFrom,
-                valueDateTo);
+            asLookupType(
+                dimInsert(
+                    data.inputRowMeta,
+                    row,
+                    technicalKey,
+                    true,
+                    valueVersion,
+                    valueDateFrom,
+                    valueDateTo));
 
         incrementLinesOutput();
         returnRow = new Object[data.returnRowMeta.size()];
@@ -904,8 +943,15 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
           // update our technicalKey with the return of the insert
           technicalKey =
-              dimInsert(
-                  rowMeta, row, technicalKey, false, valueNewVersion, valueDateFrom, valueDateTo);
+              asLookupType(
+                  dimInsert(
+                      rowMeta,
+                      row,
+                      technicalKey,
+                      false,
+                      valueNewVersion,
+                      valueDateFrom,
+                      valueDateTo));
           incrementLinesOutput();
 
           // We need to capture this change in the cache as well...
@@ -954,16 +1000,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     // Then the technical key...
     //
-    IValueMeta tkValueMeta = data.returnRowMeta.getValueMeta(0);
-    if (data.returnRowMeta.getValueMeta(0).isBigNumber() && returnRow[0] instanceof Long) {
-      if (isDebug()) {
-        logDebug("Changing the type of the technical key from TYPE_BIGNUMBER to an TYPE_INTEGER");
-      }
-      data.returnRowMeta.setValueMeta(
-          0, ValueMetaFactory.cloneValueMeta(tkValueMeta, IValueMeta.TYPE_INTEGER));
-    }
-    // Get the technical key after lookup
-    outputRow[outputIndex++] = tkValueMeta.getNativeDataType(returnRow[inputIndex++]);
+    // The output row declares what the technical key is -- an Integer for the generated methods,
+    // a String for UUID, the source field's type for FIELD -- and that declaration is what the
+    // rest of the pipeline reads. Convert to it rather than passing on whatever the lookup
+    // happened to return, which for a numeric(38,0) key column is a BigDecimal. Issue #8130.
+    outputRow[outputIndex] =
+        asType(data.outputRowMeta.getValueMeta(outputIndex), returnRow[inputIndex++]);
+    outputIndex++;
 
     // skip the version in the input
     inputIndex++;

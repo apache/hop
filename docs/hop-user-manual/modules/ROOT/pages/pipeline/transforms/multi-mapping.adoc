@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Multi Mapping transform re-uses a child pipeline with zero or more inputs and outputs, including info and target streams.
+:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/MMAP.svg[Multi Mapping transform Icon, role="image-doc-icon"] Multi Mapping
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Multi Mapping transform re-uses a child pipeline (a mapping) with *zero or more* inputs and outputs.
@@ -40,19 +38,6 @@ Non-main output mappings become *target hops* (the same idea as xref:pipeline/tr
 That lets you wrap a reusable Stream Lookup or Switch / Case style pipeline.
 
 The child pipeline is always executed with a local Hop pipeline run configuration so rows can be streamed in and out of the mapping.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:cross.svg[Supported, 24]
-!Native Spark! image:cross.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Supported, 24]
-!Beam Flink! image:cross.svg[Supported, 24]
-!Beam Dataflow! image:cross.svg[Supported, 24]
-!===
-|===
 
 == Options
 
@@ -77,3 +62,5 @@ You can close every input or output tab. A mapping with no inputs is a generator
 == Sample
 
 The samples project contains parent/child examples under `transforms/` for a single stream, a generator, a join, an info lookup, and multiple target outputs.
+
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

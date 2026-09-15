@@ -37,6 +37,12 @@ public class TableInputData extends BaseTransformData implements ITransformData 
   public boolean isCanceled;
   public IStream infoStream;
 
+  /** JDBC result metadata before specified-field mapping, or null when specify-fields is off. */
+  public IRowMeta jdbcRowMeta;
+
+  /** JDBC column index for each specified output field, or null when specify-fields is off. */
+  public int[] specifiedMapping;
+
   public TableInputData() {
     super();
 

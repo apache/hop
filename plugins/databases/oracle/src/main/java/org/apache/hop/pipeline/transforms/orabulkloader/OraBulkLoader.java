@@ -290,7 +290,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
           }
           break;
         case IValueMeta.TYPE_BINARY:
-          contents.append(" ENCLOSED BY '<startlob>' AND '<endlob>'");
+          contents.append(binarySqlLoaderField(mapping.getFieldTable(), v.getLength()));
           break;
         case IValueMeta.TYPE_TIMESTAMP:
           contents.append(" TIMESTAMP 'yyyy-mm-dd hh24:mi:ss.ff'");
@@ -302,6 +302,17 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
     contents.append(")");
 
     return contents.toString();
+  }
+
+  /**
+   * SQL*Loader reads hex digits and {@code HEXTORAW} restores the original bytes. CHAR width is the
+   * hex length (two characters per byte); a generous default is used when Hop length is unset so
+   * hash keys and modest BLOBs still fit.
+   */
+  @VisibleForTesting
+  static String binarySqlLoaderField(String fieldTable, int length) {
+    int hexChars = length > 0 ? Math.max(255, length * 2) : 2_000_000;
+    return " CHAR(" + hexChars + ") \"HEXTORAW(:" + fieldTable + ")\"";
   }
 
   /**
