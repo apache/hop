@@ -136,6 +136,7 @@
         <license.licenseFile>LICENSE.txt</license.licenseFile>
         <license.licenseName>apache_v2</license.licenseName>
         <license.organizationName>Apache</license.organizationName>
+        <lombok.ecj.agent.skip>false</lombok.ecj.agent.skip>
         <lombok.version>1.18.46</lombok.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
@@ -395,40 +396,23 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>ensure-lombok-ecj-agent-jar</id>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.projectlombok</groupId>
-                                    <artifactId>lombok</artifactId>
-                                    <version>${lombok.version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${maven.multiModuleProjectDirectory}/.mvn</outputDirectory>
-                            <overWriteIfNewer>false</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
                 <version>${gmavenplus-plugin.version}</version>
-                <inherited>false</inherited>
+                <!-- inherited so `cd <module> && mvn` and `-pl <module>` still attach
+                     Lombok and materialize the Eclipse compiler Plexus descriptor.
+                     Debian/Ubuntu Maven never indexes plexus-compiler-eclipse 2.17.0
+                     (Sisu 0.3.x ASM stops at Java 14 class files). -->
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.groovy</groupId>
                         <artifactId>groovy</artifactId>
                         <version>${groovy.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -439,35 +423,61 @@
                         </goals>
                         <phase>validate</phase>
                         <configuration>
-                            <skipScriptExecution>${lombok.ecj.agent.attached}</skipScriptExecution>
+                            <skipScriptExecution>${lombok.ecj.agent.skip}</skipScriptExecution>
                             <scripts>
                                 <script><![CDATA[
 import com.sun.tools.attach.VirtualMachine
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-if (System.getProperty('lombok.ecj.agent.skip') != 'true') {
-    synchronized (System.getProperties()) {
-        if (System.getProperty('lombok.ecj.agent.attached') == null) {
-            def lombokJar = new File(System.getProperty('maven.multiModuleProjectDirectory'), '.mvn/lombok-' + project.properties['lombok.version'] + '.jar')
-            if (!lombokJar.isFile() || lombokJar.length() < 1000000L) {
-                throw new IllegalStateException('Lombok jar missing or incomplete for the ECJ agent attach, expected ' + lombokJar)
+def projectDir = new File(System.getProperty('maven.multiModuleProjectDirectory'))
+synchronized (System.getProperties()) {
+    def hintXml = new File(projectDir, '.mvn/plexus-eclipse-hint/META-INF/plexus/components.xml')
+    def hintJar = new File(projectDir, '.mvn/plexus-eclipse-hint.jar')
+    if (hintXml.isFile() && (!hintJar.isFile() || hintJar.lastModified() < hintXml.lastModified())) {
+        hintJar.withOutputStream { fos ->
+            def zos = new ZipOutputStream(fos)
+            zos.putNextEntry(new ZipEntry('META-INF/plexus/components.xml'))
+            hintXml.withInputStream { it.transferTo(zos) }
+            zos.closeEntry()
+            zos.close()
+        }
+        log.info('Wrote Eclipse compiler Plexus descriptor jar: ' + hintJar)
+    }
+
+    if (System.getProperty('lombok.ecj.agent.skip') != 'true'
+            && System.getProperty('lombok.ecj.agent.attached') == null) {
+        def lombokJar = null
+        try {
+            def loc = Class.forName('lombok.launch.Agent').protectionDomain.codeSource.location
+            if (loc != null && loc.protocol == 'file') {
+                lombokJar = new File(loc.toURI())
             }
-            def agentJar = Files.createTempFile('lombok-ecj-agent-', '.jar').toFile()
-            agentJar.deleteOnExit()
-            Files.copy(lombokJar.toPath(), agentJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        } catch (ClassNotFoundException ignored) {
+            // fall through to .mvn/lombok-*.jar
+        }
+        if (lombokJar == null || !lombokJar.isFile()) {
+            lombokJar = new File(projectDir, '.mvn/lombok-' + project.properties['lombok.version'] + '.jar')
+        }
+        if (!lombokJar.isFile() || lombokJar.length() < 1000000L) {
+            throw new IllegalStateException('Lombok jar missing or incomplete for the ECJ agent attach, expected ' + lombokJar)
+        }
+        def agentJar = Files.createTempFile('lombok-ecj-agent-', '.jar').toFile()
+        agentJar.deleteOnExit()
+        Files.copy(lombokJar.toPath(), agentJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        try {
+            def vm = VirtualMachine.attach(String.valueOf(ProcessHandle.current().pid()))
             try {
-                def vm = VirtualMachine.attach(String.valueOf(ProcessHandle.current().pid()))
-                try {
-                    vm.loadAgent(agentJar.absolutePath, 'ECJ')
-                } finally {
-                    vm.detach()
-                }
-                System.setProperty('lombok.ecj.agent.attached', 'true')
-                log.info('Lombok ECJ agent attached (source: ' + lombokJar + ')')
-            } catch (Throwable t) {
-                throw new IllegalStateException('Unable to self-attach the Lombok ECJ agent, ensure -Djdk.attach.allowAttachSelf=true is in .mvn/jvm.config and the environment allows self-attach, or skip it with -Dlombok.ecj.agent.skip=true', t)
+                vm.loadAgent(agentJar.absolutePath, 'ECJ')
+            } finally {
+                vm.detach()
             }
+            System.setProperty('lombok.ecj.agent.attached', 'true')
+            log.info('Lombok ECJ agent attached (source: ' + lombokJar + ')')
+        } catch (Throwable t) {
+            throw new IllegalStateException('Unable to self-attach the Lombok ECJ agent, ensure -Djdk.attach.allowAttachSelf=true is in .mvn/jvm.config and the environment allows self-attach, or skip it with -Dlombok.ecj.agent.skip=true', t)
         }
     }
 }
@@ -497,6 +507,16 @@ if (System.getProperty('lombok.ecj.agent.skip') != 'true') {
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
                         <version>${lombok.version}</version>
+                    </dependency>
+                    <!-- Plexus XML registration of compilerId=eclipse. Required for
+                         Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
+                         Java 17 EclipseJavaCompiler class. See .mvn/plexus-eclipse-hint/. -->
+                    <dependency>
+                        <groupId>org.apache.hop</groupId>
+                        <artifactId>plexus-eclipse-hint</artifactId>
+                        <version>1.0</version>
+                        <scope>system</scope>
+                        <systemPath>${maven.multiModuleProjectDirectory}/.mvn/plexus-eclipse-hint.jar</systemPath>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -549,6 +569,7 @@ if (System.getProperty('lombok.ecj.agent.skip') != 'true') {
                         <exclude>.dockerignore</exclude>
                         <!-- symlink alias of AGENTS.md (header lives on the target) -->
                         <exclude>CLAUDE.md</exclude>
+                        <exclude>.mvn/plexus-eclipse-hint.jar</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>
