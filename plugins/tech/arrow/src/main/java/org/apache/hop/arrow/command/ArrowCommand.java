@@ -22,10 +22,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.arrow.flight.ArrowFlightSecurity;
 import org.apache.hop.arrow.flight.ArrowFlightServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -63,6 +65,36 @@ public class ArrowCommand implements Runnable, IHopCommand, IHasHopMetadataProvi
       description =
           "The port on which the Apache Arrow Flight server will listen, defaults to 33333")
   private String port = "33333";
+
+  @CommandLine.Option(
+      names = {"--arrow-flight-tls-certificate"},
+      description =
+          "The PEM file with the certificate chain of the Apache Arrow Flight server. Specify this together with --arrow-flight-tls-key to serve over TLS.")
+  private String tlsCertificateFile;
+
+  @CommandLine.Option(
+      names = {"--arrow-flight-tls-key"},
+      description =
+          "The PEM file with the PKCS#8 private key of the Apache Arrow Flight server certificate")
+  private String tlsPrivateKeyFile;
+
+  @CommandLine.Option(
+      names = {"--arrow-flight-tls-client-ca"},
+      description =
+          "The PEM file with the certificate authority used to verify client certificates (mutual TLS). Needs TLS to be enabled.")
+  private String tlsClientCertificateAuthorityFile;
+
+  @CommandLine.Option(
+      names = {"--arrow-flight-username"},
+      description =
+          "The user name clients need to present to the Apache Arrow Flight server. Without it the server accepts unauthenticated clients.")
+  private String username;
+
+  @CommandLine.Option(
+      names = {"--arrow-flight-password"},
+      description =
+          "The password belonging to --arrow-flight-username. Can be an encrypted password or a variable expression.")
+  private String password;
 
   public ArrowCommand() {
     // Nothing specific to set
@@ -104,9 +136,17 @@ public class ArrowCommand implements Runnable, IHopCommand, IHasHopMetadataProvi
       String realHostname = Const.NVL(variables.resolve(hostname), "0.0.0.0");
       int realPort = Const.toInt(variables.resolve(port), 33333);
 
+      ArrowFlightSecurity security =
+          new ArrowFlightSecurity(
+              variables.resolve(tlsCertificateFile),
+              variables.resolve(tlsPrivateKeyFile),
+              variables.resolve(tlsClientCertificateAuthorityFile),
+              variables.resolve(username),
+              Encr.decryptPasswordOptionallyEncrypted(variables.resolve(password)));
+
       // Start the flight server
       ArrowFlightServer server =
-          new ArrowFlightServer(realHostname, realPort, variables, metadataProvider, log);
+          new ArrowFlightServer(realHostname, realPort, security, variables, metadataProvider, log);
       server.start();
 
       // For now, we'll wait indefinitely

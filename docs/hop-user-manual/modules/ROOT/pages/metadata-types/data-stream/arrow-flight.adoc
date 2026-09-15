@@ -50,7 +50,30 @@ The number of rows that Apache Arrow will use per batch. (default: 500)
 | *Maximum Buffer Size* |
 The maximum number of rows that will be kept in the buffer on the Hop Flight server. Set it high enough to avoid losing rows. As a ballpark figure, take the throughput in rows/s and multiply that by 10 for the buffer size to avoid issues. (default: 10M)
 
+| *Hop Flight hostname* |
+The hostname on which the Hop Flight server can be reached. (default: localhost)
+
+| *Hop Flight port* |
+The port on which the Hop Flight server can be reached. (default: 33333)
+
+| *Use TLS* |
+Connect over TLS instead of plain gRPC. The server needs to be started with a certificate and a private key, see the xref:hop-tools/hop-arrow-command.adoc[`hop arrow` command].
+
+| *Verify the server certificate* |
+Verify the certificate the Flight server presents. Only switch this off for testing with a self-signed certificate. (default: enabled)
+
+| *Trusted certificates file* |
+Optional PEM file with the certificate authority to trust when verifying the server certificate. Leave it empty to use the JVM trust store.
+
+| *Client certificate file* / *Client private key file* |
+Optional PEM files with the client certificate and its private key, for a server started with `--arrow-flight-tls-client-ca` (mutual TLS). Specify both or neither.
+
+| *Username* / *Password* |
+The credentials to authenticate with, for a server started with `--arrow-flight-username`. Leave the username empty when the server does not require authentication.
+
 |===
+
+TIP: The TLS and credential fields are only used by Hop itself when it connects to the server. The hostname, port and *Use TLS* settings are also what the server advertises to clients in the endpoint it returns, so they need to describe how clients reach the server, not how it binds.
 
 IMPORTANT: This is an IPC system, not a safe data queue.  The purpose is to hand data over to the receiving party as soon as possible.  That is why there is no blocking happening when we write data to the Flight server.  Rows are kept in memory to avoid stalling the gRPC back-end system as this would cause data to get lost.  The only time we wait is when we read data from the Flight server.  That is why it's recommended to start reading with one process before you write data with another.   There is a time-out configured of 1 minute giving you plenty of time.
 
@@ -59,6 +82,7 @@ IMPORTANT: This is an IPC system, not a safe data queue.  The purpose is to hand
 * The **stream name** is simply the name of the Data Stream metadata element.
 * Schema validation is strict: the client must send data using exactly the same schema defined in the **Static Schema** field.
 * The Flight server must be started separately using the `hop arrow` xref:hop-tools/hop-arrow-command.adoc[command].
+* Transport security and authentication are off unless the server is started with the matching options. Without them the data travels in the clear and anything that can reach the port can read it.
 
 == Related
 
@@ -75,6 +99,15 @@ import pyarrow as pa
 
 # Connect to your Flight server
 client = flight.FlightClient("grpc://localhost:33333")   # or "grpc://0.0.0.0:33333"
+
+# On a server started with TLS and credentials, connect like this instead:
+#
+#   with open("server.crt", "rb") as f:
+#       client = flight.FlightClient("grpc+tls://localhost:33333", tls_root_certs=f.read())
+#   token_pair = client.authenticate_basic_token(b"hop", b"s3cr3t")
+#   options = flight.FlightCallOptions(headers=[token_pair])
+#
+# and pass `options` to get_flight_info() and do_get().
 
 # Define the stream name (must match what your server expects: the name of the Data Stream metadata element)
 stream_name = "FlightStream"
