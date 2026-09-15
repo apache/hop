@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
+import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.ToStringConsumer;
@@ -63,9 +65,15 @@ import org.testcontainers.utility.MountableFile;
  *       ago. Re-pulling an unchanged image transfers nothing.
  *   <li>{@code hopweb.url} - URL of an already running Hop Web. Set it while writing tests to skip
  *       container startup entirely, e.g. {@code -Dhopweb.url=http://localhost:8080/ui}
- *   <li>{@code hopweb.browser} - {@code auto} (default), {@code container} or {@code local}
- *   <li>{@code hopweb.browserImage} - the browser image, for a containerised browser
+ *   <li>{@code hopweb.browser} - {@code auto} (default, a container), {@code container} or {@code
+ *       local}
+ *   <li>{@code hopweb.browserImage} - the browser image, for a containerised browser; defaults to
+ *       selenium/standalone-chrome on amd64 and selenium/standalone-chromium on arm64
  *   <li>{@code hopweb.headless} - only meaningful for a local browser
+ *   <li>{@code hopweb.javaOptions} - the JVM options Hop Web runs with, replacing the image's
+ *       {@code HOP_OPTIONS}. The image default is {@code -XX:+AggressiveHeap}, which sizes the heap
+ *       to the whole machine and is the wrong thing on a shared build agent.
+ *   <li>{@code hopweb.startupTimeout} - seconds to wait for the container and then the GUI
  * </ul>
  */
 public final class HopWebEnvironment {
@@ -81,7 +89,19 @@ public final class HopWebEnvironment {
    * matching image is out; the client and the browser only have to speak the same WebDriver
    * protocol, not carry the same version.
    */
-  private static final String DEFAULT_BROWSER_IMAGE = "selenium/standalone-chrome:4.47.0";
+  private static final String BROWSER_IMAGE_VERSION = "4.47.0";
+
+  /**
+   * selenium/standalone-chrome is amd64 only; selenium/standalone-chromium is the same image built
+   * for arm64 as well. Both run the same browser, so an arm64 machine gets a containerised browser
+   * too instead of falling back to whatever Chrome is installed locally - a local browser is fast
+   * enough to hide the request-timing races the CI browser trips over.
+   */
+  private static final String DEFAULT_BROWSER_IMAGE =
+      ("aarch64".equals(System.getProperty("os.arch"))
+              ? "selenium/standalone-chromium:"
+              : "selenium/standalone-chrome:")
+          + BROWSER_IMAGE_VERSION;
 
   private static final String HOP_WEB_ALIAS = "hop-web";
   private static final int HOP_WEB_PORT = 8080;
@@ -89,7 +109,25 @@ public final class HopWebEnvironment {
   /** Where the container keeps the configuration Hop Web reads at startup. */
   private static final String CONFIG_PATH = "/usr/local/tomcat/webapps/ROOT/config/hop-config.json";
 
+  /**
+   * A fixed heap instead of the image's {@code -XX:+AggressiveHeap}: that flag hands the JVM most
+   * of the host's memory, and on a build agent shared with other jobs and containers that is how
+   * Hop Web fails to come up at all. The RWT resource location is what the image sets; keep it.
+   */
+  private static final String DEFAULT_JAVA_OPTIONS =
+      "-Xmx2g -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources";
+
+  /** Written next to the screenshots when Hop Web does not start, so CI archives it. */
+  private static final String STARTUP_LOG_FILE = "hop-web-startup.log";
+
   private static HopWebEnvironment instance;
+
+  /**
+   * Why the environment could not be created, if it could not. Every test class asks for the
+   * environment in its {@code @BeforeAll}; without this each of them would wait the full startup
+   * timeout again for a Hop Web that already failed to come up once.
+   */
+  private static RuntimeException startupFailure;
 
   private final String uiUrl;
   private final WebDriver driver;
@@ -128,8 +166,17 @@ public final class HopWebEnvironment {
   }
 
   public static synchronized HopWebEnvironment get() {
+    if (startupFailure != null) {
+      throw new IllegalStateException(
+          "Hop Web did not start earlier in this run; not trying again", startupFailure);
+    }
     if (instance == null) {
-      instance = new HopWebEnvironment();
+      try {
+        instance = new HopWebEnvironment();
+      } catch (RuntimeException e) {
+        startupFailure = e;
+        throw e;
+      }
       // Testcontainers reaps what it started, but a locally launched ChromeDriver would
       // outlive the Surefire JVM and leave a browser behind on the build agent.
       Runtime.getRuntime().addShutdownHook(new Thread(instance::close));
@@ -244,22 +291,31 @@ public final class HopWebEnvironment {
   }
 
   private GenericContainer<?> startHopWeb(Network network) {
+    // Attached before start, not after: when the container fails to come up, its log is the only
+    // thing that says why (a failed ROOT context leaves Tomcat serving 404 on /ui, for example),
+    // and Testcontainers removes the container before anyone could read it afterwards.
+    serverLog = new ToStringConsumer();
     GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse(imageUnderTest()))
             .withNetwork(network)
             .withNetworkAliases(HOP_WEB_ALIAS)
             .withExposedPorts(HOP_WEB_PORT)
+            .withEnv("HOP_OPTIONS", property("hopweb.javaOptions", DEFAULT_JAVA_OPTIONS))
             // Hop Web only reports the version through the GUI, so log which image actually ran:
             // a daily job testing a published tag must not go green against a stale image.
             .withImagePullPolicy(
                 shouldPull() ? PullPolicy.alwaysPull() : PullPolicy.defaultPolicy())
             .withCopyFileToContainer(
                 MountableFile.forClasspathResource("hop-config.json"), CONFIG_PATH)
+            .withLogConsumer(serverLog)
             .waitingFor(Wait.forHttp("/ui").forStatusCode(200))
             .withStartupTimeout(Duration.ofSeconds(startupTimeoutSeconds()));
-    container.start();
-    serverLog = new ToStringConsumer();
-    container.followOutput(serverLog);
+    try {
+      container.start();
+    } catch (ContainerLaunchException e) {
+      reportStartupFailure(container, e);
+      throw e;
+    }
     System.out.println(
         "Hop Web container started from image "
             + container.getDockerImageName()
@@ -267,6 +323,30 @@ public final class HopWebEnvironment {
             + container.getContainerId()
             + ")");
     return container;
+  }
+
+  /** Puts the container log in the build output and in the archived artifacts. */
+  private void reportStartupFailure(GenericContainer<?> container, ContainerLaunchException e) {
+    String log = serverLog.toUtf8String();
+    System.out.println(
+        "Hop Web did not start from image "
+            + container.getDockerImageName()
+            + ": "
+            + e.getMessage()
+            + System.lineSeparator()
+            + "----- container log -----"
+            + System.lineSeparator()
+            + (log.isBlank() ? "(the container printed nothing)" : log)
+            + System.lineSeparator()
+            + "----- end of container log -----");
+    Path directory = Path.of(property("hopweb.artifacts", "target/hopweb-artifacts"));
+    try {
+      Files.createDirectories(directory);
+      Files.writeString(directory.resolve(STARTUP_LOG_FILE), log, UTF_8);
+      System.out.println("Container log written to " + directory.resolve(STARTUP_LOG_FILE));
+    } catch (IOException ioException) {
+      System.out.println("Could not write the container log: " + ioException.getMessage());
+    }
   }
 
   /**
@@ -344,7 +424,10 @@ public final class HopWebEnvironment {
   private WebDriver containerBrowser(Network network) {
     BrowserWebDriverContainer<?> browser =
         new BrowserWebDriverContainer<>(
-                DockerImageName.parse(property("hopweb.browserImage", DEFAULT_BROWSER_IMAGE)))
+                DockerImageName.parse(property("hopweb.browserImage", DEFAULT_BROWSER_IMAGE))
+                    // Testcontainers only accepts selenium/standalone-chrome by name; the
+                    // multi-arch selenium/standalone-chromium is the same thing for arm64.
+                    .asCompatibleSubstituteFor("selenium/standalone-chrome"))
             .withNetwork(network)
             .withCapabilities(chromeOptions())
             .withStartupTimeout(Duration.ofSeconds(startupTimeoutSeconds()));
@@ -389,7 +472,7 @@ public final class HopWebEnvironment {
   }
 
   private static long startupTimeoutSeconds() {
-    return Long.parseLong(property("hopweb.startupTimeout", "300"));
+    return Long.parseLong(property("hopweb.startupTimeout", "600"));
   }
 
   private static String property(String name, String defaultValue) {
@@ -403,9 +486,9 @@ public final class HopWebEnvironment {
 
     static BrowserMode resolve(String value) {
       if ("auto".equalsIgnoreCase(value)) {
-        // The selenium/standalone-chrome images are amd64 only, so an arm64 developer machine
-        // has to drive the browser it already has.
-        return "aarch64".equals(System.getProperty("os.arch")) ? LOCAL : CONTAINER;
+        // Always the container: it is what CI runs, and the default image is picked per
+        // architecture. -Dhopweb.browser=local is there for watching a test in a real window.
+        return CONTAINER;
       }
       return "local".equalsIgnoreCase(value) ? LOCAL : CONTAINER;
     }

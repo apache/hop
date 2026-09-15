@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Spark lake table input reads Delta Lake or Apache Iceberg tables on the native Spark pipeline engine, with optional time travel and projection.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/spark-lake-table-input.svg[Spark lake table input transform Icon, role="image-doc-icon"] Spark lake table input
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 *Spark lake table input* reads an open table format table (https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg]) as a Spark SQL `Dataset` on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
@@ -30,21 +28,6 @@ under the License.
 It supports **PATH** and **TABLE** identifiers, optional field projection, and **time travel** by version/snapshot or timestamp.
 
 This transform is **not** available on the local Hop engine or on Beam engines. Connector JARs ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:cross.svg[Not Supported, 24]
-!Single Threaded! image:cross.svg[Not Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-
-NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam Spark).
-|===
 
 == Options
 
@@ -106,7 +89,7 @@ NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam
 |SQL `TIMESTAMP AS OF TIMESTAMP '…'`
 |===
 
-Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `{table}.snapshots` (or catalog metadata) for snapshot ids.
+Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `+{table}.snapshots+` (or catalog metadata) for snapshot ids.
 
 == Metadata injection
 

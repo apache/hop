@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Hop GUI is Hop's visual development environment. Start it with hop gui or hop-gui.sh / hop-gui.bat, optionally selecting a project, environment, and file.
-:openvar: ${
-:closevar: }
 
 = Hop GUI
 
@@ -31,11 +29,11 @@ You can also select a project, a lifecycle environment, and a file to open:
 
 [source,bash]
 ----
-hop gui -j samples -f '{openvar}PROJECT_HOME{closevar}/transforms/add-a-checksum.hpl'
+hop gui -j samples -f '${PROJECT_HOME}/transforms/add-a-checksum.hpl'
 hop gui -e production -f long-running-test.hpl
 ----
 
-Relative filenames are resolved against the current directory, then against `{openvar}PROJECT_HOME{closevar}` once the project is enabled.
+Relative filenames are resolved against the current directory, then against `+${PROJECT_HOME}+` once the project is enabled.
 
 The same `-j`, `-e` and `-f` options work with `hop-gui.sh` / `hop-gui.bat`.
 `--project-locations` and `--in-memory` are parsed by the `hop` command and are not available on `hop-gui.sh` / `hop-gui.bat`.
@@ -74,7 +72,7 @@ The available options are listed in more detail in the table below:
 |===
 |Short|Extended|Description
 |`-e`|`--environment`|The name of the lifecycle environment to enable. The project name is taken from that environment, so you do not need `-j` as well. See xref:projects/projects-environments.adoc[Projects and Environments].
-|`-f`|`--file`|The filename of the workflow or pipeline to open. Relative paths are resolved against the current directory, then `{openvar}PROJECT_HOME{closevar}`.
+|`-f`|`--file`|The filename of the workflow or pipeline to open. Relative paths are resolved against the current directory, then `+${PROJECT_HOME}+`.
 |`-h`|`--help`|Displays this help message and quits.
 |`-ime`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`.
 |`-j`|`--project`|The name of the project to enable. Not needed when `-e` is set.

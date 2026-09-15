@@ -157,6 +157,9 @@ public class GitGuiPlugin
   public void addRootChangedListener() {
     git = null;
     ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+    if (explorerPerspective == null) {
+      return;
+    }
 
     // Listener to what's going on in the explorer perspective...
     //
@@ -165,7 +168,36 @@ public class GitGuiPlugin
     explorerPerspective.getRefreshListeners().add(this);
     explorerPerspective.getSelectionListeners().add(this);
 
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null && hopGui.getShell() != null && !hopGui.getShell().isDisposed()) {
+      hopGui
+          .getShell()
+          .addListener(
+              SWT.Dispose,
+              e -> {
+                if (git != null) {
+                  try {
+                    git.closeRepo();
+                  } catch (Exception ignored) {
+                  }
+                  git = null;
+                }
+              });
+    }
+
     enableButtons();
+  }
+
+  private void refreshGitPerspective(boolean refreshAll) {
+    GitPerspective gitPerspective = GitPerspective.getInstance();
+    if (gitPerspective != null && gitPerspective.isInitialized()) {
+      gitPerspective.refresh(refreshAll);
+    } else if (refreshAll) {
+      ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+      if (explorerPerspective != null) {
+        explorerPerspective.refresh();
+      }
+    }
   }
 
   @GuiMenuElement(
@@ -188,7 +220,12 @@ public class GitGuiPlugin
     if (EnvironmentUtils.getInstance().isWeb()) {
       gitCommitOnWeb();
     } else {
-      GitCommitPerspective.getInstance().activate();
+      GitCommitPerspective perspective = GitCommitPerspective.getInstance();
+      if (perspective != null && perspective.isInitialized()) {
+        perspective.activate();
+      } else {
+        gitCommitOnWeb();
+      }
     }
   }
 
@@ -331,13 +368,16 @@ public class GitGuiPlugin
       label = "i18n::GitGuiPlugin.Menu.Branch.Pull.Text",
       image = "pull.svg")
   public void gitPull() {
+    if (git == null) {
+      return;
+    }
     try {
       boolean merged = git.pull();
 
       // Refresh the explorer file, refs and commit history. A pull fetches the remote refs even
       // when there was nothing to merge into the current branch.
       //
-      GitPerspective.getInstance().refresh(true);
+      refreshGitPerspective(true);
 
       if (merged) {
         MessageBox pullSuccessful =
@@ -545,12 +585,7 @@ public class GitGuiPlugin
 
     // Refresh the git history, file explorer tree, change colors...
     //
-    // TODO: To remove when git perspective work on web
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      ExplorerPerspective.getInstance().refresh();
-    } else {
-      GitPerspective.getInstance().refresh(true);
-    }
+    refreshGitPerspective(true);
     enableButtons();
   }
 
@@ -617,12 +652,16 @@ public class GitGuiPlugin
           // Close the tabs of the files which were deleted
           //
           List<String> filenamesToClose = new ArrayList<>();
+          FileObject rootObj = HopVfs.getFileObject(git.getDirectory());
           for (String filePath : pathsToClean) {
-            if (!new File(git.getDirectory(), filePath).exists()) {
+            if (!rootObj.resolveFile(filePath).exists()) {
               filenamesToClose.add(filenames.get(filePath));
             }
           }
-          ExplorerPerspective.getInstance().closeTabsForFilenames(filenamesToClose);
+          ExplorerPerspective explorer = ExplorerPerspective.getInstance();
+          if (explorer != null) {
+            explorer.closeTabsForFilenames(filenamesToClose);
+          }
 
           // Show confirmation message once after all files have been deleted
           MessageBox box =
@@ -642,12 +681,7 @@ public class GitGuiPlugin
 
     // Refresh the git history, file explorer tree, change colors...
     //
-    // TODO: To remove when git perspective work on web
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      ExplorerPerspective.getInstance().refresh();
-    } else {
-      GitPerspective.getInstance().refresh(true);
-    }
+    refreshGitPerspective(true);
     enableButtons();
   }
 
@@ -658,16 +692,17 @@ public class GitGuiPlugin
    * @return The filename to match open tabs with
    */
   private String getOpenFilename(String relativePath) {
-    File file = new File(git.getDirectory(), relativePath);
+    if (git == null) {
+      return relativePath;
+    }
     try {
-      FileObject fileObject = HopVfs.getFileObject(file.getAbsolutePath());
-      if (fileObject.exists()) {
-        return HopVfs.getFilename(fileObject);
-      }
+      FileObject root = HopVfs.getFileObject(git.getDirectory());
+      FileObject fileObject = root.resolveFile(relativePath);
+      return HopVfs.getFilename(fileObject);
     } catch (Exception ignored) {
       // Fall back to the absolute filename below
     }
-    return file.getAbsolutePath();
+    return git.getDirectory() + "/" + relativePath;
   }
 
   @GuiMenuElement(
@@ -677,6 +712,9 @@ public class GitGuiPlugin
       label = "i18n::GitGuiPlugin.Menu.Branch.Create.Text",
       image = "branch-add.svg")
   public void gitCreateBranch() {
+    if (git == null) {
+      return;
+    }
     EnterStringDialog enterStringDialog =
         new EnterStringDialog(
             HopGui.getInstance().getShell(),
@@ -700,7 +738,7 @@ public class GitGuiPlugin
 
       // Refresh the git history, file explorer tree, change colors...
       //
-      GitPerspective.getInstance().refresh(true);
+      refreshGitPerspective(true);
     }
   }
 
@@ -711,6 +749,9 @@ public class GitGuiPlugin
       label = "i18n::GitGuiPlugin.Menu.Branch.Rename.Text",
       image = "ui/images/rename.svg")
   public void gitRenameBranch() {
+    if (git == null) {
+      return;
+    }
     String oldName =
         HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_GIT);
     EnterStringDialog enterStringDialog =
@@ -724,6 +765,7 @@ public class GitGuiPlugin
       boolean renamed = git.renameBranch(oldName, newName);
       if (renamed) {
         this.setBranchLabel(newName);
+        refreshGitPerspective(false);
       }
     }
   }
@@ -735,6 +777,9 @@ public class GitGuiPlugin
       label = "i18n::GitGuiPlugin.Menu.Branch.Merge.Text",
       image = "git-merge.svg")
   public void gitMergeBranch() {
+    if (git == null) {
+      return;
+    }
     List<String> branches = git.getBranches();
     EnterSelectionDialog selectionDialog =
         new EnterSelectionDialog(
@@ -767,16 +812,19 @@ public class GitGuiPlugin
 
       // Refresh the git history, file explorer tree, change colors...
       //
-      GitPerspective.getInstance().refresh(true);
+      refreshGitPerspective(true);
     }
   }
 
   private void gitCheckoutBranch(String name) {
+    if (git == null) {
+      return;
+    }
     git.checkout(name);
 
     // Refresh the git history, file explorer tree, change colors...
     //
-    GitPerspective.getInstance().refresh(true);
+    refreshGitPerspective(true);
   }
 
   @GuiMenuElement(
@@ -786,6 +834,9 @@ public class GitGuiPlugin
       label = "i18n::GitGuiPlugin.Menu.Branch.Delete.Text",
       image = "ui/images/delete.svg")
   public void gitDeleteBranch() {
+    if (git == null) {
+      return;
+    }
     List<String> branches = git.getBranches();
     EnterSelectionDialog selectionDialog =
         new EnterSelectionDialog(
@@ -810,7 +861,7 @@ public class GitGuiPlugin
 
       // Refresh the git history, file explorer tree, change colors...
       //
-      GitPerspective.getInstance().refresh(true);
+      refreshGitPerspective(true);
     }
   }
 
@@ -833,6 +884,9 @@ public class GitGuiPlugin
 
   private ExplorerFile getSelectedFile() {
     ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+    if (explorerPerspective == null) {
+      return null;
+    }
     return explorerPerspective.getSelectedFile();
   }
 
@@ -870,9 +924,15 @@ public class GitGuiPlugin
     enableButtons();
 
     // Refresh Git perspectives when a project is activated
-    GitPerspective.getInstance().refresh(false);
-    GitCommitPerspective.getInstance().retrieveState();
-    GitCommitPerspective.getInstance().refresh();
+    GitPerspective gitPerspective = GitPerspective.getInstance();
+    if (gitPerspective != null && gitPerspective.isInitialized()) {
+      gitPerspective.refresh(false);
+    }
+    GitCommitPerspective gitCommitPerspective = GitCommitPerspective.getInstance();
+    if (gitCommitPerspective != null && gitCommitPerspective.isInitialized()) {
+      gitCommitPerspective.retrieveState();
+      gitCommitPerspective.refresh();
+    }
   }
 
   private FileObject findGitConfig(String rootFolderName, boolean searchParentFolders)

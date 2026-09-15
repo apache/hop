@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Spark SQL runs a SQL statement over the Datasets of the incoming transforms on the native Spark pipeline engine, so joins, unions and aggregations are planned as one Catalyst query.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/spark-sql.svg[Spark SQL transform Icon, role="image-doc-icon"] Spark SQL
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 *Spark SQL* runs a https://spark.apache.org/sql/[Spark SQL] statement on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
@@ -32,21 +30,6 @@ Every incoming transform is registered as a temporary view, so a single statemen
 This is *not* the same as the classic xref:pipeline/transforms/execsqlrow.adoc[Execute SQL script], xref:pipeline/transforms/tableinput.adoc[Table input] or xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL row] transforms: those send SQL to a relational database over JDBC. Spark SQL compiles the statement against the pipeline's in-flight Datasets instead, and needs no database connection.
 
 This transform is *not* available on the local Hop engine or on Beam engines.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:cross.svg[Not Supported, 24]
-!Single Threaded! image:cross.svg[Not Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-
-NOTE: *Spark* here means Hop's *native* Spark pipeline engine only (not Beam Spark).
-|===
 
 == Options
 

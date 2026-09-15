@@ -16,8 +16,6 @@ under the License.
 ////
 [[Variables]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Well-designed Hop solutions never use hard coded values. Hop offers variables on the global, project and environment levels, and allows workflows and parameters to provide parameters, to set and read variables in runtime etc.
 
 :TOC:
@@ -40,7 +38,7 @@ In the Hop user interface all places where you can enter a variable have a '$' s
 
 image::variable-indicator.png[The variable indicatorm, width="65%"]
 
-You can specify a variable by referencing it between an opening `{openvar}` and a closing `{closevar}`.
+You can specify a variable by referencing it between an opening `+${+` and a closing `+}+`.
 
 [source]
 ${VARIABLE_NAME}
@@ -177,7 +175,7 @@ You can add your own system variables to the ones that come with Apache Hop by d
 
 image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
-These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `{openvar}HOP_CONFIG_FOLDER{closevar}` location.
+These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
 
 CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
@@ -333,7 +331,7 @@ Additionally, the following environment variables can help you to add even more 
 |===
 |Variable|Default|Description
 |HOP_AUTO_CREATE_CONFIG|N|Set this variable to 'Y' to automatically create config file when it's missing.
-|HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `{openvar}HOP_CONFIG_IN_MEMORY{closevar}` equivalent on the command line is `-ime` / `--in-memory`.
+|HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `+${HOP_CONFIG_IN_MEMORY}+` equivalent on the command line is `-ime` / `--in-memory`.
 |HOP_METADATA_FOLDER|-|The system environment variable pointing to the alternative location for the Hop metadata folder
 |HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
 |HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.

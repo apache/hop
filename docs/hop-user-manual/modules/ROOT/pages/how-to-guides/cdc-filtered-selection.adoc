@@ -17,8 +17,6 @@ under the License.
 [[CdcFilteredSelection]]
 :imagesdir: ../../assets/images
 :description: Incremental CDC in Apache Hop using a timestamp or increasing ID and the last successful workflow or pipeline run.
-:openvar: ${
-:closevar: }
 
 = CDC: filtered selection
 
@@ -94,8 +92,8 @@ SELECT id, name, city
 ----
 SELECT id, name, city, last_modified
   FROM customer
- WHERE last_modified > '{openvar}LAST_SUCCESS_TS{closevar}'
-   AND last_modified <= '{openvar}THIS_RUN_TS{closevar}'
+ WHERE last_modified > '${LAST_SUCCESS_TS}'
+   AND last_modified <= '${THIS_RUN_TS}'
 ----
 
 === First run

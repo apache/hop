@@ -17,6 +17,7 @@ under the License.
 [[LintRulePacks]]
 :imagesdir: ../assets/images
 :description: Lint rule packs bundle a set of lint rules so they can be installed, shared and version controlled independently of Apache Hop.
+:page-marketplace: hop-misc-lint
 
 = Lint rule packs
 

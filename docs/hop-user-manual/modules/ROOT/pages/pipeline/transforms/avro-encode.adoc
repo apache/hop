@@ -17,27 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Avro encode transform allows you to encode a new Avro field using a selection of Hop fields.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/avro_encode.svg[Avro encode Icon, role="image-doc-icon"] Avro encode
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Avro encode transform allows you to encode a new Avro Record field using a selection of Hop fields.   The Avro schema will be part of the value metadata for this Avro Record field.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 
 == Options

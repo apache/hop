@@ -17,8 +17,6 @@ under the License.
 :description: Apache Hop is an independent platform that originated from the same code base as Kettle (Pentaho Data Integration). This page provides an overview of the differences in concepts, configuration, engines and features between Hop and Kettle/PDI
 [[HopvsKettle]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :page-pagination:
 
 = Hop vs Kettle - A Quick Comparison
@@ -46,13 +44,13 @@ under the License.
 [cols="2,3,3",options="header"]
 |===
 |Configuration|Kettle|Hop
-|System variables|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
-|GUI preferences (fonts, colors, preferences…)|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
-|Language choice|{openvar}KETTLE_HOME{closevar}/.kettle/.languageChoice|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
-|Shared objects|{openvar}KETTLE_HOME{closevar}/.kettle/shared.xml|All stored in Hop shared metadata
-|GUI usage information|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_AUDIT_FOLDER{closevar}/<project>/
-|Shared metadata|{openvar}PENTAHO_METASTORE_FOLDER{closevar} or {openvar}HOME{closevar}/.pentaho/metastore|{openvar}HOP_METADATA_FOLDER{closevar} or {openvar}HOP_CONFIG_FOLDER{closevar}/metadata
-|Environment/Project configurations|{openvar}KETTLE_HOME{closevar}/.kettle/environment/metastore|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
+|System variables|+${KETTLE_HOME}/.kettle/kettle.properties+|+${HOP_CONFIG_FOLDER}/hop-config.json+ or ./config/hop-config.json
+|GUI preferences (fonts, colors, preferences…)|+${KETTLE_HOME}/.kettle/kettle.properties+|+${HOP_CONFIG_FOLDER}/hop-config.json+ or ./config/hop-config.json
+|Language choice|+${KETTLE_HOME}/.kettle/.languageChoice+|+${HOP_CONFIG_FOLDER}/hop-config.json+ or ./config/hop-config.json
+|Shared objects|+${KETTLE_HOME}/.kettle/shared.xml+|All stored in Hop shared metadata
+|GUI usage information|+${KETTLE_HOME}/.kettle/kettle.properties+|+${HOP_AUDIT_FOLDER}/<project>/+
+|Shared metadata|+${PENTAHO_METASTORE_FOLDER}+ or +${HOME}/.pentaho/metastore+|+${HOP_METADATA_FOLDER}+ or +${HOP_CONFIG_FOLDER}/metadata+
+|Environment/Project configurations|+${KETTLE_HOME}/.kettle/environment/metastore+|+${HOP_CONFIG_FOLDER}/hop-config.json+ or ./config/hop-config.json
 |===
 
 == Engines

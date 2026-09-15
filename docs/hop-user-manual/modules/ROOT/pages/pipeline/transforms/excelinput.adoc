@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Microsoft Excel Input transform reads data from Microsoft Excel spreadsheet. The default spreadsheet type (engine) is set to Excel XLSX, XLS.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/excelinput.svg[Microsoft Excel input transform Icon, role="image-doc-icon"] Microsoft Excel input
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Microsoft Excel Input transform reads data from Microsoft Excel spreadsheet.
@@ -30,19 +28,6 @@ The Microsoft Excel Input transform reads data from Microsoft Excel spreadsheet.
 The default spreadsheet type (engine) is set to Excel XLSX, XLS.
 
 When you read other file types like OpenOffice ODS and using special functions like protected worksheets, you need to change the Spread sheet type (engine) in the Content tab accordingly.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -86,7 +87,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
 
   private final IDatabaseWorkbenchHost host;
   private final DatabaseWorkbench workbench;
-  @Getter private final DatabaseMeta databaseMeta;
+  @Getter @Setter private DatabaseMeta databaseMeta;
   @Getter private final Composite control;
   @Getter private CTabItem tabItem;
 
@@ -375,6 +376,21 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   private void executeScript(SqlExecuteRange.Range range, int caretInEditor) {
     if (range == null || range.isBlank()) {
       return;
+    }
+    if (databaseMeta != null) {
+      DatabaseMeta freshMeta = workbench.reloadConnectionMeta(databaseMeta.getName());
+      if (freshMeta == null) {
+        new ErrorDialog(
+            host.getShell(),
+            BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+            BaseMessages.getString(
+                PKG, "DatabasePerspective.Error.ConnectionNotFound", databaseMeta.getName()),
+            new HopException(
+                BaseMessages.getString(
+                    PKG, "DatabasePerspective.Error.ConnectionNotFound", databaseMeta.getName())));
+        return;
+      }
+      this.databaseMeta = freshMeta;
     }
     workbench.ensureConnectedForExecute(databaseMeta, () -> runSqlStatements(range, caretInEditor));
   }

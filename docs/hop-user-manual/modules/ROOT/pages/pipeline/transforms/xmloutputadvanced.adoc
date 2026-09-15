@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The XML output (Advanced) transform builds hierarchical XML from input rows, with optional write-to-file, XML-as-field output, splits, and XSD generation.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/AXO.svg[XML output (Advanced) transform Icon, role="image-doc-icon"] XML output (Advanced)
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The XML output (Advanced) transform builds XML from input rows using a hierarchical, user-defined tree. You can *write to file*, *append the document as a string field* (for use by a later transform), or *both*. File-oriented options apply only when a file is written.
@@ -30,19 +28,6 @@ The XML output (Advanced) transform builds XML from input rows using a hierarchi
 The XML tree is a recursive structure of elements, attributes and document-fragment nodes. Exactly one element in the tree must be marked as the row-*loop*: each input row produces one occurrence of that element with its full subtree. Optionally, ancestors of the loop can be marked as *group-by*: consecutive input rows that share the same group key are emitted under a single occurrence of the group element.
 
 This transform complements the simpler `XML Output` transform. Use `XML Output` for a flat document of repeating rows; use `XML output (Advanced)` when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces, schema generation).
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

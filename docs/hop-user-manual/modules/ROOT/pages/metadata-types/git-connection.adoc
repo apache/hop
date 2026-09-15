@@ -68,7 +68,7 @@ If your Forgejo or Gitea instance lets you sign in with GitHub, Google or SSO, t
 
 It also means **Username and password** is not an option for such an account: one that only ever signs in through an external provider usually has no local password at all. Use a token.
 
-The token and the app password are stored encrypted in the connection's json file. Both fields accept a variable, so the secret itself can stay out of the project, for example `${GIT_TOKEN}`.
+The token and the app password are stored encrypted in the connection's json file. Both fields accept a variable, so the secret itself can stay out of the project, for example `+${GIT_TOKEN}+`.
 
 Reading a public repository from GitHub works without any credentials at all, but anonymous requests are rate limited to 60 per hour. Set a token for a higher limit, and for any private repository.
 

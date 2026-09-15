@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Combination Lookup-Update transform allows you to store information in a junk-dimension table.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/combinationlookup.svg[Combination lookup/update transform Icon, role="image-doc-icon"] Combination lookup/update
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Combination Lookup-Update transform allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
@@ -43,19 +41,6 @@ You must update the non-key information in the dimension table, e.g. by putting 
 Apache Hop will store the information in a table where the primary key is the combination of the business key fields in the table.
 Because this process can be slow if you have a large number of fields, a "hash code" field is supported that is representing all fields in the dimension.
 This can speed up lookup performance dramatically while limiting the fields to index to one field only.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 
 == Options

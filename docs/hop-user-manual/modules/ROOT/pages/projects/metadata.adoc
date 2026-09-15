@@ -17,8 +17,6 @@ under the License.
 [[ProjectMetadata]]
 :imagesdir: ../../../assets/images
 :page-pagination:
-:openvar: ${
-:closevar: }
 :description: A project's metadata typically contains a number of database connections (relational or NoSQL), logging configurations and so on. This metadata is stored on a project level and is available through the metadata perspective.
 
 
@@ -30,10 +28,10 @@ This metadata is stored on a project level and is available through the metadata
 The way metadata typically is handled is:
 
 * metadata objects (connections, logging, ...) are defined on a project level.
-E.g. a `CRM` database connection is created in the project, using a number of variables for hostname (`{openvar}CRM_HOST{closevar}`) and database name (`{openvar}CRM_DBNAME{closevar}`), with corresponding variables for the port, username, password and so on.
-* the metadata object _configuration_ is defined on an environment level, where a number of variable _values_ are created the contain the ip address for `{openvar}CRM_HOST{closevar}` etc.
+E.g. a `CRM` database connection is created in the project, using a number of variables for hostname (`+${CRM_HOST}+`) and database name (`+${CRM_DBNAME}+`), with corresponding variables for the port, username, password and so on.
+* the metadata object _configuration_ is defined on an environment level, where a number of variable _values_ are created the contain the ip address for `+${CRM_HOST}+` etc.
 
-A project's metadata is stored in `{openvar}PROJECT_HOME{closevar}/metadata`, but can be overruled by setting the project's `metadata base folder {openvar}HOP_METADATA_FOLDER{closevar}` property in the project configuration dialog or directly in the `project-config.json` file.
+A project's metadata is stored in `+${PROJECT_HOME}/metadata+`, but can be overruled by setting the project's `+metadata base folder ${HOP_METADATA_FOLDER}+` property in the project configuration dialog or directly in the `project-config.json` file.
 
 === Auto-export metadata to a single JSON file
 

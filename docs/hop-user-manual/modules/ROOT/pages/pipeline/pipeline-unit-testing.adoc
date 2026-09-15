@@ -16,8 +16,6 @@ under the License.
 ////
 [[PipelineUnitTests]]
 :imagesdir: ../../assets/images
-:openvar: ${
-:closevar: }
 :description: Hop unit tests simulate inputs in the form of _Input data sets_ and validates output against _Golden data sets_. A unit test is a combination of zero or more input sets and golden data sets along with a bunch of tweaks you can do to the pipelines prior to testing.
 
 = Pipeline Unit Testing
@@ -51,7 +49,7 @@ You can have multiple unit tests defined per pipeline.
 
 TIP: a default data set folder can be specified in the project dialog.
 Check the 'Data Sets CSV Folder (HOP_DATASETS_FOLDER)'.
-By default, the value for the `{openvar}HOP_DATASETS_FOLDER{closevar}` variable is set to `{openvar}PROJECT_HOME{closevar}/datasets`.
+By default, the value for the `+${HOP_DATASETS_FOLDER}+` variable is set to `+${PROJECT_HOME}/datasets+`.
 
 == Unit tests in runtime
 

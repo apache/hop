@@ -17,8 +17,6 @@ under the License.
 [[JoinsLookups]]
 :imagesdir: ../../assets/images
 :description: This guide provides an overview of how to use the full power of Apache Hop to work with pipeline logging data
-:openvar: ${
-:closevar: }
 
 = Pipeline Log
 
@@ -44,7 +42,7 @@ The Pipeline Log can be configured as in the following example:
 
 * Name: the name of the metadata object (pipelines-logging).
 * Enabled: (checked).
-* Pipeline executed to capture logging: select or create the pipeline to process the logging information for this Pipeline Log `({openvar}PROJECT_HOME{closevar}/hop/logging/pipelines-logging.hpl)`.
+* Pipeline executed to capture logging: select or create the pipeline to process the logging information for this Pipeline Log `+(${PROJECT_HOME}/hop/logging/pipelines-logging.hpl)+`.
 
 Next, select or create the pipeline to be used for logging the activity. We'll create a pipeline soon, important to note is that you can use all the functionality in Apache Hop pipeline to work with the logging data. The only prerequisite is that the first transform in this pipeline needs to start with a xref:pipeline/transforms/pipeline-logging.adoc[pipeline logging transform].
 

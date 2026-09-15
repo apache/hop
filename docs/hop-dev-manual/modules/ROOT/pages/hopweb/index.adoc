@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Building and setting up your own Hop Web environment is straightforward. The steps to set up the default Docker image are included in a helper script docker/create_hop_web_container.sh in the Hop code base. This should get you started to make modifications or create your own version entirely.
-:openvar: ${
-:closevar: }
 
 = Hop Web Development Guide
 
@@ -138,15 +136,15 @@ export CATALINA_OPTS="${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY=\"${HOP_AES_ENCODER_K
 
 === Project settings
 
-If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `{openvar}HOP_CONFIG_FOLDER{closevar}.
+If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `+${HOP_CONFIG_FOLDER}+`.
 
 On Linux, use the following sed command to fix this in one line:
 
-`sed -i 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' {openvar}CATALINA_HOME{closevar}/webapps/ROOT/config/hop-config.json`
+`+sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' ${CATALINA_HOME}/webapps/ROOT/config/hop-config.json+`
 
 On macOS, use (note the empty string '' after -i):
 
-`sed -i '' 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' {openvar}CATALINA_HOME{closevar}/webapps/ROOT/config/hop-config.json`
+`+sed -i '' 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' ${CATALINA_HOME}/webapps/ROOT/config/hop-config.json+`
 
 On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the one below:
 
@@ -203,14 +201,14 @@ The `CLASSPATH` lines in the various scripts should look similar to the one belo
 
 Once the classpaths have been updated, make sure to make the scripts executable: 
 
-`chmod +x {openvar}CATALINA_HOME{closevar}/webapps/ROOT/*.sh`
+`+chmod +x ${CATALINA_HOME}/webapps/ROOT/*.sh+`
 
 
 === Start Tomcat
 
 Before starting Tomcat, ensure the Tomcat scripts are executable. The startup script requires several other scripts (`catalina.sh`, `setclasspath.sh`, etc.) to be executable as well. Make all scripts executable with:
 
-`chmod +x {openvar}CATALINA_HOME{closevar}/bin/*.sh`
+`+chmod +x ${CATALINA_HOME}/bin/*.sh+`
 
 Run `bin/startup.sh` (Linux/Mac) or `bin/startup.bat` (Windows).
 

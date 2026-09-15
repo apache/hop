@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0005-pgp-verify-detached-signature</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Verifies a detached signature, which passes two filenames to gpg in one call rather
+  than one. The PGP actions cannot produce a detached signature, so gpg writes it directly and the
+  verify action reads it back. Both filenames carry shell metacharacters.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/10 00:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/10 00:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>sign detached with a hostile filename</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+set -e
+
+GNUPG_HOME=${PROJECT_HOME}/output/gnupg
+WRAPPER=${PROJECT_HOME}/output/gpg-in-project.sh
+DETACHED=${PROJECT_HOME}/output/detached
+
+GPG_BIN=$(command -v gpg || true)
+if [ -z "$GPG_BIN" ]; then
+  echo "gpg is not installed; the PGP actions cannot run without it"
+  exit 1
+fi
+
+rm -rf "$GNUPG_HOME" "$DETACHED"
+mkdir -p "$GNUPG_HOME" "$DETACHED"
+chmod 700 "$GNUPG_HOME"
+
+printf '#!/bin/sh\nexec "%s" --homedir "%s" "$@"\n' "$GPG_BIN" "$GNUPG_HOME" &gt; "$WRAPPER"
+chmod 700 "$WRAPPER"
+
+"$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback --passphrase '' \
+  --quiet --quick-generate-key "Hop Integration Test &lt;hop-it@example.org&gt;" default default never 2&gt;&amp;1
+
+# The data file and its signature both carry characters a shell would act on. The verify action
+# passes both to gpg in a single call, so both have to survive.
+DATA="$DETACHED"'/manifest$(echo pwned).csv'
+SIG="$DETACHED"'/manifest$(echo pwned).csv.sig'
+
+printf 'id,amount\n11,1100\n' &gt; "$DATA"
+"$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback --passphrase '' \
+  --quiet --detach-sign --output "$SIG" "$DATA"
+
+if [ ! -s "$SIG" ]; then
+  echo "gpg did not write a detached signature"
+  exit 1
+fi
+
+echo "detached signature written"
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>verify the detached signature</name>
+      <description/>
+      <type>PGP_VERIFY_FILES</type>
+      <attributes/>
+      <gpglocation>${PROJECT_HOME}/output/gpg-in-project.sh</gpglocation>
+      <filename>${PROJECT_HOME}/output/detached/manifest$(echo pwned).csv</filename>
+      <detachedfilename>${PROJECT_HOME}/output/detached/manifest$(echo pwned).csv.sig</detachedfilename>
+      <useDetachedSignature>Y</useDetachedSignature>
+      <parallel>N</parallel>
+      <xloc>460</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Verifying a detached signature failed</message>
+      <loglevel>ERROR</loglevel>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>460</xloc>
+      <yloc>220</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>sign detached with a hostile filename</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>sign detached with a hostile filename</from>
+      <to>verify the detached signature</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign detached with a hostile filename</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>verify the detached signature</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
