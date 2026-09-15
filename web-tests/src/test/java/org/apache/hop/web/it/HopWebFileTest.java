@@ -84,6 +84,10 @@ class HopWebFileTest extends HopWebTestBase {
     // day and the one that stopped working in issue #6362.
     graph.addTransform(SECOND, 150, 0);
     hopGui.clickWidget(HopGuiPage.SAVE_FILE);
+    // Saving clears the changed flag, which disables Save again: that is the sign the save went
+    // through. Reloading the browser straight after the click can cut off the request that
+    // carries it, and then the file quietly keeps its old contents.
+    hopGui.awaitDisabled(HopGuiPage.SAVE_FILE);
 
     inANewSession();
     PipelineGraphPage reopened = hopGui.openPipeline(path, FIRST);

@@ -31,7 +31,8 @@
 
     <properties>
         <hopweb.browser>auto</hopweb.browser>
-        <hopweb.browserImage>selenium/standalone-chrome:4.47.0</hopweb.browserImage>
+        <!-- Empty: HopWebEnvironment picks selenium/standalone-chrome or -chromium by architecture -->
+        <hopweb.browserImage></hopweb.browserImage>
         <hopweb.build>false</hopweb.build>
         <hopweb.headless>true</hopweb.headless>
         <hopweb.image>apache/hop-web:Development</hopweb.image>

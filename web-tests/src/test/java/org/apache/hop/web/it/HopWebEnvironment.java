@@ -65,8 +65,10 @@ import org.testcontainers.utility.MountableFile;
  *       ago. Re-pulling an unchanged image transfers nothing.
  *   <li>{@code hopweb.url} - URL of an already running Hop Web. Set it while writing tests to skip
  *       container startup entirely, e.g. {@code -Dhopweb.url=http://localhost:8080/ui}
- *   <li>{@code hopweb.browser} - {@code auto} (default), {@code container} or {@code local}
- *   <li>{@code hopweb.browserImage} - the browser image, for a containerised browser
+ *   <li>{@code hopweb.browser} - {@code auto} (default, a container), {@code container} or {@code
+ *       local}
+ *   <li>{@code hopweb.browserImage} - the browser image, for a containerised browser; defaults to
+ *       selenium/standalone-chrome on amd64 and selenium/standalone-chromium on arm64
  *   <li>{@code hopweb.headless} - only meaningful for a local browser
  *   <li>{@code hopweb.javaOptions} - the JVM options Hop Web runs with, replacing the image's
  *       {@code HOP_OPTIONS}. The image default is {@code -XX:+AggressiveHeap}, which sizes the heap
@@ -87,7 +89,19 @@ public final class HopWebEnvironment {
    * matching image is out; the client and the browser only have to speak the same WebDriver
    * protocol, not carry the same version.
    */
-  private static final String DEFAULT_BROWSER_IMAGE = "selenium/standalone-chrome:4.47.0";
+  private static final String BROWSER_IMAGE_VERSION = "4.47.0";
+
+  /**
+   * selenium/standalone-chrome is amd64 only; selenium/standalone-chromium is the same image built
+   * for arm64 as well. Both run the same browser, so an arm64 machine gets a containerised browser
+   * too instead of falling back to whatever Chrome is installed locally - a local browser is fast
+   * enough to hide the request-timing races the CI browser trips over.
+   */
+  private static final String DEFAULT_BROWSER_IMAGE =
+      ("aarch64".equals(System.getProperty("os.arch"))
+              ? "selenium/standalone-chromium:"
+              : "selenium/standalone-chrome:")
+          + BROWSER_IMAGE_VERSION;
 
   private static final String HOP_WEB_ALIAS = "hop-web";
   private static final int HOP_WEB_PORT = 8080;
@@ -410,7 +424,10 @@ public final class HopWebEnvironment {
   private WebDriver containerBrowser(Network network) {
     BrowserWebDriverContainer<?> browser =
         new BrowserWebDriverContainer<>(
-                DockerImageName.parse(property("hopweb.browserImage", DEFAULT_BROWSER_IMAGE)))
+                DockerImageName.parse(property("hopweb.browserImage", DEFAULT_BROWSER_IMAGE))
+                    // Testcontainers only accepts selenium/standalone-chrome by name; the
+                    // multi-arch selenium/standalone-chromium is the same thing for arm64.
+                    .asCompatibleSubstituteFor("selenium/standalone-chrome"))
             .withNetwork(network)
             .withCapabilities(chromeOptions())
             .withStartupTimeout(Duration.ofSeconds(startupTimeoutSeconds()));
@@ -469,9 +486,9 @@ public final class HopWebEnvironment {
 
     static BrowserMode resolve(String value) {
       if ("auto".equalsIgnoreCase(value)) {
-        // The selenium/standalone-chrome images are amd64 only, so an arm64 developer machine
-        // has to drive the browser it already has.
-        return "aarch64".equals(System.getProperty("os.arch")) ? LOCAL : CONTAINER;
+        // Always the container: it is what CI runs, and the default image is picked per
+        // architecture. -Dhopweb.browser=local is there for watching a test in a real window.
+        return CONTAINER;
       }
       return "local".equalsIgnoreCase(value) ? LOCAL : CONTAINER;
     }
