@@ -25,9 +25,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
@@ -88,6 +92,19 @@ public class HopSecurityConfig {
   private boolean allowUnauthenticatedServerApi = false;
 
   /**
+   * Which browser requests the embedded Hop Server API ({@code /hop/*}) accepts, as a {@link
+   * CrossSitePolicy} code.
+   *
+   * <p>The Hop Server servlets answer state-changing operations on {@code GET}, so without this a
+   * page the operator happens to be visiting can drive them using the operator's own session. The
+   * default {@code same-site} rejects requests started by another site; {@code same-origin} also
+   * rejects other hosts of the same domain; {@code off} disables the check. Overridden by the
+   * {@code HOP_SERVER_CROSS_SITE_POLICY} system property or environment variable, the same knob
+   * hop-server uses.
+   */
+  private String crossSitePolicy = CrossSitePolicy.SAME_SITE.getCode();
+
+  /**
    * Optional explicit mapping from container role name → Hop role id ({@code admin}, {@code user},
    * {@code operator}, {@code readonly}). When empty, built-in aliases in {@link HopRole} are used.
    */
@@ -145,6 +162,9 @@ public class HopSecurityConfig {
 
   private static volatile HopSecurityConfig cached;
 
+  /** Last cross-site policy value warned about, so a bad one is not logged per request. */
+  private static volatile String warnedCrossSitePolicy;
+
   /** Effective client secret: env {@code HOP_WEB_OAUTH_CLIENT_SECRET} overrides config file. */
   public String resolveOauthClientSecret() {
     String env = System.getenv("HOP_WEB_OAUTH_CLIENT_SECRET");
@@ -156,6 +176,55 @@ public class HopSecurityConfig {
       return prop.trim();
     }
     return oauthClientSecret == null ? "" : oauthClientSecret;
+  }
+
+  /**
+   * Effective cross-site policy, resolved as {@code -D} → environment → config file → {@link
+   * CrossSitePolicy#SAME_SITE}, so a container can set it without editing {@code
+   * security-config.json}.
+   *
+   * <p>A <em>blank</em> system property is treated as absent on purpose. {@code
+   * HopEnvironment.init()} copies every {@code @Variable}-declared setting into a system property
+   * and does not look at the environment, so the property is present but empty here unless an
+   * operator really passed {@code -D}. Honouring a blank one would shadow both the environment
+   * variable and the config file, which is exactly what it did before this was fixed.
+   *
+   * <p>An unreadable value falls back to the safe default rather than leaving the check off.
+   *
+   * @return the policy to apply, never null
+   */
+  public CrossSitePolicy resolveCrossSitePolicy() {
+    String prop = System.getProperty(CrossSitePolicy.CONFIG_KEY);
+    String env = System.getenv(CrossSitePolicy.CONFIG_KEY);
+    String value = prop != null && !prop.isBlank() ? prop : env;
+    if (value == null || value.isBlank()) {
+      value = crossSitePolicy;
+    }
+    try {
+      return CrossSitePolicy.parse(value);
+    } catch (HopException e) {
+      warnUnusableCrossSitePolicy(value);
+      return CrossSitePolicy.SAME_SITE;
+    }
+  }
+
+  /**
+   * Complain about an unusable policy value once per distinct value.
+   *
+   * <p>Deliberately not {@code LogChannel}: this runs on every request through the Hop Web
+   * cross-site filter, where the Hop log store is not guaranteed to be initialised and a throwing
+   * logger would turn a configuration typo into a failed request. The de-duplication keeps a bad
+   * value from filling the log one line per request.
+   */
+  private static void warnUnusableCrossSitePolicy(String value) {
+    if (!Objects.equals(value, warnedCrossSitePolicy)) {
+      warnedCrossSitePolicy = value;
+      Logger.getLogger(HopSecurityConfig.class.getName())
+          .log(
+              Level.WARNING,
+              "Unusable cross-site policy ''{0}'', falling back to ''{1}''",
+              new Object[] {value, CrossSitePolicy.SAME_SITE.getCode()});
+    }
   }
 
   public boolean isOauthConfigured() {

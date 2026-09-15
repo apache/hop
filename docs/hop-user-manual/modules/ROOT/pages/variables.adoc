@@ -290,6 +290,9 @@ This only makes a difference for extremely short lived pipelines.
 |HOP_ROWSET_PUT_TIMEOUT|50|The name of the variable that optionally contains an alternative rowset put timeout (in ms).
 This only makes a difference for extremely short lived pipelines.
 |HOP_S3_VFS_PART_SIZE|5MB|The default part size for multi-part uploads of new files to S3 (added and used by by the xref:vfs/aws-s3-vfs.adoc[AWS S3] VFS plugin)
+|HOP_SERVER_CROSS_SITE_POLICY|same-site|Which browser requests Hop Server accepts, based on the Sec-Fetch-Site header: `same-site` (the default) rejects cross-site requests, `same-origin` also rejects same-site ones, and `off` disables the check.
+Clients that send no Sec-Fetch-* headers at all, such as hop-run or the Hop GUI, are never affected.
+See xref:hop-server/index.adoc[Hop Server].
 |HOP_SERVER_DETECTION_TIMER|-|The name of the variable that defines the timer used for detecting server nodes
 |HOP_SERVER_JETTY_ACCEPTORS||A variable to configure jetty option: acceptors for Hop Server
 |HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE||A variable to configure jetty option: acceptQueueSize for Hop Server

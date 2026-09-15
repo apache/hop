@@ -400,7 +400,7 @@ The *Security* tab appears only in **Hop Web**, and only for administrators (rol
 It is not shown in the desktop Hop GUI.
 The page is split into tabs:
 
-* *General* — authentication mode (`NONE` / `EXTERNAL` / `BASIC` / `OAUTH2`) and login welcome message
+* *General* — authentication mode (`NONE` / `EXTERNAL` / `BASIC` / `OAUTH2`), login welcome message, and the <<Cross-site requests to the Hop Server API,cross-site policy>> for `/hop/*`
 * *OAuth* — OIDC issuer, client id/secret, redirect, scopes, role/username claims, PKCE
 * *External* — container / IdP / LDAP group → Hop role mappings (also used for OAuth claim groups)
 * *Basic* — Hop-managed users (`users.json`: username, role, enabled, password)
@@ -509,6 +509,39 @@ unset HOP_WEB_OAUTH_ROLE_CLAIM HOP_WEB_OAUTH_USERNAME_CLAIM
 After sign-in, your session should include the *Admin* role (`security.manage`) so Configuration → Security is available.
 Other users without a mapping fall back to the *User* role.
 ====
+
+=== Cross-site requests to the Hop Server API
+
+Hop Web co-deploys the Hop Server API on `/hop/*`.
+Those servlets answer state-changing operations on `GET` — a single URL starts a pipeline, stops a workflow or removes one — so without a check, a web page an operator happens to be visiting can drive them in the operator's browser, using the session cookie the browser attaches by itself.
+
+Hop Web therefore rejects requests whose https://developer.mozilla.org/docs/Web/HTTP/Headers/Sec-Fetch-Site[`Sec-Fetch-Site`] header says they were started by another site, answering `403 Forbidden` before authentication and before the RBAC check run.
+This is the same policy the standalone xref:hop-server/index.adoc[Hop Server] applies, and it is set the same way:
+
+[options="header"]
+|===
+
+|Value|Behaviour
+
+|`same-site`
+|The default.
+Rejects requests started by a site on a different registrable domain.
+
+|`same-origin`
+|Also rejects requests started by another host of the same domain, so only Hop Web's own pages may drive the API.
+
+|`off`
+|Does not look at `Sec-Fetch-Site` at all.
+
+|===
+
+Set it in *Configuration → Security → General*, as `crossSitePolicy` in `security-config.json`, or with the `HOP_SERVER_CROSS_SITE_POLICY` environment variable (which overrides the config file).
+A `crossSitePolicy` init-param on the `CrossSiteRequest` filter in `web.xml` pins it for a single deployment and wins over both.
+
+Only browsers send `Sec-Fetch-*` headers, and requests without them are always accepted, so hop-run, the Hop GUI, `curl` and your own automation calling `/hop/*` are unaffected.
+Following a link to `/hop/*` **from another site** does land on a `403`; Hop Web's own UI is unaffected because its calls are same-origin.
+
+NOTE: This guards the Hop Server API only. The Hop Web UI itself (`/ui`) is not covered by this filter.
 
 === JDBC and API Bearer tokens
 
