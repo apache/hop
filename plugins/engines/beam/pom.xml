@@ -1543,6 +1543,10 @@
                     <artifactId>log4j-slf4j2-impl</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.glassfish.jersey.containers</groupId>
+                    <artifactId>jersey-container-servlet-core</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.lz4</groupId>
                     <artifactId>lz4-java</artifactId>
                 </exclusion>
