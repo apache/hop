@@ -290,7 +290,7 @@ public class PipelineLoggingExtensionPoint
                   Result result = pipeline.getResult();
                   String transLogChannelId = pipeline.getLogChannelId();
                   String transLoggingText =
-                      HopLogStore.getAppender().getBuffer(transLogChannelId, false).toString();
+                      HopLogStore.getBuffer(transLogChannelId, false).toString();
                   Date endDate = new Date();
                   pipeline.getExtensionDataMap().put(PIPELINE_END_DATE, endDate);
                   Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
@@ -337,9 +337,7 @@ public class PipelineLoggingExtensionPoint
                     String transformLogChannelId =
                         combi.transform.getLogChannel().getLogChannelId();
                     String transformLoggingText =
-                        HopLogStore.getAppender()
-                            .getBuffer(transformLogChannelId, false)
-                            .toString();
+                        HopLogStore.getBuffer(transformLogChannelId, false).toString();
                     Map<String, Object> transformPars = new HashMap<>();
                     transformPars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
                     transformPars.put("name", combi.transformName);

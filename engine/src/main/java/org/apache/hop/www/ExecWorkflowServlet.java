@@ -235,8 +235,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       executeWorkflow(workflow);
 
       // Get logging output
-      String logging =
-          HopLogStore.getAppender().getBuffer(workflow.getLogChannelId(), false).toString();
+      String logging = HopLogStore.getBuffer(workflow.getLogChannelId(), false).toString();
 
       // Check for errors
       Result result = workflow.getResult();

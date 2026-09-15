@@ -663,12 +663,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       HopServerConfig serverConfig = getPipelineMap().getHopServerConfig();
       if (serverConfig != null) {
         String maxLines = "";
-        if (HopLogStore.getAppender().getMaxNrLines() == 0) {
+        if (HopLogStore.getMaxNrLines() == 0) {
           maxLines = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxLines =
-              HopLogStore.getAppender().getMaxNrLines()
-                  + BaseMessages.getString(PKG, "GetStatusServlet.Lines");
+              HopLogStore.getMaxNrLines() + BaseMessages.getString(PKG, "GetStatusServlet.Lines");
         }
         out.print(
             CONST_TABLE_ROW

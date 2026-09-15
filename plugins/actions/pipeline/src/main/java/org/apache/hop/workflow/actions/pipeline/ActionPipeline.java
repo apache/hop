@@ -33,7 +33,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.logging.LogChannelFileWriter;
+import org.apache.hop.core.logging.HopFileAppender;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
@@ -297,7 +297,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   public Result execute(Result result, int nr) throws HopException {
     result.setEntryNr(nr);
 
-    LogChannelFileWriter logChannelFileWriter = null;
+    HopFileAppender logFileAppender = null;
 
     LogLevel pipelineLogLevel = parentWorkflow.getLogLevel();
 
@@ -323,10 +323,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         return result;
       }
       try {
-        logChannelFileWriter =
-            new LogChannelFileWriter(
+        logFileAppender =
+            HopFileAppender.create(
                 this.getLogChannelId(), HopVfs.getFileObject(realLogFilename), setAppendLogfile);
-        logChannelFileWriter.startLogging();
+        logFileAppender.attach();
       } catch (HopException e) {
         logError(
             BaseMessages.getString(
@@ -630,22 +630,22 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       iteration++;
     }
 
-    if (setLogfile && logChannelFileWriter != null) {
-      logChannelFileWriter.stopLogging();
+    if (setLogfile && logFileAppender != null) {
+      logFileAppender.stop();
 
       ResultFile resultFile =
           new ResultFile(
               ResultFile.FILE_TYPE_LOG,
-              logChannelFileWriter.getLogFile(),
+              logFileAppender.getLogFile(),
               parentWorkflow.getWorkflowName(),
               getName());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
       // See if anything went wrong during file writing...
       //
-      if (logChannelFileWriter.getException() != null) {
+      if (logFileAppender.getException() != null) {
         logError("Unable to open log file [" + getLogFilename() + "] : ");
-        logError(Const.getStackTracker(logChannelFileWriter.getException()));
+        logError(Const.getStackTracker(logFileAppender.getException()));
         result.setNrErrors(1);
         result.setResult(false);
         return result;

@@ -38,8 +38,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.logging.FileLoggingEventListener;
-import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopFileAppender;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.core.util.Utils;
@@ -235,7 +234,7 @@ public class ActionShell extends ActionBase implements ILegacyXml {
 
   @Override
   public Result execute(Result result, int nr) throws HopException {
-    FileLoggingEventListener loggingEventListener = null;
+    HopFileAppender logFileAppender = null;
     LogLevel shellLogLevel = parentWorkflow.getLogLevel();
     if (setLogfile) {
       String realLogFilename = resolve(getLogFilename());
@@ -249,9 +248,10 @@ public class ActionShell extends ActionBase implements ILegacyXml {
       }
 
       try {
-        loggingEventListener =
-            new FileLoggingEventListener(getLogChannelId(), realLogFilename, setAppendLogfile);
-        HopLogStore.getAppender().addLoggingEventListener(loggingEventListener);
+        logFileAppender =
+            HopFileAppender.create(
+                getLogChannelId(), HopVfs.getFileObject(realLogFilename), setAppendLogfile);
+        logFileAppender.attach();
       } catch (HopException e) {
         logError(
             BaseMessages.getString(
@@ -349,14 +349,13 @@ public class ActionShell extends ActionBase implements ILegacyXml {
       iteration++;
     }
 
-    if (setLogfile && loggingEventListener != null) {
-      HopLogStore.getAppender().removeLoggingEventListener(loggingEventListener);
-      loggingEventListener.close();
+    if (setLogfile && logFileAppender != null) {
+      logFileAppender.stop();
 
       ResultFile resultFile =
           new ResultFile(
               ResultFile.FILE_TYPE_LOG,
-              loggingEventListener.getFile(),
+              logFileAppender.getLogFile(),
               parentWorkflow.getWorkflowName(),
               getName());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);

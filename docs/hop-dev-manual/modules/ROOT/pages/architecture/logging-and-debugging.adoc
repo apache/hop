@@ -32,22 +32,69 @@ The level is set per run, and a channel logs only what its level allows.
 
 === Where the log lines end up
 
-`HopLogStore` is the central store every channel appends to.
-It is initialized by `HopEnvironment.init()`, so nothing is captured before that call.
+Here is the data flow, in one sentence:
+
+[source]
+----
+LogChannel -> SLF4J -> (binding) Log4j2 -> HopLogBufferAppender -> LoggingBuffer (HopLogStore)
+                                                     +---> console
+----
+
+`LogChannel` emits every record to SLF4J instead of writing to a Hop-only sink.
+The SLF4J binding in use is Log4j2 (`log4j-slf4j2-impl`), and a plugin appender, `HopLogBufferAppender`, feeds Hop's in-memory `LoggingBuffer` inside `HopLogStore` so every read-side consumer keeps working unchanged.
+
+That mirroring is the design note for this change: text logs and execution information are two separate concerns.
+
+.Two concerns
+[opts="header",cols="3,7,6"]
+|===
+|Concern |Producer |Consumer
+|Execution information |`LogChannel` writes to `LoggingBuffer` synchronously through the appender |GUI, execution info location, log browser, databases, metrics
+|Text logs |`LogChannel` emits to SLF4J, Log4j2 routes to appenders |console, file, JSON, agent/collector/Kafka
+|===
+
+The buffer is fed on the same thread that logs, so `HopLogStore` needs no change and the GUI and the server keep their view of the run.
+`HopLogBufferAppender` is attached programmatically by `HopLogConfig.ensureBufferAppender()` on top of whatever `log4j2.xml` or `log4j2.properties` the operator supplies, so Hop's buffer survives even a fully custom logger configuration.
+
+`LoggingBuffer` retains at most `Const.HOP_MAX_LOG_SIZE_IN_LINES` lines.
+Above that cap it drops the oldest line with an `ArrayList.remove(0)`, which is O(n) per append while the buffer is full.
+A channel logging a burst larger than the retention cap therefore becomes slower as the buffer fills; at the default cap this is rarely hit on a real run, but it is worth knowing when sizing the buffer for a high-volume pipeline.
+
+=== Hop context as event key-values
+
+While a record is logged, `LogChannel` publishes the Hop execution context on the emitted SLF4J event as key-value pairs (the SLF4J/log4j2 bridge maps these to the event context, MDC):
+
+[opts="header",cols="2,2,6"]
+|===
+|Key |Example |Meaning
+|`hop.logChannelId` |`04f3…` |The Hop channel id of the record, the same key used to look the line up in `HopLogStore`.
+|`hop.logLevel` |`7` |The native Hop log level code of the record, preserving all seven Hop levels even though SLF4J exposes five.
+|`hop.caller` |`org.apache.hop.…` |The SLF4J logger name, i.e. the Hop subject that logged.
+|===
+
+The keys are constants on `LogChannel`: `MDC_CHANNEL`, `MDC_LEVEL`, `MDC_CALLER`.
+`HopLogBufferAppender` restores the exact Hop level from `hop.logLevel` (falling back to the closest Log4j2 level for records that did not originate from a Hop `LogChannel`), and `HopFileAppender` does the same for file output.
+A custom appender (agent, collector, Kafka, OpenTelemetry) can group lines per channel and reproduce the seven native levels by reading these keys instead of parsing the message text.
+
+=== Reading the buffer back
 
 Every runtime object — `IPipelineEngine`, `IWorkflowEngine`, a transform, a database connection — owns a log channel id, and that id is the key into the store.
 The parent/child relations between those channels live in `LoggingRegistry.getInstance()`.
 
-To read back what an object logged, ask the store's appender for that channel's buffer:
+To read back what an object logged, ask the store for that channel's buffer:
 
 [source,java]
 ----
-String logText =
-    HopLogStore.getInstance().getAppender().getBuffer(pipeline.getLogChannelId(), true);
+List<String> logText = HopLogStore.getLogBufferText(pipeline.getLogChannelId(), true, 0, HopLogStore.getLastBufferLineNr());
 ----
 
-The second argument clears the buffer as it is read.
 This is the same path a `logBasic()` call from a xref:manual::pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class] takes: the transform's own channel, the same store.
+The legacy `HopLogStore.getAppender().getBuffer(...)` call is deprecated and marks `getAppender()` for internal use.
+
+=== Logging cost on the hot path
+
+A warmed-up `LogChannel.logBasic()` measures around one to two microseconds per line (see `LogChannelHotPathTest`), dominated by the Log4j2 event creation and the three key-value pairs.
+That is the number reviewers should compare against; it does not account for the O(n) buffer retention described above, which only shows on bursts beyond the retention cap.
 
 == Attaching a debugger
 
@@ -67,8 +114,6 @@ For running Hop straight from the IDE instead, see xref:setup-dev-environment.ad
 ====
 This page is a scaffold. Still to write:
 
-* Choosing a log level for a message, and the cost of logging on a per-row path — see xref:architecture/performance.adoc[Performance on the row hot path].
-* How log lines reach the GUI, the execution information location and the server, and why a message can appear in one and not another.
 * Debugging inside a container, and debugging a pipeline running on a remote Hop Server.
 * Getting a thread dump out of a stuck pipeline and reading it: which threads are transforms, which are row sets.
 * What to capture when reporting a bug so it can be reproduced.

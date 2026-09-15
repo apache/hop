@@ -25,4 +25,22 @@ public interface ILogChannelFactory {
   ILogChannel create(Object subject, ILoggingObject parentObject);
 
   ILogChannel create(Object subject, ILoggingObject parentObject, boolean gatheringMetrics);
+
+  /**
+   * Create a log channel, optionally forcing a brand new logging entry in the registry regardless
+   * of identical objects.
+   *
+   * @param subject the channel subject
+   * @param parentObject the parent logging object, may be {@code null}
+   * @param gatheringMetrics flag to enable metrics gathering
+   * @param forceNewLoggingEntry force a separate registry entry
+   * @return the created channel
+   */
+  default ILogChannel create(
+      Object subject,
+      ILoggingObject parentObject,
+      boolean gatheringMetrics,
+      boolean forceNewLoggingEntry) {
+    return create(subject, parentObject, gatheringMetrics);
+  }
 }

@@ -140,9 +140,7 @@ public class RestCaller {
       }
       result = results.getResult();
       loggingText =
-          HopLogStore.getAppender()
-              .getBuffer(results.getPipeline().getLogChannelId(), false)
-              .toString();
+          HopLogStore.getBuffer(results.getPipeline().getLogChannelId(), false).toString();
 
       return response;
     } catch (Exception e) {

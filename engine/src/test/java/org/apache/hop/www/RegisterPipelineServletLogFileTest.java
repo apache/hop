@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -63,6 +62,12 @@ class RegisterPipelineServletLogFileTest {
     Files.deleteIfExists(logFile);
   }
 
+  /**
+   * Everything the pipeline logs has the logging object of the servlet as its parent. The {@link
+   * org.apache.hop.core.logging.HopFileAppender} attached by the servlet is added on the root
+   * logger and filters on the servlet channel, so it receives every pipeline event without
+   * registering a per-channel buffer.
+   */
   @Test
   void registeringAPipelineWithALogFileWorks() throws Exception {
     RegisterPipelineServlet servlet = createServlet();
@@ -73,27 +78,6 @@ class RegisterPipelineServletLogFileTest {
     assertNotNull(
         pipeline.getParent().getLogChannelId(),
         "The pipeline should log to a channel the log file writer can be found by");
-  }
-
-  /**
-   * Everything the pipeline logs has the logging object of the servlet as its parent, so the log
-   * file writer registered on it has to be found back from the log channel of the pipeline. Without
-   * that the log file stays empty.
-   */
-  @Test
-  void theLogFileWriterIsFoundFromTheLogChannelOfThePipeline() throws Exception {
-    RegisterPipelineServlet servlet = createServlet();
-
-    IPipelineEngine<PipelineMeta> pipeline = servlet.createPipeline(createPipelineConfiguration());
-
-    // This is what the server does next: it is only then that the pipeline creates the log channel
-    // it really runs with.
-    pipeline.prepareExecution();
-
-    assertNotNull(
-        LoggingRegistry.getInstance()
-            .getLogChannelFileWriterBuffer(pipeline.getLogChannel().getLogChannelId()),
-        "The pipeline should write its log to the log file that was asked for");
   }
 
   /** Registering a pipeline without a log file keeps working. */
