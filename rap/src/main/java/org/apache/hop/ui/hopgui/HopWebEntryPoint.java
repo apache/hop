@@ -31,6 +31,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurityConfig;
 import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
@@ -159,8 +160,23 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
           "Hop Web security: user ''{0}'' roles={1}",
           securityContext.getUsername(), securityContext.getRoleIds());
     } else {
-      LogChannel.UI.logDebug(
-          "Hop Web security: no authenticated principal (mode NONE or unrestricted)");
+      HopSecurityConfig.AuthMode mode = resolveAuthMode();
+      if (mode == HopSecurityConfig.AuthMode.NONE) {
+        LogChannel.UI.logDebug("Hop Web security: no authenticated principal (mode NONE)");
+      } else {
+        // Authentication is configured but the request carries no principal. In EXTERNAL mode
+        // nothing in Hop enforces authentication: it depends entirely on a container
+        // <security-constraint> (or a reverse proxy) which the shipped web.xml does not contain.
+        // Without it /ui is served wide open while the Security tab reports authentication as
+        // enabled, so make that contradiction visible in the log instead of failing silently open.
+        LogChannel.UI.logError(
+            "Hop Web security WARNING: authentication mode is ''{0}'' but this request has no "
+                + "authenticated principal, so the UI is being served unauthenticated. "
+                + "In EXTERNAL mode Hop relies on the servlet container or reverse proxy: add a "
+                + "<security-constraint> covering /* (and a <login-config>) to WEB-INF/web.xml, "
+                + "or switch to BASIC / OAUTH2.",
+            mode.name());
+      }
     }
 
     ResourceManager resourceManager = RWT.getResourceManager();
@@ -310,6 +326,20 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
                 }
               }
             });
+  }
+
+  /**
+   * The configured Hop Web authentication mode, or {@code NONE} when the security configuration
+   * cannot be read. Used to decide whether an unauthenticated request is expected (mode {@code
+   * NONE}) or a sign that the container security constraint for {@code EXTERNAL} is missing.
+   */
+  private HopSecurityConfig.AuthMode resolveAuthMode() {
+    try {
+      return HopSecurityConfig.load().getAuthMode();
+    } catch (Exception e) {
+      LogChannel.UI.logDebug("Could not read the Hop Web security configuration", e);
+      return HopSecurityConfig.AuthMode.NONE;
+    }
   }
 
   /**
