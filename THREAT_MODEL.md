@@ -22,8 +22,10 @@ were then code-verified against the source and confirmed/corrected by the PMC
 (2026-06-22). Claims below cite `file:line` evidence where it is load-bearing.
 
 **Revision triggers:** a change to the Hop Server's auth / remote-execution
-model; a new scripting/exec transform or action; a change to how connection
-credentials / variables are stored or resolved; a new metadata source.
+model; a change to the Hop Web authentication modes or to what the Hop Web
+web application deploys; a new scripting/exec transform or action; a change to
+how connection credentials / variables are stored or resolved; a new metadata
+source.
 
 ---
 
@@ -54,7 +56,8 @@ the `hop-run` CLI, or submitted to a **Hop Server** for local/remote execution.
 | Execution engine | `engine/`, `engine-beam/` | Runs pipelines/workflows the operator authored — incl. transforms that touch files, DBs, network, and **scripting/exec** steps. |
 | Hop Server (servlet / HTTP) | `engine/` — package `org.apache.hop.www` + `HopServerMeta` in `org.apache.hop.server`; launched by the `hop-server` command (`org.apache.hop.www.HopServer`). *(The `org.apache.hop.server` connection helpers `HttpUtil`/`ServerConnectionManager` — see §9 — live in `core/`.)* | The **network trust boundary**: an embedded Jetty server whose servlets accept pipeline/workflow run requests over HTTP (`/hop/execPipeline`, `/hop/addPipeline`+`/hop/startExec`, `/hop/registerPackage`, …). Who may submit/run, and with what auth, lives here (§7, §8). |
 | Hop JSON API | `engine/src/main/java/org/apache/hop/www/api/` | **Part of Hop Server**, not a separate deployable. Mounted on `/hop/api/v1/` ([`WebServer.java`](engine/src/main/java/org/apache/hop/www/WebServer.java)) and exposes `execute/sync` (run a web service), `metadata` CRUD, `plugins` and `location` execution info. It sits inside the same `ConstraintSecurityHandler` as every servlet, so it inherits Hop Server's Basic/JAAS auth (§8). |
-| GUI (desktop / web) | `ui/` (`hop-ui`, SWT core), `rcp/` (desktop fragment), `rap/` (`hop-ui-rap`, RAP/RWT **web** GUI) | Authoring surface used by the trusted operator. `rap/` is the **web GUI**, not a server. |
+| GUI (desktop / web) | `ui/` (`hop-ui`, SWT core), `rcp/` (desktop fragment), `rap/` (`hop-ui-rap`, RAP/RWT **web** GUI) | Authoring surface used by the trusted operator. `rap/` is the **web GUI code**, not a server — but see the Hop Web row: the shipped web application deploys it together with Hop Server servlets. |
+| Hop Web (deployed web application) | `assemblies/web/` (WAR + `apache/hop-web` image), built from `rap/` + `engine/` | A **distinct network-facing deployment**, separate from both `rap/` and `hop-server`. The one WAR co-deploys the RAP UI on `/ui` and `/ui-dark`, `HopServerServlet` on `/hop/*`, and `HopApiApplication` on `/hop/api/v1/*` on the same origin ([`web.xml`](assemblies/web/src/main/resources/WEB-INF/web.xml)). It does **not** use Hop Server's `enable_auth` / `hop.pwd` Basic auth; it has its own auth modes (§8). Docker image binds `0.0.0.0:8080`. |
 | Plugins | `plugins/` | The large transform/action set, incl. scripting (GraalJS/Rhino/Groovy), shell/exec, SQL, and per-DB/per-cloud connectors (`plugins/tech/*`). |
 | Connection / driver layer | `lib-jdbc/` (bundled JDBC drivers), `core/` (`org.apache.hop.core.database`, `org.apache.hop.metadata`) | DB/file/cloud credentials + JDBC drivers the operator configures. (There is no standalone `metadata/` module — connection/metadata code is in `core/`.) |
 
@@ -141,7 +144,10 @@ where strict outbound TLS verification is required (see §9).
 
 ## §8 Security properties the project provides
 
-- **Hop Server authentication (with a critical caveat).** The servlet Hop Server
+- **Hop Server authentication (with a critical caveat).** *(This property is
+  scoped to the standalone `hop-server` deployment only — Hop Web has no
+  `enable_auth` and no `hop.pwd`; see the separate Hop Web property below.)*
+  The servlet Hop Server
   enables HTTP Basic authentication **by default** (`enable_auth` defaults to
   true — [`HopServerMeta.java:229,251`](engine/src/main/java/org/apache/hop/server/HopServerMeta.java#L229), [`WebServer.java:197`](engine/src/main/java/org/apache/hop/www/WebServer.java#L197)), gating every endpoint, so a *fully unauthenticated* client is
   rejected. **Caveat:** the only shipped credential is the **publicly-known
@@ -151,6 +157,46 @@ where strict outbound TLS verification is required (see §9).
   Changing the credential and restricting exposure is an operator responsibility
   (§10). — violation symptom: remote code execution using the unchanged default
   credential on an exposed deployment; severity: critical.
+- **Hop Web authentication and authorization (separate model from `hop-server`).**
+  Hop Web does not inherit the `hop-server` `enable_auth` / `cluster:cluster`
+  posture described above; it has its own authentication mode in
+  `security-config.json`
+  ([`HopSecurityConfig.java`](core/src/main/java/org/apache/hop/core/security/HopSecurityConfig.java),
+  `HOP_WEB_SECURITY_MODE`), and it **ships in mode `NONE`**. The boundary per
+  mode:
+  - **`NONE` (default).** The RAP UI on `/ui` / `/ui-dark` is **open by design**
+    — this is the single-user / trusted-network install and the session is
+    treated as *unrestricted*. The co-deployed Hop Server API on `/hop/*` is
+    **default-denied** (`403`) by
+    [`HopServerAuthorizationFilter`](rap/src/main/java/org/apache/hop/ui/hopgui/security/HopServerAuthorizationFilter.java),
+    because mode `NONE` has no identity to authorize against and those endpoints
+    deploy and execute pipelines/workflows. Opt-in flag
+    `allowUnauthenticatedServerApi` /
+    `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API` reopens it for operators running
+    Hop Web purely as an execution server behind their own network controls —
+    violation symptom: unauthenticated remote code execution via `/hop/*` on an
+    exposed deployment that enabled the flag; severity: critical; mitigation is
+    operator-side network control (§10).
+  - **`BASIC` / `OAUTH2`.** Hop's own servlet filters
+    ([`HopBasicAuthFilter`](rap/src/main/java/org/apache/hop/ui/hopgui/security/HopBasicAuthFilter.java),
+    [`HopOidcAuthFilter`](rap/src/main/java/org/apache/hop/ui/hopgui/security/HopOidcAuthFilter.java))
+    are mapped on `/*` — the whole application, UI and server API alike — and
+    establish a principal plus roles. Unlike `hop-server`, `/hop/*` then gets
+    **per-endpoint authorization**: each path maps to a required permission and
+    unmapped paths are **default-denied**, so a *Read-only* user can read status
+    but not `addPipeline` / `startPipeline` / `execWorkflow`.
+  - **`EXTERNAL`.** Authentication is **delegated to the servlet container or a
+    reverse proxy**; Hop only reads `request.getUserPrincipal()`. Nothing in
+    `rap/` enforces it, and the shipped
+    [`web.xml`](assemblies/web/src/main/resources/WEB-INF/web.xml) contains **no
+    `<security-constraint>`** — so an operator who selects `EXTERNAL` without
+    adding one gets an unauthenticated `/ui` while the Security tab reports
+    authentication as enabled. `/hop/*` still returns `401` (no principal) and
+    `HopWebEntryPoint` now logs a warning for every principal-less session in a
+    non-`NONE` mode, but the UI itself is open. — violation symptom: a
+    fail-open UI on a deployment the operator believes is authenticated;
+    severity: high; mitigation: a container `<security-constraint>` over `/*`,
+    or a proxy that rejects unauthenticated requests (§10).
 - **XML parsing is hardened against XXE.** Pipeline/workflow/metadata files are
   parsed through a secure `DocumentBuilderFactory`
   ([`XmlParserFactoryProducer.java`](core/src/main/java/org/apache/hop/core/xml/XmlParserFactoryProducer.java)) with external general/parameter entities and
@@ -233,6 +279,15 @@ where strict outbound TLS verification is required (see §9).
   protects the XML servlets and the JSON API alike —
   it has none of its own. Be aware the Docker image binds `0.0.0.0:8080` with
   the default credential.
+- **Lock down Hop Web** (separate from `hop-server` above — `enable_auth` and
+  `hop.pwd` do not apply): it ships in mode `NONE`, where `/ui` is open by
+  design. For any shared deployment set `HOP_WEB_SECURITY_MODE` to `BASIC` or
+  `OAUTH2`, or to `EXTERNAL` **together with** a container
+  `<security-constraint>` over `/*` (or an authenticating reverse proxy) —
+  `EXTERNAL` on its own fails open. Leave
+  `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API` off unless you deliberately run Hop
+  Web as an execution server behind network controls. Persist
+  `HOP_CONFIG_FOLDER/security/` so users and role mappings survive upgrades.
 - **Protect credentials at rest:** enable the AES2 encoder
   (`HOP_PASSWORD_ENCODER_PLUGIN=AES2` + `HOP_AES_ENCODER_KEY` or
   `HOP_AES_ENCODER_KEY_FILE`) and/or a secrets
@@ -254,6 +309,13 @@ where strict outbound TLS verification is required (see §9).
   pipeline execution = remote code execution.
 - Running Hop Server with `enable_auth=false` on an untrusted network →
   unauthenticated pipeline execution + metadata mutation over the JSON API.
+- Exposing **Hop Web in mode `NONE`** to an untrusted network → an open
+  authoring UI on `/ui`; and, if
+  `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API` was enabled, unauthenticated
+  pipeline execution over `/hop/*` as well.
+- Selecting Hop Web mode **`EXTERNAL` without a container
+  `<security-constraint>`** (or proxy) → an open `/ui` on a deployment the
+  operator believes is authenticated.
 - Running an **untrusted pipeline/workflow file** (or one fetched from an
   untrusted source).
 - Building unparameterized SQL / shell / file paths from **untrusted variable
