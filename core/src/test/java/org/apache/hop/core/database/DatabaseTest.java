@@ -181,6 +181,35 @@ class DatabaseTest {
     assertTrue(rowMeta.getValueMeta(0).isInteger());
   }
 
+  @Test
+  void parseSqlParameterSpecSkipsQuotedCommentedAndJsonbOperatorQuestionMarks() {
+    String sql =
+        "SELECT \"?identifier\", $$ ? $$ FROM t /* ? block */ "
+            + "WHERE payload ? 'key' AND options ?| array['a'] AND flags ?& array['b'] "
+            + "AND route = ?{route} -- ? line\nAND status = ?";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(
+        "SELECT \"?identifier\", $$ ? $$ FROM t /* ? block */ "
+            + "WHERE payload ? 'key' AND options ?| array['a'] AND flags ?& array['b'] "
+            + "AND route = ? -- ? line\nAND status = ?",
+        spec.getPreparedSql());
+    assertEquals(2, spec.getParameterCount());
+    assertEquals("route", spec.getParameterReferences().get(0));
+    assertNull(spec.getParameterReferences().get(1));
+  }
+
+  @Test
+  void countParametersUsesSqlTokenizerRules() {
+    Database db = new Database(log, variables, meta);
+    String sql =
+        "SELECT [a?b], `c?d`, \"e?f\" FROM t WHERE payload ? ? AND note = '?z' "
+            + "AND id = ? -- ? comment\nAND type = ?";
+
+    assertEquals(3, db.countParameters(sql));
+  }
+
   /**
    * When using getLookup calls there is no need to make attempt to retrieve row set metadata for
    * every call. That may bring performance penalty depends on jdbc driver implementation. For some
