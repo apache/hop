@@ -47,8 +47,7 @@
         <module>concatfields</module>
         <module>constant</module>
         <module>creditcardvalidator</module>
-        <module>cubeinput</module>
-        <module>cubeoutput</module>
+        <module>cube</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>databasevaluevalidation</module>
