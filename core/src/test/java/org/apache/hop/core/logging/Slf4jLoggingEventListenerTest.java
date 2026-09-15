@@ -19,6 +19,10 @@ package org.apache.hop.core.logging;
 
 import static org.apache.hop.core.logging.LogLevel.BASIC;
 import static org.apache.hop.core.logging.LogLevel.ERROR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -31,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 @ExtendWith(MockitoExtension.class)
 class Slf4jLoggingEventListenerTest {
@@ -104,5 +109,42 @@ class Slf4jLoggingEventListenerTest {
     verify(workflowLogger).error(String.format("[filename]  %s", msgText));
     verifyNoInteractions(hopLogger);
     verifyNoInteractions(pipelineLogger);
+  }
+
+  @Test
+  void testAddLogEventPublishesHopContextToMdc() {
+    when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
+    when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.PIPELINE);
+    when(loggingObject.getFilename()).thenReturn("filename");
+    when(message.getLevel()).thenReturn(LogLevel.DEBUG);
+
+    assertNull(MDC.get(Slf4jLoggingEventListener.MDC_CHANNEL_ID), "MDC must start clean");
+    assertNull(MDC.get(Slf4jLoggingEventListener.MDC_LOG_LEVEL), "MDC must start clean");
+    assertNull(MDC.get(Slf4jLoggingEventListener.MDC_SUBJECT), "MDC must start clean");
+
+    StringBuilder channelId = new StringBuilder();
+    StringBuilder logLevel = new StringBuilder();
+    StringBuilder subject = new StringBuilder();
+    doAnswer(
+            invocation -> {
+              // Capture the Hop context at the exact moment the record reaches SLF4J.
+              channelId.append(MDC.get(Slf4jLoggingEventListener.MDC_CHANNEL_ID));
+              logLevel.append(MDC.get(Slf4jLoggingEventListener.MDC_LOG_LEVEL));
+              subject.append(MDC.get(Slf4jLoggingEventListener.MDC_SUBJECT));
+              return null;
+            })
+        .when(pipelineLogger)
+        .debug(anyString());
+
+    listener.eventAdded(logEvent);
+
+    assertEquals(logChannelId, channelId.toString());
+    assertEquals(LogLevel.DEBUG.getCode(), logLevel.toString());
+    assertEquals("filename", subject.toString());
+
+    // MDC is scoped to the dispatch and must not leak to the caller.
+    assertNull(MDC.get(Slf4jLoggingEventListener.MDC_CHANNEL_ID), "MDC must be cleared after");
+    assertNull(MDC.get(Slf4jLoggingEventListener.MDC_LOG_LEVEL), "MDC must be cleared after");
+    assertNull(MDC.get(Slf4jLoggingEventListener.MDC_SUBJECT), "MDC must be cleared after");
   }
 }
