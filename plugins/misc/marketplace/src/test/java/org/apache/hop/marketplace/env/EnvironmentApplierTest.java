@@ -19,6 +19,7 @@ package org.apache.hop.marketplace.env;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
+import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.junit.jupiter.api.BeforeAll;
@@ -116,5 +118,112 @@ class EnvironmentApplierTest {
     } finally {
       System.clearProperty("PROJECT_HOME");
     }
+  }
+
+  private static MarketplaceConfig configuredWithPrivateRepository() {
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository repo =
+        new MarketplaceRepository(
+            "nexus", "https://nexus.example.org/repository/hop/", "operator", "operator-secret");
+    repo.setPrimary(true);
+    config.getRepositories().add(repo);
+    return config;
+  }
+
+  private static HopInstallSpec specWithRepository(String id, String url) {
+    HopInstallSpec env = new HopInstallSpec();
+    HopInstallSpec.RepositoryRef ref = new HopInstallSpec.RepositoryRef();
+    ref.setId(id);
+    ref.setUrl(url);
+    env.getRepositories().add(ref);
+    return env;
+  }
+
+  @Test
+  void projectRepositoryOnAnotherHostDoesNotGetTheConfiguredCredentials() {
+    MarketplaceConfig config =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, configuredWithPrivateRepository())
+            .configFromEnv(
+                specWithRepository("project", "https://evil.example.com/repository/hop/"));
+
+    MarketplaceRepository applied = config.primaryRepository();
+    assertEquals("project", applied.getId());
+    assertNull(applied.getUsername());
+    assertNull(applied.getPassword());
+    assertFalse(applied.isGlobalEnvironmentCredentials());
+  }
+
+  @Test
+  void projectRepositoryOnTheSameHostStillInheritsThem() {
+    MarketplaceConfig config =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, configuredWithPrivateRepository())
+            .configFromEnv(
+                specWithRepository("project", "https://nexus.example.org/repository/hop-extra/"));
+
+    MarketplaceRepository applied = config.primaryRepository();
+    assertEquals("operator", applied.getUsername());
+    assertEquals("operator-secret", applied.getPassword());
+    assertTrue(applied.isGlobalEnvironmentCredentials());
+  }
+
+  @Test
+  void aDifferentPortOrSchemeIsADifferentRepository() {
+    for (String url :
+        new String[] {
+          "https://nexus.example.org:8443/repository/hop/",
+          "http://nexus.example.org/repository/hop/"
+        }) {
+      MarketplaceConfig config =
+          new EnvironmentApplier(new LogChannel("test"), tempDir, configuredWithPrivateRepository())
+              .configFromEnv(specWithRepository("project", url));
+      assertNull(config.primaryRepository().getUsername(), url);
+      assertNull(config.primaryRepository().getPassword(), url);
+    }
+  }
+
+  @Test
+  void credentialsDeclaredByTheProjectAreAlwaysUsed() {
+    HopInstallSpec env = specWithRepository("project", "https://other.example.com/repository/hop/");
+    env.getRepositories().get(0).setUsername("project-user");
+    env.getRepositories().get(0).setPassword("project-secret");
+
+    MarketplaceRepository applied =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, configuredWithPrivateRepository())
+            .configFromEnv(env)
+            .primaryRepository();
+    assertEquals("project-user", applied.getUsername());
+    assertEquals("project-secret", applied.getPassword());
+  }
+
+  @Test
+  void credentialsComeFromTheMatchingRepositoryNotOnlyFromThePrimary() {
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository primary =
+        new MarketplaceRepository("asf", "https://repository.apache.org/content/groups/public/");
+    primary.setPrimary(true);
+    config.getRepositories().add(primary);
+    config
+        .getRepositories()
+        .add(
+            new MarketplaceRepository(
+                "acme", "https://nexus.example.org/repository/hop/", "acme-user", "acme-secret"));
+
+    MarketplaceRepository applied =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, config)
+            .configFromEnv(
+                specWithRepository("project", "https://nexus.example.org/repository/hop-extra/"))
+            .primaryRepository();
+    assertEquals("acme-user", applied.getUsername());
+    assertEquals("acme-secret", applied.getPassword());
+  }
+
+  @Test
+  void specWithoutRepositoriesKeepsTheConfiguredOnes() {
+    MarketplaceConfig config =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, configuredWithPrivateRepository())
+            .configFromEnv(new HopInstallSpec());
+    assertEquals("operator", config.primaryRepository().getUsername());
   }
 }
