@@ -77,6 +77,13 @@ Run a Hop server
   -ws, --workflow-status=<workflowName>
                           List the status of the workflow with this name (also
                             specify the -id option)
+      -xs, --cross-site-policy=<crossSitePolicy>
+                          Which browser requests this server accepts, based on
+                            the Sec-Fetch-Site header: 'same-site' (the
+                            default) rejects cross-site requests, 'same-origin'
+                            also rejects same-site ones, and 'off' disables the
+                            check. Clients that send no Sec-Fetch-* headers,
+                            such as hop-run or the Hop GUI, are never affected.
 ----
 
 The available Hop Server options are:
@@ -146,6 +153,11 @@ This is provided for by the 'projects' plugin.
 |--shutdown-timeout
 |Default: 0 +
 The maximum number of seconds to wait for running pipelines and workflows to finish when the server shuts down (0 shuts down immediately). Can also be set with the `HOP_SERVER_SHUTDOWN_TIMEOUT` environment variable.
+
+|-xs
+|--cross-site-policy
+|Default: same-site +
+Which browser requests the server accepts: `same-site`, `same-origin` or `off`. Can also be set with the `HOP_SERVER_CROSS_SITE_POLICY` environment variable. See <<Cross-site requests>>.
 
 |===
 
@@ -550,6 +562,51 @@ Linux, macOS::
  ./hop-server.sh 127.0.0.1 8080 --shutdown-timeout 120
 --
 ====
+
+== Cross-site requests
+
+The Hop Server servlets answer state-changing operations on `GET`: a single URL starts a pipeline, stops a workflow or removes one from the server.
+That is convenient for automation, but it also means a web page an operator happens to be visiting can drive the server simply by pointing an image, a form or a link at it, using the operator's browser and their credentials.
+
+To close that path, Hop Server rejects requests whose https://developer.mozilla.org/docs/Web/HTTP/Headers/Sec-Fetch-Site[`Sec-Fetch-Site`] header says they were started by another site, answering them with an HTTP `403 Forbidden` before authentication or any servlet runs.
+
+Only browsers send `Sec-Fetch-*` headers.
+hop-run, the Hop GUI, `curl` and your own automation send none at all, and requests without the header are always accepted, so **existing integrations are not affected**.
+
+The `--cross-site-policy` option (or the `HOP_SERVER_CROSS_SITE_POLICY` environment variable) picks how strict the server is:
+
+[options="header"]
+|===
+
+|Value|Behaviour
+
+|`same-site`
+|The default.
+Rejects requests started by a site on a different registrable domain.
+A link or a form on another host of the same domain — a second Hop server, an intranet portal, the same host on another port — is still accepted.
+
+|`same-origin`
+|Also rejects requests started by another host of the same domain, so only the server's own pages may drive it.
+
+|`off`
+|Does not look at `Sec-Fetch-Site` at all.
+An escape hatch for a deployment that turns out to need cross-site browser access; it leaves the server open to the requests described above.
+
+|===
+
+[source,shell]
+ ./hop-server.sh 127.0.0.1 8080 --cross-site-policy same-origin
+
+Two consequences worth knowing about:
+
+* Following a link to the server **from another site** lands on a `403`, including a plain click-through to the status page.
+Typing the address or using a bookmark sends `Sec-Fetch-Site: none` and keeps working, as does every link on the server's own pages.
+* A `Sec-Fetch-Site` value the server does not recognise, or more than one of them on the same request, is rejected as well.
+A client that cannot send the header correctly can always send nothing at all.
+
+This is a defence against one specific attack, not a substitute for the basics: keep authentication enabled, change the default `cluster`/`cluster` credentials and do not expose the server to an untrusted network.
+
+Hop Web applies the same policy to the Hop Server API it co-deploys on `/hop/*`, configured in its own security settings — see xref:hop-gui/hop-web.adoc[Hop Web].
 
 == Verify startup
 

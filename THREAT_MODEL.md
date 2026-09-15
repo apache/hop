@@ -151,6 +151,29 @@ where strict outbound TLS verification is required (see §9).
   Changing the credential and restricting exposure is an operator responsibility
   (§10). — violation symptom: remote code execution using the unchanged default
   credential on an exposed deployment; severity: critical.
+- **Cross-site browser requests to the Hop Server are rejected.** The servlets
+  answer state-changing operations on `GET`, so a page the operator is visiting
+  could otherwise drive them with the operator's browser and credentials
+  (`Origin` is no defence: browsers omit it on cross-site `GET`). A single
+  handler wrapped around every servlet context, the static resources and the
+  JSON API ([`CrossSiteRequestHandler.java`](engine/src/main/java/org/apache/hop/www/CrossSiteRequestHandler.java), installed in [`WebServer.java`](engine/src/main/java/org/apache/hop/www/WebServer.java) ahead of
+  authentication) rejects a request whose `Sec-Fetch-Site` the configured
+  [`CrossSitePolicy`](core/src/main/java/org/apache/hop/core/security/CrossSitePolicy.java) disallows — by default `cross-site`, and under
+  `--cross-site-policy same-origin` also `same-site`. **The same check covers Hop
+  Web**, which co-deploys these servlets on `/hop/*` outside `WebServer`, via a
+  servlet filter mapped ahead of the authentication filters
+  ([`CrossSiteRequestFilter.java`](engine/src/main/java/org/apache/hop/www/CrossSiteRequestFilter.java), [`web.xml`](assemblies/web/src/main/resources/WEB-INF/web.xml)); there it is configured by
+  `crossSitePolicy` in `security-config.json` (Configuration → Security →
+  General) and matters more, because Hop Web's authenticated modes are
+  session-backed and a browser attaches the session cookie to a cross-site
+  request by itself. The Hop Web **UI** (`/ui`) is not covered. Requests carrying no
+  `Sec-Fetch-*` headers (hop-run, the Hop GUI, curl, automation) are allowed, so
+  non-browser clients are unaffected; `--cross-site-policy off` disables the
+  check entirely. This narrows drive-by use of an authenticated operator's
+  browser only — it is not per-endpoint authorization, and does nothing about a
+  client that reaches the server directly (§9). — violation symptom: a visited
+  web page starts or stops pipelines on a server the operator is logged in to;
+  severity: high.
 - **XML parsing is hardened against XXE.** Pipeline/workflow/metadata files are
   parsed through a secure `DocumentBuilderFactory`
   ([`XmlParserFactoryProducer.java`](core/src/main/java/org/apache/hop/core/xml/XmlParserFactoryProducer.java)) with external general/parameter entities and

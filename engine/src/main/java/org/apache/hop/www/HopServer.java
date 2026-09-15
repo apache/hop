@@ -41,6 +41,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.core.security.CrossSitePolicy;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -140,6 +141,17 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
   private Boolean enableAuth;
 
   @CommandLine.Option(
+      names = {"-xs", "--cross-site-policy"},
+      description =
+          "Which browser requests this server accepts, based on the Sec-Fetch-Site header: "
+              + "'same-site' (the default) rejects cross-site requests, 'same-origin' also rejects "
+              + "same-site ones, and 'off' disables the check. Clients that send no Sec-Fetch-* "
+              + "headers, such as hop-run or the Hop GUI, are never affected. Can also be set with "
+              + "the HOP_SERVER_CROSS_SITE_POLICY environment variable.",
+      defaultValue = "${env:HOP_SERVER_CROSS_SITE_POLICY:-same-site}")
+  private String crossSitePolicy;
+
+  @CommandLine.Option(
       names = {"-swt", "--shutdown-timeout"},
       description =
           "The maximum number of seconds to wait for running pipelines and workflows to finish "
@@ -236,6 +248,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
                 port,
                 config.getPasswordFile(),
                 hopServer.getSslConfig());
+        // Fail before listening rather than starting with a security control the operator
+        // believes is configured but is not.
+        webServer.setCrossSitePolicy(CrossSitePolicy.parse(crossSitePolicy));
 
         // Start the web server
         webServer.start();
