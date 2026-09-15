@@ -50,12 +50,8 @@ public class ContextDialog {
    * immediately, so Enter fired before the results had filtered at all.
    */
   private static final String RENDER_STATE =
-      "const sh=[...document.body.children].filter(d=>{"
-          + "if(d.tagName!=='DIV')return false;"
-          + "const z=parseInt(getComputedStyle(d).zIndex);"
-          + "const r=d.getBoundingClientRect();"
-          + "return z>=100000&&r.width>100&&r.height>100;});"
-          + "const top=sh[sh.length-1];"
+      HopGuiPage.DIALOG_SHELLS
+          + "const top=shells[shells.length-1];"
           + "if(!top)return '';"
           + "const r=top.getBoundingClientRect();"
           + "return Math.round(r.width)+'x'+Math.round(r.height)+'|'+(top.innerText||'');";
