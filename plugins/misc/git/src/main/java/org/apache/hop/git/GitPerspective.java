@@ -194,7 +194,7 @@ public class GitPerspective implements IHopPerspective {
 
   public static final String OPTION_SHOW_ALL_REF = "Git.ShowAllRef";
 
-  private static GitPerspective instance;
+  private static GitPerspective testFallback;
 
   private HopGui hopGui;
   private SashForm wSashForm;
@@ -225,19 +225,28 @@ public class GitPerspective implements IHopPerspective {
   private Timer fetchAutomaticTimer;
 
   public GitPerspective() {
-    instance = this;
+    if (HopGui.peekInstance() == null) {
+      testFallback = this;
+    }
   }
 
   public static GitPerspective getInstance() {
     try {
-      GitPerspective fromGui = HopGui.findSessionPerspective(GitPerspective.class);
-      if (fromGui != null) {
-        return fromGui;
+      if (HopGui.peekInstance() != null) {
+        return HopGui.findSessionPerspective(GitPerspective.class);
       }
     } catch (Throwable e) {
-      // No HopGuiImpl in unit tests
+      // No HopGui in headless unit tests
     }
-    return instance;
+    return testFallback;
+  }
+
+  /**
+   * Whether this perspective has been attached to a {@link HopGui} instance and its controls have
+   * been created and are still live.
+   */
+  public boolean isInitialized() {
+    return hopGui != null && wSashForm != null && !wSashForm.isDisposed();
   }
 
   @Override
@@ -249,7 +258,7 @@ public class GitPerspective implements IHopPerspective {
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'g', global = true)
   @Override
   public void activate() {
-    if (hopGui == null) {
+    if (!isInitialized()) {
       // The perspective is switched off in disabledGuiElements.xml: it was never initialized, so
       // there is nothing to switch to. The git toolbar and menu items that lead here live on the
       // explorer perspective and are still there.
@@ -273,15 +282,20 @@ public class GitPerspective implements IHopPerspective {
 
   @Override
   public void perspectiveActivated() {
+    if (!isInitialized()) {
+      return;
+    }
     // TODO: avoid refresh when perspective is activated, detect change in the file explorer model
     refresh();
 
-    wSearchText.setFocus();
+    if (wSearchText != null && !wSearchText.isDisposed()) {
+      wSearchText.setFocus();
+    }
   }
 
   @Override
   public boolean isActive() {
-    return hopGui != null && hopGui.isActivePerspective(this);
+    return isInitialized() && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -312,12 +326,22 @@ public class GitPerspective implements IHopPerspective {
 
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
+    wSashForm.addListener(
+        SWT.Dispose,
+        e -> {
+          stopFetchAutomaticTimer();
+          HopGuiKeyHandler.getInstance().removeParentObjectToHandle(this);
+        });
 
     hopGui
         .getEventsHandler()
         .addEventListener(
             getClass().getName() + "ProjectActivated",
-            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            e -> {
+              if (hopGui != null && !hopGui.getDisplay().isDisposed()) {
+                hopGui.getDisplay().asyncExec(this::clearSearchFilters);
+              }
+            },
             HopGuiEvents.ProjectActivated.name());
   }
 
@@ -525,14 +549,18 @@ public class GitPerspective implements IHopPerspective {
   }
 
   protected void refreshFiles() {
+    if (!isInitialized() || wFileTree == null || wFileTree.isDisposed()) {
+      return;
+    }
     try {
       setDiffText("");
       wFileTree.setRedraw(false);
       wFileTree.removeAll();
 
       RevCommit commit = getSelectedCommit();
-      if (commit != null) {
-        Git git = GitGuiPlugin.getInstance().getGit().getGit();
+      UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+      if (commit != null && uiGit != null && uiGit.getGit() != null) {
+        Git git = uiGit.getGit();
         try (TreeWalk treeWalk = new TreeWalk(git.getRepository())) {
           if (commit.getParentCount() > 0) {
             treeWalk.addTree(commit.getParent(0).getTree());
@@ -570,7 +598,9 @@ public class GitPerspective implements IHopPerspective {
         }
       }
 
-      wFileTree.setRedraw(true);
+      if (!wFileTree.isDisposed()) {
+        wFileTree.setRedraw(true);
+      }
 
       refreshFileDiff();
     } catch (Exception e) {
@@ -585,22 +615,25 @@ public class GitPerspective implements IHopPerspective {
 
     if (commit != null && fileName != null) {
       UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git != null) {
+        String commitId = commit.name();
+        String parentCommitId = git.getParentCommitId(commitId);
+        String diff = git.diff(parentCommitId, commitId, fileName);
 
-      String commitId = commit.name();
-      String parentCommitId = git.getParentCommitId(commitId);
-      String diff = git.diff(parentCommitId, commitId, fileName);
+        setDiffText(diff);
 
-      setDiffText(diff);
-
-      // Enable visual diff button?
-      visualDiffEnabled = FileTypeUtils.isHopFileType(fileName);
+        // Enable visual diff button?
+        visualDiffEnabled = FileTypeUtils.isHopFileType(fileName);
+      }
     }
 
-    fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_SHOW_TEXT_DIFF, visualDiffEnabled);
+    if (fileToolBarWidgets != null) {
+      fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_SHOW_TEXT_DIFF, visualDiffEnabled);
+    }
   }
 
   public Ref getSelectedReference() {
-    if (wRefTree.getSelectionCount() < 1) {
+    if (wRefTree == null || wRefTree.isDisposed() || wRefTree.getSelectionCount() < 1) {
       return null;
     }
     TreeItem item = wRefTree.getSelection()[0];
@@ -612,7 +645,9 @@ public class GitPerspective implements IHopPerspective {
   }
 
   public RevCommit getSelectedCommit() {
-    if (wHistoryTable.getSelectionCount() < 1) {
+    if (wHistoryTable == null
+        || wHistoryTable.isDisposed()
+        || wHistoryTable.getSelectionCount() < 1) {
       return null;
     }
 
@@ -625,7 +660,7 @@ public class GitPerspective implements IHopPerspective {
   }
 
   public String getSelectedFile() {
-    if (wFileTree.getSelectionCount() < 1) {
+    if (wFileTree == null || wFileTree.isDisposed() || wFileTree.getSelectionCount() < 1) {
       return null;
     }
 
@@ -790,6 +825,9 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.ResetToCommit.Text",
       image = "git-reset.svg")
   public void resetToCommit() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     if (commit != null) {
       ResetTypeDialog dialog = new ResetTypeDialog(getShell());
@@ -797,10 +835,10 @@ public class GitPerspective implements IHopPerspective {
 
       if (resetType != null) {
         UIGit git = GitGuiPlugin.getInstance().getGit();
-
-        git.reset(commit.getId().name(), resetType);
-
-        refresh(true);
+        if (git != null) {
+          git.reset(commit.getId().name(), resetType);
+          refresh(true);
+        }
       }
     }
   }
@@ -812,9 +850,15 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.RevertCommit.Text",
       image = "git-restore.svg")
   public void revertCommit() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     if (commit != null) {
       UIGit uigit = GitGuiPlugin.getInstance().getGit();
+      if (uigit == null) {
+        return;
+      }
 
       // Check if the git repository is clean
       if (!uigit.isClean()) {
@@ -840,9 +884,10 @@ public class GitPerspective implements IHopPerspective {
 
       try {
         Git git = uigit.getGit();
-        RevCommit revertCommit = git.revert().include(commit).call();
-
-        refresh(true);
+        if (git != null) {
+          RevCommit revertCommit = git.revert().include(commit).call();
+          refresh(true);
+        }
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
@@ -867,6 +912,9 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.Toolbar.RevertFile.Tooltip",
       image = "git-restore.svg")
   public void revertFile() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     String path = getSelectedFile();
 
@@ -875,6 +923,9 @@ public class GitPerspective implements IHopPerspective {
     }
 
     UIGit git = GitGuiPlugin.getInstance().getGit();
+    if (git == null) {
+      return;
+    }
     String commitId = commit.getId().name();
 
     // Undo what the commit did to the file: put back the version of its parent
@@ -948,9 +999,15 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.Toolbar.CherryPickCommit.Tooltip",
       image = "cherry-pick.svg")
   public void cherryPickCommit() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     if (commit != null) {
       UIGit uigit = GitGuiPlugin.getInstance().getGit();
+      if (uigit == null) {
+        return;
+      }
 
       // Check if the git repository is clean
       if (!uigit.isClean()) {
@@ -964,22 +1021,23 @@ public class GitPerspective implements IHopPerspective {
 
       try {
         Git git = uigit.getGit();
+        if (git != null) {
+          CherryPickResult result = git.cherryPick().include(commit).setNoCommit(false).call();
 
-        CherryPickResult result = git.cherryPick().include(commit).setNoCommit(false).call();
+          if (result.getStatus() == CherryPickResult.CherryPickStatus.CONFLICTING) {
+            MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+            dialog.setText(
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommit.Header"));
+            dialog.setMessage(
+                BaseMessages.getString(
+                    PKG,
+                    "GitGuiPlugin.Dialog.CherryPickCommitConflicts.Message",
+                    commit,
+                    result.getFailingPaths()));
+          }
 
-        if (result.getStatus() == CherryPickResult.CherryPickStatus.CONFLICTING) {
-          MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-          dialog.setText(
-              BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommit.Header"));
-          dialog.setMessage(
-              BaseMessages.getString(
-                  PKG,
-                  "GitGuiPlugin.Dialog.CherryPickCommitConflicts.Message",
-                  commit,
-                  result.getFailingPaths()));
+          refresh(true);
         }
-
-        refresh(true);
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
@@ -1002,6 +1060,9 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.Toolbar.CherryPickFile.Tooltip",
       image = "cherry-pick.svg")
   public void cherryPickFile() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     String path = getSelectedFile();
 
@@ -1010,6 +1071,9 @@ public class GitPerspective implements IHopPerspective {
     }
 
     UIGit git = GitGuiPlugin.getInstance().getGit();
+    if (git == null) {
+      return;
+    }
     String commitId = commit.getId().name();
 
     if (!confirmFileAction(
@@ -1051,11 +1115,16 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.Checkout.Text",
       image = "ui/images/check.svg")
   public void checkoutReference() {
+    if (!isInitialized()) {
+      return;
+    }
     Ref ref = getSelectedReference();
     if (ref != null) {
-      GitGuiPlugin.getInstance().getGit().checkout(ref.getName());
-
-      refresh(true);
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git != null) {
+        git.checkout(ref.getName());
+        refresh(true);
+      }
     }
   }
 
@@ -1067,11 +1136,16 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.CheckoutRevision.Text",
       image = "ui/images/check.svg")
   public void checkoutCommit() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     if (commit != null) {
-      GitGuiPlugin.getInstance().getGit().checkout(commit.getName());
-
-      refresh(true);
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git != null) {
+        git.checkout(commit.getName());
+        refresh(true);
+      }
     }
   }
 
@@ -1087,6 +1161,9 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.History.Toolbar.CreateTag.Tooltip",
       image = "tag-add.svg")
   public void addTag() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     if (commit != null) {
       EnterStringDialog dialog =
@@ -1099,7 +1176,7 @@ public class GitPerspective implements IHopPerspective {
       String name = dialog.open();
       if (name != null) {
         UIGit git = GitGuiPlugin.getInstance().getGit();
-        if (git.createTag(name, commit.getId().name())) {
+        if (git != null && git.createTag(name, commit.getId().name())) {
           refresh(false);
         }
       }
@@ -1119,6 +1196,9 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.History.Toolbar.CreateBranch.Tooltip",
       image = "branch-add.svg")
   public void addBranchFromCommit() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     if (commit != null) {
       EnterStringDialog dialog =
@@ -1131,7 +1211,7 @@ public class GitPerspective implements IHopPerspective {
       String name = dialog.open();
       if (name != null) {
         UIGit git = GitGuiPlugin.getInstance().getGit();
-        if (git.createBranch(name, commit.getId().name())) {
+        if (git != null && git.createBranch(name, commit.getId().name())) {
           // Refresh the explorer file, refs and commit history
           refresh(true);
         }
@@ -1147,6 +1227,9 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.CreateBranchFrom.Text",
       image = "branch-add.svg")
   public void addBranchFromRef() {
+    if (!isInitialized()) {
+      return;
+    }
     Ref ref = getSelectedReference();
     if (ref != null) {
       EnterStringDialog dialog =
@@ -1159,7 +1242,7 @@ public class GitPerspective implements IHopPerspective {
       String name = dialog.open();
       if (name != null) {
         UIGit git = GitGuiPlugin.getInstance().getGit();
-        if (git.createBranch(name, ref.getName())) {
+        if (git != null && git.createBranch(name, ref.getName())) {
           // Refresh the explorer file, refs and commit history
           refresh(true);
         }
@@ -1174,15 +1257,20 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.MergeInto.Text",
       image = "git-merge.svg")
   public void mergeBranch() {
+    if (!isInitialized()) {
+      return;
+    }
     Ref ref = getSelectedReference();
     if (ref != null) {
       try {
         UIGit git = GitGuiPlugin.getInstance().getGit();
-        String name = git.getShortenedName(ref.getName());
-        git.mergeBranch(name, MergeStrategy.RECURSIVE);
+        if (git != null) {
+          String name = git.getShortenedName(ref.getName());
+          git.mergeBranch(name, MergeStrategy.RECURSIVE);
 
-        // Refresh the explorer file, refs and commit history
-        refresh(true);
+          // Refresh the explorer file, refs and commit history
+          refresh(true);
+        }
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
@@ -1207,11 +1295,17 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.History.Toolbar.Fetch.Tooltip",
       image = "fetch.svg")
   public void fetch() {
+    if (!isInitialized()) {
+      return;
+    }
     try {
-      GitGuiPlugin.getInstance().getGit().fetch();
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git != null) {
+        git.fetch();
 
-      // Refresh refs and commit history
-      refresh(false);
+        // Refresh refs and commit history
+        refresh(false);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -1235,11 +1329,17 @@ public class GitPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(control = true, key = 'T')
   @GuiOsxKeyboardShortcut(control = true, key = 'T')
   public void pull() {
+    if (!isInitialized()) {
+      return;
+    }
     try {
-      GitGuiPlugin.getInstance().getGit().pull();
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git != null) {
+        git.pull();
 
-      // Refresh the explorer file, refs and commit history
-      refresh(true);
+        // Refresh the explorer file, refs and commit history
+        refresh(true);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -1255,11 +1355,17 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitGuiPlugin.Toolbar.Push.Tooltip",
       image = "push.svg")
   public void push() {
+    if (!isInitialized()) {
+      return;
+    }
     try {
-      GitGuiPlugin.getInstance().getGit().push();
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git != null) {
+        git.push();
 
-      // Refresh refs and commit history
-      refresh(false);
+        // Refresh refs and commit history
+        refresh(false);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -1277,17 +1383,22 @@ public class GitPerspective implements IHopPerspective {
       label = "i18n::GitPerspective.Menu.Push.Text",
       image = "push.svg")
   public void pushReference() {
+    if (!isInitialized()) {
+      return;
+    }
     Ref ref = getSelectedReference();
     if (ref == null) {
       return;
     }
     try {
       UIGit git = GitGuiPlugin.getInstance().getGit();
-      String type = ref.getName().startsWith(Constants.R_TAGS) ? VCS.TYPE_TAG : VCS.TYPE_BRANCH;
-      git.push(type, git.getShortenedName(ref.getName()));
+      if (git != null) {
+        String type = ref.getName().startsWith(Constants.R_TAGS) ? VCS.TYPE_TAG : VCS.TYPE_BRANCH;
+        git.push(type, git.getShortenedName(ref.getName()));
 
-      // Refresh refs and commit history
-      refresh(false);
+        // Refresh refs and commit history
+        refresh(false);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -1307,19 +1418,26 @@ public class GitPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(key = SWT.F2)
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void renameReference() {
+    if (!isInitialized()) {
+      return;
+    }
     Ref ref = this.getSelectedReference();
-    if (ref != null) {
+    if (ref != null && wRefTree.getSelectionCount() > 0) {
       boolean isRemote = ref.getName().startsWith(Constants.R_REMOTES);
       if (!isRemote && !ref.getName().startsWith(Constants.R_HEADS)) {
         // Only branches can be renamed
         return;
       }
-      if (isRemote && GitGuiPlugin.getInstance().getGit().isRemoteHead(ref.getName())) {
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git == null) {
+        return;
+      }
+      if (isRemote && git.isRemoteHead(ref.getName())) {
         return;
       }
 
-      UIGit git = GitGuiPlugin.getInstance().getGit();
       String oldName = git.getShortenedName(ref.getName());
+      TreeItem selectedItem = wRefTree.getSelection()[0];
 
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(wRefTree, SWT.BORDER);
@@ -1358,7 +1476,7 @@ public class GitPerspective implements IHopPerspective {
       text.selectAll();
       text.setFocus();
       PropsUi.setLook(text);
-      wRefTreeEditor.setEditor(text, wRefTree.getSelection()[0]);
+      wRefTreeEditor.setEditor(text, selectedItem);
     }
   }
 
@@ -1371,6 +1489,9 @@ public class GitPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteReference() {
+    if (!isInitialized()) {
+      return;
+    }
     Ref ref = this.getSelectedReference();
     if (ref != null) {
       if (ref.getName().startsWith(Constants.R_HEADS)) {
@@ -1386,6 +1507,9 @@ public class GitPerspective implements IHopPerspective {
   protected void deleteBranch(Ref ref) {
     if (ref != null) {
       UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git == null) {
+        return;
+      }
       String name = git.getShortenedName(ref.getName());
 
       // Prevent deletion of the current branch
@@ -1418,6 +1542,9 @@ public class GitPerspective implements IHopPerspective {
       return;
     }
     UIGit git = GitGuiPlugin.getInstance().getGit();
+    if (git == null) {
+      return;
+    }
     String name = git.getShortenedName(ref.getName());
 
     // The default branch of the remote is protected against an accidental delete
@@ -1462,6 +1589,9 @@ public class GitPerspective implements IHopPerspective {
    */
   private void renameRemoteBranch(Ref ref, String oldName, String newName) {
     UIGit git = GitGuiPlugin.getInstance().getGit();
+    if (git == null) {
+      return;
+    }
 
     // The tree shows remote branches with their remote in front of them. Accept a new name with
     // or without it, the branch is renamed on the same remote either way.
@@ -1522,6 +1652,9 @@ public class GitPerspective implements IHopPerspective {
   protected void deleteTag(Ref ref) {
     if (ref != null) {
       UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git == null) {
+        return;
+      }
       String name = git.getShortenedName(ref.getName());
 
       MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
@@ -1588,15 +1721,20 @@ public class GitPerspective implements IHopPerspective {
       toolTip = "i18n::GitPerspective.Toolbar.ShowHiddenAllRef.Tooltip",
       image = "ui/images/hide.svg")
   public void showAllRef() {
+    if (!isInitialized()) {
+      return;
+    }
     showAllRef = !showAllRef;
 
     // Update toolbar item icon
-    ToolItem toolItem = this.historyToolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_HIDDEN);
-    if (toolItem != null) {
-      if (showAllRef) {
-        toolItem.setImage(GuiResource.getInstance().getImageShow());
-      } else {
-        toolItem.setImage(GuiResource.getInstance().getImageHide());
+    if (this.historyToolBarWidgets != null) {
+      ToolItem toolItem = this.historyToolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_HIDDEN);
+      if (toolItem != null && !toolItem.isDisposed()) {
+        if (showAllRef) {
+          toolItem.setImage(GuiResource.getInstance().getImageShow());
+        } else {
+          toolItem.setImage(GuiResource.getInstance().getImageHide());
+        }
       }
     }
 
@@ -1620,6 +1758,9 @@ public class GitPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(control = true, key = 'D')
   @GuiOsxKeyboardShortcut(control = true, key = 'D')
   public void showTextDiff() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     String fileName = getSelectedFile();
 
@@ -1629,6 +1770,9 @@ public class GitPerspective implements IHopPerspective {
 
     try {
       UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git == null) {
+        return;
+      }
       String commitIdNew = commit.getId().name();
       String commitIdOld = git.getParentCommitId(commitIdNew);
 
@@ -1641,8 +1785,7 @@ public class GitPerspective implements IHopPerspective {
 
       GitGuiPlugin.getInstance().showTextFileDiff(fileName, commitIdNew, commitIdOld);
     } catch (Exception e) {
-      new ErrorDialog(
-          hopGui.getShell(), "Error", "Error while doing text diff on file : " + fileName, e);
+      new ErrorDialog(getShell(), "Error", "Error while doing text diff on file : " + fileName, e);
     }
   }
 
@@ -1660,6 +1803,9 @@ public class GitPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(control = true, shift = true, key = 'D')
   @GuiOsxKeyboardShortcut(control = true, shift = true, key = 'D')
   public void showGraphDiff() {
+    if (!isInitialized()) {
+      return;
+    }
     RevCommit commit = getSelectedCommit();
     String fileName = getSelectedFile();
 
@@ -1669,6 +1815,9 @@ public class GitPerspective implements IHopPerspective {
 
     try {
       UIGit git = GitGuiPlugin.getInstance().getGit();
+      if (git == null) {
+        return;
+      }
       String commitIdNew = commit.getId().name();
       String commitIdOld = git.getParentCommitId(commitIdNew);
 
@@ -1680,17 +1829,21 @@ public class GitPerspective implements IHopPerspective {
       }
 
       ExplorerPerspective perspective = HopGui.getExplorerPerspective();
-      if (perspective.getPipelineFileType().isHandledBy(fileName, false)) {
+      if (perspective != null
+          && perspective.getPipelineFileType() != null
+          && perspective.getPipelineFileType().isHandledBy(fileName, false)) {
         // A pipeline
         GitGuiPlugin.getInstance().showPipelineFileDiff(fileName, commitIdNew, commitIdOld);
-      } else if (perspective.getWorkflowFileType().isHandledBy(fileName, false)) {
+      } else if (perspective != null
+          && perspective.getWorkflowFileType() != null
+          && perspective.getWorkflowFileType().isHandledBy(fileName, false)) {
         // A workflow
         GitGuiPlugin.getInstance().showWorkflowFileDiff(fileName, commitIdNew, commitIdOld);
       }
 
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error while doing visual diff on file : " + fileName, e);
+          getShell(), "Error", "Error while doing visual diff on file : " + fileName, e);
     }
   }
 
@@ -1718,6 +1871,13 @@ public class GitPerspective implements IHopPerspective {
   }
 
   public void updateGui() {
+    if (!isInitialized()) {
+      return;
+    }
+    if (wHistoryTable.getDisplay() != org.eclipse.swt.widgets.Display.getCurrent()) {
+      wHistoryTable.getDisplay().asyncExec(this::updateGui);
+      return;
+    }
     UIGit git = GitGuiPlugin.getInstance().getGit();
 
     boolean isGitEnabled = git != null;
@@ -1734,27 +1894,41 @@ public class GitPerspective implements IHopPerspective {
       }
     }
 
-    wRefTree.setEnabled(isGitEnabled);
-    wHistoryToolBar.setEnabled(isGitEnabled);
-    wHistoryTable.setEnabled(isGitEnabled);
-    wFileToolBar.setEnabled(isGitEnabled);
-    wFileTree.setEnabled(isGitEnabled);
+    if (wRefTree != null && !wRefTree.isDisposed()) {
+      wRefTree.setEnabled(isGitEnabled);
+    }
+    if (wHistoryToolBar != null && !wHistoryToolBar.isDisposed()) {
+      wHistoryToolBar.setEnabled(isGitEnabled);
+    }
+    if (wHistoryTable != null && !wHistoryTable.isDisposed()) {
+      wHistoryTable.setEnabled(isGitEnabled);
+    }
+    if (wFileToolBar != null && !wFileToolBar.isDisposed()) {
+      wFileToolBar.setEnabled(isGitEnabled);
+    }
+    if (wFileTree != null && !wFileTree.isDisposed()) {
+      wFileTree.setEnabled(isGitEnabled);
+    }
 
-    historyToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_BRANCH, isCommitSelected);
-    historyToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_TAG, isCommitSelected);
-    historyToolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_COMMIT_CHERRY_PICK, isCommitSelected && !isCommitInCurrentBranch);
+    if (historyToolBarWidgets != null) {
+      historyToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_BRANCH, isCommitSelected);
+      historyToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_TAG, isCommitSelected);
+      historyToolBarWidgets.enableToolbarItem(
+          TOOLBAR_ITEM_COMMIT_CHERRY_PICK, isCommitSelected && !isCommitInCurrentBranch);
+    }
 
     String selectFile = getSelectedFile();
     boolean isFileSelected = selectFile != null;
-    fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_SHOW_TEXT_DIFF, isFileSelected);
-    fileToolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_FILE_SHOW_GRAPH_DIFF, FileTypeUtils.isHopFileType(selectFile));
-    // Reverting a file puts back the version of the commit's parent, which a root commit does not
-    // have and a merge commit has more than one of
-    fileToolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_FILE_REVERT, isFileSelected && hasSingleParent);
-    fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_CHERRY_PICK, isFileSelected);
+    if (fileToolBarWidgets != null) {
+      fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_SHOW_TEXT_DIFF, isFileSelected);
+      fileToolBarWidgets.enableToolbarItem(
+          TOOLBAR_ITEM_FILE_SHOW_GRAPH_DIFF, FileTypeUtils.isHopFileType(selectFile));
+      // Reverting a file puts back the version of the commit's parent, which a root commit does not
+      // have and a merge commit has more than one of
+      fileToolBarWidgets.enableToolbarItem(
+          TOOLBAR_ITEM_FILE_REVERT, isFileSelected && hasSingleParent);
+      fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_CHERRY_PICK, isFileSelected);
+    }
   }
 
   protected void createHistoryTable(Composite parent) {
@@ -1919,11 +2093,14 @@ public class GitPerspective implements IHopPerspective {
    *     should be refreshed.
    */
   public void refresh(boolean refreshAll) {
+    if (!isInitialized()) {
+      return;
+    }
+    if (wHistoryTable.getDisplay() != org.eclipse.swt.widgets.Display.getCurrent()) {
+      wHistoryTable.getDisplay().asyncExec(() -> refresh(refreshAll));
+      return;
+    }
     try {
-      if (wHistoryTable == null || wHistoryTable.isDisposed()) {
-        return;
-      }
-
       UIGit uiGit = GitGuiPlugin.getInstance().getGit();
 
       // Drop UI state bound to the previous repository before reading selection / rebuilding.
@@ -1939,8 +2116,14 @@ public class GitPerspective implements IHopPerspective {
       // Refresh the file explorer perspective (file tree, change colors...)
       // Refresh the metadata perspective (if file metadata provider)
       if (refreshAll) {
-        ExplorerPerspective.getInstance().refresh();
-        MetadataPerspective.getInstance().refresh();
+        ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+        if (explorerPerspective != null) {
+          explorerPerspective.refresh();
+        }
+        MetadataPerspective metadataPerspective = MetadataPerspective.getInstance();
+        if (metadataPerspective != null) {
+          metadataPerspective.refresh();
+        }
       }
 
       refreshRef(uiGit.getGit());
@@ -1969,11 +2152,15 @@ public class GitPerspective implements IHopPerspective {
   }
 
   protected void refreshRef(Git git) {
+    if (!isInitialized() || wRefTree == null || wRefTree.isDisposed() || git == null) {
+      return;
+    }
     try {
       wRefTree.setRedraw(false);
       wRefTree.removeAll();
 
-      String currentBranch = GitGuiPlugin.getInstance().getGit().getBranch();
+      UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+      String currentBranch = uiGit != null ? uiGit.getBranch() : null;
 
       // Local branches
       TreeItem localItem = new TreeItem(wRefTree, SWT.NONE);
@@ -2018,7 +2205,9 @@ public class GitPerspective implements IHopPerspective {
 
       TreeMemory.setExpandedFromMemory(wRefTree, GIT_PERSPECTIVE_REF_TREE);
 
-      wRefTree.setRedraw(true);
+      if (!wRefTree.isDisposed()) {
+        wRefTree.setRedraw(true);
+      }
     } catch (Exception e) {
       LogChannel.UI.logError("Error refresh git commit history", e);
     }
@@ -2056,104 +2245,132 @@ public class GitPerspective implements IHopPerspective {
   }
 
   protected void refreshHistory(String startRef) {
-    Git git = GitGuiPlugin.getInstance().getGit().getGit();
+    if (!isInitialized()) {
+      return;
+    }
+    UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+    if (uiGit == null) {
+      return;
+    }
+    Git git = uiGit.getGit();
+    if (git == null) {
+      return;
+    }
 
     DateTimeFormatter formatter =
         DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm").withZone(ZoneId.systemDefault());
 
     try {
       Repository repository = git.getRepository();
-      PlotWalk walk = new PlotWalk(repository);
+      try (PlotWalk walk = new PlotWalk(repository)) {
 
-      ObjectId startCommitId = null;
-      if (!Utils.isEmpty(startRef)) {
-        startCommitId = repository.resolve(startRef);
-      }
+        ObjectId startCommitId = null;
+        if (!Utils.isEmpty(startRef)) {
+          startCommitId = repository.resolve(startRef);
+        }
 
-      List<RevCommit> marks = new ArrayList<>();
+        List<RevCommit> marks = new ArrayList<>();
 
-      // Always show HEAD
-      marks.add(walk.parseCommit(repository.resolve(Constants.HEAD)));
+        // Always show HEAD
+        ObjectId headId = repository.resolve(Constants.HEAD);
+        if (headId != null) {
+          marks.add(walk.parseCommit(headId));
+        }
 
-      // Show add all branches and tags
-      if (showAllRef) {
-        for (Ref ref : git.branchList().call()) {
-          RevCommit commit = walk.parseCommit(ref.getObjectId());
-          if (!marks.contains(commit)) {
-            marks.add(commit);
+        // Show add all branches and tags
+        if (showAllRef) {
+          for (Ref ref : git.branchList().call()) {
+            RevCommit commit = walk.parseCommit(ref.getObjectId());
+            if (!marks.contains(commit)) {
+              marks.add(commit);
+            }
           }
-        }
-      } else if (startCommitId != null) {
-        marks.add(walk.parseCommit(startCommitId));
-      }
-
-      walk.markStart(marks);
-
-      SwtCommitList plotList = new SwtCommitList();
-      plotList.source(walk);
-      plotList.fillTo(Integer.MAX_VALUE);
-
-      wHistoryTable.setRedraw(false);
-      wHistoryTable.removeAll();
-
-      // Check if there are changes in the working directory
-      Map<String, UIFile> filesToCommit = GitGuiPlugin.getInstance().getChangedFiles();
-      if (!filesToCommit.isEmpty()) {
-        TableItem item = new TableItem(wHistoryTable, SWT.NONE);
-        item.setText(
-            1,
-            BaseMessages.getString(
-                PKG, "GitPerspective.History.UncommittedChanges.Label", filesToCommit.size()));
-        item.setForeground(GuiResource.getInstance().getColorGray());
-      }
-
-      String search = wSearchText.getText().toLowerCase().trim();
-
-      TableItem selectedItem = null;
-      for (PlotCommit<SwtCommitList.Lane> commit : plotList) {
-        String message = commit.getShortMessage();
-        String author = commit.getAuthorIdent().getName();
-        String id = commit.getId().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name();
-
-        // Apply filter if the search text is not empty
-        if (!search.isEmpty()
-            && !message.toLowerCase().contains(search)
-            && !author.toLowerCase().contains(search)
-            && !id.toLowerCase().contains(search)) {
-          continue;
+        } else if (startCommitId != null) {
+          marks.add(walk.parseCommit(startCommitId));
         }
 
-        TableItem item = new TableItem(wHistoryTable, SWT.NONE);
-        item.setText(1, message);
-        item.setText(2, author);
-        item.setText(
-            3,
-            formatter
-                .withZone(commit.getCommitterIdent().getZoneId())
-                .format(commit.getCommitterIdent().getWhenAsInstant()));
-        item.setText(4, id);
-        item.setData(commit);
-
-        if (commit.getId().equals(startCommitId)) {
-          selectedItem = item;
+        if (!marks.isEmpty()) {
+          walk.markStart(marks);
         }
+
+        SwtCommitList plotList = new SwtCommitList();
+        plotList.source(walk);
+        plotList.fillTo(Integer.MAX_VALUE);
+
+        if (wHistoryTable != null && !wHistoryTable.isDisposed()) {
+          wHistoryTable.setRedraw(false);
+          wHistoryTable.removeAll();
+
+          // Check if there are changes in the working directory
+          Map<String, UIFile> filesToCommit = GitGuiPlugin.getInstance().getChangedFiles();
+          if (filesToCommit != null && !filesToCommit.isEmpty()) {
+            TableItem item = new TableItem(wHistoryTable, SWT.NONE);
+            item.setText(
+                1,
+                BaseMessages.getString(
+                    PKG, "GitPerspective.History.UncommittedChanges.Label", filesToCommit.size()));
+            item.setForeground(GuiResource.getInstance().getColorGray());
+          }
+
+          String search =
+              (wSearchText != null && !wSearchText.isDisposed())
+                  ? wSearchText.getText().toLowerCase().trim()
+                  : "";
+
+          TableItem selectedItem = null;
+          for (PlotCommit<SwtCommitList.Lane> commit : plotList) {
+            String message = commit.getShortMessage();
+            String author = commit.getAuthorIdent().getName();
+            String id = commit.getId().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name();
+
+            // Apply filter if the search text is not empty
+            if (!search.isEmpty()
+                && !message.toLowerCase().contains(search)
+                && !author.toLowerCase().contains(search)
+                && !id.toLowerCase().contains(search)) {
+              continue;
+            }
+
+            TableItem item = new TableItem(wHistoryTable, SWT.NONE);
+            item.setText(1, message);
+            item.setText(2, author);
+            item.setText(
+                3,
+                formatter
+                    .withZone(commit.getCommitterIdent().getZoneId())
+                    .format(commit.getCommitterIdent().getWhenAsInstant()));
+            item.setText(4, id);
+            item.setData(commit);
+
+            if (startCommitId != null && commit.getId().equals(startCommitId)) {
+              selectedItem = item;
+            }
+          }
+
+          if (selectedItem != null) {
+            wHistoryTable.setSelection(selectedItem);
+          }
+
+          wHistoryTable.setRedraw(true);
+          wHistoryTable.redraw();
+        }
+
+        refreshFiles();
       }
-
-      if (selectedItem != null) {
-        wHistoryTable.setSelection(selectedItem);
-      }
-
-      wHistoryTable.setRedraw(true);
-      wHistoryTable.redraw();
-
-      refreshFiles();
     } catch (Exception e) {
       LogChannel.UI.logError("Error refresh git history", e);
     }
   }
 
   protected Shell getShell() {
-    return hopGui.getShell();
+    if (wSashForm != null && !wSashForm.isDisposed()) {
+      return wSashForm.getShell();
+    }
+    if (hopGui != null) {
+      return hopGui.getShell();
+    }
+    HopGui currentHop = HopGui.peekInstance();
+    return currentHop != null ? currentHop.getShell() : null;
   }
 
   @Override

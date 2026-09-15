@@ -372,6 +372,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     if (wFiles.getSelectionIndices().length == 0) {
       return;
     }
+    if (wRevisions.table.getSelectionCount() == 0) {
+      return;
+    }
     TableItem fileItem = wFiles.table.getSelection()[0];
     String filename = fileItem.getText(1);
     if (StringUtils.isEmpty(filename)) {
@@ -380,6 +383,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
+    if (git == null) {
+      return;
+    }
 
     try {
 
@@ -415,11 +421,15 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       }
 
       ExplorerPerspective perspective = HopGui.getExplorerPerspective();
-      if (perspective.getPipelineFileType().isHandledBy(filename, false)) {
+      if (perspective != null
+          && perspective.getPipelineFileType() != null
+          && perspective.getPipelineFileType().isHandledBy(filename, false)) {
         // A pipeline
         //
         showPipelineFileDiff(filename, commitIdNew, commitIdOld);
-      } else if (perspective.getWorkflowFileType().isHandledBy(filename, false)) {
+      } else if (perspective != null
+          && perspective.getWorkflowFileType() != null
+          && perspective.getWorkflowFileType().isHandledBy(filename, false)) {
         // A workflow
         //
         showWorkflowFileDiff(filename, commitIdNew, commitIdOld);
