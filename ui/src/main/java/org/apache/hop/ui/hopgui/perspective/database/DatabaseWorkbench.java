@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
@@ -38,6 +39,7 @@ import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -228,30 +230,32 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     horizontalSash.setWeights(22, 78);
     SashFormMemory.persist(horizontalSash, "database-workbench-tree-width", 22, 78);
 
-    host.getHopGui()
-        .getEventsHandler()
-        .addEventListener(
-            eventListenerId,
-            e -> host.asyncExec(this::reloadConnections),
-            HopGuiEvents.MetadataChanged.name(),
-            HopGuiEvents.MetadataCreated.name(),
-            HopGuiEvents.MetadataDeleted.name());
-    host.getHopGui()
-        .getEventsHandler()
-        .addEventListener(
-            eventListenerId + "-project",
-            e ->
-                host.asyncExec(
-                    () -> {
-                      closeSqlEditorTabs();
-                      operationsPanel.cancelAll();
-                      operationsPanel.clearAll();
-                      reloadConnections();
-                      if (DatabaseSqlTabMemory.isOwner(this)) {
-                        DatabaseSqlTabMemory.restore(this);
-                      }
-                    }),
-            HopGuiEvents.ProjectActivated.name());
+    if (host.getHopGui() != null && host.getHopGui().getEventsHandler() != null) {
+      host.getHopGui()
+          .getEventsHandler()
+          .addEventListener(
+              eventListenerId,
+              e -> host.asyncExec(this::reloadConnections),
+              HopGuiEvents.MetadataChanged.name(),
+              HopGuiEvents.MetadataCreated.name(),
+              HopGuiEvents.MetadataDeleted.name());
+      host.getHopGui()
+          .getEventsHandler()
+          .addEventListener(
+              eventListenerId + "-project",
+              e ->
+                  host.asyncExec(
+                      () -> {
+                        closeSqlEditorTabs();
+                        operationsPanel.cancelAll();
+                        operationsPanel.clearAll();
+                        reloadConnections();
+                        if (DatabaseSqlTabMemory.isOwner(this)) {
+                          DatabaseSqlTabMemory.restore(this);
+                        }
+                      }),
+              HopGuiEvents.ProjectActivated.name());
+    }
 
     addDisposeListener(
         e -> {
@@ -262,8 +266,10 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
           if (wasOwner) {
             DatabaseSqlTabMemory.restoreIntoRemaining(this);
           }
-          host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId);
-          host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId + "-project");
+          if (host.getHopGui() != null && host.getHopGui().getEventsHandler() != null) {
+            host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId);
+            host.getHopGui().getEventsHandler().removeEventListeners(eventListenerId + "-project");
+          }
         });
 
     DatabaseSqlTabMemory.register(this);
@@ -297,6 +303,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
           state.setDatabaseMeta(meta);
         }
         connections.put(meta.getName(), state);
+        updateTabsDatabaseMeta(meta);
       }
     } catch (Exception e) {
       new ErrorDialog(
@@ -306,6 +313,106 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
           e);
     }
     rebuildTree();
+  }
+
+  public void updateTabsDatabaseMeta(DatabaseMeta freshMeta) {
+    updateTabsDatabaseMeta(freshMeta, items);
+  }
+
+  static void updateTabsDatabaseMeta(DatabaseMeta freshMeta, List<TabItemHandler> items) {
+    if (freshMeta == null || items == null) {
+      return;
+    }
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab sqlTab) {
+        if (sqlTab.getDatabaseMeta() != null
+            && Objects.equals(sqlTab.getDatabaseMeta().getName(), freshMeta.getName())) {
+          sqlTab.setDatabaseMeta(freshMeta);
+        }
+      } else if (item.getTypeHandler() instanceof DatabaseTableInfoTab tableTab) {
+        if (tableTab.getDatabaseMeta() != null
+            && Objects.equals(tableTab.getDatabaseMeta().getName(), freshMeta.getName())) {
+          tableTab.setDatabaseMeta(freshMeta);
+        }
+      }
+    }
+  }
+
+  private void safeRebuildTree() {
+    if (isDisposed()) {
+      return;
+    }
+    if (Display.getCurrent() != null) {
+      rebuildTree();
+    } else {
+      host.asyncExec(this::rebuildTree);
+    }
+  }
+
+  public DatabaseMeta reloadConnectionMeta(String connectionName) {
+    return reloadConnectionMeta(connectionName, host, connections, items, this::safeRebuildTree);
+  }
+
+  static DatabaseMeta reloadConnectionMeta(
+      String connectionName,
+      IDatabaseWorkbenchHost host,
+      Map<String, DatabaseConnectionState> connections,
+      List<TabItemHandler> items,
+      Runnable onTreeChanged) {
+    if (Utils.isEmpty(connectionName)) {
+      return null;
+    }
+    if (host == null || host.getMetadataProvider() == null) {
+      DatabaseConnectionState state = connections == null ? null : connections.get(connectionName);
+      return state == null ? null : state.getDatabaseMeta();
+    }
+    try {
+      IHopMetadataSerializer<DatabaseMeta> serializer =
+          host.getMetadataProvider().getSerializer(DatabaseMeta.class);
+      if (!serializer.exists(connectionName)) {
+        if (connections != null) {
+          connections.remove(connectionName);
+        }
+        if (onTreeChanged != null) {
+          onTreeChanged.run();
+        }
+        return null;
+      }
+      DatabaseMeta freshMeta = serializer.load(connectionName);
+      if (freshMeta == null) {
+        if (connections != null) {
+          connections.remove(connectionName);
+        }
+        if (onTreeChanged != null) {
+          onTreeChanged.run();
+        }
+        return null;
+      }
+      if (connections != null) {
+        DatabaseConnectionState state = connections.get(connectionName);
+        if (state == null) {
+          state = new DatabaseConnectionState(freshMeta);
+          connections.put(connectionName, state);
+          if (onTreeChanged != null) {
+            onTreeChanged.run();
+          }
+        } else {
+          state.setDatabaseMeta(freshMeta);
+        }
+      }
+      updateTabsDatabaseMeta(freshMeta, items);
+      return freshMeta;
+    } catch (Exception e) {
+      if (host != null && host.getShell() != null) {
+        new ErrorDialog(
+            host.getShell(),
+            BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+            BaseMessages.getString(PKG, "DatabasePerspective.Error.LoadConnections"),
+            e);
+      }
+      DatabaseConnectionState state = connections == null ? null : connections.get(connectionName);
+      return state == null ? null : state.getDatabaseMeta();
+    }
   }
 
   public void clearSearchFilter() {
@@ -767,24 +874,38 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
    * thread after a successful connect.
    */
   public void connect(DatabaseConnectionState state, Runnable afterConnected) {
-    DatabaseMeta meta = state.getDatabaseMeta();
+    if (state == null || state.getDatabaseMeta() == null) {
+      return;
+    }
+    String connectionName = state.getDatabaseMeta().getName();
+    DatabaseMeta freshMeta = reloadConnectionMeta(connectionName);
+    if (freshMeta == null) {
+      return;
+    }
+    DatabaseConnectionState targetState = connections.get(freshMeta.getName());
+    if (targetState == null) {
+      targetState = state;
+    }
+    targetState.setDatabaseMeta(freshMeta);
+    final DatabaseConnectionState connectState = targetState;
     String description =
-        BaseMessages.getString(PKG, "DatabasePerspective.Operation.Connect", meta.getName());
+        BaseMessages.getString(PKG, "DatabasePerspective.Operation.Connect", freshMeta.getName());
     runOperation(
         description,
-        meta.getName(),
+        freshMeta.getName(),
         operation -> {
-          DatabaseMetaInformation info = new DatabaseMetaInformation(host.getVariables(), meta);
+          DatabaseMetaInformation info =
+              new DatabaseMetaInformation(host.getVariables(), freshMeta);
           info.getData(host.getLoggingObject(), operation.newMonitor());
           if (operation.isCancelled()) {
             return;
           }
           host.asyncExec(
               () -> {
-                state.setInformation(info);
-                state.setConnected(true);
+                connectState.setInformation(info);
+                connectState.setConnected(true);
                 rebuildTree();
-                selectConnection(meta.getName());
+                selectConnection(freshMeta.getName());
                 if (afterConnected != null) {
                   afterConnected.run();
                 }
@@ -803,6 +924,9 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return false;
     }
     DatabaseConnectionState state = ensureConnection(meta);
+    if (state == null) {
+      return false;
+    }
     if (state.isConnected()) {
       afterConnected.run();
       return true;
@@ -902,17 +1026,19 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (state == null) {
       return;
     }
+    DatabaseMeta freshMeta = reloadConnectionMeta(state.getDatabaseMeta().getName());
+    if (freshMeta == null) {
+      return;
+    }
     DatabaseTreeNode node = selectedNode();
     String sql = "";
     if (node != null && node.isTableLike()) {
       String qualified =
-          state
-              .getDatabaseMeta()
-              .getQuotedSchemaTableCombination(
-                  host.getVariables(), node.getSchemaName(), node.getObjectName());
+          freshMeta.getQuotedSchemaTableCombination(
+              host.getVariables(), node.getSchemaName(), node.getObjectName());
       sql = "SELECT * FROM " + qualified;
     }
-    openSqlTab(state.getDatabaseMeta(), sql, null, sql, false);
+    openSqlTab(freshMeta, sql, null, sql, false);
   }
 
   @GuiToolbarElement(
@@ -932,7 +1058,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (node == null || state == null || !node.isTableLike()) {
       return;
     }
-    DatabaseMeta meta = state.getDatabaseMeta();
+    DatabaseMeta freshMeta = reloadConnectionMeta(state.getDatabaseMeta().getName());
+    if (freshMeta == null) {
+      return;
+    }
+    DatabaseMeta meta = freshMeta;
     String qualified =
         meta.getQuotedSchemaTableCombination(
             host.getVariables(), node.getSchemaName(), node.getObjectName());
@@ -971,7 +1101,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (node == null || state == null || !node.isTableLike()) {
       return;
     }
-    DatabaseMeta meta = state.getDatabaseMeta();
+    DatabaseMeta freshMeta = reloadConnectionMeta(state.getDatabaseMeta().getName());
+    if (freshMeta == null) {
+      return;
+    }
+    DatabaseMeta meta = freshMeta;
     String sql =
         previewSelectSql(
             meta,
@@ -1013,8 +1147,11 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (node == null || state == null || !node.isTableLike()) {
       return;
     }
-    openTableInfo(
-        state.getDatabaseMeta(), node.getSchemaName(), node.getObjectName(), node.getKind());
+    DatabaseMeta freshMeta = reloadConnectionMeta(state.getDatabaseMeta().getName());
+    if (freshMeta == null) {
+      return;
+    }
+    openTableInfo(freshMeta, node.getSchemaName(), node.getObjectName(), node.getKind());
   }
 
   @GuiToolbarElement(
@@ -1133,21 +1270,45 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     DatabaseConnectionState state = ensureConnection(meta);
-    selectConnection(meta.getName());
-    openSqlTab(meta, Const.NVL(sql, ""), null, Const.NVL(sql, ""), true);
+    if (state == null) {
+      return;
+    }
+    DatabaseMeta effectiveMeta = state.getDatabaseMeta();
+    selectConnection(effectiveMeta.getName());
+    openSqlTab(effectiveMeta, Const.NVL(sql, ""), null, Const.NVL(sql, ""), true);
     if (!state.isConnected()) {
       connect(state);
     }
   }
 
   DatabaseConnectionState ensureConnection(DatabaseMeta meta) {
-    DatabaseConnectionState state = connections.get(meta.getName());
+    return ensureConnection(meta, host, connections, items, this::safeRebuildTree);
+  }
+
+  static DatabaseConnectionState ensureConnection(
+      DatabaseMeta meta,
+      IDatabaseWorkbenchHost host,
+      Map<String, DatabaseConnectionState> connections,
+      List<TabItemHandler> items,
+      Runnable onTreeChanged) {
+    if (meta == null || connections == null) {
+      return null;
+    }
+    DatabaseMeta freshMeta =
+        reloadConnectionMeta(meta.getName(), host, connections, items, onTreeChanged);
+    if (freshMeta == null && host != null && host.getMetadataProvider() != null) {
+      return null;
+    }
+    DatabaseMeta effectiveMeta = freshMeta != null ? freshMeta : meta;
+    DatabaseConnectionState state = connections.get(effectiveMeta.getName());
     if (state == null) {
-      state = new DatabaseConnectionState(meta);
-      connections.put(meta.getName(), state);
-      rebuildTree();
+      state = new DatabaseConnectionState(effectiveMeta);
+      connections.put(effectiveMeta.getName(), state);
+      if (onTreeChanged != null) {
+        onTreeChanged.run();
+      }
     } else {
-      state.setDatabaseMeta(meta);
+      state.setDatabaseMeta(effectiveMeta);
     }
     return state;
   }
