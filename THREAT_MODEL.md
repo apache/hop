@@ -211,7 +211,10 @@ where strict outbound TLS verification is required (see §9).
   also *constructs* a self-signed-accepting, no-hostname-verify socket factory in
   `sslMode`, but it is not actually wired into the returned client — latent.)
   Several transforms also offer opt-in `ignoreSsl`/`trustAllCertificates`
-  switches (all default to verification on).
+  switches (all default to verification on). The HashiCorp Vault and OpenBAO
+  variable resolvers verify the secrets server's certificate by default too, but
+  the setting is serialised per resolver, so a definition saved with it off keeps
+  reaching the secrets server unverified until an operator changes it.
 - **No automatic sanitization of variables.** `${VAR}`/`%%VAR%%`/`$[hex]` tokens
   are resolved by raw, unescaped string substitution
   ([`StringUtil.environmentSubstitute`](core/src/main/java/org/apache/hop/core/util/StringUtil.java)); the result is concatenated directly into

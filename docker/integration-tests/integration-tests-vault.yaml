@@ -17,6 +17,7 @@
 
 volumes:
   k8s-jwt:
+  vault-tls-certs:
 
 services:
   integration_test_vault:
@@ -26,12 +27,16 @@ services:
     depends_on:
       vault:
         condition: service_healthy
+      vault-tls:
+        condition: service_healthy
       k8s-mock:
         condition: service_healthy
     links:
       - vault
+      - vault-tls
     volumes:
       - k8s-jwt:/tmp/k8s-sa:ro
+      - vault-tls-certs:/tmp/vault-tls:ro
   vault:
     image: hashicorp/vault
     ports:
@@ -43,6 +48,38 @@ services:
       - VAULT_DISABLE_MLOCK=true
     healthcheck:
       test: [ "CMD", "wget", "--spider", "--proxy", "off", "http://vault:8200/v1/sys/health?standbyok=true" ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+  # A second Vault, this one on HTTPS with a certificate it generates for itself, so the
+  # integration tests can tell a resolver that verifies the certificate from one that does not.
+  # -dev-tls writes vault-ca.pem / vault-cert.pem / vault-key.pem into the cert dir, and
+  # -dev-tls-san puts this service name in the certificate so hostname verification passes.
+  #
+  # The cert dir is /vault/file (Vault's file-storage path, unused in dev mode) because that
+  # directory exists in the image owned by the unprivileged vault user: a named volume mounted
+  # over it inherits that ownership, which a volume mounted on a fresh path would not, and Vault
+  # cannot write its certificates into a root-owned directory.
+  vault-tls:
+    image: hashicorp/vault
+    ports:
+      - "8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      - SKIP_SETCAP=true
+      - VAULT_DISABLE_MLOCK=true
+    command:
+      - server
+      - -dev
+      - -dev-tls
+      - -dev-tls-cert-dir=/vault/file
+      - -dev-tls-san=vault-tls
+    volumes:
+      - vault-tls-certs:/vault/file
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--proxy", "off", "--no-check-certificate", "https://vault-tls:8200/v1/sys/health?standbyok=true" ]
       interval: 10s
       timeout: 3s
       retries: 10

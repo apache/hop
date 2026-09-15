@@ -18,6 +18,7 @@
 package org.apache.hop.core.variables.resolver.vault;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +42,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,6 +92,37 @@ class VaultVariableResolverTest {
   void testPluginMetadata() {
     assertEquals("Vault-Variable-Resolver", resolver.getPluginId());
     assertEquals("Hashicorp Vault Variable Resolver", resolver.getPluginName());
+  }
+
+  @Test
+  void testNewResolversVerifyTheServerCertificate() {
+    assertTrue(new VaultVariableResolver().isVerifyingSsl());
+    assertTrue(new OpenBaoVariableResolver().isVerifyingSsl());
+  }
+
+  @Test
+  void testMetadataWithoutTheFlagVerifiesTheServerCertificate() throws Exception {
+    assertTrue(
+        loadFromXml("<resolver><vaultAddress>https://vault:8200</vaultAddress></resolver>")
+            .isVerifyingSsl());
+  }
+
+  @Test
+  void testMetadataKeepsVerificationTurnedOff() throws Exception {
+    // Resolvers written before verification became the default carry the flag explicitly, and
+    // keep working the way they did.
+    assertFalse(
+        loadFromXml(
+                "<resolver><vaultAddress>https://vault:8200</vaultAddress>"
+                    + "<verifyingSsl>N</verifyingSsl></resolver>")
+            .isVerifyingSsl());
+  }
+
+  private static VaultVariableResolver loadFromXml(String xml) throws Exception {
+    return XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), "resolver"),
+        VaultVariableResolver.class,
+        new MemoryMetadataProvider());
   }
 
   @Test
