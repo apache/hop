@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,13 @@ public abstract class BaseVaultVariableResolver
 
   private final Object clientLock = new Object();
 
+  /**
+   * Addresses already warned about, so a pipeline that resolves a dozen expressions does not log a
+   * dozen identical lines. A resolver is loaded from the metadata again for every expression, so
+   * this cannot be kept per instance.
+   */
+  private static final Set<String> UNVERIFIED_ADDRESSES_WARNED = ConcurrentHashMap.newKeySet();
+
   private transient Vault vaultClient;
   private transient String clientSignature;
   private transient long tokenExpiryMillis;
@@ -130,8 +138,11 @@ public abstract class BaseVaultVariableResolver
       groupType = GuiWidgetGroupType.BOXES,
       group = GROUP_CONNECTION,
       groupOrder = "010")
-  @HopMetadataProperty
-  protected boolean verifyingSsl;
+  // A resolver that does not carry the property at all - a newly created one - verifies the
+  // secrets server's certificate. defaultBoolean is what the serializers apply for an absent
+  // value; the field initialiser covers the resolvers built in code.
+  @HopMetadataProperty(defaultBoolean = true)
+  protected boolean verifyingSsl = true;
 
   @GuiWidgetElement(
       id = ID_PEM_FILE_PATH,
@@ -496,6 +507,7 @@ public abstract class BaseVaultVariableResolver
 
       final SslConfig sslConfig = new SslConfig();
       sslConfig.verify(isVerifyingSsl());
+      warnWhenNotVerifying(actualVaultAddress);
       String pemUtf8 = null;
       if (StringUtils.isNotEmpty(pemFilePath)) {
         try (InputStream is = HopVfs.getInputStream(variables.resolve(pemFilePath), variables)) {
@@ -528,6 +540,28 @@ public abstract class BaseVaultVariableResolver
     } catch (Exception e) {
       throw new HopException("Error building the Vault client configuration", e);
     }
+  }
+
+  /**
+   * Turning verification off is silent otherwise, which is easy to miss in a resolver definition
+   * that was created before verification became the default. A plain http address has no
+   * certificate to verify, so the option changes nothing there and saying so would only be noise.
+   */
+  private void warnWhenNotVerifying(String actualVaultAddress) {
+    String address = Const.NVL(actualVaultAddress, "").trim();
+    if (isVerifyingSsl()
+        || address.toLowerCase(Locale.ROOT).startsWith("http://")
+        || !UNVERIFIED_ADDRESSES_WARNED.add(getPluginId() + "\t" + address)) {
+      return;
+    }
+    LogChannel.GENERAL.logBasic(
+        "WARNING: the "
+            + getPluginName()
+            + " reaches '"
+            + address
+            + "' without verifying the certificate of the secrets server. Switch 'Validate HTTPS "
+            + "connections?' back on and point the resolver at the server's certificate with the "
+            + "PEM file path or PEM string option.");
   }
 
   private String clientSignature(IVariables variables) {
