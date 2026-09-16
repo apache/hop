@@ -1,0 +1,16 @@
+{
+  "virtualPath": "",
+  "name": "vault-tls-unverified",
+  "description": "Hashicorp Vault over HTTPS with certificate verification explicitly turned off",
+  "variable-resolver": {
+    "Vault-Variable-Resolver": {
+      "vaultAddress": "https://vault-tls:8200",
+      "pemString": "",
+      "openTimeout": "",
+      "verifyingSsl": false,
+      "pemFilePath": "",
+      "readTimeout": "",
+      "vaultToken": "myroot"
+    }
+  }
+}

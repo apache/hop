@@ -1,0 +1,2 @@
+trusted-ca,untrusted-ca,verification-off
+some-password,#{vault-tls-untrusted:secret/data/hop:password},some-password

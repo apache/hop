@@ -46,11 +46,22 @@ will resolve internally to:
 ----
 
 
-* Validate HTTPS connections?: It's recommended to enable connection validation in production. This secures the connection with the X.509 certificate specified in one of either next option.
+* Validate HTTPS connections?: Verifies the certificate the OpenBAO server presents. On for new resolvers. Leave it on in production, and identify the certificate with one of the two PEM options below when the server does not use a certificate from a public CA.
 * PEM file path: The name of the file (VFS) containing the X.509 certificate string
 * PEM string: The X.509 string itself in case you're not using a file
 * Open connection timeout: The connection timeout when getting a http(s) connection in milliseconds.
 * Read connection timeout: The timeout in milliseconds when reading.
+
+[IMPORTANT]
+====
+**Validate HTTPS connections?** became the default in Hop 2.20.
+The option is stored in the resolver, so resolvers created before that keep the setting they have: verification stays off in every resolver definition that was saved with the box unticked, whatever Hop version you upgrade to.
+Open your OpenBAO and Vault resolvers and check the option rather than assuming the upgrade covered them.
+Hop logs a warning when a resolver reaches an `https` address without verifying the certificate.
+
+A resolver that verifies the certificate needs to be able to build the chain to a trusted root.
+Against an OpenBAO with a self-signed certificate or one signed by a private CA, give the resolver that certificate through **PEM file path** or **PEM string**; without it the lookup fails and the expression is left unresolved.
+====
 
 The variable expression you can resolve with this plugin type is (as always) in the following format:
 
