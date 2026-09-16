@@ -19,14 +19,34 @@
 
 name: Hop PR Build (Code)
 
+# Path filters mirror gib.excludePathsMatching in the root pom: a change confined to
+# these paths cannot affect the Maven build, so the workflow does not run at all.
+# Keep both lists in sync when adding an exclusion. (Negation needs `paths`, not
+# `paths-ignore`; later patterns win.)
 on:
   push:
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!docker/**'
+      - '!helm/**'
+      - '!dist/**'
+      - '!integration-tests/**'
+      - '!*.md'
+      - '!Jenkinsfile*'
+      - '!.asf.yaml'
   pull_request:
     branches: [ 'main' ]
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!docker/**'
+      - '!helm/**'
+      - '!dist/**'
+      - '!integration-tests/**'
+      - '!*.md'
+      - '!Jenkinsfile*'
+      - '!.asf.yaml'
 
 # Supersede an in-flight PR build when the branch is pushed again; never cancel a
 # push build, so every merge to main keeps its own result.
