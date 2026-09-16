@@ -119,3 +119,31 @@ Arrays are compared element by element; if all compared elements are equal, the 
 The JSON type supports all standard JSON values when reading or writing to MongoDB.
 Values that are part of MongoDB’s extended JSON (for example, Date objects) are not supported.
 To fully support MongoDB-specific BSON values, use the String type instead.
+
+=== Vector
+
+The Vector type holds a dense floating point vector, as produced by an embedding model and consumed by a vector store.
+Values are stored as a `float[]`.
+
+The canonical text form is a bracketed, comma separated list of numbers:
+
+```
+[0.1,0.2,0.3]
+```
+
+That form is both valid JSON and the literal syntax pgvector accepts, so a vector survives a round trip through a text file, a Data Grid, a JSON document or a database column without a conversion step in between.
+
+*Conversions*
+
+Vector converts to and from String using the canonical text form above.
+Conversion from other types is not supported: convert to String first if an intermediate type is involved.
+
+*Databases*
+
+Hop binds a vector to a prepared statement using its text form, which a PostgreSQL `vector` column (provided by the pgvector extension) accepts directly.
+No dialect currently emits a native vector column type when Hop generates DDL, so a generated `CREATE TABLE` produces a text column that has to be adjusted by hand.
+
+*Gotchas*
+
+The type does not carry the number of dimensions.
+A vector store will reject a value whose length does not match the column it is written to, so the dimensions of the embedding model and of the target column have to be kept aligned by the pipeline author.

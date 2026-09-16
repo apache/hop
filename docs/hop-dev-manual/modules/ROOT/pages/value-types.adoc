@@ -72,7 +72,7 @@ At minimum you will implement conversion to and from the types Hop already knows
 [WARNING]
 ====
 Type ids are plain integers and there is no allocation registry.
-The built-in types use low numbers and the shipped plugins use `20` for Avro and `32` for UUID.
+The built-in types use low numbers and the shipped plugins use `20` for Avro, `32` for UUID, `303` for the Neo4j Graph type and `1536` for Vector.
 
 Two plugins that pick the same id will collide, and the failure will not be obvious.
 Until Hop has a convention, pick something distinctive and high, and say in your documentation which id you took.
