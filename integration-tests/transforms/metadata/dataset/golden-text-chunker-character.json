@@ -1,0 +1,39 @@
+{
+  "base_filename": "golden-text-chunker-character.csv",
+  "name": "golden-text-chunker-character",
+  "description": "Character chunking: word-boundary back-off, overlap, and chunk metadata",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "chunk_text",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "chunk_index",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "chunk_start_position",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "total_chunks",
+      "field_format": "0"
+    }
+  ]
+}

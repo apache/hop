@@ -161,6 +161,7 @@
         <module>tableexists</module>
         <module>tableinput</module>
         <module>tableoutput</module>
+        <module>textchunker</module>
         <module>textfile</module>
         <module>tika</module>
         <module>tokenreplacement</module>
