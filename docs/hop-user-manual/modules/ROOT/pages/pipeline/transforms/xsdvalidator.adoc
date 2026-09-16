@@ -71,7 +71,15 @@ See also the xref:workflow/actions/xsdvalidator.adoc[XSD Validator workflow acti
 * Add validation msg in output : check this if you want to add a validation message in the output.
 * Validation msg field: the name of the validation message field.
 
-|Enable external entity for XSD validation|Allow the XSD validation to resolve external entities (XXE). Disabled by default: leave this unchecked unless the schemas you validate against are trusted and genuinely need to load external entities. The default for new transforms can be changed with the `ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION` Java system property.
+|Enable external entity for XSD validation a|
+
+Allow the XSD validation to resolve external references (XXE). Unchecked by default, which has three effects:
+
+* A `DOCTYPE` declaration or an external entity in the XML being validated is refused and the row is reported as invalid.
+* XSD source *The XSD source is defined inside the source XML* does not work: the `xsi:schemaLocation` / `xsi:noNamespaceSchemaLocation` reference is not resolved, not even when it points at a local file. This option needs the checkbox.
+* A schema that pulls in another schema over the network with `xs:include` or `xs:import` (for example the W3C `xml.xsd`) needs the checkbox. Local file and relative includes keep working without it.
+
+Only check this when the XML documents and the schemas you validate against are trusted. The default for new transforms can be changed with the `ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION` Java system property.
 
 |XML schema definition a|
 
@@ -79,5 +87,5 @@ XSD source : select one of these options:
 
 * The XSD source is a file, let me specify the filename (specify below in the XSD filename field).
 * The XSD source is a file, defined in a field (specify below in the XSD filename field).
-* The XSD source is defined inside the source XML.
+* The XSD source is defined inside the source XML. Requires *Enable external entity for XSD validation*.
 |===
