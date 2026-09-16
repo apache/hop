@@ -164,11 +164,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
       if (mode == HopSecurityConfig.AuthMode.NONE) {
         LogChannel.UI.logDebug("Hop Web security: no authenticated principal (mode NONE)");
       } else {
-        // Authentication is configured but the request carries no principal. In EXTERNAL mode
-        // nothing in Hop enforces authentication: it depends entirely on a container
-        // <security-constraint> (or a reverse proxy) which the shipped web.xml does not contain.
-        // Without it /ui is served wide open while the Security tab reports authentication as
-        // enabled, so make that contradiction visible in the log instead of failing silently open.
+        // A principal-less session in a non-NONE mode is unexpected: log at error level so
+        // EXTERNAL without a container security-constraint is visible instead of failing open.
         LogChannel.UI.logError(
             "Hop Web security WARNING: authentication mode is ''{0}'' but this request has no "
                 + "authenticated principal, so the UI is being served unauthenticated. "

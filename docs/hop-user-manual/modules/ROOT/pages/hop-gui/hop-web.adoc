@@ -264,7 +264,9 @@ The default Hop Web docker image picks up `tomcat-users.xml` and `web.xml` files
 
 IMPORTANT: Mode `EXTERNAL` is *delegation, not enforcement*.
 Hop itself does not challenge anyone in this mode: it only reads the `Principal` the servlet container (or authenticating reverse proxy) put on the request.
-The `web.xml` that ships with Hop Web contains no `<security-constraint>`, so selecting `EXTERNAL` without supplying your own constraint over `/*` leaves `/ui` **completely open** while the Security tab reports authentication as enabled.
+The `web.xml` that ships with Hop Web contains no `<security-constraint>`, so selecting `EXTERNAL` without supplying your own constraint over `/*` leaves `/ui` **completely open**.
+The Security perspective makes that contradiction visible rather than hiding it: the General tab shows an authenticated mode (`EXTERNAL`), while the status line for the same session still reads `Session is unrestricted (no AuthN). Config mode: EXTERNAL.`
+If you see that combination, the container is not challenging anyone.
 `/hop/*` still returns `401` (no principal), and Hop logs a warning on every unauthenticated UI session, but the UI itself is unprotected.
 Always pair `EXTERNAL` with a `<security-constraint>` + `<login-config>` covering `/*` (see <<hop-web-external-full-webxml,the full `web.xml` sample>>) or with a proxy that rejects unauthenticated requests before they reach Tomcat.
 
