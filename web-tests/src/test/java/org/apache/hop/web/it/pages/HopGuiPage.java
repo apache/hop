@@ -216,11 +216,31 @@ public class HopGuiPage {
   public String awaitDialog() {
     // A blank title is not a dialog: nothing Hop opens is untitled, so it would be the detector
     // catching something else mid-render.
-    return wait.until(
-        d -> {
-          String title = topDialogTitle();
-          return title == null || title.isBlank() ? null : title;
-        });
+    return wait.withMessage(() -> "no dialog opened; on screen: " + describeShells(driver))
+        .until(
+            d -> {
+              String title = topDialogTitle();
+              return title == null || title.isBlank() ? null : title;
+            });
+  }
+
+  /**
+   * Every body-level element with the RAP widget behind it, for the message of a wait that gave up:
+   * which shells exist, how big they are and what they say is what tells a dialog that never opened
+   * apart from one the detector does not recognise.
+   */
+  private static final String DESCRIBE_SHELLS =
+      "return [...document.body.children].map(d=>{"
+          + "const w=d.rwtWidget;const r=d.getBoundingClientRect();"
+          + "const cls=w?w.classname:'(no widget)';"
+          + "const title=w&&typeof w.hasState==='function'&&w.hasState('rwt_TITLE')?' titled':'';"
+          + "return cls+title+' '+Math.round(r.width)+'x'+Math.round(r.height)"
+          + "+' z='+getComputedStyle(d).zIndex+' '+getComputedStyle(d).display"
+          + "+' \"'+(d.innerText||'').split('\\n')[0].trim().slice(0,50)+'\"';}).join('; ');";
+
+  public static String describeShells(WebDriver driver) {
+    Object description = ((JavascriptExecutor) driver).executeScript(DESCRIBE_SHELLS);
+    return description == null ? "" : description.toString();
   }
 
   /** How long to give Escape before falling back to the dialog's own button. */
@@ -416,9 +436,62 @@ public class HopGuiPage {
     awaitNoDialog();
   }
 
-  /** Waits until nothing is stacked on top of the Hop GUI any more. */
+  /**
+   * Waits until nothing is stacked on top of the Hop GUI any more, and Hop Web has finished what
+   * closing the dialog set in motion. Opening a file, say, closes the file dialog first and loads
+   * the pipeline afterwards; a click that arrives in between is swallowed by the input blocker RAP
+   * puts up while a request is in flight.
+   */
   public void awaitNoDialog() {
     wait.until(d -> openDialogTitles().isEmpty());
+    awaitIdle();
+  }
+
+  /**
+   * Whether the RAP client will deliver a click right now.
+   *
+   * <p>Two things have to hold. The connection is between requests - nothing in flight, nothing
+   * queued: the client batches events for a few milliseconds before sending, and the server can ask
+   * for a follow-up request when it has {@code asyncExec} work left. And no input blocker is on
+   * screen without a dialog behind it: RAP blocks the page behind a modal dialog and keeps the
+   * blocker up a moment after the dialog has gone (it fades), and it blocks the page while a slow
+   * request is answered; a click in either state is swallowed. A blocker behind an open dialog is
+   * fine - that is the dialog being modal, and the click is going to the dialog.
+   */
+  private static final String IS_IDLE =
+      "if(typeof rwt==='undefined'||!rwt.remote||!rwt.remote.Connection)return true;"
+          + "const c=rwt.remote.Connection.getInstance();"
+          + "const armed=t=>t&&(typeof t.getEnabled==='function'?t.getEnabled():t.isEnabled());"
+          + "if(c._requestPending||armed(c._sendTimer)||armed(c._delayTimer))return false;"
+          + "const blocked=[...document.body.children].some(d=>{const w=d.rwtWidget;"
+          + "if(!w||w.classname!=='rwt.widgets.base.ClientDocumentBlocker')return false;"
+          + "const r=d.getBoundingClientRect();return r.width>0&&r.height>0;});"
+          + "if(!blocked)return true;"
+          + DIALOG_SHELLS
+          + "return shells.length>0;";
+
+  /**
+   * Waits until the RAP client is idle, which is when a click or a keystroke is sure to reach Hop.
+   *
+   * <p>While a request is in flight RAP blocks input behind a transparent full-screen element, so
+   * anything sent then is lost without a trace: no dialog opens, no error appears, the test times
+   * out on whatever it was going to wait for next.
+   */
+  public static void awaitIdle(WebDriver driver) {
+    waitFor(driver, IDLE_TIMEOUT)
+        .withMessage(() -> "Hop Web did not go idle; on screen: " + describeShells(driver))
+        .until(d -> isIdle(driver));
+  }
+
+  public void awaitIdle() {
+    awaitIdle(driver);
+  }
+
+  /** Long enough for any single request Hop Web makes while a test is driving it. */
+  private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(30);
+
+  private static boolean isIdle(WebDriver driver) {
+    return Boolean.TRUE.equals(((JavascriptExecutor) driver).executeScript(IS_IDLE));
   }
 
   /** Opens a pipeline file and returns its graph once the transform named is on screen. */
@@ -567,6 +640,7 @@ public class HopGuiPage {
     waitFor(driver, ENABLE_TIMEOUT)
         .withMessage(() -> "widget " + describe(element) + " is disabled")
         .until(d -> isEnabled(element));
+    awaitIdle();
     new Actions(driver).moveToElement(element).click().perform();
   }
 

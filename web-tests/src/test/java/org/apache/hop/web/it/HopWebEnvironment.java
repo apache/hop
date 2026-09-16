@@ -112,10 +112,9 @@ public final class HopWebEnvironment {
   /**
    * A fixed heap instead of the image's {@code -XX:+AggressiveHeap}: that flag hands the JVM most
    * of the host's memory, and on a build agent shared with other jobs and containers that is how
-   * Hop Web fails to come up at all. The RWT resource location is what the image sets; keep it.
+   * Hop Web fails to come up at all.
    */
-  private static final String DEFAULT_JAVA_OPTIONS =
-      "-Xmx2g -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources";
+  private static final String DEFAULT_JAVA_OPTIONS = "-Xmx2g";
 
   /** Written next to the screenshots when Hop Web does not start, so CI archives it. */
   private static final String STARTUP_LOG_FILE = "hop-web-startup.log";

@@ -34,7 +34,7 @@ ENV HOP_LOG_LEVEL="Basic"
 # any JRE settings you want to pass on
 # The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
 # this removed the need to calculate the necessary heap Xmx
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
 # path to jdbc drivers

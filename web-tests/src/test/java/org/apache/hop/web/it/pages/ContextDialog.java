@@ -65,7 +65,10 @@ public class ContextDialog {
   }
 
   void awaitOpen() {
-    wait.until(d -> isOpen());
+    wait.withMessage(
+            () ->
+                "the context dialog did not open; on screen: " + HopGuiPage.describeShells(driver))
+        .until(d -> isOpen());
   }
 
   public boolean isOpen() {
@@ -93,6 +96,7 @@ public class ContextDialog {
    */
   public void choose(String search, int skip) {
     // The dialog focuses its search field on open, so the keystrokes need no target.
+    HopGuiPage.awaitIdle(driver);
     new Actions(driver).sendKeys(search).perform();
     awaitFilterSettled();
     for (int i = 0; i < skip; i++) {
@@ -101,6 +105,8 @@ public class ContextDialog {
     if (skip > 0) {
       awaitFilterSettled();
     }
+    // Idle as well as settled: the last keystroke's request may still be on its way back.
+    HopGuiPage.awaitIdle(driver);
     new Actions(driver).sendKeys(Keys.ENTER).perform();
     wait.until(d -> !isOpen());
   }

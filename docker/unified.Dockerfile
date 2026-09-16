@@ -363,7 +363,7 @@ ENV HOP_AES_ENCODER_KEY_FILE=""
 ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS=${CATALINA_HOME}/plugins
 ENV HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"

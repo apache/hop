@@ -42,6 +42,14 @@ public final class ServerLog {
   private static final String UNCAUGHT = "Exception in thread ";
 
   /**
+   * Tomcat's level for a servlet or filter that threw: {@code SEVERE [http-nio-8080-exec-3]
+   * org.apache.catalina.core.StandardWrapperValve.invoke Servlet.service() for servlet [default]
+   * ... threw exception}. That is the server side of a browser seeing an HTTP 500 - for a static
+   * image under rwt-resources, for instance - and the only place the cause is written down.
+   */
+  private static final String TOMCAT_SEVERE = " SEVERE ";
+
+  /**
    * Failures that are a Hop Web bug whether or not somebody caught them.
    *
    * <p>Watching only for uncaught exceptions misses most of this class of bug: Hop wraps nearly
@@ -85,7 +93,7 @@ public final class ServerLog {
   }
 
   private static boolean isCrash(String line) {
-    if (line.startsWith(UNCAUGHT)) {
+    if (line.startsWith(UNCAUGHT) || line.contains(TOMCAT_SEVERE)) {
       return true;
     }
     // Not on continuation lines: the signature appears again in every "Caused by" and in the
@@ -110,10 +118,18 @@ public final class ServerLog {
       String line = lines[i].trim();
       if (line.startsWith(HOP_FRAME)) {
         deepest = line;
+      } else if (isExceptionLine(line, i == start + 1)) {
+        // Still the same stack trace: the exception itself (Tomcat prints it on the line after
+        // its SEVERE header) or a cause, with more frames to come.
+        continue;
       } else if (!line.isEmpty() && !line.startsWith("at ")) {
         break;
       }
     }
     return deepest == null ? "" : " (" + deepest + ")";
+  }
+
+  private static boolean isExceptionLine(String line, boolean rightAfterHeader) {
+    return line.startsWith("Caused by") || (rightAfterHeader && !line.startsWith("at "));
   }
 }
