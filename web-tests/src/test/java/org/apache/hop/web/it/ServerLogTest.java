@@ -84,6 +84,25 @@ class ServerLogTest {
   }
 
   @Test
+  @DisplayName("a servlet that threw, as Tomcat logs it, is a crash")
+  void reportsTomcatSevere() {
+    // What the server writes when the browser sees an HTTP 500 - here for a static image.
+    String log =
+        "16-Sep-2026 08:58:09.123 SEVERE [http-nio-8080-exec-3]"
+            + " org.apache.catalina.core.StandardWrapperValve.invoke Servlet.service() for servlet"
+            + " [default] in context with path [] threw exception\n"
+            + "\tjava.io.IOException: Stream closed\n"
+            + "\t\tat org.apache.catalina.servlets.DefaultServlet.copy(DefaultServlet.java:2400)\n"
+            + "\t\tat org.apache.hop.ui.hopgui.security.HopBasicAuthFilter.doFilter(HopBasicAuthFilter.java:80)\n";
+
+    List<String> crashes = ServerLog.crashes(log);
+
+    assertEquals(1, crashes.size(), () -> "expected one crash, got " + crashes);
+    assertTrue(crashes.get(0).contains("threw exception"), crashes.get(0));
+    assertTrue(crashes.get(0).contains("HopBasicAuthFilter.doFilter"), crashes.get(0));
+  }
+
+  @Test
   @DisplayName("the same failure logged over and over is reported once")
   void collapsesRepeats() {
     // A broken repaint logs on every paint; a hundred identical lines say no more than one.

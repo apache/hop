@@ -87,7 +87,23 @@ public abstract class HopWebTestBase {
                 + (browserErrors.isEmpty()
                     ? ""
                     : "\n  browser: " + String.join("\n           ", browserErrors))
-                + (errorDialog == null ? "" : "\n  dialog: " + errorDialog));
+                + (errorDialog == null ? "" : "\n  dialog: " + errorDialog)
+                + serverLogForServerErrors(browserErrors));
+  }
+
+  /**
+   * The server log of this test when the browser saw the server fail, whatever the crash detector
+   * made of it. A "status of 500" on a resource says nothing about why; the reason is on the server
+   * side, and a pattern the detector does not know yet must not lose it.
+   */
+  private String serverLogForServerErrors(List<String> browserErrors) {
+    if (browserErrors.stream().noneMatch(error -> error.contains("status of 5"))) {
+      return "";
+    }
+    String log = HopWebEnvironment.get().serverLog();
+    String sinceTestStart = log.length() > serverLogMark ? log.substring(serverLogMark) : "";
+    return "\n  server log since this test started:\n    "
+        + (sinceTestStart.isBlank() ? "(nothing)" : sinceTestStart.strip().replace("\n", "\n    "));
   }
 
   /**
