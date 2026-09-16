@@ -2743,11 +2743,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /** Select the corresponding file in the left-hand tree */
-  private void selectInTree(String filename) {
+  public void selectInTree(String filename) {
     selectInTree(filename, true);
   }
 
-  private void selectInTree(String filename, boolean automatic) {
+  public void selectInTree(String filename, boolean automatic) {
     if (automatic) {
       Boolean activeFileSelection =
           ExplorerPerspectiveConfigSingleton.getConfig().getActiveFileSelection();
@@ -4277,39 +4277,66 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         listener.beforeRefresh();
       }
 
-      tree.setRedraw(false);
-      tree.removeAll();
-
-      // Add the root element...
-      //
-      TreeItem rootItem = new TreeItem(tree, SWT.NONE);
-      rootItem.setText(Const.NVL(rootName, ""));
-      IHopFileType fileType = getFileType(rootFolder, true);
-      setItemImage(rootItem, fileType);
-      callPaintListeners(tree, rootItem, rootFolder, rootName);
-      setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
-
-      // Paint the top level folder only
-      //
-      refreshFolder(rootItem, rootFolder, 0);
-
-      // Always expand root item when filtering
-      if (!Utils.isEmpty(filterText)) {
-        rootItem.setExpanded(true);
-        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
-      } else {
-        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
-
-        // When not filtering, use tree memory (but don't call it here as it will be called later)
-        // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
-        if (treeStateBeforeFilter == null) {
-          // Only restore from memory if we're not about to restore from saved state
-          rootItem.setExpanded(true);
-          restoreTreeItemExpandedFromMemory(rootItem);
+      // Preserve currently expanded items and selection before destroying tree items
+      List<String> selectedPaths = new ArrayList<>();
+      if (tree != null && !tree.isDisposed()) {
+        for (TreeItem selected : tree.getSelection()) {
+          TreeItemFolder tif = (TreeItemFolder) selected.getData();
+          if (tif != null && tif.path != null) {
+            selectedPaths.add(tif.path);
+          }
+        }
+        for (TreeItem item : tree.getItems()) {
+          rememberTreeExpandedState(item);
         }
       }
 
-      tree.setRedraw(true);
+      tree.setRedraw(false);
+      try {
+        tree.removeAll();
+
+        // Add the root element...
+        //
+        TreeItem rootItem = new TreeItem(tree, SWT.NONE);
+        rootItem.setText(Const.NVL(rootName, ""));
+        IHopFileType fileType = getFileType(rootFolder, true);
+        setItemImage(rootItem, fileType);
+        callPaintListeners(tree, rootItem, rootFolder, rootName);
+        setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
+
+        // Paint the top level folder only
+        //
+        refreshFolder(rootItem, rootFolder, 0);
+
+        // Always expand root item when filtering
+        if (!Utils.isEmpty(filterText)) {
+          rootItem.setExpanded(true);
+          TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+        } else {
+          TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+
+          // When not filtering, use tree memory (but don't call it here as it will be called later)
+          // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
+          if (treeStateBeforeFilter == null) {
+            // Only restore from memory if we're not about to restore from saved state
+            rootItem.setExpanded(true);
+            restoreTreeItemExpandedFromMemory(rootItem);
+          }
+        }
+
+        // Restore selection of previously selected items
+        for (String selectedPath : selectedPaths) {
+          selectInTree(selectedPath, false);
+        }
+        if (selectedPaths.isEmpty()) {
+          IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
+          if (activeHandler != null && !Utils.isEmpty(activeHandler.getFilename())) {
+            selectInTree(activeHandler.getFilename(), true);
+          }
+        }
+      } finally {
+        tree.setRedraw(true);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -4318,6 +4345,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           e);
     }
     updateSelection();
+  }
+
+  private void rememberTreeExpandedState(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+    if (item.getExpanded()) {
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
+    }
+    for (TreeItem child : item.getItems()) {
+      rememberTreeExpandedState(child);
+    }
   }
 
   @GuiToolbarElement(
