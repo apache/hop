@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs.security;
 
+import org.apache.hop.core.security.CrossSitePolicy;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigSecurityTab;
@@ -37,6 +38,11 @@ import org.eclipse.swt.widgets.Text;
 public final class SecurityConfigUi {
 
   public static final String[] AUTH_MODES = {"NONE", "EXTERNAL", "BASIC", "OAUTH2"};
+  public static final String[] CROSS_SITE_POLICIES = {
+    CrossSitePolicy.SAME_SITE.getCode(),
+    CrossSitePolicy.SAME_ORIGIN.getCode(),
+    CrossSitePolicy.OFF.getCode()
+  };
   public static final String[] HOP_ROLE_IDS = {"admin", "user", "operator", "readonly"};
   public static final String[] YES_NO = {"Y", "N"};
 

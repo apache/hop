@@ -23,10 +23,13 @@ services:
     depends_on:
       hop_server:
         condition: service_healthy
+      hop_server_no_cross_site_check:
+        condition: service_healthy
       minio:
         condition: service_healthy
     links:
       - hop_server
+      - hop_server_no_cross_site_check
       - minio
 
   hop_server:
@@ -63,6 +66,27 @@ services:
       - ./../../integration-tests/hop_server/:/hop_server_volume
     healthcheck:
       test: curl -u cluster:cluster --fail http://hop-server:8181 || exit 1 
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 120s
+
+  # A second server with the cross-site check turned off (main-0018). The escape hatch for a
+  # deployment that needs cross-site browser access is only worth anything if the setting actually
+  # reaches the server process, which is what this container proves. No project or metadata folder:
+  # the test only calls the status and stopPipeline endpoints.
+  hop_server_no_cross_site_check:
+    image: apache/hop:Development
+    pull_policy: never
+    hostname: hop-server-nocheck
+    ports:
+      - "8182"
+    environment:
+      - HOP_SERVER_PORT=8182
+      - HOP_SERVER_HOSTNAME=hop-server-nocheck
+      - HOP_SERVER_CROSS_SITE_POLICY=off
+    healthcheck:
+      test: curl -u cluster:cluster --fail http://hop-server-nocheck:8182 || exit 1
       interval: 20s
       timeout: 10s
       retries: 6

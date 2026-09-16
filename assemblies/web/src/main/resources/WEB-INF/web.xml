@@ -31,6 +31,23 @@
         <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
     </listener>
 
+    <!-- Cross-site request rejection for the embedded Hop Server API (issue #8371). Declared first
+         so a request started by another site is refused before the session or credentials are
+         looked at. Browsers attach a session cookie to a cross-site request by themselves, and the
+         /hop/* servlets answer state-changing operations on GET, so without this a page the
+         operator happens to be visiting could run pipelines as them.
+         Policy comes from security-config.json (crossSitePolicy) or the
+         HOP_SERVER_CROSS_SITE_POLICY environment variable; add a crossSitePolicy init-param here
+         to pin it for this deployment. -->
+    <filter>
+        <filter-name>CrossSiteRequest</filter-name>
+        <filter-class>org.apache.hop.www.CrossSiteRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CrossSiteRequest</filter-name>
+        <url-pattern>/hop/*</url-pattern>
+    </filter-mapping>
+
     <!-- Hop-managed BASIC auth (active only when mode is BASIC) -->
     <filter>
         <filter-name>HopBasicAuth</filter-name>

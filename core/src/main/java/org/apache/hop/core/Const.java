@@ -923,6 +923,19 @@ public class Const {
           "Defines the default encoding for servlets, leave it empty to use Java default encoding")
   public static final String HOP_DEFAULT_SERVLET_ENCODING = "HOP_DEFAULT_SERVLET_ENCODING";
 
+  /** A variable to configure which browser requests the Hop server accepts */
+  // No `value` default on purpose: HopEnvironment copies every declared default into a system
+  // property without consulting the environment, so declaring one here would shadow both
+  // HOP_SERVER_CROSS_SITE_POLICY and the Hop Web security config. See
+  // HopSecurityConfig.resolveCrossSitePolicy.
+  @Variable(
+      description =
+          "Which browser requests the Hop server accepts, based on the Sec-Fetch-Site header: "
+              + "'same-site' (the default) rejects cross-site requests, 'same-origin' also rejects "
+              + "same-site ones, and 'off' disables the check. Clients that send no Sec-Fetch-* "
+              + "headers at all, such as hop-run or the Hop GUI, are never affected.")
+  public static final String HOP_SERVER_CROSS_SITE_POLICY = "HOP_SERVER_CROSS_SITE_POLICY";
+
   /** A variable to configure refresh for Hop server workflow/pipeline status page */
   @Variable(
       description = "A variable to configure refresh for Hop server workflow/pipeline status page")

@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.perspective.configuration.tabs.security;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
+import org.apache.hop.core.security.CrossSitePolicy;
 import org.apache.hop.core.security.HopSecurityConfig;
 import org.apache.hop.core.security.HopUserStore;
 import org.apache.hop.i18n.BaseMessages;
@@ -45,6 +46,7 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
   private Combo wMode;
   private Text wWelcome;
   private Button wAllowServerApi;
+  private Combo wCrossSitePolicy;
 
   public ConfigSecurityGeneralTab() {
     // Instantiated by ConfigSecurityTab / @GuiTab system
@@ -115,7 +117,31 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
     wAllowServerApi.setLayoutData(fdAllowServerApi);
     last = wAllowServerApi;
 
-    SecurityConfigUi.addHint(content, last, "ConfigSecurityTab.AllowServerApi.Hint", margin);
+    last = SecurityConfigUi.addHint(content, last, "ConfigSecurityTab.AllowServerApi.Hint", margin);
+
+    Label wlCrossSitePolicy = new Label(content, SWT.RIGHT);
+    wlCrossSitePolicy.setText(
+        BaseMessages.getString(PKG, "ConfigSecurityTab.CrossSitePolicy.Label"));
+    PropsUi.setLook(wlCrossSitePolicy);
+    FormData fdlCrossSitePolicy = new FormData();
+    fdlCrossSitePolicy.left = new FormAttachment(0, 0);
+    fdlCrossSitePolicy.top = new FormAttachment(last, margin * 2);
+    fdlCrossSitePolicy.right = new FormAttachment(mid, 0);
+    wlCrossSitePolicy.setLayoutData(fdlCrossSitePolicy);
+
+    wCrossSitePolicy = new Combo(content, SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wCrossSitePolicy);
+    wCrossSitePolicy.setItems(SecurityConfigUi.CROSS_SITE_POLICIES);
+    wCrossSitePolicy.setToolTipText(
+        BaseMessages.getString(PKG, "ConfigSecurityTab.CrossSitePolicy.Tooltip"));
+    FormData fdCrossSitePolicy = new FormData();
+    fdCrossSitePolicy.left = new FormAttachment(mid, margin);
+    fdCrossSitePolicy.top = new FormAttachment(last, margin * 2);
+    fdCrossSitePolicy.right = new FormAttachment(100, 0);
+    wCrossSitePolicy.setLayoutData(fdCrossSitePolicy);
+    last = wCrossSitePolicy;
+
+    SecurityConfigUi.addHint(content, last, "ConfigSecurityTab.CrossSitePolicy.Hint", margin);
     SecurityConfigUi.finishTabLayout(content);
   }
 
@@ -131,6 +157,10 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
     if (wAllowServerApi != null && !wAllowServerApi.isDisposed()) {
       wAllowServerApi.setSelection(config.isAllowUnauthenticatedServerApi());
     }
+    if (wCrossSitePolicy != null && !wCrossSitePolicy.isDisposed()) {
+      wCrossSitePolicy.setText(
+          Const.NVL(config.getCrossSitePolicy(), CrossSitePolicy.SAME_SITE.getCode()));
+    }
   }
 
   @Override
@@ -143,6 +173,9 @@ public class ConfigSecurityGeneralTab implements ISecurityConfigSection {
     }
     if (wAllowServerApi != null && !wAllowServerApi.isDisposed()) {
       config.setAllowUnauthenticatedServerApi(wAllowServerApi.getSelection());
+    }
+    if (wCrossSitePolicy != null && !wCrossSitePolicy.isDisposed()) {
+      config.setCrossSitePolicy(wCrossSitePolicy.getText());
     }
   }
 
