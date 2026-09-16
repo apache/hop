@@ -126,8 +126,6 @@
         <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
-        <gmavenplus-plugin.version>4.3.1</gmavenplus-plugin.version>
-        <groovy.version>4.0.28</groovy.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
@@ -403,20 +401,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+                 Debian/Ubuntu Maven never indexes plexus-compiler-eclipse 2.17.0 (Sisu
+                 0.3.x ASM stops at Java 14 class files). inherited so `cd <module> &&
+                 mvn` and `-pl <module>` still attach Lombok and install the Eclipse
+                 compiler Plexus descriptor into the local repo (no committed jar, no
+                 systemPath). javac + exec:java avoids the Groovy-per-module startup tax.
+                 Phases are split so sortPom cannot run the helper before it is compiled.
+            -->
             <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>${gmavenplus-plugin.version}</version>
-                <!-- inherited so `cd <module> && mvn` and `-pl <module>` still attach
-                     Lombok and materialize the Eclipse compiler Plexus descriptor.
-                     Debian/Ubuntu Maven never indexes plexus-compiler-eclipse 2.17.0
-                     (Sisu 0.3.x ASM stops at Java 14 class files). -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>compile-lombok-ecj-helper</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target>
+                                <property name="hop.root" value="${maven.multiModuleProjectDirectory}"></property>
+                                <mkdir dir="${hop.root}/tools/ecj-helper/target/classes"></mkdir>
+                                <javac destdir="${hop.root}/tools/ecj-helper/target/classes" encoding="UTF-8" includeDestClasses="true" includeantruntime="false" release="21" srcdir="${hop.root}/tools/ecj-helper/src/main/java"></javac>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
                 <dependencies>
-                    <dependency>
-                        <groupId>org.apache.groovy</groupId>
-                        <artifactId>groovy</artifactId>
-                        <version>${groovy.version}</version>
-                    </dependency>
                     <dependency>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
@@ -427,77 +445,53 @@
                     <execution>
                         <id>attach-lombok-ecj-agent</id>
                         <goals>
-                            <goal>execute</goal>
+                            <goal>java</goal>
                         </goals>
-                        <phase>validate</phase>
+                        <phase>initialize</phase>
                         <configuration>
-                            <!-- The Plexus descriptor jar below is always (re)built; only the
-                                 agent attach honours lombok.ecj.agent.skip. -->
-                            <properties>
-                                <property>
-                                    <name>lombokEcjAgentSkip</name>
+                            <mainClass>org.apache.hop.tools.ecj.AttachLombokEcj</mainClass>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>${maven.multiModuleProjectDirectory}/tools/ecj-helper/target/classes</additionalClasspathElement>
+                            </additionalClasspathElements>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>lombok.ecj.agent.skip</key>
                                     <value>${lombok.ecj.agent.skip}</value>
-                                </property>
-                            </properties>
-                            <scripts>
-                                <script><![CDATA[
-import com.sun.tools.attach.VirtualMachine
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-
-def projectDir = new File(System.getProperty('maven.multiModuleProjectDirectory'))
-synchronized (System.getProperties()) {
-    def hintXml = new File(projectDir, '.mvn/plexus-eclipse-hint/META-INF/plexus/components.xml')
-    def hintJar = new File(projectDir, '.mvn/plexus-eclipse-hint.jar')
-    if (hintXml.isFile() && (!hintJar.isFile() || hintJar.lastModified() < hintXml.lastModified())) {
-        hintJar.withOutputStream { fos ->
-            def zos = new ZipOutputStream(fos)
-            zos.putNextEntry(new ZipEntry('META-INF/plexus/components.xml'))
-            hintXml.withInputStream { it.transferTo(zos) }
-            zos.closeEntry()
-            zos.close()
-        }
-        log.info('Wrote Eclipse compiler Plexus descriptor jar: ' + hintJar)
-    }
-
-    if (String.valueOf(lombokEcjAgentSkip) != 'true'
-            && System.getProperty('lombok.ecj.agent.attached') == null) {
-        def lombokJar = null
-        try {
-            def loc = Class.forName('lombok.launch.Agent').protectionDomain.codeSource.location
-            if (loc != null && loc.protocol == 'file') {
-                lombokJar = new File(loc.toURI())
-            }
-        } catch (ClassNotFoundException ignored) {
-            // fall through to .mvn/lombok-*.jar
-        }
-        if (lombokJar == null || !lombokJar.isFile()) {
-            lombokJar = new File(projectDir, '.mvn/lombok-' + project.properties['lombok.version'] + '.jar')
-        }
-        if (!lombokJar.isFile() || lombokJar.length() < 1000000L) {
-            throw new IllegalStateException('Lombok jar missing or incomplete for the ECJ agent attach, expected ' + lombokJar)
-        }
-        def agentJar = Files.createTempFile('lombok-ecj-agent-', '.jar').toFile()
-        agentJar.deleteOnExit()
-        Files.copy(lombokJar.toPath(), agentJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        try {
-            def vm = VirtualMachine.attach(String.valueOf(ProcessHandle.current().pid()))
-            try {
-                vm.loadAgent(agentJar.absolutePath, 'ECJ')
-            } finally {
-                vm.detach()
-            }
-            System.setProperty('lombok.ecj.agent.attached', 'true')
-            log.info('Lombok ECJ agent attached (source: ' + lombokJar + ')')
-        } catch (Throwable t) {
-            throw new IllegalStateException('Unable to self-attach the Lombok ECJ agent, ensure -Djdk.attach.allowAttachSelf=true is in .mvn/jvm.config and the environment allows self-attach, or skip it with -Dlombok.ecj.agent.skip=true', t)
-        }
-    }
-}
-                                ]]></script>
-                            </scripts>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>lombok.version</key>
+                                    <value>${lombok.version}</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+                 initialize wrote .mvn/plexus-eclipse-hint.jar. generate-sources installs
+                 it as a real GAV so maven-compiler-plugin can depend on it without
+                 systemPath. generate-sources is after initialize, so plugin sort order
+                 cannot invert this.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-plexus-eclipse-hint</id>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <groupId>org.apache.hop</groupId>
+                            <artifactId>plexus-eclipse-hint</artifactId>
+                            <version>1.0</version>
+                            <packaging>jar</packaging>
+                            <file>${maven.multiModuleProjectDirectory}/.mvn/plexus-eclipse-hint.jar</file>
+                            <generatePom>true</generatePom>
                         </configuration>
                     </execution>
                 </executions>
@@ -513,6 +507,17 @@ synchronized (System.getProperties()) {
                     </compilerArgs>
                 </configuration>
                 <dependencies>
+                    <!-- Plexus XML registration of compilerId=eclipse. Required for
+                         Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
+                         Java 17 EclipseJavaCompiler class. The jar is NOT tracked in git:
+                         initialize writes it from .mvn/plexus-eclipse-hint/ and
+                         generate-sources install-file's it as this GAV, before compile
+                         loads this plugin. -->
+                    <dependency>
+                        <groupId>org.apache.hop</groupId>
+                        <artifactId>plexus-eclipse-hint</artifactId>
+                        <version>1.0</version>
+                    </dependency>
                     <dependency>
                         <groupId>org.codehaus.plexus</groupId>
                         <artifactId>plexus-compiler-eclipse</artifactId>
@@ -522,19 +527,6 @@ synchronized (System.getProperties()) {
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
                         <version>${lombok.version}</version>
-                    </dependency>
-                    <!-- Plexus XML registration of compilerId=eclipse. Required for
-                         Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
-                         Java 17 EclipseJavaCompiler class. The jar is NOT tracked in git
-                         (binaries stay out of the repository): the gmavenplus execution
-                         above writes it from .mvn/plexus-eclipse-hint/ during validate,
-                         which runs before this plugin is resolved in every module. -->
-                    <dependency>
-                        <groupId>org.apache.hop</groupId>
-                        <artifactId>plexus-eclipse-hint</artifactId>
-                        <version>1.0</version>
-                        <scope>system</scope>
-                        <systemPath>${maven.multiModuleProjectDirectory}/.mvn/plexus-eclipse-hint.jar</systemPath>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -701,6 +693,7 @@ synchronized (System.getProperties()) {
                     <java>
                         <includes>
                             <include>src/**/*.java</include>
+                            <include>tools/ecj-helper/src/**/*.java</include>
                         </includes>
                         <googleJavaFormat></googleJavaFormat>
                         <importOrder></importOrder>
