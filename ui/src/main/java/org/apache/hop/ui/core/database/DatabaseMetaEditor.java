@@ -64,6 +64,7 @@ import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchViews;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -1106,29 +1107,53 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   }
 
   private void explore() {
-    if (!getMetadata().isExploringDisabled()) {
-      DatabaseMeta meta = new DatabaseMeta();
-      getWidgetsContent(meta);
-      try {
-        DatabaseExplorerDialog dialog =
-            new DatabaseExplorerDialog(
-                getShell(),
-                SWT.NONE,
-                manager.getVariables(),
-                meta,
-                manager.getSerializer().loadAll(),
-                true,
-                true);
-        dialog.open();
-      } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error exploring database", e);
-      }
-    } else {
-      MessageBox mb = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.title"));
-      mb.setMessage(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.description"));
-      mb.open();
+    if (!canExploreDatabase()) {
+      return;
     }
+    DatabaseMeta meta = new DatabaseMeta();
+    getWidgetsContent(meta);
+    try {
+      DatabaseExplorerDialog dialog =
+          new DatabaseExplorerDialog(
+              getShell(),
+              SWT.NONE,
+              manager.getVariables(),
+              meta,
+              manager.getSerializer().loadAll(),
+              true,
+              true);
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error exploring database", e);
+    }
+  }
+
+  private void openInDatabase() {
+    if (!canExploreDatabase()) {
+      return;
+    }
+    DatabaseMeta meta = new DatabaseMeta();
+    getWidgetsContent(meta);
+    if (StringUtils.isBlank(meta.getName())) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
+      box.setText(BaseMessages.getString(PKG, "DatabaseDialog.OpenInDatabase.NameRequired.Title"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "DatabaseDialog.OpenInDatabase.NameRequired.Message"));
+      box.open();
+      return;
+    }
+    DatabaseWorkbenchViews.openInDatabase(hopGui, meta, "");
+  }
+
+  private boolean canExploreDatabase() {
+    if (!getMetadata().isExploringDisabled()) {
+      return true;
+    }
+    MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
+    mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.title"));
+    mb.setMessage(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.description"));
+    mb.open();
+    return false;
   }
 
   private void onHelpDatabaseType() {
@@ -1506,11 +1531,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wExplore.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.Explore"));
     wExplore.addListener(SWT.Selection, e -> explore());
 
+    Button wOpenInDatabase = new Button(parent, SWT.PUSH);
+    wOpenInDatabase.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.OpenInDatabase"));
+    wOpenInDatabase.setToolTipText(
+        BaseMessages.getString(PKG, "DatabaseDialog.button.OpenInDatabase.Tooltip"));
+    wOpenInDatabase.addListener(SWT.Selection, e -> openInDatabase());
+
     Button wTest = new Button(parent, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
     wTest.addListener(SWT.Selection, e -> test());
 
-    return new Button[] {wGenerateVariables, wExplore, wTest};
+    return new Button[] {wGenerateVariables, wExplore, wOpenInDatabase, wTest};
   }
 
   /**

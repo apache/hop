@@ -138,6 +138,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
 import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -3009,6 +3010,10 @@ public class HopGui
 
   public static MetadataPerspective getMetadataPerspective() {
     return HopGui.getInstance().getPerspectiveManager().findPerspective(MetadataPerspective.class);
+  }
+
+  public static DatabasePerspective getDatabasePerspective() {
+    return HopGui.getInstance().getPerspectiveManager().findPerspective(DatabasePerspective.class);
   }
 
   public static ExecutionPerspective getExecutionPerspective() {

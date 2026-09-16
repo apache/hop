@@ -24,7 +24,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
@@ -38,9 +37,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.search.SearchMatcher;
@@ -66,6 +63,8 @@ import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchViews;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -107,6 +106,8 @@ public class DatabaseExplorerDialog extends Dialog {
       "DatabaseExplorerDialog-Toolbar-10060-ShowLayout";
   public static final String TOOLBAR_ITEM_SQL_SELECT =
       "DatabaseExplorerDialog-Toolbar-10070-SqlSelect";
+  public static final String TOOLBAR_ITEM_OPEN_PERSPECTIVE =
+      "DatabaseExplorerDialog-Toolbar-20000-OpenPerspective";
 
   public static final String CONTEXT_MENU_PREVIEW_100 =
       "DatabaseExplorerDialog-ContextMenu-10010-Preview100";
@@ -141,10 +142,8 @@ public class DatabaseExplorerDialog extends Dialog {
   /** Debounced search action so we don't rebuild the tree on every keystroke. */
   private final Runnable filterRunnable = this::updateTree;
 
-  private final ILogChannel log;
   private final DatabaseMeta databaseMeta;
   private final IVariables variables;
-  private final DbCache dbCache;
   private final ILoggingObject loggingObject;
   private final List<DatabaseMeta> databases;
   private final boolean justLook;
@@ -191,19 +190,11 @@ public class DatabaseExplorerDialog extends Dialog {
     filterUseRegEx = false;
     selectedSchemaName = null;
     selectedTableName = null;
-    log = new LogChannel("DBExplorer");
-    dbCache = DbCache.getInstance();
   }
 
   public boolean open() {
-    if (Const.isLinux()) {
-      shell =
-          new Shell(
-              getParent(),
-              SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    } else {
-      shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    }
+    // Modeless so the floating Database window (SQL / DDL) can stay usable on Linux.
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
     // Do not include the connection name in the title (to save/restore the dialog box dimensions
@@ -866,7 +857,7 @@ public class DatabaseExplorerDialog extends Dialog {
               new Database(loggingObject, variables, targetDatabaseMeta)) {
             String sql =
                 targetDatabase.getCreateTableStatement(table, rowMeta, null, false, null, true);
-            openSqlEditor(sql);
+            openSqlEditor(targetDatabaseMeta, sql);
           }
         }
       } catch (HopDatabaseException dbe) {
@@ -923,9 +914,24 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_OPEN_PERSPECTIVE,
+      type = GuiToolbarElementType.BUTTON,
+      toolTip = "i18n::DatabaseExplorerDialog.Toolbar.OpenPerspective.Tooltip",
+      image = "ui/images/database-perspective.svg",
+      separator = true)
+  public void openInDatabasePerspective() {
+    cancel();
+    DatabaseWorkbenchViews.openInDatabase(databaseMeta, "");
+  }
+
   protected void openSqlEditor(String sql) {
-    SqlEditor dialog = new SqlEditor(shell, SWT.NONE, variables, databaseMeta, dbCache, sql);
-    dialog.open();
+    openSqlEditor(databaseMeta, sql);
+  }
+
+  protected void openSqlEditor(DatabaseMeta meta, String sql) {
+    DatabaseWorkbenchDialog.openSql(meta, sql);
   }
 
   public void dispose() {
