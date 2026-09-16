@@ -583,7 +583,16 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // Get possible information from the metadata map (from previous work)
     //
-    databaseMeta.setIDatabase(metaMap.get(databaseMeta.getIDatabase().getClass()));
+    // The map holds an empty instance of every database plugin, so restoring one as-is wipes the
+    // connection details setDatabaseType() just carried over. Take the type's own settings from
+    // the map, but keep what the user entered.
+    //
+    IDatabase enteredDatabase = databaseMeta.getIDatabase();
+    IDatabase savedDatabase = metaMap.get(enteredDatabase.getClass());
+    if (savedDatabase != null) {
+      databaseMeta.setIDatabase(savedDatabase);
+      copyEnteredFields(enteredDatabase, savedDatabase);
+    }
 
     // Remove existing children
     //
@@ -610,6 +619,29 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wGeneralComp.layout(true, true);
 
     busyChangingConnectionType.set(false);
+  }
+
+  // Carry the connection details over to another database type. A port that is filled in comes
+  // along: a switch within a database family (MySQL, MariaDB) points at the same server, and a
+  // port the user typed or a variable reference is not the old type's to discard. An empty port
+  // falls back to the new type's default rather than to a cached value, so a port that was
+  // cleared does not come back from the type cache.
+  private void copyEnteredFields(IDatabase entered, IDatabase target) {
+    target.setAccessType(entered.getAccessType());
+    target.setHostname(entered.getHostname());
+    target.setDatabaseName(entered.getDatabaseName());
+    target.setUsername(entered.getUsername());
+    target.setPassword(entered.getPassword());
+    target.setServername(entered.getServername());
+    target.setDataTablespace(entered.getDataTablespace());
+    target.setIndexTablespace(entered.getIndexTablespace());
+    if (StringUtils.isNotEmpty(entered.getPort())) {
+      target.setPort(entered.getPort());
+    } else if (target.getDefaultDatabasePort() > 0) {
+      target.setPort(Integer.toString(target.getDefaultDatabasePort()));
+    } else {
+      target.setPort("");
+    }
   }
 
   private void addAdvancedTab() {
