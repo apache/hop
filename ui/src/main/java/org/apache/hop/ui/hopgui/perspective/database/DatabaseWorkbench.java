@@ -1350,21 +1350,34 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     if (meta == null) {
       return false;
     }
-    if (!Utils.isEmpty(snapshot.filename) && !snapshot.dirty) {
-      openSqlFile(snapshot.filename, meta, null, false);
-      return true;
+    boolean dirty = DatabaseSqlTabMemory.restoredTabIsDirty(snapshot);
+    DatabaseSqlEditorTab tab;
+    if (!Utils.isEmpty(snapshot.filename) && !dirty) {
+      tab = openSqlTab(meta, null, snapshot.filename, null, false);
+    } else if (!Utils.isEmpty(snapshot.filename)) {
+      tab = openSqlTab(meta, null, snapshot.filename, snapshot.sql, true);
+    } else {
+      tab = openSqlTab(meta, Const.NVL(snapshot.sql, ""), null, Const.NVL(snapshot.sql, ""), false);
+      if (!Utils.isEmpty(snapshot.name)) {
+        tab.setName(snapshot.name);
+      }
     }
-    if (!Utils.isEmpty(snapshot.filename)) {
-      openSqlFile(snapshot.filename, meta, snapshot.sql, true);
-      return true;
-    }
-    DatabaseSqlEditorTab tab =
-        openSqlTab(
-            meta, Const.NVL(snapshot.sql, ""), null, Const.NVL(snapshot.sql, ""), snapshot.dirty);
-    if (!Utils.isEmpty(snapshot.name)) {
-      tab.setName(snapshot.name);
+    if (!dirty) {
+      tab.markClean();
     }
     return true;
+  }
+
+  void markRestoredSqlTabsClean() {
+    if (isDisposed()) {
+      return;
+    }
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof DatabaseSqlEditorTab tab
+          && (Utils.isEmpty(tab.getFilename()) || !tab.hasChanged())) {
+        tab.markClean();
+      }
+    }
   }
 
   void selectSqlTabIndex(int index) {
