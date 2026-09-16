@@ -33,15 +33,37 @@ The `hop arrow` sub-command is used to start Arrow-related services.
 ----
 sh hop arrow --help
 Usage: hop arrow [-hV] [--arrow-flight-host=<hostname>]
-                 [--arrow-flight-port=<port>] [-e=<environmentOption>]
+                 [--arrow-flight-password=<password>]
+                 [--arrow-flight-port=<port>]
+                 [--arrow-flight-tls-certificate=<tlsCertificateFile>]
+                 [--arrow-flight-tls-client-ca=<tlsClientCertificateAuthorityFile>]
+                 [--arrow-flight-tls-key=<tlsPrivateKeyFile>]
+                 [--arrow-flight-username=<username>] [-e=<environmentOption>]
                  [-j=<projectOption>]
 Run the hop arrow command to start a flight or socket server
       --arrow-flight-host=<hostname>
                   The hostname on which the Apache Arrow Flight server will
                     listen, defaults to 0.0.0.0
+      --arrow-flight-password=<password>
+                  The password belonging to --arrow-flight-username. Can be an
+                    encrypted password or a variable expression.
       --arrow-flight-port=<port>
                   The port on which the Apache Arrow Flight server will listen,
                     defaults to 33333
+      --arrow-flight-tls-certificate=<tlsCertificateFile>
+                  The PEM file with the certificate chain of the Apache Arrow
+                    Flight server. Specify this together with
+                    --arrow-flight-tls-key to serve over TLS.
+      --arrow-flight-tls-client-ca=<tlsClientCertificateAuthorityFile>
+                  The PEM file with the certificate authority used to verify
+                    client certificates (mutual TLS). Needs TLS to be enabled.
+      --arrow-flight-tls-key=<tlsPrivateKeyFile>
+                  The PEM file with the PKCS#8 private key of the Apache Arrow
+                    Flight server certificate
+      --arrow-flight-username=<username>
+                  The user name clients need to present to the Apache Arrow
+                    Flight server. Without it the server accepts
+                    unauthenticated clients.
   -e, --environment=<environmentOption>
                   The name of the lifecycle environment to use
   -h, --help      Show this help message and exit.
@@ -72,10 +94,63 @@ The rows are stored in memory so that they can be picked up.
 
 Reading data from the Flight server with Hop is as simple as referencing the same Data Stream with the xref
 
+== Transport security and authentication
+
+By default the Flight server speaks plain gRPC and accepts every client that can reach the port.
+
+WARNING: Without the options below, anything that can open a connection to the port can read the data the server streams, and that data travels in the clear.
+Until you enable TLS and authentication, treat the Flight server as a trusted-network-only service and keep it off any interface it does not need to be on (use `--arrow-flight-host` to bind it to a single address).
+
+=== TLS
+
+Pass a certificate chain and its PKCS#8 private key to serve over TLS:
+
+[source,bash]
+----
+hop arrow --project my-project \
+  --arrow-flight-tls-certificate /etc/hop/flight/server.crt \
+  --arrow-flight-tls-key /etc/hop/flight/server.key
+----
+
+Both files are read through xref:vfs.adoc[Apache VFS], so they can live anywhere Hop can reach.
+The clients then connect with `grpc+tls://` instead of `grpc://`.
+
+To also require clients to present a certificate of their own (mutual TLS), add the certificate authority to verify them with:
+
+[source,bash]
+----
+  --arrow-flight-tls-client-ca /etc/hop/flight/client-ca.crt
+----
+
+Client certificate verification needs TLS to be enabled.
+
+=== Authentication
+
+Pass a user name and password to make the server reject anonymous clients:
+
+[source,bash]
+----
+hop arrow --project my-project \
+  --arrow-flight-username hop \
+  --arrow-flight-password '${FLIGHT_PASSWORD}'
+----
+
+The password accepts a variable expression or a password encrypted with the xref:hop-tools/hop-encrypt.adoc[hop-encrypt] tool, so it does not have to appear in plain text in a startup script.
+
+Clients authenticate with the user name and password, and the server hands them a bearer token which is used for the calls that follow.
+The xref:metadata-types/data-stream/arrow-flight.adoc[Apache Arrow Flight Data Stream] has matching **Username** and **Password** fields; other clients use the standard Flight `Authorization` handshake, for example `pyarrow.flight.FlightClient.authenticate_basic_token()`.
+
+NOTE: Authentication without TLS means the credentials are sent in the clear. The server logs a warning when you do that. Enable both.
+
 === Supported options:
 
 * `--arrow-flight-host` : Bind address (default: 0.0.0.0)
 * `--arrow-flight-port` : Listening port (default: 33333)
+* `--arrow-flight-tls-certificate` : PEM file with the server certificate chain, enables TLS
+* `--arrow-flight-tls-key` : PEM file with the PKCS#8 private key for that certificate
+* `--arrow-flight-tls-client-ca` : PEM file with the CA used to verify client certificates (mutual TLS)
+* `--arrow-flight-username` : The user name clients need to present
+* `--arrow-flight-password` : The password for that user, optionally encrypted or a variable
 * `--project` : Used to find the Data Stream metadata to reference
 * `--environment`: Used to find the project and metadata but also set variables.
 

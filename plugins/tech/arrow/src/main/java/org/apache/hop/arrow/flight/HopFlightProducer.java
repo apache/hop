@@ -170,7 +170,12 @@ public class HopFlightProducer extends NoOpFlightProducer {
 
       String hostname = Const.NVL(variables.resolve(flightDataStream.getHostname()), "0.0.0.0");
       int port = Const.toInt(variables.resolve(flightDataStream.getPort()), 33333);
-      Location location = Location.forGrpcInsecure(hostname, port);
+      // The endpoint we hand back needs the same scheme clients use to reach this server.
+      //
+      Location location =
+          flightDataStream.isTls()
+              ? Location.forGrpcTls(hostname, port)
+              : Location.forGrpcInsecure(hostname, port);
       buffer =
           new FlightStreamBuffer(expectedSchema, rowMeta, rowSet, bufferSize, batchSize, location);
       streamMap.put(streamName, buffer);
