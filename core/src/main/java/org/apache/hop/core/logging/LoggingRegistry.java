@@ -20,11 +20,9 @@ package org.apache.hop.core.logging;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
@@ -34,8 +32,6 @@ import org.apache.hop.core.util.EnvUtil;
 public class LoggingRegistry {
   private static final LoggingRegistry registry = new LoggingRegistry();
   @Getter private final Map<String, ILoggingObject> map;
-  private final Map<String, LogChannelFileWriterBuffer> fileWriterBuffers;
-
   @Getter private final Map<String, List<String>> childrenMap;
   @Getter private Date lastModificationTime;
   private final int maxSize;
@@ -45,7 +41,6 @@ public class LoggingRegistry {
   private LoggingRegistry() {
     this.map = new ConcurrentHashMap<>();
     this.childrenMap = new ConcurrentHashMap<>();
-    this.fileWriterBuffers = new ConcurrentHashMap<>();
 
     this.lastModificationTime = new Date();
     this.maxSize =
@@ -132,12 +127,9 @@ public class LoggingRegistry {
               return (o1.getRegistrationDate().compareTo(o2.getRegistrationDate()));
             });
         int cutCount = this.maxSize < 1000 ? this.maxSize : 1000;
-        Set<String> channelsNotToRemove = getLogChannelFileWriterBufferIds();
         for (int i = 0; i < cutCount; i++) {
           ILoggingObject toRemove = all.get(i);
-          if (!channelsNotToRemove.contains(toRemove.getLogChannelId())) {
-            this.map.remove(toRemove.getLogChannelId());
-          }
+          this.map.remove(toRemove.getLogChannelId());
         }
         removeOrphans();
       }
@@ -249,55 +241,10 @@ public class LoggingRegistry {
     this.childrenMap.keySet().retainAll(this.map.keySet());
   }
 
-  public void registerLogChannelFileWriterBuffer(LogChannelFileWriterBuffer fileWriterBuffer) {
-    this.fileWriterBuffers.put(fileWriterBuffer.getLogChannelId(), fileWriterBuffer);
-  }
-
-  /**
-   * Returns the file writer buffer for {@code id} or the nearest ancestor in the logging parent
-   * chain (innermost match wins).
-   */
-  public LogChannelFileWriterBuffer getLogChannelFileWriterBuffer(String id) {
-    String currentId = id;
-    while (currentId != null) {
-      LogChannelFileWriterBuffer buffer = this.fileWriterBuffers.get(currentId);
-      if (buffer != null) {
-        return buffer;
-      }
-      ILoggingObject loggingObject = this.map.get(currentId);
-      if (loggingObject == null) {
-        break;
-      }
-      ILoggingObject parent = loggingObject.getParent();
-      currentId = parent != null ? parent.getLogChannelId() : null;
-    }
-    return null;
-  }
-
-  protected Set<String> getLogChannelFileWriterBufferIds() {
-    Set<String> bufferIds = this.fileWriterBuffers.keySet();
-
-    // Changed to a set as a band-aid. This stuff really should be done
-    // using a proper LRU cache.
-    Set<String> ids = new HashSet<>();
-    for (String id : bufferIds) {
-      ids.addAll(getLogChannelChildren(id));
-    }
-
-    ids.addAll(bufferIds);
-    return ids;
-  }
-
-  /** Removes the buffer registered for {@code id} only (not descendant buffers). */
-  public void removeLogChannelFileWriterBuffer(String id) {
-    this.fileWriterBuffers.remove(id);
-  }
-
   public void reset() {
     synchronized (this.syncObject) {
       map.clear();
       childrenMap.clear();
-      fileWriterBuffers.clear();
     }
   }
 }

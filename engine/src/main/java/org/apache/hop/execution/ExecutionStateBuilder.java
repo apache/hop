@@ -74,9 +74,9 @@ public final class ExecutionStateBuilder {
   private static String getLoggingText(String logChannelId, Integer lastLogLineNr) {
     StringBuffer loggingTextBuffer;
     if (lastLogLineNr != null) {
-      loggingTextBuffer = HopLogStore.getAppender().getBuffer(logChannelId, false, lastLogLineNr);
+      loggingTextBuffer = HopLogStore.getBuffer(logChannelId, false, lastLogLineNr);
     } else {
-      loggingTextBuffer = HopLogStore.getAppender().getBuffer(logChannelId, false);
+      loggingTextBuffer = HopLogStore.getBuffer(logChannelId, false);
     }
     return loggingTextBuffer.toString();
   }

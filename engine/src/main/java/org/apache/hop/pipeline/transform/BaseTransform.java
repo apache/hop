@@ -3899,7 +3899,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   @Override
   public String getLogText() {
-    StringBuffer buffer = HopLogStore.getAppender().getBuffer(log.getLogChannelId(), false);
+    StringBuffer buffer = HopLogStore.getBuffer(log.getLogChannelId(), false);
     if (buffer == null) {
       return null;
     }

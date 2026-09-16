@@ -238,8 +238,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
       executePipeline(pipeline);
 
       // Get logging output
-      String logging =
-          HopLogStore.getAppender().getBuffer(pipeline.getLogChannelId(), false).toString();
+      String logging = HopLogStore.getBuffer(pipeline.getLogChannelId(), false).toString();
 
       // Check for errors
       if (pipeline.isFinished() && pipeline.getErrors() > 0) {

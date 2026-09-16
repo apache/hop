@@ -1136,7 +1136,7 @@ public class CsvInputDialog extends BaseTransformDialog
         pipeline.startThreads();
         pipeline.waitUntilFinished();
         if (pipeline.getErrors() > 0) {
-          StringBuffer log = HopLogStore.getAppender().getBuffer(pipeline.getLogChannelId(), false);
+          StringBuffer log = HopLogStore.getBuffer(pipeline.getLogChannelId(), false);
           buffer.append(log);
         }
         HopLogStore.discardLines(pipeline.getLogChannelId(), false);

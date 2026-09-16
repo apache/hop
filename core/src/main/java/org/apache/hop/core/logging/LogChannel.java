@@ -27,14 +27,51 @@ import org.apache.hop.core.metrics.IMetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
 import org.apache.hop.core.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.spi.CallerBoundaryAware;
+import org.slf4j.spi.LoggingEventBuilder;
 
+/**
+ * The default Hop log channel, backed by SLF4J. Hop's in-memory {@link LoggingBuffer} is kept in
+ * sync by the {@code HopLogBufferAppender} registered on the SLF4J/log4j2 backend so read-side
+ * consumers (servlets, database log tables, metrics, log browsers, ...) keep working.
+ *
+ * <p>While a message is logged the hop context (the caller - the logger name / subject, the channel
+ * id and the log level code) travels as key/value pairs on the emitted SLF4J event - not as mutable
+ * thread-context (MDC) values - so backends can render the origin and restore Hop's 7 levels
+ * exactly instead of approximating them from the 5 SLF4J levels. The {@link CallerBoundaryAware}
+ * boundary is set to this facade so backends that capture file/line information resolve it to the
+ * real hop call-site instead of this class. Capturing such location info stays opt-in on the
+ * backend side (a location-aware appender) and costs nothing otherwise.
+ */
 public class LogChannel implements ILogChannel {
+
+  /**
+   * Key under which the hop caller (logger name / subject) is published on the event while a
+   * message is logged.
+   */
+  public static final String MDC_CALLER = "hop.caller";
+
+  /** Key under which the hop log channel id is published on the event while a message is logged. */
+  public static final String MDC_CHANNEL = "hop.logChannelId";
+
+  /**
+   * Key under which the hop {@link LogLevel} code is published on the event while a message is
+   * logged.
+   */
+  public static final String MDC_LEVEL = "hop.logLevel";
 
   public static ILogChannel GENERAL = new LogChannel("General");
 
   public static ILogChannel UI = new LogChannel("GUI");
 
   private final String logChannelId;
+
+  private final Logger logger;
+
+  /** The {@link #MDC_CALLER} value: the logger name, i.e. the hop subject that logged. */
+  private final String caller;
 
   private LogLevel logLevel;
 
@@ -48,13 +85,13 @@ public class LogChannel implements ILogChannel {
 
   private String filter;
 
-  private LogChannelFileWriterBuffer fileWriter;
-
   @Setter @Getter private boolean simplified;
 
   public LogChannel(Object subject) {
-    logLevel = DefaultLogLevel.getLogLevel();
-    logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject);
+    this.logLevel = DefaultLogLevel.getLogLevel();
+    this.logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject);
+    this.logger = LoggerFactory.getLogger(loggerName(this.logChannelId));
+    this.caller = this.logger.getName();
   }
 
   public LogChannel(Object subject, boolean gatheringMetrics) {
@@ -75,6 +112,8 @@ public class LogChannel implements ILogChannel {
       ILoggingObject parentObject,
       boolean gatheringMetrics,
       boolean forceNewLoggingEntry) {
+    this.logChannelId =
+        LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
     if (parentObject != null) {
       this.logLevel = parentObject.getLogLevel();
       this.containerObjectId = parentObject.getContainerId();
@@ -83,9 +122,17 @@ public class LogChannel implements ILogChannel {
       this.containerObjectId = null;
     }
     this.gatheringMetrics = gatheringMetrics;
+    this.logger = LoggerFactory.getLogger(loggerName(this.logChannelId));
+    this.caller = this.logger.getName();
+  }
 
-    logChannelId =
-        LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
+  private static String loggerName(String channelId) {
+    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject(channelId);
+    String detailed = LoggingObjectNameHelper.getDetailedSubject(loggingObject);
+    if (Utils.isEmpty(detailed)) {
+      return "org.apache.hop";
+    }
+    return "org.apache.hop." + detailed.replace('\\', '.');
   }
 
   @Override
@@ -103,44 +150,31 @@ public class LogChannel implements ILogChannel {
    * @param channelLogLevel
    */
   public void println(ILogMessage logMessage, LogLevel channelLogLevel) {
-    String subject = null;
-
     LogLevel logLevel = logMessage.getLevel();
 
     if (!logLevel.isVisible(channelLogLevel)) {
       return; // not for our eyes.
     }
 
-    if (subject == null) {
-      subject = "Hop";
-    }
-
     // Are the message filtered?
     //
-    if (!logLevel.isError()
-        && !Utils.isEmpty(filter)
-        && subject.indexOf(filter) < 0
-        && logMessage.toString().indexOf(filter) < 0) {
-
+    if (!logLevel.isError() && !Utils.isEmpty(filter) && !messageContainedInFilter(logMessage)) {
       return; // "filter" not found in row: don't show!
     }
 
-    // Let's not keep everything...
+    // Emit to the SLF4J backend. Hop's in-memory buffer is fed back through the
+    // HopLogBufferAppender. The channel id, the caller (logger name) and the exact hop level travel
+    // as key/value pairs on the event so backends can group lines per channel and restore the 7 hop
+    // levels. The caller boundary tells location-aware backends where the real call-site starts.
     //
-    if (channelLogLevel.getLevel() >= logLevel.getLevel()) {
-      HopLoggingEvent loggingEvent =
-          new HopLoggingEvent(logMessage, System.currentTimeMillis(), logLevel);
-      HopLogStore.getAppender().addLogggingEvent(loggingEvent);
-
-      if (this.fileWriter == null) {
-        this.fileWriter = LoggingRegistry.getInstance().getLogChannelFileWriterBuffer(logChannelId);
-      }
-
-      // add to buffer
-      if (this.fileWriter != null) {
-        this.fileWriter.addEvent(loggingEvent);
-      }
+    LoggingEventBuilder builder = logToSf4j(logMessage, logLevel);
+    if (builder == null) {
+      return; // nothing to emit (e.g. NOTHING level)
     }
+    if (builder instanceof CallerBoundaryAware boundaryAware) {
+      boundaryAware.setCallerBoundary(LogChannel.class.getName());
+    }
+    builder.log();
   }
 
   public void println(ILogMessage message, Throwable e, LogLevel channelLogLevel) {
@@ -180,6 +214,44 @@ public class LogChannel implements ILogChannel {
     if (logMessageLevel.isVisible(logLevel)) {
       println(new LogMessage(s, logChannelId, arguments, logMessageLevel, simplified), logLevel);
     }
+  }
+
+  private boolean messageContainedInFilter(ILogMessage message) {
+    return message.toString().indexOf(filter) >= 0;
+  }
+
+  private LoggingEventBuilder logToSf4j(ILogMessage message, LogLevel level) {
+    String text = message.getMessage();
+    LoggingEventBuilder builder;
+    switch (level) {
+      case ERROR:
+        builder = logger.atError();
+        break;
+      case MINIMAL:
+        builder = logger.atWarn();
+        break;
+      case BASIC, DETAILED:
+        builder = logger.atInfo();
+        break;
+      case DEBUG:
+        builder = logger.atDebug();
+        break;
+      case ROWLEVEL:
+        builder = logger.atTrace();
+        break;
+      case NOTHING:
+      default:
+        return null;
+    }
+    builder.addKeyValue(MDC_CHANNEL, logChannelId);
+    builder.addKeyValue(MDC_LEVEL, level.getCode());
+    builder.addKeyValue(MDC_CALLER, caller);
+    builder.setMessage(text);
+    Throwable throwable = message.getThrowable();
+    if (throwable != null) {
+      builder.setCause(throwable);
+    }
+    return builder;
   }
 
   @Override

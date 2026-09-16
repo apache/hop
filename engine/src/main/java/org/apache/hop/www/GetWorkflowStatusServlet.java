@@ -483,8 +483,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
   private String getLogText(IWorkflowEngine<WorkflowMeta> workflow, int startLineNr, int lastLineNr)
       throws HopException {
     try {
-      return HopLogStore.getAppender()
-          .getBuffer(workflow.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
+      return HopLogStore.getBuffer(
+              workflow.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
           .toString();
     } catch (OutOfMemoryError error) {
       throw new HopException("Log string is too long");

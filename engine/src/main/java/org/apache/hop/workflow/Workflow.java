@@ -51,7 +51,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingBuffer;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.parameters.DuplicateParamException;
@@ -868,9 +867,8 @@ public abstract class Workflow extends Variables
 
       // Also capture the logging text after the execution...
       //
-      LoggingBuffer loggingBuffer = HopLogStore.getAppender();
       StringBuffer logTextBuffer =
-          loggingBuffer.getBuffer(cloneAction.getLogChannel().getLogChannelId(), false);
+          HopLogStore.getBuffer(cloneAction.getLogChannel().getLogChannelId(), false);
       newResult.setLogText(logTextBuffer.toString() + newResult.getLogText());
 
       // Save this result as well...

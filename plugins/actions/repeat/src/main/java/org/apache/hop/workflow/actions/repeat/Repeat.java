@@ -35,8 +35,8 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.logging.HopFileAppender;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.util.StringUtil;
@@ -288,7 +288,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
     // Start logging before execution...
     //
-    LogChannelFileWriter fileWriter = null;
+    HopFileAppender fileWriter = null;
     try {
       if (logFileEnabled) {
         fileWriter = logToFile(pipeline, repetitionNr);
@@ -305,12 +305,12 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       return new ExecutionResult(result, pipeline, flagSet);
     } finally {
       if (logFileEnabled && fileWriter != null) {
-        fileWriter.stopLogging();
+        fileWriter.stop();
       }
     }
   }
 
-  private LogChannelFileWriter logToFile(ILoggingObject loggingObject, int repetitionNr)
+  private HopFileAppender logToFile(ILoggingObject loggingObject, int repetitionNr)
       throws HopException {
 
     // Calculate the filename
@@ -330,14 +330,10 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     filename += "." + resolve(logFileExtension);
 
     String logChannelId = loggingObject.getLogChannelId();
-    LogChannelFileWriter fileWriter =
-        new LogChannelFileWriter(
-            logChannelId,
-            HopVfs.getFileObject(filename),
-            logFileAppended,
-            Const.toInt(logFileUpdateInterval, 5000));
+    HopFileAppender fileWriter =
+        HopFileAppender.create(logChannelId, HopVfs.getFileObject(filename), logFileAppended);
 
-    fileWriter.startLogging();
+    fileWriter.attach();
 
     return fileWriter;
   }
@@ -398,7 +394,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
     // Start logging before execution...
     //
-    LogChannelFileWriter fileWriter = null;
+    HopFileAppender fileWriter = null;
     try {
       if (logFileEnabled) {
         fileWriter = logToFile(workflow, repetitionNr);
@@ -414,7 +410,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       return new ExecutionResult(result, workflow, flagSet);
     } finally {
       if (logFileEnabled && fileWriter != null) {
-        fileWriter.stopLogging();
+        fileWriter.stop();
       }
     }
   }

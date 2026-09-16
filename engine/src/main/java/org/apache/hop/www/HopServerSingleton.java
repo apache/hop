@@ -268,9 +268,6 @@ public class HopServerSingleton {
                       if (diffInMinutes >= objectTimeout) {
                         // Let's remove this from the workflow map...
                         //
-                        String id = workflowMap.getWorkflow(entry).getLogChannelId();
-                        LoggingRegistry.getInstance().removeLogChannelFileWriterBuffer(id);
-
                         workflowMap.removeWorkflow(entry);
 
                         log.logBasic(

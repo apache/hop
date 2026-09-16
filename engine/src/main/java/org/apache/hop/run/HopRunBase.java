@@ -33,8 +33,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.FileLoggingEventListener;
-import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopFileAppender;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
@@ -161,7 +160,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
   @Override
   public void run() {
     validateOptions();
-    FileLoggingEventListener fileLoggingEventListener = null;
+    HopFileAppender logFileAppender = null;
 
     try {
       log = new LogChannel("HopRun");
@@ -209,8 +208,8 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       }
 
       if (!Utils.isEmpty(logFile)) {
-        fileLoggingEventListener = new FileLoggingEventListener(logFile, false);
-        HopLogStore.getAppender().addLoggingEventListener(fileLoggingEventListener);
+        logFileAppender = HopFileAppender.create(null, HopVfs.getFileObject(logFile), false);
+        logFileAppender.attach();
       }
 
       if (isPipeline()) {
@@ -226,8 +225,8 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       throw new ExecutionException(
           cmd, "There was an error during execution of file '" + filename + "'", e);
     } finally {
-      if (fileLoggingEventListener != null) {
-        HopLogStore.getAppender().removeLoggingEventListener(fileLoggingEventListener);
+      if (logFileAppender != null) {
+        logFileAppender.stop();
       }
     }
   }
