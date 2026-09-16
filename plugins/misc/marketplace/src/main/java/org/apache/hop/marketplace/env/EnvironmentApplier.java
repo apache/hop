@@ -220,7 +220,8 @@ public class EnvironmentApplier {
     }
   }
 
-  private MarketplaceConfig configFromEnv(HopInstallSpec env) {
+  /** Package-private so the credential scoping below can be asserted without a live install. */
+  MarketplaceConfig configFromEnv(HopInstallSpec env) {
     MarketplaceConfig config = new MarketplaceConfig();
     config.setEnabled(baseConfig.isEnabled());
     config.setGroupId(baseConfig.getGroupId());
@@ -229,24 +230,11 @@ public class EnvironmentApplier {
             ? env.getHopVersion()
             : MarketplaceCommand.resolveDefaultVersion(baseConfig));
     config.getRepositories().clear();
-    MarketplaceRepository baseRepo = baseConfig.primaryRepository();
     if (env.getRepositories() != null && !env.getRepositories().isEmpty()) {
       boolean first = true;
       for (HopInstallSpec.RepositoryRef ref : env.getRepositories()) {
         if (StringUtils.isNotBlank(ref.getUrl())) {
-          MarketplaceRepository repo =
-              new MarketplaceRepository(
-                  StringUtils.defaultIfBlank(ref.getId(), "spec"),
-                  ref.getUrl(),
-                  StringUtils.isNotBlank(ref.getUsername())
-                      ? ref.getUsername()
-                      : baseRepo.getUsername(),
-                  StringUtils.isNotBlank(ref.getPassword())
-                      ? ref.getPassword()
-                      : baseRepo.getPassword());
-          repo.setPrimary(first);
-          repo.setEnabled(true);
-          config.getRepositories().add(repo);
+          config.getRepositories().add(repositoryFromRef(ref, first));
           first = false;
         }
       }
@@ -259,6 +247,60 @@ public class EnvironmentApplier {
     }
     config.ensureValidPrimary();
     return config;
+  }
+
+  /**
+   * Turn a repository the install spec declares into a marketplace repository. The URL is the
+   * project's, so the configured credentials are only reused when the project points at the same
+   * repository they belong to — same scheme, host and port. A project naming a host the operator
+   * never configured gets what the project itself declared, or nothing.
+   */
+  private MarketplaceRepository repositoryFromRef(HopInstallSpec.RepositoryRef ref, boolean first) {
+    MarketplaceRepository source = configuredCredentialSource(ref.getUrl());
+    MarketplaceRepository repo =
+        new MarketplaceRepository(
+            StringUtils.defaultIfBlank(ref.getId(), "spec"),
+            ref.getUrl(),
+            StringUtils.isNotBlank(ref.getUsername())
+                ? ref.getUsername()
+                : (source == null ? null : source.getUsername()),
+            StringUtils.isNotBlank(ref.getPassword())
+                ? ref.getPassword()
+                : (source == null ? null : source.getPassword()));
+    if (source == null) {
+      // The global HOP_MARKETPLACE_USERNAME / _PASSWORD pair belongs to the operator's own
+      // repositories for the same reason; the repository-scoped variables stay available so a
+      // project repository can still be given credentials without putting them in the spec file.
+      repo.setGlobalEnvironmentCredentials(false);
+    }
+    repo.setPrimary(first);
+    repo.setEnabled(true);
+    return repo;
+  }
+
+  /**
+   * The configured repository whose credentials may be reused for {@code url}, or null when none of
+   * them belongs to that origin. Install order, so the primary wins a tie.
+   */
+  private MarketplaceRepository configuredCredentialSource(String url) {
+    boolean anyStoredCredentials = false;
+    for (MarketplaceRepository repo : baseConfig.orderedRepositories()) {
+      if (StringUtils.isAllBlank(repo.getUsername(), repo.getPassword())) {
+        continue;
+      }
+      anyStoredCredentials = true;
+      if (repo.sameOriginAs(url)) {
+        return repo;
+      }
+    }
+    if (anyStoredCredentials) {
+      log.logBasic(
+          "Install spec repository "
+              + url
+              + " is not a configured marketplace repository: the configured credentials are not"
+              + " sent to it");
+    }
+    return null;
   }
 
   private String resolveEnvVersion(HopInstallSpec env) {

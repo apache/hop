@@ -17,8 +17,11 @@
 
 package org.apache.hop.marketplace.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -170,6 +173,18 @@ public class MarketplaceRepository {
   /** Optional human description (documentation / export). */
   private String description;
 
+  /**
+   * When false, the global {@code HOP_MARKETPLACE_USERNAME} / {@code HOP_MARKETPLACE_PASSWORD}
+   * variables do not apply to this repository; only credentials set on the entry itself or in the
+   * repository-scoped {@code HOP_MARKETPLACE_<ID>_*} variables are used.
+   *
+   * <p>Set false for a repository an install spec introduced that is not one the operator
+   * configured: the global pair is meant for the operator's own repositories, and a project must
+   * not be able to have it sent to a host of the project's choosing. Not persisted — it follows
+   * from where the repository came from, not from configuration.
+   */
+  @JsonIgnore private boolean globalEnvironmentCredentials = true;
+
   public MarketplaceRepository() {
     // Jackson
   }
@@ -214,6 +229,54 @@ public class MarketplaceRepository {
   }
 
   /**
+   * Scheme, host and port of {@link #normalizedUrl()} — the identity a credential belongs to —
+   * lower-cased and with the default port of the scheme made explicit, or {@code null} when the URL
+   * is not an absolute URL with a host. The path is deliberately left out: several repositories on
+   * one repository manager share one set of credentials.
+   */
+  public String origin() {
+    return originOf(normalizedUrl());
+  }
+
+  /** See {@link #origin()}. Returns {@code null} for a blank, relative or unparseable URL. */
+  public static String originOf(String repositoryUrl) {
+    if (StringUtils.isBlank(repositoryUrl)) {
+      return null;
+    }
+    try {
+      URI uri = new URI(repositoryUrl.trim());
+      String scheme = uri.getScheme();
+      String host = uri.getHost();
+      if (StringUtils.isAnyBlank(scheme, host)) {
+        return null;
+      }
+      scheme = scheme.toLowerCase(Locale.ROOT);
+      int port = uri.getPort() < 0 ? defaultPort(scheme) : uri.getPort();
+      return scheme + "://" + host.toLowerCase(Locale.ROOT) + (port < 0 ? "" : ":" + port);
+    } catch (URISyntaxException e) {
+      return null;
+    }
+  }
+
+  private static int defaultPort(String scheme) {
+    return switch (scheme) {
+      case "https" -> 443;
+      case "http" -> 80;
+      default -> -1;
+    };
+  }
+
+  /**
+   * True when {@code otherUrl} points at the same scheme, host and port as this repository, which
+   * is the condition for this repository's credentials to be safe to use for it. An unparseable URL
+   * on either side is never a match: no origin means no credentials rather than a guess.
+   */
+  public boolean sameOriginAs(String otherUrl) {
+    String mine = origin();
+    return mine != null && mine.equals(originOf(otherUrl));
+  }
+
+  /**
    * Environment lookup, replaceable in tests. Package-private on purpose: credential resolution is
    * otherwise untestable, and it is the part most likely to go subtly wrong.
    */
@@ -236,6 +299,11 @@ public class MarketplaceRepository {
       return "";
     }
     return id.trim().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
+  }
+
+  /** The global {@code HOP_MARKETPLACE_*} pair, unless this repository opted out of it. */
+  private String globalEnv(String name) {
+    return globalEnvironmentCredentials ? env(name) : null;
   }
 
   private String scopedEnv(String suffix) {
@@ -262,8 +330,8 @@ public class MarketplaceRepository {
     return firstNonBlank(
         scopedEnv("USERNAME"),
         scopedEnv("USER"),
-        env("HOP_MARKETPLACE_USERNAME"),
-        env("HOP_MARKETPLACE_USER"));
+        globalEnv("HOP_MARKETPLACE_USERNAME"),
+        globalEnv("HOP_MARKETPLACE_USER"));
   }
 
   public String effectivePassword() {
@@ -271,7 +339,7 @@ public class MarketplaceRepository {
       return MarketplaceSecrets.resolve(password);
     }
     return firstNonBlank(
-        scopedEnv("PASSWORD"), scopedEnv("TOKEN"), env("HOP_MARKETPLACE_PASSWORD"));
+        scopedEnv("PASSWORD"), scopedEnv("TOKEN"), globalEnv("HOP_MARKETPLACE_PASSWORD"));
   }
 
   /**
