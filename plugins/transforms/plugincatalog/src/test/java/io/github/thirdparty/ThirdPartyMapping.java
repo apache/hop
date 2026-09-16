@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.pipeline.transforms.plugincatalog;
+package io.github.thirdparty;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-/** Runtime data for the Plugin Catalog transform. */
-public class PluginCatalogData extends BaseTransformData implements ITransformData {
+/**
+ * A property group declared outside {@code org.apache.hop}, standing in for a third-party or
+ * Marketplace plugin. The catalog must descend into it like any other.
+ */
+public class ThirdPartyMapping {
+  @HopMetadataProperty(key = "source")
+  private String source;
 
-  public IRowMeta outputRowMeta;
-
-  public PluginCatalogData() {
-    super();
-  }
+  @HopMetadataProperty(key = "target")
+  private String target;
 }

@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.thirdparty.ThirdPartyMapping;
 import java.util.List;
 import java.util.Optional;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -54,6 +55,27 @@ class PluginCatalogReaderTest {
   static class ChildMeta extends SampleMeta {
     @HopMetadataProperty(key = "extra")
     private String extra;
+  }
+
+  /** Stands in for a plugin whose group class lives outside org.apache.hop. */
+  static class ThirdPartyMeta {
+    @HopMetadataProperty(key = "mappings")
+    private List<ThirdPartyMapping> mappings;
+  }
+
+  /** A raw list: the element type is only discoverable through listItemClass(). */
+  static class RawListMeta {
+    @HopMetadataProperty(key = "mappings", listItemClass = ThirdPartyMapping.class)
+    private List mappings;
+  }
+
+  /** Carries a groupKey wrapper and a property that is never serialized. */
+  static class GroupKeyMeta {
+    @HopMetadataProperty(key = "field", groupKey = "fields")
+    private List<Mapping> fields;
+
+    @HopMetadataProperty(key = "runtimeOnly", isExcludedFromSerialization = true)
+    private String runtimeOnly;
   }
 
   private static PropertyRecord byXmlKey(List<PropertyRecord> props, String key) {
@@ -105,17 +127,17 @@ class PluginCatalogReaderTest {
   @Test
   void serializesPropertiesToJson() {
     List<PropertyRecord> props =
-        List.of(new PropertyRecord("secret", "secret", "String", true, "auth"));
+        List.of(new PropertyRecord("secret", "secret", "String", true, "auth", "credentials"));
     String json = PluginCatalogReader.propertiesToJson(props);
     assertEquals(
         "[{\"field\":\"secret\",\"xml_key\":\"secret\",\"java_type\":\"String\","
-            + "\"password\":true,\"group\":\"auth\"}]",
+            + "\"password\":true,\"group\":\"auth\",\"group_key\":\"credentials\"}]",
         json);
   }
 
   @Test
   void jsonEscapesSpecialCharacters() {
-    List<PropertyRecord> props = List.of(new PropertyRecord("a\"b", "x", "String", false, ""));
+    List<PropertyRecord> props = List.of(new PropertyRecord("a\"b", "x", "String", false, "", ""));
     String json = PluginCatalogReader.propertiesToJson(props);
     assertTrue(json.contains("a\\\"b"), "quotes should be escaped: " + json);
   }
@@ -130,7 +152,7 @@ class PluginCatalogReaderTest {
     // null fields must not blow up serialization.
     String json =
         PluginCatalogReader.propertiesToJson(
-            List.of(new PropertyRecord(null, "k", null, false, null)));
+            List.of(new PropertyRecord(null, "k", null, false, null, null)));
     assertTrue(json.contains("\"field\":null"), json);
     assertTrue(json.contains("\"java_type\":null"), json);
   }
@@ -143,5 +165,38 @@ class PluginCatalogReaderTest {
     assertNotNull(tag);
     assertTrue(!tag.isBlank(), "locale tag should not be blank");
     assertEquals(tag, java.util.Locale.forLanguageTag(tag).toLanguageTag());
+  }
+
+  @Test
+  void descendsIntoGroupTypesOutsideTheHopPackage() {
+    List<PropertyRecord> props = PluginCatalogReader.extractProperties(ThirdPartyMeta.class);
+    assertNotNull(byXmlKey(props, "mappings"));
+    assertEquals("mappings", byXmlKey(props, "source").group());
+    assertEquals("mappings", byXmlKey(props, "target").group());
+  }
+
+  @Test
+  void resolvesRawListElementTypeFromListItemClass() {
+    List<PropertyRecord> props = PluginCatalogReader.extractProperties(RawListMeta.class);
+    assertNotNull(byXmlKey(props, "source"));
+    assertNotNull(byXmlKey(props, "target"));
+  }
+
+  @Test
+  void recordsTheGroupKeyWrapper() {
+    List<PropertyRecord> props = PluginCatalogReader.extractProperties(GroupKeyMeta.class);
+    assertEquals("fields", byXmlKey(props, "field").groupKey());
+    // A plain property has no wrapper.
+    assertEquals(
+        "",
+        byXmlKey(PluginCatalogReader.extractProperties(SampleMeta.class), "message").groupKey());
+  }
+
+  @Test
+  void skipsPropertiesExcludedFromSerialization() {
+    List<PropertyRecord> props = PluginCatalogReader.extractProperties(GroupKeyMeta.class);
+    assertTrue(
+        props.stream().noneMatch(r -> "runtimeOnly".equals(r.xmlKey())),
+        "isExcludedFromSerialization properties must not be catalogued");
   }
 }

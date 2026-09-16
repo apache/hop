@@ -42,7 +42,6 @@ public class PluginCatalog extends BaseTransform<PluginCatalogMeta, PluginCatalo
 
   @Override
   public boolean processRow() throws HopException {
-    // Source transform: generate all rows on the first call, then signal completion.
     data.outputRowMeta = new RowMeta();
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, getMetadataProvider());
 
@@ -92,6 +91,7 @@ public class PluginCatalog extends BaseTransform<PluginCatalogMeta, PluginCatalo
       row[i + 2] = property.javaType();
       row[i + 3] = property.password();
       row[i + 4] = property.group();
+      row[i + 5] = property.groupKey();
       putRow(data.outputRowMeta, row);
     }
     return plugin.properties.size();

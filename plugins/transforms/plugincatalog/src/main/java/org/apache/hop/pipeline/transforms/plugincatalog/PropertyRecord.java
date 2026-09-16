@@ -24,6 +24,13 @@ package org.apache.hop.pipeline.transforms.plugincatalog;
  * @param javaType the simple name of the field's Java type
  * @param password whether the property holds a sensitive value
  * @param group the parent property key when this field belongs to a nested group, otherwise empty
+ * @param groupKey the {@code @HopMetadataProperty.groupKey()} wrapper element a list or map is
+ *     serialized under, otherwise empty. Distinct from {@code group}, which is nesting.
  */
 public record PropertyRecord(
-    String field, String xmlKey, String javaType, boolean password, String group) {}
+    String field,
+    String xmlKey,
+    String javaType,
+    boolean password,
+    String group,
+    String groupKey) {}

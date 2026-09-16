@@ -16,17 +16,28 @@
  */
 package org.apache.hop.pipeline.transforms.plugincatalog;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -44,10 +55,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::PluginCatalog.Name",
     description = "i18n::PluginCatalog.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/plugincatalog.html",
+    documentationUrl = "/pipeline/transforms/plugincatalog.html",
     keywords = "i18n::PluginCatalog.Keywords")
+@GuiPlugin
 public class PluginCatalogMeta extends BaseTransformMeta<PluginCatalog, PluginCatalogData> {
+  private static final Class<?> PKG = PluginCatalogMeta.class;
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PLUGIN_CATALOG_DIALOG_OPTIONS";
+  private static final String GROUP_OPTIONS = "Options";
 
   // Output field names shared by both detail levels.
   public static final String FIELD_PLUGIN_ID = "plugin_id";
@@ -71,16 +85,49 @@ public class PluginCatalogMeta extends BaseTransformMeta<PluginCatalog, PluginCa
   public static final String FIELD_PROPERTY_JAVA_TYPE = "property_java_type";
   public static final String FIELD_PROPERTY_PASSWORD = "property_password";
   public static final String FIELD_PROPERTY_GROUP = "property_group";
+  public static final String FIELD_PROPERTY_GROUP_KEY = "property_group_key";
 
+  @GuiWidgetElement(
+      order = "0100",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::PluginCatalog.includeTransforms.Label",
+      toolTip = "i18n::PluginCatalog.includeTransforms.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS)
   @HopMetadataProperty(key = "includeTransforms", injectionKey = "INCLUDE_TRANSFORMS")
   private boolean includeTransforms = true;
 
+  @GuiWidgetElement(
+      order = "0200",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::PluginCatalog.includeActions.Label",
+      toolTip = "i18n::PluginCatalog.includeActions.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS)
   @HopMetadataProperty(key = "includeActions", injectionKey = "INCLUDE_ACTIONS")
   private boolean includeActions = true;
 
+  @GuiWidgetElement(
+      order = "0300",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::PluginCatalog.includeMetadataTypes.Label",
+      toolTip = "i18n::PluginCatalog.includeMetadataTypes.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS)
   @HopMetadataProperty(key = "includeMetadataTypes", injectionKey = "INCLUDE_METADATA_TYPES")
   private boolean includeMetadataTypes = true;
 
+  @GuiWidgetElement(
+      order = "0400",
+      type = GuiElementType.COMBO,
+      label = "i18n::PluginCatalog.detailLevel.Label",
+      toolTip = "i18n::PluginCatalog.detailLevel.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS)
   @HopMetadataProperty(key = "detailLevel", injectionKey = "DETAIL_LEVEL")
   private DetailLevel detailLevel = DetailLevel.PER_PLUGIN;
 
@@ -123,12 +170,54 @@ public class PluginCatalogMeta extends BaseTransformMeta<PluginCatalog, PluginCa
         addString(row, FIELD_PROPERTY_JAVA_TYPE, origin);
         addBoolean(row, FIELD_PROPERTY_PASSWORD, origin);
         addString(row, FIELD_PROPERTY_GROUP, origin);
+        addString(row, FIELD_PROPERTY_GROUP_KEY, origin);
       } else {
         addString(row, FIELD_METADATA_FIELDS, origin);
       }
     } catch (Exception e) {
       throw new HopTransformException("Error creating Plugin Catalog output fields", e);
     }
+  }
+
+  @Override
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    if (prev != null && !prev.isEmpty()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "PluginCatalogMeta.CheckResult.NoInputStreamsError"),
+              transformMeta));
+    } else {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "PluginCatalogMeta.CheckResult.NoInputStreamOk"),
+              transformMeta));
+    }
+  }
+
+  @Override
+  public ITransformIOMeta getTransformIOMeta() {
+    return new TransformIOMeta(false, true, false, false, false, false);
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
   }
 
   private static void addString(IRowMeta row, String name, String origin) {

@@ -76,9 +76,7 @@ public class PluginCatalogReader {
     if (includeMetadataTypes) {
       addFamily(registry.getPlugins(MetadataPluginType.class), "metadata", out, warnings);
     }
-    // name/description/category come back resolved against the running Hop locale, so stamp every
-    // record with that locale and keep the English aliases beside it. Without this a catalog built
-    // on a non-English installation is silently locale-specific.
+    // Labels are locale-resolved, so record which locale produced them.
     String localeTag = currentLocaleTag();
     for (PluginRecord record : out) {
       record.locale = localeTag;
@@ -118,7 +116,7 @@ public class PluginCatalogReader {
           ClassLoader classLoader = registry.getClassLoader(plugin);
           Class<?> clazz = classLoader.loadClass(className);
           record.properties = extractProperties(clazz);
-        } catch (Throwable e) {
+        } catch (Exception | LinkageError e) {
           if (warnings != null) {
             warnings.accept("Could not reflect properties for plugin '" + record.pluginId + "'", e);
           }
@@ -148,6 +146,9 @@ public class PluginCatalogReader {
         if (annotation == null) {
           continue;
         }
+        if (annotation.isExcludedFromSerialization()) {
+          continue;
+        }
         String xmlKey = annotation.key().isEmpty() ? field.getName() : annotation.key();
         out.add(
             new PropertyRecord(
@@ -155,9 +156,10 @@ public class PluginCatalogReader {
                 xmlKey,
                 field.getType().getSimpleName(),
                 annotation.password(),
-                group));
+                group,
+                annotation.groupKey()));
         if (depth < MAX_NESTING_DEPTH) {
-          Class<?> nested = complexHopType(field);
+          Class<?> nested = complexHopType(field, annotation);
           if (nested != null) {
             collect(nested, xmlKey, out, depth + 1);
           }
@@ -167,20 +169,29 @@ public class PluginCatalogReader {
   }
 
   /**
-   * If {@code field} is a Hop value class (or a collection of one) that itself carries
+   * If {@code field} is a value class (or a collection of one) that itself carries
    * {@code @HopMetadataProperty} fields, return that class; otherwise {@code null}.
+   *
+   * <p>Deliberately not restricted to {@code org.apache.hop}: a third-party or Marketplace plugin
+   * declaring its own group class is exactly the case this catalog exists to describe.
    */
-  private static Class<?> complexHopType(Field field) {
+  private static Class<?> complexHopType(Field field, HopMetadataProperty annotation) {
     Class<?> candidate;
     if (Collection.class.isAssignableFrom(field.getType())) {
-      candidate = collectionElementType(field);
+      // An annotated raw List carries its element type on the annotation, as XmlMetadataUtil reads
+      // it.
+      candidate =
+          annotation.listItemClass() != Object.class
+              ? annotation.listItemClass()
+              : collectionElementType(field);
     } else {
       candidate = field.getType();
     }
     if (candidate == null
         || candidate.isEnum()
         || candidate.isPrimitive()
-        || !candidate.getName().startsWith("org.apache.hop")) {
+        || candidate.isArray()
+        || isPlatformClass(candidate)) {
       return null;
     }
     for (Class<?> c = candidate; c != null && c != Object.class; c = c.getSuperclass()) {
@@ -191,6 +202,12 @@ public class PluginCatalogReader {
       }
     }
     return null;
+  }
+
+  /** JDK types can never carry Hop annotations, so skip the hierarchy walk for them. */
+  private static boolean isPlatformClass(Class<?> clazz) {
+    String name = clazz.getName();
+    return name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("jakarta.");
   }
 
   private static Class<?> collectionElementType(Field field) {
@@ -221,8 +238,7 @@ public class PluginCatalogReader {
     Locale locale;
     try {
       locale = LanguageChoice.getInstance().getDefaultLocale();
-    } catch (Throwable e) {
-      // LanguageChoice needs Hop configuration; fall back rather than failing the whole read.
+    } catch (Exception | LinkageError e) {
       locale = Locale.getDefault();
     }
     return locale == null ? "" : locale.toLanguageTag();
@@ -259,6 +275,8 @@ public class PluginCatalogReader {
           .append(p.password())
           .append(",\"group\":")
           .append(quote(p.group()))
+          .append(",\"group_key\":")
+          .append(quote(p.groupKey()))
           .append('}');
     }
     return sb.append(']').toString();
