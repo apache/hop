@@ -529,9 +529,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         : Optional.empty();
   }
 
-  // The port survives a connection type change, so fetching the new type's default has to be
-  // something the user asks for. The button sits at the right of the generated port field and is
-  // only there for types that declare a default port.
   private void addDefaultPortButton() {
     Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
     if (portControl == null
@@ -541,7 +538,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       return;
     }
 
-    Button wbDefaultPort = new Button(wDatabaseSpecificComp, SWT.PUSH);
+    Button wbDefaultPort = new Button(portControl.getParent(), SWT.PUSH);
     wbDefaultPort.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.DefaultPort"));
     PropsUi.setLook(wbDefaultPort);
     FormData fdDefaultPort = new FormData();
@@ -549,6 +546,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdDefaultPort.top = new FormAttachment(portControl, 0, SWT.CENTER);
     wbDefaultPort.setLayoutData(fdDefaultPort);
     fdPort.right = new FormAttachment(wbDefaultPort, -PropsUi.getMargin());
+
+    // The action widget of the port row, so that hiding or collapsing the row takes it along
+    guiCompositeWidgets.getActionWidgetsMap().put(BaseDatabaseMeta.ELEMENT_ID_PORT, wbDefaultPort);
 
     wbDefaultPort.addListener(SWT.Selection, event -> setDefaultPort());
   }
@@ -619,10 +619,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // Get possible information from the metadata map (from previous work)
     //
-    // The map holds an empty instance of every database plugin, so restoring one as-is wipes the
-    // connection details setDatabaseType() just carried over. Take the type's own settings from
-    // the map, but keep what the user entered.
-    //
     IDatabase enteredDatabase = databaseMeta.getIDatabase();
     IDatabase savedDatabase = metaMap.get(enteredDatabase.getClass());
     if (savedDatabase != null) {
@@ -648,6 +644,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
     addCompositeWidgetsUsernamePassword();
     addDefaultPortButton();
+    if (savedDatabase != null) {
+      copyEnteredPort(enteredDatabase, savedDatabase);
+    }
 
     // Put the data back
     //
@@ -658,11 +657,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     busyChangingConnectionType.set(false);
   }
 
-  // Carry the connection details over to another database type. A port that is filled in comes
-  // along: a switch within a database family (MySQL, MariaDB) points at the same server, and a
-  // port the user typed or a variable reference is not the old type's to discard. An empty port
-  // falls back to the new type's default rather than to a cached value, so a port that was
-  // cleared does not come back from the type cache.
   private void copyEnteredFields(IDatabase entered, IDatabase target) {
     target.setAccessType(entered.getAccessType());
     target.setHostname(entered.getHostname());
@@ -672,7 +666,14 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     target.setServername(entered.getServername());
     target.setDataTablespace(entered.getDataTablespace());
     target.setIndexTablespace(entered.getIndexTablespace());
-    if (StringUtils.isNotEmpty(entered.getPort())) {
+  }
+
+  // Only a type that shows the port field can take the entered port: the ones that hide it build
+  // their URL from the default and leave no way to correct a copied value. An empty port falls
+  // back to the new default rather than to the cached one, which the user may have cleared.
+  private void copyEnteredPort(IDatabase entered, IDatabase target) {
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (portControl != null && StringUtils.isNotEmpty(entered.getPort())) {
       target.setPort(entered.getPort());
     } else if (target.getDefaultDatabasePort() > 0) {
       target.setPort(Integer.toString(target.getDefaultDatabasePort()));
@@ -1166,6 +1167,13 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     //
     guiCompositeWidgets.enableWidgets(
         getMetadata().getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl);
+
+    // enableWidgets() covers labels and widgets, not action controls
+    Control defaultPortButton =
+        guiCompositeWidgets.getActionWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (defaultPortButton != null && !defaultPortButton.isDisposed()) {
+      defaultPortButton.setEnabled(!manualUrl);
+    }
   }
 
   private void test() {
