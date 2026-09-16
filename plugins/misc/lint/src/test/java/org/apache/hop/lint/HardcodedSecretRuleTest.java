@@ -47,6 +47,9 @@ public class HardcodedSecretRuleTest {
     private boolean useToken = true;
     private List<String> tokenReplacementFields = List.of("a", "b");
 
+    /** A column name the Plugin Catalog transform writes; #8420 reported it as a leaked secret. */
+    public static final String FIELD_PROPERTY_PASSWORD = "property_password";
+
     private String password = "letmein";
     private String awsSessionToken = "AQoDYXdzEJr...";
     private String proxyPassword = "${PROXY_PASSWORD}";
@@ -66,6 +69,19 @@ public class HardcodedSecretRuleTest {
     assertTrue(
         !fieldsReportedFor(new FakeTransformMeta()).contains("proxyPassword"),
         "${PROXY_PASSWORD} is exactly what the rule asks people to do");
+  }
+
+  /**
+   * A constant is part of the transform's code, so no edit to a .hpl or .hwf can put a credential
+   * in it.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8420">#8420</a>
+   */
+  @Test
+  public void aStaticConstantIsNotAHardcodedSecret() {
+    assertTrue(
+        !fieldsReportedFor(new FakeTransformMeta()).contains("FIELD_PROPERTY_PASSWORD"),
+        "a static constant cannot hold a value loaded from the file being linted");
   }
 
   /** The field names that put an error on every Token Replacement and Get Data From XML step. */
