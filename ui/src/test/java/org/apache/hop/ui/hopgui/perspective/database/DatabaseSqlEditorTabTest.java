@@ -45,4 +45,17 @@ class DatabaseSqlEditorTabTest {
     assertEquals("Query 2: 50 row(s)", message);
     assertFalse(message.contains("capped"));
   }
+
+  @Test
+  void restoredOrLoadedTextIsNotAUserEdit() {
+    assertFalse(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 1", "SELECT 1"));
+    assertFalse(DatabaseSqlEditorTab.isModifiedFromClean(null, ""));
+    assertFalse(DatabaseSqlEditorTab.isModifiedFromClean("", null));
+  }
+
+  @Test
+  void typingAfterRestoreIsAUserEdit() {
+    assertTrue(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 2", "SELECT 1"));
+    assertTrue(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 1", ""));
+  }
 }

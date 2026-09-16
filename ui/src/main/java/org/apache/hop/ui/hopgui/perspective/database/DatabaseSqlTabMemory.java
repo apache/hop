@@ -39,7 +39,8 @@ import org.eclipse.swt.widgets.Shell;
  * terminal tabs).
  *
  * <p>Query results are not persisted. Untitled or dirty buffers are stored as text (capped). Saved
- * clean files are reopened from VFS.
+ * clean files are reopened from VFS. Restored editors start clean so Hop Gui close does not ask to
+ * save a session buffer the user has not edited in this session.
  */
 final class DatabaseSqlTabMemory {
 
@@ -100,6 +101,7 @@ final class DatabaseSqlTabMemory {
         }
         workbench.selectSqlTabIndex(selectIndex);
       } finally {
+        workbench.markRestoredSqlTabsClean();
         workbench.restoringSqlTabs = false;
       }
     } catch (Exception e) {
@@ -359,5 +361,13 @@ final class DatabaseSqlTabMemory {
     String sql = persistBuffer ? tab.getSqlText() : null;
     return new Snapshot(
         tab.getDatabaseMeta().getName(), tab.getFilename(), sql, tab.hasChanged(), tab.getName());
+  }
+
+  /**
+   * Untitled session buffers reopen clean (they are persisted as SQL, not as a file). A named file
+   * that was dirty when Hop closed stays dirty so the user can still save it.
+   */
+  static boolean restoredTabIsDirty(Snapshot snapshot) {
+    return snapshot != null && !Utils.isEmpty(snapshot.filename) && snapshot.dirty;
   }
 }

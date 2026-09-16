@@ -99,6 +99,13 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
   private String name;
   private boolean changed;
 
+  /**
+   * Editor text last considered clean (loaded, saved, or restored). Modify events that do not
+   * change this value are ignored so session restore and {@code setTextSuppressModify} cannot mark
+   * the tab dirty.
+   */
+  private String cleanText = "";
+
   /** True while Ctrl/Cmd+Enter is being handled so Traverse and KeyDown cannot both run SQL. */
   private boolean executeShortcutArmed;
 
@@ -124,12 +131,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     PropsUi.setLook(editorArea);
 
     editor = ContentEditorFacade.createContentEditor(editorArea, "sql");
-    editor.addModifyListener(
-        e -> {
-          setChanged();
-          host.updateGui(this);
-          workbench.schedulePersistSqlTabs();
-        });
+    editor.addModifyListener(e -> onEditorModified());
     editor.getControl().setData(DATA_SQL_TAB, this);
     editor
         .getControl()
@@ -151,6 +153,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
 
   public void setInitialText(String sql) {
     editor.setTextSuppressModify(Const.NVL(sql, ""));
+    markClean();
   }
 
   public String getSqlText() {
@@ -544,6 +547,33 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     }
   }
 
+  /**
+   * Treat the current editor buffer as the saved/restored baseline so later close does not ask to
+   * save unless the user edits it.
+   */
+  public void markClean() {
+    if (editor != null && !editor.isDisposed()) {
+      cleanText = Const.NVL(editor.getText(), "");
+    }
+    clearChanged();
+  }
+
+  void onEditorModified() {
+    if (workbench.restoringSqlTabs) {
+      return;
+    }
+    if (!isModifiedFromClean(editor.getText(), cleanText)) {
+      return;
+    }
+    setChanged();
+    host.updateGui(this);
+    workbench.schedulePersistSqlTabs();
+  }
+
+  static boolean isModifiedFromClean(String editorText, String baseline) {
+    return !Objects.equals(Const.NVL(editorText, ""), Const.NVL(baseline, ""));
+  }
+
   @Override
   public Object getSubject() {
     return this;
@@ -593,7 +623,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
         outputStream.write(editor.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
-      clearChanged();
+      markClean();
       host.updateGui(this);
       workbench.refreshTab(this);
       workbench.schedulePersistSqlTabs();
@@ -647,7 +677,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
         String contents = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         editor.setTextSuppressModify(Const.NVL(contents, ""));
       }
-      clearChanged();
+      markClean();
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
@@ -657,6 +687,7 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
 
   public void applyBuffer(String text, boolean markDirty) {
     editor.setTextSuppressModify(Const.NVL(text, ""));
+    cleanText = Const.NVL(editor.getText(), "");
     if (markDirty) {
       setChanged();
     } else {
