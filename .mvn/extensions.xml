@@ -26,6 +26,16 @@
         <version>4.7.0</version>
     </extension>
 
+    <!-- Self-attaches the Lombok ECJ agent once per build, after the projects are read
+         and before anything compiles. Required because the ECJ compile needs the Lombok
+         agent and because `cd <module> && mvn` and `-pl <module>` must work.
+         See https://github.com/rmannibucau/ecj-lombok-extension. -->
+    <extension>
+        <groupId>com.github.rmannibucau.maven</groupId>
+        <artifactId>ecj-lombok-extension</artifactId>
+        <version>1.0.0</version>
+    </extension>
+
     <!-- not really needed by default and quite outdated
     <extension>
       <groupId>co.leantechniques</groupId>

@@ -401,101 +401,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-                 Debian/Ubuntu Maven never indexes plexus-compiler-eclipse 2.17.0 (Sisu
-                 0.3.x ASM stops at Java 14 class files). inherited so `cd <module> &&
-                 mvn` and `-pl <module>` still attach Lombok and install the Eclipse
-                 compiler Plexus descriptor into the local repo (no committed jar, no
-                 systemPath). javac + exec:java avoids the Groovy-per-module startup tax.
-                 Phases are split so sortPom cannot run the helper before it is compiled.
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>compile-lombok-ecj-helper</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <target>
-                                <property name="hop.root" value="${maven.multiModuleProjectDirectory}"></property>
-                                <mkdir dir="${hop.root}/tools/ecj-helper/target/classes"></mkdir>
-                                <javac destdir="${hop.root}/tools/ecj-helper/target/classes" encoding="UTF-8" includeDestClasses="true" includeantruntime="false" release="21" srcdir="${hop.root}/tools/ecj-helper/src/main/java"></javac>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok</artifactId>
-                        <version>${lombok.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>attach-lombok-ecj-agent</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <mainClass>org.apache.hop.tools.ecj.AttachLombokEcj</mainClass>
-                            <includeProjectDependencies>false</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <additionalClasspathElements>
-                                <additionalClasspathElement>${maven.multiModuleProjectDirectory}/tools/ecj-helper/target/classes</additionalClasspathElement>
-                            </additionalClasspathElements>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>lombok.ecj.agent.skip</key>
-                                    <value>${lombok.ecj.agent.skip}</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>lombok.version</key>
-                                    <value>${lombok.version}</value>
-                                </systemProperty>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--
-                 initialize wrote .mvn/plexus-eclipse-hint.jar. generate-sources installs
-                 it as a real GAV so maven-compiler-plugin can depend on it without
-                 systemPath. generate-sources is after initialize, so plugin sort order
-                 cannot invert this.
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install-plexus-eclipse-hint</id>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <groupId>org.apache.hop</groupId>
-                            <artifactId>plexus-eclipse-hint</artifactId>
-                            <version>1.0</version>
-                            <packaging>jar</packaging>
-                            <file>${maven.multiModuleProjectDirectory}/.mvn/plexus-eclipse-hint.jar</file>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -509,14 +414,13 @@
                 <dependencies>
                     <!-- Plexus XML registration of compilerId=eclipse. Required for
                          Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
-                         Java 17 EclipseJavaCompiler class. The jar is NOT tracked in git:
-                         initialize writes it from .mvn/plexus-eclipse-hint/ and
-                         generate-sources install-file's it as this GAV, before compile
-                         loads this plugin. -->
+                         Java 17 EclipseJavaCompiler class. The descriptor ships as a
+                         real artifact of the ecj-lombok project
+                         (https://github.com/rmannibucau/ecj-lombok-extension). -->
                     <dependency>
-                        <groupId>org.apache.hop</groupId>
-                        <artifactId>plexus-eclipse-hint</artifactId>
-                        <version>1.0</version>
+                        <groupId>com.github.rmannibucau.maven</groupId>
+                        <artifactId>ecj-plexus-hint</artifactId>
+                        <version>1.0.0</version>
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.plexus</groupId>
@@ -579,7 +483,6 @@
                         <exclude>.dockerignore</exclude>
                         <!-- symlink alias of AGENTS.md (header lives on the target) -->
                         <exclude>CLAUDE.md</exclude>
-                        <exclude>.mvn/plexus-eclipse-hint.jar</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>
@@ -693,7 +596,6 @@
                     <java>
                         <includes>
                             <include>src/**/*.java</include>
-                            <include>tools/ecj-helper/src/**/*.java</include>
                         </includes>
                         <googleJavaFormat></googleJavaFormat>
                         <importOrder></importOrder>
