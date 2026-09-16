@@ -449,6 +449,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
 
     addCompositeWidgetsUsernamePassword();
+    addDefaultPortButton();
 
     // manual URL field - only create if not excluded
     //
@@ -526,6 +527,41 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     return databaseMeta.getIDatabase() instanceof IGuiPluginCompositeWidgetsListener listener
         ? Optional.of(listener)
         : Optional.empty();
+  }
+
+  // The port survives a connection type change, so fetching the new type's default has to be
+  // something the user asks for. The button sits at the right of the generated port field and is
+  // only there for types that declare a default port.
+  private void addDefaultPortButton() {
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (portControl == null
+        || portControl.isDisposed()
+        || !(portControl.getLayoutData() instanceof FormData fdPort)
+        || getMetadata().getIDatabase().getDefaultDatabasePort() <= 0) {
+      return;
+    }
+
+    Button wbDefaultPort = new Button(wDatabaseSpecificComp, SWT.PUSH);
+    wbDefaultPort.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.DefaultPort"));
+    PropsUi.setLook(wbDefaultPort);
+    FormData fdDefaultPort = new FormData();
+    fdDefaultPort.right = new FormAttachment(100, 0);
+    fdDefaultPort.top = new FormAttachment(portControl, 0, SWT.CENTER);
+    wbDefaultPort.setLayoutData(fdDefaultPort);
+    fdPort.right = new FormAttachment(wbDefaultPort, -PropsUi.getMargin());
+
+    wbDefaultPort.addListener(SWT.Selection, event -> setDefaultPort());
+  }
+
+  private void setDefaultPort() {
+    int defaultPort = getMetadata().getIDatabase().getDefaultDatabasePort();
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (defaultPort <= 0 || portControl == null || portControl.isDisposed()) {
+      return;
+    }
+    if (portControl instanceof TextVar portVar) {
+      portVar.setText(Integer.toString(defaultPort));
+    }
   }
 
   private void addCompositeWidgetsUsernamePassword() {
@@ -611,6 +647,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null);
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
     addCompositeWidgetsUsernamePassword();
+    addDefaultPortButton();
 
     // Put the data back
     //
