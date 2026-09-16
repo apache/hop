@@ -17,6 +17,7 @@
 package org.apache.hop.lint;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -912,7 +913,7 @@ public class CustomRuleExecutor {
   /**
    * Whether this field holds the secret the pattern names, rather than merely mentioning it.
    *
-   * <p>Two narrowings, both of which cost nothing in coverage and remove findings that were simply
+   * <p>Three narrowings, all of which cost nothing in coverage and remove findings that were simply
    * wrong. A substring match reported every Token Replacement transform in the project three times
    * over — {@code tokenStartString} defaults to {@code "${"}, {@code tokenEndString} to {@code "}"}
    * — and every Get Data From XML transform once, for the boolean {@code useToken}. Neither is a
@@ -923,11 +924,17 @@ public class CustomRuleExecutor {
    *       trustStorePassword} match while {@code tokenStartString}, {@code oauth2TokenUrl} and
    *       {@code credentialsFile} do not: a secret is what the field is, not what it is about;
    *   <li>the field has to hold a string, because a flag, a count or a list of columns is never a
-   *       credential however it is named.
+   *       credential however it is named;
+   *   <li>the field has to belong to the instance, because a {@code static} field is part of the
+   *       transform's code rather than of the file being linted. The Plugin Catalog transform's
+   *       {@code FIELD_PROPERTY_PASSWORD = "property_password"} is a column name it writes, and no
+   *       edit to a {@code .hpl} or {@code .hwf} can change it or make it hold a credential.
    * </ul>
    */
   private static boolean namesASecret(Field field, String pattern) {
-    if (Utils.isEmpty(pattern) || !String.class.equals(field.getType())) {
+    if (Utils.isEmpty(pattern)
+        || !String.class.equals(field.getType())
+        || Modifier.isStatic(field.getModifiers())) {
       return false;
     }
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
