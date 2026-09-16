@@ -118,6 +118,7 @@
         <module>odata</module>
         <module>pgp</module>
         <module>pipelineexecutor</module>
+        <module>plugincatalog</module>
         <module>processfiles</module>
         <module>propertyinput</module>
         <module>propertyoutput</module>

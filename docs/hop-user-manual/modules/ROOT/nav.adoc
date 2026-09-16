@@ -249,6 +249,7 @@ under the License.
 *** xref:pipeline/transforms/pgpdecryptstream.adoc[PGP decrypt stream]
 *** xref:pipeline/transforms/pgpencryptstream.adoc[PGP encrypt stream]
 *** xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor]
+*** xref:pipeline/transforms/plugincatalog.adoc[Plugin Catalog]
 *** xref:pipeline/transforms/postgresbulkloader.adoc[PostgreSQL bulk loader]
 *** xref:pipeline/transforms/processfiles.adoc[Process files]
 *** xref:pipeline/transforms/propertyinput.adoc[Properties file Input]
