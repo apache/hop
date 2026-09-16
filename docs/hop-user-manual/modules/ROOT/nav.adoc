@@ -246,6 +246,8 @@ under the License.
 *** xref:pipeline/transforms/parquet-file-output.adoc[Parquet file output]
 *** xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe]
 *** xref:pipeline/transforms/pipeline-logging.adoc[Pipeline logging]
+*** xref:pipeline/transforms/pgvector-search.adoc[pgvector search]
+*** xref:pipeline/transforms/pgvector-upsert.adoc[pgvector upsert]
 *** xref:pipeline/transforms/pgpdecryptstream.adoc[PGP decrypt stream]
 *** xref:pipeline/transforms/pgpencryptstream.adoc[PGP encrypt stream]
 *** xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor]

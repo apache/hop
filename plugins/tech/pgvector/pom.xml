@@ -14,45 +14,19 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
+  ~
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins</artifactId>
+        <artifactId>hop-plugins-tech</artifactId>
         <version>2.20.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-plugins-tech</artifactId>
-    <packaging>pom</packaging>
-    <name>Hop Plugins Technology</name>
+    <artifactId>hop-tech-pgvector</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Technology pgvector</name>
 
-    <modules>
-        <module>ai</module>
-        <module>arrow</module>
-        <module>avro</module>
-        <module>aws</module>
-        <module>azure</module>
-        <module>calcite</module>
-        <module>cassandra</module>
-        <module>databricks</module>
-        <module>dropbox</module>
-        <module>elastic</module>
-        <module>ftp</module>
-        <module>google</module>
-        <module>hadoop</module>
-        <module>minio</module>
-        <module>mongodb</module>
-        <module>neo4j</module>
-        <module>openlineage</module>
-        <module>opensearch</module>
-        <module>parquet</module>
-        <module>pgvector</module>
-        <module>redis</module>
-        <module>salesforce</module>
-        <module>sftp</module>
-        <module>vault</module>
-        <module>webdav</module>
-    </modules>
 </project>
