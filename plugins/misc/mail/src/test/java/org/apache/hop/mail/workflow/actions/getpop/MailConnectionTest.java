@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
+/** Unit test for{@link MailConnection} */
 class MailConnectionTest {
 
   private Mconn conn;
@@ -43,6 +44,18 @@ class MailConnectionTest {
     Object subj = new Object();
     ILogChannel log = new LogChannel(subj);
     conn = new Mconn(log);
+  }
+
+  @Test
+  void constructorStoresConnectionSettings() {
+    Assertions.assertEquals("junit", conn.getServer());
+    Assertions.assertEquals(0, conn.getPort());
+    Assertions.assertEquals("junit", conn.getUsername());
+    Assertions.assertFalse(conn.isUseSSL());
+    Assertions.assertFalse(conn.isUseXOAUTH2());
+    Assertions.assertFalse(conn.isUseProxy());
+    Assertions.assertEquals("junit", conn.getProxyUsername());
+    Assertions.assertFalse(conn.isConnected());
   }
 
   /**

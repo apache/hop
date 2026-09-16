@@ -652,6 +652,10 @@ limitations under the License.
       <password>Encrypted </password>
       <protocol>POP3</protocol>
       <retrievemails>0</retrievemails>
+      <actiontype>get</actiontype>
+      <valueimaplist>imaplistunread</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>nothing</aftergetimap>
       <saveattachment>Y</saveattachment>
       <savemessage>Y</savemessage>
       <usedifferentfolderforattachment>N</usedifferentfolderforattachment>

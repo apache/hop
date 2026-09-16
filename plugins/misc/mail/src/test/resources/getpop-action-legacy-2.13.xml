@@ -17,7 +17,7 @@
   -->
 <action>
     <name>Get mails (POP3/IMAP)</name>
-    <description/>
+    <description>Saved in Hop 2.13 with IMAP Retrieve = Get unread messages</description>
     <type>GET_POP</type>
     <servername>imap.example.com</servername>
     <username>alice</username>
@@ -25,30 +25,24 @@
     <usessl>Y</usessl>
     <sslport>993</sslport>
     <usexoauth2>N</usexoauth2>
-    <useproxy>N</useproxy>
     <outputdirectory>/tmp/mail</outputdirectory>
-    <filenamepattern>mail_%date</filenamepattern>
-    <firstmails>5</firstmails>
+    <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
+    <retrievemails>0</retrievemails>
     <delete>N</delete>
     <protocol>IMAP</protocol>
-    <actiontype>get</actiontype>
-    <valueimaplist>imaplistunread</valueimaplist>
-    <conditionreceiveddate>ignore</conditionreceiveddate>
-    <aftergetimap>nothing</aftergetimap>
-    <saveattachment>Y</saveattachment>
     <savemessage>Y</savemessage>
+    <saveattachment>Y</saveattachment>
     <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
-    <imapfirstmails>10</imapfirstmails>
+    <valueimaplist>imaplistunread</valueimaplist>
+    <imapfirstmails>0</imapfirstmails>
     <imapfolder>INBOX</imapfolder>
-    <sendersearch>boss@example.com</sendersearch>
-    <nottermsendersearch>N</nottermsendersearch>
-    <recipientsearch>me@example.com</recipientsearch>
-    <subjectsearch>invoice</subjectsearch>
-    <bodysearch>urgent</bodysearch>
+    <conditionreceiveddate>ignore</conditionreceiveddate>
+    <actiontype>get</actiontype>
+    <aftergetimap>nothing</aftergetimap>
     <includesubfolders>N</includesubfolders>
     <attributes/>
     <parallel>N</parallel>
-    <xloc>240</xloc>
-    <yloc>128</yloc>
+    <xloc>336</xloc>
+    <yloc>96</yloc>
     <attributes_hac/>
 </action>
