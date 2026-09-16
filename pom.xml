@@ -108,6 +108,14 @@
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <gib.disable>true</gib.disable>
+        <!-- Paths that never affect the Maven build result. GIB maps a changed file to the
+             nearest enclosing module; files outside every module land on the ROOT module,
+             and every module is downstream of its parent, so a docs- or integration-test
+             change alone used to turn the PR build into a full rebuild (#8408 built 313/313
+             modules for one new transform). The plugins/<kind>/pom.xml aggregators are
+             pure <module> lists (adding a plugin edits them); keep them that way, since
+             anything else put there is not seen by the incremental PR build. -->
+        <gib.excludePathsMatching>(docs|docker|helm|dist|integration-tests)/.*|plugins/(actions|engines|misc|tech|transforms|valuetypes)/pom\.xml|[^/]+\.md|Jenkinsfile.*|\.asf\.yaml</gib.excludePathsMatching>
         <gib.fetchReferenceBranch>true</gib.fetchReferenceBranch>
         <!-- lib-p2 wrappers are never published (maven.deploy.skip, and they are
              excluded from the snapshot wagon deploy). Incremental PR builds must
@@ -423,7 +431,14 @@
                         </goals>
                         <phase>validate</phase>
                         <configuration>
-                            <skipScriptExecution>${lombok.ecj.agent.skip}</skipScriptExecution>
+                            <!-- The Plexus descriptor jar below is always (re)built; only the
+                                 agent attach honours lombok.ecj.agent.skip. -->
+                            <properties>
+                                <property>
+                                    <name>lombokEcjAgentSkip</name>
+                                    <value>${lombok.ecj.agent.skip}</value>
+                                </property>
+                            </properties>
                             <scripts>
                                 <script><![CDATA[
 import com.sun.tools.attach.VirtualMachine
@@ -447,7 +462,7 @@ synchronized (System.getProperties()) {
         log.info('Wrote Eclipse compiler Plexus descriptor jar: ' + hintJar)
     }
 
-    if (System.getProperty('lombok.ecj.agent.skip') != 'true'
+    if (String.valueOf(lombokEcjAgentSkip) != 'true'
             && System.getProperty('lombok.ecj.agent.attached') == null) {
         def lombokJar = null
         try {
@@ -510,7 +525,10 @@ synchronized (System.getProperties()) {
                     </dependency>
                     <!-- Plexus XML registration of compilerId=eclipse. Required for
                          Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
-                         Java 17 EclipseJavaCompiler class. See .mvn/plexus-eclipse-hint/. -->
+                         Java 17 EclipseJavaCompiler class. The jar is NOT tracked in git
+                         (binaries stay out of the repository): the gmavenplus execution
+                         above writes it from .mvn/plexus-eclipse-hint/ during validate,
+                         which runs before this plugin is resolved in every module. -->
                     <dependency>
                         <groupId>org.apache.hop</groupId>
                         <artifactId>plexus-eclipse-hint</artifactId>
