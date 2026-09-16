@@ -13,6 +13,8 @@ pom.xml.releaseBackup
 bin
 *.class
 *.jar
+# Tiny Plexus descriptor so Debian/Ubuntu Maven can find compilerId=eclipse.
+!.mvn/plexus-eclipse-hint.jar
 *.war
 *.ear
 .DS_Store
