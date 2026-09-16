@@ -449,6 +449,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
 
     addCompositeWidgetsUsernamePassword();
+    addDefaultPortButton();
 
     // manual URL field - only create if not excluded
     //
@@ -528,6 +529,41 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         : Optional.empty();
   }
 
+  private void addDefaultPortButton() {
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (portControl == null
+        || portControl.isDisposed()
+        || !(portControl.getLayoutData() instanceof FormData fdPort)
+        || getMetadata().getIDatabase().getDefaultDatabasePort() <= 0) {
+      return;
+    }
+
+    Button wbDefaultPort = new Button(portControl.getParent(), SWT.PUSH);
+    wbDefaultPort.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.DefaultPort"));
+    PropsUi.setLook(wbDefaultPort);
+    FormData fdDefaultPort = new FormData();
+    fdDefaultPort.right = new FormAttachment(100, 0);
+    fdDefaultPort.top = new FormAttachment(portControl, 0, SWT.CENTER);
+    wbDefaultPort.setLayoutData(fdDefaultPort);
+    fdPort.right = new FormAttachment(wbDefaultPort, -PropsUi.getMargin());
+
+    // The action widget of the port row, so that hiding or collapsing the row takes it along
+    guiCompositeWidgets.getActionWidgetsMap().put(BaseDatabaseMeta.ELEMENT_ID_PORT, wbDefaultPort);
+
+    wbDefaultPort.addListener(SWT.Selection, event -> setDefaultPort());
+  }
+
+  private void setDefaultPort() {
+    int defaultPort = getMetadata().getIDatabase().getDefaultDatabasePort();
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (defaultPort <= 0 || portControl == null || portControl.isDisposed()) {
+      return;
+    }
+    if (portControl instanceof TextVar portVar) {
+      portVar.setText(Integer.toString(defaultPort));
+    }
+  }
+
   private void addCompositeWidgetsUsernamePassword() {
     // Add username and password to the mix so folks can enable/disable those
     //
@@ -583,7 +619,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // Get possible information from the metadata map (from previous work)
     //
-    databaseMeta.setIDatabase(metaMap.get(databaseMeta.getIDatabase().getClass()));
+    IDatabase enteredDatabase = databaseMeta.getIDatabase();
+    IDatabase savedDatabase = metaMap.get(enteredDatabase.getClass());
+    if (savedDatabase != null) {
+      databaseMeta.setIDatabase(savedDatabase);
+      copyEnteredFields(enteredDatabase, savedDatabase);
+    }
 
     // Remove existing children
     //
@@ -602,6 +643,10 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null);
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
     addCompositeWidgetsUsernamePassword();
+    addDefaultPortButton();
+    if (savedDatabase != null) {
+      copyEnteredPort(enteredDatabase, savedDatabase);
+    }
 
     // Put the data back
     //
@@ -610,6 +655,31 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wGeneralComp.layout(true, true);
 
     busyChangingConnectionType.set(false);
+  }
+
+  private void copyEnteredFields(IDatabase entered, IDatabase target) {
+    target.setAccessType(entered.getAccessType());
+    target.setHostname(entered.getHostname());
+    target.setDatabaseName(entered.getDatabaseName());
+    target.setUsername(entered.getUsername());
+    target.setPassword(entered.getPassword());
+    target.setServername(entered.getServername());
+    target.setDataTablespace(entered.getDataTablespace());
+    target.setIndexTablespace(entered.getIndexTablespace());
+  }
+
+  // Only a type that shows the port field can take the entered port: the ones that hide it build
+  // their URL from the default and leave no way to correct a copied value. An empty port falls
+  // back to the new default rather than to the cached one, which the user may have cleared.
+  private void copyEnteredPort(IDatabase entered, IDatabase target) {
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (portControl != null && StringUtils.isNotEmpty(entered.getPort())) {
+      target.setPort(entered.getPort());
+    } else if (target.getDefaultDatabasePort() > 0) {
+      target.setPort(Integer.toString(target.getDefaultDatabasePort()));
+    } else {
+      target.setPort("");
+    }
   }
 
   private void addAdvancedTab() {
@@ -1097,6 +1167,13 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     //
     guiCompositeWidgets.enableWidgets(
         getMetadata().getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl);
+
+    // enableWidgets() covers labels and widgets, not action controls
+    Control defaultPortButton =
+        guiCompositeWidgets.getActionWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (defaultPortButton != null && !defaultPortButton.isDisposed()) {
+      defaultPortButton.setEnabled(!manualUrl);
+    }
   }
 
   private void test() {
