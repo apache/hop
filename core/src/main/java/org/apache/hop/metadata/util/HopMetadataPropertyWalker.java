@@ -26,12 +26,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 /**
  * Walks {@link HopMetadataProperty} fields on a metadata object, including nested objects and
- * collections, and collects string values of a given {@link HopMetadataPropertyType}.
+ * collections, and collects or rewrites string values of a given {@link HopMetadataPropertyType}.
  *
  * <p>Failures to read a field are skipped. Cycles are broken. This is a design-time helper: it must
  * not throw because of a broken plugin class.
@@ -66,16 +67,60 @@ public final class HopMetadataPropertyWalker {
     walk(
         root,
         type,
-        collected,
+        (field, node, property, value) ->
+            collected.add(new StringProperty(type, serialisedKey(property, field), value)),
         0,
         java.util.Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
     return collected;
   }
 
+  /**
+   * Rewrite every string field annotated with {@code type} under {@code root} by applying {@code
+   * mapper}. Fields whose mapped value is {@code null} or equal to the current value are left
+   * unchanged. Failures to read or write a field are skipped.
+   *
+   * @param root the object to walk, may be null
+   * @param type the property type to rewrite
+   * @param mapper replacement for each matching string, may be null
+   * @return the number of fields whose value changed
+   */
+  public static int rewriteStrings(
+      Object root, HopMetadataPropertyType type, UnaryOperator<String> mapper) {
+    if (root == null || type == null || mapper == null) {
+      return 0;
+    }
+    int[] changed = new int[1];
+    walk(
+        root,
+        type,
+        (field, node, property, value) -> {
+          String mapped;
+          try {
+            mapped = mapper.apply(value);
+          } catch (Exception e) {
+            return;
+          }
+          if (mapped == null || mapped.equals(value)) {
+            return;
+          }
+          if (writeField(field, node, mapped)) {
+            changed[0]++;
+          }
+        },
+        0,
+        java.util.Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
+    return changed[0];
+  }
+
+  @FunctionalInterface
+  private interface StringFieldHandler {
+    void handle(Field field, Object node, HopMetadataProperty property, String value);
+  }
+
   private static void walk(
       Object node,
       HopMetadataPropertyType type,
-      List<StringProperty> collected,
+      StringFieldHandler handler,
       int depth,
       Set<Object> visited) {
     if (node == null || depth > MAX_DEPTH || !isMetadataObject(node) || !visited.add(node)) {
@@ -94,38 +139,38 @@ public final class HopMetadataPropertyWalker {
         continue;
       }
       if (property.hopMetadataPropertyType() == type && value instanceof String stringValue) {
-        collected.add(new StringProperty(type, serialisedKey(property, field), stringValue));
+        handler.handle(field, node, property, stringValue);
       }
-      descend(value, type, collected, depth, visited);
+      descend(value, type, handler, depth, visited);
     }
   }
 
   private static void descend(
       Object value,
       HopMetadataPropertyType type,
-      List<StringProperty> collected,
+      StringFieldHandler handler,
       int depth,
       Set<Object> visited) {
     if (value instanceof Collection<?> collection) {
       for (Object element : collection) {
-        walk(element, type, collected, depth + 1, visited);
+        walk(element, type, handler, depth + 1, visited);
       }
       return;
     }
     if (value instanceof Map<?, ?> map) {
       for (Object element : map.values()) {
-        walk(element, type, collected, depth + 1, visited);
+        walk(element, type, handler, depth + 1, visited);
       }
       return;
     }
     if (value.getClass().isArray()) {
       int length = Array.getLength(value);
       for (int i = 0; i < length; i++) {
-        walk(Array.get(value, i), type, collected, depth + 1, visited);
+        walk(Array.get(value, i), type, handler, depth + 1, visited);
       }
       return;
     }
-    walk(value, type, collected, depth + 1, visited);
+    walk(value, type, handler, depth + 1, visited);
   }
 
   private static String serialisedKey(HopMetadataProperty property, Field field) {
@@ -154,6 +199,16 @@ public final class HopMetadataPropertyWalker {
       return field.get(target);
     } catch (Exception e) {
       return null;
+    }
+  }
+
+  private static boolean writeField(Field field, Object target, String value) {
+    try {
+      field.setAccessible(true);
+      field.set(target, value);
+      return true;
+    } catch (Exception e) {
+      return false;
     }
   }
 }

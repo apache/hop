@@ -37,7 +37,7 @@ Use this mode for a single, explicit mapping: pick which stream fields supply th
 * Key / value / hash fields are selected from the stream; each has its own codec
 * TTL and list push direction are configured once for the transform
 
-Typical use: every row writes one Redis entry, for example `SET user:{id}` from fields `id` and `payload`.
+Typical use: every row writes one Redis entry, for example `+SET user:{id}+` from fields `id` and `payload`.
 
 === STREAM_FIELDS
 
@@ -61,7 +61,7 @@ In the fields table, *Redis key* and *Hash field* are editable combo boxes: you 
 Resolution at runtime:
 
 . If the configured text matches an incoming stream field name, Redis uses *that field's value* from the current row as the Redis key (or hash field name).
-. Otherwise the text is treated as a literal (variables such as `${PREFIX}:user` are resolved), and that string is used as the Redis key (or hash field name).
+. Otherwise the text is treated as a literal (variables such as `+${PREFIX}:user+` are resolved), and that string is used as the Redis key (or hash field name).
 
 Examples:
 
@@ -76,7 +76,7 @@ Examples:
 |(no field named `cache:user`)
 |`cache:user` (literal)
 
-|`${APP}:session`
+|`+${APP}:session+`
 |(no matching field; `APP` = `shop`)
 |`shop:session` (after variable resolution)
 

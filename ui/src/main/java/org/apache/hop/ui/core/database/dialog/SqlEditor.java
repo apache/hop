@@ -125,15 +125,8 @@ public class SqlEditor {
 
     Button wExec = new Button(shell, SWT.PUSH);
     wExec.setText(BaseMessages.getString(PKG, "SQLEditor.Button.Execute"));
-    wExec.addListener(
-        SWT.Selection,
-        e -> {
-          try {
-            exec();
-          } catch (Exception ge) {
-            // Ignore errors
-          }
-        });
+    wExec.addListener(SWT.Selection, e -> exec());
+
     Button wClear = new Button(shell, SWT.PUSH);
     wClear.setText(BaseMessages.getString(PKG, "SQLEditor.Button.ClearCache"));
     wClear.setToolTipText(BaseMessages.getString(PKG, "SQLEditor.Button.ClearCache.Tooltip"));
@@ -298,47 +291,38 @@ public class SqlEditor {
   }
 
   private void exec() {
-    DatabaseMeta databaseMeta = connection;
-    if (databaseMeta == null) {
-      return;
-    }
-
-    String sqlScript =
-        Utils.isEmpty(wScript.getSelectionText()) ? wScript.getText() : wScript.getSelectionText();
-    StringBuilder message = new StringBuilder();
-    ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-
-    DatabaseProgressCancelWatcher.startIfDesktop(pmd, activeDb::get, "Hop-SqlEditor-CancelWatcher");
-
     try {
-      pmd.run(true, monitor -> runSqlScriptWithMonitor(monitor, databaseMeta, sqlScript, message));
+      DatabaseMeta databaseMeta = connection;
+      if (databaseMeta == null) {
+        return;
+      }
+
+      String sqlScript =
+          Utils.isEmpty(wScript.getSelectionText())
+              ? wScript.getText()
+              : wScript.getSelectionText();
+
+      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+      DatabaseProgressCancelWatcher.startIfDesktop(
+          pmd, activeDb::get, "Hop-SqlEditor-CancelWatcher");
+      pmd.run(true, monitor -> runSqlScriptWithMonitor(monitor, databaseMeta, sqlScript));
     } catch (InterruptedException | InvocationTargetException e) {
       if (e instanceof InterruptedException) {
         Thread.currentThread().interrupt();
       }
     }
-
-    EnterTextDialog dialog =
-        new EnterTextDialog(
-            shell,
-            BaseMessages.getString(PKG, "SQLEditor.Result.Title"),
-            BaseMessages.getString(PKG, "SQLEditor.Result.Message"),
-            message.toString(),
-            true);
-    dialog.open();
   }
 
   private void runSqlScriptWithMonitor(
-      IProgressMonitor monitor,
-      DatabaseMeta databaseMeta,
-      String sqlScript,
-      StringBuilder message) {
+      IProgressMonitor monitor, DatabaseMeta databaseMeta, String sqlScript) {
     monitor.beginTask(BaseMessages.getString(PKG, "SQLEditor.Monitor.Execute"), 100);
     String raw =
         variables.getVariable(
             Const.HOP_QUERY_PREVIEW_TIMEOUT,
             EnvUtil.getSystemProperty(Const.HOP_QUERY_PREVIEW_TIMEOUT, "0"));
     int timeoutSeconds = Math.max(0, Const.toInt(variables.resolve(raw), 0));
+    StringBuilder message = new StringBuilder();
+
     try (Database db = new Database(loggingObject, variables, databaseMeta)) {
       activeDb.set(db);
       if (timeoutSeconds > 0) {
@@ -348,7 +332,9 @@ public class SqlEditor {
       db.connect();
 
       int[] nrStats = {0};
+
       runScriptStatementsLoop(db, databaseMeta, sqlScript, message, monitor, nrStats);
+
       message.append(
           BaseMessages.getString(PKG, "SQLEditor.Log.StatsExecuted", Integer.toString(nrStats[0])));
       message.append(Const.CR);
@@ -356,8 +342,8 @@ public class SqlEditor {
       handleConnectFailure(dbe, message);
     } finally {
       activeDb.set(null);
-      shell.getDisplay().asyncExec(this::refreshExecutionResults);
       monitor.done();
+      shell.getDisplay().asyncExec(this::refreshExecutionResults);
     }
   }
 
@@ -371,26 +357,55 @@ public class SqlEditor {
     List<SqlScriptStatement> statements =
         databaseMeta.getIDatabase().getSqlScriptStatements(sqlScript + Const.CR);
     boolean aborted = false;
-    for (SqlScriptStatement sql : statements) {
+    boolean isQuery = false;
+    for (SqlScriptStatement statement : statements) {
       if (aborted || monitor.isCanceled()) {
         break;
       }
-      if (sql.isQuery()) {
+      if (statement.isQuery()) {
         nrStats[0]++;
-        executeSelectStatement(db, sql, nrStats[0], message);
+        isQuery = true;
+        executeSelectStatement(db, statement, nrStats[0], message, monitor);
       } else {
         nrStats[0]++;
-        aborted = executeDdlStatement(db, sql, databaseMeta, message);
+        aborted = executeDdlStatement(db, statement, databaseMeta, message);
       }
+    }
+
+    // Close progress monitor before displaying result
+    monitor.done();
+
+    if (!isQuery) {
+      shell
+          .getDisplay()
+          .syncExec(
+              () -> {
+                EnterTextDialog dialog =
+                    new EnterTextDialog(
+                        shell,
+                        BaseMessages.getString(PKG, "SQLEditor.Result.Title"),
+                        BaseMessages.getString(PKG, "SQLEditor.Result.Message"),
+                        message.toString(),
+                        true);
+                dialog.open();
+              });
     }
   }
 
   private void executeSelectStatement(
-      Database db, SqlScriptStatement sql, int statNr, StringBuilder message) {
+      Database db,
+      SqlScriptStatement sql,
+      int statNr,
+      StringBuilder message,
+      IProgressMonitor monitor) {
     log.logDetailed("launch SELECT statement: " + Const.CR + sql);
     try {
       List<Object[]> rows = db.getRows(sql.getStatement(), 1000);
       IRowMeta rowMeta = db.getReturnRowMeta();
+
+      // Close progress monitor before displaying result
+      monitor.done();
+
       if (!rows.isEmpty()) {
         shell
             .getDisplay()
@@ -417,6 +432,7 @@ public class SqlEditor {
                 });
       }
     } catch (HopDatabaseException dbe) {
+      monitor.done();
       handleSelectExecutionFailure(dbe, sql, message);
     }
   }

@@ -16,16 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:openvar: ${
-:closevar: }
 :description: The REST Client transform enables you to consume RESTful services.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/rest.svg[REST Client transform Icon, role="image-doc-icon"] REST Client
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
+
+include::../../snippets/pipeline/needs-input.adoc[]
 
 The REST Client transform enables you to consume RESTfull services. Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
 
@@ -38,20 +36,6 @@ When pagination is enabled on this transform and the selected xref:metadata-type
 
 == Example
 The REST client Transform returns a "result" field (can change the name), and the field is often used in the next transform. For example, it can be read in by a JSON input transform that extracts the fields specified on the Fields tab.
-
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -217,7 +201,7 @@ Use this tab to loop over paged REST APIs. Paging behaviour (Link header, offset
 |Option|Description
 |Enable pagination loop for incoming rows|When enabled and the REST connection uses a non-`NONE` pagination strategy, Hop performs multiple HTTP requests per input row until the API has no more pages or a safeguard limit is reached. When disabled, or when the connection pagination strategy is `NONE`, Hop performs a single request (legacy behaviour).
 |Maximum page requests per input row|Hard cap on HTTP iterations per input row while following link headers, cursors, offsets, or page numbers. Leave blank or `0` to use the built-in safeguard (default 256).
-|Optional result split JsonPath/XPath|When set and **Application type** is JSON or XML, Hop emits one output row per JsonPath or XPath match instead of one row with the full response body. Typical for top-level arrays (`+$[*]+`) or nested collections (`+$.results[*]+`). Supports `{openvar}VAR{closevar}` and `%%VAR%%` substitution. This field does not apply Hop's `$[HH]` hexadecimal byte decoding, so bracketed JsonPath selectors (for example `+$[*]+`) are preserved.
+|Optional result split JsonPath/XPath|When set and **Application type** is JSON or XML, Hop emits one output row per JsonPath or XPath match instead of one row with the full response body. Typical for top-level arrays (`+$[*]+`) or nested collections (`+$.results[*]+`). Supports `+${VAR}+` and `%%VAR%%` substitution. This field does not apply Hop's `$[HH]` hexadecimal byte decoding, so bracketed JsonPath selectors (for example `+$[*]+`) are preserved.
 |===
 
 Paging stops when:
@@ -229,7 +213,7 @@ Paging stops when:
 
 When a split path is configured but a page yields no matching elements, Hop fails with a clear error unless the response is a recognised empty paged collection (for example `{"results":[]}`).
 
-TIP: GitHub's public REST API requires a `User-Agent` header. Add it on the **Headers** tab (or use a Bearer token on the connection for higher rate limits). A `401` response with `No Auth` usually means an invalid `Authorization` header was sent (for example an unresolved `{openvar}GH_TOKEN{closevar}` placeholder).
+TIP: GitHub's public REST API requires a `User-Agent` header. Add it on the **Headers** tab (or use a Bearer token on the connection for higher rate limits). A `401` response with `No Auth` usually means an invalid `Authorization` header was sent (for example an unresolved `+${GH_TOKEN}+` placeholder).
 
 == Logging
 

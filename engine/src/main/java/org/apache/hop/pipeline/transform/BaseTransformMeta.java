@@ -790,7 +790,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
     lock.readLock().lock();
     try {
       if ((ioMetaVar == null) && (createIfAbsent)) {
-        ioMeta = new TransformIOMeta(true, true, true, false, false, false);
+        boolean consumes = consumesMainInput();
+        ioMeta = new TransformIOMeta(consumes, true, consumes, false, false, false);
         lock.readLock().unlock();
         lock.writeLock().lock();
         try {

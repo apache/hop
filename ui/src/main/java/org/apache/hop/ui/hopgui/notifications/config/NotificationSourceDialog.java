@@ -70,7 +70,7 @@ public class NotificationSourceDialog {
     this.shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     this.sourceConfig = sourceConfig != null ? sourceConfig : new NotificationSourceConfig();
     this.model = NotificationSourceModel.fromConfig(this.sourceConfig);
-    PropsUi.getInstance().setLook(this.shell);
+    PropsUi.setLook(this.shell);
   }
 
   public String open() {

@@ -1,0 +1,10 @@
+{
+  "name": "github",
+  "description": "Anonymous access to the public GitHub API. No token: these tests must run without a secret, which also means they are subject to the 60 requests per hour anonymous rate limit.",
+  "provider": "GITHUB_CLOUD",
+  "auth_type": "TOKEN",
+  "api_base_url": "",
+  "username": "",
+  "token": "",
+  "password": ""
+}

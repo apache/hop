@@ -50,6 +50,7 @@ Click the File system name to access more detailed file system documentation.
 |xref:vfs/dropbox-vfs.adoc[Dropbox]|Provides access to Dropbox|`dropbox://`
 |xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]|Provides access to Google Cloud Storage buckets|`gs://`
 |xref:vfs/google-drive-vfs.adoc[Google Drive]|Provides access to Google Drive folders|`googledrive://`
+|xref:vfs/hdfs-vfs.adoc[HDFS]|Named connection to HDFS via HttpFS, Knox or WebHDFS (marketplace plugin `hop-tech-hadoop`)|`+<connectionName>:///path+`
 |xref:metadata-types/minio-connection.adoc[Minio connection]|Provides access to S3-compatible endpoints via a named Minio connection (metadata)|`+<connectionName>://+`
 |xref:metadata-types/webdav-connection.adoc[WebDAV Connection]|Provides access to WebDAV servers, either via the static schemes or a named connection (metadata)|`webdav4://`, `webdav4s://`, or `+<connectionName>://+`
 |===

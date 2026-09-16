@@ -75,6 +75,7 @@ rules:
         - "credentials"
         - "apiKey"
         - "apikey"
+        - "secretAccessKey"
         - "token"
         - "accessToken"
         - "authToken"
@@ -99,29 +100,34 @@ rules:
         - "credentials"
         - "apiKey"
         - "apikey"
+        - "secretAccessKey"
         - "token"
         - "accessToken"
         - "authToken"
 
+  # Reported on the transform, not the pipeline, so the finding is something you can click on.
+  # A pipeline holding one transform and nothing else is not orphaned — there is nothing for it
+  # to be disconnected from — and neither is a transform whose hops are all disabled: it has
+  # hops, and whether a disabled hop is a problem is what STRUCT-003 is for.
   TRANS-002:
     type: custom
     enabled: true
     severity: WARNING
-    target: PIPELINE
-    targetField: hasOrphanedTransforms
+    target: TRANSFORM
+    targetField: isOrphaned
     condition: MUST_BE_FALSE
     name: "Orphaned Transform"
-    description: "A transform with no incoming or outgoing hop never executes"
+    description: "This transform has no incoming or outgoing hop, so it never executes"
 
   WORKFLOW-002:
     type: custom
     enabled: true
     severity: WARNING
-    target: WORKFLOW
-    targetField: hasOrphanedActions
+    target: ACTION
+    targetField: isOrphaned
     condition: MUST_BE_FALSE
     name: "Orphaned Action"
-    description: "An action with no incoming or outgoing hop never executes"
+    description: "This action has no incoming or outgoing hop, so it never executes"
 
   NAMING-004:
     type: custom
@@ -132,6 +138,34 @@ rules:
     condition: MUST_BE_FALSE
     name: "Default Transform Name"
     description: "Auto-generated names such as 'Transform 1' make logs and error messages hard to trace back to the pipeline"
+
+  # ------------------------------------------------------------------
+  # Hop's own verify remarks.
+  #
+  # A `native` rule does not check anything: Hop's transforms and actions have
+  # `check()` methods of their own, and these rules say how the linter reports
+  # what they found. `appliesTo` narrows to a plugin id, `messageKey` to a
+  # single check, named by the message it prints as `<i18n package>:<key>` so
+  # that the rule still matches outside English. The most specific rule wins,
+  # so a blanket rule and an exception for one check can both be in force.
+  # ------------------------------------------------------------------
+
+  HOP-CHECK:
+    type: native
+    enabled: true
+    severity: WARNING
+    name: "Hop Verify Remark"
+    description: >
+      Every remark Hop's own transform and action checks produce. They work from the row stream
+      inferred at design time, which is right for a plain pipeline and wrong wherever fields
+      arrive at runtime, so the linter reports them as warnings rather than letting them fail a
+      build. Set severity to ERROR to treat them as the transform meant them, or disable this
+      rule to leave Hop's verify remarks to the Verify button.
+
+  # No narrowed rule ships enabled or disabled here. A check that is simply wrong is fixed in the
+  # transform, which is what #8294 did for the two in Select Values; silencing it from a rule pack
+  # would have left it firing for everyone who presses Verify. `appliesTo` and `messageKey` are
+  # for a project that disagrees with a check the platform is right to ship.
 
   # ------------------------------------------------------------------
   # Worked examples, shipped disabled.

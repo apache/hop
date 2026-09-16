@@ -40,6 +40,7 @@ Toolbar:
 * *Connect* — load schemas and their tables (background; does not freeze Hop Gui)
 * *Disconnect* — drop the loaded schema list
 * *Refresh* — reload the selected connected connection, or the connection list
+* *Edit connection* — open this connection in the Metadata perspective (or a dialog if that perspective is disabled)
 * *Open SQL editor* — new SQL tab for the selected connection (`SELECT * FROM table` when a table is selected)
 * *Generate DDL* — `CREATE TABLE` for the selected table, opened in a SQL tab
 * *Preview table* — run `SELECT` with a dialect-aware row limit (the **Query row limit** in Configuration → Plugins → Database Perspective, default 1000)
@@ -59,7 +60,7 @@ Each SQL tab is bound to one connection.
 * If you do not, **Run** takes the blank-line-delimited block around the caret, splits on `;`, and runs the statement at the caret. A leftover clause after a semicolon (for example `WHERE` on the next line) is not executed; use **Run all** to send every statement.
 * **Select the executed SQL in the editor** (Configuration perspective, **Plugins → Database Perspective**, on by default) highlights only the statement(s) that were sent.
 * Results appear in a sash under the editor (one tab per query, plus a messages tab). Close hides the results panel; the next run shows it again. **Open in separate window** (left of Close) opens the selected result table in a separate window.
-* Queries are capped at the **Query row limit** (Configuration perspective, **Plugins → Database Perspective**, default 1000). That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` or a SQL `LIMIT` above the option still does not pull the whole table. When the cap is hit, the Messages tab says so. Statement timeout (`'${HOP_QUERY_PREVIEW_TIMEOUT}'`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
+* Queries are capped at the **Query row limit** (Configuration perspective, **Plugins → Database Perspective**, default 1000). That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` or a SQL `LIMIT` above the option still does not pull the whole table. When the cap is hit, the Messages tab says so. Statement timeout (`+'${HOP_QUERY_PREVIEW_TIMEOUT}'+`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
 
 image::hop-gui/database/database-perspective-panel.png[SQL editor with query results, Open in separate window, and the operations status line,width="90%"]
 
@@ -88,7 +89,9 @@ image::hop-gui/database/database-perspective-popup-dialog.png[The floating Datab
 
 Each placement has its own workbench instance (connection tree, SQL tabs, operations). The perspective stays available with `Ctrl+Shift+D`. SQL editor tabs (connection, file or buffer, unsaved edits) are remembered per project when you close the window or dock and when you restart Hop Gui. Query results are not stored.
 
-**SQL** on a table-output (or bulk-loader, lookup, update, …) transform dialog opens this floating window on the transform's connection: the schema/table tree refreshes in the background while you edit and run the generated SQL. The same happens from the database explorer (Open SQL, Generate DDL, Truncate).
+**SQL** on a table-output (or bulk-loader, lookup, update, …) transform dialog opens this floating window on the transform's connection: the schema/table tree refreshes in the background while you edit and run the generated SQL. The same happens from the database explorer (Open SQL, Generate DDL, Truncate). The explorer toolbar also has *Open in Database perspective*, which closes the explorer and switches to this perspective on the explorer's connection.
+
+On the relational database connection metadata editor, *Open in Database* does the same from the other direction: it activates this perspective on that connection so you can explore and query immediately.
 
 == See also
 

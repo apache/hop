@@ -17,30 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Edi To XML transform converts EDI message text (conforming to the ISO 9735 standard) to generic XML.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/edi2xml.svg[Edi to XML transform Icon, role="image-doc-icon"] Edi to XML
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Edi To XML transform converts EDI message text (conforming to the ISO 9735 standard, https://en.wikipedia.org/wiki/EDIFACT[read more]) to generic XML.
 
 The XML text is more accessible and allows for selective data extraction using XPath and the xref:pipeline/transforms/getdatafromxml.adoc[Get Data From XML] transform.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 

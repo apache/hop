@@ -18,28 +18,12 @@ under the License.
 :language: en_US
 :description: The Filter Rows transform allows you to filter rows based on conditions and comparisons.
 
-:openvar: ${
-:closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/filterrows.svg[Filter Rows transform Icon, role="image-doc-icon"] Filter Rows
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 The Filter Rows transform allows you to filter rows based on conditions and comparisons. It affects workflow if connecting the True or False outcome/hop to another transform. There are 3 path available as outputs (True/False/Main output). The main output follows the True path only.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Usage 
 Once this transform is connected to a previous transform (one or more and receiving input), you can click on the "<field>", "=" and "<value>" areas to construct a condition. Downstream transforms can be connected to the True or False hop.
@@ -54,7 +38,7 @@ TIP: Lists also works on numeric values like integers. In this case, the list of
 
 Remember that all transforms are executed in parallel, so both true and false paths will run in some cases. 
 
-The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform. For example, a table input transform can include the variable in the SQL as another field such as “select field1, field2, {openvar}myvar{closevar} as field3 from table1”, then in the filter row condition you can say field1 = field3. Alternatively, you can use a ‘Get Variables’ transform to set parameters in fields. There are various SQL query statements that will always return results using IF EXISTS or IS NULL for example if you always require field(s) and results to be returned.
+The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform. For example, a table input transform can include the variable in the SQL as another field such as “select field1, field2, +${myvar}+ as field3 from table1”, then in the filter row condition you can say field1 = field3. Alternatively, you can use a ‘Get Variables’ transform to set parameters in fields. There are various SQL query statements that will always return results using IF EXISTS or IS NULL for example if you always require field(s) and results to be returned.
 
 An example is found in the samples project called “filter-rows-basic.hpl”.
 
@@ -119,7 +103,7 @@ In some cases it will be better to use a where filter in a SQL query than use a 
 
 === Filtering special characters
 
-To filter special characters like explicit EOF (e.g. from old cobol files) Use a REGEX expression in the "filter row" transform with the syntax: "\x{openvar}1A{closevar}" where \x mean HEX representation and 1A into parenthesis is the EOF char to match in HEX.
+To filter special characters like explicit EOF (e.g. from old cobol files) Use a REGEX expression in the "filter row" transform with the syntax: "+\x{1A}+" where \x mean HEX representation and 1A into parenthesis is the EOF char to match in HEX.
 
 == Metadata injection support 
 

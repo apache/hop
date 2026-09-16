@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Recommended volume mounts, environment variables, and upgrade procedure for the official apache/hop-web Docker image. Persist projects and HOP_CONFIG_FOLDER outside the image.
-:openvar: ${
-:closevar: }
 :TOC:
 
 [[HopWebDocker]]
@@ -78,7 +76,7 @@ The official image already copies the standard Hop plugin set.
 | `/usr/local/tomcat/jdbc-drivers`
 
 | Starter `default` and `samples` projects
-| `{openvar}HOP_CONFIG_FOLDER{closevar}/projects/` in the *image* config.
+| `+${HOP_CONFIG_FOLDER}/projects/+` in the *image* config.
 Fine for a throwaway `docker run`.
 Not a place to save work.
 |===
@@ -97,13 +95,13 @@ Recommended container paths below are conventions for this page and the Compose 
 |===
 | Persist | Image default | Recommended container path | Holds
 
-| `{openvar}HOP_CONFIG_FOLDER{closevar}`
+| `+${HOP_CONFIG_FOLDER}+`
 | `/usr/local/tomcat/webapps/ROOT/config`
 | `/hop/config`
 | `hop-config.json` (GUI preferences, **project and environment registrations**), and `security/` (see <<hop-web-docker-auth>>)
 
 | Project homes
-| `{openvar}HOP_CONFIG_FOLDER{closevar}/projects/default` and `.../samples`
+| `+${HOP_CONFIG_FOLDER}/projects/default+` and `.../samples`
 | `/hop/projects/<name>`
 | `project-config.json`, `metadata/`, pipelines (`.hpl`), workflows (`.hwf`), and the rest of the project
 
@@ -113,7 +111,7 @@ Recommended container paths below are conventions for this page and the Compose 
 | Hostnames, paths, xref:metadata-types/variable-resolver/index.adoc[resolvers].
 Keep secrets out of git.
 
-| `{openvar}HOP_AUDIT_FOLDER{closevar}`
+| `+${HOP_AUDIT_FOLDER}+`
 | `/tmp/hop-web-audit`
 | `/hop/audit`
 | Per-user UI state under `users/<username>/`
@@ -127,7 +125,7 @@ See <<JDBCDriversAndPlugins>>.
 
 `hop-config.json` stores **project names and home paths**.
 It does not store the pipelines.
-If `projectHome` still points at `{openvar}HOP_CONFIG_FOLDER{closevar}/projects/samples`, you are editing starter samples inside config.
+If `projectHome` still points at `+${HOP_CONFIG_FOLDER}/projects/samples+`, you are editing starter samples inside config.
 Register real projects with homes under `/hop/projects/…`.
 
 The entrypoint (`docker/resources/run-web.sh`) can register one project on every start from `HOP_PROJECT_NAME` and `HOP_PROJECT_FOLDER`.
@@ -237,7 +235,7 @@ From Hop 2.20, Hop Web can authenticate users and map them to built-in roles (Ad
 Full behaviour, login modes (`NONE`, `EXTERNAL`, `BASIC`, `OAUTH2`), and the Security UI are documented in xref:hop-gui/hop-web.adoc#hop-web-authentication[Hop Web authentication].
 For upgrades, the important fact is **where those files live**.
 
-All of the following sit under `{openvar}HOP_CONFIG_FOLDER{closevar}/security/`:
+All of the following sit under `+${HOP_CONFIG_FOLDER}/security/+`:
 
 [cols="1,3"]
 |===
@@ -253,7 +251,7 @@ All of the following sit under `{openvar}HOP_CONFIG_FOLDER{closevar}/security/`:
 | Project access rules (user, Hop role, or IdP/LDAP group → project names or all projects)
 |===
 
-Persist `{openvar}HOP_CONFIG_FOLDER{closevar}` and you keep project registrations, users, and “who may open which project” across image upgrades.
+Persist `+${HOP_CONFIG_FOLDER}+` and you keep project registrations, users, and “who may open which project” across image upgrades.
 
 Configure project mapping in the GUI: **Configuration → Security → Projects** (xref:hop-gui/hop-web.adoc#hop-web-project-access[project access]).
 Enable filtering, add rules (`user` / `role` / `group`), and either allow all projects for that subject or list names.
@@ -308,7 +306,7 @@ services:
       HOP_SHARED_JDBC_FOLDERS: /usr/local/tomcat/jdbc-drivers,/hop/jdbc
       HOP_WEB_SECURITY_MODE: BASIC
       HOP_WEB_ADMIN_USER: admin
-      HOP_WEB_ADMIN_PASSWORD: {openvar}HOP_WEB_ADMIN_PASSWORD{closevar}
+      HOP_WEB_ADMIN_PASSWORD: ${HOP_WEB_ADMIN_PASSWORD}
     volumes:
       - hop-config:/hop/config
       - hop-audit:/hop/audit

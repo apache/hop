@@ -28,7 +28,7 @@ You will:
 . Export a **Native Spark project package** (definitions + metadata).
 . Start a Docker Compose cluster (master + workers, shared data volume).
 . `docker exec` **spark-submit** with `MainSpark --HopProjectPackage=…`.
-. See a **Simple Mapping** child under `${PROJECT_HOME}` execute on workers via **SparkFiles**.
+. See a **Simple Mapping** child under `+${PROJECT_HOME}+` execute on workers via **SparkFiles**.
 . Optionally run a **Workflow Executor** demo that creates per-country folders and instance marker files on the shared volume.
 . Optionally run a **nested Native Spark** demo: Pipeline Executor on the driver starts a full child Spark pipeline per country (shared `SparkSession`).
 
@@ -47,10 +47,10 @@ Compose file:
 |Claim |How the demo shows it
 
 |Nested mappings need files on every executor
-|Child path is `${PROJECT_HOME}/pipelines/mappings/upper-name.hpl` — not embedded in the parent
+|Child path is `+${PROJECT_HOME}/pipelines/mappings/upper-name.hpl+` — not embedded in the parent
 
 |Nested workflows need the same package
-|Workflow Executor child is `${PROJECT_HOME}/workflows/create-country-folder.hwf`
+|Workflow Executor child is `+${PROJECT_HOME}/workflows/create-country-folder.hwf+`
 
 |Project package is the right unit
 |Package zip is exported specifically for Native Spark (GUI or `hop-conf --export-spark-project`)
@@ -126,7 +126,7 @@ Compose mounts:
 * `${HOP_DIST_DIR:-/tmp/spark-demo-dist}` → `/opt/hop-dist` (fat jar + project package; master)
 * `${HOP_DATA_HOST_DIR:-/tmp/spark-demo-dist/hop-data}` → `/data/hop-data` (shared data plane; **master and workers**, host-visible)
 
-If you used a non-default `DIST_DIR` in `prepare-dist.sh`, set both `HOP_DIST_DIR` and `HOP_DATA_HOST_DIR=${HOP_DIST_DIR}/hop-data` for compose.
+If you used a non-default `DIST_DIR` in `prepare-dist.sh`, set both `HOP_DIST_DIR` and `+HOP_DATA_HOST_DIR=${HOP_DIST_DIR}/hop-data+` for compose.
 
 * Master UI: http://localhost:8080 (two workers should register).  
 * Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION=4.1.3`** (override with env if needed).  
@@ -232,7 +232,7 @@ find /tmp/spark-demo-dist/hop-data/out/by-country -type f | sort
 Expect `out/by-country/{Genovia,Wakanda,Latveria}/…` under the host hop-data dir, and logs:
 `Nested Native Spark pipeline reusing parent SparkSession`.
 
-Child definition: `${PROJECT_HOME}/pipelines/nested/enrich-by-country.hpl` (in the project package). Control plane stays on the driver; each child builds a Dataset graph on the **same** Spark session.
+Child definition: `+${PROJECT_HOME}/pipelines/nested/enrich-by-country.hpl+` (in the project package). Control plane stays on the driver; each child builds a Dataset graph on the **same** Spark session.
 
 == Pipeline shapes (why they matter)
 

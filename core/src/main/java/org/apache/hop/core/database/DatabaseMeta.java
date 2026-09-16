@@ -232,6 +232,23 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     if (plugin == null) {
       plugin = registry.findPluginWithName(DatabasePluginType.class, databaseTypeDesc);
     }
+    if (plugin == null && databaseTypeDesc != null) {
+      for (IPlugin p : registry.getPlugins(DatabasePluginType.class)) {
+        for (String id : p.getIds()) {
+          if (id.equalsIgnoreCase(databaseTypeDesc)) {
+            plugin = p;
+            break;
+          }
+        }
+        if (plugin != null) {
+          break;
+        }
+        if (p.getName() != null && p.getName().equalsIgnoreCase(databaseTypeDesc)) {
+          plugin = p;
+          break;
+        }
+      }
+    }
 
     if (plugin == null) {
       throw new HopDatabaseException(
@@ -323,14 +340,44 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return The plugin ID of the database interface
    */
   public String getPluginId() {
-    return iDatabase.getPluginId();
+    if (iDatabase == null) {
+      return null;
+    }
+    String id = iDatabase.getPluginId();
+    if (Utils.isEmpty(id)) {
+      String name = iDatabase.getPluginName();
+      if (!Utils.isEmpty(name)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithName(DatabasePluginType.class, name);
+        if (plugin != null) {
+          id = plugin.getIds()[0];
+          iDatabase.setPluginId(id);
+        }
+      }
+    }
+    return id;
   }
 
   /**
    * @return The name of the database plugin type
    */
   public String getPluginName() {
-    return iDatabase.getPluginName();
+    if (iDatabase == null) {
+      return null;
+    }
+    String name = iDatabase.getPluginName();
+    if (Utils.isEmpty(name)) {
+      String id = iDatabase.getPluginId();
+      if (!Utils.isEmpty(id)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithId(DatabasePluginType.class, id);
+        if (plugin != null) {
+          name = plugin.getName();
+          iDatabase.setPluginName(name);
+        }
+      }
+    }
+    return name;
   }
 
   /*

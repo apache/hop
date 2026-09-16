@@ -28,11 +28,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -108,6 +111,65 @@ class VCardInputTest {
         captured.stream().map(row -> (String) row[fnIndex]).collect(Collectors.toSet());
     assertEquals(Set.of("Contact A", "Contact B", "Contact C"), names);
     assertEquals(0, transform.getErrors());
+  }
+
+  /**
+   * The output row metadata is built from the incoming row metadata, which only becomes available
+   * after the first getRow(). Preparing it any earlier fails with "This transform is not receiving
+   * rows from a previous transform".
+   */
+  @Test
+  void readsFilesNamedByAnIncomingField(@TempDir Path tempDir) throws Exception {
+    Path first = tempDir.resolve("first.vcf");
+    Path second = tempDir.resolve("second.vcf");
+    writeVcard(first, "Contact A");
+    writeVcard(second, "Contact B");
+
+    VCardInputMeta meta = new VCardInputMeta();
+    meta.setDoNotFailIfNoFile(false);
+    meta.setIgnoringEmptyFile(true);
+    meta.getFieldMappings().add(new VCardFieldMapping(VCardPropertyType.FN, "fn"));
+    meta.getFileInput().setAcceptingFilenames(true);
+    meta.getFileInput().setAcceptingTransformName("filenames");
+    meta.getFileInput().setAcceptingField("filename");
+
+    VCardInputData data = new VCardInputData();
+    VCardInput transform =
+        new VCardInput(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+    transform.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+            captured.add(row);
+          }
+        });
+
+    // Deliberately no setInputRowMeta() here: the transform has to pick the row metadata up from
+    // the first row it reads, exactly like it does in a running pipeline.
+    //
+    IRowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("filename"));
+    BlockingRowSet rowSet = new BlockingRowSet(10);
+    rowSet.putRow(inputRowMeta, new Object[] {first.toAbsolutePath().toString()});
+    rowSet.putRow(inputRowMeta, new Object[] {second.toAbsolutePath().toString()});
+    rowSet.setDone();
+    transform.addRowSetToInputRowSets(rowSet);
+
+    assertTrue(transform.init());
+    int iterations = 0;
+    while (transform.processRow()) {
+      if (++iterations > 10) {
+        break;
+      }
+    }
+
+    assertEquals(0, transform.getErrors());
+    assertEquals(2, captured.size(), "expected one row per filename on the input stream");
+    int fnIndex = data.outputRowMeta.indexOfValue("fn");
+    Set<String> names =
+        captured.stream().map(row -> (String) row[fnIndex]).collect(Collectors.toSet());
+    assertEquals(Set.of("Contact A", "Contact B"), names);
   }
 
   private static void writeVcard(Path path, String fullName) throws Exception {

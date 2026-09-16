@@ -21,20 +21,120 @@ name: Hop PR Build (Documentation)
 
 on:
   push:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pr_build_docs.yml'
   pull_request:
     branches: [ 'main' ]
     paths:
       - 'docs/**'
+      - '.github/workflows/pr_build_docs.yml'
+
+# Supersede an in-flight PR build when the branch is pushed again; never cancel a
+# push build, so every merge to main keeps its own result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # The manuals are published by the Antora playbooks in apache/hop-website, so
+  # the site generator, UI, extensions and attributes come from that repository
+  # rather than being copied here. antora-playbook-hop.yml is its playbook for
+  # building the manuals from a hop checkout next to it. Point these at a fork
+  # and branch to test a docs change against an unreleased site build.
+  HOP_WEBSITE_REPOSITORY: apache/hop-website
+  HOP_WEBSITE_REF: main
 
 jobs:
-  build:
+  rat:
+    name: License headers
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       - name: Set up JDK 21
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v6
         with:
-          java-version: 21
+          java-version: '21'
+          distribution: 'temurin'
       - name: RAT Check
         run: mvn clean apache-rat:check
+
+  antora:
+    name: Antora build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out apache/hop
+        uses: actions/checkout@v7
+        with:
+          path: hop
+
+      - name: Check out the website build
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ env.HOP_WEBSITE_REPOSITORY }}
+          ref: ${{ env.HOP_WEBSITE_REF }}
+          path: hop-website
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: hop-website/package-lock.json
+
+      - name: Install the site generator
+        working-directory: hop-website
+        run: npm ci
+
+      # Same pre-build steps as the website's `npm run build:hop`: the shared
+      # stylesheets, the navigation partials and the browser halves of the
+      # AsciiDoc extensions are generated into the UI directory, not committed.
+      #
+      # The playbook reads ../hop at HEAD, which is the checkout above: for a
+      # pull request that is the merge commit of the PR onto main. Warnings are
+      # logged so authors can see them; only errors (unresolved xrefs, missing
+      # includes, malformed tables, ...) fail the build.
+      # shell: bash is not the default: the default is `bash -e {0}` without
+      # pipefail, which would let the `tee` below swallow Antora's exit code.
+      - name: Build the manuals
+        shell: bash
+        working-directory: hop-website
+        run: |
+          node tools/sync-tokens.mjs
+          node tools/sync-nav.mjs
+          node tools/sync-vendor.mjs
+          npx antora --log-level=warn --log-failure-level=error --log-format=json \
+            --to-dir "$GITHUB_WORKSPACE/site" antora-playbook-hop.yml 2>&1 | tee antora.log
+
+      # Error annotations on the offending .adoc lines, a job summary and, for a
+      # pull request, the body of the PR comment. The comment itself is posted
+      # by pr_docs_comment.yml: this job runs with the read-only token of a
+      # fork pull request, so it can only hand the report over as an artifact.
+      - name: Report problems
+        if: ${{ !cancelled() }}
+        working-directory: hop-website
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node "$GITHUB_WORKSPACE/hop/.github/scripts/antora-report.mjs" antora.log "$GITHUB_WORKSPACE/report"
+
+      - name: Hand the report to the comment workflow
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-report
+          path: report
+          retention-days: 1
+
+      - name: Upload the rendered manuals
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: manuals
+          path: site
+          retention-days: 7
+          if-no-files-found: ignore

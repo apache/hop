@@ -38,10 +38,17 @@ public @interface ConfigPlugin {
   String CATEGORY_PYTHON = "python";
   String CATEGORY_NAMING = "naming";
   String CATEGORY_GUI = "gui";
+  String CATEGORY_EXPORT = "export";
 
   String id();
 
   String description() default "";
 
   String category() default CATEGORY_CONFIG;
+
+  /**
+   * Plugins sharing a group share a single class loader. Set this when the config plugin lives in a
+   * plugin folder that also uses {@code classLoaderGroup} on metadata or GUI types.
+   */
+  String classLoaderGroup() default "";
 }

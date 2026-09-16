@@ -17,30 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Unique Rows (HashSet) transform removes duplicate rows and filters only the unique rows as input data for the transform.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/uniquerowsbyhashset.svg[Unique Rows (HashSet) transform Icon, role="image-doc-icon"] Unique Rows (HashSet)
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Unique Rows (HashSet) transform removes duplicate rows and filters only the unique rows as input data for the transform.
 
 This transform differs from the xref:pipeline/transforms/uniquerows.adoc[Unique Rows] pipeline transform by keeping track of the duplicate rows in memory and does not require a sorted input to process duplicate rows.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 WARNING: When using this transform on larger sets of data there is a risk of hash collisions unless "Compare using stored row values" is enabled.
 

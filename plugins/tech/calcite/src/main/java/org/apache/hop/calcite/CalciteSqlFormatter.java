@@ -27,6 +27,7 @@ import org.apache.calcite.avatica.util.Quoting;
 import org.apache.calcite.config.Lex;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlWriterConfig;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.parser.ddl.SqlDdlParserImpl;
@@ -159,7 +160,8 @@ public final class CalciteSqlFormatter {
       }
       return buffer.toString();
     }
-    SqlNode toFormat = node instanceof SqlNodeList list && list.size() == 1 ? list.get(0) : node;
+    SqlNode toFormat =
+        node instanceof SqlNodeList list && list.size() == 1 ? list.getFirst() : node;
     String formatted = pretty(toFormat, style, formatConfig).trim();
     if (originalSql.trim().endsWith(";")) {
       formatted = formatted + ';';
@@ -169,9 +171,9 @@ public final class CalciteSqlFormatter {
 
   private static String pretty(
       SqlNode node, CalciteSqlStyle style, CalciteSqlFormatConfig formatConfig) {
-    SqlPrettyWriter writer =
-        new SqlPrettyWriter(SqlPrettyWriter.config().withDialect(style.dialect()));
-    writer.setFormatOptions(formatConfig.toSqlFormatOptions());
+
+    SqlWriterConfig config = SqlPrettyWriter.config().withDialect(style.dialect());
+    SqlPrettyWriter writer = new SqlPrettyWriter(formatConfig.applySqlFormat(config));
     return writer.format(node);
   }
 

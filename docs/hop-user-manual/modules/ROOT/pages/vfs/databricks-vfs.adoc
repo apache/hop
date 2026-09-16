@@ -95,7 +95,7 @@ See xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
   ** **Name** = URI scheme (for example `db-volume`)
   ** **Databricks Connection** = the Jobs connection from step 1
   ** **Root path** = `/Volumes/catalog/schema/volume` (or a folder under a volume)
-. In Hop file dialogs or transforms, enter `{name}:///subdir/…` relative to that root.
+. In Hop file dialogs or transforms, enter `+{name}:///subdir/…+` relative to that root.
 
 If root path is left empty, every URI must include the full `/Volumes/…` or `/Workspace/…` path.
 

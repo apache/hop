@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.gettablenames;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -25,5 +28,23 @@ class GetTableNamesMetaTest {
   void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
         "/get-table-names-transform.xml", GetTableNamesMeta.class);
+  }
+
+  @Test
+  void staticSchemaDoesNotConsumeMainInput() {
+    GetTableNamesMeta meta = new GetTableNamesMeta();
+    meta.setDefault();
+    assertFalse(meta.isDynamicSchema());
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+  }
+
+  @Test
+  void dynamicSchemaConsumesMainInput() {
+    GetTableNamesMeta meta = new GetTableNamesMeta();
+    meta.setDefault();
+    meta.setDynamicSchema(true);
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
   }
 }

@@ -17,23 +17,21 @@
 
 package org.apache.hop.spark.core;
 
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.util.Iterator;
-import java.util.Objects;
-import org.apache.spark.TaskContext;
-import org.apache.spark.api.java.JavaRDD;
+import static org.apache.spark.sql.functions.count;
+import static org.apache.spark.sql.functions.lit;
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.types.StructType;
 
 /**
  * Instruments native Spark {@link Dataset} stages so row flow is visible in Hop {@code
- * EngineMetrics}. Inserts a pass-through {@code mapPartitions} that reports absolute counters into
- * the same {@link SparkTransformMetricsAccumulator} used by {@link HopMapPartitionsFn}.
+ * EngineMetrics}.
  *
- * <p>Counters are only updated when the lineage is materialized (an action). Per-partition {@code
- * copyNr} matches {@link TaskContext#partitionId()}.
+ * <p>Each tracked stage gets a named {@code CollectMetrics} node ({@link Dataset#observe}) that
+ * stays inside the Catalyst plan: no RDD round-trip, so whole-stage codegen, column pruning and
+ * filter pushdown are preserved. The counts themselves are read from Spark's own per-task SQL
+ * metrics by {@link SparkNativeMetricsListener}, which attributes them to the transform via the
+ * anchor and reports partition / host / timing from the task info.
  */
 public final class SparkNativeMetrics {
 
@@ -47,164 +45,18 @@ public final class SparkNativeMetrics {
     TRANSFORM
   }
 
-  private static final int ROW_INTERVAL = 1000;
-  private static final long TIME_INTERVAL_MS = 1000L;
-
   private SparkNativeMetrics() {}
 
   /**
-   * Wrap {@code dataset} so that when it is computed, each partition reports metrics for {@code
-   * transformName}. Returns {@code dataset} unchanged when accumulator or name is null.
+   * Anchor {@code dataset} so that its row count is attributed to {@code transformName} by the
+   * listener. Returns {@code dataset} unchanged when listener or name is null.
    */
   public static Dataset<Row> track(
-      Dataset<Row> dataset,
-      String transformName,
-      SparkTransformMetricsAccumulator accumulator,
-      Role role) {
-    if (dataset == null
-        || accumulator == null
-        || transformName == null
-        || transformName.isEmpty()) {
+      Dataset<Row> dataset, String transformName, SparkNativeMetricsListener listener, Role role) {
+    if (dataset == null || listener == null || transformName == null || transformName.isEmpty()) {
       return dataset;
     }
-    Role effectiveRole = role != null ? role : Role.TRANSFORM;
-    StructType schema = dataset.schema();
-    JavaRDD<Row> tracked =
-        dataset
-            .toJavaRDD()
-            .mapPartitions(
-                iterator ->
-                    new CountingIterator(iterator, transformName, accumulator, effectiveRole),
-                true);
-    return dataset.sparkSession().createDataFrame(tracked, schema);
-  }
-
-  static final class CountingIterator implements Iterator<Row>, Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private final Iterator<Row> source;
-    private final String transformName;
-    private final SparkTransformMetricsAccumulator accumulator;
-    private final Role role;
-    private final int copyNr;
-    private final String host;
-
-    private long count;
-    private long partitionStartMs;
-    private long lastPublishMs;
-    private boolean finishedPublished;
-    private boolean startedPublished;
-
-    CountingIterator(
-        Iterator<Row> source,
-        String transformName,
-        SparkTransformMetricsAccumulator accumulator,
-        Role role) {
-      this.source = Objects.requireNonNull(source, "source");
-      this.transformName = transformName;
-      this.accumulator = accumulator;
-      this.role = role;
-      this.copyNr = partitionId();
-      this.host = localHost();
-    }
-
-    @Override
-    public boolean hasNext() {
-      ensureStarted();
-      if (source.hasNext()) {
-        return true;
-      }
-      publishFinished();
-      return false;
-    }
-
-    @Override
-    public Row next() {
-      ensureStarted();
-      Row row = source.next();
-      count++;
-      if (shouldPublishProgress()) {
-        publish(true, false);
-      }
-      return row;
-    }
-
-    private void ensureStarted() {
-      if (!startedPublished) {
-        startedPublished = true;
-        partitionStartMs = System.currentTimeMillis();
-        lastPublishMs = partitionStartMs;
-        publish(true, false);
-      }
-    }
-
-    private boolean shouldPublishProgress() {
-      if (count > 0 && count % ROW_INTERVAL == 0) {
-        return true;
-      }
-      long now = System.currentTimeMillis();
-      if (now - lastPublishMs >= TIME_INTERVAL_MS) {
-        lastPublishMs = now;
-        return true;
-      }
-      return false;
-    }
-
-    private void publishFinished() {
-      if (!finishedPublished) {
-        finishedPublished = true;
-        publish(false, true);
-      }
-    }
-
-    private void publish(boolean running, boolean finished) {
-      long read = 0;
-      long written = 0;
-      long input = 0;
-      long output = 0;
-      switch (role) {
-        case INPUT:
-          input = count;
-          written = count;
-          break;
-        case OUTPUT:
-          read = count;
-          output = count;
-          break;
-        case TRANSFORM:
-        default:
-          read = count;
-          written = count;
-          break;
-      }
-      long endTimeMs = finished ? System.currentTimeMillis() : 0L;
-      accumulator.add(
-          new SparkTransformMetricSlice(
-              transformName,
-              copyNr,
-              host,
-              read,
-              written,
-              input,
-              output,
-              0,
-              running,
-              finished,
-              partitionStartMs,
-              endTimeMs));
-    }
-
-    private static int partitionId() {
-      TaskContext ctx = TaskContext.get();
-      return ctx != null ? ctx.partitionId() : 0;
-    }
-
-    private static String localHost() {
-      try {
-        return InetAddress.getLocalHost().getHostName();
-      } catch (Exception e) {
-        return null;
-      }
-    }
+    String token = listener.register(transformName, role != null ? role : Role.TRANSFORM);
+    return dataset.observe(token, count(lit(1)).alias("rows"));
   }
 }

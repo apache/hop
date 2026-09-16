@@ -121,6 +121,23 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
               transformMeta);
       remarks.add(cr);
 
+      // The three tabs run in order, each on the row the one before it produced. Checking all of
+      // them against the incoming row reported a field renamed on "Select & Alter" as missing on
+      // the tabs that only ever see the new name.
+      IRowMeta afterSelect = prev;
+      IRowMeta afterDelete = prev;
+      try {
+        afterSelect = prev.clone();
+        getSelectFields(afterSelect, transformMeta.getName());
+        afterDelete = afterSelect.clone();
+        getDeleteFields(afterDelete);
+      } catch (HopTransformException e) {
+        // The rows cannot be worked out, so the later tabs are checked against the incoming row
+        // rather than not at all. No worse than having no answer.
+        afterSelect = prev;
+        afterDelete = prev;
+      }
+
       /*
        * Take care of the normal SELECT fields...
        */
@@ -155,6 +172,9 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       }
 
       if (!getSelectOption().getSelectFields().isEmpty()) {
+        errorMessage = "";
+        errorFound = false;
+
         // Starting from prev...
         for (int i = 0; i < prev.size(); i++) {
           IValueMeta pv = prev.getValueMeta(i);
@@ -193,7 +213,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
 
       // Starting from selected fields in ...
       for (int i = 0; i < getSelectOption().getDeleteName().size(); i++) {
-        int idx = prev.indexOfValue(getSelectOption().getDeleteName().get(i).getName());
+        int idx = afterSelect.indexOfValue(getSelectOption().getDeleteName().get(i).getName());
         if (idx < 0) {
           errorMessage += "\t\t" + getSelectOption().getDeleteName().get(i) + Const.CR;
           errorFound = true;
@@ -227,7 +247,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       // Starting from selected fields in ...
       for (int i = 0; i < getSelectOption().getMeta().size(); i++) {
         var currentName = getSelectOption().getMeta().get(i).getName();
-        int idx = prev.indexOfValue(currentName);
+        int idx = afterDelete.indexOfValue(currentName);
         if (idx < 0) {
           errorMessage += "\t\t" + currentName + Const.CR;
           errorFound = true;
@@ -277,41 +297,35 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       remarks.add(cr);
     }
 
-    // Check for doubles in the selected fields...
-    var selectFieldsSize = getSelectOption().getSelectFields().size();
-    int[] cnt = new int[selectFieldsSize];
+    // Check for doubles in the fields this transform produces.
+    //
+    // Naming the same incoming field twice is not a mistake: it is how a value is copied under a
+    // second name, which is what the Rename column is for. What downstream transforms cannot deal
+    // with is two fields arriving under the same name, so that is what is counted here.
+    var selectFields = getSelectOption().getSelectFields();
     boolean errorFound = false;
     String errorMessage = "";
 
-    for (int i = 0; i < selectFieldsSize; i++) {
-      cnt[i] = 0;
-      for (int j = 0; j < selectFieldsSize; j++) {
-        if (getSelectOption()
-            .getSelectFields()
-            .get(i)
-            .getName()
-            .equals(getSelectOption().getSelectFields().get(j).getName())) {
-          cnt[i]++;
+    for (int i = 0; i < selectFields.size(); i++) {
+      String outputName = outputNameOf(selectFields.get(i));
+      int occurrences = 0;
+      for (SelectField other : selectFields) {
+        if (outputName.equals(outputNameOf(other))) {
+          occurrences++;
         }
       }
 
-      if (cnt[i] > 1) {
+      if (occurrences > 1) {
         if (!errorFound) { // first time...
           errorMessage =
               BaseMessages.getString(PKG, "SelectValuesMeta.CheckResult.DuplicateFieldsSpecified")
                   + Const.CR;
-        } else {
-          errorFound = true;
         }
         errorMessage +=
             BaseMessages.getString(
                     PKG,
                     "SelectValuesMeta.CheckResult.OccurentRow",
-                    i
-                        + " : "
-                        + getSelectOption().getSelectFields().get(i).getName()
-                        + "  ("
-                        + cnt[i])
+                    i + " : " + outputName + "  (" + occurrences)
                 + Const.CR;
         errorFound = true;
       }
@@ -320,6 +334,11 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
+  }
+
+  /** The name the field leaves this transform under: the rename when there is one, else its own. */
+  private static String outputNameOf(SelectField field) {
+    return Utils.isEmpty(field.getRename()) ? Const.NVL(field.getName(), "") : field.getRename();
   }
 
   @Override

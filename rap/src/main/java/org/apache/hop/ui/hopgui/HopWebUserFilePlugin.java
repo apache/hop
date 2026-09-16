@@ -40,6 +40,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.diagram.DiagramExportOptions;
+import org.apache.hop.core.diagram.DiagramExportResult;
+import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.ExportContext;
+import org.apache.hop.core.diagram.IDiagramExporter;
+import org.apache.hop.core.diagram.IExportContext;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -53,7 +59,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.security.HopSecurityUi;
@@ -61,7 +66,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.UISession;
 import org.w3c.dom.Node;
@@ -175,28 +179,59 @@ public class HopWebUserFilePlugin {
       return;
     }
     try {
-      HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
-      if (pipelineGraph != null) {
-        String name = safeFilename(pipelineGraph.getPipelineMeta().getName(), ".svg");
-        String svg =
-            PipelineSvgPainter.generatePipelineSvg(
-                pipelineGraph.getPipelineMeta(), 1.0f, pipelineGraph.getVariables());
-        transfer().download(name, "image/svg+xml", svg.getBytes(StandardCharsets.UTF_8));
+      HopGui hopGui = HopGui.getInstance();
+      Object subject = null;
+      String name = null;
+      IVariables variables = hopGui.getVariables();
+
+      IHopFileTypeHandler activeHandler = hopGui.getActiveFileTypeHandler();
+      if (activeHandler != null) {
+        subject = activeHandler.getSubject();
+        name = safeFilename(activeHandler.getName(), ".svg");
+        if (activeHandler.getVariables() != null) {
+          variables = activeHandler.getVariables();
+        }
+      }
+
+      if (subject == null) {
+        HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+        if (pipelineGraph != null) {
+          subject = pipelineGraph.getPipelineMeta();
+          name = safeFilename(pipelineGraph.getPipelineMeta().getName(), ".svg");
+          variables = pipelineGraph.getVariables();
+        }
+      }
+
+      if (subject == null) {
+        HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
+        if (workflowGraph != null) {
+          subject = workflowGraph.getWorkflowMeta();
+          name = safeFilename(workflowGraph.getWorkflowMeta().getName(), ".svg");
+          variables = workflowGraph.getVariables();
+        }
+      }
+
+      if (subject == null) {
         return;
       }
 
-      HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
-      if (workflowGraph != null) {
-        String name = safeFilename(workflowGraph.getWorkflowMeta().getName(), ".svg");
-        String svg =
-            WorkflowSvgPainter.generateWorkflowSvg(
-                workflowGraph.getWorkflowMeta(), 1.0f, workflowGraph.getVariables());
-        transfer().download(name, "image/svg+xml", svg.getBytes(StandardCharsets.UTF_8));
-        return;
+      IDiagramExporter<?> exporter =
+          DiagramExportService.getInstance().findExporter(subject, "SVG");
+      if (exporter != null) {
+        DiagramExportOptions options = new DiagramExportOptions(null, "SVG");
+        IExportContext context =
+            new ExportContext(
+                variables,
+                hopGui.getMetadataProvider(),
+                hopGui.getLog(),
+                IExportContext.ExportEnvironment.WEB);
+        DiagramExportResult result =
+            DiagramExportService.getInstance().export(subject, options, context);
+        if (result.isSuccess() && result.getBytes() != null) {
+          transfer().download(name, result.getMimeType(), result.getBytes());
+          return;
+        }
       }
-      // The menu item is hidden until a pipeline or workflow is active. Keep this guard quiet as
-      // well in case a stale keyboard shortcut or menu event reaches the action.
-      return;
     } catch (Exception e) {
       showError("HopGui.FileBrowser.Error.ExportSvg", e);
     }

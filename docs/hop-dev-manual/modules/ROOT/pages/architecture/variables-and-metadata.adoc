@@ -24,8 +24,8 @@ Two resolution mechanisms run through everything in Hop, and both have a scope t
 
 Everything that can resolve variables implements `IVariables`, and those objects form a *parent chain*: a transform looks in its own space, then its pipeline's, then the parent workflow's, and so on up to the system properties and `hop-config.json`.
 
-`${VAR}` resolves from that chain.
-`#{path}` goes to a xref:plugin-types/metadata-configuration.adoc[variable resolver] instead — a secret manager, a vault, another pipeline.
+`+${VAR}+` resolves from that chain.
+`+#{path}+` goes to a xref:plugin-types/metadata-configuration.adoc[variable resolver] instead — a secret manager, a vault, another pipeline.
 
 The chain is why a variable set in a parent workflow is visible in a child pipeline, and why a variable set inside a transform is not visible to its siblings.
 

@@ -106,6 +106,20 @@
         <byte-buddy.version>1.18.11</byte-buddy.version>
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
+        <gib.buildUpstream>always</gib.buildUpstream>
+        <gib.disable>true</gib.disable>
+        <gib.fetchReferenceBranch>true</gib.fetchReferenceBranch>
+        <!-- lib-p2 wrappers are never published (maven.deploy.skip, and they are
+             excluded from the snapshot wagon deploy). Incremental PR builds must
+             still produce them locally: GIB's default buildUpstreamMode=changed
+             only rebuilds upstreams of *directly changed* modules, so a hop-ui
+             change selects hop-ui-rcp as downstream and then cannot resolve
+             org.eclipse.tm4e.core:jar:${project.version} from any repository. -->
+        <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
+        <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
+        <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
+        <gmavenplus-plugin.version>4.3.1</gmavenplus-plugin.version>
+        <groovy.version>4.0.28</groovy.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
@@ -122,6 +136,7 @@
         <license.licenseFile>LICENSE.txt</license.licenseFile>
         <license.licenseName>apache_v2</license.licenseName>
         <license.organizationName>Apache</license.organizationName>
+        <lombok.ecj.agent.skip>false</lombok.ecj.agent.skip>
         <lombok.version>1.18.46</lombok.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
@@ -160,6 +175,7 @@
         <objenesis.version>3.6</objenesis.version>
         <opentelemetry.version>1.65.0</opentelemetry.version>
         <org.eclipse.platform.version>3.134.0</org.eclipse.platform.version>
+        <plexus-compiler.version>2.17.0</plexus-compiler.version>
         <project.build.outputTimestamp>1786535563</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -380,13 +396,129 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>${gmavenplus-plugin.version}</version>
+                <!-- inherited so `cd <module> && mvn` and `-pl <module>` still attach
+                     Lombok and materialize the Eclipse compiler Plexus descriptor.
+                     Debian/Ubuntu Maven never indexes plexus-compiler-eclipse 2.17.0
+                     (Sisu 0.3.x ASM stops at Java 14 class files). -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.groovy</groupId>
+                        <artifactId>groovy</artifactId>
+                        <version>${groovy.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>attach-lombok-ecj-agent</id>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <skipScriptExecution>${lombok.ecj.agent.skip}</skipScriptExecution>
+                            <scripts>
+                                <script><![CDATA[
+import com.sun.tools.attach.VirtualMachine
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
+def projectDir = new File(System.getProperty('maven.multiModuleProjectDirectory'))
+synchronized (System.getProperties()) {
+    def hintXml = new File(projectDir, '.mvn/plexus-eclipse-hint/META-INF/plexus/components.xml')
+    def hintJar = new File(projectDir, '.mvn/plexus-eclipse-hint.jar')
+    if (hintXml.isFile() && (!hintJar.isFile() || hintJar.lastModified() < hintXml.lastModified())) {
+        hintJar.withOutputStream { fos ->
+            def zos = new ZipOutputStream(fos)
+            zos.putNextEntry(new ZipEntry('META-INF/plexus/components.xml'))
+            hintXml.withInputStream { it.transferTo(zos) }
+            zos.closeEntry()
+            zos.close()
+        }
+        log.info('Wrote Eclipse compiler Plexus descriptor jar: ' + hintJar)
+    }
+
+    if (System.getProperty('lombok.ecj.agent.skip') != 'true'
+            && System.getProperty('lombok.ecj.agent.attached') == null) {
+        def lombokJar = null
+        try {
+            def loc = Class.forName('lombok.launch.Agent').protectionDomain.codeSource.location
+            if (loc != null && loc.protocol == 'file') {
+                lombokJar = new File(loc.toURI())
+            }
+        } catch (ClassNotFoundException ignored) {
+            // fall through to .mvn/lombok-*.jar
+        }
+        if (lombokJar == null || !lombokJar.isFile()) {
+            lombokJar = new File(projectDir, '.mvn/lombok-' + project.properties['lombok.version'] + '.jar')
+        }
+        if (!lombokJar.isFile() || lombokJar.length() < 1000000L) {
+            throw new IllegalStateException('Lombok jar missing or incomplete for the ECJ agent attach, expected ' + lombokJar)
+        }
+        def agentJar = Files.createTempFile('lombok-ecj-agent-', '.jar').toFile()
+        agentJar.deleteOnExit()
+        Files.copy(lombokJar.toPath(), agentJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        try {
+            def vm = VirtualMachine.attach(String.valueOf(ProcessHandle.current().pid()))
+            try {
+                vm.loadAgent(agentJar.absolutePath, 'ECJ')
+            } finally {
+                vm.detach()
+            }
+            System.setProperty('lombok.ecj.agent.attached', 'true')
+            log.info('Lombok ECJ agent attached (source: ' + lombokJar + ')')
+        } catch (Throwable t) {
+            throw new IllegalStateException('Unable to self-attach the Lombok ECJ agent, ensure -Djdk.attach.allowAttachSelf=true is in .mvn/jvm.config and the environment allows self-attach, or skip it with -Dlombok.ecj.agent.skip=true', t)
+        }
+    }
+}
+                                ]]></script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
                 <configuration>
+                    <compilerId>eclipse</compilerId>
                     <compilerArgs>
                         <arg>-Xlint:-options</arg>
                     </compilerArgs>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-eclipse</artifactId>
+                        <version>${plexus-compiler.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
+                    </dependency>
+                    <!-- Plexus XML registration of compilerId=eclipse. Required for
+                         Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
+                         Java 17 EclipseJavaCompiler class. See .mvn/plexus-eclipse-hint/. -->
+                    <dependency>
+                        <groupId>org.apache.hop</groupId>
+                        <artifactId>plexus-eclipse-hint</artifactId>
+                        <version>1.0</version>
+                        <scope>system</scope>
+                        <systemPath>${maven.multiModuleProjectDirectory}/.mvn/plexus-eclipse-hint.jar</systemPath>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -437,6 +569,7 @@
                         <exclude>.dockerignore</exclude>
                         <!-- symlink alias of AGENTS.md (header lives on the target) -->
                         <exclude>CLAUDE.md</exclude>
+                        <exclude>.mvn/plexus-eclipse-hint.jar</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>
@@ -477,6 +610,11 @@
                         <exclude>**/integration-tests/xml/files/expected/**</exclude>
                         <exclude>**/integration-tests/ssh/keys/it_rsa</exclude>
                         <exclude>**/integration-tests/ssh/keys/it_rsa.pub</exclude>
+
+                        <!-- Prompt templates sent to language models (headers would be in the prompt) -->
+                        <exclude>**/src/main/resources/**/prompts/**/*.txt</exclude>
+                        <exclude>**/src/main/resources/ai-context.md</exclude>
+                        <exclude>**/src/main/resources/ai-context/**</exclude>
 
                         <!-- Samples Exclusions -->
                         <exclude>**/src/main/samples/**/*.txt</exclude>

@@ -902,6 +902,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     return toolItemMap.get(id);
   }
 
+  public Control findControl(String id) {
+    return widgetsMap.get(id);
+  }
+
   /**
    * Return the Control to use for positioning a popup menu for the given toolbar item. A ToolItem
    * is not a Control, and getControl() is only set for SEPARATOR items (the wrapped label/widget).

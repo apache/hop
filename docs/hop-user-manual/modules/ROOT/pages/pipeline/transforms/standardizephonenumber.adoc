@@ -17,30 +17,15 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Standardize Phone Number transform normalizes phone numbers in a standardized and consistent manner.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/standardizephonenumber.svg[Standardize Phone Number transform Icon, role="image-doc-icon"] Standardize Phone Number
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Standardize Phone Number transform normalizes phone numbers in a standardized and consistent manner.
 
 The transform uses https://github.com/google/libphonenumber[Google libphonenumber^] library.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -63,6 +48,6 @@ The transform uses https://github.com/google/libphonenumber[Google libphonenumbe
 
 TIP: If the original phone number already has an international area code, this transform will not normalize it to another country even if the international area code is different from the country input’s international area code.
 
-TIP: Output, number type, and is-valid field names may contain variables (for example `${OUTPUT_FIELD}`).
+TIP: Output, number type, and is-valid field names may contain variables (for example `+${OUTPUT_FIELD}+`).
 
 TIP: If a number cannot be parsed, the original value is written to the output field, the number type is `ERROR`, and is-valid is `false`. Numbers that parse but are not valid (for example a too-short national number) are still formatted; use the is-valid field to filter them.

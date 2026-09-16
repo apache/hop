@@ -113,7 +113,7 @@ config/projects/samples/… # optional samples
 
 Rules of thumb:
 
-* Use Maven assembly with `appendAssemblyId` *false* so the file is named `{artifactId}-{version}.zip` (marketplace expects that name on the repo path).
+* Use Maven assembly with `appendAssemblyId` *false* so the file is named `+{artifactId}-{version}.zip+` (marketplace expects that name on the repo path).
 * Put the plugin jar and its *runtime* third-party libraries under the plugin directory (often `lib/`).
 * *Do not* ship `hop-core`, `hop-engine`, or `hop-ui` jars — Hop already provides them.
 * Exclude jars already present in Hop’s `lib/core` when possible to avoid duplicates and classloader conflicts.
@@ -437,7 +437,7 @@ export NEXUS_URL=https://nexus.sandbox.example/repository/hop-plugins/
 | Repo requires auth, or *wrong* Basic auth is set (clear `HOP_MARKETPLACE_*` for anonymous repos)
 
 | HTTP 404
-| Wrong groupId/artifactId/version, or zip not named `{artifactId}-{version}.zip`
+| Wrong groupId/artifactId/version, or zip not named `+{artifactId}-{version}.zip+`
 
 | Install OK but plugin missing in GUI
 | Zip layout not under `plugins/…`, or restart not done

@@ -186,6 +186,21 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return isFileField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFileField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Label");
+  }
+
+  @Override
   public void getFields(
       IRowMeta row,
       String name,

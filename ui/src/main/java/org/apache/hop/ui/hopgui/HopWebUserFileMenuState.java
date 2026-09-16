@@ -52,4 +52,23 @@ final class HopWebUserFileMenuState {
       boolean pipelineOpen, boolean workflowOpen, boolean exportAllowed) {
     return (pipelineOpen || workflowOpen) && exportAllowed;
   }
+
+  static boolean shouldShowDiagramExport(
+      IHopFileTypeHandler handler,
+      boolean pipelineOpen,
+      boolean workflowOpen,
+      boolean exportAllowed) {
+    if (!exportAllowed) {
+      return false;
+    }
+    if (pipelineOpen || workflowOpen) {
+      return true;
+    }
+    if (handler != null && handler.getSubject() != null) {
+      return !org.apache.hop.core.diagram.DiagramExportService.getInstance()
+          .findExportersForSubject(handler.getSubject())
+          .isEmpty();
+    }
+    return false;
+  }
 }

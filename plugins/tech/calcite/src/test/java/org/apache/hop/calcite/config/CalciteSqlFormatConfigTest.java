@@ -21,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.calcite.sql.pretty.SqlFormatOptions;
+import org.apache.calcite.sql.SqlWriterConfig;
+import org.apache.calcite.sql.SqlWriterConfig.LineFolding;
+import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.hop.calcite.CalciteSqlFormatter;
 import org.junit.jupiter.api.Test;
 
@@ -33,27 +35,38 @@ class CalciteSqlFormatConfigTest {
     config.setAlwaysUseParentheses(true);
     config.setCaseClausesOnNewLines(false);
     config.setClauseStartsLine(false);
+    config.setLeadingComma(true);
     config.setKeywordsLowercase(true);
     config.setQuoteAllIdentifiers(true);
     config.setSelectListItemsOnSeparateLines(false);
+    config.setFromListItemsOnSeparateLines(false);
     config.setWhereListItemsOnSeparateLines(false);
+    config.setGroupByListItemsOnSeparateLines(false);
+    config.setOrderByListItemsOnSeparateLines(false);
     config.setWindowDeclarationStartsLine(false);
     config.setWindowListItemsOnSeparateLines(false);
     config.setIndentation(8);
     config.setLineLength(80);
 
-    SqlFormatOptions options = config.toSqlFormatOptions();
-    assertTrue(options.isAlwaysUseParentheses());
-    assertFalse(options.isCaseClausesOnNewLines());
-    assertFalse(options.isClauseStartsLine());
-    assertTrue(options.isKeywordsLowercase());
-    assertTrue(options.isQuoteAllIdentifiers());
-    assertFalse(options.isSelectListItemsOnSeparateLines());
-    assertFalse(options.isWhereListItemsOnSeparateLines());
-    assertFalse(options.isWindowDeclarationStartsLine());
-    assertFalse(options.isWindowListItemsOnSeparateLines());
-    assertEquals(8, options.getIndentation());
-    assertEquals(80, options.getLineLength());
+    SqlWriterConfig writerConfig = config.applySqlFormat(SqlPrettyWriter.config());
+
+    assertTrue(writerConfig.alwaysUseParentheses());
+    assertFalse(writerConfig.caseClausesOnNewLines());
+    assertFalse(writerConfig.clauseStartsLine());
+    assertFalse(writerConfig.clauseEndsLine());
+    assertTrue(writerConfig.leadingComma());
+    assertTrue(writerConfig.keywordsLowerCase());
+    assertTrue(writerConfig.quoteAllIdentifiers());
+    assertEquals(LineFolding.FOLD, writerConfig.selectFolding());
+    assertEquals(LineFolding.FOLD, writerConfig.fromFolding());
+    assertEquals(LineFolding.FOLD, writerConfig.whereFolding());
+    assertEquals(LineFolding.FOLD, writerConfig.groupByFolding());
+    assertEquals(LineFolding.FOLD, writerConfig.orderByFolding());
+    assertEquals(LineFolding.FOLD, writerConfig.windowFolding());
+    assertEquals(LineFolding.FOLD, writerConfig.overFolding());
+
+    assertEquals(8, writerConfig.indentation());
+    assertEquals(80, writerConfig.lineLength());
   }
 
   @Test

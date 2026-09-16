@@ -130,6 +130,19 @@ public class HopGuiPipelineHopDelegate {
       ok = false;
     }
 
+    if (ok && pipelineMeta.isDisallowedMainInputHop(newHop)) {
+      MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Dialog.TransformDoesNotAcceptInput.Message",
+              newHop.getToTransform().getName()));
+      mb.setText(
+          BaseMessages.getString(PKG, "PipelineGraph.Dialog.TransformDoesNotAcceptInput.Title"));
+      mb.open();
+      ok = false;
+    }
+
     if (ok) { // only do the following checks, e.g. checkRowMixingStatically
       // when not looping, otherwise we get a loop with
       // StackOverflow there ;-)

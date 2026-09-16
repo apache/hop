@@ -18,8 +18,13 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.lang.reflect.Method;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.junit.jupiter.api.Test;
 
 class DatabaseWorkbenchViewsTest {
@@ -48,5 +53,31 @@ class DatabaseWorkbenchViewsTest {
   @Test
   void openSqlIsInertWithoutHopGui() {
     assertDoesNotThrow(() -> DatabaseWorkbenchDialog.openSql(null, "SELECT 1"));
+  }
+
+  @Test
+  void openInDatabaseIsInertWithoutHopGui() {
+    assertDoesNotThrow(() -> DatabaseWorkbenchViews.openInDatabase(null, null, "SELECT 1"));
+    assertDoesNotThrow(() -> DatabaseWorkbenchViews.openInDatabase(null, "SELECT 1"));
+  }
+
+  @Test
+  void editMetadataToolbarIsRegisteredOnTheWorkbench() throws Exception {
+    Method method = DatabaseWorkbench.class.getMethod("editSelectedConnection");
+    GuiToolbarElement element = method.getAnnotation(GuiToolbarElement.class);
+    assertNotNull(element);
+    assertEquals(DatabaseWorkbench.GUI_PLUGIN_TOOLBAR_PARENT_ID, element.root());
+    assertEquals(DatabaseWorkbench.TOOLBAR_ITEM_EDIT_METADATA, element.id());
+    assertEquals("ui/images/metadata.svg", element.image());
+  }
+
+  @Test
+  void openPerspectiveToolbarIsRegisteredOnTheExplorer() throws Exception {
+    Method method = DatabaseExplorerDialog.class.getMethod("openInDatabasePerspective");
+    GuiToolbarElement element = method.getAnnotation(GuiToolbarElement.class);
+    assertNotNull(element);
+    assertEquals(DatabaseExplorerDialog.GUI_PLUGIN_TOOLBAR_PARENT_ID, element.root());
+    assertEquals(DatabaseExplorerDialog.TOOLBAR_ITEM_OPEN_PERSPECTIVE, element.id());
+    assertEquals("ui/images/database-perspective.svg", element.image());
   }
 }

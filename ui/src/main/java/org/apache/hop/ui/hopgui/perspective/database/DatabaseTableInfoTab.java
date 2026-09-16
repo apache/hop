@@ -27,10 +27,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseObjectDdl;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -38,6 +40,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.database.DatabaseTreeNode;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -64,7 +68,7 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
 
   private final IDatabaseWorkbenchHost host;
   private final DatabaseWorkbench workbench;
-  @Getter private final DatabaseMeta databaseMeta;
+  @Getter @Setter private DatabaseMeta databaseMeta;
   @Getter private final String schemaName;
   @Getter private final String tableName;
   @Getter private final DatabaseTreeNode.Kind kind;
@@ -175,6 +179,21 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   }
 
   public void loadDetails() {
+    if (databaseMeta != null) {
+      DatabaseMeta freshMeta = workbench.reloadConnectionMeta(databaseMeta.getName());
+      if (freshMeta == null) {
+        new ErrorDialog(
+            host.getShell(),
+            BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+            BaseMessages.getString(
+                PKG, "DatabasePerspective.Error.ConnectionNotFound", databaseMeta.getName()),
+            new HopException(
+                BaseMessages.getString(
+                    PKG, "DatabasePerspective.Error.ConnectionNotFound", databaseMeta.getName())));
+        return;
+      }
+      this.databaseMeta = freshMeta;
+    }
     String qualified =
         databaseMeta.getQuotedSchemaTableCombination(host.getVariables(), schemaName, tableName);
     String description =

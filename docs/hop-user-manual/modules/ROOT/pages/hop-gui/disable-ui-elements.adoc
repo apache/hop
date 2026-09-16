@@ -59,6 +59,11 @@ Example to block calls using any System. methods:
     <exclusion>200-HopMetadataPerspective</exclusion>
     <exclusion>toolbar-50000-environment-label</exclusion>
     <exclusion>HopGuiPipelineGraph-ToolBar-10010-Run</exclusion>
+    <exclusion>175-HopAiAdvisorPerspective</exclusion>
+    <exclusion>HopGuiPipelineGraph-ToolBar-10048-ai-help</exclusion>
+    <exclusion>HopGuiWorkflowGraph-ToolBar-10048-ai-help</exclusion>
+    <exclusion>40027-menu-tools-ai-window</exclusion>
+    <exclusion>ai-provider</exclusion>
 </exclusions>
 ----
 

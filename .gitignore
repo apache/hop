@@ -13,6 +13,8 @@ pom.xml.releaseBackup
 bin
 *.class
 *.jar
+# Tiny Plexus descriptor so Debian/Ubuntu Maven can find compilerId=eclipse.
+!.mvn/plexus-eclipse-hint.jar
 *.war
 *.ear
 .DS_Store
@@ -72,6 +74,7 @@ integration-tests/http/output/
 integration-tests/sftp/output/
 # The PGP tests build a throwaway keyring and the files they sign under output/
 integration-tests/pgp/output/
+integration-tests/lint/output/
 integration-tests/spreadsheet/files/sample-file-append.xlsx
 integration-tests/spreadsheet/files/sample-file-append-test.xlsx
 integration-tests/spark-native/output

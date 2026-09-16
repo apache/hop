@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/groupby.svg[Group By transform Icon, role="image-doc-icon"] Group By
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
@@ -39,19 +37,6 @@ If you sort the data outside of Hop, the case sensitivity of the data in the fie
 
 You can use the xref:pipeline/transforms/memgroupby.adoc[Memory Group By] transform to handle non-sorted input.
 
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
-
 == Options
 
 [options="header"]
@@ -67,6 +52,11 @@ You must specify the name of the flag field in that case (the type is boolean).
 |Always give back a row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row.
 This can be useful if you want to count the number of rows.
 Without this option you would never get a count of zero (0).
+|Ignore rows for aggregation|Enable to exclude rows from aggregation when the selected boolean field is `true`.
+Ignored rows still participate in group detection.
+When *Include all rows* is enabled, ignored rows are still written to the output and receive the group aggregate values, but they do not contribute to cumulative sum, cumulative average, or moving average.
+|Ignore field name|Name of the boolean field that marks rows to exclude from aggregation.
+This field is required when *Ignore rows for aggregation* is enabled.
 |Group fields table|Specify the fields over which you want to group.
 Click Get Fields to add all fields from the input stream(s).
 |Aggregates table a|Specify the fields that must be aggregated, the method and the name of the resulting new field.

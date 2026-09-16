@@ -77,6 +77,97 @@ public final class HopSparkRowConverter {
     };
   }
 
+  /**
+   * Per-partition converter: resolves the value metas and type ids once, then converts rows with a
+   * flat switch and direct pass-through for values that already have the Spark-side Java type
+   * (String, Long, Double, Boolean). Falls back to the generic per-value conversion for the rest.
+   */
+  public static final class RowCodec {
+    private final IValueMeta[] metas;
+    private final int[] types;
+    private final boolean[] plain;
+
+    private RowCodec(IRowMeta rowMeta) {
+      int n = rowMeta.size();
+      metas = new IValueMeta[n];
+      types = new int[n];
+      plain = new boolean[n];
+      for (int i = 0; i < n; i++) {
+        metas[i] = rowMeta.getValueMeta(i);
+        types[i] = metas[i].getType();
+        plain[i] = metas[i].getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL;
+      }
+    }
+
+    public static RowCodec of(IRowMeta rowMeta) {
+      return new RowCodec(rowMeta);
+    }
+
+    public int size() {
+      return metas.length;
+    }
+
+    public Object[] toHop(Row sparkRow) throws HopException {
+      Object[] hopRow = new Object[metas.length];
+      if (sparkRow == null) {
+        return hopRow;
+      }
+      int available = Math.min(metas.length, sparkRow.length());
+      for (int i = 0; i < available; i++) {
+        Object v = sparkRow.get(i);
+        if (v == null) {
+          continue;
+        }
+        hopRow[i] =
+            switch (types[i]) {
+              case IValueMeta.TYPE_STRING -> v instanceof String ? v : v.toString();
+              case IValueMeta.TYPE_INTEGER -> v instanceof Long ? v : toHopValue(metas[i], v);
+              case IValueMeta.TYPE_NUMBER -> v instanceof Double ? v : toHopValue(metas[i], v);
+              case IValueMeta.TYPE_BOOLEAN -> v instanceof Boolean ? v : toHopValue(metas[i], v);
+              default -> toHopValue(metas[i], v);
+            };
+      }
+      return hopRow;
+    }
+
+    public Row toSpark(Object[] hopRow) throws HopException {
+      return RowFactory.create(sparkValues(hopRow, 0));
+    }
+
+    public Row toTaggedSpark(String targetTag, Object[] hopRow) throws HopException {
+      Object[] values = sparkValues(hopRow, 1);
+      values[0] = targetTag != null ? targetTag : HopSparkUtil.MAIN_TARGET_TAG;
+      return RowFactory.create(values);
+    }
+
+    private Object[] sparkValues(Object[] hopRow, int offset) throws HopException {
+      Object[] values = new Object[metas.length + offset];
+      int available = hopRow == null ? 0 : Math.min(metas.length, hopRow.length);
+      for (int i = 0; i < available; i++) {
+        Object v = hopRow[i];
+        if (v == null) {
+          continue;
+        }
+        Object out;
+        if (plain[i]) {
+          out =
+              switch (types[i]) {
+                case IValueMeta.TYPE_STRING -> v instanceof String ? v : toSparkValue(metas[i], v);
+                case IValueMeta.TYPE_INTEGER -> v instanceof Long ? v : toSparkValue(metas[i], v);
+                case IValueMeta.TYPE_NUMBER -> v instanceof Double ? v : toSparkValue(metas[i], v);
+                case IValueMeta.TYPE_BOOLEAN ->
+                    v instanceof Boolean ? v : toSparkValue(metas[i], v);
+                default -> toSparkValue(metas[i], v);
+              };
+        } else {
+          out = toSparkValue(metas[i], v);
+        }
+        values[i + offset] = out;
+      }
+      return values;
+    }
+  }
+
   public static Row toSparkRow(IRowMeta rowMeta, Object[] hopRow) throws HopException {
     Object[] values = new Object[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {

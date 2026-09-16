@@ -17,8 +17,11 @@
 
 package org.apache.hop.spark.core;
 
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.count;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -51,6 +54,7 @@ class SparkNativeMetricsTest {
             .config("spark.ui.showConsoleProgress", "false")
             .config("spark.metrics.staticSources.enabled", "false")
             .config("spark.driver.host", "localhost")
+            .config("spark.sql.shuffle.partitions", "3")
             .getOrCreate();
   }
 
@@ -61,84 +65,151 @@ class SparkNativeMetricsTest {
     }
   }
 
-  @Test
-  void trackReportsInputRoleAcrossPartitions() {
+  private static Dataset<Row> ids(int n, int partitions) {
     StructType schema =
         new StructType(
             new StructField[] {
               DataTypes.createStructField("id", DataTypes.LongType, false),
             });
     List<Row> rows = new ArrayList<>();
-    for (long i = 0; i < 40; i++) {
+    for (long i = 0; i < n; i++) {
       rows.add(RowFactory.create(i));
     }
-    Dataset<Row> input = spark.createDataFrame(rows, schema).repartition(4);
+    return spark.createDataFrame(rows, schema).repartition(partitions);
+  }
 
+  private static SparkTransformMetricsAccumulator accumulator(String name) {
     SparkTransformMetricsAccumulator acc = new SparkTransformMetricsAccumulator();
-    spark.sparkContext().register(acc, "native-metrics-input");
+    spark.sparkContext().register(acc, name);
+    return acc;
+  }
+
+  private static SparkNativeMetricsListener listen(SparkTransformMetricsAccumulator acc) {
+    SparkNativeMetricsListener listener = new SparkNativeMetricsListener(acc);
+    listener.addTo(spark.sparkContext());
+    return listener;
+  }
+
+  private static Map<String, SparkTransformMetricSlice> settle(
+      SparkNativeMetricsListener listener, SparkTransformMetricsAccumulator acc) {
+    listener.flush(spark.sparkContext(), 10_000L);
+    listener.removeFrom(spark.sparkContext());
+    return acc.value();
+  }
+
+  private static long sum(
+      Map<String, SparkTransformMetricSlice> slices,
+      String transform,
+      java.util.function.ToLongFunction<SparkTransformMetricSlice> f) {
+    return slices.values().stream()
+        .filter(s -> transform.equals(s.getTransformName()))
+        .mapToLong(f)
+        .sum();
+  }
+
+  @Test
+  void trackReportsInputRoleAcrossPartitionsWithoutRddBarrier() {
+    Dataset<Row> input = ids(40, 4);
+    SparkTransformMetricsAccumulator acc = accumulator("native-metrics-input");
+    SparkNativeMetricsListener listener = listen(acc);
 
     Dataset<Row> tracked =
-        SparkNativeMetrics.track(input, "file-in", acc, SparkNativeMetrics.Role.INPUT);
+        SparkNativeMetrics.track(input, "file-in", listener, SparkNativeMetrics.Role.INPUT);
+    // Anchor only: the lineage stays a Dataset plan (no LogicalRDD from createDataFrame(rdd))
+    assertTrue(tracked.queryExecution().optimizedPlan().toString().contains("CollectMetrics"));
+    assertFalse(tracked.queryExecution().optimizedPlan().toString().contains("LogicalRDD"));
     assertEquals(40L, tracked.count());
 
-    Map<String, SparkTransformMetricSlice> slices = acc.value();
+    Map<String, SparkTransformMetricSlice> slices = settle(listener, acc);
     assertFalse(slices.isEmpty());
-
-    long totalInput = 0;
-    long totalWritten = 0;
     Set<Integer> copies = new HashSet<>();
     for (SparkTransformMetricSlice slice : slices.values()) {
       assertEquals("file-in", slice.getTransformName());
       assertTrue(slice.isFinished());
       assertTrue(slice.getStartTimeMs() > 0, "partition should record start time");
       assertTrue(slice.getEndTimeMs() >= slice.getStartTimeMs(), "end should be >= start");
-      totalInput += slice.getLinesInput();
-      totalWritten += slice.getLinesWritten();
       copies.add(slice.getCopyNr());
     }
-    assertEquals(40L, totalInput);
-    assertEquals(40L, totalWritten);
+    assertEquals(40L, sum(slices, "file-in", SparkTransformMetricSlice::getLinesInput));
+    assertEquals(40L, sum(slices, "file-in", SparkTransformMetricSlice::getLinesWritten));
     assertTrue(copies.size() >= 2, "expected multi-partition copies, got " + copies);
   }
 
   @Test
   void trackReportsOutputAndTransformRoles() {
-    StructType schema =
-        new StructType(
-            new StructField[] {
-              DataTypes.createStructField("v", DataTypes.StringType, false),
-            });
-    List<Row> rows =
-        List.of(RowFactory.create("a"), RowFactory.create("b"), RowFactory.create("c"));
-    Dataset<Row> input = spark.createDataFrame(rows, schema).repartition(2);
+    Dataset<Row> input = ids(3, 2);
+    SparkTransformMetricsAccumulator acc = accumulator("native-metrics-roles");
+    SparkNativeMetricsListener listener = listen(acc);
 
-    SparkTransformMetricsAccumulator outAcc = new SparkTransformMetricsAccumulator();
-    spark.sparkContext().register(outAcc, "native-metrics-output");
     Dataset<Row> outTracked =
-        SparkNativeMetrics.track(input, "file-out", outAcc, SparkNativeMetrics.Role.OUTPUT);
+        SparkNativeMetrics.track(input, "file-out", listener, SparkNativeMetrics.Role.OUTPUT);
     assertEquals(3L, outTracked.count());
-    long outSum =
-        outAcc.value().values().stream().mapToLong(SparkTransformMetricSlice::getLinesOutput).sum();
-    long readSum =
-        outAcc.value().values().stream().mapToLong(SparkTransformMetricSlice::getLinesRead).sum();
-    assertEquals(3L, outSum);
-    assertEquals(3L, readSum);
-
-    SparkTransformMetricsAccumulator txAcc = new SparkTransformMetricsAccumulator();
-    spark.sparkContext().register(txAcc, "native-metrics-tx");
     Dataset<Row> txTracked =
-        SparkNativeMetrics.track(input, "sort", txAcc, SparkNativeMetrics.Role.TRANSFORM);
+        SparkNativeMetrics.track(input, "sort", listener, SparkNativeMetrics.Role.TRANSFORM);
     assertEquals(3L, txTracked.count());
-    long written =
-        txAcc.value().values().stream().mapToLong(SparkTransformMetricSlice::getLinesWritten).sum();
-    long read =
-        txAcc.value().values().stream().mapToLong(SparkTransformMetricSlice::getLinesRead).sum();
-    assertEquals(3L, written);
-    assertEquals(3L, read);
+
+    Map<String, SparkTransformMetricSlice> slices = settle(listener, acc);
+    assertEquals(3L, sum(slices, "file-out", SparkTransformMetricSlice::getLinesOutput));
+    assertEquals(3L, sum(slices, "file-out", SparkTransformMetricSlice::getLinesRead));
+    assertEquals(0L, sum(slices, "file-out", SparkTransformMetricSlice::getLinesInput));
+    assertEquals(3L, sum(slices, "sort", SparkTransformMetricSlice::getLinesWritten));
+    assertEquals(3L, sum(slices, "sort", SparkTransformMetricSlice::getLinesRead));
   }
 
   @Test
-  void trackIsNoOpWithoutAccumulator() {
+  void countsAfterShuffleAreNotDoubledBySortSampling() {
+    // group by → sort: range partitioning samples the aggregate once before the real pass
+    Dataset<Row> input = ids(100, 4).withColumn("k", col("id").mod(5));
+    SparkTransformMetricsAccumulator acc = accumulator("native-metrics-shuffle");
+    SparkNativeMetricsListener listener = listen(acc);
+
+    Dataset<Row> in =
+        SparkNativeMetrics.track(input, "in", listener, SparkNativeMetrics.Role.INPUT);
+    Dataset<Row> grouped = in.groupBy(col("k")).agg(count(col("id")).alias("n"));
+    grouped =
+        SparkNativeMetrics.track(grouped, "group", listener, SparkNativeMetrics.Role.TRANSFORM);
+    Dataset<Row> sorted = grouped.orderBy(col("k"));
+    sorted = SparkNativeMetrics.track(sorted, "sort", listener, SparkNativeMetrics.Role.TRANSFORM);
+    assertEquals(5L, sorted.count());
+
+    Map<String, SparkTransformMetricSlice> slices = settle(listener, acc);
+    slices
+        .values()
+        .forEach(
+            sl ->
+                System.out.println(
+                    "SLICE "
+                        + sl.getTransformName()
+                        + " copy="
+                        + sl.getCopyNr()
+                        + " in="
+                        + sl.getLinesInput()
+                        + " written="
+                        + sl.getLinesWritten()
+                        + " start="
+                        + sl.getStartTimeMs()
+                        + " end="
+                        + sl.getEndTimeMs()));
+    System.out.println(sorted.queryExecution().executedPlan().toString());
+    assertEquals(100L, sum(slices, "in", SparkTransformMetricSlice::getLinesInput));
+    assertEquals(5L, sum(slices, "group", SparkTransformMetricSlice::getLinesWritten));
+    assertEquals(5L, sum(slices, "sort", SparkTransformMetricSlice::getLinesWritten));
+  }
+
+  @Test
+  void tokensAreUniquePerListener() {
+    SparkTransformMetricsAccumulator acc = new SparkTransformMetricsAccumulator();
+    SparkNativeMetricsListener a = new SparkNativeMetricsListener(acc);
+    SparkNativeMetricsListener b = new SparkNativeMetricsListener(acc);
+    String t1 = a.register("x", SparkNativeMetrics.Role.TRANSFORM);
+    String t2 = a.register("x", SparkNativeMetrics.Role.TRANSFORM);
+    assertNotEquals(t1, t2);
+    assertNotEquals(t1, b.register("x", SparkNativeMetrics.Role.TRANSFORM));
+    assertTrue(t1.startsWith(SparkNativeMetricsListener.TOKEN_PREFIX));
+  }
+
+  @Test
+  void trackIsNoOpWithoutListener() {
     StructType schema =
         new StructType(
             new StructField[] {

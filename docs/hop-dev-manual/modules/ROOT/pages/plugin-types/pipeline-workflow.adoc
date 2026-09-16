@@ -88,6 +88,14 @@ This is the single most important method to get correct.
 Design-time validation, shown when a user checks a pipeline.
 Add `CheckResult` entries for missing input hops, unresolvable fields, and settings that cannot work.
 
+`consumesMainInput()` / `canStartWithoutInput()`::
+Default is that a transform *does* drain main input hops (`consumesMainInput() == true`).
+Hop, Verify and the local engine assume that, which is what third-party plugins need.
+If `processRow()` never calls `getRow()` — Generate Rows, Data Grid, a file reader with "source from field" off — override `consumesMainInput()` to return `false` or hops into the transform fill the rowset and the pipeline never finishes.
+`canStartWithoutInput()` is independent: Get Variables both starts without a hop and reads rows when hops are present.
+Verify adds a comment on those instances.
+The add-transform dialog and palette add the `pipeline source` search keyword for plugins that start without input at default settings.
+
 `init()` / `processRow()` / `dispose()` on the transform::
 `init()` opens what needs opening and returns false to fail the pipeline.
 `processRow()` handles one row and returns false when there is nothing left to do; it is called repeatedly until it does.

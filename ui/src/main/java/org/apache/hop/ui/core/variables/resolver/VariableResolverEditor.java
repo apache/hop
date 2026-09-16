@@ -337,6 +337,9 @@ public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
     //
     guiCompositeWidgets.getWidgetsContents(
         meta.getIResolver(), VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    if (guiCompositeWidgets.getWidgetsListener() != null) {
+      guiCompositeWidgets.getWidgetsListener().persistContents(guiCompositeWidgets);
+    }
   }
 
   private String[] getResolverTypes() {

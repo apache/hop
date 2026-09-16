@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +109,32 @@ class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  @Test
+  void staticSearchDoesNotConsumeMainInput() {
+    LdapInputMeta meta = new LdapInputMeta();
+    meta.setDefault();
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+  }
+
+  @Test
+  void dynamicSearchConsumesMainInput() {
+    LdapInputMeta meta = new LdapInputMeta();
+    meta.setDefault();
+    meta.setDynamicSearch(true);
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
+  }
+
+  @Test
+  void dynamicFilterConsumesMainInput() {
+    LdapInputMeta meta = new LdapInputMeta();
+    meta.setDefault();
+    meta.setDynamicFilter(true);
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
   }
 
   public class LDAPInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<LdapInputField> {

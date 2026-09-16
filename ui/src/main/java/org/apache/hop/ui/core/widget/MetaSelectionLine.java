@@ -553,6 +553,23 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   /**
+   * Point this line at another metadata provider (for example the import target folder) and refresh
+   * the combo items. Keeps the current text when that name still exists.
+   */
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+    this.metadataProvider = metadataProvider;
+    if (manager != null) {
+      manager.setMetadataProvider(metadataProvider);
+    }
+    try {
+      fillItems();
+    } catch (HopException e) {
+      LogChannel.UI.logError(
+          "Error refreshing list of " + getMetadataDescription() + " metadata elements", e);
+    }
+  }
+
+  /**
    * Gets variables
    *
    * @return value of variables

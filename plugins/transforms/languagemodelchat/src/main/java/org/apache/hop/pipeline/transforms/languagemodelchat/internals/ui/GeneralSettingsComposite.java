@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 
 public class GeneralSettingsComposite implements IDialogComposite {
 
@@ -87,10 +88,15 @@ public class GeneralSettingsComposite implements IDialogComposite {
 
     Builder layout = buildFormData().margin(margin);
 
+    Control previous = parameters.control();
+    if (previous == null || previous instanceof Shell) {
+      previous = composite;
+    }
+
     // Input Type JSON Checkbox
     inputChatJsonInput = new Button(parameters.parent(), CHECK);
     setLook(inputChatJsonInput);
-    layout.control(composite);
+    layout.control(previous);
     inputChatJsonInput.setText(i18n("LanguageModelChatDialog.InputChatJson.Label"));
     inputChatJsonInput.setToolTipText(i18n("LanguageModelChatDialog.InputChatJson.Tooltip"));
     inputChatJsonInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());

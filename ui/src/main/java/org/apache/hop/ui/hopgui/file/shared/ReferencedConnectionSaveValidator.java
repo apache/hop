@@ -69,8 +69,29 @@ public final class ReferencedConnectionSaveValidator {
             workflowMeta, variables, metadataProvider));
   }
 
-  static boolean confirmRemarks(Shell shell, List<ICheckResult> remarks) {
-    if (remarks == null || remarks.isEmpty()) {
+  /**
+   * The remarks worth stopping a save for: a connection that is really missing, or none assigned.
+   *
+   * <p>A connection the checker could not look up at all is reported too (see {@link
+   * ReferencedDatabaseConnectionChecker#INFO_NOT_VERIFIED}), but that says the metadata could not
+   * be read rather than that anything is wrong with the file being saved. Prompting on it would put
+   * this dialog in front of every single save for as long as the metadata is unreachable.
+   *
+   * @param remarks every remark the checker produced, may be null
+   * @return the ones at warning level or above, never null
+   */
+  static List<ICheckResult> blockingRemarks(List<ICheckResult> remarks) {
+    if (remarks == null) {
+      return List.of();
+    }
+    return remarks.stream()
+        .filter(remark -> remark.getType() >= ICheckResult.TYPE_RESULT_WARNING)
+        .toList();
+  }
+
+  static boolean confirmRemarks(Shell shell, List<ICheckResult> allRemarks) {
+    List<ICheckResult> remarks = blockingRemarks(allRemarks);
+    if (remarks.isEmpty()) {
       return true;
     }
     if (shell == null || shell.isDisposed()) {

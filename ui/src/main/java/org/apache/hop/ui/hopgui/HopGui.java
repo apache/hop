@@ -39,6 +39,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -72,6 +73,7 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.security.HopJdbcTokenService;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.core.security.HopSecurityPrivilegeMode;
@@ -99,6 +101,7 @@ import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -135,6 +138,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
 import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -208,6 +212,7 @@ public class HopGui
   public static final String ID_MAIN_MENU_FILE_EXPORT_TO_SVG = "10050-menu-file-export-to-svg";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN = "10840-menu-file-copy-jdbc-token";
   public static final String ID_MAIN_MENU_FILE_LOG_OFF = "10850-menu-file-log-off";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
 
@@ -290,6 +295,8 @@ public class HopGui
 
   /** Username label immediately left of {@link #ID_MAIN_TOOLBAR_LOG_OFF}. */
   public static final String ID_MAIN_TOOLBAR_USER = "toolbar-10890-user";
+
+  public static final String ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN = "toolbar-10895-copy-jdbc-token";
 
   public static final String ID_MAIN_TOOLBAR_LOG_OFF = "toolbar-10900-log-off";
 
@@ -552,6 +559,15 @@ public class HopGui
     } catch (Throwable e) {
       return null;
     }
+  }
+
+  /**
+   * Open or reuse an AI advisor session. No-op when {@code hop-tech-ai} is not installed. Other
+   * plugins (hopper-edw) should call this instead of compiling against the AI tech plugin.
+   */
+  public void openAiAdvisorSession(AiAdvisorOpenRequest request) throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        getLog(), getVariables(), HopExtensionPoint.HopGuiAiAdvisorOpenSession.id, request);
   }
 
   /**
@@ -1281,10 +1297,12 @@ public class HopGui
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
     } else if (areSessionControlsVisible()) {
-      // Log off is Hop Web only
+      // Log off / JDBC token are Hop Web only
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF, false);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN, false);
     } else {
       mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF);
+      mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN);
     }
 
     // We build the menu items but don't attach them to the shell.
@@ -1408,7 +1426,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
       separator = true,
-      label = "i18n::HopGui.Menu.File.ExportToSVG",
+      label = "i18n::HopGui.Menu.File.ExportDiagram",
       image = "ui/images/image.svg",
       parentId = ID_MAIN_MENU_FILE)
   public void menuFileExportToSvg() {
@@ -1516,6 +1534,53 @@ public class HopGui
       toolTip = "i18n::HopGui.Toolbar.User.Tooltip")
   public void toolbarLoggedInUser() {
     // Display-only label; no action
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN,
+      label = "i18n::HopGui.Menu.File.CopyJdbcToken",
+      parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/copy.svg",
+      separator = true)
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN,
+      image = "ui/images/copy.svg",
+      toolTip = "i18n::HopGui.Menu.File.CopyJdbcToken")
+  public void menuFileCopyJdbcToken() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Desktop.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Desktop.Message"));
+      box.open();
+      return;
+    }
+    HopSecurityContext ctx = HopSecurity.getContext();
+    if (ctx == null || !ctx.isAuthenticated()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Unauthenticated.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Unauthenticated.Message"));
+      box.open();
+      return;
+    }
+    try {
+      HopJdbcTokenService.IssuedToken issued =
+          HopJdbcTokenService.issue(
+              ctx.getUsername(), ctx.getRoleIds(), HopJdbcTokenService.DEFAULT_TTL);
+      GuiResource.getInstance().toClipboard(issued.token());
+      long minutes = Math.max(1L, issued.expiresInSeconds() / 60L);
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Copied.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Copied.Message", minutes));
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Error.Title"),
+          BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Error.Message"),
+          e);
+    }
   }
 
   @GuiMenuElement(
@@ -2002,6 +2067,7 @@ public class HopGui
     List<String> hiddenToolbarItems = new ArrayList<>();
     if (!areSessionControlsVisible()) {
       hiddenToolbarItems.add(ID_MAIN_TOOLBAR_PRIVILEGE);
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN);
       hiddenToolbarItems.add(ID_MAIN_TOOLBAR_LOG_OFF);
     }
     mainToolbarWidgets.createToolbarWidgets(
@@ -2009,6 +2075,7 @@ public class HopGui
     updateLoggedInUserToolbar();
     updatePrivilegeModeToolbar();
     if (!EnvironmentUtils.getInstance().isWeb()) {
+      mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN, false);
       mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_LOG_OFF, false);
     }
     mainToolbar.pack();
@@ -2438,7 +2505,8 @@ public class HopGui
             HopSecurity.allows(Permission.FILE_CREATE),
             HopSecurity.allows(Permission.METADATA_WRITE));
     boolean showSvgExport =
-        HopWebUserFileMenuState.shouldShowSvgExport(
+        HopWebUserFileMenuState.shouldShowDiagramExport(
+            getActiveFileTypeHandler(),
             getActivePipelineGraph() != null,
             getActiveWorkflowGraph() != null,
             HopSecurity.allows(Permission.FILE_EXPORT));
@@ -2942,6 +3010,10 @@ public class HopGui
 
   public static MetadataPerspective getMetadataPerspective() {
     return HopGui.getInstance().getPerspectiveManager().findPerspective(MetadataPerspective.class);
+  }
+
+  public static DatabasePerspective getDatabasePerspective() {
+    return HopGui.getInstance().getPerspectiveManager().findPerspective(DatabasePerspective.class);
   }
 
   public static ExecutionPerspective getExecutionPerspective() {

@@ -16,8 +16,6 @@ under the License.
 ////
 [[RunningHopInTheCloud]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Hop has no cloud mode. Running a Hop project in the cloud is five decisions - where the files live, where configuration and secrets live, what executes, what starts it, and where run history goes. This page maps those decisions onto Hop concepts, independently of any cloud provider.
 
 = Running Apache Hop in the cloud
@@ -173,7 +171,7 @@ When you need logging as data — durable, queryable, joined to your own tables 
 These are provider-independent and worth checking before the first production run.
 
 *Nothing written inside the container survives it.*
-Temporary files, `{openvar}java.io.tmpdir{closevar}`, sort and group-by spill files, and anything a transform writes to a relative path are all gone when the container exits.
+Temporary files, `+${java.io.tmpdir}+`, sort and group-by spill files, and anything a transform writes to a relative path are all gone when the container exits.
 Anything that must outlive the run goes to a mounted volume, object storage or a database.
 
 *Object storage is not a filesystem.*

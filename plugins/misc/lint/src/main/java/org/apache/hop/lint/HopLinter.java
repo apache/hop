@@ -584,8 +584,14 @@ public class HopLinter {
       throws HopException {
     List<LintResult> results = new ArrayList<>(policyResults);
     if (shouldIncludeNativeChecks() && hopObject != null) {
+      ensureEffectiveRuleSet();
       results.addAll(
-          HopNativeCheckRunner.runNativeChecks(hopObject, fileName, variables, metadataProvider));
+          HopNativeCheckRunner.runNativeChecks(
+              hopObject,
+              fileName,
+              variables,
+              metadataProvider,
+              new NativeCheckClassifier(effectiveRuleSet.getNativeVerifyRules())));
     }
     // Suppressions are applied last, so they cover Hop's native remarks as well as policy
     // findings — a team accepting something should not have to care which produced it.
@@ -703,8 +709,12 @@ public class HopLinter {
   private List<LintResult> runPolicyRulesInternal(Object hopObject, String fileName) {
     List<LintResult> results = new ArrayList<>();
     ensureEffectiveRuleSet();
+    // A rule is handed one transform at a time, and a transform does not know its pipeline. This
+    // is how a rule about the way an element is connected can be answered, and so report the
+    // element rather than the file.
+    CustomRuleExecutor.setSubject(hopObject);
     try {
-      for (CustomLintRule customRule : effectiveRuleSet.getEnabledRules()) {
+      for (CustomLintRule customRule : effectiveRuleSet.getEnabledPolicyRules()) {
         List<LintResult> customResults =
             CustomRuleExecutor.executeRule(customRule, hopObject, fileName);
         results.addAll(customResults);
@@ -746,6 +756,8 @@ public class HopLinter {
       }
     } catch (Exception e) {
       log.logError("Error executing custom rules on file " + fileName + ": " + e.getMessage(), e);
+    } finally {
+      CustomRuleExecutor.setSubject(null);
     }
     return results;
   }

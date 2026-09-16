@@ -44,11 +44,7 @@ public class PreviewDataDialog {
    * left out.
    */
   private static final String GRID_ROWS =
-      "const shells=[...document.body.children].filter(d=>{"
-          + "if(d.tagName!=='DIV')return false;"
-          + "const z=parseInt(getComputedStyle(d).zIndex);"
-          + "const r=d.getBoundingClientRect();"
-          + "return z>=100000&&r.width>100&&r.height>100;});"
+      HopGuiPage.DIALOG_SHELLS
           + "const top=shells[shells.length-1];"
           + "if(!top)return [];"
           + "return [...top.querySelectorAll('div')]"

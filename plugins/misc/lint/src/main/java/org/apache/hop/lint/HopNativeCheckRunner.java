@@ -39,6 +39,22 @@ public final class HopNativeCheckRunner {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopException {
+    return runNativeChecks(hopObject, fileName, variables, metadataProvider, null);
+  }
+
+  /**
+   * Run Hop's own checks and report what the project's native rules say to report.
+   *
+   * @param classifier the native rules in force, or null to report every remark as the transform
+   *     wrote it
+   */
+  public static List<LintResult> runNativeChecks(
+      Object hopObject,
+      String fileName,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      NativeCheckClassifier classifier)
+      throws HopException {
     List<ICheckResult> remarks = new ArrayList<>();
     IProgressMonitor monitor = new NullProgressMonitor();
 
@@ -59,7 +75,7 @@ public final class HopNativeCheckRunner {
           }
         });
 
-    return LintCheckResultAdapter.fromCheckResults(remarks, fileName);
+    return LintCheckResultAdapter.fromCheckResults(remarks, fileName, classifier);
   }
 
   private static final class NullProgressMonitor implements IProgressMonitor {

@@ -105,6 +105,16 @@ public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFr
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void getFields(
       IRowMeta r,
       String origin,

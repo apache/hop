@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -36,6 +38,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -109,6 +112,41 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
   public void setDefault() {
     cqlSelectQuery = "SELECT <fields> FROM <table> WHERE <condition>;";
     maxLength = "";
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isExecuteForEachIncomingRow();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isExecuteForEachIncomingRow();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "CassandraInputDialog.ExecuteForEachRow.Label");
+  }
+
+  @Override
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    if (isExecuteForEachIncomingRow() && input.length <= 0) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "CassandraInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta));
+    }
   }
 
   @Override

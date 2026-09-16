@@ -149,6 +149,7 @@ public class NotificationPanel implements INotificationListener {
     // Remove ON_TOP so it doesn't stay on top when switching applications
     shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
     shell.setLayout(new FormLayout());
+    shell.setImage(GuiResource.getInstance().getImageNotification());
     PropsUi.setLook(shell);
 
     // Header

@@ -63,12 +63,24 @@ public final class LintCheckResultAdapter {
   }
 
   public static List<LintResult> fromCheckResults(List<ICheckResult> remarks, String fileName) {
+    return fromCheckResults(remarks, fileName, null);
+  }
+
+  /**
+   * Convert Hop's own verify remarks, letting the project's native rules decide how each is
+   * reported.
+   *
+   * @param classifier the native rules in force, or null to keep every remark as the transform
+   *     wrote it
+   */
+  public static List<LintResult> fromCheckResults(
+      List<ICheckResult> remarks, String fileName, NativeCheckClassifier classifier) {
     List<LintResult> results = new ArrayList<>();
     if (remarks == null) {
       return results;
     }
     for (ICheckResult remark : remarks) {
-      LintResult lintResult = fromCheckResult(remark, fileName);
+      LintResult lintResult = fromCheckResult(remark, fileName, classifier);
       if (lintResult != null) {
         results.add(lintResult);
       }
@@ -77,11 +89,31 @@ public final class LintCheckResultAdapter {
   }
 
   public static LintResult fromCheckResult(ICheckResult remark, String fileName) {
+    return fromCheckResult(remark, fileName, null);
+  }
+
+  public static LintResult fromCheckResult(
+      ICheckResult remark, String fileName, NativeCheckClassifier classifier) {
     if (remark == null || remark.getType() == ICheckResult.TYPE_RESULT_OK) {
       return null;
     }
 
+    String severity = LintSeverity.fromCheckResultType(remark.getType());
     String ruleId = remark.getErrorCode();
+
+    if (classifier != null && !classifier.isEmpty()) {
+      NativeCheckClassifier.Classification classification = classifier.classify(remark);
+      if (classification == null) {
+        // A rule that names this check and is switched off: the project has said the check is
+        // not one it wants to hear about, so there is no finding at all.
+        return null;
+      }
+      severity = classification.severity();
+      if (!Utils.isEmpty(classification.ruleId())) {
+        ruleId = classification.ruleId();
+      }
+    }
+
     if (Utils.isEmpty(ruleId)) {
       ruleId = "HOP-CHECK";
     }
@@ -89,7 +121,6 @@ public final class LintCheckResultAdapter {
     LintSourceRef sourceRef = sourceFromCheckResult(remark.getSourceInfo());
     String ruleName =
         remark.getSourceInfo() != null ? remark.getSourceInfo().getName() : "Hop verify";
-    String severity = LintSeverity.fromCheckResultType(remark.getType());
 
     return new LintResult(
         ruleId,

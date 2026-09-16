@@ -32,7 +32,7 @@ The configuration perspective groups configuration options in the following tabs
 
 * **General** options control the behavior of Apache Hop and Hop Gui.
 * **Look &amp; Feel** control how Hop Gui looks like on your desktop or in your browser.
-* **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins (including Explorer and xref:hop-gui/perspective-search.adoc[Search] limits).
+* **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins (including Explorer, xref:hop-gui/perspective-search.adoc[Search] limits, and xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] enablement).
 * **System variables** allows you to set and configure Apache Hop global variables.
 
 == Detailed configuration tabs overview
@@ -138,7 +138,7 @@ image::hop-gui/configuration-perspective-open-help-pages-in.png[Open help pages 
 * xref:vfs/google-drive-vfs.adoc#_configuration[Google Drive] VFS configuration options.
 * xref:projects/index.adoc[Project] configuration options
 * Welcome Dialog: specify whether to show or hide the welcome dialog when Hop GUI starts.
-* **File validation**: when enabled (the default), saving a pipeline or workflow warns if a transform or action references a relational database connection that is not in the project metadata. You can still save. Connection names that still contain a variable such as `'${CONNECTION}'` after the current environment is applied are skipped, because the name cannot be decided at design time. The same check also runs when you Verify a pipeline or workflow. Hop does not try to open a JDBC connection as part of this check.
+* **File validation**: when enabled (the default), saving a pipeline or workflow warns if a transform or action references a relational database connection that is not in the project metadata. You can still save. Connection names that still contain a variable such as `+'${CONNECTION}'+` after the current environment is applied are skipped, because the name cannot be decided at design time. The same check also runs when you Verify a pipeline or workflow. Hop does not try to open a JDBC connection as part of this check.
 +
 image::hop-gui/configuration-perspective-file-validation-validate-database-connections-when-saving.png[Validate database connections when saving,width="90%"]
 +
