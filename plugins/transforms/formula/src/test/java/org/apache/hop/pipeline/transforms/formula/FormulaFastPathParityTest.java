@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -192,6 +193,62 @@ class FormulaFastPathParityTest {
                 IValueMeta.TYPE_STRING,
                 "grade2",
                 List.of(new Field(new ValueMetaInteger("score"), 40L)),
+                false),
+            new Scenario(
+                "TRIM([name])",
+                IValueMeta.TYPE_STRING,
+                "cleanTabs",
+                List.of(new Field(new ValueMetaString("name"), "a\tb")),
+                false),
+            new Scenario(
+                "[amount] + 10",
+                IValueMeta.TYPE_NUMBER,
+                "naSum",
+                List.of(new Field(new ValueMetaInteger("amount"), null)),
+                true),
+            new Scenario(
+                "[prefix] & [comment]",
+                IValueMeta.TYPE_STRING,
+                "naConcat",
+                List.of(
+                    new Field(new ValueMetaString("prefix"), "id-"),
+                    new Field(new ValueMetaString("comment"), null)),
+                true),
+            new Scenario(
+                "IF(ISNA([comment]), \"missing\", [comment])",
+                IValueMeta.TYPE_STRING,
+                "naIf",
+                List.of(new Field(new ValueMetaString("comment"), null)),
+                true),
+            new Scenario(
+                "LEN([comment])",
+                IValueMeta.TYPE_NUMBER,
+                "naLen",
+                List.of(new Field(new ValueMetaString("comment"), null)),
+                true),
+            new Scenario(
+                "[flag] * 10",
+                IValueMeta.TYPE_NUMBER,
+                "scaledFlag",
+                List.of(new Field(new ValueMetaBoolean("flag"), Boolean.TRUE)),
+                false),
+            new Scenario(
+                "[num] > \"199\"",
+                IValueMeta.TYPE_BOOLEAN,
+                "mixedRanking",
+                List.of(new Field(new ValueMetaInteger("num"), 200L)),
+                false),
+            new Scenario(
+                "[flag] > \"Z\"",
+                IValueMeta.TYPE_BOOLEAN,
+                "boolRanking",
+                List.of(new Field(new ValueMetaBoolean("flag"), Boolean.TRUE)),
+                false),
+            new Scenario(
+                "[empty] > -1",
+                IValueMeta.TYPE_BOOLEAN,
+                "blankRanking",
+                List.of(new Field(new ValueMetaInteger("empty"), null)),
                 false));
 
     for (Scenario scenario : scenarios) {
@@ -260,6 +317,12 @@ class FormulaFastPathParityTest {
       doNothing().when(formula).putRow(any(IRowMeta.class), rows.capture());
 
       org.junit.jupiter.api.Assertions.assertTrue(formula.processRow());
+      // A NOT_ELIGIBLE formula would make both legs use POI and pass vacuously, so each scenario
+      // must prove the fast path was taken when it is enabled and not taken when disabled.
+      org.junit.jupiter.api.Assertions.assertEquals(
+          enabled,
+          formula.compiledFormula(0).fastPath(),
+          "fast path usage for " + scenario.formula());
       formula.processRow();
       formula.dispose();
 
