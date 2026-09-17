@@ -25,6 +25,7 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.remote.AbstractOperationHandler;
 import org.eclipse.rap.rwt.remote.Connection;
 import org.eclipse.rap.rwt.remote.RemoteObject;
+import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
@@ -44,21 +45,21 @@ public class CanvasInteractionHandler extends Widget {
       return;
     }
     CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
-    registry.setActiveCanvas(canvas);
-    RemoteObject remoteObject = registry.getInteractionRemote();
+    String canvasId = WidgetUtil.getId(canvas);
+    RemoteObject remoteObject = registry.getInteractionRemote(canvasId);
     if (remoteObject == null) {
-      createRemoteObject(registry, canvas);
+      createRemoteObject(registry, canvasId);
     } else {
-      updateCanvas(remoteObject, canvas);
+      remoteObject.call("attachListener", null);
     }
   }
 
-  private static void createRemoteObject(CanvasGraphRegistry registry, Canvas canvas) {
+  private static void createRemoteObject(CanvasGraphRegistry registry, String canvasId) {
     try {
       Connection connection = RWT.getUISession().getConnection();
       RemoteObject remoteObject = connection.createRemoteObject("hop.CanvasInteraction");
       remoteObject.set("self", remoteObject.getId());
-      remoteObject.set("canvas", org.eclipse.rap.rwt.widgets.WidgetUtil.getId(canvas));
+      remoteObject.set("canvas", canvasId);
       remoteObject.setHandler(
           new AbstractOperationHandler() {
             @Override
@@ -69,25 +70,19 @@ public class CanvasInteractionHandler extends Widget {
             }
           });
       remoteObject.listen("hover", true);
-      registry.setInteractionRemote(remoteObject);
+      registry.putInteractionRemote(canvasId, remoteObject);
       remoteObject.call("attachListener", null);
     } catch (Exception e) {
       LogChannel.UI.logError("Failed to create CanvasInteractionHandler remote object", e);
     }
   }
 
-  private static void updateCanvas(RemoteObject remoteObject, Canvas canvas) {
-    remoteObject.set("canvas", org.eclipse.rap.rwt.widgets.WidgetUtil.getId(canvas));
-    remoteObject.call("attachListener", null);
-  }
-
   private static void handleHover(JsonObject properties) {
-    CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
-    if (registry.getActiveCanvas() == null) {
+    if (properties.get("canvasId") == null) {
       return;
     }
     String canvasId = properties.get("canvasId").asString();
-    Object graph = registry.getGraph(canvasId);
+    Object graph = CanvasGraphRegistry.getInstance().getGraph(canvasId);
     if (graph == null) {
       return;
     }

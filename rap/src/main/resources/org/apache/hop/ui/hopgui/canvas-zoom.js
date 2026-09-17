@@ -147,7 +147,11 @@
         
         // Method called when the canvas property is updated from Java
         setCanvas: function(properties) {
-            this._canvasId = properties.canvasId;
+            var canvasId = properties.canvasId;
+            if (this._canvasId && this._canvasId !== canvasId) {
+                return;
+            }
+            this._canvasId = canvasId;
             this._findAndAttachCanvas();
         },
 
@@ -256,6 +260,10 @@
         events: ["zoom"],
         propertyHandler: {
             canvas: function(widget, value) {
+                // canvas is instance identity. Do not steal another graph's wheel listener.
+                if (widget._canvasId && widget._canvasId !== value) {
+                    return;
+                }
                 // When canvas property is updated from Java, re-attach wheel to that canvas.
                 widget._canvasId = value;
                 widget._findAndAttachCanvas();
