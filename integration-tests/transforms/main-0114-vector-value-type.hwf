@@ -60,6 +60,9 @@ limitations under the License.
         <test_name>
           <name>0114-vector-conversions UNIT</name>
         </test_name>
+        <test_name>
+          <name>0116-vector-lazy-conversion UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>256</xloc>

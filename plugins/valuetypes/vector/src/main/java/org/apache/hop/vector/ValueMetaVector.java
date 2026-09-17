@@ -104,7 +104,9 @@ public class ValueMetaVector extends ValueMetaBase {
               // A float[] returns above.
               return parse((String) data2);
             case STORAGE_TYPE_BINARY_STRING:
-              return (float[]) convertBinaryStringToNativeType((byte[]) data2);
+              // The Vector field's own lazy bytes: meta2 owns the storage metadata needed to
+              // decode them, so the conversion has to run on meta2 and not on this.
+              return (float[]) meta2.convertBinaryStringToNativeType((byte[]) data2);
             case STORAGE_TYPE_INDEXED:
               return toVector(this, meta2.getIndex()[(Integer) data2]);
             default:
@@ -112,26 +114,18 @@ public class ValueMetaVector extends ValueMetaBase {
           }
           break;
         case TYPE_STRING:
-          switch (meta2.getStorageType()) {
-            case STORAGE_TYPE_NORMAL:
-              return parse((String) data2);
-            case STORAGE_TYPE_BINARY_STRING:
-              // convertBinaryStringToNativeType recurses through convertData, which already
-              // produces a float[], so there is nothing left to parse here.
-              return (float[]) convertBinaryStringToNativeType((byte[]) data2);
-            case STORAGE_TYPE_INDEXED:
-              return parse((String) meta2.getIndex()[(Integer) data2]);
-            default:
-              break;
-          }
-          break;
+          // getString resolves normal, lazily converted and indexed storage against meta2's own
+          // metadata. Converting through this Vector instead would use a storage metadata that a
+          // freshly built target field does not have.
+          return parse(meta2.getString(data2));
         default:
           break;
       }
     } catch (HopValueException e) {
       throw e;
-    } catch (RuntimeException ignore) {
-      // Fall through to the exception below.
+    } catch (ClassCastException e) {
+      throw new HopValueException(
+          this + " : I can't convert the specified value to data type : Vector", e);
     }
     throw new HopValueException(
         this + " : I can't convert the specified value to data type : Vector");
@@ -207,6 +201,14 @@ public class ValueMetaVector extends ValueMetaBase {
 
   @Override
   public Object cloneValueData(Object object) throws HopValueException {
+    if (object == null) {
+      return null;
+    }
+    // Lazily converted values stay in their binary form, as ValueMetaBase does: materialising
+    // them here would leave a float[] behind a storage type that still says binary string.
+    if (storageType != STORAGE_TYPE_NORMAL) {
+      return object;
+    }
     // Unlike the scalar types, a vector is mutable: hand out a copy so that two rows sharing a
     // value can not write through each other.
     if (object instanceof float[] vector) {
@@ -217,7 +219,9 @@ public class ValueMetaVector extends ValueMetaBase {
 
   /**
    * Vectors have no meaningful natural order, but sorting, grouping and distinct all need a total
-   * order that is stable. Shorter vectors sort first, then the first differing element decides.
+   * order that is stable. This is the lexicographic order of {@link Arrays#compare(float[],
+   * float[])}: the first differing element decides, and a vector that is a prefix of another sorts
+   * first.
    */
   @Override
   protected int typeCompare(Object object1, Object object2) throws HopValueException {
@@ -232,16 +236,37 @@ public class ValueMetaVector extends ValueMetaBase {
     if (vector2 == null) {
       return 1;
     }
-    if (vector1.length != vector2.length) {
-      return Integer.compare(vector1.length, vector2.length);
+    return Arrays.compare(vector1, vector2);
+  }
+
+  private static float[] toFloats(double[] doubles) {
+    float[] vector = new float[doubles.length];
+    for (int i = 0; i < doubles.length; i++) {
+      vector[i] = (float) doubles[i];
     }
-    for (int i = 0; i < vector1.length; i++) {
-      int comparison = Float.compare(vector1[i], vector2[i]);
-      if (comparison != 0) {
-        return comparison;
+    return vector;
+  }
+
+  private static float[] fromSqlArray(java.sql.Array array) throws HopValueException {
+    try {
+      Object elements = array.getArray();
+      if (elements instanceof float[] floats) {
+        return floats;
       }
+      if (elements instanceof double[] doubles) {
+        return toFloats(doubles);
+      }
+      if (elements instanceof Number[] numbers) {
+        float[] vector = new float[numbers.length];
+        for (int i = 0; i < numbers.length; i++) {
+          vector[i] = numbers[i] == null ? 0f : numbers[i].floatValue();
+        }
+        return vector;
+      }
+      return parse(String.valueOf(elements));
+    } catch (SQLException e) {
+      throw new HopValueException("Unable to read a vector from a SQL array value", e);
     }
-    return 0;
   }
 
   @Override
@@ -286,8 +311,18 @@ public class ValueMetaVector extends ValueMetaBase {
       if (object instanceof float[] vector) {
         return vector;
       }
+      if (object instanceof double[] doubles) {
+        return toFloats(doubles);
+      }
+      if (object instanceof String text) {
+        return parse(text);
+      }
+      if (object instanceof java.sql.Array array) {
+        return fromSqlArray(array);
+      }
       // pgvector hands back its own object type through getObject(); its toString() is the
-      // canonical form, which is also what a character column returns.
+      // canonical form, which is also what a character column returns. Anything else would give
+      // Object.toString(), which parse rejects with a clearer message than a cast would.
       return parse(object.toString());
     } catch (SQLException e) {
       throw new HopDatabaseException(
@@ -327,9 +362,11 @@ public class ValueMetaVector extends ValueMetaBase {
       return;
     }
     try {
-      outputStream.writeBoolean(object == null);
-      if (object != null) {
-        float[] vector = toVector(this, object);
+      // Convert before writing the flag: parse maps blank text to null, so a value that
+      // getString and hashCode already treat as null has to serialise as null too.
+      float[] vector = toVector(this, object);
+      outputStream.writeBoolean(vector == null);
+      if (vector != null) {
         // Length prefixed binary floats rather than the text form: a 1536 element vector is 6 kB
         // as text and 6 kB of parsing on the way back, against 6 kB of raw floats here.
         outputStream.writeInt(vector.length);

@@ -21,8 +21,8 @@ under the License.
 A value type is what Hop knows about one kind of data: how to compare it, convert it, serialise it across a hop, and write it to a file.
 The built-in set is small — string, integer, number, big number, date, timestamp, boolean, binary — and it is extensible.
 
-`UUID` and `JSON` are value types.
-A geometry type, a vector type or a money type would be too.
+`UUID`, `JSON` and `Vector` are value types.
+A geometry type or a money type would be too.
 
 == When you need one
 

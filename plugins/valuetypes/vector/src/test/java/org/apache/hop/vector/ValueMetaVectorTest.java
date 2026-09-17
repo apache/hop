@@ -22,17 +22,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -195,5 +204,48 @@ class ValueMetaVectorTest {
     meta.setStorageMetadata(new ValueMetaString("v"));
     byte[] binary = "[1,2,3]".getBytes(StandardCharsets.UTF_8);
     assertArrayEquals(new float[] {1f, 2f, 3f}, (float[]) meta.convertData(meta, binary));
+  }
+
+  @Test
+  void convertsALazilyConvertedStringFieldToVector() throws Exception {
+    // Select Values builds a fresh NORMAL target whose storageMetadata is null. The conversion
+    // has to run against the source field's metadata, not the target's.
+    ValueMetaString source = new ValueMetaString("embedding");
+    source.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    source.setStorageMetadata(new ValueMetaString("embedding"));
+    byte[] lazy = "[1,2,3]".getBytes(StandardCharsets.UTF_8);
+
+    ValueMetaVector target = new ValueMetaVector("embedding");
+
+    assertArrayEquals(new float[] {1f, 2f, 3f}, (float[]) target.convertData(source, lazy));
+  }
+
+  @Test
+  void cloneLeavesLazilyConvertedValuesInTheirBinaryForm() throws Exception {
+    ValueMetaVector meta = new ValueMetaVector("embedding");
+    meta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    meta.setStorageMetadata(new ValueMetaString("embedding"));
+    byte[] lazy = "[1,2,3]".getBytes(StandardCharsets.UTF_8);
+
+    // Materialising here would leave a float[] behind a binary-string storage type, which blows
+    // up later in writeData.
+    assertSame(lazy, meta.cloneValueData(lazy));
+  }
+
+  @Test
+  void isRegisteredWithTheValueMetaFactory() throws Exception {
+    assertEquals(ValueMetaVector.TYPE_VECTOR, ValueMetaFactory.getIdForValueMeta("Vector"));
+  }
+
+  @Test
+  void bindsTheCanonicalTextFormToAPreparedStatement() throws Exception {
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    new ValueMetaVector("embedding")
+        .setPreparedStatementValue(
+            mock(DatabaseMeta.class), statement, 1, new float[] {0.1f, 0.2f});
+
+    verify(statement).setString(1, "[0.1,0.2]");
+    verify(statement, never()).setObject(anyInt(), any(float[].class));
   }
 }
