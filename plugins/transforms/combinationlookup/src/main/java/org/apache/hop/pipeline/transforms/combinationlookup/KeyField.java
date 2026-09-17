@@ -18,21 +18,25 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
+@Getter
+@Setter
 public class KeyField {
   @HopMetadataProperty(
       injectionKey = "KEY_FIELD",
       injectionKeyDescription = "CombinationLookup.Injection.KEY_FIELD",
       hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
-  String name;
+  private String name;
 
   @HopMetadataProperty(
       injectionKey = "KEY_LOOKUP",
       injectionKeyDescription = "CombinationLookup.Injection.KEY_LOOKUP",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
-  String lookup;
+  private String lookup;
 
   public KeyField() {}
 
@@ -44,41 +48,5 @@ public class KeyField {
   public KeyField(KeyField f) {
     this.name = f.name;
     this.lookup = f.lookup;
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * Sets name
-   *
-   * @param name value of name
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * Gets lookup
-   *
-   * @return value of lookup
-   */
-  public String getLookup() {
-    return lookup;
-  }
-
-  /**
-   * Sets lookup
-   *
-   * @param lookup value of lookup
-   */
-  public void setLookup(String lookup) {
-    this.lookup = lookup;
   }
 }
