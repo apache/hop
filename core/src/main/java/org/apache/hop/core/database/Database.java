@@ -3582,32 +3582,254 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     return (sqlType == Types.NUMERIC || sqlType == Types.DECIMAL) && precision <= 0 && scale <= 0;
   }
 
-  public int countParameters(String sql) {
-    int q = 0;
-    boolean quoteOpened = false;
-    boolean dquoteOpened = false;
+  /** Parsed SQL parameter information: prepared SQL plus ordered parameter references. */
+  public static final class SqlParameterSpec {
+    private final String preparedSql;
+    private final List<String> parameterReferences;
 
-    for (int x = 0; x < sql.length(); x++) {
-      char c = sql.charAt(x);
-
-      switch (c) {
-        case '\'':
-          quoteOpened = !quoteOpened;
-          break;
-        case '"':
-          dquoteOpened = !dquoteOpened;
-          break;
-        case '?':
-          if (!quoteOpened && !dquoteOpened) {
-            q++;
-          }
-          break;
-        default:
-          break;
-      }
+    public SqlParameterSpec(String preparedSql, List<String> parameterReferences) {
+      this.preparedSql = preparedSql;
+      this.parameterReferences = Collections.unmodifiableList(new ArrayList<>(parameterReferences));
     }
 
-    return q;
+    public String getPreparedSql() {
+      return preparedSql;
+    }
+
+    /** Ordered references: named parameter field name or null for positional '?'. */
+    public List<String> getParameterReferences() {
+      return parameterReferences;
+    }
+
+    public int getParameterCount() {
+      return parameterReferences.size();
+    }
+  }
+
+  /**
+   * Parse SQL for JDBC parameter markers and ?{name} placeholders.
+   *
+   * <p>The parser skips SQL text within literals, quoted identifiers and comments. PostgreSQL JSONB
+   * operators (?|, ?&amp;, ??, ??|, ??&amp;) are not treated as parameters.
+   */
+  public static SqlParameterSpec parseSqlParameterSpec(String sourceSql) {
+    return parseSqlParameterSpec(sourceSql, false);
+  }
+
+  /**
+   * Parse SQL for JDBC parameter markers and ?{name} placeholders.
+   *
+   * <p>The parser skips SQL text within literals, quoted identifiers and comments. PostgreSQL JSONB
+   * operators (?|, ?&amp;, ??, ??|, ??&amp;) are not treated as parameters.
+   *
+   * @param sourceSql the SQL text to parse
+   * @param consumeBracketIdentifiers true to treat [identifier] sections as quoted identifiers
+   */
+  public static SqlParameterSpec parseSqlParameterSpec(
+      String sourceSql, boolean consumeBracketIdentifiers) {
+    String sql = Const.NVL(sourceSql, "");
+    StringBuilder preparedSql = new StringBuilder(sql.length());
+    List<String> parameterReferences = new ArrayList<>();
+
+    int index = 0;
+    while (index < sql.length()) {
+      char c = sql.charAt(index);
+
+      if (c == '-' && index + 1 < sql.length() && sql.charAt(index + 1) == '-') {
+        int end = index + 2;
+        while (end < sql.length()) {
+          char current = sql.charAt(end);
+          if (current == '\n' || current == '\r') {
+            break;
+          }
+          end++;
+        }
+        preparedSql.append(sql, index, end);
+        index = end;
+        continue;
+      }
+
+      if (c == '/' && index + 1 < sql.length() && sql.charAt(index + 1) == '*') {
+        int end = index + 2;
+        boolean closed = false;
+        while (end + 1 < sql.length()) {
+          if (sql.charAt(end) == '*' && sql.charAt(end + 1) == '/') {
+            end += 2;
+            closed = true;
+            break;
+          }
+          end++;
+        }
+        if (!closed) {
+          end = sql.length();
+        }
+        preparedSql.append(sql, index, end);
+        index = end;
+        continue;
+      }
+
+      if (c == '\'') {
+        int end = consumeQuotedSection(sql, index, '\'', true);
+        preparedSql.append(sql, index, end);
+        index = end;
+        continue;
+      }
+
+      if (c == '"') {
+        int end = consumeQuotedSection(sql, index, '"', true);
+        preparedSql.append(sql, index, end);
+        index = end;
+        continue;
+      }
+
+      if (c == '`') {
+        int end = consumeQuotedSection(sql, index, '`', true);
+        preparedSql.append(sql, index, end);
+        index = end;
+        continue;
+      }
+
+      if (consumeBracketIdentifiers && c == '[') {
+        int end = consumeBracketIdentifier(sql, index);
+        preparedSql.append(sql, index, end);
+        index = end;
+        continue;
+      }
+
+      if (c == '$') {
+        String tag = getDollarQuoteTag(sql, index);
+        if (tag != null) {
+          int end = sql.indexOf(tag, index + tag.length());
+          if (end < 0) {
+            preparedSql.append(sql, index, sql.length());
+            break;
+          }
+          int closeEnd = end + tag.length();
+          preparedSql.append(sql, index, closeEnd);
+          index = closeEnd;
+          continue;
+        }
+      }
+
+      if (c == '?') {
+        if (index + 1 < sql.length() && sql.charAt(index + 1) == '{') {
+          int end = sql.indexOf('}', index + 2);
+          if (end > index + 2) {
+            String fieldName = sql.substring(index + 2, end).trim();
+            if (!fieldName.isEmpty()) {
+              parameterReferences.add(fieldName);
+              preparedSql.append('?');
+              index = end + 1;
+              continue;
+            }
+          }
+        }
+
+        int jsonbOperatorLength = getPostgresJsonbOperatorLength(sql, index);
+        if (jsonbOperatorLength > 0) {
+          preparedSql.append(sql, index, index + jsonbOperatorLength);
+          index += jsonbOperatorLength;
+          continue;
+        }
+
+        parameterReferences.add(null);
+        preparedSql.append(c);
+        index++;
+        continue;
+      }
+
+      preparedSql.append(c);
+      index++;
+    }
+
+    return new SqlParameterSpec(preparedSql.toString(), parameterReferences);
+  }
+
+  private static int consumeQuotedSection(
+      String sql, int startIndex, char quoteCharacter, boolean allowDoubledQuoteEscape) {
+    int index = startIndex + 1;
+    while (index < sql.length()) {
+      if (sql.charAt(index) == quoteCharacter) {
+        if (allowDoubledQuoteEscape
+            && index + 1 < sql.length()
+            && sql.charAt(index + 1) == quoteCharacter) {
+          index += 2;
+          continue;
+        }
+        return index + 1;
+      }
+      index++;
+    }
+    return sql.length();
+  }
+
+  private static int consumeBracketIdentifier(String sql, int startIndex) {
+    int index = startIndex + 1;
+    while (index < sql.length()) {
+      if (sql.charAt(index) == ']') {
+        if (index + 1 < sql.length() && sql.charAt(index + 1) == ']') {
+          index += 2;
+          continue;
+        }
+        return index + 1;
+      }
+      index++;
+    }
+    return sql.length();
+  }
+
+  private static String getDollarQuoteTag(String sql, int startIndex) {
+    if (sql.charAt(startIndex) != '$') {
+      return null;
+    }
+    int cursor = startIndex + 1;
+    while (cursor < sql.length()) {
+      char current = sql.charAt(cursor);
+      if (current == '$') {
+        return sql.substring(startIndex, cursor + 1);
+      }
+      if (!(Character.isLetterOrDigit(current) || current == '_')) {
+        return null;
+      }
+      cursor++;
+    }
+    return null;
+  }
+
+  /**
+   * Keep PostgreSQL JSONB operators (?|, ?&, ??, ??|, ??&) from being parsed as JDBC parameters.
+   */
+  private static int getPostgresJsonbOperatorLength(String sql, int questionMarkIndex) {
+    int length = sql.length();
+    if (questionMarkIndex + 2 < length
+        && sql.charAt(questionMarkIndex) == '?'
+        && sql.charAt(questionMarkIndex + 1) == '?'
+        && (sql.charAt(questionMarkIndex + 2) == '|' || sql.charAt(questionMarkIndex + 2) == '&')) {
+      return 3;
+    }
+
+    if (questionMarkIndex + 1 < length && sql.charAt(questionMarkIndex) == '?') {
+      char next = sql.charAt(questionMarkIndex + 1);
+      if (next == '?') {
+        return 2;
+      }
+      if (next == '|' || next == '&') {
+        return 2;
+      }
+    }
+    return 0;
+  }
+
+  public int countParameters(String sql) {
+    return parseSqlParameterSpec(sql, supportsBracketQuotedIdentifiers()).getParameterCount();
+  }
+
+  private boolean supportsBracketQuotedIdentifiers() {
+    if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
+      return false;
+    }
+    return "[".equals(databaseMeta.getIDatabase().getStartQuote())
+        && "]".equals(databaseMeta.getIDatabase().getEndQuote());
   }
 
   // Get the fields back from an SQL query
