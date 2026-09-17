@@ -193,6 +193,7 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     Assertions.assertEquals("id", row.getValueMeta(0).getName());
   }
 
+  @Test
   void parseSqlParameterSpecSupportsMixedNamedAndPositionalPlaceholders() {
     String sql =
         "SELECT order_id, total FROM orders WHERE customer_id = ?{customer_id} AND status = ?";
@@ -230,8 +231,8 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     Assertions.assertEquals(
         "SELECT \"?identifier\" FROM t /* ? block */ WHERE payload ? 'x' -- ? line\nAND route = ? AND status = ?",
         spec.getPreparedSql());
-    Assertions.assertEquals(2, spec.getParameterCount());
-    Assertions.assertEquals(Arrays.asList("route", null), spec.getParameterReferences());
+    Assertions.assertEquals(3, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList(null, "route", null), spec.getParameterReferences());
   }
 
   @Test
@@ -243,6 +244,17 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     Assertions.assertEquals(sql, spec.getPreparedSql());
     Assertions.assertEquals(1, spec.getParameterCount());
     Assertions.assertEquals(Arrays.asList((String) null), spec.getParameterReferences());
+  }
+
+  @Test
+  void parseSqlParameterSpecCountsPostgresArrayConstructorParameters() {
+    String sql = "SELECT 1 WHERE x = ANY(ARRAY[?]) AND y = ARRAY[?, ?]";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(sql, spec.getPreparedSql());
+    Assertions.assertEquals(3, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList(null, null, null), spec.getParameterReferences());
   }
 
   @Test
