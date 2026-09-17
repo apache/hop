@@ -30,6 +30,13 @@ import java.util.Map;
  * tree against the field values, which is orders of magnitude faster than going through a POI
  * workbook and worksheet.
  *
+ * <p>Values behave the way POI evaluates them: a blank cell is 0 in arithmetic and FALSE in a
+ * boolean context, booleans are numeric (TRUE is 1) and rank above text above numbers in ordered
+ * comparisons, and TRIM only trims characters up to the ASCII space and collapses ASCII spaces.
+ *
+ * <p>An {@code #N/A} error operand, produced by the "Set Null to #N/A" option, propagates through
+ * every operation and function except {@code ISNA}, which is the only way to test for it.
+ *
  * <p>Anything outside that subset makes {@link #parse} throw, which {@link FastFormulaCompiler}
  * turns into "not eligible for the fast path"; the transform then falls back to the regular POI
  * evaluation.
@@ -84,23 +91,21 @@ final class FastFormulaEvaluator {
     }
   }
 
-  /** A unary operation ({@code -} or {@code !}). */
+  /** A unary minus. */
   private static final class UnaryNode extends Node {
     private final Node operand;
-    private final boolean negate;
 
-    private UnaryNode(Node operand, boolean negate) {
+    private UnaryNode(Node operand) {
       this.operand = operand;
-      this.negate = negate;
     }
 
     @Override
     Object eval(Object[] args) {
       Object value = operand.eval(args);
-      if (negate) {
-        return -toNumber(value);
+      if (value == FastFormulaCompiler.NA) {
+        return FastFormulaCompiler.NA;
       }
-      return !toBoolean(value);
+      return -toNumber(value);
     }
   }
 
@@ -110,8 +115,6 @@ final class FastFormulaEvaluator {
     MULTIPLY,
     DIVIDE,
     CONCAT,
-    AND,
-    OR,
     EQUAL,
     NOT_EQUAL,
     GREATER,
@@ -134,43 +137,42 @@ final class FastFormulaEvaluator {
 
     @Override
     Object eval(Object[] args) {
+      Object left = this.left.eval(args);
+      Object right = this.right.eval(args);
+      if (left == FastFormulaCompiler.NA || right == FastFormulaCompiler.NA) {
+        // Excel and POI propagate an error operand through every operation instead of evaluating
+        // it, so the NA sentinel short-circuits the whole expression.
+        return FastFormulaCompiler.NA;
+      }
       switch (op) {
         case ADD:
-          return toNumber(left.eval(args)) + toNumber(right.eval(args));
+          return toNumber(left) + toNumber(right);
         case SUBTRACT:
-          return toNumber(left.eval(args)) - toNumber(right.eval(args));
+          return toNumber(left) - toNumber(right);
         case MULTIPLY:
-          return toNumber(left.eval(args)) * toNumber(right.eval(args));
+          return toNumber(left) * toNumber(right);
         case DIVIDE:
-          double divisor = toNumber(right.eval(args));
-          if (divisor == 0.0d) {
-            throw new ArithmeticException("Division by zero (#DIV/0!)");
+          {
+            double divisor = toNumber(right);
+            if (divisor == 0.0d) {
+              throw new ArithmeticException("Division by zero (#DIV/0!)");
+            }
+            return toNumber(left) / divisor;
           }
-          return toNumber(left.eval(args)) / divisor;
         case CONCAT:
-          Object concatLeft = left.eval(args);
-          Object concatRight = right.eval(args);
-          if (concatLeft == FastFormulaCompiler.NA || concatRight == FastFormulaCompiler.NA) {
-            // Excel propagates an error cell through concatenation instead of rendering it.
-            return FastFormulaCompiler.NA;
-          }
-          return TextValue.of(concatLeft) + TextValue.of(concatRight);
-        case AND:
-          return toBoolean(left.eval(args)) && toBoolean(right.eval(args));
-        case OR:
-          return toBoolean(left.eval(args)) || toBoolean(right.eval(args));
+          return TextValue.of(left) + TextValue.of(right);
         case EQUAL:
-          return compareEqual(left.eval(args), right.eval(args));
+          return compareEqual(left, right);
         case NOT_EQUAL:
-          return !compareEqual(left.eval(args), right.eval(args));
+          return !compareEqual(left, right);
         case GREATER:
-          return compareOrdered(left.eval(args), right.eval(args)) > 0;
+          return compareOrdered(left, right) > 0;
         case GREATER_OR_EQUAL:
-          return compareOrdered(left.eval(args), right.eval(args)) >= 0;
+          return compareOrdered(left, right) >= 0;
         case LESS:
-          return compareOrdered(left.eval(args), right.eval(args)) < 0;
+          return compareOrdered(left, right) < 0;
         case LESS_OR_EQUAL:
-          return compareOrdered(left.eval(args), right.eval(args)) <= 0;
+          return compareOrdered(left, right) <= 0;
         default:
           throw new UnsupportedFormulaException("Unsupported operator " + op);
       }
@@ -195,37 +197,57 @@ final class FastFormulaEvaluator {
           if (arguments.size() != 2 && arguments.size() != 3) {
             throw new UnsupportedFormulaException("IF requires 2 or 3 arguments");
           }
-          return toBoolean(arguments.get(0).eval(args))
+          Object condition = arguments.get(0).eval(args);
+          if (condition == FastFormulaCompiler.NA) {
+            return FastFormulaCompiler.NA;
+          }
+          // Only the taken branch is evaluated: an error in the other one stays invisible.
+          return toBoolean(condition)
               ? arguments.get(1).eval(args)
               : (arguments.size() == 3 ? arguments.get(2).eval(args) : Boolean.FALSE);
         case "AND":
+          boolean andResult = true;
           for (Node argument : arguments) {
-            if (!toBoolean(argument.eval(args))) {
-              return Boolean.FALSE;
+            Object value = argument.eval(args);
+            if (value == FastFormulaCompiler.NA) {
+              return FastFormulaCompiler.NA;
             }
+            andResult &= toBoolean(value);
           }
-          return Boolean.TRUE;
+          return andResult;
         case "OR":
+          boolean orResult = false;
           for (Node argument : arguments) {
-            if (toBoolean(argument.eval(args))) {
-              return Boolean.TRUE;
+            Object value = argument.eval(args);
+            if (value == FastFormulaCompiler.NA) {
+              return FastFormulaCompiler.NA;
             }
+            orResult |= toBoolean(value);
           }
-          return Boolean.FALSE;
+          return orResult;
         case "NOT":
           if (arguments.size() != 1) {
             throw new UnsupportedFormulaException("NOT requires 1 argument");
           }
-          return !toBoolean(arguments.get(0).eval(args));
+          Object operand = arguments.get(0).eval(args);
+          if (operand == FastFormulaCompiler.NA) {
+            return FastFormulaCompiler.NA;
+          }
+          return !toBoolean(operand);
         case "ABS":
           if (arguments.size() != 1) {
             throw new UnsupportedFormulaException("ABS requires 1 argument");
           }
-          return Math.abs(toNumber(arguments.get(0).eval(args)));
+          Object absOperand = arguments.get(0).eval(args);
+          if (absOperand == FastFormulaCompiler.NA) {
+            return FastFormulaCompiler.NA;
+          }
+          return Math.abs(toNumber(absOperand));
         case "ISBLANK":
           if (arguments.size() != 1) {
             throw new UnsupportedFormulaException("ISBLANK requires 1 argument");
           }
+          // An error cell is not blank, so the NA sentinel flows through unchanged.
           return isBlank(arguments.get(0).eval(args));
         case "ISNA":
           if (arguments.size() != 1) {
@@ -236,12 +258,20 @@ final class FastFormulaEvaluator {
           if (arguments.size() != 1) {
             throw new UnsupportedFormulaException("LEN requires 1 argument");
           }
-          return (double) TextValue.of(arguments.get(0).eval(args)).length();
+          Object lenOperand = arguments.get(0).eval(args);
+          if (lenOperand == FastFormulaCompiler.NA) {
+            return FastFormulaCompiler.NA;
+          }
+          return (double) TextValue.of(lenOperand).length();
         case "TRIM":
           if (arguments.size() != 1) {
             throw new UnsupportedFormulaException("TRIM requires 1 argument");
           }
-          return trim(arguments.get(0).eval(args));
+          Object trimOperand = arguments.get(0).eval(args);
+          if (trimOperand == FastFormulaCompiler.NA) {
+            return FastFormulaCompiler.NA;
+          }
+          return trim(trimOperand);
         default:
           throw new UnsupportedFormulaException("Unsupported function " + name);
       }
@@ -255,17 +285,26 @@ final class FastFormulaEvaluator {
   }
 
   /**
-   * Excel TRIM: trims leading/trailing whitespace and collapses any run of whitespace to a single
-   * space. Uses a single consistent whitespace definition so tabs/newlines are handled the same way
-   * whether the text contains a space or not.
+   * Excel TRIM as POI implements it ({@code arg.trim().replaceAll(" +", " ")}): characters up to
+   * and including the ASCII space are stripped at both ends and runs of ASCII spaces collapse to a
+   * single space. Any other whitespace, like a tab, is only stripped at the ends and kept as-is in
+   * the middle.
    */
   private static String trim(Object value) {
     String text = TextValue.of(value);
-    StringBuilder out = new StringBuilder(text.length());
+    int start = 0;
+    int end = text.length();
+    while (start < end && text.charAt(start) <= ' ') {
+      start++;
+    }
+    while (end > start && text.charAt(end - 1) <= ' ') {
+      end--;
+    }
+    StringBuilder out = new StringBuilder(end - start);
     boolean lastWasSpace = true;
-    for (int i = 0; i < text.length(); i++) {
+    for (int i = start; i < end; i++) {
       char c = text.charAt(i);
-      if (Character.isWhitespace(c)) {
+      if (c == ' ') {
         if (!lastWasSpace) {
           out.append(' ');
         }
@@ -274,9 +313,6 @@ final class FastFormulaEvaluator {
         out.append(c);
         lastWasSpace = false;
       }
-    }
-    if (out.length() > 0 && out.charAt(out.length() - 1) == ' ') {
-      out.deleteCharAt(out.length() - 1);
     }
     return out.toString();
   }
@@ -304,12 +340,51 @@ final class FastFormulaEvaluator {
     return TextValue.of(left).equalsIgnoreCase(TextValue.of(right));
   }
 
+  /**
+   * Orders two operands the way Excel and POI do: booleans sort above text, which sorts above
+   * numbers, and no operand is coerced across those types by stringifying it. A blank operand
+   * compares as the other operand's type: 0 against a number, empty text against text and FALSE
+   * against a boolean.
+   */
   private static int compareOrdered(Object left, Object right) {
-    if (left instanceof Number && right instanceof Number) {
-      return Double.compare(toNumber(left), toNumber(right));
+    if (left == null || right == null) {
+      if (left == null && right == null) {
+        return 0;
+      }
+      Object other = left != null ? left : right;
+      boolean blankIsLeft = left == null;
+      int comparison;
+      if (other instanceof Boolean) {
+        comparison = (Boolean) other ? -1 : 0;
+      } else if (other instanceof Number) {
+        comparison = Double.compare(0.0d, ((Number) other).doubleValue());
+      } else {
+        comparison = ((String) other).isEmpty() ? 0 : -1;
+      }
+      return blankIsLeft ? comparison : -comparison;
     }
-    // Excel compares text case-insensitively, so follow that for mixed and text comparisons.
-    return TextValue.of(left).compareToIgnoreCase(TextValue.of(right));
+    if (left instanceof Boolean leftBoolean) {
+      if (right instanceof Boolean) {
+        return leftBoolean.compareTo((Boolean) right);
+      }
+      // Booleans rank above text and numbers.
+      return 1;
+    }
+    if (right instanceof Boolean) {
+      return -1;
+    }
+    if (left instanceof String leftText) {
+      if (right instanceof String) {
+        // Excel compares text case-insensitively.
+        return leftText.compareToIgnoreCase((String) right);
+      }
+      // Text ranks above numbers.
+      return 1;
+    }
+    if (right instanceof String) {
+      return -1;
+    }
+    return Double.compare(toNumber(left), toNumber(right));
   }
 
   /** The values that are coerced to a boolean, mirroring Excel's truthiness. */
@@ -330,6 +405,10 @@ final class FastFormulaEvaluator {
   private static double toNumber(Object value) {
     if (value instanceof Number number) {
       return number.doubleValue();
+    }
+    if (value instanceof Boolean booleanValue) {
+      // POI BoolEval is numeric: TRUE is 1 and FALSE is 0, so arithmetic on booleans works.
+      return booleanValue ? 1.0d : 0.0d;
     }
     if (value == null) {
       // In Excel and POI a blank/null cell in an arithmetic expression is treated as 0.
@@ -393,39 +472,13 @@ final class FastFormulaEvaluator {
     }
 
     Node parseExpression() {
-      Node node = parseOr();
+      Node node = parseComparison();
       skipWhitespace();
       if (pos < expression.length()) {
         throw new UnsupportedFormulaException(
             "Unexpected trailing content at position " + pos + ": " + expression.substring(pos));
       }
       return node;
-    }
-
-    private Node parseOr() {
-      Node node = parseAnd();
-      while (true) {
-        skipWhitespace();
-        if (!(pos < expression.length() && expression.startsWith("||", pos))) {
-          return node;
-        }
-        pos += 2;
-        Node right = parseAnd();
-        node = new BinaryNode(node, right, BinaryOp.OR);
-      }
-    }
-
-    private Node parseAnd() {
-      Node node = parseComparison();
-      while (true) {
-        skipWhitespace();
-        if (!(pos < expression.length() && expression.startsWith("&&", pos))) {
-          return node;
-        }
-        pos += 2;
-        Node right = parseComparison();
-        node = new BinaryNode(node, right, BinaryOp.AND);
-      }
     }
 
     private Node parseComparison() {
@@ -447,9 +500,7 @@ final class FastFormulaEvaluator {
       Node node = parseAdditive();
       while (true) {
         skipWhitespace();
-        if (!(pos < expression.length()
-            && expression.charAt(pos) == '&'
-            && (pos + 1 >= expression.length() || expression.charAt(pos + 1) != '&'))) {
+        if (!(pos < expression.length() && expression.charAt(pos) == '&')) {
           return node;
         }
         pos++;
@@ -500,11 +551,7 @@ final class FastFormulaEvaluator {
       skipWhitespace();
       if (pos < expression.length() && expression.charAt(pos) == '-') {
         pos++;
-        return new UnaryNode(parseUnary(), true);
-      }
-      if (pos < expression.length() && expression.charAt(pos) == '!') {
-        pos++;
-        return new UnaryNode(parseUnary(), false);
+        return new UnaryNode(parseUnary());
       }
       return parseAtom();
     }
@@ -517,7 +564,7 @@ final class FastFormulaEvaluator {
       char c = expression.charAt(pos);
       if (c == '(') {
         pos++;
-        Node node = parseOr();
+        Node node = parseComparison();
         skipWhitespace();
         expect(')');
         return node;
@@ -589,7 +636,7 @@ final class FastFormulaEvaluator {
         return new FunctionNode(name, arguments);
       }
       while (true) {
-        arguments.add(parseOr());
+        arguments.add(parseComparison());
         skipWhitespace();
         if (pos < expression.length() && expression.charAt(pos) == ',') {
           pos++;

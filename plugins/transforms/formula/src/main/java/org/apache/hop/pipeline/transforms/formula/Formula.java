@@ -133,11 +133,13 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       // compile each formula for the fast path when it is within the supported subset: the
       // resolved formula goes through the same variable resolution and field replacement as the
       // regular POI path, so both evaluate exactly the same expression. The compiler returns
-      // NOT_ELIGIBLE (fastPath=false) for anything unsupported or when the fast path is disabled
-      // via
+      // NOT_ELIGIBLE (fastPath=false) for anything unsupported, when the pipeline opted out via
+      // the HOP_FORMULA_FAST_PATH_ENABLED Hop variable, or when the master
       // -Dorg.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled=false
-      // in which case the POI path is used instead.
+      // kill switch is set; in those cases the POI path is used instead.
       //
+      boolean fastEnabled =
+          Boolean.parseBoolean(getVariable(FastFormulaCompiler.FAST_PATH_VARIABLE, "true"));
       int formulaCount = meta.getFormulas().size();
       fastCompiled = new CompiledFormula[formulaCount];
       fastFieldIndices = new int[formulaCount][];
@@ -150,7 +152,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         List<String> effectiveFields = getFormulaFieldList(effective);
         CompiledFormula compiled =
             FastFormulaCompiler.compile(
-                effective, effectiveFields, data.outputRowMeta, fn.isSetNa());
+                effective, effectiveFields, data.outputRowMeta, fn.isSetNa(), fastEnabled);
         fastCompiled[i] = compiled;
         if (compiled.fastPath()) {
           int[] indices = new int[effectiveFields.size()];
@@ -290,6 +292,14 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     }
 
     return true;
+  }
+
+  /**
+   * The compiled formula for the given formula index, so tests can assert the fast path was
+   * actually taken instead of silently comparing two POI evaluations.
+   */
+  CompiledFormula compiledFormula(int index) {
+    return fastCompiled[index];
   }
 
   /**

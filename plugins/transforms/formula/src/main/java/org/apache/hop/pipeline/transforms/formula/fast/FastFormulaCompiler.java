@@ -35,7 +35,8 @@ import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaEvaluator.Node
  *
  * <p>The maximum number of cached entries is a {@code -D} property, {@value #MAX_SIZE_PROPERTY},
  * and defaults to {@value #DEFAULT_MAX_SIZE}. The whole fast path can be disabled with {@value
- * #ENABLED_PROPERTY}, which makes {@link #compile} always report "not eligible".
+ * #ENABLED_PROPERTY}, which makes {@link #compile} always report "not eligible"; pipelines can also
+ * opt out per transform through the {@link #FAST_PATH_VARIABLE} Hop variable.
  */
 public final class FastFormulaCompiler {
 
@@ -43,14 +44,18 @@ public final class FastFormulaCompiler {
       "org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.maxSize";
   public static final String ENABLED_PROPERTY =
       "org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled";
+
+  /**
+   * Hop variable (values "true"/"false") that turns the fast path off for a pipeline without a JVM
+   * flag. Read by the Formula transform and passed to {@link #compile}; the system property stays
+   * the master kill switch.
+   */
+  public static final String FAST_PATH_VARIABLE = "HOP_FORMULA_FAST_PATH_ENABLED";
+
   public static final int DEFAULT_MAX_SIZE = 1024;
 
-  /** Whether the fast path is enabled, read from {@value #ENABLED_PROPERTY} at class load. */
-  private static volatile boolean enabled = enabledFromProperty();
-
-  private static boolean enabledFromProperty() {
-    return Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
-  }
+  /** Test override for {@link #isEnabled()}; {@code null} means "follow the system property". */
+  private static volatile Boolean enabledOverride;
 
   /** Binds a formula to its compiled function (or states it is not eligible). */
   public record CompiledFormula(boolean fastPath, Function<Object[], Object> function) {
@@ -76,7 +81,29 @@ public final class FastFormulaCompiler {
    */
   public static CompiledFormula compile(
       String resolvedFormula, List<String> fieldNames, IRowMeta rowMeta, boolean setNa) {
-    if (!isEnabled()) {
+    return compile(resolvedFormula, fieldNames, rowMeta, setNa, true);
+  }
+
+  /**
+   * Returns the cached result for a formula, computing and caching it when not present.
+   *
+   * @param resolvedFormula the variable-resolved formula, ready to be parsed
+   * @param fieldNames the fields the formula references, in argument order
+   * @param rowMeta the row metadata, used for the value types of the fields
+   * @param setNa whether null fields are turned into {@code #N/A}
+   * @param enabled whether the caller wants the fast path at all; the Formula transform reads the
+   *     {@link #FAST_PATH_VARIABLE} Hop variable into this
+   * @return the compiled formula, whose {@link CompiledFormula#fastPath()} is false when the
+   *     formula is out of the fast-path subset, the caller or the master {@value #ENABLED_PROPERTY}
+   *     switch disabled the fast path
+   */
+  public static CompiledFormula compile(
+      String resolvedFormula,
+      List<String> fieldNames,
+      IRowMeta rowMeta,
+      boolean setNa,
+      boolean enabled) {
+    if (!enabled || !isEnabled()) {
       return CompiledFormula.NOT_ELIGIBLE;
     }
     int[] indices = eligibleIndices(fieldNames, rowMeta);
@@ -160,14 +187,20 @@ public final class FastFormulaCompiler {
     return key.toString();
   }
 
-  /** Whether the fast path is enabled. */
+  /**
+   * Whether the fast path is enabled. Reads {@value #ENABLED_PROPERTY} live, so the master kill
+   * switch also works without a JVM restart; {@link #setEnabled} overrides it for tests.
+   */
   public static boolean isEnabled() {
-    return enabled;
+    Boolean override = enabledOverride;
+    return override != null
+        ? override
+        : Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
   }
 
   /** Overrides whether the fast path is enabled. Intended for tests. */
   public static void setEnabled(boolean value) {
-    enabled = value;
+    enabledOverride = value;
   }
 
   private static int maxSize() {

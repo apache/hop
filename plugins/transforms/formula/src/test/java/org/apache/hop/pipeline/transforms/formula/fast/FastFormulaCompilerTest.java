@@ -119,16 +119,74 @@ class FastFormulaCompilerTest {
   }
 
   @Test
-  void logicalOperatorsAreSupportedAsSymbols() {
+  void logicalOperatorSymbolsAreNotEligible() {
     add(new ValueMetaInteger("a"));
     add(new ValueMetaInteger("b"));
+    // Excel and POI have no &&, || or ! operators: accepting them made formulas work on the fast
+    // path only, so they must fall back to POI where they fail the same way with or without it.
+    assertFalse(
+        FastFormulaCompiler.compile("[a] > 1 && [b] > 1", List.of("a", "b"), rowMeta, false)
+            .fastPath());
+    assertFalse(
+        FastFormulaCompiler.compile("[a] > 1 || [b] > 9", List.of("a", "b"), rowMeta, false)
+            .fastPath());
+    assertFalse(FastFormulaCompiler.compile("![a] > 9", List.of("a"), rowMeta, false).fastPath());
+  }
+
+  @Test
+  void booleanArithmeticMatchesPoiNumericBooleans() {
+    add(new ValueMetaBoolean("flag"));
+    assertEquals(
+        10.0d, evaluate("[flag] * 10", List.of("flag"), false, new Object[] {Boolean.TRUE}));
+    assertEquals(2.0d, evaluate("TRUE + 1", List.of("flag"), false, new Object[] {Boolean.TRUE}));
+    assertEquals(-1.0d, evaluate("-[flag]", List.of("flag"), false, new Object[] {Boolean.TRUE}));
+  }
+
+  @Test
+  void orderedComparisonsUsePoiTypeRanking() {
+    add(new ValueMetaInteger("num"));
+    add(new ValueMetaBoolean("flag"));
+    // A number never sorts above text: POI ranks text above numbers instead of stringifying.
+    assertEquals(
+        Boolean.FALSE, evaluate("[num] > \"199\"", List.of("num"), false, new Object[] {200L}));
+    // Booleans rank above text.
     assertEquals(
         Boolean.TRUE,
-        evaluate("[a] > 1 && [b] > 1", List.of("a", "b"), false, new Object[] {2L, 3L}));
+        evaluate("[flag] > \"Z\"", List.of("flag"), false, new Object[] {Boolean.TRUE}));
+    // A blank operand coerces to the other operand's type: 0 against a number.
+    assertEquals(Boolean.TRUE, evaluate("[num] > -1", List.of("num"), false, new Object[] {null}));
+  }
+
+  @Test
+  void naPropagatesLikeAPoiErrorCell() {
+    add(new ValueMetaInteger("amount"));
+    add(new ValueMetaString("comment"));
+    Object na = FastFormulaCompiler.NA;
     assertEquals(
-        Boolean.TRUE,
-        evaluate("[a] > 1 || [b] > 9", List.of("a", "b"), false, new Object[] {2L, 3L}));
-    assertEquals(Boolean.TRUE, evaluate("![a] > 9", List.of("a"), false, new Object[] {2L}));
+        FastFormulaCompiler.NA,
+        evaluate("[amount] + 10", List.of("amount"), true, new Object[] {na}));
+    assertEquals(
+        FastFormulaCompiler.NA,
+        evaluate("LEN([comment])", List.of("comment"), true, new Object[] {na}));
+    assertEquals(
+        FastFormulaCompiler.NA,
+        evaluate("[comment] = \"x\"", List.of("comment"), true, new Object[] {na}));
+    assertEquals(
+        FastFormulaCompiler.NA,
+        evaluate("IF([amount] > 1, \"big\")", List.of("amount"), true, new Object[] {na}));
+    assertEquals(
+        "na",
+        evaluate(
+            "IF(ISNA([comment]), \"na\", \"ok\")", List.of("comment"), true, new Object[] {na}));
+  }
+
+  @Test
+  void trimMatchesPoiWhitespaceSemantics() {
+    add(new ValueMetaString("name"));
+    // Only characters up to the ASCII space are trimmed at the ends and ASCII spaces collapse:
+    // a tab inside the text must survive, exactly like POI's trim().replaceAll(" +", " ").
+    assertEquals("a\tb", evaluate("TRIM([name])", List.of("name"), false, new Object[] {"a\tb"}));
+    assertEquals("a b", evaluate("TRIM([name])", List.of("name"), false, new Object[] {"\ta  b "}));
   }
 
   @Test
@@ -278,6 +336,14 @@ class FastFormulaCompilerTest {
       FastFormulaCompiler.setEnabled(previous);
       FastFormulaCompiler.clear();
     }
+  }
+
+  @Test
+  void callerOptOutReportsNotEligible() {
+    add(new ValueMetaInteger("amount"));
+    CompiledFormula compiled =
+        FastFormulaCompiler.compile("[amount] + 1", List.of("amount"), rowMeta, false, false);
+    assertFalse(compiled.fastPath());
   }
 
   @Test
