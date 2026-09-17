@@ -27,7 +27,10 @@ package org.apache.hop.pgvector.util;
  */
 public enum VectorDistanceMetric {
 
-  /** Cosine similarity in [0, 2]: {@code 1 - cosine_distance}. */
+  /**
+   * Cosine similarity in [-1, 1]: {@code 1 - cosine_distance}, where pgvector's cosine distance
+   * runs [0, 2]. A minimum score of 0 therefore drops anything more than 90 degrees apart.
+   */
   COSINE("<=>", "1 - (embedding <=> ?::vector)"),
 
   /** Euclidean distance mapped to (0, 1]: {@code 1 / (1 + l2_distance)}. */

@@ -19,37 +19,26 @@ package org.apache.hop.pgvector.transforms.search;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pgvector.util.PgVectorSearchFilter;
-import org.apache.hop.pgvector.util.VectorDistanceMetric;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -58,21 +47,9 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PgVectorSearchMeta.class;
 
   private final PgVectorSearchMeta input;
-
-  private MetaSelectionLine<org.apache.hop.core.database.DatabaseMeta> wConnection;
-  private LabelTextVar wSchemaName;
-  private LabelTextVar wTableName;
-  private ComboVar wEmbeddingField;
-  private LabelTextVar wTopK;
-  private LabelTextVar wMinScore;
-  private Button wEatRowOnNoMatch;
-  private CCombo wDistanceMetric;
-  private LabelTextVar wResultIdField;
-  private LabelTextVar wResultDocumentIdField;
-  private LabelTextVar wResultChunkIndexField;
-  private LabelTextVar wResultContentField;
-  private LabelTextVar wResultScoreField;
+  private GuiCompositeWidgets widgets;
   private TableView wFilters;
+  private boolean loading;
 
   public PgVectorSearchDialog(
       Shell parent,
@@ -85,130 +62,57 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Control lastControl =
-        createShell(BaseMessages.getString(PKG, "PgVectorSearchDialog.Shell.Title"));
+    createShell(BaseMessages.getString(PKG, "PgVectorSearchDialog.Shell.Title"));
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(tabFolder);
-    FormData fdTabs = new FormData();
-    fdTabs.left = new FormAttachment(0, 0);
-    fdTabs.top = new FormAttachment(lastControl, margin);
-    fdTabs.right = new FormAttachment(100, 0);
-    fdTabs.bottom = new FormAttachment(wOk, -margin * 2);
-    tabFolder.setLayoutData(fdTabs);
+    changed = input.hasChanged();
+    loading = true;
 
-    CTabItem mainTab = new CTabItem(tabFolder, SWT.NONE);
-    mainTab.setFont(GuiResource.getInstance().getFontDefault());
-    mainTab.setText(BaseMessages.getString(PKG, "PgVectorSearchDialog.Tab.Main"));
-    Composite mainComp = new Composite(tabFolder, SWT.NONE);
-    PropsUi.setLook(mainComp);
-    mainComp.setLayout(new FormLayout());
-    mainTab.setControl(mainComp);
+    widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            shell,
+            variables,
+            wTransformName,
+            wOk,
+            PgVectorSearchMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+            input,
+            w -> {
+              // Extra-group builders run before addScrolledComposite returns, so keep the field
+              // assigned for anything they look up.
+              widgets = w;
+              w.registerExtraGroup(
+                  BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Label"),
+                  "0200",
+                  null,
+                  this::addFiltersTable);
+            });
+    widgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            if (!loading) {
+              input.setChanged();
+            }
+          }
 
-    CTabItem filterTab = new CTabItem(tabFolder, SWT.NONE);
-    filterTab.setFont(GuiResource.getInstance().getFontDefault());
-    filterTab.setText(BaseMessages.getString(PKG, "PgVectorSearchDialog.Tab.Filters"));
-    Composite filterComp = new Composite(tabFolder, SWT.NONE);
-    PropsUi.setLook(filterComp);
-    filterComp.setLayout(new FormLayout());
-    filterTab.setControl(filterComp);
+          @Override
+          public void persistContents(GuiCompositeWidgets compositeWidgets) {
+            input.setFilters(readFilters());
+          }
+        });
 
-    tabFolder.setSelection(mainTab);
-    buildMainTab(mainComp);
-    buildFilterTab(filterComp);
-
-    getData();
+    setFieldComboValues();
+    populateFilters();
     loading = false;
     input.setChanged(changed);
+
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
   }
 
-  private void buildMainTab(Composite parent) {
-    Control last = null;
-    wConnection = addConnectionLine(parent, null, input.getConnection(), lsMod);
-    last = wConnection;
-    wSchemaName = addText(parent, last, "PgVector.schemaName");
-    last = wSchemaName;
-    wTableName = addText(parent, last, "PgVector.tableName");
-    last = wTableName;
-    wEmbeddingField = addFieldCombo(parent, last, "PgVectorSearch.embeddingField");
-    last = wEmbeddingField;
-    wTopK = addText(parent, last, "PgVectorSearch.topK");
-    last = wTopK;
-    wMinScore = addText(parent, last, "PgVectorSearch.minScore");
-    last = wMinScore;
-
-    Label wlEatRow = new Label(parent, SWT.RIGHT);
-    wlEatRow.setText(BaseMessages.getString(PKG, "PgVectorSearch.eatingRowOnNoMatch.Label"));
-    wlEatRow.setToolTipText(
-        BaseMessages.getString(PKG, "PgVectorSearch.eatingRowOnNoMatch.Tooltip"));
-    PropsUi.setLook(wlEatRow);
-    FormData fdlEatRow = new FormData();
-    fdlEatRow.left = new FormAttachment(0, 0);
-    fdlEatRow.right = new FormAttachment(middle, -margin);
-    fdlEatRow.top = new FormAttachment(last, margin);
-    wlEatRow.setLayoutData(fdlEatRow);
-
-    wEatRowOnNoMatch = new Button(parent, SWT.CHECK);
-    wEatRowOnNoMatch.setToolTipText(
-        BaseMessages.getString(PKG, "PgVectorSearch.eatingRowOnNoMatch.Tooltip"));
-    PropsUi.setLook(wEatRowOnNoMatch);
-    FormData fdEatRow = new FormData();
-    fdEatRow.left = new FormAttachment(middle, 0);
-    fdEatRow.right = new FormAttachment(100, 0);
-    fdEatRow.top = new FormAttachment(wlEatRow, 0, SWT.CENTER);
-    wEatRowOnNoMatch.setLayoutData(fdEatRow);
-    wEatRowOnNoMatch.addListener(SWT.Selection, e -> input.setChanged());
-    last = wEatRowOnNoMatch;
-
-    Label wlMetric = new Label(parent, SWT.RIGHT);
-    wlMetric.setText(BaseMessages.getString(PKG, "PgVectorSearch.distanceMetric.Label"));
-    wlMetric.setToolTipText(BaseMessages.getString(PKG, "PgVectorSearch.distanceMetric.Tooltip"));
-    PropsUi.setLook(wlMetric);
-    FormData fdlMetric = new FormData();
-    fdlMetric.left = new FormAttachment(0, 0);
-    fdlMetric.right = new FormAttachment(middle, -margin);
-    fdlMetric.top = new FormAttachment(last, margin);
-    wlMetric.setLayoutData(fdlMetric);
-    wDistanceMetric = new CCombo(parent, SWT.BORDER | SWT.READ_ONLY);
-    PropsUi.setLook(wDistanceMetric);
-    wDistanceMetric.setItems(
-        new String[] {
-          VectorDistanceMetric.COSINE.name(),
-          VectorDistanceMetric.L2.name(),
-          VectorDistanceMetric.INNER_PRODUCT.name()
-        });
-    wDistanceMetric.addModifyListener(lsMod);
-    FormData fdMetric = new FormData();
-    fdMetric.left = new FormAttachment(middle, 0);
-    fdMetric.top = new FormAttachment(last, margin);
-    fdMetric.right = new FormAttachment(100, 0);
-    wDistanceMetric.setLayoutData(fdMetric);
-    last = wDistanceMetric;
-
-    wResultIdField = addText(parent, last, "PgVectorSearch.resultIdField");
-    last = wResultIdField;
-    wResultDocumentIdField = addText(parent, last, "PgVectorSearch.resultDocumentIdField");
-    last = wResultDocumentIdField;
-    wResultChunkIndexField = addText(parent, last, "PgVectorSearch.resultChunkIndexField");
-    last = wResultChunkIndexField;
-    wResultContentField = addText(parent, last, "PgVectorSearch.resultContentField");
-    last = wResultContentField;
-    wResultScoreField = addText(parent, last, "PgVectorSearch.resultScoreField");
-  }
-
-  private void buildFilterTab(Composite parent) {
-    Label wlFilters = new Label(parent, SWT.LEFT);
-    wlFilters.setText(BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Label"));
-    wlFilters.setToolTipText(BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Tooltip"));
-    PropsUi.setLook(wlFilters);
-    FormData fdl = new FormData();
-    fdl.left = new FormAttachment(0, 0);
-    fdl.top = new FormAttachment(0, margin);
-    wlFilters.setLayoutData(fdl);
-
+  private void addFiltersTable(Composite parent) {
     ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -230,118 +134,79 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             columns,
             rows,
-            lsMod,
+            e -> input.setChanged(),
             props);
     FormData fdFilters = new FormData();
     fdFilters.left = new FormAttachment(0, 0);
     fdFilters.right = new FormAttachment(100, 0);
-    fdFilters.top = new FormAttachment(wlFilters, margin);
+    fdFilters.top = new FormAttachment(0, 0);
     fdFilters.bottom = new FormAttachment(100, 0);
     wFilters.setLayoutData(fdFilters);
   }
 
-  private LabelTextVar addText(Composite parent, Control previous, String labelKey) {
-    LabelTextVar widget =
-        new LabelTextVar(
-            variables,
-            parent,
-            BaseMessages.getString(PKG, labelKey + ".Label"),
-            BaseMessages.getString(PKG, labelKey + ".Tooltip"));
-    PropsUi.setLook(widget);
-    widget.addModifyListener(lsMod);
-    FormData fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(previous, margin);
-    fd.right = new FormAttachment(100, 0);
-    widget.setLayoutData(fd);
-    return widget;
-  }
-
-  private ComboVar addFieldCombo(Composite parent, Control previous, String labelKey) {
-    Label label = new Label(parent, SWT.RIGHT);
-    label.setText(BaseMessages.getString(PKG, labelKey + ".Label"));
-    label.setToolTipText(BaseMessages.getString(PKG, labelKey + ".Tooltip"));
-    PropsUi.setLook(label);
-    FormData fdl = new FormData();
-    fdl.left = new FormAttachment(0, 0);
-    fdl.right = new FormAttachment(middle, -margin);
-    fdl.top = new FormAttachment(previous, margin);
-    label.setLayoutData(fdl);
-    ComboVar combo = new ComboVar(variables, parent, SWT.BORDER | SWT.READ_ONLY);
-    PropsUi.setLook(combo);
-    combo.addModifyListener(lsMod);
-    combo.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            populateStreamFields(combo);
-          }
-        });
-    FormData fd = new FormData();
-    fd.left = new FormAttachment(middle, 0);
-    fd.top = new FormAttachment(previous, margin);
-    fd.right = new FormAttachment(100, 0);
-    combo.setLayoutData(fd);
-    return combo;
-  }
-
-  private void populateStreamFields(ComboVar source) {
+  /**
+   * Stream field names cannot come from {@code comboValuesMethod}, which is handed only a log
+   * channel and a metadata provider, so they are filled once the widgets exist.
+   */
+  private void setFieldComboValues() {
     try {
-      String current = source.getText();
-      String[] fieldNames = getPreviousFieldNames();
-      source.removeAll();
-      if (fieldNames != null) {
-        source.setItems(fieldNames);
+      IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
+      String[] names = fields == null ? new String[0] : fields.getFieldNames();
+      setComboItems(PgVectorSearchMeta.WIDGET_EMBEDDING_FIELD, names);
+      if (wFilters != null && !wFilters.isDisposed()) {
+        wFilters.setColumnInfo(1, new ColumnInfo("", ColumnInfo.COLUMN_TYPE_CCOMBO, names, true));
       }
-      if (wFilters != null && fieldNames != null) {
-        wFilters.setColumnInfo(
-            1, new ColumnInfo("", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, true));
-      }
-      if (!Utils.isEmpty(current)) {
-        source.setText(current);
-      }
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "PgVectorDialog.GetFields.Error.Title"),
-          BaseMessages.getString(PKG, "PgVectorDialog.GetFields.Error.Message"),
-          e);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting source fields", e);
     }
   }
 
-  private String[] getPreviousFieldNames() throws HopException {
-    IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformName);
-    return row == null ? new String[0] : row.getFieldNames();
+  private void setComboItems(String widgetId, String[] names) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+    if (control instanceof ComboVar comboVar) {
+      String selected = comboVar.getText();
+      comboVar.setItems(names);
+      if (!Utils.isEmpty(selected)) {
+        comboVar.setText(selected);
+      }
+    } else if (control instanceof Combo combo) {
+      String selected = combo.getText();
+      combo.setItems(names);
+      if (!Utils.isEmpty(selected)) {
+        combo.setText(selected);
+      }
+    }
   }
 
-  private void getData() {
-    if (!Utils.isEmpty(input.getConnection())) {
-      wConnection.setText(input.getConnection());
+  private void populateFilters() {
+    if (wFilters == null || input.getFilters() == null) {
+      return;
     }
-    wSchemaName.setText(Const.NVL(input.getSchemaName(), ""));
-    wTableName.setText(Const.NVL(input.getTableName(), ""));
-    wEmbeddingField.setText(Const.NVL(input.getEmbeddingField(), ""));
-    wTopK.setText(Integer.toString(input.getTopK()));
-    wMinScore.setText(Double.toString(input.getMinScore()));
-    wEatRowOnNoMatch.setSelection(input.isEatingRowOnNoMatch());
-    wDistanceMetric.setText(
-        input.getDistanceMetric() != null
-            ? input.getDistanceMetric().name()
-            : VectorDistanceMetric.COSINE.name());
-    wResultIdField.setText(Const.NVL(input.getResultIdField(), ""));
-    wResultDocumentIdField.setText(Const.NVL(input.getResultDocumentIdField(), ""));
-    wResultChunkIndexField.setText(Const.NVL(input.getResultChunkIndexField(), ""));
-    wResultContentField.setText(Const.NVL(input.getResultContentField(), ""));
-    wResultScoreField.setText(Const.NVL(input.getResultScoreField(), ""));
-    if (input.getFilters() != null) {
-      for (PgVectorSearchFilter filter : input.getFilters()) {
-        TableItem item = new TableItem(wFilters.table, SWT.NONE);
-        item.setText(1, Const.NVL(filter.getColumnName(), ""));
-        item.setText(2, Const.NVL(filter.getStreamField(), ""));
+    for (PgVectorSearchFilter filter : input.getFilters()) {
+      TableItem item = new TableItem(wFilters.table, SWT.NONE);
+      item.setText(1, Const.NVL(filter.getColumnName(), ""));
+      item.setText(2, Const.NVL(filter.getStreamField(), ""));
+    }
+    wFilters.removeEmptyRows();
+    wFilters.setRowNums();
+  }
+
+  private List<PgVectorSearchFilter> readFilters() {
+    List<PgVectorSearchFilter> filters = new ArrayList<>();
+    if (wFilters == null || wFilters.isDisposed()) {
+      return filters;
+    }
+    for (TableItem item : wFilters.getNonEmptyItems()) {
+      String columnName = item.getText(1);
+      String streamField = item.getText(2);
+      if (!Utils.isEmpty(columnName) && !Utils.isEmpty(streamField)) {
+        filters.add(new PgVectorSearchFilter(columnName, streamField));
       }
-      wFilters.removeEmptyRows();
-      wFilters.setRowNums();
     }
+    return filters;
   }
 
   private void cancel() {
@@ -354,33 +219,10 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    transformName = wTransformName.getText();
-    input.setConnection(wConnection.getText());
-    input.setSchemaName(wSchemaName.getText());
-    input.setTableName(wTableName.getText());
-    input.setEmbeddingField(wEmbeddingField.getText());
-    input.setTopK(Const.toInt(wTopK.getText(), 5));
-    input.setMinScore(Const.toDouble(wMinScore.getText(), 0.0));
-    input.setEatingRowOnNoMatch(wEatRowOnNoMatch.getSelection());
-    input.setDistanceMetric(VectorDistanceMetric.fromString(wDistanceMetric.getText()));
-    input.setResultIdField(wResultIdField.getText());
-    input.setResultDocumentIdField(wResultDocumentIdField.getText());
-    input.setResultChunkIndexField(wResultChunkIndexField.getText());
-    input.setResultContentField(wResultContentField.getText());
-    input.setResultScoreField(wResultScoreField.getText());
+    widgets.getWidgetsContents(input, PgVectorSearchMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
     input.setFilters(readFilters());
+    transformName = wTransformName.getText();
+    input.setChanged();
     dispose();
-  }
-
-  private List<PgVectorSearchFilter> readFilters() {
-    List<PgVectorSearchFilter> filters = new ArrayList<>();
-    for (TableItem item : wFilters.getNonEmptyItems()) {
-      String columnName = item.getText(1);
-      String streamField = item.getText(2);
-      if (!Utils.isEmpty(columnName) && !Utils.isEmpty(streamField)) {
-        filters.add(new PgVectorSearchFilter(columnName, streamField));
-      }
-    }
-    return filters;
   }
 }

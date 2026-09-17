@@ -30,6 +30,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pgvector.GuiWidgetCoverage;
 import org.apache.hop.pgvector.util.PgVectorSearchFilter;
 import org.apache.hop.pgvector.util.VectorDistanceMetric;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -51,9 +52,9 @@ class PgVectorSearchMetaTest {
     original.setSchemaName("rag");
     original.setTableName("chunks");
     original.setEmbeddingField("query_vector");
-    original.setTopK(12);
+    original.setTopK("12");
     original.setDistanceMetric(VectorDistanceMetric.INNER_PRODUCT);
-    original.setMinScore(0.42);
+    original.setMinScore("0.42");
     original.setEatingRowOnNoMatch(true);
     original.setResultIdField("hit_id");
     original.setResultDocumentIdField("hit_doc");
@@ -118,6 +119,37 @@ class PgVectorSearchMetaTest {
                 r ->
                     r.getType() == ICheckResult.TYPE_RESULT_ERROR
                         && r.getText().contains("query_vector")));
+  }
+
+  @Test
+  void everyPropertyIsOnTheDialog() {
+    // The filters table view is built by the dialog through registerExtraGroup.
+    GuiWidgetCoverage.assertEveryPropertyHasAWidget(PgVectorSearchMeta.class, List.of("filters"));
+  }
+
+  @Test
+  void everyWidgetLabelResolves() {
+    GuiWidgetCoverage.assertWidgetTextResolves(PgVectorSearchMeta.class);
+  }
+
+  @Test
+  void acceptsAVariableForTopK() {
+    PgVectorSearchMeta meta = new PgVectorSearchMeta();
+    meta.setDefault();
+    meta.setConnection("pgvector");
+    meta.setTableName("chunks");
+    meta.setEmbeddingField("embedding");
+    meta.setTopK("${TOP_K}");
+
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("embedding"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), prev, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream().noneMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "a variable top-k is resolved at run time, not a design-time error");
   }
 
   private static PgVectorSearchMeta roundTrip(PgVectorSearchMeta original) throws Exception {

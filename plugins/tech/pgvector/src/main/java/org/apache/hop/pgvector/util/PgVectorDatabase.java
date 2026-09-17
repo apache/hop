@@ -62,24 +62,28 @@ public final class PgVectorDatabase {
       PgVectorUpsertMeta meta,
       String schemaName,
       String tableName,
-      VectorDistanceMetric indexMetric)
+      VectorDistanceMetric indexMetric,
+      int embeddingDimensions)
       throws HopDatabaseException {
-    database.execStatement(PgVectorSqlBuilder.createExtensionSql());
     List<PgVectorTableColumn> columns = PgVectorSchemaBuilder.tableColumns(meta);
     String qualifiedTable = PgVectorSqlBuilder.qualifiedTable(schemaName, tableName);
     if (meta.isCreateTableIfMissing()) {
+      // CREATE EXTENSION needs elevated privileges, so it only runs where it is actually needed:
+      // to declare a vector column. A table that already has one was created with the extension
+      // in place, which covers adding an index or a mapped column to it.
+      database.execStatement(PgVectorSqlBuilder.createExtensionSql());
       database.execStatement(
-          PgVectorSqlBuilder.createTableSql(
-              qualifiedTable, columns, meta.getEmbeddingDimensions()));
+          PgVectorSqlBuilder.createTableSql(qualifiedTable, columns, embeddingDimensions));
     }
-    ensureMappedColumns(database, meta, qualifiedTable);
+    ensureMappedColumns(database, meta, qualifiedTable, embeddingDimensions);
     if (meta.isCreateHnswIndex()) {
       database.execStatement(PgVectorSqlBuilder.createHnswIndexSql(qualifiedTable, indexMetric));
     }
   }
 
   /** Adds mapped TEXT columns when the table already exists from an earlier schema version. */
-  static void ensureMappedColumns(Database database, PgVectorUpsertMeta meta, String qualifiedTable)
+  static void ensureMappedColumns(
+      Database database, PgVectorUpsertMeta meta, String qualifiedTable, int embeddingDimensions)
       throws HopDatabaseException {
     if (meta.getColumnMappings() == null) {
       return;
@@ -96,7 +100,7 @@ public final class PgVectorDatabase {
           PgVectorSqlBuilder.addColumnSql(
               qualifiedTable,
               new PgVectorTableColumn(column, PgVectorColumnType.TEXT, false),
-              meta.getEmbeddingDimensions()));
+              embeddingDimensions));
     }
   }
 }

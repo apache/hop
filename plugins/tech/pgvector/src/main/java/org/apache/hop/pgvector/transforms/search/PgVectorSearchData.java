@@ -30,6 +30,12 @@ public class PgVectorSearchData extends BaseTransformData implements ITransformD
   public IRowMeta outputRowMeta;
   public org.apache.hop.core.database.Database database;
   public PreparedStatement searchStatement;
+
+  /** Resolved once in init, so variables are not re-resolved per row. */
+  public int topK;
+
+  public double minScore;
+
   public int embeddingFieldIndex = -1;
 
   /** Output field indices, resolved once so the result loop never scans the row metadata. */

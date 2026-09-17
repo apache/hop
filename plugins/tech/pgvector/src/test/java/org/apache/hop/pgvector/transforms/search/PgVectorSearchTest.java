@@ -129,7 +129,7 @@ class PgVectorSearchTest {
   @Test
   void skipsMatchesBelowTheMinimumScore() throws Exception {
     PgVectorSearchMeta meta = newMeta();
-    meta.setMinScore(0.95);
+    meta.setMinScore("0.95");
 
     // The stub returns descending scores 0.9, 0.8 - both below the threshold.
     run(meta, "[0.1,0.2]", 2);

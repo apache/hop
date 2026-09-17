@@ -1,0 +1,15 @@
+{
+  "base_filename": "golden-delete-savepoint-stored.csv",
+  "name": "golden-delete-savepoint-stored",
+  "description": "doc-guard-b stores even though the delete for doc-guard-a failed just before it.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "document_id",
+      "field_format": ""
+    }
+  ]
+}

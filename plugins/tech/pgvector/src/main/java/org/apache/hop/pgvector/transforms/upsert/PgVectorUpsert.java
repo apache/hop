@@ -16,11 +16,10 @@
  */
 package org.apache.hop.pgvector.transforms.upsert;
 
-import java.sql.BatchUpdateException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -43,10 +42,13 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
   private static final Class<?> PKG = PgVectorUpsertMeta.class;
 
   /**
-   * Upper bound on the per-document delete cache. Without a cap this set grows for the lifetime of
-   * the run, which matters when a corpus has millions of distinct documents.
+   * Upper bound on the per-document delete cache, which holds one entry per distinct document id so
+   * that each document is deleted once. The cap exists because the set would otherwise grow for the
+   * lifetime of the run. It is a hard limit rather than an eviction policy: evicting an entry would
+   * let the same document be deleted a second time, taking with it the chunks this run had already
+   * written for it.
    */
-  private static final int MAX_DELETED_DOCUMENT_CACHE = 100_000;
+  private static final int MAX_DELETED_DOCUMENT_CACHE = 1_000_000;
 
   public PgVectorUpsert(
       TransformMeta transformMeta,
@@ -123,8 +125,6 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
 
     try {
       bindInsertRow(row, id, documentId, chunkIndex, content, embedding);
-      data.insertStatement.addBatch();
-      data.batchRows.add(row);
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
@@ -132,9 +132,90 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
           BaseMessages.getString(PKG, "PgVectorUpsert.Error.BindingRow", String.valueOf(id)), e);
     }
 
-    if (meta.getCommitSize() > 0 && data.batchRows.size() >= meta.getCommitSize()) {
+    if (!data.batchMode) {
+      executeSingleRow(row, id);
+      return;
+    }
+
+    try {
+      data.insertStatement.addBatch();
+      data.batchRows.add(row);
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "PgVectorUpsert.Error.BindingRow", String.valueOf(id)), e);
+    }
+
+    if (data.batchRows.size() >= data.commitSize) {
       commitBatch();
     }
+  }
+
+  /** One statement at a time, so a rejected row can be diverted without losing the rest. */
+  private void executeSingleRow(Object[] row, String id) throws HopException {
+    try {
+      if (data.useSafePoints) {
+        data.savepoint = data.database.setSavepoint();
+      }
+      data.insertStatement.executeUpdate();
+      if (data.useSafePoints && data.releaseSavepoint) {
+        data.database.releaseSavepoint(data.savepoint);
+      }
+    } catch (Exception e) {
+      if (!getTransformMeta().isDoingErrorHandling()) {
+        rollbackQuietly();
+        throw new HopException(
+            BaseMessages.getString(PKG, "PgVectorUpsert.Error.BindingRow", String.valueOf(id)), e);
+      }
+      // Without this the transaction stays aborted and every later row fails too.
+      revertToSavepoint();
+      putError(data.inputRowMeta, row, 1, e.getMessage(), null, "PGVECTORUPSERT002");
+      return;
+    }
+    putRow(data.inputRowMeta, row);
+    commitIfCommitSizeReached();
+  }
+
+  /** Always called while handling another failure, so it reports rather than throws. */
+  private void revertToSavepoint() {
+    if (!data.useSafePoints || data.savepoint == null) {
+      return;
+    }
+    try {
+      data.database.rollback(data.savepoint);
+      if (data.releaseSavepoint) {
+        data.database.releaseSavepoint(data.savepoint);
+      }
+    } catch (Exception e) {
+      logDetailed("Unable to roll back to the savepoint: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Commits every commit-size rows outside batch mode, the way Table Output does. A commit size of
+   * 0 resolves to {@link Integer#MAX_VALUE}, which leaves the run as a single transaction.
+   */
+  private void commitIfCommitSizeReached() throws HopException {
+    if (++data.rowsSinceCommit < data.commitSize) {
+      return;
+    }
+    data.rowsSinceCommit = 0;
+    try {
+      data.database.commit();
+    } catch (Exception e) {
+      throw new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
+    }
+  }
+
+  private void rollbackQuietly() {
+    try {
+      data.database.rollback();
+    } catch (Exception e) {
+      logDetailed("Unable to roll back the aborted transaction: " + e.getMessage());
+    }
+  }
+
+  private boolean hasColumnMappings() {
+    return meta.getColumnMappings() != null && !meta.getColumnMappings().isEmpty();
   }
 
   private boolean shouldDeleteDocument(String documentId) {
@@ -145,16 +226,27 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
   }
 
   private void deleteDocument(String documentId) throws HopException {
+    if (data.deletedDocuments.size() >= MAX_DELETED_DOCUMENT_CACHE) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "PgVectorUpsert.Error.TooManyDeletedDocuments",
+              String.valueOf(MAX_DELETED_DOCUMENT_CACHE)));
+    }
     try {
+      if (data.useSafePoints) {
+        data.savepoint = data.database.setSavepoint();
+      }
       data.deleteStatement.setString(1, documentId);
       data.deleteStatement.executeUpdate();
-      if (data.deletedDocuments.size() >= MAX_DELETED_DOCUMENT_CACHE) {
-        Iterator<String> oldest = data.deletedDocuments.iterator();
-        oldest.next();
-        oldest.remove();
+      if (data.useSafePoints && data.releaseSavepoint) {
+        data.database.releaseSavepoint(data.savepoint);
       }
       data.deletedDocuments.add(documentId);
     } catch (Exception e) {
+      // A failed delete aborts the transaction just as a failed insert does. Without this the
+      // caller diverts this row and every row after it fails on the aborted transaction.
+      revertToSavepoint();
       throw new HopException(
           BaseMessages.getString(PKG, "PgVectorUpsert.Error.DeletingDocument", documentId), e);
     }
@@ -188,23 +280,64 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
     }
   }
 
-  private void openDatabase() throws HopException {
-    try {
-      data.database =
-          PgVectorDatabase.connect(this, this, getMetadataProvider(), meta.getConnection());
-    } catch (HopException e) {
-      throw e;
+  /**
+   * Decides how rows reach the database: in JDBC batches, or one statement at a time with
+   * savepoints so a rejected row can be diverted.
+   *
+   * <p>Batching and an error hop are mutually exclusive. A failed {@code executeBatch} cannot be
+   * mapped back onto individual rows here, so a rejected batch would leave its rows neither written
+   * nor diverted. That holds for every dialect, which is why it does not consult {@code iDatabase},
+   * unlike the savepoints, which only some databases need.
+   */
+  void configureCommitStrategy(IDatabase iDatabase) {
+    data.commitSize = Const.toInt(resolve(meta.getCommitSize()), 100);
+    boolean errorHandling = getTransformMeta().isDoingErrorHandling();
+    data.batchMode = data.commitSize > 0 && !errorHandling;
+    // PostgreSQL aborts the whole transaction on a failed statement, so a row can only be diverted
+    // if the transform can roll back to just before it. Table Output does the same.
+    data.useSafePoints = iDatabase.isUseSafePoints() && errorHandling;
+    data.releaseSavepoint = iDatabase.isReleaseSavepoint();
+    if (data.commitSize <= 0) {
+      // As in Table Output: one transaction for the whole run rather than JDBC autocommit, which
+      // would split a document delete from the inserts that replace it.
+      data.commitSize = Integer.MAX_VALUE;
     }
+  }
 
-    try {
-      data.database.setCommit(meta.getCommitSize());
+  /**
+   * Runs the schema DDL, then leaves the connection in the commit mode the data rows need.
+   *
+   * <p>The DDL runs with autocommit on. Inside the data transaction a table or index created here
+   * would be undone by the rollback of a single failed row, and an index would hold its locks for
+   * the length of the load.
+   */
+  void prepareSchemaAndCommitMode(String schemaName, String tableName) throws HopException {
+    // The HNSW index and the mapped-column ALTERs are independent options, so they have to run on
+    // an existing table too, not only when this transform creates one.
+    if (meta.isCreateTableIfMissing() || meta.isCreateHnswIndex() || hasColumnMappings()) {
+      data.database.setCommit(0);
       VectorDistanceMetric indexMetric =
           meta.getIndexMetric() != null ? meta.getIndexMetric() : VectorDistanceMetric.COSINE;
+      PgVectorDatabase.ensureSchema(
+          data.database,
+          meta,
+          schemaName,
+          tableName,
+          indexMetric,
+          Const.toInt(resolve(meta.getEmbeddingDimensions()), 768));
+    }
+    data.database.setCommit(data.commitSize);
+  }
+
+  private void openDatabase() throws HopException {
+    data.database =
+        PgVectorDatabase.connect(this, this, getMetadataProvider(), meta.getConnection());
+
+    try {
+      configureCommitStrategy(data.database.getDatabaseMeta().getIDatabase());
       String schemaName = resolve(meta.getSchemaName());
       String tableName = resolve(meta.getTableName());
-      if (meta.isCreateTableIfMissing()) {
-        PgVectorDatabase.ensureSchema(data.database, meta, schemaName, tableName, indexMetric);
-      }
+      prepareSchemaAndCommitMode(schemaName, tableName);
       String qualifiedTable = PgVectorSqlBuilder.qualifiedTable(schemaName, tableName);
       data.tableColumns = PgVectorSchemaBuilder.tableColumns(meta);
       data.insertStatement =
@@ -290,10 +423,15 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
     }
     String documentId = getFieldAsString(row, data.documentIdFieldIndex);
     String chunkIndex = getFieldAsString(row, data.chunkIndexFieldIndex);
-    if (Utils.isEmpty(documentId) && Utils.isEmpty(chunkIndex)) {
+    // A chunk index on its own repeats across documents, so it cannot stand in for a key. The
+    // document id is the part that has to be there; a missing chunk index is read as 0 below.
+    if (Utils.isEmpty(documentId)) {
       throw new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.NoIdAvailable"));
     }
-    return documentId + "_" + chunkIndex;
+    // parseChunkIndex maps a missing value to 0, which is what gets bound to chunk_index, so the
+    // key has to be built from that and not from the raw string. Otherwise a null index produces
+    // the key "doc_null" beside a stored chunk_index of 0.
+    return documentId + "_" + parseChunkIndex(chunkIndex);
   }
 
   private String getFieldAsString(Object[] row, int index) throws HopException {
@@ -316,9 +454,9 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
   }
 
   /**
-   * Executes and commits the pending batch, then releases the buffered rows downstream. When error
-   * handling is on, {@link BatchUpdateException#getUpdateCounts()} is used to divert only the rows
-   * the database actually rejected.
+   * Executes and commits the pending batch, then releases the buffered rows downstream so that no
+   * downstream transform sees a row as written before it actually is. Batching is only used when no
+   * error hop is attached, so a failure here aborts the transform rather than diverting rows.
    */
   private void commitBatch() throws HopException {
     if (data.insertStatement == null || data.batchRows.isEmpty()) {
@@ -328,55 +466,29 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
     List<Object[]> rows = new ArrayList<>(data.batchRows);
     data.batchRows.clear();
 
-    boolean[] failed = new boolean[rows.size()];
-    HopException failure = null;
-
     try {
       data.insertStatement.executeBatch();
-    } catch (BatchUpdateException e) {
-      failure = new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
-      markFailedRows(e, failed);
+      data.database.commit();
     } catch (Exception e) {
-      failure = new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
-      java.util.Arrays.fill(failed, true);
-    }
-
-    if (failure != null && !getTransformMeta().isDoingErrorHandling()) {
-      throw failure;
-    }
-
-    try {
-      if (meta.getCommitSize() > 0) {
-        data.database.commit();
-      }
-    } catch (Exception e) {
+      // Batching is only used when no error hop is attached, so there is nothing to divert to.
+      // The transaction is already aborted by PostgreSQL: discard the batch and roll back rather
+      // than committing on top of a failure.
+      discardFailedBatch();
       throw new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
     }
 
-    String errorMessage = failure != null ? failure.getMessage() : null;
-    for (int i = 0; i < rows.size(); i++) {
-      if (failed[i]) {
-        putError(data.inputRowMeta, rows.get(i), 1, errorMessage, null, "PGVECTORUPSERT002");
-      } else {
-        putRow(data.inputRowMeta, rows.get(i));
-      }
+    for (Object[] row : rows) {
+      putRow(data.inputRowMeta, row);
     }
   }
 
-  /**
-   * Maps a batch failure back onto individual rows. Drivers may report fewer counts than statements
-   * and use {@link Statement#EXECUTE_FAILED}; anything not positively reported as succeeding is
-   * treated as failed.
-   */
-  private static void markFailedRows(BatchUpdateException e, boolean[] failed) {
-    int[] counts = e.getUpdateCounts();
-    if (counts == null) {
-      java.util.Arrays.fill(failed, true);
-      return;
+  private void discardFailedBatch() {
+    try {
+      data.insertStatement.clearBatch();
+    } catch (Exception e) {
+      logDetailed("Unable to clear the failed batch: " + e.getMessage());
     }
-    for (int i = 0; i < failed.length; i++) {
-      failed[i] = i >= counts.length || counts[i] == Statement.EXECUTE_FAILED;
-    }
+    rollbackQuietly();
   }
 
   private void closeDatabase() {

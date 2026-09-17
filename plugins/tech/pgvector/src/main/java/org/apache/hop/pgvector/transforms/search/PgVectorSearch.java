@@ -19,6 +19,7 @@ package org.apache.hop.pgvector.transforms.search;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -54,6 +55,12 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
       logError(BaseMessages.getString(PKG, "PgVectorSearch.Validation.ConnectionRequired"));
       return false;
     }
+    data.topK = Const.toInt(resolve(meta.getTopK()), -1);
+    if (data.topK <= 0) {
+      logError(BaseMessages.getString(PKG, "PgVectorSearch.Validation.TopKPositive"));
+      return false;
+    }
+    data.minScore = Const.toDouble(resolve(meta.getMinScore()), 0.0);
     return super.init();
   }
 
@@ -118,7 +125,7 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
           double score = resultSet.getDouble("similarity");
           // The minimum score is applied after the top-k limit, so a run can legitimately
           // return fewer than k rows. Filtering inside the query would defeat the ANN index.
-          if (score < meta.getMinScore()) {
+          if (score < data.minScore) {
             continue;
           }
           Object[] outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
@@ -184,7 +191,7 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
       data.searchStatement.setString(parameterIndex++, filterValue);
     }
     data.searchStatement.setString(parameterIndex++, vectorLiteral);
-    data.searchStatement.setInt(parameterIndex, meta.getTopK());
+    data.searchStatement.setInt(parameterIndex, data.topK);
   }
 
   private void resolveFilterBindings() throws HopException {
@@ -216,7 +223,7 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
           meta.getDistanceMetric() != null ? meta.getDistanceMetric() : VectorDistanceMetric.COSINE;
       String qualifiedTable =
           PgVectorSqlBuilder.qualifiedTable(
-              variables.resolve(meta.getSchemaName()), variables.resolve(meta.getTableName()));
+              resolve(meta.getSchemaName()), resolve(meta.getTableName()));
       List<PgVectorSearchFilter> activeFilters =
           data.filterBindings.stream().map(b -> b.filter).toList();
       data.searchStatement =

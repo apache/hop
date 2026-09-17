@@ -70,12 +70,17 @@ A row with an empty query embedding is treated as a row with no matches rather t
 |Result chunk index field|Output field for the matched chunk index.
 |Result content field|Output field for the matched chunk text.
 |Result score field|Output field for the similarity score.
+|Do not pass the row if the search finds nothing|Drops the input row when the search returns no match. Off by default, in which case the row is passed on with the result fields left empty, the way Database Lookup behaves. A row whose embedding is empty follows the same path.
 |===
+
+The similarity score is normalised so that higher is better for every metric, but the scales differ: cosine similarity runs [-1, 1], the Euclidean mapping runs (0, 1], and inner product is unbounded. A *Minimum score* of 0 therefore means something different for each, and under cosine it drops anything more than 90 degrees from the query.
 
 === Filters
 
 The *Filters* tab restricts the search to rows where a table column equals the value of a stream field, which lets one index serve several document sets. The columns come from the mappings configured in pgvector upsert.
 
 == Notes
+
+*Top K* and *Minimum score* accept variables, so they can be set per environment rather than per pipeline.
 
 The minimum score is applied *after* the top-k limit, so a run can legitimately return fewer than K rows. Filtering on the score inside the query would defeat the approximate-nearest-neighbour index.

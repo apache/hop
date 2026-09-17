@@ -17,8 +17,9 @@
 package org.apache.hop.pgvector.transforms.upsert;
 
 import java.sql.PreparedStatement;
+import java.sql.Savepoint;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.hop.core.database.Database;
@@ -41,6 +42,25 @@ public class PgVectorUpsertData extends BaseTransformData implements ITransformD
    */
   public final List<Object[]> batchRows = new ArrayList<>();
 
+  /** Resolved commit size, and whether JDBC batching is safe given the error-handling setting. */
+  public int commitSize;
+
+  public boolean batchMode;
+
+  /**
+   * PostgreSQL aborts the whole transaction on a failed statement, so a row can only be diverted to
+   * an error hop if the transform can roll back to just before it. Table Output takes the same
+   * route.
+   */
+  public boolean useSafePoints;
+
+  public boolean releaseSavepoint;
+
+  public Savepoint savepoint;
+
+  /** Rows written since the last commit, used to honour the commit size outside batch mode. */
+  public int rowsSinceCommit;
+
   public int idFieldIndex = -1;
   public int documentIdFieldIndex = -1;
   public int chunkIndexFieldIndex = -1;
@@ -49,11 +69,8 @@ public class PgVectorUpsertData extends BaseTransformData implements ITransformD
   public List<PgVectorTableColumn> tableColumns = new ArrayList<>();
   public List<MappingBinding> mappingBindings = new ArrayList<>();
 
-  /**
-   * Documents already deleted in this run, so the delete runs once per document. Insertion ordered
-   * so the oldest entries can be evicted when the cap is reached.
-   */
-  public final Set<String> deletedDocuments = new LinkedHashSet<>();
+  /** Documents already deleted in this run, so the delete runs once per document. */
+  public final Set<String> deletedDocuments = new HashSet<>();
 
   public static final class MappingBinding {
     public final int streamFieldIndex;

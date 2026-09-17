@@ -21,15 +21,22 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -52,56 +59,186 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "pgvector,vector,embedding,ai,rag,postgres,postgresql,similarity,search",
     documentationUrl = "/pipeline/transforms/pgvector-search.html")
+@GuiPlugin
 public class PgVectorSearchMeta extends BaseTransformMeta<PgVectorSearch, PgVectorSearchData> {
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PGVECTOR_SEARCH_DIALOG_OPTIONS";
+  public static final String WIDGET_EMBEDDING_FIELD = "PGVECTOR_SEARCH_EMBEDDING_FIELD";
+
+  private static final String TAB_MAIN = "i18n::PgVectorSearch.Tab.Main";
+  private static final String TAB_MAIN_ORDER = "0100";
 
   private static final Class<?> PKG = PgVectorSearchMeta.class;
 
+  @GuiWidgetElement(
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadata = DatabaseMeta.class,
+      label = "i18n::PgVectorSearch.connection.Label",
+      toolTip = "i18n::PgVectorSearch.connection.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(
       key = "connection",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
+  @GuiWidgetElement(
+      order = "0200",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.schemaName.Label",
+      toolTip = "i18n::PgVectorSearch.schemaName.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "schemaName")
   private String schemaName = "public";
 
+  @GuiWidgetElement(
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.tableName.Label",
+      toolTip = "i18n::PgVectorSearch.tableName.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "tableName")
   private String tableName = "hop_rag_chunks";
 
+  @GuiWidgetElement(
+      id = WIDGET_EMBEDDING_FIELD,
+      order = "0400",
+      type = GuiElementType.COMBO,
+      label = "i18n::PgVectorSearch.embeddingField.Label",
+      toolTip = "i18n::PgVectorSearch.embeddingField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "embeddingField")
   private String embeddingField = "embedding";
 
+  @GuiWidgetElement(
+      order = "0500",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.topK.Label",
+      toolTip = "i18n::PgVectorSearch.topK.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "topK")
-  private int topK = 5;
+  private String topK = "5";
 
+  @GuiWidgetElement(
+      order = "0600",
+      type = GuiElementType.COMBO,
+      label = "i18n::PgVectorSearch.distanceMetric.Label",
+      toolTip = "i18n::PgVectorSearch.distanceMetric.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "distanceMetric")
   private VectorDistanceMetric distanceMetric = VectorDistanceMetric.COSINE;
 
+  @GuiWidgetElement(
+      order = "0700",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.minScore.Label",
+      toolTip = "i18n::PgVectorSearch.minScore.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "minScore")
-  private double minScore = 0.0;
+  private String minScore = "0.0";
 
   /**
    * Have the search eat the incoming row when the query returns nothing. Mirrors the option on
    * Hop's Database Lookup: off by default, so a row that finds no match still reaches the output
    * with empty match fields rather than disappearing.
    */
+  @GuiWidgetElement(
+      order = "0800",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::PgVectorSearch.eatingRowOnNoMatch.Label",
+      toolTip = "i18n::PgVectorSearch.eatingRowOnNoMatch.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(
       key = "eat_row_on_no_match",
       injectionKey = "EAT_ROW_ON_NO_MATCH",
       injectionKeyDescription = "PgVectorSearchMeta.Injection.EAT_ROW_ON_NO_MATCH")
   private boolean eatingRowOnNoMatch;
 
+  @GuiWidgetElement(
+      order = "0900",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.resultIdField.Label",
+      toolTip = "i18n::PgVectorSearch.resultIdField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "resultIdField")
   private String resultIdField = "match_id";
 
+  @GuiWidgetElement(
+      order = "1000",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.resultDocumentIdField.Label",
+      toolTip = "i18n::PgVectorSearch.resultDocumentIdField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "resultDocumentIdField")
   private String resultDocumentIdField = "match_document_id";
 
+  @GuiWidgetElement(
+      order = "1100",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.resultChunkIndexField.Label",
+      toolTip = "i18n::PgVectorSearch.resultChunkIndexField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "resultChunkIndexField")
   private String resultChunkIndexField = "match_chunk_index";
 
+  @GuiWidgetElement(
+      order = "1200",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.resultContentField.Label",
+      toolTip = "i18n::PgVectorSearch.resultContentField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "resultContentField")
   private String resultContentField = "match_content";
 
+  @GuiWidgetElement(
+      order = "1300",
+      type = GuiElementType.TEXT,
+      label = "i18n::PgVectorSearch.resultScoreField.Label",
+      toolTip = "i18n::PgVectorSearch.resultScoreField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = TAB_MAIN,
+      groupOrder = TAB_MAIN_ORDER)
   @HopMetadataProperty(key = "resultScoreField")
   private String resultScoreField = "match_score";
 
@@ -133,9 +270,9 @@ public class PgVectorSearchMeta extends BaseTransformMeta<PgVectorSearch, PgVect
     schemaName = "public";
     tableName = "hop_rag_chunks";
     embeddingField = "embedding";
-    topK = 5;
+    topK = "5";
     distanceMetric = VectorDistanceMetric.COSINE;
-    minScore = 0.0;
+    minScore = "0.0";
     eatingRowOnNoMatch = false;
     resultIdField = "match_id";
     resultDocumentIdField = "match_document_id";
@@ -143,6 +280,11 @@ public class PgVectorSearchMeta extends BaseTransformMeta<PgVectorSearch, PgVect
     resultContentField = "match_content";
     resultScoreField = "match_score";
     filters = new ArrayList<>();
+  }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 
   @Override
@@ -202,7 +344,10 @@ public class PgVectorSearchMeta extends BaseTransformMeta<PgVectorSearch, PgVect
           "PgVectorSearch.Validation.EmbeddingFieldNotFound",
           embeddingField);
     }
-    if (topK < 1) {
+    // Top-k accepts variables, which a design-time check cannot resolve. Only a value that is
+    // genuinely fixed can be judged here; anything still holding ${...} is left to run time.
+    String resolvedTopK = variables.resolve(topK);
+    if (!StringUtil.containsVariableToken(resolvedTopK) && Const.toInt(resolvedTopK, -1) < 1) {
       error(remarks, transformMeta, "PgVectorSearch.Validation.TopKPositive");
     }
     if (filters != null) {
@@ -219,7 +364,9 @@ public class PgVectorSearchMeta extends BaseTransformMeta<PgVectorSearch, PgVect
         }
       }
     }
-    if (minScore > 0) {
+    String resolvedMinScore = variables.resolve(minScore);
+    if (!StringUtil.containsVariableToken(resolvedMinScore)
+        && Const.toDouble(resolvedMinScore, 0.0) > 0) {
       warning(remarks, transformMeta, "PgVectorSearch.Validation.MinScoreAfterTopK");
     }
   }
