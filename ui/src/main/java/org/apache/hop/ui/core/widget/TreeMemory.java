@@ -190,7 +190,7 @@ public class TreeMemory {
 
     String[] path = ConstUi.getTreeStrings(treeItem);
     boolean expanded = treeMemory.isExpanded(treeName, path);
-    treeItem.setExpanded(expanded);
+    FolderTreeIcons.setExpanded(treeItem, expanded);
 
     TreeItem[] items = treeItem.getItems();
     for (TreeItem item : items) {

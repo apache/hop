@@ -164,6 +164,7 @@ public class GuiResource {
   private SwtUniversalImage imageArrowCandidate;
   private SwtUniversalImage imageServer;
   private SwtUniversalImage imageFolder;
+  private SwtUniversalImage imageFolderOpen;
   private SwtUniversalImage imageFile;
   private SwtUniversalImage imageEdit;
   private SwtUniversalImage imageCopyRows;
@@ -461,6 +462,7 @@ public class GuiResource {
     imageFile.dispose();
     imageFindReplace.dispose();
     imageFolder.dispose();
+    imageFolderOpen.dispose();
     imageMissing.dispose();
     imageVariable.dispose();
     imageHash.dispose();
@@ -881,6 +883,7 @@ public class GuiResource {
     imageNaming = SwtSvgImageUtil.getImageAsResource(display, "ui/images/naming.svg");
     imageFile = SwtSvgImageUtil.getImageAsResource(display, "ui/images/file.svg");
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
+    imageFolderOpen = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder-open.svg");
     imagePartitionSchema =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/partition_schema.svg");
     imageDatabase = SwtSvgImageUtil.getImageAsResource(display, "ui/images/database.svg");
@@ -1341,10 +1344,23 @@ public class GuiResource {
   }
 
   /**
-   * @return the imageArrow
+   * Closed folder, tree-item sized. Pair with {@link #getImageFolderOpen()} through {@link
+   * org.apache.hop.ui.core.widget.FolderTreeIcons} to swap the icon on expand/collapse.
+   *
+   * @return the closed folder image
    */
   public Image getImageFolder() {
     return getZoomedImaged(imageFolder, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  /**
+   * Open folder, tree-item sized: the expanded counterpart of {@link #getImageFolder()}.
+   *
+   * @return the open folder image
+   */
+  public Image getImageFolderOpen() {
+    return getZoomedImaged(
+        imageFolderOpen, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**
@@ -1634,10 +1650,15 @@ public class GuiResource {
         k -> {
           SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
 
-          Image zoomedImaged = getZoomedImaged(svg, display, width, height);
           Image loaded;
           if (disabled) {
-            Image gray = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
+            // Grayscaling reads the pixels back, which a vector-backed Hop Web image lacks.
+            Image raster =
+                svg.getAsRasterForSize(
+                    display,
+                    ConstUi.zoomedIconSize(width, zoomFactor),
+                    ConstUi.zoomedIconSize(height, zoomFactor));
+            Image gray = new Image(display, raster, SWT.IMAGE_GRAY);
             float factor = PropsUi.getInstance().isDarkMode() ? 0.4f : 2.5f;
             loaded =
                 SwtUniversalImage.createDpiAwareImage(
@@ -1646,6 +1667,7 @@ public class GuiResource {
                         applyDisabledContrast(
                             SwtUniversalImage.getImageDataAtZoom(gray, zoom), factor));
           } else {
+            Image zoomedImaged = getZoomedImaged(svg, display, width, height);
             loaded = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
           }
 

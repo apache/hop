@@ -54,6 +54,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -192,6 +193,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     toolBar.pack();
 
     tree = new Tree(treeBorder, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(tree);
     PropsUi.setLook(tree);
     tree.setLayoutData(
         new FormDataBuilder().top(toolBar, PropsUi.getMargin()).bottom().fullWidth().result());
@@ -472,7 +474,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
             DatabaseTreeNode.connection(state.getDatabaseMeta().getName(), state.isConnected()));
         if (state.isConnected() && state.getInformation() != null) {
           fillConnectionChildren(connectionItem, state);
-          connectionItem.setExpanded(true);
+          FolderTreeIcons.setExpanded(connectionItem, true);
         }
       }
       restoreSchemaExpandState();
@@ -510,7 +512,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     for (TreeItem child : parent.getItems()) {
       Object data = child.getData();
       if (data instanceof DatabaseTreeNode node && remembersExpandState(node.getKind())) {
-        child.setExpanded(
+        FolderTreeIcons.setExpanded(
+            child,
             TreeMemory.getInstance().isExpanded(TREE_MEMORY_KEY, ConstUi.getTreeStrings(child)));
       }
       restoreSchemaExpandState(child);
@@ -529,12 +532,12 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         if (data instanceof DatabaseTreeNode node
             && remembersExpandState(node.getKind())
             && child.getItemCount() > 0) {
-          child.setExpanded(true);
+          FolderTreeIcons.setExpanded(child, true);
           any = true;
         }
       }
       if (any) {
-        connection.setExpanded(true);
+        FolderTreeIcons.setExpanded(connection, true);
       }
     }
   }
@@ -729,7 +732,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     folder.setImage(GuiResource.getInstance().getImageFolder());
     folder.setData(DatabaseTreeNode.folder(connectionName, folderName));
     addTables(folder, connectionName, null, names, kind);
-    folder.setExpanded(true);
+    FolderTreeIcons.setExpanded(folder, true);
   }
 
   private void addTables(
@@ -819,7 +822,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     if (item != null && item.getItemCount() > 0 && (node == null || !node.isTableLike())) {
-      item.setExpanded(!item.getExpanded());
+      FolderTreeIcons.setExpanded(item, !item.getExpanded());
       return;
     }
     previewTable();

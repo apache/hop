@@ -20,7 +20,9 @@ package org.apache.hop.core;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.ui.core.widget.svg.SvgImageFacade;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
@@ -85,12 +87,25 @@ public abstract class SwtUniversalImage {
 
   /** Method getAsBitmapForSize(..., angle) can't be called, because it returns bigger picture. */
   public synchronized Image getAsBitmapForSize(Device device, int width, int height) {
+    return cached(width + "x" + height, () -> renderSimple(device, width, height));
+  }
+
+  /**
+   * Like {@link #getAsBitmapForSize(Device, int, int)} but guaranteed to carry pixels. Use it where
+   * the image is read back ({@link Image#getImageData()}, {@code SWT.IMAGE_GRAY}): on Hop Web the
+   * plain variant may be a vector the client renders, which has no pixel data on the server.
+   */
+  public synchronized Image getAsRasterForSize(Device device, int width, int height) {
+    return getAsBitmapForSize(device, width, height);
+  }
+
+  /** The image under {@code key}, rendered on first use and disposed with this instance. */
+  protected synchronized Image cached(String key, Supplier<Image> renderer) {
     checkDisposed();
 
-    String key = width + "x" + height;
     Image result = cache.get(key);
     if (result == null) {
-      result = renderSimple(device, width, height);
+      result = renderer.get();
       cache.put(key, result);
     }
     return result;
@@ -154,6 +169,11 @@ public abstract class SwtUniversalImage {
     if (isDpiAwareImageProviderSupported()) {
       return SwtDesktopDpiImages.getImageData(image, zoom);
     }
+    // A vector-backed Hop Web image has no pixels of its own; rasterise it at this zoom instead.
+    ImageData vector = SvgImageFacade.rasterize(image, zoom);
+    if (vector != null) {
+      return vector;
+    }
     ImageData data = image.getImageData();
     if (zoom == 100) {
       return data;
@@ -162,7 +182,7 @@ public abstract class SwtUniversalImage {
   }
 
   /** Converts BufferedImage to SWT ImageData with alpha channel. */
-  static ImageData toImageData(BufferedImage img) {
+  public static ImageData toImageData(BufferedImage img) {
     PaletteData palette = new PaletteData(0xFF0000, 0xFF00, 0xFF);
     ImageData data = new ImageData(img.getWidth(), img.getHeight(), 32, palette);
     for (int y = 0; y < data.height; y++) {

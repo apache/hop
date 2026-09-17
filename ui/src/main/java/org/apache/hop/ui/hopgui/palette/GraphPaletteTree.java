@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
@@ -171,6 +172,7 @@ public class GraphPaletteTree extends Composite {
     PropsUi.setLook(border);
 
     tree = new Tree(border, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(tree);
     tree.setHeaderVisible(false);
     PropsUi.setLook(tree);
     FormData treeFd = new FormData();
@@ -451,7 +453,7 @@ public class GraphPaletteTree extends Composite {
   }
 
   private void expandTreeItem(TreeItem item, boolean expanded) {
-    item.setExpanded(expanded);
+    FolderTreeIcons.setExpanded(item, expanded);
     TreeMemory.getInstance().storeExpanded(treeMemoryName, item, expanded);
     for (TreeItem child : item.getItems()) {
       expandTreeItem(child, expanded);

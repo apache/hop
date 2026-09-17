@@ -52,6 +52,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -251,6 +252,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     // Tree View Test
     wTree = new HopTree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(wTree);
     PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
@@ -498,14 +500,14 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     itemWaitFieldsIn.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.GettingFields.Label"));
     itemWaitFieldsIn.setForeground(guiresource.getColorDirectory());
-    iteminput.setExpanded(true);
+    FolderTreeIcons.setExpanded(iteminput, true);
 
     // Display waiting message for output
     TreeItem itemWaitFieldsOut = new TreeItem(itemoutput, SWT.NULL);
     itemWaitFieldsOut.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.GettingFields.Label"));
     itemWaitFieldsOut.setForeground(guiresource.getColorDirectory());
-    itemoutput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemoutput, true);
 
     //
     // Search the fields in the background

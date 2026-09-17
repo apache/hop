@@ -95,6 +95,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
@@ -750,6 +751,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     // Lazy loading...
     //
     tree.addListener(SWT.Expand, this::lazyLoadFolderOnExpand);
+    FolderTreeIcons.install(tree);
 
     // Create context menu...
     //
@@ -1192,9 +1194,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (tif.folder) {
         if (!item.getExpanded()) {
           lazyLoadFolderOnExpand(event);
-          item.setExpanded(true);
+          FolderTreeIcons.setExpanded(item, true);
         } else {
-          item.setExpanded(false);
+          FolderTreeIcons.setExpanded(item, false);
         }
         TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, item.getExpanded());
       } else {
@@ -1214,7 +1216,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           if (expanded) {
             ensureFolderLoaded(item);
           }
-          item.setExpanded(expanded);
+          FolderTreeIcons.setExpanded(item, expanded);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expanded);
         } else {
           IHopFileTypeHandler handler =
@@ -2798,7 +2800,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     if (tif != null && tif.folder && isDescendant(tif.path, filename)) {
       ensureFolderLoaded(item);
-      item.setExpanded(true);
+      FolderTreeIcons.setExpanded(item, true);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
       for (TreeItem child : item.getItems()) {
         if (selectInTree(child, filename)) {
@@ -3603,7 +3605,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       // which showed blank rows. Load real children first.
       ensureFolderLoaded(item);
     }
-    item.setExpanded(expand);
+    FolderTreeIcons.setExpanded(item, expand);
     TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expand);
 
     for (TreeItem childItem : item.getItems()) {
@@ -3911,7 +3913,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         setTreeItemData(rootItem, rootNode.getPath(), rootNode.getName(), fileType, 0, true, true);
 
         renderFilteredChildren(rootItem, rootNode, 0);
-        rootItem.setExpanded(true);
+        FolderTreeIcons.setExpanded(rootItem, true);
         TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
       } finally {
         tree.setRedraw(true);
@@ -4056,7 +4058,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (child.isFolder()) {
         renderFilteredChildren(childItem, child, depth + 1);
         if (childItem.getItemCount() > 0) {
-          childItem.setExpanded(true);
+          FolderTreeIcons.setExpanded(childItem, true);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, true);
         }
       }
@@ -4153,7 +4155,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     String[] treePath = ConstUi.getTreeStrings(folderItem);
     boolean wasExpanded = folderItem.getExpanded();
     if (wasExpanded) {
-      folderItem.setExpanded(false);
+      FolderTreeIcons.setExpanded(folderItem, false);
       // Collapse listener clears TreeMemory; put the remembered expand state back.
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, treePath, true);
     }
@@ -4310,7 +4312,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
         // Always expand root item when filtering
         if (!Utils.isEmpty(filterText)) {
-          rootItem.setExpanded(true);
+          FolderTreeIcons.setExpanded(rootItem, true);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
         } else {
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
@@ -4319,7 +4321,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
           if (treeStateBeforeFilter == null) {
             // Only restore from memory if we're not about to restore from saved state
-            rootItem.setExpanded(true);
+            FolderTreeIcons.setExpanded(rootItem, true);
             restoreTreeItemExpandedFromMemory(rootItem);
           }
         }
@@ -4391,6 +4393,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   private void setItemImage(TreeItem treeItem, IHopFileType fileType) {
+    if (fileType instanceof FolderFileType) {
+      // Shared closed-folder image: FolderTreeIcons swaps it for the open one on expand.
+      treeItem.setImage(GuiResource.getInstance().getImageFolder());
+      return;
+    }
     Image image = typeImageMap.get(fileType.getName());
     if (image != null) {
       treeItem.setImage(image);
@@ -4636,7 +4643,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (expanded) {
         ensureFolderLoaded(item);
       }
-      item.setExpanded(expanded);
+      FolderTreeIcons.setExpanded(item, expanded);
     }
 
     for (TreeItem child : item.getItems()) {
@@ -4659,7 +4666,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         ensureFolderLoaded(item);
       }
 
-      item.setExpanded(wasExpanded);
+      FolderTreeIcons.setExpanded(item, wasExpanded);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, wasExpanded);
     }
 
@@ -4860,7 +4867,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     if (tif != null && tif.folder && isDescendant(tif.path, path)) {
       ensureFolderLoaded(item);
-      item.setExpanded(true);
+      FolderTreeIcons.setExpanded(item, true);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
       for (TreeItem child : item.getItems()) {
         TreeItem found = locateTreeItem(child, path);
