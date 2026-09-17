@@ -182,7 +182,7 @@ class DatabaseTest {
   }
 
   @Test
-  void parseSqlParameterSpecSkipsQuotedCommentedAndJsonbOperatorQuestionMarks() {
+  void parseSqlParameterSpecSkipsOnlyExplicitJsonbOperatorQuestionMarks() {
     String sql =
         "SELECT \"?identifier\", $$ ? $$ FROM t /* ? block */ "
             + "WHERE payload ? 'key' AND options ?| array['a'] AND flags ?& array['b'] "
@@ -195,19 +195,56 @@ class DatabaseTest {
             + "WHERE payload ? 'key' AND options ?| array['a'] AND flags ?& array['b'] "
             + "AND route = ? -- ? line\nAND status = ?",
         spec.getPreparedSql());
-    assertEquals(2, spec.getParameterCount());
-    assertEquals("route", spec.getParameterReferences().get(0));
-    assertNull(spec.getParameterReferences().get(1));
+    assertEquals(3, spec.getParameterCount());
+    assertNull(spec.getParameterReferences().get(0));
+    assertEquals("route", spec.getParameterReferences().get(1));
+    assertNull(spec.getParameterReferences().get(2));
   }
 
   @Test
-  void countParametersUsesSqlTokenizerRules() {
+  void countParametersTreatsArrayConstructorsAsPositionalParameters() {
+    Database db = new Database(log, variables, meta);
+    String sql = "SELECT 1 WHERE x = ANY(ARRAY[?]) AND y = ARRAY[?, ?]";
+
+    assertEquals(3, db.countParameters(sql));
+  }
+
+  @Test
+  void countParametersUsesBracketIdentifierRulesForBracketQuotingDialects() {
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.getStartQuote()).thenReturn("[");
+    when(iDatabase.getEndQuote()).thenReturn("]");
+
     Database db = new Database(log, variables, meta);
     String sql =
         "SELECT [a?b], `c?d`, \"e?f\" FROM t WHERE payload ? ? AND note = '?z' "
             + "AND id = ? -- ? comment\nAND type = ?";
 
-    assertEquals(3, db.countParameters(sql));
+    assertEquals(4, db.countParameters(sql));
+  }
+
+  @Test
+  void countParametersTreatsCommonJdbcQuestionMarksAsParameters() {
+    Database db = new Database(log, variables, meta);
+
+    assertEquals(2, db.countParameters("WHERE name LIKE ? AND status = ?"));
+    assertEquals(2, db.countParameters("WHERE val BETWEEN ? AND ?"));
+    assertEquals(1, db.countParameters("SELECT ? FROM dual"));
+    assertEquals(1, db.countParameters("WHERE col NOT LIKE ? OR active = true"));
+  }
+
+  @Test
+  void parseSqlParameterSpecHandlesEscapedQuestionJsonbOperators() {
+    String sql =
+        "SELECT * FROM t WHERE col ?? ? "
+            + "AND options ?| array['a'] "
+            + "AND flags ??& array['b']";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(sql, spec.getPreparedSql());
+    assertEquals(1, spec.getParameterCount());
+    assertNull(spec.getParameterReferences().get(0));
   }
 
   /**
