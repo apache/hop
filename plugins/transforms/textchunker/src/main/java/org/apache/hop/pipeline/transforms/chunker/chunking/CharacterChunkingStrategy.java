@@ -27,8 +27,6 @@ import org.apache.hop.pipeline.transforms.chunker.Chunk;
 public class CharacterChunkingStrategy implements ChunkingStrategy {
 
   /** Characters that are considered word separators. */
-  private static final String WORD_SEPARATORS = " \t\n\r\f";
-
   @Override
   public List<Chunk> chunk(String text, int maxSize, int overlap) {
     List<Chunk> chunks = new ArrayList<>();
@@ -59,21 +57,13 @@ public class CharacterChunkingStrategy implements ChunkingStrategy {
 
       int separatorPos = -1;
       for (int i = end - 1; i >= start; i--) {
-        if (WORD_SEPARATORS.indexOf(text.charAt(i)) >= 0) {
+        if (Character.isWhitespace(text.charAt(i))) {
           separatorPos = i;
           break;
         }
       }
 
-      int chunkEnd;
-      boolean splitOnWordBoundary;
-      if (separatorPos >= start) {
-        chunkEnd = separatorPos + 1;
-        splitOnWordBoundary = true;
-      } else {
-        chunkEnd = end;
-        splitOnWordBoundary = false;
-      }
+      int chunkEnd = separatorPos >= start ? separatorPos + 1 : end;
 
       if (chunkEnd <= start) {
         chunkEnd = Math.min(start + maxSize, textLength);
@@ -86,16 +76,7 @@ public class CharacterChunkingStrategy implements ChunkingStrategy {
         break;
       }
 
-      int nextStart;
-      if (splitOnWordBoundary && overlap > 0) {
-        nextStart = chunkEnd - overlap;
-        if (nextStart <= start) {
-          nextStart = chunkEnd;
-        }
-      } else {
-        nextStart = chunkEnd;
-      }
-      start = nextStart;
+      start = overlap > 0 ? Math.max(start + 1, chunkEnd - overlap) : chunkEnd;
     }
 
     return chunks;

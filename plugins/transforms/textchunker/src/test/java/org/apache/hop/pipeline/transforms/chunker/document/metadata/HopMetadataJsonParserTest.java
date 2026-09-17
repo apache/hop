@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.chunker.document.metadata;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -69,5 +70,59 @@ class HopMetadataJsonParserTest {
     List<DocumentNode.DocumentSection> sections = root.flattenSections();
 
     assertTrue(sections.stream().anyMatch(s -> s.breadcrumb().contains("Connection: H2")));
+  }
+
+  @Test
+  void connectionChunksDoNotCarryCredentials() {
+    String json =
+        """
+        {
+          "rdbms": {
+            "PG": {
+              "databaseName": "hop",
+              "pluginId": "POSTGRESQL",
+              "hostname": "localhost",
+              "username": "hop",
+              "password": "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde"
+            }
+          },
+          "name": "pg"
+        }
+        """;
+    String all =
+        new HopMetadataJsonParser()
+            .parse(json).flattenSections().stream()
+                .map(section -> String.join(" > ", section.getPath()) + " " + section.getBody())
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+    assertFalse(all.contains("2be98afc86aa7f2e4bb18bd63c99dbdde"), all);
+    assertFalse(all.contains("Encrypted "), all);
+    assertTrue(all.contains("localhost"), all);
+  }
+
+  @Test
+  void genericMetadataChunksDoNotCarryCredentials() {
+    // Not an rdbms connection, so this goes through the generic pretty-printed leaf path.
+    String json =
+        """
+        {
+          "name": "prod-rest",
+          "restConnection": {
+            "baseUrl": "https://api.example.com",
+            "authType": "BEARER",
+            "bearerToken": "tok-abcdef123456",
+            "proxyPassword": "hunter2"
+          }
+        }
+        """;
+    String all =
+        new HopMetadataJsonParser()
+            .parse(json).flattenSections().stream()
+                .map(section -> String.join(" > ", section.getPath()) + " " + section.getBody())
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+    assertFalse(all.contains("tok-abcdef123456"), all);
+    assertFalse(all.contains("hunter2"), all);
+    assertTrue(all.contains("https://api.example.com"), all);
   }
 }

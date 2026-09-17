@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.hop.pipeline.transforms.chunker.document.SecretRedaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -265,7 +266,7 @@ public final class HopXmlSupport {
       }
     }
 
-    String text = textOnly.toString().trim();
+    String text = SecretRedaction.redact(tag, textOnly.toString().trim());
     if (childElements.isEmpty()) {
       if (!text.isEmpty() && !SKIP_TAGS.contains(tag)) {
         indent(sb, depth).append(tag).append(": ").append(text).append('\n');

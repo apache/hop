@@ -29,7 +29,9 @@ import org.apache.hop.pipeline.transforms.chunker.Chunk;
  * is split further with {@link CharacterChunkingStrategy}, because a chunk larger than the limit
  * would be rejected downstream by the embedding model rather than simply being large.
  *
- * <p>Consecutive very short paragraphs are grouped together while they fit within {@code maxSize}.
+ * <p>Consecutive paragraphs are packed into one chunk while they fit within {@code maxSize}, which
+ * is the usual contract for an embedding chunker: it keeps related text together and avoids
+ * emitting many small chunks that each carry little context.
  */
 public class ParagraphChunkingStrategy implements ChunkingStrategy {
 
@@ -38,8 +40,6 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
    * and no CRLF normalisation pass is needed.
    */
   private static final Pattern PARAGRAPH_SEPARATOR = Pattern.compile("\\R\\s*\\R");
-
-  private static final int SHORT_PARAGRAPH_THRESHOLD = 10;
 
   private final CharacterChunkingStrategy fallback = new CharacterChunkingStrategy();
 
@@ -61,19 +61,17 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
       return chunks;
     }
 
-    StringBuilder current = null;
-    int currentStart = 0;
-    boolean shortGroup = false;
+    Paragraph first = null;
+    Paragraph last = null;
     int chunkIndex = 0;
 
     for (Paragraph paragraph : paragraphs) {
-      boolean isShort = paragraph.length() < SHORT_PARAGRAPH_THRESHOLD;
-
       if (paragraph.length() > maxSize) {
         // Emit whatever is buffered, then split the oversized paragraph on characters.
-        if (current != null) {
-          chunks.add(toChunk(current, chunkIndex++, currentStart));
-          current = null;
+        if (first != null) {
+          chunks.add(slice(text, first, last, chunkIndex++));
+          first = null;
+          last = null;
         }
         for (Chunk part : fallback.chunk(paragraph.text, maxSize, overlap)) {
           chunks.add(
@@ -83,34 +81,35 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
                   paragraph.start + part.getStartPosition(),
                   paragraph.start + part.getEndPosition()));
         }
-        shortGroup = false;
         continue;
       }
 
-      if (current == null) {
-        current = new StringBuilder(paragraph.text);
-        currentStart = paragraph.start;
-        shortGroup = isShort;
-      } else if (isShort && shortGroup && current.length() + 2 + paragraph.length() <= maxSize) {
-        current.append("\n\n").append(paragraph.text);
+      if (first == null) {
+        first = paragraph;
+        last = paragraph;
+      } else if (paragraph.end() - first.start() <= maxSize) {
+        last = paragraph;
       } else {
-        chunks.add(toChunk(current, chunkIndex++, currentStart));
-        current = new StringBuilder(paragraph.text);
-        currentStart = paragraph.start;
-        shortGroup = isShort;
+        chunks.add(slice(text, first, last, chunkIndex++));
+        first = paragraph;
+        last = paragraph;
       }
     }
 
-    if (current != null && current.length() > 0) {
-      chunks.add(toChunk(current, chunkIndex, currentStart));
+    if (first != null) {
+      chunks.add(slice(text, first, last, chunkIndex));
     }
 
     return chunks;
   }
 
-  private static Chunk toChunk(StringBuilder content, int index, int start) {
-    String value = content.toString();
-    return new Chunk(value, index, start, start + value.length());
+  /**
+   * A packed chunk is the source text between the first and last paragraph it covers. Taking the
+   * slice rather than rejoining with a fixed separator keeps the reported start and end positions
+   * addressing the original text, whatever whitespace separated the paragraphs there.
+   */
+  private static Chunk slice(String text, Paragraph first, Paragraph last, int index) {
+    return new Chunk(text.substring(first.start(), last.end()), index, first.start(), last.end());
   }
 
   /**
@@ -135,6 +134,10 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
   }
 
   private record Paragraph(String text, int start) {
+    int end() {
+      return start + text.length();
+    }
+
     int length() {
       return text.length();
     }

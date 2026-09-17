@@ -21,10 +21,15 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -50,41 +55,129 @@ import org.apache.hop.pipeline.transforms.chunker.document.ContentType;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/textchunker.html",
     keywords = "i18n::TextChunker.Keywords")
+@GuiPlugin
 public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerData> {
 
   private static final Class<?> PKG = TextChunkerMeta.class;
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "TEXT_CHUNKER_DIALOG_OPTIONS";
+  public static final String WIDGET_INPUT_FIELD = "TEXT_CHUNKER_INPUT_FIELD";
+  public static final String WIDGET_SOURCE_DOCUMENT_ID_FIELD = "TEXT_CHUNKER_SOURCE_DOC_ID_FIELD";
+  public static final String WIDGET_CONTENT_TYPE = "TEXT_CHUNKER_CONTENT_TYPE";
+  public static final String WIDGET_CONTENT_TYPE_FIELD = "TEXT_CHUNKER_CONTENT_TYPE_FIELD";
+  public static final String WIDGET_CHUNKING_STRATEGY = "TEXT_CHUNKER_CHUNKING_STRATEGY";
+  public static final String WIDGET_INCLUDE_METADATA = "TEXT_CHUNKER_INCLUDE_METADATA";
+  public static final String WIDGET_CHUNK_INDEX_FIELD = "TEXT_CHUNKER_CHUNK_INDEX_FIELD";
+  public static final String WIDGET_CHUNK_START_POS_FIELD = "TEXT_CHUNKER_CHUNK_START_POS_FIELD";
+  public static final String WIDGET_DOCUMENT_ID_FIELD = "TEXT_CHUNKER_DOCUMENT_ID_FIELD";
+  public static final String WIDGET_CHUNK_COUNT_FIELD = "TEXT_CHUNKER_CHUNK_COUNT_FIELD";
+
+  private static final String GROUP_INPUT = "Input";
+  private static final String GROUP_CHUNKING = "Chunking";
+  private static final String GROUP_METADATA = "Chunk metadata";
+
   /** The field containing text to chunk. */
+  @GuiWidgetElement(
+      id = WIDGET_INPUT_FIELD,
+      order = "0100",
+      type = GuiElementType.COMBO,
+      label = "i18n::TextChunker.inputField.Label",
+      toolTip = "i18n::TextChunker.inputField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_INPUT)
   @HopMetadataProperty(key = "inputField", injectionKey = "INPUT_FIELD")
   private String inputField;
 
   /** The name of the field to output chunks to. */
+  @GuiWidgetElement(
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.outputChunkField.Label",
+      toolTip = "i18n::TextChunker.outputChunkField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_INPUT)
   @HopMetadataProperty(key = "outputChunkField", injectionKey = "OUTPUT_CHUNK_FIELD")
   private String outputChunkField = "chunk_text";
 
   /** The chunking strategy to use. */
+  @GuiWidgetElement(
+      id = WIDGET_CHUNKING_STRATEGY,
+      order = "0400",
+      type = GuiElementType.COMBO,
+      label = "i18n::TextChunker.chunkingStrategy.Label",
+      toolTip = "i18n::TextChunker.chunkingStrategy.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CHUNKING)
   @HopMetadataProperty(key = "chunkingStrategy", injectionKey = "CHUNKING_STRATEGY")
   private ChunkingStrategyType chunkingStrategy = ChunkingStrategyType.CHARACTER;
 
   /**
    * The maximum size for each chunk (characters for CHARACTER strategy, approximate for PARAGRAPH).
    */
+  @GuiWidgetElement(
+      order = "0700",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.chunkSize.Label",
+      toolTip = "i18n::TextChunker.chunkSize.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CHUNKING)
   @HopMetadataProperty(key = "chunkSize", injectionKey = "CHUNK_SIZE")
-  private int chunkSize = 1000;
+  private String chunkSize = "1000";
 
   /** The number of characters to overlap between chunks (for CHARACTER strategy). */
+  @GuiWidgetElement(
+      order = "0800",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.chunkOverlap.Label",
+      toolTip = "i18n::TextChunker.chunkOverlap.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CHUNKING)
   @HopMetadataProperty(key = "chunkOverlap", injectionKey = "CHUNK_OVERLAP")
-  private int chunkOverlap = 200;
+  private String chunkOverlap = "200";
 
   /** Whether to include metadata fields in the output. */
+  @GuiWidgetElement(
+      id = WIDGET_INCLUDE_METADATA,
+      order = "0900",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::TextChunker.includeMetadata.Label",
+      toolTip = "i18n::TextChunker.includeMetadata.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_METADATA)
   @HopMetadataProperty(key = "includeMetadata", injectionKey = "INCLUDE_METADATA")
   private boolean includeMetadata = true;
 
   /** Field name for the chunk index (if metadata is enabled). */
+  @GuiWidgetElement(
+      id = WIDGET_CHUNK_INDEX_FIELD,
+      order = "1000",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.chunkIndexField.Label",
+      toolTip = "i18n::TextChunker.chunkIndexField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_METADATA)
   @HopMetadataProperty(key = "chunkIndexField", injectionKey = "CHUNK_INDEX_FIELD")
   private String chunkIndexField = "chunk_index";
 
   /** Field name for the chunk start position (if metadata is enabled). */
+  @GuiWidgetElement(
+      id = WIDGET_CHUNK_START_POS_FIELD,
+      order = "1100",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.chunkStartPosField.Label",
+      toolTip = "i18n::TextChunker.chunkStartPosField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_METADATA)
   @HopMetadataProperty(key = "chunkStartPosField", injectionKey = "CHUNK_START_POS_FIELD")
   private String chunkStartPosField = "chunk_start_position";
 
@@ -92,18 +185,54 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
    * Optional input field containing the business document identifier. When empty, a row counter is
    * used.
    */
+  @GuiWidgetElement(
+      id = WIDGET_SOURCE_DOCUMENT_ID_FIELD,
+      order = "0200",
+      type = GuiElementType.COMBO,
+      label = "i18n::TextChunker.sourceDocumentIdField.Label",
+      toolTip = "i18n::TextChunker.sourceDocumentIdField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_INPUT)
   @HopMetadataProperty(key = "sourceDocumentIdField", injectionKey = "SOURCE_DOCUMENT_ID_FIELD")
   private String sourceDocumentIdField;
 
   /** Field name for the original document ID (if metadata is enabled). */
+  @GuiWidgetElement(
+      id = WIDGET_DOCUMENT_ID_FIELD,
+      order = "1200",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.documentIdField.Label",
+      toolTip = "i18n::TextChunker.documentIdField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_METADATA)
   @HopMetadataProperty(key = "documentIdField", injectionKey = "DOCUMENT_ID_FIELD")
   private String documentIdField = "chunk_doc_id";
 
   /** Field name for the total chunk count (if metadata is enabled). */
+  @GuiWidgetElement(
+      id = WIDGET_CHUNK_COUNT_FIELD,
+      order = "1300",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.chunkCountField.Label",
+      toolTip = "i18n::TextChunker.chunkCountField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_METADATA)
   @HopMetadataProperty(key = "chunkCountField", injectionKey = "CHUNK_COUNT_FIELD")
   private String chunkCountField = "total_chunks";
 
   /** Document format for STRUCTURE strategy (Auto infers from source_type field or text). */
+  @GuiWidgetElement(
+      id = WIDGET_CONTENT_TYPE,
+      order = "0500",
+      type = GuiElementType.COMBO,
+      label = "i18n::TextChunker.contentType.Label",
+      toolTip = "i18n::TextChunker.contentType.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CHUNKING)
   @HopMetadataProperty(key = "contentType", injectionKey = "CONTENT_TYPE")
   private ContentType contentType = ContentType.AUTO;
 
@@ -111,6 +240,15 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
    * Optional input field (e.g. {@code source_type}) used to pick a document parser for STRUCTURE
    * strategy.
    */
+  @GuiWidgetElement(
+      id = WIDGET_CONTENT_TYPE_FIELD,
+      order = "0600",
+      type = GuiElementType.COMBO,
+      label = "i18n::TextChunker.contentTypeField.Label",
+      toolTip = "i18n::TextChunker.contentTypeField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CHUNKING)
   @HopMetadataProperty(key = "contentTypeField", injectionKey = "CONTENT_TYPE_FIELD")
   private String contentTypeField;
 
@@ -130,8 +268,8 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     inputField = "";
     outputChunkField = "chunk_text";
     chunkingStrategy = ChunkingStrategyType.CHARACTER;
-    chunkSize = 1000;
-    chunkOverlap = 200;
+    chunkSize = "1000";
+    chunkOverlap = "200";
     includeMetadata = true;
     chunkIndexField = "chunk_index";
     chunkStartPosField = "chunk_start_position";
@@ -139,6 +277,11 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     chunkCountField = "total_chunks";
     contentType = ContentType.AUTO;
     contentTypeField = "";
+  }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 
   @Override
@@ -246,17 +389,20 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
       error(remarks, transformMeta, "TextChunker.Validation.OutputChunkFieldRequired");
     }
 
-    if (chunkSize <= 0) {
+    int resolvedSize = Const.toInt(variables.resolve(chunkSize), -1);
+    int resolvedOverlap = Const.toInt(variables.resolve(chunkOverlap), -1);
+
+    if (resolvedSize <= 0) {
       error(remarks, transformMeta, "TextChunker.Validation.ChunkSizePositive");
     }
 
-    if (chunkOverlap < 0) {
+    if (resolvedOverlap < 0) {
       error(remarks, transformMeta, "TextChunker.Validation.OverlapNonNegative");
-    } else if (chunkOverlap >= chunkSize) {
+    } else if (resolvedSize > 0 && resolvedOverlap >= resolvedSize) {
       warning(remarks, transformMeta, "TextChunker.Validation.OverlapWarning");
     }
 
-    if (chunkingStrategy == ChunkingStrategyType.PARAGRAPH && chunkOverlap > 0) {
+    if (chunkingStrategy == ChunkingStrategyType.PARAGRAPH && resolvedOverlap > 0) {
       warning(remarks, transformMeta, "TextChunker.Validation.ParagraphOverlapIgnored");
     }
   }

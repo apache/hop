@@ -89,7 +89,7 @@ limitations under the License.
     <inputField>content</inputField>
     <outputChunkField>chunk_text</outputChunkField>
     <chunkingStrategy>PARAGRAPH</chunkingStrategy>
-    <chunkSize>60</chunkSize>
+    <chunkSize>25</chunkSize>
     <chunkOverlap>0</chunkOverlap>
     <includeMetadata>Y</includeMetadata>
     <chunkIndexField>chunk_index</chunkIndexField>

@@ -30,6 +30,11 @@ public class TextChunkerData extends BaseTransformData implements ITransformData
   public IRowMeta outputRowMeta;
 
   /** The index of the input field containing text to chunk. */
+  /** Chunk size and overlap resolved once in init, so variables are not re-resolved per row. */
+  public int chunkSize;
+
+  public int chunkOverlap;
+
   public int inputFieldIndex = -1;
 
   /** The index of the optional input field carrying the business document identifier. */

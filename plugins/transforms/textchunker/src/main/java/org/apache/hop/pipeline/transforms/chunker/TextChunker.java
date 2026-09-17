@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.chunker;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -64,6 +65,17 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
   public boolean init() {
     if (!super.init()) {
       return false;
+    }
+    data.chunkSize = Const.toInt(resolve(meta.getChunkSize()), -1);
+    data.chunkOverlap = Const.toInt(resolve(meta.getChunkOverlap()), -1);
+    if (data.chunkSize <= 0) {
+      logError(
+          BaseMessages.getString(
+              PKG, "TextChunker.Validation.ChunkSizePositive", meta.getChunkSize()));
+      return false;
+    }
+    if (data.chunkOverlap < 0) {
+      data.chunkOverlap = 0;
     }
     strategy = ChunkingStrategyFactory.createStrategy(meta.getChunkingStrategy());
     logBasic(
@@ -137,10 +149,9 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
         && strategy instanceof StructureChunkingStrategy structureStrategy) {
       ContentType contentType = resolveContentType(row);
       structureStrategy.setContentType(contentType);
-      return structureStrategy.chunk(
-          text, meta.getChunkSize(), meta.getChunkOverlap(), contentType);
+      return structureStrategy.chunk(text, data.chunkSize, data.chunkOverlap, contentType);
     }
-    return strategy.chunk(text, meta.getChunkSize(), meta.getChunkOverlap());
+    return strategy.chunk(text, data.chunkSize, data.chunkOverlap);
   }
 
   /**

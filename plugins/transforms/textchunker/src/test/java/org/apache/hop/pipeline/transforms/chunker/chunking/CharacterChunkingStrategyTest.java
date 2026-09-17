@@ -107,12 +107,21 @@ public class CharacterChunkingStrategyTest {
     String text = "ThisIsAVeryLongWordThatShouldBeSplitBecauseItExceedsTheChunkSizeLimit";
     List<Chunk> chunks = strategy.chunk(text, 20, 5);
 
-    // Even with very long words, we should get chunks
     assertFalse(chunks.isEmpty());
 
-    // The total length of all chunks should equal the original text
-    int totalLength = chunks.stream().mapToInt(Chunk::getLength).sum();
-    assertEquals(text.length(), totalLength);
+    // Overlap means chunks deliberately share characters, so summing their lengths would exceed
+    // the source. What has to hold is that they cover it and address it correctly.
+    assertEquals(0, chunks.get(0).getStartPosition());
+    assertEquals(text.length(), chunks.get(chunks.size() - 1).getEndPosition());
+    for (Chunk chunk : chunks) {
+      assertEquals(
+          text.substring(chunk.getStartPosition(), chunk.getEndPosition()), chunk.getContent());
+    }
+
+    // A word with no whitespace in it still gets the configured overlap.
+    assertTrue(
+        chunks.get(1).getStartPosition() < chunks.get(0).getEndPosition(),
+        "chunks after a non-whitespace split must still overlap");
   }
 
   @Test

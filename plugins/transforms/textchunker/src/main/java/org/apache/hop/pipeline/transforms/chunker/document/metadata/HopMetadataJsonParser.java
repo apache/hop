@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.chunker.document.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.pipeline.transforms.chunker.document.ContentType;
 import org.apache.hop.pipeline.transforms.chunker.document.DocumentNode;
 import org.apache.hop.pipeline.transforms.chunker.document.DocumentParser;
+import org.apache.hop.pipeline.transforms.chunker.document.SecretRedaction;
 
 /**
  * Parses Hop project metadata JSON into one section per connection, engine, or top-level config
@@ -140,10 +142,6 @@ public final class HopMetadataJsonParser implements DocumentParser {
     appendLine(body, "Database", textValue(conn.get("databaseName")));
     appendLine(body, "Username", textValue(conn.get("username")));
     appendLine(body, "Manual URL", textValue(conn.get("manualUrl")));
-    String pretty = prettyJson(conn);
-    if (!pretty.isEmpty()) {
-      body.append("\n").append(pretty);
-    }
     return body.toString().strip();
   }
 
@@ -176,10 +174,37 @@ public final class HopMetadataJsonParser implements DocumentParser {
       return "";
     }
     try {
-      return HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValueAsString(node);
+      return HopJson.newMapper()
+          .writerWithDefaultPrettyPrinter()
+          .writeValueAsString(redactSecrets(node.deepCopy()));
     } catch (Exception e) {
       return node.toString();
     }
+  }
+
+  /** Replace credential-bearing values before the node is turned into chunk text. */
+  private static JsonNode redactSecrets(JsonNode node) {
+    if (node instanceof ObjectNode object) {
+      Iterator<String> names = object.fieldNames();
+      List<String> fields = new ArrayList<>();
+      while (names.hasNext()) {
+        fields.add(names.next());
+      }
+      for (String field : fields) {
+        JsonNode value = object.get(field);
+        if (value != null && value.isValueNode()) {
+          String redacted = SecretRedaction.redact(field, value.asText());
+          if (SecretRedaction.REDACTED.equals(redacted)) {
+            object.put(field, SecretRedaction.REDACTED);
+          }
+        } else {
+          redactSecrets(value);
+        }
+      }
+    } else if (node != null && node.isArray()) {
+      node.forEach(HopMetadataJsonParser::redactSecrets);
+    }
+    return node;
   }
 
   static JsonNode parseRoot(String text) {

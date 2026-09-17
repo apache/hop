@@ -54,8 +54,8 @@ class TextChunkerMetaTest {
     original.setInputField("body");
     original.setOutputChunkField("piece");
     original.setChunkingStrategy(ChunkingStrategyType.STRUCTURE);
-    original.setChunkSize(512);
-    original.setChunkOverlap(64);
+    original.setChunkSize("512");
+    original.setChunkOverlap("64");
     original.setIncludeMetadata(true);
     original.setChunkIndexField("idx");
     original.setChunkStartPosField("pos");

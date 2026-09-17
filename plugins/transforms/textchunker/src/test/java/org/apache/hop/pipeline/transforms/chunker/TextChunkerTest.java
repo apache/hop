@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.chunker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,8 +70,8 @@ class TextChunkerTest {
     meta.setDefault();
     meta.setInputField("text");
     meta.setChunkingStrategy(ChunkingStrategyType.CHARACTER);
-    meta.setChunkSize(10);
-    meta.setChunkOverlap(0);
+    meta.setChunkSize("10");
+    meta.setChunkOverlap("0");
 
     // 3 words of 9 characters each, so the character strategy produces several chunks.
     run(meta, rowMeta(), List.<Object[]>of(new Object[] {"aaaaaaaa bbbbbbbb cccccccc"}));
@@ -98,7 +99,7 @@ class TextChunkerTest {
     meta.setDefault();
     meta.setInputField("text");
     meta.setSourceDocumentIdField("doc");
-    meta.setChunkSize(1000);
+    meta.setChunkSize("1000");
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("text"));
@@ -117,7 +118,7 @@ class TextChunkerTest {
     TextChunkerMeta meta = new TextChunkerMeta();
     meta.setDefault();
     meta.setInputField("text");
-    meta.setChunkSize(1000);
+    meta.setChunkSize("1000");
 
     run(meta, rowMeta(), List.<Object[]>of(new Object[] {"one"}, new Object[] {"two"}));
 
@@ -190,5 +191,40 @@ class TextChunkerTest {
           Long.toString(value), rendered, "chunk_index must render without mask or grouping");
       assertEquals(value, Integer.parseInt(rendered.trim()));
     }
+  }
+
+  @Test
+  void resolvesChunkSizeAndOverlapFromVariables() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkingStrategy(ChunkingStrategyType.CHARACTER);
+    meta.setChunkSize("${CHUNK_SIZE}");
+    meta.setChunkOverlap("${CHUNK_OVERLAP}");
+
+    TextChunkerData data = new TextChunkerData();
+    TextChunker transform =
+        new TextChunker(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
+    transform.setVariable("CHUNK_SIZE", "10");
+    transform.setVariable("CHUNK_OVERLAP", "3");
+
+    assertTrue(transform.init(), "init must succeed once the variables resolve");
+    assertEquals(10, data.chunkSize);
+    assertEquals(3, data.chunkOverlap);
+  }
+
+  @Test
+  void initFailsWhenTheResolvedChunkSizeIsNotPositive() {
+    // Metadata injection can set this to 0 even though check() reports an error.
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkSize("0");
+
+    TextChunkerData data = new TextChunkerData();
+    TextChunker transform =
+        new TextChunker(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
+
+    assertFalse(transform.init(), "a non-positive chunk size must fail init, not drop rows");
   }
 }

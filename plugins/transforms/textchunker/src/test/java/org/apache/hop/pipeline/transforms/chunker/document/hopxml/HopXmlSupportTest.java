@@ -17,7 +17,9 @@
 package org.apache.hop.pipeline.transforms.chunker.document.hopxml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -51,5 +53,31 @@ class HopXmlSupportTest {
 
     assertNotNull(document);
     assertEquals("pipeline", document.getDocumentElement().getTagName());
+  }
+
+  @Test
+  void serializeConfigRedactsSecretBearingTags() throws Exception {
+    String xml =
+        """
+        <transform>
+          <name>DB</name>
+          <type>TableInput</type>
+          <connection>
+            <hostname>localhost</hostname>
+            <username>hop</username>
+            <password>letmein</password>
+            <client_secret>abc123</client_secret>
+            <lookupKeys>customer_id</lookupKeys>
+          </connection>
+        </transform>
+        """;
+    Document doc = HopXmlSupport.parseDocument(xml);
+    String text = HopXmlSupport.serializeConfig(doc.getDocumentElement());
+
+    assertFalse(text.contains("letmein"), text);
+    assertFalse(text.contains("abc123"), text);
+    // Non-secret content, including a field literally named with "keys", survives.
+    assertTrue(text.contains("localhost"), text);
+    assertTrue(text.contains("customer_id"), text);
   }
 }
