@@ -143,7 +143,15 @@ Conversion from other types is not supported: convert to String first if an inte
 Hop binds a vector to a prepared statement using its text form, which a PostgreSQL `vector` column (provided by the pgvector extension) accepts directly.
 No dialect currently emits a native vector column type when Hop generates DDL, so a generated `CREATE TABLE` produces a text column that has to be adjusted by hand.
 
+*Dimensions*
+
+The field's `length` carries the number of dimensions, the way it carries the size of a String.
+A length of zero or less means the dimension is unspecified.
+
+Hop never pads or truncates a vector to match a declared length.
+An embedding resized to fit would still return results from a vector store, and those results would be wrong, so a mismatch is left for the store to reject.
+
 *Gotchas*
 
-The type does not carry the number of dimensions.
+The type does not itself enforce the number of dimensions.
 A vector store will reject a value whose length does not match the column it is written to, so the dimensions of the embedding model and of the target column have to be kept aligned by the pipeline author.

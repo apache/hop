@@ -46,6 +46,11 @@ import org.apache.hop.core.row.value.ValueMetaPlugin;
  * [0.1,0.2,0.3]}. That form is both valid JSON and the literal syntax pgvector accepts, so a vector
  * survives a round trip through a text file, a Data Grid, a JSON document or a database column
  * without a conversion step in between.
+ *
+ * <p>The field's {@code length} carries the number of dimensions, the way it carries the size of a
+ * String. A length of zero or less means the dimension is unspecified. Hop never pads or truncates
+ * a vector to fit a declared length: an embedding resized to match would still retrieve results,
+ * and they would be wrong.
  */
 @ValueMetaPlugin(
     id = "1536", // the dimension of OpenAI's text-embedding-3-small
