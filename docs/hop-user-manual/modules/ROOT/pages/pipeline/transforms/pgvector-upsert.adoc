@@ -1,0 +1,102 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Upsert text chunks and their embeddings into a PostgreSQL table that uses the pgvector extension.
+
+= image:transforms/icons/vector-store.svg[pgvector upsert transform Icon, role="image-doc-icon"] pgvector upsert
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The pgvector upsert transform writes text chunks and their embedding vectors into a PostgreSQL table that uses the https://github.com/pgvector/pgvector[pgvector] extension. It is the write half of a retrieval pipeline: typically Text Chunker, an embedding transform, then this transform.
+
+It uses a regular xref:database/databases/postgresql.adoc[PostgreSQL] relational database connection. No separate vector-store connection type is needed.
+
+The transform can create the extension, the table and an HNSW index on first run, so an empty database is enough to get started.
+
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Embedding fields
+
+The embedding field may be either:
+
+* a field of the **Vector** value type, which is used as is, or
+* a String field holding a JSON array, for example `[0.1,-0.2,0.35]`.
+
+The Vector value type avoids a text round trip per row and is the recommended choice. The String form is still accepted so that pipelines which read embeddings from CSV or JSON keep working.
+
+Rows whose content or embedding is empty are passed through to the output stream without being written.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|Connection|The PostgreSQL database connection to write to.
+|Schema|Database schema holding the target table.
+|Table|Table that stores the chunks and embeddings.
+|ID field|Optional field holding a unique row ID. When empty, the document ID and chunk index are combined to form one, which means the document ID must have a value: a chunk index repeats across documents and cannot be a key on its own. A row without either is rejected.
+|Document ID field|Field holding the identifier of the source document.
+|Chunk index field|Field holding the position of the chunk within its document.
+|Content field|Field holding the chunk text.
+|Embedding field|Field holding the embedding, either a Vector field or a String holding a JSON array.
+|Embedding dimensions|Vector width used when the table is created. It must match the output of the embedding model.
+|Create table if missing|Create the pgvector extension, the table and its columns when they do not exist yet.
+|Create HNSW index|Create an HNSW approximate-nearest-neighbour index. This runs against an existing table too, not only against one this transform creates.
+|Index metric|Distance metric the HNSW index is built for. Use the same metric in pgvector search.
+|Delete document before upsert|Delete the existing rows for a document ID once before inserting its new chunks. Use this when re-indexing a document whose chunk count may have changed.
+|Commit size|Number of rows per commit. Use 0 to commit once at the end of the pipeline, the way Table Output does. Batching is disabled automatically when the transform has an error hop, because PostgreSQL aborts the whole transaction on a failed batch and individual rows could not be diverted.
+|===
+
+=== Column mappings
+
+The *Column mappings* tab maps additional stream fields onto extra columns of the target table, so that metadata such as a source URL, a publication date or a document type can be stored alongside the vector and used later as a filter in pgvector search.
+
+== Notes
+
+*Embedding dimensions* and *Commit size* accept variables, so they can be set per environment rather than per pipeline.
+
+When *Delete document before upsert* is enabled, the pending batch is committed before the delete runs. That keeps "delete the document, then re-insert its chunks" from being split across a failure boundary, which would otherwise leave a document deleted and not replaced.
+
+To delete each document only once, the transform remembers the document IDs it has deleted, one entry per distinct ID for the length of the run. Above one million distinct documents in a single run it stops with an error rather than forgetting an ID, because deleting the same document twice would take with it the chunks the run had already written for it. Load very large corpora in batches, or turn the option off and clear the table yourself.
+
+Schema changes run with autocommit on, before the first row is written. A table or index created here therefore survives a failure later in the load, and an index does not hold its locks for the length of it.
+
+The *Embedding dimensions* option only applies when the table is created by this transform. Changing it afterwards does not alter an existing table.
+
+*Create table if missing* is the only option that issues `CREATE EXTENSION IF NOT EXISTS vector`, which needs elevated database privileges. Adding an index or a mapped column to a table that already holds a vector column does not, because that table was created with the extension in place.
+
+Running more than one copy of this transform is rejected when any of *Create table if missing*, *Create HNSW index* or a column mapping is set, because the copies would issue the same DDL concurrently. *Delete document before upsert* is rejected with multiple copies as well: each copy tracks the documents it has deleted on its own, so one copy can delete rows another has just inserted.
+
+Attaching an error hop turns off JDBC batching, because a rejected batch cannot be mapped back onto the individual rows that caused it. Rows are then written one statement at a time, with a savepoint per row so a rejected row can be diverted while the rest of the transaction survives.

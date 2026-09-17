@@ -104,6 +104,12 @@ plugins:
     description: Parquet file format support.
     installPath: plugins/tech/parquet
     modulePath: plugins/tech/parquet
+  - artifactId: hop-tech-pgvector
+    name: pgvector
+    category: Technology
+    description: Vector upsert and similarity search on PostgreSQL with the pgvector extension.
+    installPath: plugins/tech/pgvector
+    modulePath: plugins/tech/pgvector
   - artifactId: hop-tech-arrow
     name: Apache Arrow
     category: Technology

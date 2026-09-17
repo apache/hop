@@ -1,0 +1,41 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "document_id",
+          "data_set_field": "document_id"
+        }
+      ],
+      "field_order": [
+        "document_id"
+      ],
+      "transform_name": "STORED",
+      "data_set_name": "golden-delete-savepoint-stored"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "document_id",
+          "data_set_field": "document_id"
+        }
+      ],
+      "field_order": [
+        "document_id"
+      ],
+      "transform_name": "REJECTED",
+      "data_set_name": "golden-delete-savepoint-rejected"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0004-pgvector-delete-savepoint UNIT",
+  "description": "A refused delete is diverted on its own; the next document still stores",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0004-pgvector-delete-savepoint.hpl",
+  "test_type": "UNIT_TEST"
+}

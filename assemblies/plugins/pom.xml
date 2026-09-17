@@ -1781,6 +1781,12 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-pgvector</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-redis</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>

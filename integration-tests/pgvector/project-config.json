@@ -1,0 +1,30 @@
+{
+  "metadataBaseFolder": "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath": "${PROJECT_HOME}",
+  "dataSetsCsvFolder": "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome": true,
+  "config": {
+    "variables": [
+      {
+        "name": "HOP_LICENSE_HEADER_FILE",
+        "value": "${PROJECT_HOME}/../asf-header.txt",
+        "description": "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+      },
+      {
+        "name": "PGVECTOR_EMBEDDING_DIMENSIONS",
+        "value": "3",
+        "description": "Vector width for the test table. Supplied as a variable so the tests cover the resolvable form of the option."
+      },
+      {
+        "name": "PGVECTOR_COMMIT_SIZE",
+        "value": "50",
+        "description": "Commit size for the pgvector upsert, supplied as a variable."
+      },
+      {
+        "name": "PGVECTOR_TOP_K",
+        "value": "1",
+        "description": "Top-k for the pgvector search, supplied as a variable."
+      }
+    ]
+  }
+}

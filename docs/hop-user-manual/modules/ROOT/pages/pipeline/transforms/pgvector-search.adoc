@@ -1,0 +1,86 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Run a top-k similarity search against a PostgreSQL table that uses the pgvector extension.
+
+= image:transforms/icons/vector-store.svg[pgvector search transform Icon, role="image-doc-icon"] pgvector search
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The pgvector search transform looks up the nearest stored chunks for a query embedding in a PostgreSQL table that uses the https://github.com/pgvector/pgvector[pgvector] extension. It is the read half of a retrieval pipeline: embed the question, search, then feed the matches to a language model.
+
+Each incoming row carries one query embedding, and the transform emits one output row per match, with the original row's fields repeated on each.
+
+It uses a regular xref:database/databases/postgresql.adoc[PostgreSQL] relational database connection.
+
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Embedding fields
+
+As in pgvector upsert, the query embedding field may be either a field of the **Vector** value type or a String field holding a JSON array.
+
+A row with an empty query embedding is treated as a row with no matches rather than as an error, so a stream that happens to carry a few unembedded rows does not stop the pipeline.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|Connection|The PostgreSQL database connection to search.
+|Schema|Database schema holding the table.
+|Table|Table that stores the chunks and embeddings.
+|Query embedding field|Field holding the query embedding, either a Vector field or a String holding a JSON array.
+|Top K|Maximum number of matches to return per input row.
+|Minimum score|Only return matches whose similarity score is at least this value.
+|Distance metric|Similarity metric used by pgvector. Use the same metric the index was built for.
+|Result ID field|Output field for the matched row ID.
+|Result document ID field|Output field for the matched document ID.
+|Result chunk index field|Output field for the matched chunk index.
+|Result content field|Output field for the matched chunk text.
+|Result score field|Output field for the similarity score.
+|Do not pass the row if the search finds nothing|Drops the input row when the search returns no match. Off by default, in which case the row is passed on with the result fields left empty, the way Database Lookup behaves. A row whose embedding is empty follows the same path.
+|===
+
+The similarity score is normalised so that higher is better for every metric, but the scales differ: cosine similarity runs [-1, 1], the Euclidean mapping runs (0, 1], and inner product is unbounded. A *Minimum score* of 0 therefore means something different for each, and under cosine it drops anything more than 90 degrees from the query.
+
+=== Filters
+
+The *Filters* tab restricts the search to rows where a table column equals the value of a stream field, which lets one index serve several document sets. The columns come from the mappings configured in pgvector upsert.
+
+== Notes
+
+*Top K* and *Minimum score* accept variables, so they can be set per environment rather than per pipeline.
+
+The minimum score is applied *after* the top-k limit, so a run can legitimately return fewer than K rows. Filtering on the score inside the query would defeat the approximate-nearest-neighbour index.
