@@ -239,7 +239,13 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
    * and a list of parameter references (null for positional parameters).
    */
   static SqlParameterSpec parseSqlParameterSpec(String sourceSql) {
-    Database.SqlParameterSpec parsed = Database.parseSqlParameterSpec(sourceSql);
+    return parseSqlParameterSpec(sourceSql, false);
+  }
+
+  static SqlParameterSpec parseSqlParameterSpec(
+      String sourceSql, boolean consumeBracketIdentifiers) {
+    Database.SqlParameterSpec parsed =
+        Database.parseSqlParameterSpec(sourceSql, consumeBracketIdentifiers);
     int positionalParameterCount = 0;
     for (String parameterReference : parsed.getParameterReferences()) {
       if (parameterReference == null) {
@@ -248,6 +254,14 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     }
     return new SqlParameterSpec(
         parsed.getPreparedSql(), parsed.getParameterReferences(), positionalParameterCount);
+  }
+
+  static boolean supportsBracketQuotedIdentifiers(DatabaseMeta databaseMeta) {
+    if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
+      return false;
+    }
+    return "[".equals(databaseMeta.getIDatabase().getStartQuote())
+        && "]".equals(databaseMeta.getIDatabase().getEndQuote());
   }
 
   static java.util.Set<String> getMissingNamedParameters(
@@ -414,7 +428,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         throw new HopTransformException(e.getMessage(), e);
       }
 
-      SqlParameterSpec parameterSpec = parseSqlParameterSpec(sqlToUse);
+      SqlParameterSpec parameterSpec =
+          parseSqlParameterSpec(sqlToUse, supportsBracketQuotedIdentifiers(databaseMeta));
 
       // Build metadata lookup parameters, preferring incoming field types when available.
       IRowMeta param = createMetadataLookupParameterRowMeta(parameterSpec, row);
@@ -520,7 +535,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
           remarks.add(cr);
         } else {
           db.connect();
-          SqlParameterSpec parameterSpec = parseSqlParameterSpec(sqlToUse);
+          SqlParameterSpec parameterSpec =
+              parseSqlParameterSpec(sqlToUse, supportsBracketQuotedIdentifiers(databaseMeta));
 
           errorMessage = "";
 
@@ -675,22 +691,28 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
       SqlParameterSpec parameterSpec = null;
       try {
-        parameterSpec = parseSqlParameterSpec(resolveSql(variables));
+        parameterSpec =
+            parseSqlParameterSpec(
+                resolveSql(variables), supportsBracketQuotedIdentifiers(databaseMeta));
         db.connect();
         IRowMeta param = createMetadataLookupParameterRowMeta(parameterSpec);
-        fields =
-            db.getQueryFields(
-                parameterSpec.getPreparedSql(),
-                true,
-                param,
-                createMetadataLookupParameterRowData(param));
-      } catch (HopException dbe) {
-        if (parameterSpec != null && isLikelyStoredProcedureSql(parameterSpec.getPreparedSql())) {
-          logDetailed(
-              "Unable to determine stored procedure output fields in getTableFields(); deferring metadata to runtime.");
-          logDebug("Stored procedure getTableFields metadata discovery exception", dbe);
-          return null;
+        try {
+          fields =
+              db.getQueryFields(
+                  parameterSpec.getPreparedSql(),
+                  true,
+                  param,
+                  createMetadataLookupParameterRowData(param));
+        } catch (HopException dbe) {
+          if (isLikelyStoredProcedureSql(parameterSpec.getPreparedSql())) {
+            logDetailed(
+                "Unable to determine stored procedure output fields in getTableFields(); deferring metadata to runtime.");
+            logDebug("Stored procedure getTableFields metadata discovery exception", dbe);
+            return null;
+          }
+          throw dbe;
         }
+      } catch (HopException dbe) {
         logError(
             BaseMessages.getString(PKG, "DatabaseJoinMeta.Log.DatabaseErrorOccurred")
                 + dbe.getMessage());
