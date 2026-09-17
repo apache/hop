@@ -329,7 +329,8 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
           // Parse SQL parameter spec (supports ?{name}) and prepare statement with prepared SQL
           DatabaseJoinMeta.SqlParameterSpec parameterSpec =
-              DatabaseJoinMeta.parseSqlParameterSpec(sql);
+              DatabaseJoinMeta.parseSqlParameterSpec(
+                  sql, DatabaseJoinMeta.supportsBracketQuotedIdentifiers(databaseMeta));
           data.parameterSpec = parameterSpec;
           String preparedSql = parameterSpec.getPreparedSql();
 
