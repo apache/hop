@@ -5090,7 +5090,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       CanvasSvgHelper.notifyCanvasReady(workflowGraph.getCanvas());
     } else if (activeHandler instanceof HopGuiAbstractGraph abstractGraph) {
       // Plugin model graphs (Data Vault, Business Vault, dimensional, source model, …)
-      // share the single Hop Web SVG renderer and zoom remote; re-bind on tab switch.
+      // each have their own Hop Web SVG renderer and zoom remotes; refresh on tab switch.
       Object zoomHandler = getModelGraphZoomHandler(abstractGraph);
       if (zoomHandler != null) {
         CanvasZoomHelper.notifyCanvasReady(zoomHandler);

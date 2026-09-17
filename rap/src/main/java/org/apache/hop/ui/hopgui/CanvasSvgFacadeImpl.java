@@ -48,13 +48,12 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
     CanvasGraphRegistry.getInstance().register(canvasId, canvas, graph);
     canvas.setData("canvasId", canvasId);
     canvas.setData("sessionUuid", getSessionUuidInternal());
-    new CanvasSvgRendererHandler((Composite) canvas.getParent());
+    CanvasSvgRendererHandler.ensureRemote(canvas);
   }
 
   @Override
   void unregisterCanvasInternal(Canvas canvas) {
-    String canvasId = WidgetUtil.getId(canvas);
-    CanvasGraphRegistry.getInstance().unregister(canvasId);
+    CanvasSvgRendererHandler.unregister(canvas);
   }
 
   @Override
@@ -125,13 +124,7 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
     Object graph = registry.getGraph(canvasId);
     syncAreaOwnersToGraph(graph, result.getAreaOwners());
     setCanvasWidgetDataInternal(canvas, revision);
-    // Single shared client renderer for the session: only rebind when this canvas is the active
-    // tab. Otherwise a background paint (e.g. mouse-up on the graph we just navigated away from
-    // after following a BV/DV link) steals the overlay back to the previous model.
-    Canvas active = registry.getActiveCanvas();
-    if (active == null || active.isDisposed() || active == canvas) {
-      CanvasSvgRendererHandler.notifyCanvasReady(canvas, revision);
-    }
+    CanvasSvgRendererHandler.notifyCanvasReady(canvas, revision);
   }
 
   @Override

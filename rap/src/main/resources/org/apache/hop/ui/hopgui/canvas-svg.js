@@ -22,6 +22,9 @@
     if (!window.hop) {
         window.hop = {};
     }
+    if (!hop._canvasInteractions) {
+        hop._canvasInteractions = {};
+    }
 
     var serviceBasePath = (function () {
         var path = window.location.pathname;
@@ -398,6 +401,25 @@
             if (this._overlay && this._overlay.parentNode) {
                 this._overlay.parentNode.removeChild(this._overlay);
             }
+            this._resetOverlayDom();
+        },
+
+        _resetOverlayDom: function () {
+            this._overlay = null;
+            this._svgHost = null;
+            this._effectsLayer = null;
+            this._panBoundsOutline = null;
+            this._navViewportPreview = null;
+            this._selectLasso = null;
+            this._ghostSvg = null;
+            this._ghostRectPool = null;
+            this._hopLineEl = null;
+            this._dragPreviewRects = null;
+            this._noteHandleRects = null;
+        },
+
+        _overlayIsLive: function () {
+            return !!(this._overlay && this._overlay.isConnected);
         },
 
         attachListener: function () {
@@ -409,6 +431,9 @@
         },
 
         setCanvasId: function (properties) {
+            if (this._canvasId && this._canvasId !== properties.value) {
+                return;
+            }
             this._canvasId = properties.value;
         },
 
@@ -445,13 +470,11 @@
                     return;
                 }
                 self._findTimer = null;
-                if (self._canvas === canvas) {
-                    var parent = canvas.parentElement;
-                    if (parent && self._overlay && self._overlay.parentNode !== parent) {
-                        self._attachToCanvas(canvas);
-                    } else if (self._overlay) {
-                        self._syncOverlayLayout(canvas);
-                    }
+                if (!self._overlayIsLive()) {
+                    self._resetOverlayDom();
+                }
+                if (self._canvas === canvas && self._overlayIsLive()) {
+                    self._syncOverlayLayout(canvas);
                     return;
                 }
                 self._attachToCanvas(canvas);
@@ -472,6 +495,10 @@
             }
             this._detachInteractionListeners();
             this._canvas = canvas;
+
+            if (this._overlay && !this._overlayIsLive()) {
+                this._resetOverlayDom();
+            }
 
             if (!this._overlay) {
                 this._overlay = document.createElement("div");
@@ -533,7 +560,7 @@
             }
 
             var parent = canvas.parentElement;
-            if (parent && this._overlay.parentNode !== parent) {
+            if (parent && !this._overlay.parentNode) {
                 if (window.getComputedStyle(parent).position === "static") {
                     parent.style.position = "relative";
                 }
@@ -2194,7 +2221,7 @@
                 return;
             }
             this._lastHoverKey = hoverKey;
-            var interaction = hop._canvasInteractionInstance;
+            var interaction = hop._canvasInteractions && hop._canvasInteractions[this._canvasId];
             if (area && area.hover && interaction && interaction._remoteObject) {
                 interaction._remoteObject.notify("hover", {
                     canvasId: this._canvasId,
@@ -2220,19 +2247,13 @@
                 widget._sessionUuid = value;
             },
             canvasId: function (widget, value) {
-                var changed = widget._canvasId !== value;
-                widget._canvasId = value;
-                // Tab switch: re-bind overlay to the newly active canvas and force SVG fetch.
-                if (changed) {
-                    widget._revision = 0;
-                    if (widget._svgHost) {
-                        widget._svgHost.innerHTML = "";
-                    }
-                    widget._findAndAttachCanvas();
-                    widget._fetchAndRender(0);
-                } else {
-                    widget._findAndAttachCanvas();
+                // canvasId is instance identity. A second canvas must get its own remote;
+                // never steal this overlay by rewriting the id (issue #8432).
+                if (widget._canvasId && widget._canvasId !== value) {
+                    return;
                 }
+                widget._canvasId = value;
+                widget._findAndAttachCanvas();
             },
             renderRevision: function (widget, value) {
                 if (value !== widget._revision) {
@@ -2249,17 +2270,28 @@
     hop.CanvasInteraction = function (properties) {
         this._canvasId = properties.canvas;
         this._remoteObject = null;
-        hop._canvasInteractionInstance = this;
+        if (!hop._canvasInteractions) {
+            hop._canvasInteractions = {};
+        }
+        if (this._canvasId) {
+            hop._canvasInteractions[this._canvasId] = this;
+        }
     };
 
     hop.CanvasInteraction.prototype = {
         destroy: function () {
-            if (hop._canvasInteractionInstance === this) {
-                hop._canvasInteractionInstance = null;
+            if (this._canvasId && hop._canvasInteractions && hop._canvasInteractions[this._canvasId] === this) {
+                delete hop._canvasInteractions[this._canvasId];
             }
         },
         attachListener: function () {
             this._remoteObject = rap.getRemoteObject(this);
+            if (this._canvasId) {
+                if (!hop._canvasInteractions) {
+                    hop._canvasInteractions = {};
+                }
+                hop._canvasInteractions[this._canvasId] = this;
+            }
         }
     };
 
@@ -2273,7 +2305,16 @@
         events: ["hover"],
         propertyHandler: {
             canvas: function (widget, value) {
+                if (widget._canvasId && hop._canvasInteractions && hop._canvasInteractions[widget._canvasId] === widget) {
+                    delete hop._canvasInteractions[widget._canvasId];
+                }
                 widget._canvasId = value;
+                if (!hop._canvasInteractions) {
+                    hop._canvasInteractions = {};
+                }
+                if (value) {
+                    hop._canvasInteractions[value] = widget;
+                }
             }
         }
     });
