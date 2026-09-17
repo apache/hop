@@ -51,6 +51,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
@@ -245,6 +246,7 @@ public class GitCommitPerspective implements IHopPerspective {
     PropsUi.setLook(wToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     wTree = new Tree(composite, SWT.CHECK | SWT.V_SCROLL | SWT.H_SCROLL);
+    FolderTreeIcons.install(wTree);
     wTree.setHeaderVisible(false);
     wTree.setLayoutData(FormDataBuilder.builder().fullWidth().top(wToolBar).bottom().result());
     wTree.addListener(SWT.Selection, this::onSelection);
@@ -464,7 +466,7 @@ public class GitCommitPerspective implements IHopPerspective {
           fileType.openFile(hopGui, path, hopGui.getVariables());
           perspective.activate();
         } else {
-          item.setExpanded(!item.getExpanded());
+          FolderTreeIcons.setExpanded(item, !item.getExpanded());
         }
       }
     } catch (Exception e) {
@@ -1215,7 +1217,7 @@ public class GitCommitPerspective implements IHopPerspective {
         setRootItemLabel(untrackedRootItem, UNTRACKED_LABEL);
 
         for (TreeItem rootItem : wTree.getItems()) {
-          rootItem.setExpanded(true);
+          FolderTreeIcons.setExpanded(rootItem, true);
         }
 
         // Offer all the work in progress for the next commit

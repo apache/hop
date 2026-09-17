@@ -59,6 +59,7 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -286,6 +287,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     // Tree View Test
     wTree = new HopTree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(wTree);
     PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
@@ -458,21 +460,21 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     itemWaitFieldsIn.setText(
         BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsIn.setForeground(guiResource.getColorDirectory());
-    itemInput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemInput, true);
 
     // Display waiting message for info
     TreeItem itemWaitFieldsInfo = new TreeItem(itemInfo, SWT.NULL);
     itemWaitFieldsInfo.setText(
         BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsInfo.setForeground(guiResource.getColorDirectory());
-    itemInfo.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemInfo, true);
 
     // Display waiting message for output
     TreeItem itemWaitFieldsOut = new TreeItem(itemOutput, SWT.NULL);
     itemWaitFieldsOut.setText(
         BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsOut.setForeground(guiResource.getColorDirectory());
-    itemOutput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemOutput, true);
 
     //
     // Search the fields in the background

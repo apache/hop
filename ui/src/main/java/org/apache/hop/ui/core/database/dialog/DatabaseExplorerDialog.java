@@ -59,6 +59,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
@@ -268,6 +269,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
     // Create tree
     wTree = new HopTree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(wTree);
     wTree.setLayoutData(
         FormDataBuilder.builder().top(toolBar, margin).bottom().fullWidth().build());
     wTree.addListener(SWT.DefaultSelection, this::openTreeItem);
@@ -345,7 +347,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
   private void expandAllItems(TreeItem[] items, boolean expand) {
     for (TreeItem item : items) {
-      item.setExpanded(expand);
+      FolderTreeIcons.setExpanded(item, expand);
       if (item.getItemCount() > 0) {
         expandAllItems(item.getItems(), expand);
       }
@@ -465,7 +467,7 @@ public class DatabaseExplorerDialog extends Dialog {
     }
 
     // Always expand the root item
-    connectionItem.setExpanded(true);
+    FolderTreeIcons.setExpanded(connectionItem, true);
 
     wTree.setRedraw(true);
     shell.setCursor(null);
@@ -555,7 +557,7 @@ public class DatabaseExplorerDialog extends Dialog {
         }
       }
     }
-    parent.setExpanded(expanded);
+    FolderTreeIcons.setExpanded(parent, expanded);
   }
 
   /**
@@ -610,7 +612,7 @@ public class DatabaseExplorerDialog extends Dialog {
         }
       }
     }
-    parent.setExpanded(expanded);
+    FolderTreeIcons.setExpanded(parent, expanded);
   }
 
   private boolean matchesFilter(String name, String schemaName) {
@@ -973,7 +975,7 @@ public class DatabaseExplorerDialog extends Dialog {
     DatabaseTreeNode node = (DatabaseTreeNode) item.getData();
     if (!node.isTableLike()) {
       // Expand/Collapse hierarchy
-      item.setExpanded(!item.getExpanded());
+      FolderTreeIcons.setExpanded(item, !item.getExpanded());
       return;
     }
 

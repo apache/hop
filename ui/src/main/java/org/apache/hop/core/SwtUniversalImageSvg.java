@@ -30,13 +30,18 @@ import org.apache.batik.gvt.GraphicsNode;
 import org.apache.hop.core.svg.SvgDarkModeContrast;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.svg.SvgImageFacade;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
+import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 public class SwtUniversalImageSvg extends SwtUniversalImage {
   private final GraphicsNode svgGraphicsNode;
   private final Dimension2D svgGraphicsSize;
+
+  /** What gets rendered: the contrast-adjusted clone in dark mode, else the original. */
+  private final Document svgDocument;
 
   static {
     // workaround due to known issue in batik 1.8 - https://issues.apache.org/jira/browse/BATIK-1125
@@ -62,12 +67,14 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
 
       svgGraphicsNode = builder.build(ctx, clonedDocument);
       svgGraphicsSize = ctx.getDocumentSize();
+      svgDocument = clonedDocument;
     } else {
       // get GraphicsNode and size from svg document
       DocumentLoader documentLoader = new DocumentLoader(userAgentAdapter);
       BridgeContext ctx = new BridgeContext(userAgentAdapter, documentLoader);
       svgGraphicsNode = builder.build(ctx, svg.getDocument());
       svgGraphicsSize = ctx.getDocumentSize();
+      svgDocument = svg.getDocument();
     }
   }
 
@@ -81,6 +88,27 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
 
   @Override
   protected Image renderSimple(Device device, int width, int height) {
+    if (!isDpiAwareImageProviderSupported()) {
+      // Hop Web: hand the browser the vector so it rasterises at device resolution.
+      Image vector =
+          SvgImageFacade.createImage(device, svgDocument, svgGraphicsSize, width, height);
+      if (vector != null) {
+        return vector;
+      }
+    }
+    return renderRaster(device, width, height);
+  }
+
+  @Override
+  public synchronized Image getAsRasterForSize(Device device, int width, int height) {
+    if (isDpiAwareImageProviderSupported()) {
+      // Desktop bitmaps always carry pixels; share the regular cache entry.
+      return getAsBitmapForSize(device, width, height);
+    }
+    return cached("raster/" + width + "x" + height, () -> renderRaster(device, width, height));
+  }
+
+  private Image renderRaster(Device device, int width, int height) {
     return createDpiAwareImage(device, width, height, (w, h) -> toImageData(renderSvg(w, h, 0d)));
   }
 

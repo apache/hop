@@ -64,6 +64,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
@@ -557,6 +558,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         new HopTree(
             browseSash, (multiSelection ? SWT.MULTI : SWT.SINGLE) | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wBrowser);
+    FolderTreeIcons.install(wBrowser);
     wBrowser.setHeaderVisible(true);
     wBrowser.setLinesVisible(false);
 
@@ -1093,7 +1095,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
       populateFolder(activeFolder, parentFolderItem);
 
-      parentFolderItem.setExpanded(true);
+      FolderTreeIcons.setExpanded(parentFolderItem, true);
 
       updateSelection();
     } catch (Exception e) {
