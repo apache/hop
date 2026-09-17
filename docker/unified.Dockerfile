@@ -245,7 +245,10 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
-    chmod +x /build/hop-web-prepared/run-web.sh
+    chmod +x /build/hop-web-prepared/run-web.sh && \
+    # Tomcat configuration with response compression (see the comments in the file)
+    mkdir -p /build/hop-web-prepared/conf && \
+    cp /build/docker/resources/server.xml /build/hop-web-prepared/conf/server.xml
 
 # Make scripts executable
 RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh

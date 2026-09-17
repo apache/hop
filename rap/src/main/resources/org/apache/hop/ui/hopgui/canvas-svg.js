@@ -325,8 +325,12 @@
         this._areas = [];
         this._props = {};
         this._remoteObject = null;
+        this._fetchInFlight = false;
+        this._pendingFetchRev = null;
+        this._hoveredNameKey = null;
+        this._hoveredNameArea = null;
+        this._hoveredNameElement = null;
         this._pollTimer = null;
-        this._pollCount = 0;
         this._emptyRetries = 0;
         this._mousemoveHandler = null;
         this._mouseleaveHandler = null;
@@ -598,7 +602,6 @@
 
             if (!this._pollTimer) {
                 this._pollTimer = setInterval(function () {
-                    self._pollCount++;
                     if (self._canvas && !self._canvas.parentNode) {
                         self._canvas = null;
                         self._findAndAttachCanvas();
@@ -607,9 +610,11 @@
                     if (self._canvas) {
                         self._syncOverlayLayout(self._canvas);
                     }
-                    // Periodically force a full refresh to recover from missed updates.
-                    var clientRev = (self._pollCount % 10 === 0) ? 0 : self._revision;
-                    self._fetchAndRender(clientRev);
+                    // Every publish bumps the server revision, so this conditional poll (304 when
+                    // unchanged) already recovers a missed update within half a second. It used to
+                    // force a full fetch every 10th poll as well, which re-downloaded a large
+                    // pipeline's SVG every 5 seconds for as long as the tab was open.
+                    self._fetchAndRender(self._revision);
                 }, 500);
             }
 
@@ -718,6 +723,26 @@
             if (!this._sessionUuid || !this._canvasId) {
                 return;
             }
+            // One download at a time. Binding a canvas asks for the SVG from several places at
+            // once (attach, canvasId, renderRevision, the first poll), all before the first
+            // response has set _revision, so each of them fetched the whole document again. Remember
+            // the most demanding request (0 = unconditional) and issue it once this one is done.
+            if (this._fetchInFlight) {
+                var wanted = clientRev || 0;
+                this._pendingFetchRev = this._pendingFetchRev === null
+                    ? wanted : Math.min(this._pendingFetchRev, wanted);
+                return;
+            }
+            this._fetchInFlight = true;
+            var finished = function () {
+                self._fetchInFlight = false;
+                if (self._pendingFetchRev !== null && !self._destroyed) {
+                    var rev = self._pendingFetchRev;
+                    self._pendingFetchRev = null;
+                    // A conditional follow-up should use what we have by now, not a stale number.
+                    self._fetchAndRender(rev === 0 ? 0 : self._revision);
+                }
+            };
             fetch(this._serviceUrl(clientRev), { credentials: "same-origin" })
                 .then(function (response) {
                     if (response.status === 304) {
@@ -761,6 +786,8 @@
                             svg.style.display = "block";
                             svg.style.pointerEvents = "none";
                         }
+                        self._hoveredNameElement = null;
+                        self._applyHoveredName();
                         if (self._canvas) {
                             self._syncOverlayLayout(self._canvas);
                         }
@@ -772,7 +799,8 @@
                     if (window.console && console.debug) {
                         console.debug("Hop canvas SVG fetch failed", err);
                     }
-                });
+                })
+                .then(finished, finished);
         },
 
         _updateHoverChrome: function (area, graphX, graphY) {
@@ -805,6 +833,63 @@
                 this._canvas.style.cursor = "default";
             } else {
                 this._canvas.style.cursor = "";
+            }
+            this._setHoveredName(
+                area && (area.areaType === "TRANSFORM_NAME" || area.areaType === "ACTION_NAME") ? area : null);
+        },
+
+        /**
+         * Bold the hovered transform / action name. The server used to do this by re-rendering
+         * the whole graph on every name enter and leave (issue #8435); the <text> is right here.
+         */
+        _setHoveredName: function (area) {
+            var key = area ? area.areaType + ":" + area.x + ":" + area.y : null;
+            if (key === this._hoveredNameKey) {
+                return;
+            }
+            this._clearHoveredName();
+            this._hoveredNameKey = key;
+            this._hoveredNameArea = area;
+            this._applyHoveredName();
+        },
+
+        _clearHoveredName: function () {
+            if (this._hoveredNameElement) {
+                this._hoveredNameElement.style.fontWeight = "";
+                this._hoveredNameElement = null;
+            }
+            this._hoveredNameKey = null;
+            this._hoveredNameArea = null;
+        },
+
+        _applyHoveredName: function () {
+            var area = this._hoveredNameArea;
+            if (!area || !this._svgHost || !this._overlay) {
+                return;
+            }
+            var label = area.owner && area.owner.kind === "label" ? area.owner.value : null;
+            var props = this._getCanvasProps();
+            if (props.magnification == null && this._props && this._props.magnification != null) {
+                props = this._props;
+            }
+            var rect = graphRectToScreen(area.x, area.y, area.width, area.height, props);
+            var overlayRect = this._overlay.getBoundingClientRect();
+            var left = overlayRect.left + rect.left;
+            var top = overlayRect.top + rect.top;
+            var texts = this._svgHost.querySelectorAll("text");
+            for (var i = 0; i < texts.length; i++) {
+                var text = texts[i];
+                if (label != null && text.textContent.trim() !== label) {
+                    continue;
+                }
+                var box = text.getBoundingClientRect();
+                var cx = box.left + box.width / 2;
+                var cy = box.top + box.height / 2;
+                if (cx >= left && cx <= left + rect.width && cy >= top && cy <= top + rect.height) {
+                    text.style.fontWeight = "bold";
+                    this._hoveredNameElement = text;
+                    return;
+                }
             }
         },
 

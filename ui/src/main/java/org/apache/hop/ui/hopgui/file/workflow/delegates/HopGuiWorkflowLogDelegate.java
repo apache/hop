@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.LogConsoleFacade;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextVar;
@@ -132,15 +133,18 @@ public class HopGuiWorkflowLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    // Use StyledTextComp for web (uses Text widget), StyledTextVar for desktop (uses StyledText
-    // for highlighting)
+    // Hop Web: an incremental console (a Text would be re-sent in full on every appended line);
+    // desktop: StyledText for highlighting.
     if (EnvironmentUtils.getInstance().isWeb()) {
-      workflowLogText =
-          new StyledTextComp(
-              workflowGraph.getVariables(),
-              workflowLogComposite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
-              TextComposite.STYLE_TYPE_LOG);
+      workflowLogText = LogConsoleFacade.create(workflowLogComposite, SWT.BORDER);
+      if (workflowLogText == null) {
+        workflowLogText =
+            new StyledTextComp(
+                workflowGraph.getVariables(),
+                workflowLogComposite,
+                SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+                TextComposite.STYLE_TYPE_LOG);
+      }
     } else {
       workflowLogText =
           new StyledTextVar(

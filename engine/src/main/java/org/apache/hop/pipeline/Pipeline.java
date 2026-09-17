@@ -3525,7 +3525,9 @@ public abstract class Pipeline
             }
             metrics.setComponentMetric(combi.transform, METRIC_BUFFER_OUT, outputBufferSize);
 
-            TransformStatus transformStatus = new TransformStatus(combi.transform);
+            // Only the speed is needed here: leave the transform's log text alone, it is the
+            // whole log formatted again on every call.
+            TransformStatus transformStatus = new TransformStatus(combi.transform, false);
             metrics.setComponentSpeed(combi.transform, transformStatus.getSpeed());
             metrics.setComponentStatus(
                 combi.transform, combi.transform.getStatus().getDescription());
