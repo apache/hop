@@ -30,6 +30,13 @@ public enum ChunkingStrategyType {
    */
   STRUCTURE("Structure");
 
+  /**
+   * Display text kept only so {@link #fromString(String)} still accepts values written before the
+   * constant names were used. It is deliberately NOT exposed through {@code toString()}: the
+   * generated dialogs fill an enum combo with {@code toString()} and read it back with {@code
+   * Enum.valueOf}, so anything other than the constant name makes the combo unreadable and a
+   * changed selection is silently dropped.
+   */
   private final String description;
 
   ChunkingStrategyType(String description) {
@@ -66,10 +73,5 @@ public enum ChunkingStrategyType {
    */
   public static ChunkingStrategyType[] getAll() {
     return values();
-  }
-
-  @Override
-  public String toString() {
-    return description;
   }
 }

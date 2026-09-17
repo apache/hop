@@ -28,8 +28,8 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
@@ -109,32 +109,35 @@ public class TextChunkerDialog extends BaseTransformDialog {
 
   /** Fills a combo without losing the selection the transform was saved with. */
   private void setComboItems(String widgetId, String[] names) {
+    // Setting items clears the widget's text, so put the saved selection back afterwards. This is
+    // the same dance GitInputDialog does around setComboValues.
+    String selected = comboText(widgetId, "");
+    widgets.setComboValues(widgetId, names);
+    if (!Utils.isEmpty(selected)) {
+      setComboText(widgetId, selected);
+    }
+  }
+
+  private void setComboText(String widgetId, String text) {
     Control control = widgets.getWidgetsMap().get(widgetId);
     if (control == null || control.isDisposed()) {
       return;
     }
     if (control instanceof ComboVar comboVar) {
-      String selected = comboVar.getText();
-      comboVar.setItems(names);
-      if (!Utils.isEmpty(selected)) {
-        comboVar.setText(selected);
-      }
-    } else if (control instanceof CCombo combo) {
-      String selected = combo.getText();
-      combo.setItems(names);
-      if (!Utils.isEmpty(selected)) {
-        combo.setText(selected);
-      }
+      comboVar.setText(text);
+    } else if (control instanceof Combo combo) {
+      combo.setText(text);
     }
   }
 
   private void enableFields() {
+    // fromString accepts the constant name and the old display text, so this follows the widget
+    // whatever it holds rather than assuming one spelling.
     boolean structure =
-        ChunkingStrategyType.STRUCTURE
-            .name()
-            .equalsIgnoreCase(
+        ChunkingStrategyType.fromString(
                 comboText(
-                    TextChunkerMeta.WIDGET_CHUNKING_STRATEGY, input.getChunkingStrategy().name()));
+                    TextChunkerMeta.WIDGET_CHUNKING_STRATEGY, input.getChunkingStrategy().name()))
+            == ChunkingStrategyType.STRUCTURE;
     setEnabled(TextChunkerMeta.WIDGET_CONTENT_TYPE, structure);
     setEnabled(TextChunkerMeta.WIDGET_CONTENT_TYPE_FIELD, structure);
 
@@ -146,12 +149,17 @@ public class TextChunkerDialog extends BaseTransformDialog {
     setEnabled(TextChunkerMeta.WIDGET_CHUNK_COUNT_FIELD, metadata);
   }
 
+  /**
+   * Reads a generated combo. {@code GuiCompositeWidgets} builds a plain SWT {@link Combo} when the
+   * element has no variable support and a {@link ComboVar} when it does, so both have to be handled
+   * or this silently returns the fallback.
+   */
   private String comboText(String widgetId, String fallback) {
     Control control = widgets.getWidgetsMap().get(widgetId);
     if (control instanceof ComboVar comboVar && !comboVar.isDisposed()) {
       return comboVar.getText();
     }
-    if (control instanceof CCombo combo && !combo.isDisposed()) {
+    if (control instanceof Combo combo && !combo.isDisposed()) {
       return combo.getText();
     }
     return fallback;

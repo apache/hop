@@ -149,6 +149,35 @@ class TextChunkerMetaTest {
         "a valid configuration must not produce errors");
   }
 
+  /**
+   * The generated dialogs fill an enum combo with {@code toString()} and read it back with {@code
+   * Enum.valueOf}. An enum that overrides {@code toString()} therefore cannot be read back, and a
+   * changed selection is dropped without any error reaching the user.
+   */
+  @Test
+  void everyEnumOnTheDialogReadsBackFromItsDisplayedText() {
+    for (Enum<?>[] constants :
+        new Enum<?>[][] {ChunkingStrategyType.values(), ContentType.values()}) {
+      for (Enum<?> constant : constants) {
+        assertEquals(
+            constant.name(),
+            constant.toString(),
+            constant.getDeclaringClass().getSimpleName()
+                + " must not override toString(): the dialog reads the combo back with"
+                + " Enum.valueOf, which only accepts the constant name");
+      }
+    }
+  }
+
+  @Test
+  void theStrategyStillParsesTheDisplayTextItUsedToShow() {
+    // Pipelines saved while the combo showed "Character" have to keep working.
+    assertEquals(ChunkingStrategyType.CHARACTER, ChunkingStrategyType.fromString("Character"));
+    assertEquals(ChunkingStrategyType.PARAGRAPH, ChunkingStrategyType.fromString("Paragraph"));
+    assertEquals(ChunkingStrategyType.STRUCTURE, ChunkingStrategyType.fromString("Structure"));
+    assertEquals(ChunkingStrategyType.STRUCTURE, ChunkingStrategyType.fromString("STRUCTURE"));
+  }
+
   private static TextChunkerMeta roundTrip(TextChunkerMeta original) throws Exception {
     String xml = "<transform>" + XmlMetadataUtil.serializeObjectToXml(original) + "</transform>";
     Document document = XmlHandler.loadXmlString(xml);

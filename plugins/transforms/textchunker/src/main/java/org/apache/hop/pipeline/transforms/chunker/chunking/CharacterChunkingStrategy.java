@@ -26,7 +26,6 @@ import org.apache.hop.pipeline.transforms.chunker.Chunk;
  */
 public class CharacterChunkingStrategy implements ChunkingStrategy {
 
-  /** Characters that are considered word separators. */
   @Override
   public List<Chunk> chunk(String text, int maxSize, int overlap) {
     List<Chunk> chunks = new ArrayList<>();
