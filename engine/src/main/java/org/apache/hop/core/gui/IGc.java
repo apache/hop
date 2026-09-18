@@ -87,6 +87,7 @@ public interface IGc {
     PARALLEL_DISABLED,
     BUSY,
     WAITING,
+    WARNING,
     INJECT,
     LOAD_BALANCE,
     CHECKPOINT,

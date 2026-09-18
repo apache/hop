@@ -54,18 +54,20 @@ class LintStatusBadgeCompositeTest {
   }
 
   @Test
-  @DisplayName("the badge lands in the bottom right corner and leaves the rest of the icon alone")
+  @DisplayName("the badge lands in the bottom left corner and leaves the rest of the icon alone")
   void badgeIsCompositedIntoTheCorner() {
     ImageData composite =
         LintStatusFilePainter.withBadge(icon(16, BASE_COLOR, 255), icon(8, BADGE_COLOR, 255), 8, 1);
 
     assertEquals(16, composite.width);
     assertEquals(16, composite.height);
-    // One pixel of margin is kept, so the very last column and row stay the base icon.
-    assertEquals(BADGE_COLOR, colorAt(composite, 14, 14));
-    assertEquals(BASE_COLOR, colorAt(composite, 15, 15));
-    assertEquals(BASE_COLOR, colorAt(composite, 0, 0));
-    assertEquals(BASE_COLOR, colorAt(composite, 6, 6));
+    // One pixel of margin is kept, so the very first column and last row stay the base icon.
+    assertEquals(BADGE_COLOR, colorAt(composite, 1, 14));
+    assertEquals(BASE_COLOR, colorAt(composite, 0, 15));
+    assertEquals(BASE_COLOR, colorAt(composite, 15, 0));
+    assertEquals(BASE_COLOR, colorAt(composite, 9, 6));
+    // The bottom right corner is no longer where the badge goes.
+    assertEquals(BASE_COLOR, colorAt(composite, 14, 14));
   }
 
   @Test
@@ -74,8 +76,8 @@ class LintStatusBadgeCompositeTest {
     ImageData composite =
         LintStatusFilePainter.withBadge(icon(16, BASE_COLOR, 255), icon(8, BADGE_COLOR, 0), 8, 1);
 
-    assertEquals(BASE_COLOR, colorAt(composite, 14, 14));
-    assertEquals(255, composite.getAlpha(14, 14));
+    assertEquals(BASE_COLOR, colorAt(composite, 1, 14));
+    assertEquals(255, composite.getAlpha(1, 14));
   }
 
   @Test
@@ -86,8 +88,8 @@ class LintStatusBadgeCompositeTest {
 
     assertEquals(0, composite.getAlpha(0, 0));
     // Where the badge is opaque it wins outright, transparent base or not.
-    assertEquals(255, composite.getAlpha(14, 14));
-    assertEquals(BADGE_COLOR, colorAt(composite, 14, 14));
+    assertEquals(255, composite.getAlpha(1, 14));
+    assertEquals(BADGE_COLOR, colorAt(composite, 1, 14));
   }
 
   /** Palette icons say "transparent" with a pixel value rather than an alpha channel. */
@@ -127,15 +129,15 @@ class LintStatusBadgeCompositeTest {
 
     assertEquals(32, at200.width);
     // The badge corner of the 100% icon, at twice the scale, is still the badge corner.
-    assertEquals(BADGE_COLOR, colorAt(at100, 7, 7));
-    assertEquals(BADGE_COLOR, colorAt(at200, 14, 14));
+    assertEquals(BADGE_COLOR, colorAt(at100, 8, 7));
+    assertEquals(BADGE_COLOR, colorAt(at200, 17, 14));
     // And so is the last pixel before the margin.
-    assertEquals(BADGE_COLOR, colorAt(at100, 14, 14));
-    assertEquals(BADGE_COLOR, colorAt(at200, 29, 29));
+    assertEquals(BADGE_COLOR, colorAt(at100, 1, 14));
+    assertEquals(BADGE_COLOR, colorAt(at200, 2, 29));
     // The margin itself stays the base icon at both zooms.
-    assertEquals(BASE_COLOR, colorAt(at100, 15, 15));
-    assertEquals(BASE_COLOR, colorAt(at200, 30, 30));
-    assertEquals(BASE_COLOR, colorAt(at200, 31, 31));
+    assertEquals(BASE_COLOR, colorAt(at100, 0, 15));
+    assertEquals(BASE_COLOR, colorAt(at200, 1, 30));
+    assertEquals(BASE_COLOR, colorAt(at200, 0, 31));
   }
 
   @Test
@@ -146,10 +148,10 @@ class LintStatusBadgeCompositeTest {
             icon(16, new RGB(0, 0, 0), 255), icon(8, new RGB(255, 255, 255), 128), 8, 1);
 
     // Half of white over black, opaque either way.
-    RGB blended = colorAt(composite, 14, 14);
+    RGB blended = colorAt(composite, 1, 14);
     assertEquals(128, blended.red);
     assertEquals(128, blended.green);
     assertEquals(128, blended.blue);
-    assertEquals(255, composite.getAlpha(14, 14));
+    assertEquals(255, composite.getAlpha(1, 14));
   }
 }
