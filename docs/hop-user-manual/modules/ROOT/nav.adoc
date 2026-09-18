@@ -159,6 +159,7 @@ under the License.
 *** xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL row]
 *** xref:pipeline/transforms/edi2xml.adoc[Edi to XML]
 *** xref:pipeline/transforms/emailinput.adoc[Email Messages Input]
+*** xref:pipeline/transforms/embedtext.adoc[Embed text]
 *** xref:pipeline/transforms/enhancedjsonoutput.adoc[Enhanced JSON output]
 *** xref:pipeline/transforms/excelinput.adoc[Excel input]
 *** xref:pipeline/transforms/excelwriter.adoc[Excel writer]
