@@ -421,8 +421,7 @@ public class CombinationLookupMeta
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connectionName, variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
 
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
@@ -673,8 +672,10 @@ public class CombinationLookupMeta
       IRowMeta info,
       IHopMetadataProvider metadataProvider) {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connectionName, variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta == null || prev == null) {
+      return;
+    }
 
     // The keys are read-only...
     for (int i = 0; i < fields.getKeyFields().size(); i++) {
