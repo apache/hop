@@ -2157,43 +2157,32 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     new TabCloseHandler(this, folder);
     new TabItemReorder(this, folder);
 
-    // Split ("Move to Right") and detach ("Move to New Window") depend on native drag and floating
-    // windows, which don't work under RAP, so they are desktop-only (see also the drag-to-split
-    // guard in TabItemReorder and the isWeb() overlay gating).
+    // Split ("Move to Right") works in both desktop and web since it operates within the docked
+    // editor layout. Detach ("Move to New Window") depends on floating windows, which don't work
+    // under RAP, so it is desktop-only.
+    Menu menu = folder.getMenu();
+    new MenuItem(menu, SWT.SEPARATOR);
+    MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
+    miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+
+    folder.addListener(
+        SWT.MenuDetect,
+        event -> {
+          Point pt =
+              (event.x != 0 || event.y != 0)
+                  ? folder.toControl(event.x, event.y)
+                  : folder.toControl(folder.getDisplay().getCursorLocation());
+          CTabItem item = folder.getItem(new Point(pt.x, pt.y));
+          if (item == null) {
+            item = folder.getSelection();
+          }
+          splitMenuTargetTab = item;
+        });
+
+    final MenuItem miDetach;
     if (!EnvironmentUtils.getInstance().isWeb()) {
-      Menu menu = folder.getMenu();
-      new MenuItem(menu, SWT.SEPARATOR);
-      MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
-      miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-
-      folder.addListener(
-          SWT.MenuDetect,
-          event -> {
-            Point pt = folder.toControl(folder.getDisplay().getCursorLocation());
-            splitMenuTargetTab = folder.getItem(new Point(pt.x, pt.y));
-          });
-
-      MenuItem miDetach = new MenuItem(menu, SWT.NONE);
+      miDetach = new MenuItem(menu, SWT.NONE);
       miDetach.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToNewWindow"));
-
-      menu.addListener(
-          SWT.Show,
-          e -> {
-            miSplitMove.setText(
-                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-            // Splitting only makes sense if the folder keeps at least one tab behind.
-            miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
-            miDetach.setEnabled(splitMenuTargetTab != null);
-          });
-
-      miSplitMove.addListener(
-          SWT.Selection,
-          e -> {
-            if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
-              splitOrMoveTab(splitMenuTargetTab);
-            }
-          });
-
       miDetach.addListener(
           SWT.Selection,
           e -> {
@@ -2201,7 +2190,29 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               detachTabToWindow(splitMenuTargetTab);
             }
           });
+    } else {
+      miDetach = null;
     }
+
+    menu.addListener(
+        SWT.Show,
+        e -> {
+          miSplitMove.setText(
+              BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+          // Splitting only makes sense if the folder keeps at least one tab behind.
+          miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
+          if (miDetach != null) {
+            miDetach.setEnabled(splitMenuTargetTab != null);
+          }
+        });
+
+    miSplitMove.addListener(
+        SWT.Selection,
+        e -> {
+          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+            splitOrMoveTab(splitMenuTargetTab);
+          }
+        });
 
     return folder;
   }
@@ -5223,6 +5234,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (sel != null && sel.getControl() != null && !sel.getControl().isDisposed()) {
       sel.getControl().setFocus();
     }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      notifyZoomHandlerForActiveTab();
+      updateWebUrlForActiveTab();
+    }
     updateGui();
   }
 
@@ -5230,6 +5245,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   public void onTabMovedBetweenFolders(CTabFolder sourceFolder, CTabFolder targetFolder) {
     activeTabFolder = targetFolder;
     reclaimFolder(sourceFolder);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      notifyZoomHandlerForActiveTab();
+      updateWebUrlForActiveTab();
+    }
   }
 
   @Override
