@@ -507,6 +507,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private PipelineHopMeta clickedPipelineHop;
 
+  /**
+   * The hop was clicked through one of its badges rather than on the line: a badge is a button, so
+   * it opens the hop dialog even when the right click is reserved for context dialogs.
+   */
+  private boolean clickedHopBadge;
+
   @Getter @Setter protected Map<String, RowBuffer> outputRowsMap;
 
   /** Hop key (origin\\tdestination) → sampled rows for target hops (Filter, Switch/Case, …). */
@@ -704,6 +710,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
      */
 
     canvas.addMouseListener(this);
+    canvas.addListener(SWT.MenuDetect, this::menuDetect);
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
@@ -861,6 +868,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling PipelineGraphMouseDown extension point", ex);
     }
 
+    // A right click is inert on the canvas (user manual: canvas mouse gestures). It only abandons
+    // a hop being drawn. Nothing below may run for it, or a badge acts on it like a left click.
+    //
+    if (event.button == 3) {
+      if (startHopTransform != null) {
+        cancelHopCandidate();
+        redraw();
+      }
+      lastButton = 0;
+      return;
+    }
+
     // Layer 0: See if we're dragging around the view-port over the pipeline graph.
     //
     Point clickScreen = new Point(event.x, event.y);
@@ -900,12 +919,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_INFO_ICON:
-          // Click on the transform info icon means: Edit transformation description
+          // Click on the transform info icon means: Edit transformation description. Claim the
+          // release before the editor opens: the editor runs its own event loop, which is what
+          // dispatches the release of this very click, so a flag set afterwards is set too late and
+          // swallows the next click instead.
           //
-          this.editDescription((TransformMeta) areaOwner.getOwner());
           avoidContextDialog = true;
           currentTransform = null;
           iconDragStartScreen = null;
+          this.editDescription((TransformMeta) areaOwner.getOwner());
           done = true;
           break;
 
@@ -939,6 +961,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               areaOwner.getOwner() instanceof PipelineHopMeta
                   ? (PipelineHopMeta) areaOwner.getOwner()
                   : findPipelineHop(real.x, real.y);
+          clickedHopBadge = clickedPipelineHop != null;
           done = true;
           break;
 
@@ -1026,6 +1049,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         case TRANSFORM_COPIES_TEXT:
           copies((TransformMeta) areaOwner.getOwner());
+          done = true;
+          break;
+
+        case TRANSFORM_PARTITIONING:
+          // Click on the partitioning badge means: edit the partitioning. Claimed like the info
+          // icon: the editor's own event loop is what dispatches the release of this click.
+          //
+          avoidContextDialog = true;
+          currentTransform = null;
+          iconDragStartScreen = null;
+          pipelineTransformDelegate.editTransformPartitioning(
+              pipelineMeta, (TransformMeta) areaOwner.getParent());
           done = true;
           break;
 
@@ -1241,6 +1276,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling PipelineGraphMouseUp extension point", ex);
     }
 
+    // The right click did nothing on the way down (see mouseDown), so there is nothing to finish.
+    //
+    if (e.button == 3) {
+      lastButton = 0;
+      return;
+    }
+
     // Did we select a region on the screen? Mark transforms in region as
     // selected
     //
@@ -1287,11 +1329,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_OUTPUT_DATA:
           if (showTransformOutputData(areaOwner)) {
+            lastButton = 0;
             return;
           }
           break;
         case HOP_OUTPUT_DATA:
           if (showHopOutputData(areaOwner)) {
+            lastButton = 0;
             return;
           }
           break;
@@ -1311,6 +1355,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // Single click on transform name: edit (do not treat as drag end when release is here)
             //
             TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
+            lastButton = 0;
             editTransform(transformMeta);
             return;
           }
@@ -1319,6 +1364,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
         case TRANSFORM_INFO_ICON:
           // Description edit was handled in mouseDown; do not open the transform context menu
+          avoidContextDialog = false;
+          lastButton = 0;
           return;
         default:
           break;
@@ -1473,36 +1520,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Only do this "mouseUp()" if this is not part of a double click...
     //
-    final boolean fSingleClick = singleClick;
-    final SingleClickType fSingleClickType = singleClickType;
-    final TransformMeta fSingleClickTransform = singleClickTransform;
-    final NotePadMeta fSingleClickNote = singleClickNote;
-    final PipelineHopMeta fSingleClickHop = singleClickHop;
+    final CanvasTarget target =
+        singleClick
+            ? new CanvasTarget(
+                singleClickType,
+                singleClickTransform,
+                singleClickNote,
+                singleClickHop,
+                clickedHopBadge)
+            : null;
+    clickedHopBadge = false;
+    Runnable show = () -> showActionDialog(e, real, target);
 
     if (PropsUi.getInstance().useDoubleClick()) {
       Display display = hopGui.getDisplay();
       pendingShowActionDialogRunnable =
           () -> {
             pendingShowActionDialogRunnable = null;
-            showActionDialog(
-                e,
-                real,
-                fSingleClick,
-                fSingleClickType,
-                fSingleClickTransform,
-                fSingleClickNote,
-                fSingleClickHop);
+            show.run();
           };
       display.timerExec(display.getDoubleClickTime(), pendingShowActionDialogRunnable);
     } else {
-      showActionDialog(
-          e,
-          real,
-          fSingleClick,
-          fSingleClickType,
-          fSingleClickTransform,
-          fSingleClickNote,
-          fSingleClickHop);
+      show.run();
     }
     lastButton = 0;
   }
@@ -1621,23 +1660,33 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  private void showActionDialog(
-      MouseEvent e,
-      Point real,
-      boolean fSingleClick,
-      SingleClickType fSingleClickType,
-      TransformMeta fSingleClickTransform,
-      NotePadMeta fSingleClickNote,
-      PipelineHopMeta fSingleClickHop) {
+  /**
+   * What a click or a context-menu request landed on, and so which context dialog it gets: the
+   * pipeline itself, a transform, a note or a hop. A hop reached through one of its badges is
+   * flagged: a badge is a button, so it opens the hop dialog even when the right click is reserved
+   * for context dialogs.
+   */
+  private record CanvasTarget(
+      SingleClickType type,
+      TransformMeta transform,
+      NotePadMeta note,
+      PipelineHopMeta hop,
+      boolean hopBadge) {}
+
+  /** A single left click: clears the selection, or opens the context dialog of {@code target}. */
+  private void showActionDialog(MouseEvent e, Point real, CanvasTarget target) {
 
     // In any case clear the selection region...
     //
     selectionRegion = null;
+    if (target == null) {
+      return;
+    }
 
     // See if there are transforms selected.
     // If we get a background single click then simply clear selection...
     //
-    if (fSingleClickType == SingleClickType.Pipeline
+    if (target.type == SingleClickType.Pipeline
         && (!pipelineMeta.getSelectedTransforms().isEmpty()
             || !pipelineMeta.getSelectedNotes().isEmpty())) {
       pipelineMeta.unselectAll();
@@ -1654,59 +1703,176 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return;
     }
 
-    if (!doubleClick && fSingleClick && fSingleClickType != null) {
-      // Just a single click on the background:
-      // We have a bunch of possible actions for you...
-      //
-      IGuiContextHandler contextHandler = null;
-      String message = null;
-      switch (fSingleClickType) {
-        case Pipeline:
-          // Do not show context menu in negative coordinate space (transforms cannot be created
-          // there)
-          if (real.x >= 0 && real.y >= 0) {
-            message =
-                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
-            contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
-          }
-          break;
-        case Transform:
+    // With the right click reserved for the context dialog, a left click has done its work by now:
+    // it selected, cleared the selection, or pressed a badge. A hop badge is a button whose job is
+    // the hop dialog, so it still opens it.
+    //
+    if (PropsUi.getInstance().useRightClickForContextDialog() && !target.hopBadge) {
+      return;
+    }
+
+    if (!doubleClick) {
+      openContextDialog(target, real, e.x, e.y);
+    }
+  }
+
+  /** Opens the context dialog of {@code target} at the canvas coordinate the user pointed at. */
+  private void openContextDialog(CanvasTarget target, Point real, int canvasX, int canvasY) {
+    IGuiContextHandler contextHandler = null;
+    String message = null;
+    switch (target.type) {
+      case Pipeline:
+        // Do not show context menu in negative coordinate space (transforms cannot be created
+        // there)
+        if (real.x >= 0 && real.y >= 0) {
+          // With the palette tree shown the dialog lists no transforms (issue #8443)
           message =
               BaseMessages.getString(
                   PKG,
-                  "PipelineGraph.ContextualActionDialog.Transform.Header",
-                  fSingleClickTransform.getName());
-          contextHandler =
-              new HopGuiPipelineTransformContext(pipelineMeta, fSingleClickTransform, this, real);
-          break;
-        case Note:
-          message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
-          contextHandler =
-              new HopGuiPipelineNoteContext(pipelineMeta, fSingleClickNote, this, real);
-          break;
-        case Hop:
-          message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
-          contextHandler = new HopGuiPipelineHopContext(pipelineMeta, fSingleClickHop, this, real);
-          break;
-        default:
-          break;
-      }
-      if (contextHandler != null) {
-        Shell parent = hopShell();
-        org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, e.x, e.y);
-
-        this.openedContextDialog = true;
-        this.hideToolTips();
-
-        // Show the context dialog
-        //
-        avoidContextDialog =
-            GuiContextUtil.getInstance()
-                .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
-
-        this.openedContextDialog = false;
-      }
+                  GraphPalette.isVisible()
+                      ? "PipelineGraph.ContextualActionDialog.PipelineActions.Header"
+                      : "PipelineGraph.ContextualActionDialog.Pipeline.Header");
+          contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
+        }
+        break;
+      case Transform:
+        message =
+            BaseMessages.getString(
+                PKG,
+                "PipelineGraph.ContextualActionDialog.Transform.Header",
+                target.transform.getName());
+        contextHandler =
+            new HopGuiPipelineTransformContext(pipelineMeta, target.transform, this, real);
+        break;
+      case Note:
+        message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
+        contextHandler = new HopGuiPipelineNoteContext(pipelineMeta, target.note, this, real);
+        break;
+      case Hop:
+        message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
+        contextHandler = new HopGuiPipelineHopContext(pipelineMeta, target.hop, this, real);
+        break;
+      default:
+        break;
     }
+    if (contextHandler == null) {
+      return;
+    }
+    Shell parent = hopShell();
+    org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, canvasX, canvasY);
+
+    this.openedContextDialog = true;
+    this.hideToolTips();
+
+    // Show the context dialog
+    //
+    avoidContextDialog =
+        GuiContextUtil.getInstance()
+            .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+
+    this.openedContextDialog = false;
+  }
+
+  /**
+   * "Use right click for the context dialog": whatever the platform treats as asking for a context
+   * menu - a right click, Ctrl-click on macOS, the menu key - opens the context dialog of what is
+   * under the pointer, the way a left click does otherwise. The right button's own mouse events
+   * stay inert either way (see mouseDown), so this is the only place a right click acts.
+   */
+  private void menuDetect(Event event) {
+    // No SWT menu hangs off the canvas, and in Hop Web the browser's own menu is unwanted.
+    event.doit = false;
+    if (!PropsUi.getInstance().useRightClickForContextDialog()) {
+      return;
+    }
+    org.eclipse.swt.graphics.Point canvasPoint = canvas.toControl(event.x, event.y);
+    Point real = screen2real(canvasPoint.x, canvasPoint.y);
+    hideToolTips();
+
+    CanvasTarget target = targetUnder(getVisibleAreaOwner(real.x, real.y), real);
+    selectAsClicked(target);
+    openContextDialog(target, real, canvasPoint.x, canvasPoint.y);
+  }
+
+  /**
+   * What is under the pointer. A badge counts as what it belongs to: a hop badge as the hop, a
+   * transform badge as the transform.
+   */
+  private CanvasTarget targetUnder(AreaOwner areaOwner, Point real) {
+    PipelineHopMeta hop = hopUnder(areaOwner, real);
+    if (hop != null) {
+      return new CanvasTarget(SingleClickType.Hop, null, null, hop, false);
+    }
+    NotePadMeta note = noteUnder(areaOwner, real);
+    if (note != null) {
+      return new CanvasTarget(SingleClickType.Note, null, note, null, false);
+    }
+    TransformMeta transformMeta = transformUnder(areaOwner);
+    if (transformMeta != null) {
+      return new CanvasTarget(SingleClickType.Transform, transformMeta, null, null, false);
+    }
+    return new CanvasTarget(SingleClickType.Pipeline, null, null, null, false);
+  }
+
+  /** Selects the transform or note of {@code target} the way a left click on it would. */
+  private void selectAsClicked(CanvasTarget target) {
+    boolean changed = false;
+    if (target.transform != null && !target.transform.isSelected()) {
+      pipelineMeta.unselectAll();
+      target.transform.setSelected(true);
+      changed = true;
+    } else if (target.note != null && !target.note.isSelected()) {
+      pipelineMeta.unselectAll();
+      target.note.setSelected(true);
+      changed = true;
+    }
+    if (changed) {
+      pipelineGridDelegate.onPipelineSelectionChanged();
+      updateGui();
+    }
+  }
+
+  /** The hop under the pointer: the hop line itself or one of the badges drawn on it. */
+  private PipelineHopMeta hopUnder(AreaOwner areaOwner, Point real) {
+    if (areaOwner == null) {
+      return findPipelineHop(real.x, real.y);
+    }
+    if (areaOwner.getOwner() instanceof PipelineHopMeta owner) {
+      return owner;
+    }
+    if (areaOwner.getParent() instanceof PipelineHopMeta parent) {
+      return parent;
+    }
+    return switch (areaOwner.getAreaType()) {
+        // Stream badges know their transforms, not their hop: the hop is the line they sit on.
+      case HOP_INFO_ICON, HOP_ERROR_ICON, TRANSFORM_TARGET_HOP_ICON ->
+          findPipelineHop(real.x, real.y);
+      default -> null;
+    };
+  }
+
+  private NotePadMeta noteUnder(AreaOwner areaOwner, Point real) {
+    if (areaOwner == null) {
+      return null;
+    }
+    return switch (areaOwner.getAreaType()) {
+      case NOTE -> (NotePadMeta) areaOwner.getOwner();
+      case NOTE_LINK -> pipelineMeta.getNote(real.x, real.y);
+      default -> null;
+    };
+  }
+
+  private static TransformMeta transformUnder(AreaOwner areaOwner) {
+    if (areaOwner == null) {
+      return null;
+    }
+    if (areaOwner.getOwner() instanceof TransformMeta owner) {
+      return owner;
+    }
+    if (areaOwner.getParent() instanceof TransformMeta parent) {
+      return parent;
+    }
+    return null;
   }
 
   /**

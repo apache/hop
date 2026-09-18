@@ -84,7 +84,15 @@ TIP: Hops will be shown in bold when a transform or action can be dropped on it
 |double-click instead of single click on e.g. transform and action dialogs.
 
 enabled: double-click on a transform or action icon to open its properties. A single click on the icon opens the context dialog.
-disabled (default): (single) click on a transform or action icon to open the context dialog. (single) click on a transform or action name to open its properties
+disabled (default): (single) click on a transform or action icon to open the context dialog. (single) click on a transform or action name to open its properties.
+
+See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in both modes.
+|no
+
+|Use right click for the context dialog
+|A right click (Ctrl-click or two-finger click on macOS) opens the context dialog of whatever is under the pointer, and a left click never does: it selects, clears the selection, or presses a badge. Names and badges keep opening their editors on a left click.
+
+See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in both modes.
 |no
 
 |Draw border around names on canvas?
@@ -112,6 +120,7 @@ The `Look & Feel` configuration options allow you to configure various aspects o
 |Show Canvas Grid|show the grid (dotted) for workflows and pipelines in Hop GUI |no
 |Hide the menu bar|Do not show the menu bar. If enabled (default), the menu options are available from the Apache Hop icon in Hop GUI's upper left corner. |yes
 |Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down, navigate to a column, manage xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views] etc in table grids (e.g. in preview dialogs, transform configuration options)|yes
+|Allow dialogs to open on any screen (macOS only)|Off: transform, action and metadata dialogs follow the Hop window and stay above it. On: they open as windows of their own that you can move to another screen. The macOS section only appears on macOS.|no
 |Dark mode|use dark mode. On Hop Web and Windows you can toggle this; on macOS and other desktop platforms it follows the operating system theme. Changing it in Hop Web reloads the page to apply the theme. |N/A
 |Preferred Language
 a|the default language to use in Hop GUI.

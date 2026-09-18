@@ -45,7 +45,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
-import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -56,7 +55,6 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -148,48 +146,11 @@ public abstract class BaseDialog extends Dialog {
   @Setter private int footerTopPadding = BaseDialog.ELEMENT_SPACING * 4;
 
   /**
-   * Gets the appropriate shell style flags for dialogs, taking into account the environment and
-   * platform.
-   *
-   * <p>Returns different styles based on the runtime environment:
-   *
-   * <ul>
-   *   <li><b>Hop Web (RAP):</b> Returns {@code SWT.DIALOG_TRIM | SWT.RESIZE} without SWT.MAX and
-   *       SWT.MIN, as minimize/maximize buttons cause issues in web environments
-   *   <li><b>macOS:</b> Returns {@code SWT.APPLICATION_MODAL | SWT.CLOSE | SWT.TITLE | SWT.RESIZE}
-   *       to support multi-monitor setups. Using {@code SWT.DIALOG_TRIM} on macOS with child shells
-   *       (created with a parent) causes dialogs to disappear or become inaccessible when moved to
-   *       another display. The {@code APPLICATION_MODAL} flag combined with these styles provides
-   *       proper multi-monitor support while maintaining dialog behavior.
-   *   <li><b>Other Desktop Platforms:</b> Returns {@code SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX |
-   *       SWT.MIN} with full window controls including minimize and maximize buttons
-   * </ul>
-   *
-   * <p><b>Important macOS Multi-Monitor Note:</b> On macOS, child shells (created with {@code new
-   * Shell(parent, style)}) are bound to the parent window's display by the macOS window system.
-   * When dialogs need to work across multiple monitors, they should either:
-   *
-   * <ul>
-   *   <li>Use {@code APPLICATION_MODAL} style (as done here) to detach from parent coordinate space
-   *   <li>Or be created with {@code new Shell(display, style)} instead of {@code new Shell(parent,
-   *       style)} to create independent windows
-   * </ul>
-   *
-   * <p>Note: {@code SWT.DIALOG_TRIM} includes {@code SWT.TITLE}, {@code SWT.CLOSE}, and {@code
-   * SWT.BORDER} by default.
-   *
-   * @return The shell style flags appropriate for the current environment and platform
+   * The shell style for the big dialogs (transforms, actions, metadata editors), per environment
+   * and platform: see {@link DialogStyle}.
    */
   public static int getDefaultDialogStyle() {
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      // For Hop Web, use simpler style without min/max buttons
-      return SWT.DIALOG_TRIM | SWT.RESIZE;
-    } else if (OsHelper.isMac()) {
-      return SWT.PRIMARY_MODAL | SWT.CLOSE | SWT.TITLE | SWT.RESIZE;
-    } else {
-      // For other desktop platforms, include min/max buttons
-      return SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
-    }
+    return DialogStyle.forEnvironment();
   }
 
   protected BaseDialog(final Shell shell) {
