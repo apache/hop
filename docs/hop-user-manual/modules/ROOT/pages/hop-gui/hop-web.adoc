@@ -149,6 +149,24 @@ The official image already includes the standard plugin set; extra JDBC drivers 
 
 The full persist/replace table, Compose example, and upgrade steps are in the xref:hop-web-docker.adoc[Hop Web in Docker] page.
 
+== Response compression
+
+Hop Web talks to the browser in JSON, and the pipeline canvas and the transform selector are sent as SVG documents that run to several hundred kB for a large pipeline or a full plugin list.
+gzip shrinks these responses four to five times, which keeps the interface responsive on slower links.
+
+The `apache/hop-web` image enables compression on its Tomcat connector; its `conf/server.xml` is `docker/resources/server.xml` in the Hop source tree.
+If you deploy `hop.war` on your own Tomcat, add it to the HTTP connector in `conf/server.xml`; `image/svg+xml` is not in Tomcat's default list:
+
+[source,xml]
+----
+<Connector port="8080" protocol="HTTP/1.1"
+           compression="on"
+           compressibleMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,image/svg+xml"
+           ... />
+----
+
+Other servlet containers and reverse proxies have an equivalent setting.
+
 == Using the Hop CLI tools in Hop Web.
 
 Hop Web contains the default xref:hop-tools/index.adoc[Hop tools] like xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], xref:hop-run/index.adoc[hop-run] etc.

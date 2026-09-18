@@ -40,7 +40,29 @@ import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * Hop Web implementation: the graph is rendered to SVG on the server and fetched by the browser.
+ *
+ * <p>RAP paints synchronously on every {@code redraw()} and every resize, and the graph classes
+ * call {@code redraw()} liberally (mouse down, mouse up, updateGui, resize, ...). On top of that,
+ * RAP's text-size measurement enlarges and restores every shell by 1000px after each new dialog,
+ * which resizes every open graph tab twice. A single click on a transform in a 120-transform
+ * pipeline rendered the SVG a dozen times per request (issue #8435). So a paint does not render: it
+ * schedules one repaint that runs once the request's event queue has drained, and only that repaint
+ * renders. Canvases that are not on screen (background tabs) are not rendered at all; the tab's
+ * Show/Resize listeners repaint them when they come to the front.
+ */
 public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
+
+  private static final String DATA_KEY_RENDER_STATE =
+      CanvasSvgFacadeImpl.class.getName() + ".renderState";
+
+  /** Paint coalescing state, kept on the canvas widget (RAP widget ids are per session). */
+  private static final class RenderState {
+    private boolean repaintScheduled;
+    private boolean repainting;
+    private CanvasSvgRenderResult lastResult;
+  }
 
   @Override
   void registerCanvasInternal(Canvas canvas, Object graph) {
@@ -62,9 +84,14 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       PipelineCanvasSvgRenderer.Context context,
       float magnification,
       DPoint offset) {
+    RenderState state = renderState(canvas);
+    if (!shouldRenderNow(canvas, state)) {
+      return state.lastResult;
+    }
     try {
       CanvasSvgRenderResult result = PipelineCanvasSvgRenderer.render(context);
       publishSnapshotInternal(canvas, result, magnification, offset, context.canvasSize);
+      state.lastResult = result;
       return result;
     } catch (HopException e) {
       LogChannel.UI.logError("Failed to render pipeline SVG for web canvas", e);
@@ -78,14 +105,81 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       WorkflowCanvasSvgRenderer.Context context,
       float magnification,
       DPoint offset) {
+    RenderState state = renderState(canvas);
+    if (!shouldRenderNow(canvas, state)) {
+      return state.lastResult;
+    }
     try {
       CanvasSvgRenderResult result = WorkflowCanvasSvgRenderer.render(context);
       publishSnapshotInternal(canvas, result, magnification, offset, context.canvasSize);
+      state.lastResult = result;
       return result;
     } catch (HopException e) {
       LogChannel.UI.logError("Failed to render workflow SVG for web canvas", e);
       return null;
     }
+  }
+
+  /**
+   * Decides whether the paint that called us renders. Only the coalesced repaint scheduled below
+   * does, and only for a canvas that is on screen; any other paint just makes sure that repaint is
+   * scheduled and gets the previous result back, which is what the graph already holds.
+   */
+  private static boolean shouldRenderNow(Canvas canvas, RenderState state) {
+    if (state.repainting) {
+      return canvas.isVisible();
+    }
+    if (!state.repaintScheduled) {
+      state.repaintScheduled = true;
+      // Runs after the events and RAP-internal actions of this request, before the response is
+      // written: RAP's Display.readAndDispatch drains async runnables inside the same request.
+      canvas.getDisplay().asyncExec(new CoalescedRepaint(canvas, state));
+    }
+    return false;
+  }
+
+  /** The one repaint of a request that actually renders. */
+  private static final class CoalescedRepaint implements Runnable {
+    private final Canvas canvas;
+    private final RenderState state;
+    private boolean yielded;
+
+    private CoalescedRepaint(Canvas canvas, RenderState state) {
+      this.canvas = canvas;
+      this.state = state;
+    }
+
+    @Override
+    public void run() {
+      if (canvas.isDisposed() || canvas.getData(DATA_KEY_RENDER_STATE) != state) {
+        state.repaintScheduled = false;
+        return;
+      }
+      // The graph classes redraw from asyncExec runnables of their own (updateGui, the Show
+      // listener, tab activation). Those were queued behind us, so step back once and let them
+      // land first: they then find the repaint still scheduled and add nothing.
+      if (!yielded) {
+        yielded = true;
+        canvas.getDisplay().asyncExec(this);
+        return;
+      }
+      state.repaintScheduled = false;
+      state.repainting = true;
+      try {
+        canvas.redraw();
+      } finally {
+        state.repainting = false;
+      }
+    }
+  }
+
+  private static RenderState renderState(Canvas canvas) {
+    RenderState state = (RenderState) canvas.getData(DATA_KEY_RENDER_STATE);
+    if (state == null) {
+      state = new RenderState();
+      canvas.setData(DATA_KEY_RENDER_STATE, state);
+    }
+    return state;
   }
 
   @Override

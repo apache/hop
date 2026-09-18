@@ -44,6 +44,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ILogConsole;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.StyledTextVar;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -127,17 +128,18 @@ public class HopGuiLogBrowser {
               String initial = OsHelper.isMac() ? Const.CR : "";
               if (styledText != null && !styledText.isDisposed()) {
                 styledText.setText(initial);
+              } else if (text instanceof ILogConsole console) {
+                console.setHighlight(highlightMatches ? filterText : null, caseSensitive);
+                console.clear();
               } else {
                 text.setText(initial);
               }
 
-              for (HopLoggingEvent event : logLines) {
-                appendLogEvent(event, styledText);
-              }
+              appendLogEvents(logLines, styledText);
 
               trimToMaxSize(styledText);
 
-              if (!text.isDisposed()) {
+              if (!text.isDisposed() && !(text instanceof ILogConsole)) {
                 text.setSelection(text.getCharCount());
               }
             }
@@ -199,13 +201,11 @@ public class HopGuiLogBrowser {
                             StyledText styledText = getStyledText();
 
                             synchronized (text) {
-                              for (HopLoggingEvent event : logLines) {
-                                appendLogEvent(event, styledText);
-                              }
+                              appendLogEvents(logLines, styledText);
 
                               trimToMaxSize(styledText);
 
-                              if (!text.isDisposed()) {
+                              if (!text.isDisposed() && !(text instanceof ILogConsole)) {
                                 text.setSelection(text.getCharCount());
                               }
                             }
@@ -285,6 +285,51 @@ public class HopGuiLogBrowser {
       return ((StyledTextVar) text).getTextWidget();
     }
     return null;
+  }
+
+  /**
+   * Appends the events of one refresh. A console (Hop Web) takes them as one batch: a request then
+   * carries the new lines only instead of the whole log once per line.
+   */
+  private void appendLogEvents(List<HopLoggingEvent> events, StyledText styledText) {
+    if (text instanceof ILogConsole console) {
+      console.appendLines(consoleLines(events, console.getMaxLinesPerRefresh()));
+      return;
+    }
+    for (HopLoggingEvent event : events) {
+      appendLogEvent(event, styledText);
+    }
+  }
+
+  /**
+   * The newest {@code budget} displayable lines of a refresh, oldest first, preceded by a line
+   * saying how many earlier ones were left out. Walks the events backwards so that only the lines
+   * that will be shown are formatted.
+   */
+  List<ILogConsole.Line> consoleLines(List<HopLoggingEvent> events, int budget) {
+    ArrayList<ILogConsole.Line> newestFirst = new ArrayList<>(Math.min(events.size(), budget));
+    int index = events.size() - 1;
+    for (; index >= 0 && newestFirst.size() < budget; index--) {
+      HopLoggingEvent event = events.get(index);
+      String line = logLayout.format(event).trim();
+      if (line.isEmpty() || !shouldDisplayLine(line)) {
+        continue;
+      }
+      boolean isError =
+          event.getLevel() != null && event.getLevel().getLevel() == LogLevel.ERROR.getLevel();
+      newestFirst.add(new ILogConsole.Line(line, isError));
+    }
+    List<ILogConsole.Line> lines = new ArrayList<>(newestFirst.size() + 1);
+    int skipped = index + 1;
+    if (skipped > 0) {
+      lines.add(
+          new ILogConsole.Line(
+              BaseMessages.getString(PKG, "LogBrowser.Console.LinesSkipped", skipped), false));
+    }
+    for (int i = newestFirst.size() - 1; i >= 0; i--) {
+      lines.add(newestFirst.get(i));
+    }
+    return lines;
   }
 
   private void appendLogEvent(HopLoggingEvent event, StyledText styledText) {
@@ -398,6 +443,9 @@ public class HopGuiLogBrowser {
   }
 
   private void trimToMaxSize(StyledText styledText) {
+    if (text instanceof ILogConsole) {
+      return; // keeps its own maximum on both ends
+    }
     int maxSize = getMaxLogSize();
     String textContent = text.getText();
     int size;

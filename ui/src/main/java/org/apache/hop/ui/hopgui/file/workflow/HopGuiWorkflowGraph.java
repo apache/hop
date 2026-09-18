@@ -640,16 +640,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** Handles hover events from the Hop Web SVG canvas overlay. */
   public void handleWebCanvasHover(int graphX, int graphY, int screenX, int screenY) {
+    // Only the tooltip needs the server. The bold name under the mouse is drawn by canvas-svg.js;
+    // re-rendering the whole graph for it cost a full SVG render per name entered or left.
     setToolTip(graphX, graphY, screenX, screenY);
-    if (!EnvironmentUtils.getInstance().isWeb()) {
-      return;
-    }
-    AreaOwner areaOwner = getVisibleAreaOwner(graphX, graphY);
-    boolean interactionInProgress =
-        startHopAction != null || selectionRegion != null || dragSelection;
-    if (applyMouseOverNameHover(areaOwner, interactionInProgress)) {
-      redraw();
-    }
   }
 
   protected void hideToolTips() {
