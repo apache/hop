@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -55,6 +57,19 @@ public class HopVfsNamespace implements AutoCloseable {
 
   /** How many executions are using this namespace; it closes when the last one lets go. */
   private int useCount;
+
+  /**
+   * Counted down once the named connections are registered. The namespace is published to the
+   * registry before that happens, so the registering thread finds it when reading metadata lands
+   * back in resolution; anybody else acquiring it waits here - outside every lock - rather than
+   * resolving files before the connections are in.
+   */
+  private final CountDownLatch ready = new CountDownLatch(1);
+
+  /**
+   * How long a second user waits for a registration that is still going; see {@link #awaitReady}.
+   */
+  private static final long READY_TIMEOUT_SECONDS = 300;
 
   HopVfsNamespace(String description) throws HopException {
     this.description = description;
@@ -100,7 +115,7 @@ public class HopVfsNamespace implements AutoCloseable {
    *
    * @throws HopException if the new manager cannot be created
    */
-  void rebuild() throws HopException {
+  synchronized void rebuild() throws HopException {
     DefaultFileSystemManager previous = fileSystemManager;
     DefaultFileSystemManager fresh = HopVfs.createFileSystemManager();
     try {
@@ -129,6 +144,32 @@ public class HopVfsNamespace implements AutoCloseable {
    */
   public void freeUnusedResources() {
     fileSystemManager.freeUnusedResources();
+  }
+
+  /** The named connections are in; see {@link #awaitReady()}. */
+  void markReady() {
+    ready.countDown();
+  }
+
+  /**
+   * Wait until whoever created this namespace has registered its named connections. Returns at once
+   * for the creating thread itself and for anyone arriving afterwards; only a second acquirer that
+   * overtakes the registration ever waits, and never for longer than the registration takes.
+   * Bounded all the same: a registration that never finishes must not take its waiters with it.
+   */
+  void awaitReady() {
+    try {
+      if (!ready.await(READY_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        LogChannel.GENERAL.logError(
+            "The named VFS connections of "
+                + description
+                + " were still being registered after "
+                + READY_TIMEOUT_SECONDS
+                + "s; resolving files without waiting for them");
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   int retain() {
