@@ -178,8 +178,8 @@
                         <configuration>
                             <includeScope>runtime</includeScope>
                             <outputDirectory>${project.build.directory}/hop-plugin-lib</outputDirectory>
-                            <excludeGroupIds>org.apache.hop,org.slf4j,org.eclipse.platform,com.fasterxml.jackson.core,com.fasterxml.jackson.dataformat,com.fasterxml.jackson.datatype</excludeGroupIds>
-                            <excludeArtifactIds>lombok,jakarta.servlet-api,redshift-jdbc42,clickhouse-jdbc,h2,mssql-jdbc,mysql-connector-j,vertica-jdbc,crate-jdbc,ucanaccess,monetdb-jdbc,jt400,snowflake-jdbc,derbyclient,duckdb_jdbc,hsqldb,postgresql,sqlite-jdbc,${hop.pluginlib.exclude1},${hop.pluginlib.exclude2},${hop.pluginlib.exclude3},${hop.pluginlib.exclude4},${hop.pluginlib.exclude5}</excludeArtifactIds>
+                            <excludeGroupIds>org.apache.hop,org.slf4j,org.eclipse.platform,com.fasterxml.jackson.core</excludeGroupIds>
+                            <excludeArtifactIds>lombok,jakarta.servlet-api,jackson-dataformat-avro,jackson-dataformat-xml,jackson-datatype-jsr310,redshift-jdbc42,clickhouse-jdbc,h2,mssql-jdbc,mysql-connector-j,vertica-jdbc,crate-jdbc,ucanaccess,monetdb-jdbc,jt400,snowflake-jdbc,derbyclient,duckdb_jdbc,hsqldb,postgresql,sqlite-jdbc,${hop.pluginlib.exclude1},${hop.pluginlib.exclude2},${hop.pluginlib.exclude3},${hop.pluginlib.exclude4},${hop.pluginlib.exclude5}</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
