@@ -96,7 +96,7 @@ services:
   # the client project's metadata-client-only folder, so it only ever reaches the server inside the
   # export ZIP - which is what the test is about.
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     hostname: minio
     environment:
       MINIO_REGION: "local"
