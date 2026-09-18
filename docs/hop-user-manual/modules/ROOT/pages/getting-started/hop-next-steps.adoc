@@ -14,26 +14,60 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-[[NetSteps]]
+[[NextSteps]]
 :imagesdir: ../../assets/images
 :page-pagination:
 :page-pagination-no-next:
-:description: Getting Started (8/8): You now know the basic Hop terminology and tools, and you've created and have run your first pipeline and workflow. Here's an overview of topics you could explore to continue building your Hop knowledge.
+:description: Getting Started (9/9): You've built and run a pipeline, a workflow and a project. Here's where to go next, depending on what you want to do.
 
-= Next Steps
+= Next steps
 
-You now know what Hop is and how to create your first workflows and pipelines.
+You've built a pipeline, orchestrated it from a workflow, handled a failure path, and put both in a project.
+That is the core loop of working with Hop. Everything else is more of it.
 
-There's a lot more to discover in Hop.
-Here are a couple of topics you may want to look into:
+Where you go next depends on what you're trying to do.
 
-* xref:pipeline/pipelines.adoc[Pipelines] takes closer look at the various aspects of creating and running pipelines, and contains the entire list of transforms that are at your disposal
-* xref:workflow/workflows.adoc[Workflows] takes a closer look at the various aspects of create and running workflows, and contains the entire list of actions that are at your disposal
-* xref:fields-parameters-variables.adoc[Fields, parameters, and variables] compares the three ways Hop moves data and configuration
-* xref:how-to-guides/change-data-capture.adoc[Change Data Capture] covers the three ways Hop detects inserts, updates and deletes: log sniffing, filtered selection, and snapshot comparison.
-* xref:best-practices/index.adoc[Best Practices] covers a number of things you might want to think about while using Apache Hop.
-* xref:projects/index.adoc[Projects] explains how to work with projects and environments
-* xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] shows how to start a run from cron, systemd, Jenkins, a Kubernetes CronJob or Apache Airflow
-* xref:hop-server/deploying.adoc[Deploying Hop Server] covers the three common ways to get a project onto a running server
-* xref:vfs.adoc[VFS] explains how you can access resources in the 3 main cloud platforms: AWS, Azure and GCP.
-* xref:logging/logging-basics.adoc[Logging] explains how to configure Hop for your desired log level and target platform
+== Build more pipelines
+
+* xref:pipeline/pipelines.adoc[Pipelines] - the full picture, including the complete xref:pipeline/transforms.adoc[list of transforms]
+* xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline] - preview a subset, pause on a condition, step through rows
+* xref:pipeline/errorhandling.adoc[Error Handling] - send failing rows down a separate hop instead of stopping
+* xref:fields-parameters-variables.adoc[Fields, parameters and variables] - three things that look alike in the UI and behave differently
+* xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Tests] - golden data sets and assertions for your pipelines
+
+== Orchestrate more
+
+* xref:workflow/workflows.adoc[Workflows] - the full picture, including the complete xref:workflow/actions.adoc[list of actions]
+* xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] - cron, systemd, Jenkins, Kubernetes CronJob and Apache Airflow
+
+== Connect to your data
+
+* xref:database/databases.adoc[Databases] - relational connections and the drivers Hop ships
+* xref:vfs.adoc[VFS] - read and write on AWS, Azure and GCP as if they were local files
+* xref:how-to-guides/change-data-capture.adoc[Change Data Capture] - log sniffing, filtered selection and snapshot comparison
+* xref:metadata-types/index.adoc[Metadata types] - everything you can define once and reuse
+
+== Run it somewhere else
+
+* xref:projects/index.adoc[Projects] - the full reference for projects and environments
+* xref:hop-server/deploying.adoc[Deploying Hop Server] - three ways to get a project onto a running server
+* xref:docker-container.adoc[Hop in Docker] - the `apache/hop` image
+* xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations] - run the same pipeline on Apache Spark, Apache Flink or Google Dataflow without changing it
+* xref:logging/logging-basics.adoc[Logging] - log levels and where to send the output
+
+== Work like a team
+
+* xref:hop-gui/hop-gui-git.adoc[Working with git] - commit, diff and browse history from inside Hop Gui
+* xref:best-practices/index.adoc[Best Practices] - what experienced Hop developers wish they had known
+* xref:linting/index.adoc[Linting] - static checks on pipelines, workflows and metadata, locally or in CI
+
+== Coming from Kettle or PDI?
+
+* xref:hop-vs-kettle/hop-vs-kettle.adoc[Hop vs Kettle] - what changed and why
+* xref:hop-vs-kettle/if-you-know-kettle.adoc[If you know Kettle] - the vocabulary mapping
+* xref:hop-vs-kettle/import-kettle-projects.adoc[Upgrade Kettle to Hop] - convert an existing repository
+
+== Get help
+
+Hop is an Apache project, and the community is where questions get answered.
+See https://hop.apache.org/community/[the community pages] for the mailing lists, chat and issue tracker.

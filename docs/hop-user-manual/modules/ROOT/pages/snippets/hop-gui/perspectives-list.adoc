@@ -1,0 +1,35 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+* image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
+
+* image:icons/execution.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
+
+* image:icons/gear.svg[width="24px"] xref:hop-gui/perspective-configuration.adoc[Configuration]
+
+* image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
+
+* image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File explorer]
+
+* image:icons/database.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database] (also as a floating window or bottom-dock tab)
+
+* image:icons/ai-provider.svg[width="24px"] xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] (also as a floating window or bottom-dock tab; off by default)
+
+* image:icons/plugin.svg[width="24px"] xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
+
+* image:icons/neo4j_logo.svg[width="24px"] xref:hop-gui/perspective-neo4j.adoc[Neo4j]
+
+TIP: Project-wide search is not a left-toolbar perspective. Open it with `CTRL-F` (*Edit → Find*). See xref:hop-gui/perspective-search.adoc[Search].

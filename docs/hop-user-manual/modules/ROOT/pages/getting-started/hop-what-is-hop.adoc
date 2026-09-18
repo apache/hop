@@ -17,43 +17,94 @@ under the License.
 [[WhatIsHop]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: Getting Started (1/8): before we're diving into Hop, we'll have a quick look at the visual design, metadata, kernel + plugin architecture and runtimes
+:description: Getting Started (1/9): Apache Hop is a metadata-driven data integration and orchestration platform. Pipelines and workflows are designed visually and then managed like any other software project.
 
 = What is Apache Hop?
 
-== Visual Design and Metadata
+Apache Hop is a **metadata-driven data integration and data orchestration platform**.
 
-Apache Hop, short for **H**op **O**rchestration **P**latform, is a data orchestration and data engineering platform that aims to facilitate all aspects of data and metadata orchestration.
-Hop lets you focus on the problem you're trying to solve without technology getting in the way.
-Simple tasks should be easy, complex tasks need to be possible.
+== Metadata driven
 
-Hop allows data professionals to work **visually**, using **metadata** to describe how data should be processed.
-Visual design enables data developers to focus on *what* they want to do instead of *how* that task needs to be done.
-This focus on the task at hand lets Hop developers be more productive than they would be when writing code.
+Everything in Hop is metadata.
 
-== Architecture
+The pipelines that read, combine and transform your data are metadata.
+So are the workflows that orchestrate them, the connections to the databases, files and services you work with, and the run configurations that decide where and how any of it executes.
 
-Hop was designed to be as flexible as possible: at the core is the small but powerful Hop engine.
-All functionality is added through plugins: the default Hop installation comes with about 400 plugins.
-You can remove or add third-party plugins according to your needs to tailor Hop to be exactly what you need.
-Hop is designed to work in any scenario, from IoT to huge volumes of data, on-prem, in the cloud, on a bare OS or in containers and kubernetes.
+Nothing in a Hop pipeline is bound to a specific database, file format or processing engine.
+A pipeline describes *what* should happen to your data; the metadata around it decides *where* that happens and *against what*.
+That separation is what lets the same pipeline run against a developer's local database and a production warehouse, or on your laptop and on a Spark cluster, without being rewritten.
 
-== Flexible Runtimes
+Hop takes this a step further with xref:pipeline/metadata-injection.adoc[metadata injection]: a template pipeline that receives its metadata at runtime, so one pipeline can process a hundred different files or tables instead of you building a hundred near-identical pipelines.
 
-Hop developers create **workflows** and **pipelines** in a visual development environment called Hop Gui.
-These workflows and pipelines can be executed on a variety of engines: workflows and pipelines can run on the native Hop engine, both locally and remotely.
-Pipelines can also run on Apache Spark, Apache Flink and Google Dataflow through the Apache Beam runtime configurations. +
+== Built to fit your architecture
 
-In workflows and pipelines, hundreds of operations can be applied on the data: read from and write to a variety of source and target platforms, but also combine, enrich, clean and in many other ways manipulate data.
-Depending on the engine and selected functionality, your data can be processed in batch, streaming or in a batch/streaming hybrid.
+Hop is designed to blend into the data architecture you already run: relational databases, files, object stores on AWS, Azure and Google Cloud, NoSQL and graph databases, message queues, REST and SOAP services, SaaS platforms.
+Hop connects them and moves data between them.
 
-== Use Cases
+That is also why Hop is deliberately lightweight.
+At the core is a small, fast engine; everything else is a plugin, and you add or remove plugins to make your installation exactly what you need and nothing more.
+The plugin architecture is open, so you can write your own and load them the same way.
 
-A number of common use cases for Hop are:
+The result runs anywhere from an edge device in an IoT scenario to a cluster processing very large volumes, on bare metal, in a container, or on Kubernetes.
 
-* Loading large data sets into databases taking advantage of the cloud, clustered, and massively parallel processing environments.
-* Data warehouse population with built-in support for Slowly Changing Dimensions (SCD), xref:how-to-guides/change-data-capture.adoc[Change Data Capture (CDC)], and surrogate key creation.
-* Integrate between diverse data architectures, combining relational databases, files, NoSQL databases like Neo4j, MongoDB, Cassandra etc
-* Data migration between different databases and applications.
-* Data profiling and data cleansing.
+== Designed visually, managed like software
 
+Hop developers build pipelines and workflows **visually**, in a full development environment called xref:hop-gui/index.adoc[Hop Gui], available on Windows, macOS and Linux and in the browser as xref:hop-gui/hop-web.adoc[Hop Web].
+
+Visual design means you describe the problem instead of the plumbing, and it means the next person to open your pipeline can see what it does at a glance instead of reading through hundreds of lines of code.
+
+What Hop does *not* do is trap that work in a proprietary tool.
+A pipeline is a plain file on disk, and a project is an ordinary folder of them.
+From that point on, a Hop project is managed like any other software project:
+
+Version control::
+Projects and environments live in Git. Branch, review, diff and roll back like any other repository. Hop Gui has xref:hop-gui/hop-gui-git.adoc[git integration] built in, so you can do most of it without leaving the tool.
+
+Unit tests::
+xref:pipeline/pipeline-unit-testing.adoc[Pipeline unit tests] validate a pipeline's output against a golden data set. Logging tells you a pipeline ran; a unit test tells you it produced the right data. Regression tests keep a fixed bug fixed.
+
+Static analysis::
+xref:linting/index.adoc[Linting] checks pipelines, workflows and metadata without running them or connecting to anything, so it is safe to run on every commit.
+
+CI/CD::
+Everything Hop needs to run is on the command line, so building, testing and deploying a Hop project is an ordinary build pipeline. Promote the same project from development through test to production by pointing it at a different environment.
+
+== Flexible runtimes
+
+You design a pipeline once and choose at runtime where it executes.
+A xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[run configuration] is metadata like everything else, so switching engines does not mean redesigning anything.
+
+Workflows run on Hop's own engine, xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[locally] or on a remote xref:hop-server/index.adoc[Hop Server].
+
+Pipelines have more options:
+
+[options="header",cols="30%,70%"]
+|===
+|Engine|What it's for
+
+|xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native local]
+|The default. Runs on the machine you're on, and handles a very large share of real workloads on its own.
+
+|xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Native remote]
+|The same engine on a xref:hop-server/index.adoc[Hop Server], with xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[load balancing] across several servers when you need it.
+
+|xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark]
+|Executes the pipeline directly as a Spark job, without translating it through another framework. Runs locally, on a cluster through `spark-submit`, and on xref:pipeline/spark/databricks.adoc[Databricks]. This is also the path to xref:pipeline/spark/lakehouse.adoc[Delta Lake and Apache Iceberg] tables.
+
+|xref:pipeline/beam/getting-started-with-beam.adoc[Apache Beam]
+|Mainly used to run pipelines on xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Google Cloud Dataflow]. Beam run configurations for xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Spark] and xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Flink] are also available.
+|===
+
+Depending on the engine and the transforms you use, data is processed in batch, streaming, or a mix of the two.
+
+== Use cases
+
+Hop is used for, among many other things:
+
+* Populating and maintaining data warehouses, with built-in support for Slowly Changing Dimensions (SCD), xref:how-to-guides/change-data-capture.adoc[Change Data Capture (CDC)] and surrogate keys.
+* Loading large data sets into databases, data warehouses and cloud object storage.
+* Building and maintaining xref:pipeline/spark/lakehouse.adoc[lakehouse tables] on Delta Lake and Apache Iceberg.
+* Integrating across diverse architectures: relational databases, files, object stores, NoSQL and graph databases such as MongoDB, Cassandra and Neo4j, REST and SOAP services, and SaaS platforms.
+* Processing streaming data, for example from Apache Kafka, on its own or alongside batch.
+* Migrating data between databases and applications.
+* Data profiling, validation and cleansing.
