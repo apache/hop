@@ -94,9 +94,14 @@ Display {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
 }
 
+/*
+ * The wait hint RAP shows while a request runs longer than the timeout set in HopWebEntryPoint.
+ * A near-transparent overlay (it still blocks input, which is what it is for) with RAP's small
+ * spinner in the middle, instead of greying out the page, which read as a freeze (issue #8435).
+ */
 SystemMessage-DisplayOverlay {
-    background-color: rgba(128, 128, 128, 0.3);
-    background-image: none;
+    background-color: rgba(128, 128, 128, 0.06);
+    background-image: url(resource/widget/rap/display/loading.gif);
 }
 
 ErrorBox-Titlebar {

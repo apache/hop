@@ -100,6 +100,9 @@ public class WebLogConsole extends TextComposite implements ILogConsole {
     remoteObject.set("parent", WidgetUtil.getId(host));
     remoteObject.set("maxLines", maxLines);
     remoteObject.set("maxSelection", MAX_REPORTED_SELECTION);
+    // getText() joins lines with the platform separator, like the desktop widget; the browser
+    // needs its length to map the offsets that setSelection() sends.
+    remoteObject.set("separatorLength", Const.CR.length());
     remoteObject.setHandler(
         new AbstractOperationHandler() {
           @Override
@@ -148,12 +151,12 @@ public class WebLogConsole extends TextComposite implements ILogConsole {
     for (Line line : newLines) {
       String text = Const.NVL(line.text(), "");
       lines.addLast(text);
-      charCount += text.length() + 1;
+      charCount += text.length() + Const.CR.length();
       texts.add(text);
       errors.add(line.error());
     }
     while (lines.size() > maxLines) {
-      charCount -= lines.removeFirst().length() + 1;
+      charCount -= lines.removeFirst().length() + Const.CR.length();
     }
     JsonObject parameters = new JsonObject();
     parameters.add("lines", texts);
@@ -182,6 +185,10 @@ public class WebLogConsole extends TextComposite implements ILogConsole {
 
   // TextComposite
 
+  /**
+   * The lines joined with the platform separator, as the desktop widget holds them: the log
+   * delegates split on {@code Const.CR} ("show error lines"), which is CRLF on a Windows server.
+   */
   @Override
   public String getText() {
     if (lines.isEmpty()) {
@@ -189,7 +196,7 @@ public class WebLogConsole extends TextComposite implements ILogConsole {
     }
     StringBuilder builder = new StringBuilder(charCount);
     for (String line : lines) {
-      builder.append(line).append('\n');
+      builder.append(line).append(Const.CR);
     }
     return builder.toString();
   }

@@ -51,6 +51,8 @@
         this._parentId = properties.parent;
         this._maxLines = properties.maxLines > 0 ? properties.maxLines : 20000;
         this._maxSelection = properties.maxSelection > 0 ? properties.maxSelection : 65536;
+        // Length of the line separator the server counts between lines (1 or 2).
+        this._separatorLength = properties.separatorLength > 0 ? properties.separatorLength : 1;
         this._highlight = properties.highlight || "";
         this._highlightCaseSensitive = properties.highlightCaseSensitive === true;
         this._font = properties.font || "";
@@ -160,6 +162,10 @@
 
         setMaxSelection: function (value) {
             this._maxSelection = value > 0 ? value : 65536;
+        },
+
+        setSeparatorLength: function (value) {
+            this._separatorLength = value > 0 ? value : 1;
         },
 
         setHighlight: function (value) {
@@ -289,7 +295,7 @@
             }
         },
 
-        /** The text node and offset for a character offset into the joined text (lines + "\n"). */
+        /** The text node and offset for a character offset into the server's joined text. */
         _pointAt: function (offset) {
             var line = this._container.firstChild;
             var remaining = offset;
@@ -298,7 +304,7 @@
                 if (remaining <= length) {
                     return this._pointInLine(line, remaining);
                 }
-                remaining -= length + 1;
+                remaining -= length + this._separatorLength;
                 line = line.nextSibling;
             }
             var last = this._container.lastChild;
@@ -364,7 +370,7 @@
             return new hop.LogConsole(properties);
         },
         destructor: "destroy",
-        properties: [ "maxLines", "maxSelection", "highlight", "highlightCaseSensitive", "font", "color" ],
+        properties: [ "maxLines", "maxSelection", "separatorLength", "highlight", "highlightCaseSensitive", "font", "color" ],
         events: [ "selectionChanged" ],
         methods: [ "append", "clear", "select" ]
     });
