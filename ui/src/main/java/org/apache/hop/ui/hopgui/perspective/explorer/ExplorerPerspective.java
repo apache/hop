@@ -2165,6 +2165,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
     miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
 
+    MenuItem miSplitDown = new MenuItem(menu, SWT.NONE);
+    miSplitDown.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveDown"));
+
+    new MenuItem(menu, SWT.SEPARATOR);
+
+    MenuItem miJoinLeft = new MenuItem(menu, SWT.NONE);
+    miJoinLeft.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinLeft"));
+
+    MenuItem miJoinAbove = new MenuItem(menu, SWT.NONE);
+    miJoinAbove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinAbove"));
+
     folder.addListener(
         SWT.MenuDetect,
         event -> {
@@ -2181,6 +2192,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     final MenuItem miDetach;
     if (!EnvironmentUtils.getInstance().isWeb()) {
+      new MenuItem(menu, SWT.SEPARATOR);
       miDetach = new MenuItem(menu, SWT.NONE);
       miDetach.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToNewWindow"));
       miDetach.addListener(
@@ -2199,8 +2211,24 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         e -> {
           miSplitMove.setText(
               BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-          // Splitting only makes sense if the folder keeps at least one tab behind.
-          miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
+          miSplitDown.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveDown"));
+          miJoinLeft.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinLeft"));
+          miJoinAbove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinAbove"));
+
+          // Splitting creates a new pane, requiring at least one tab to stay behind.
+          boolean canSplit = splitMenuTargetTab != null && folder.getItemCount() > 1;
+          miSplitMove.setEnabled(canSplit);
+          miSplitDown.setEnabled(canSplit);
+
+          // Joining moves the tab into an existing adjacent pane.
+          CTabFolder leftFolder = findFolderToLeft(folder);
+          miJoinLeft.setEnabled(
+              splitMenuTargetTab != null && leftFolder != null && !leftFolder.isDisposed());
+
+          CTabFolder aboveFolder = findFolderAbove(folder);
+          miJoinAbove.setEnabled(
+              splitMenuTargetTab != null && aboveFolder != null && !aboveFolder.isDisposed());
+
           if (miDetach != null) {
             miDetach.setEnabled(splitMenuTargetTab != null);
           }
@@ -2210,7 +2238,37 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         SWT.Selection,
         e -> {
           if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
-            splitOrMoveTab(splitMenuTargetTab);
+            splitAndMoveTab(splitMenuTargetTab, SWT.HORIZONTAL, true);
+          }
+        });
+
+    miSplitDown.addListener(
+        SWT.Selection,
+        e -> {
+          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+            splitAndMoveTab(splitMenuTargetTab, SWT.VERTICAL, true);
+          }
+        });
+
+    miJoinLeft.addListener(
+        SWT.Selection,
+        e -> {
+          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+            CTabFolder leftFolder = findFolderToLeft(folder);
+            if (leftFolder != null && !leftFolder.isDisposed()) {
+              joinTabToFolder(splitMenuTargetTab, leftFolder);
+            }
+          }
+        });
+
+    miJoinAbove.addListener(
+        SWT.Selection,
+        e -> {
+          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+            CTabFolder aboveFolder = findFolderAbove(folder);
+            if (aboveFolder != null && !aboveFolder.isDisposed()) {
+              joinTabToFolder(splitMenuTargetTab, aboveFolder);
+            }
           }
         });
 
@@ -3189,6 +3247,94 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } else {
       collapseFolder(folder);
     }
+  }
+
+  /**
+   * Find the adjacent leaf tab folder immediately to the left of {@code folder} in the docked
+   * layout tree, or {@code null} if none exists.
+   */
+  private CTabFolder findFolderToLeft(CTabFolder folder) {
+    if (folder == null || folder.isDisposed() || !isDockedTabFolder(folder)) {
+      return null;
+    }
+    Control current = folder;
+    while (current != null && current.getParent() instanceof SashForm parentSash) {
+      if (parentSash.getOrientation() == SWT.HORIZONTAL) {
+        List<Control> children = nodeChildren(parentSash);
+        int idx = children.indexOf(current);
+        if (idx > 0) {
+          CTabFolder target = findRightmostLeaf(children.get(idx - 1));
+          if (target != null && !target.isDisposed()) {
+            return target;
+          }
+        }
+      }
+      current = parentSash;
+    }
+    return null;
+  }
+
+  /**
+   * Find the adjacent leaf tab folder immediately above {@code folder} in the docked layout tree,
+   * or {@code null} if none exists.
+   */
+  private CTabFolder findFolderAbove(CTabFolder folder) {
+    if (folder == null || folder.isDisposed() || !isDockedTabFolder(folder)) {
+      return null;
+    }
+    Control current = folder;
+    while (current != null && current.getParent() instanceof SashForm parentSash) {
+      if (parentSash.getOrientation() == SWT.VERTICAL) {
+        List<Control> children = nodeChildren(parentSash);
+        int idx = children.indexOf(current);
+        if (idx > 0) {
+          CTabFolder target = findBottommostLeaf(children.get(idx - 1));
+          if (target != null && !target.isDisposed()) {
+            return target;
+          }
+        }
+      }
+      current = parentSash;
+    }
+    return null;
+  }
+
+  private CTabFolder findRightmostLeaf(Control node) {
+    if (node == null || node.isDisposed()) {
+      return null;
+    }
+    if (node instanceof CTabFolder folder) {
+      return folder;
+    }
+    if (node instanceof SashForm sash) {
+      List<Control> children = nodeChildren(sash);
+      for (int i = children.size() - 1; i >= 0; i--) {
+        CTabFolder leaf = findRightmostLeaf(children.get(i));
+        if (leaf != null && !leaf.isDisposed()) {
+          return leaf;
+        }
+      }
+    }
+    return null;
+  }
+
+  private CTabFolder findBottommostLeaf(Control node) {
+    if (node == null || node.isDisposed()) {
+      return null;
+    }
+    if (node instanceof CTabFolder folder) {
+      return folder;
+    }
+    if (node instanceof SashForm sash) {
+      List<Control> children = nodeChildren(sash);
+      for (int i = children.size() - 1; i >= 0; i--) {
+        CTabFolder leaf = findBottommostLeaf(children.get(i));
+        if (leaf != null && !leaf.isDisposed()) {
+          return leaf;
+        }
+      }
+    }
+    return null;
   }
 
   @GuiMenuElement(
@@ -5216,20 +5362,37 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Split the tab's folder to the right and move the tab into the new pane. */
   private void splitOrMoveTab(CTabItem tab) {
-    CTabFolder sourceFolder = tab.getParent();
+    splitAndMoveTab(tab, SWT.HORIZONTAL, true);
+  }
 
-    CTabFolder targetFolder = splitFolder(sourceFolder, SWT.HORIZONTAL, true);
+  private void splitAndMoveTab(CTabItem tab, int orientation, boolean after) {
+    if (tab == null || tab.isDisposed()) {
+      return;
+    }
+    CTabFolder sourceFolder = tab.getParent();
+    CTabFolder targetFolder = splitFolder(sourceFolder, orientation, after);
+    joinTabToFolder(tab, targetFolder);
+  }
+
+  private void joinTabToFolder(CTabItem tab, CTabFolder targetFolder) {
+    if (tab == null || tab.isDisposed() || targetFolder == null || targetFolder.isDisposed()) {
+      return;
+    }
+    CTabFolder sourceFolder = tab.getParent();
 
     moveTabToFolder(tab, targetFolder);
     targetFolder.setSelection(targetFolder.getItemCount() - 1);
     activeTabFolder = targetFolder;
 
-    // If the source pane emptied out (shouldn't normally happen, the menu requires >1 tab),
-    // collapse.
-    collapseFolder(sourceFolder);
+    reclaimFolder(sourceFolder);
 
-    // Match what addPipeline/addWorkflow do after setSelection: give focus to the moved tab's
-    // control and refresh the GUI so toolbar/menu state is up to date.
+    if (sourceFolder != null && !sourceFolder.isDisposed()) {
+      sourceFolder.layout(true, true);
+    }
+    if (!targetFolder.isDisposed()) {
+      targetFolder.layout(true, true);
+    }
+
     CTabItem sel = targetFolder.getSelection();
     if (sel != null && sel.getControl() != null && !sel.getControl().isDisposed()) {
       sel.getControl().setFocus();
