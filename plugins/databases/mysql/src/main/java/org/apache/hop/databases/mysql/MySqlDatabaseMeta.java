@@ -18,8 +18,14 @@
 package org.apache.hop.databases.mysql;
 
 import com.google.common.collect.Sets;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +41,9 @@ import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.IValueBinding;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -56,7 +64,12 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-  private static final List<IDatabaseTypeRule> TYPE_RULES =
+  /**
+   * Everything except the vector rules, so that the dialects built on this one can take these
+   * without the vector type. Doris has no vector type at all, and MariaDB's is its own; neither
+   * inherits MySQL's by accident.
+   */
+  protected static final List<IDatabaseTypeRule> BASE_TYPE_RULES =
       DatabaseTypes.rules()
           // MySQL has a JSON type. It has no UUID and no address type, and both of those fall
           // back to text on their own.
@@ -65,9 +78,80 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           .include(ColumnTypeRules.MYSQL_COMPATIBLE)
           .build();
 
+  /**
+   * MySQL will not accept a vector as text. An INSERT of '[1,2,3]' into a VECTOR column fails with
+   * "Value of type 'string, size: 7' cannot be converted to 'vector' type", so a VECTOR column Hop
+   * generated would be a column Hop could not then write to. What the server does accept is the
+   * storage format itself, one little endian float32 per dimension, which is what the binding
+   * writes.
+   *
+   * <p>Both rules turn on the same condition, a known dimension, and that is what keeps them
+   * consistent: MySQL has no spelling for a vector of unknown length, so a vector without a
+   * dimension goes to a text column, and must still be written as text. The binding and the column
+   * therefore always agree about which of the two it is.
+   */
+  private static final List<IDatabaseTypeRule> VECTOR_RULES =
+      DatabaseTypes.rules()
+          .write(IValueMeta.TYPE_VECTOR)
+          .where(v -> v.getLength() > 0)
+          .as(v -> "VECTOR(" + v.getLength() + ")")
+          .bind(
+              IValueMeta.TYPE_VECTOR,
+              (database, valueMeta) -> valueMeta.getLength() > 0,
+              new MySqlVectorBinding())
+          .build();
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules().include(BASE_TYPE_RULES).include(VECTOR_RULES).build();
+
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
     return TYPE_RULES;
+  }
+
+  /** MySQL 9.0 is the first release with a VECTOR type. */
+  private static final int FIRST_VERSION_WITH_VECTOR = 9;
+
+  @Override
+  public boolean isColumnTypeAvailable(String columnType) {
+    if ("VECTOR".equals(columnType)) {
+      return serverIsAtLeast(FIRST_VERSION_WITH_VECTOR);
+    }
+    return true;
+  }
+
+  /** Writes a vector in MySQL's own storage format: little endian float32, one per dimension. */
+  private static final class MySqlVectorBinding implements IValueBinding {
+    /** The width of a float32, in bytes. */
+    private static final int FLOAT_BYTES = 4;
+
+    @Override
+    public Object read(IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index) {
+      throw new UnsupportedOperationException("This binding only writes values");
+    }
+
+    @Override
+    public void write(
+        IDatabase database,
+        IValueMeta valueMeta,
+        PreparedStatement preparedStatement,
+        int index,
+        Object value)
+        throws SQLException, HopValueException {
+      // Through the value type rather than by casting: the row may still hold the vector as text
+      // or as lazily converted bytes, and only the value type knows how to read its own storage.
+      float[] vector = (float[]) valueMeta.convertData(valueMeta, value);
+      if (vector == null) {
+        preparedStatement.setNull(index, Types.VARBINARY);
+        return;
+      }
+      ByteBuffer buffer =
+          ByteBuffer.allocate(vector.length * FLOAT_BYTES).order(ByteOrder.LITTLE_ENDIAN);
+      for (float element : vector) {
+        buffer.putFloat(element);
+      }
+      preparedStatement.setBytes(index, buffer.array());
+    }
   }
 
   private static final Class<?> PKG = MySqlDatabaseMeta.class;

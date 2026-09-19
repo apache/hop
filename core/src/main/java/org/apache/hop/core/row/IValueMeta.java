@@ -198,6 +198,12 @@ public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value contains an UUID */
   int TYPE_UUID = 32;
 
+  /**
+   * Value type indicating that the value contains a dense floating point vector, as produced by an
+   * embedding model. The field's length carries the number of dimensions.
+   */
+  int TYPE_VECTOR = 1536;
+
   /** The Constant typeCodes. */
   String[] typeCodes =
       new String[] {

@@ -93,6 +93,15 @@ JSON         len=      15 prec=   0 -        -> TEXT
 JSON         len=      18 prec=   0 -        -> TEXT
 JSON         len=      20 prec=   0 -        -> TEXT
 JSON         len= 9999999 prec=   0 -        -> MEMO
+VECTOR       len=      -1 prec=  -1 -        -> MEMO
+VECTOR       len=       0 prec=   0 -        -> MEMO
+VECTOR       len=       4 prec=   0 -        -> MEMO
+VECTOR       len=       9 prec=   0 -        -> MEMO
+VECTOR       len=      10 prec=   2 -        -> MEMO
+VECTOR       len=      15 prec=   0 -        -> MEMO
+VECTOR       len=      18 prec=   0 -        -> MEMO
+VECTOR       len=      20 prec=   0 -        -> MEMO
+VECTOR       len= 9999999 prec=   0 -        -> MEMO
 
 [strings]
 STRING       len=     254 prec=   0 -        -> TEXT
@@ -278,3 +287,9 @@ JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL TEXT
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT
 JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL TEXT
 JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET TEXT
+VECTOR       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL MEMO
+VECTOR       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET MEMO
+VECTOR       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL MEMO
+VECTOR       len=      10 prec=   2 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET MEMO
+VECTOR       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL MEMO
+VECTOR       len=      15 prec=   0 modify   -> ALTER TABLE TBL ALTER COLUMN COL SET MEMO

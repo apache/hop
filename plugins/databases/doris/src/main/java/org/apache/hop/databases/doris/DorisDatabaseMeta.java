@@ -16,9 +16,11 @@
  */
 package org.apache.hop.databases.doris;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
@@ -31,6 +33,15 @@ import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
     classLoaderGroup = "doris-db")
 @GuiPlugin(id = "GUI-DorisDatabaseMeta")
 public class DorisDatabaseMeta extends MySqlDatabaseMeta {
+
+  /**
+   * Doris has no VECTOR type - an embedding lives in an ARRAY&lt;FLOAT&gt; - so it takes the MySQL
+   * rules without the vector ones rather than inheriting a column type its server would reject.
+   */
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return BASE_TYPE_RULES;
+  }
 
   @Override
   public String getFieldDefinition(

@@ -17,8 +17,10 @@
 
 package org.apache.hop.databases.cockroachdb;
 
+import java.util.List;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
@@ -30,4 +32,17 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
     documentationUrl = "/database/databases/postgresql.html",
     classLoaderGroup = "cockroachdb-db")
 @GuiPlugin(id = "GUI-CockroachDatabaseMeta")
-public class CockroachDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {}
+public class CockroachDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
+
+  /**
+   * CockroachDB has a VECTOR type of its own since 24.2, spelled like pgvector's but not installed
+   * as an extension, so the check the PostgreSQL dialect makes for one does not describe it. It has
+   * not been verified against a server here - in particular whether it takes a column declared
+   * without a dimension, which pgvector does - so it keeps the PostgreSQL rules without the vector
+   * ones and writes a vector as text, which is what it did before.
+   */
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return PostgreSqlDatabaseMeta.POSTGRES_BASE_TYPE_RULES;
+  }
+}

@@ -59,6 +59,11 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           .as("UUID")
           .write(IValueMeta.TYPE_JSON)
           .as("JSON")
+          // DuckDB has no type called VECTOR; an embedding is a float array, fixed size when the
+          // dimension is known and a plain list when it is not. Both take the canonical text form
+          // of a vector as it stands, so no binding is needed.
+          .write(IValueMeta.TYPE_VECTOR)
+          .as(v -> v.getLength() > 0 ? "FLOAT[" + v.getLength() + "]" : "FLOAT[]")
           .build();
 
   @Override

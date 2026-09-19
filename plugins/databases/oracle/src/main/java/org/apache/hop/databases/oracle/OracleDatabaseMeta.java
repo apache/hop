@@ -106,6 +106,16 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
   private static final List<IDatabaseTypeRule> JSON_RULES =
       DatabaseTypes.rules().write(IValueMeta.TYPE_JSON).as("JSON").build();
 
+  /**
+   * Oracle grew a VECTOR type in 23ai. It spells an unknown dimension itself, as VECTOR(*, *), so a
+   * vector whose dimension Hop does not know still reaches a vector column rather than a CLOB.
+   */
+  private static final List<IDatabaseTypeRule> VECTOR_RULES =
+      DatabaseTypes.rules()
+          .write(IValueMeta.TYPE_VECTOR)
+          .as(v -> v.getLength() > 0 ? "VECTOR(" + v.getLength() + ", FLOAT32)" : "VECTOR(*, *)")
+          .build();
+
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
     // A 38 digit number is an integer unless this connection asked for the strict reading. That
@@ -114,16 +124,23 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
     rules.addAll(isStrictBigNumberInterpretation() ? NUMBER_38_AS_BIGNUMBER : NUMBER_38_AS_INTEGER);
     rules.addAll(RAW_RULES);
     rules.addAll(JSON_RULES);
+    rules.addAll(VECTOR_RULES);
     return rules;
   }
 
   /** Oracle 21c is the first with a JSON type; before it, JSON lived in a CLOB. */
   private static final int FIRST_VERSION_WITH_JSON = 21;
 
+  /** Oracle 23ai is the first with a VECTOR type. */
+  private static final int FIRST_VERSION_WITH_VECTOR = 23;
+
   @Override
   public boolean isColumnTypeAvailable(String columnType) {
     if ("JSON".equals(columnType)) {
       return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+    }
+    if ("VECTOR".equals(columnType)) {
+      return serverIsAtLeast(FIRST_VERSION_WITH_VECTOR);
     }
     return true;
   }

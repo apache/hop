@@ -65,6 +65,12 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
           .as(MsSqlServerDatabaseMeta::dateTimeColumnType)
           .write(IValueMeta.TYPE_STRING)
           .as(MsSqlServerDatabaseMeta::stringColumnType)
+          // SQL Server 2025 has a VECTOR type, and its dimension is not optional: there is no
+          // spelling for a vector of unknown length, so one without a dimension is left to fall
+          // back to text rather than written as a column the server would reject.
+          .write(IValueMeta.TYPE_VECTOR)
+          .where(v -> v.getLength() > 0)
+          .as(v -> "VECTOR(" + v.getLength() + ")")
           .build();
 
   @Override
@@ -140,10 +146,16 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   /** SQL Server 2025, which is major version 17, is the first with a JSON type. */
   private static final int FIRST_VERSION_WITH_JSON = 17;
 
+  /** SQL Server 2025 is also the first with a VECTOR type. */
+  private static final int FIRST_VERSION_WITH_VECTOR = 17;
+
   @Override
   public boolean isColumnTypeAvailable(String columnType) {
     if ("JSON".equals(columnType)) {
       return serverIsAtLeast(FIRST_VERSION_WITH_JSON);
+    }
+    if ("VECTOR".equals(columnType)) {
+      return serverIsAtLeast(FIRST_VERSION_WITH_VECTOR);
     }
     return true;
   }
