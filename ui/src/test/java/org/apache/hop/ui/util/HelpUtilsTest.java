@@ -51,7 +51,8 @@ class HelpUtilsTest {
 
   @Test
   void webHelpIconRequestSizeCancelsDefaultWebZoom() {
-    // nativeZoomFactor on web is globalZoom / 0.75; at 100% that is 4/3
+    // nativeZoomFactor on web matches globalZoom; at 100% that is 1.0
+    assertEquals(16, HelpUtils.webHelpIconRequestSize(1.0));
     assertEquals(12, HelpUtils.webHelpIconRequestSize(4.0 / 3.0));
     assertEquals(8, HelpUtils.webHelpIconRequestSize(2.0));
     assertEquals(ConstUi.SMALL_ICON_SIZE, HelpUtils.webHelpIconRequestSize(0));

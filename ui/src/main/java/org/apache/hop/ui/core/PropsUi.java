@@ -180,7 +180,7 @@ public class PropsUi extends Props {
   public void reCalculateNativeZoomFactor() {
     double globalZoom = getGlobalZoomFactor();
     if (EnvironmentUtils.getInstance().isWeb()) {
-      nativeZoomFactor = globalZoom / 0.75;
+      nativeZoomFactor = 1.0 * globalZoom;
     } else {
       // Calculate the native default zoom factor...
       // We take the default font and render it, calculate the height.
