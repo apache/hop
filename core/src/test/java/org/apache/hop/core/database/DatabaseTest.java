@@ -48,9 +48,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -821,5 +823,79 @@ class DatabaseTest {
     Database db = new Database(log, variables, meta);
     db.setConnection(conn);
     return db;
+  }
+
+  /** A database whose driver reports {@code count} affected rows for every non-query statement. */
+  private Database databaseAffecting(int count) throws SQLException {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    when(meta.stripCR(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    Statement statement = mock(Statement.class);
+    when(statement.execute(anyString())).thenReturn(false);
+    when(statement.getUpdateCount()).thenReturn(count);
+    when(conn.createStatement()).thenReturn(statement);
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  @Test
+  void execStatementCountsMergeAsUpdated() throws Exception {
+    Result result =
+        databaseAffecting(4)
+            .execStatement(
+                "MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN UPDATE SET v = s.v "
+                    + "WHEN NOT MATCHED THEN INSERT (id, v) VALUES (s.id, s.v)");
+
+    assertEquals(4, result.getNrLinesUpdated());
+    assertEquals(0, result.getNrLinesOutput());
+    assertEquals(0, result.getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementCountsCtePrefixedDmlByItsVerb() throws Exception {
+    Result result =
+        databaseAffecting(2)
+            .execStatement(
+                "WITH s AS (SELECT id FROM src) UPDATE t SET v = 1 FROM s WHERE t.id = s.id");
+    assertEquals(2, result.getNrLinesUpdated());
+
+    result = databaseAffecting(3).execStatement("WITH s AS (SELECT 1) DELETE FROM t");
+    assertEquals(3, result.getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementKeepsInsertUpdateDeleteBuckets() throws Exception {
+    assertEquals(
+        5, databaseAffecting(5).execStatement("insert into t values (1)").getNrLinesOutput());
+    assertEquals(6, databaseAffecting(6).execStatement("UPDATE t SET v = 1").getNrLinesUpdated());
+    assertEquals(
+        7, databaseAffecting(7).execStatement("-- all\nDELETE FROM t").getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementCountsCustomUpdateAndDeleteStatements() throws Exception {
+    when(meta.isSupportsCustomUpdateStmt()).thenReturn(true);
+    when(meta.isSupportsCustomDeleteStmt()).thenReturn(true);
+
+    assertEquals(
+        2,
+        databaseAffecting(2)
+            .execStatement("ALTER TABLE t UPDATE v = 1 WHERE id = 1")
+            .getNrLinesUpdated());
+    assertEquals(
+        3,
+        databaseAffecting(3)
+            .execStatement("ALTER TABLE t DELETE WHERE id = 1")
+            .getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementIgnoresStatementsWithoutAffectedRows() throws Exception {
+    Result result = databaseAffecting(0).execStatement("MERGE INTO t USING s ON t.id = s.id");
+    assertEquals(0, result.getNrLinesUpdated());
+
+    result = databaseAffecting(-1).execStatement("CREATE TABLE t (id INT)");
+    assertEquals(0, result.getNrLinesUpdated());
+    assertEquals(0, result.getNrLinesOutput());
   }
 }

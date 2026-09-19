@@ -137,6 +137,24 @@ public final class SqlQueryClassifier {
 
   /**
    * @param sql one statement, comments allowed
+   * @return the upper-case verb of the main statement, past an optional {@code WITH} clause ({@code
+   *     UPDATE} for {@code WITH s AS (...) UPDATE t ...}), or {@code null} when {@code sql} does
+   *     not start with a keyword
+   */
+  public static String statementVerb(String sql) {
+    if (Utils.isEmpty(sql)) {
+      return null;
+    }
+    int i = skipTrivia(sql, 0);
+    String first = keywordAt(sql, i);
+    if ("WITH".equals(first)) {
+      first = keywordAt(sql, indexAfterCteList(sql, i));
+    }
+    return first;
+  }
+
+  /**
+   * @param sql one statement, comments allowed
    * @return {@code true} when {@code sql} starts with a SQL verb (query, DML or DDL), {@code false}
    *     for leftover clauses such as {@code WHERE} after a semicolon
    */

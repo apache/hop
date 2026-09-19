@@ -53,6 +53,10 @@ image:transforms/execute-sql-script-dialog-general-tab.png[Execute SQL script Ge
 |Field to contain read stats|Same as insert stats, but for read rows.
 |===
 
+The counts come from the number of affected rows the JDBC driver reports for each statement, attributed by the statement's verb (also behind a `WITH` clause). `MERGE`, `UPSERT` and `REPLACE` statements report a single count for the rows they inserted, updated and deleted together; that count is reported as updated rows. Rows returned by `SELECT` statements count as read rows, except when the SQL is sent as a single statement.
+
+The same counts show up in the transform's own metrics: read rows as input (I), inserted rows as output (O), updated and deleted rows as updated (U).
+
 == SQL
 
 The SQL tab is where you specify the script to run, either inline or from a file.
