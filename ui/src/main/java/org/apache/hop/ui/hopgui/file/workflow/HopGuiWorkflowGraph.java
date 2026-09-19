@@ -435,6 +435,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private boolean dragSelection;
   private WorkflowHopMeta clickedWorkflowHop;
 
+  /**
+   * The hop was clicked through its parallel badge rather than on the line: a badge is a button, so
+   * it opens the hop dialog even when the right click is reserved for context dialogs.
+   */
+  private boolean clickedHopBadge;
+
   private Timer redrawTimer;
 
   public HopGuiWorkflowGraph(
@@ -598,6 +604,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     lastClick = null;
 
     canvas.addMouseListener(this);
+    canvas.addListener(SWT.MenuDetect, this::menuDetect);
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
@@ -747,6 +754,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseDown extension point", ex);
     }
 
+    // A right click is inert on the canvas (user manual: canvas mouse gestures). It only abandons
+    // a hop being drawn. Nothing below may run for it, or a badge acts on it like a left click.
+    //
+    if (event.button == 3) {
+      if (startHopAction != null) {
+        cancelHopCandidate();
+        redraw();
+      }
+      lastButton = 0;
+      return;
+    }
+
     // Layer 0: See if we're dragging around the view-port over the workflow graph.
     //
     Point clickScreen = new Point(event.x, event.y);
@@ -850,12 +869,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           break;
 
         case ACTION_INFO_ICON:
-          // Click on the info icon means: Edit action description
+          // Click on the info icon means: Edit action description. Claim the release before the
+          // editor opens: the editor runs its own event loop, which is what dispatches the release
+          // of this very click, so a flag set afterwards is set too late and swallows the next
+          // click instead.
           //
-          editActionDescription((ActionMeta) areaOwner.getOwner());
           avoidContextDialog = true;
           currentAction = null;
           actionDragStartScreen = null;
+          editActionDescription((ActionMeta) areaOwner.getOwner());
           done = true;
           break;
 
@@ -889,6 +911,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           actionDragStartScreen = null;
           done = true;
           break;
+        case WORKFLOW_HOP_PARALLEL_ICON:
+          // The parallel badge opens the hop dialog, like the copies badge on a pipeline hop.
+          //
+          clickedWorkflowHop = (WorkflowHopMeta) areaOwner.getOwner();
+          clickedHopBadge = true;
+          done = true;
+          break;
+
         case NOTE:
         default:
           break;
@@ -1097,6 +1127,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseUp extension point", ex);
     }
 
+    // The right click did nothing on the way down (see mouseDown), so there is nothing to finish.
+    //
+    if (event.button == 3) {
+      lastButton = 0;
+      return;
+    }
+
     // Did we select a region on the screen? Mark actions in region as selected
     //
     if (selectionRegion != null) {
@@ -1148,12 +1185,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               && selectedActions == null
               && selectedNotes == null) {
             ActionMeta actionMeta = (ActionMeta) areaOwner.getParent();
+            lastButton = 0;
             editAction(actionMeta);
             return;
           }
           break;
         case ACTION_INFO_ICON:
           // Description edit was handled in mouseDown; do not open the action context menu
+          avoidContextDialog = false;
+          lastButton = 0;
           return;
         default:
           break;
@@ -1305,6 +1345,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       singleClickHop = clickedWorkflowHop;
     }
     clickedWorkflowHop = null;
+    final boolean fHopBadge = clickedHopBadge;
+    clickedHopBadge = false;
 
     if (avoidContextDialog) {
       avoidContextDialog = false;
@@ -1315,58 +1357,55 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Only do this "mouseUp()" if this is not part of a double click...
     //
-    final boolean fSingleClick = singleClick;
-    final SingleClickType fSingleClickType = singleClickType;
-    final ActionMeta fSingleClickAction = singleClickAction;
-    final NotePadMeta fSingleClickNote = singleClickNote;
-    final WorkflowHopMeta fSingleClickHop = singleClickHop;
+    final CanvasTarget target =
+        singleClick
+            ? new CanvasTarget(
+                singleClickType, singleClickAction, singleClickNote, singleClickHop, fHopBadge)
+            : null;
+    Runnable show = () -> showContextDialog(event, real, target);
 
     if (PropsUi.getInstance().useDoubleClick()) {
       Display display = hopGui.getDisplay();
       pendingShowContextDialogRunnable =
           () -> {
             pendingShowContextDialogRunnable = null;
-            showContextDialog(
-                event,
-                real,
-                fSingleClick,
-                fSingleClickType,
-                fSingleClickAction,
-                fSingleClickNote,
-                fSingleClickHop);
+            show.run();
           };
       display.timerExec(display.getDoubleClickTime(), pendingShowContextDialogRunnable);
     } else {
-      showContextDialog(
-          event,
-          real,
-          fSingleClick,
-          fSingleClickType,
-          fSingleClickAction,
-          fSingleClickNote,
-          fSingleClickHop);
+      show.run();
     }
 
     lastButton = 0;
   }
 
-  private void showContextDialog(
-      MouseEvent event,
-      Point real,
-      boolean fSingleClick,
-      SingleClickType fSingleClickType,
-      ActionMeta fSingleClickAction,
-      NotePadMeta fSingleClickNote,
-      WorkflowHopMeta fSingleClickHop) {
+  /**
+   * What a click or a context-menu request landed on, and so which context dialog it gets: the
+   * workflow itself, an action, a note or a hop. A hop reached through its badge is flagged: a
+   * badge is a button, so it opens the hop dialog even when the right click is reserved for context
+   * dialogs.
+   */
+  private record CanvasTarget(
+      SingleClickType type,
+      ActionMeta action,
+      NotePadMeta note,
+      WorkflowHopMeta hop,
+      boolean hopBadge) {}
+
+  /** A single left click: clears the selection, or opens the context dialog of {@code target}. */
+  private void showContextDialog(MouseEvent event, Point real, CanvasTarget target) {
 
     // In any case clear the selection region...
     //
     selectionRegion = null;
+    if (target == null) {
+      return;
+    }
 
     // See if there are transforms selected.
     // If we get a background single click then simply clear selection...
     //
-    if (fSingleClickType == SingleClickType.Workflow
+    if (target.type == SingleClickType.Workflow
         && (!workflowMeta.getSelectedActions().isEmpty()
             || !workflowMeta.getSelectedNotes().isEmpty())) {
       workflowMeta.unselectAll();
@@ -1381,61 +1420,166 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return;
     }
 
-    // Just a single click on the background:
-    // We have a bunch of possible actions for you...
+    // With the right click reserved for the context dialog, a left click has done its work by now:
+    // it selected, cleared the selection, or pressed a badge. A hop badge is a button whose job is
+    // the hop dialog, so it still opens it.
     //
-    if (fSingleClick && fSingleClickType != null && !doubleClick) {
-      IGuiContextHandler contextHandler = null;
-      String message = null;
-      switch (fSingleClickType) {
-        case Workflow:
-          // Do not show context menu in negative coordinate space (actions cannot be created there)
-          if (real.x >= 0 && real.y >= 0) {
-            message =
-                BaseMessages.getString(
-                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
-            contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
-          }
-          break;
-        case Action:
+    if (PropsUi.getInstance().useRightClickForContextDialog() && !target.hopBadge) {
+      return;
+    }
+
+    if (!doubleClick) {
+      openContextDialog(target, real, event.x, event.y);
+    }
+  }
+
+  /** Opens the context dialog of {@code target} at the canvas coordinate the user pointed at. */
+  private void openContextDialog(CanvasTarget target, Point real, int canvasX, int canvasY) {
+    IGuiContextHandler contextHandler = null;
+    String message = null;
+    switch (target.type) {
+      case Workflow:
+        // Do not show context menu in negative coordinate space (actions cannot be created there)
+        if (real.x >= 0 && real.y >= 0) {
+          // With the palette tree shown the dialog lists no actions to create (issue #8443)
           message =
               BaseMessages.getString(
                   PKG,
-                  "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header",
-                  fSingleClickAction.getName());
-          contextHandler =
-              new HopGuiWorkflowActionContext(workflowMeta, fSingleClickAction, this, real);
-          break;
-        case Note:
-          message =
-              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
-          contextHandler =
-              new HopGuiWorkflowNoteContext(workflowMeta, fSingleClickNote, this, real);
-          break;
-        case Hop:
-          message =
-              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
-          contextHandler = new HopGuiWorkflowHopContext(workflowMeta, fSingleClickHop, this, real);
-          break;
-        default:
-          break;
-      }
-      if (contextHandler != null) {
-        Shell parent = hopShell();
-        org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, event.x, event.y);
-
-        this.openedContextDialog = true;
-        this.hideToolTips();
-
-        // Show the context dialog
-        //
-        ignoreNextClick =
-            GuiContextUtil.getInstance()
-                .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
-
-        this.openedContextDialog = false;
-      }
+                  GraphPalette.isVisible()
+                      ? "HopGuiWorkflowGraph.ContextualActionDialog.WorkflowActions.Header"
+                      : "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
+          contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
+        }
+        break;
+      case Action:
+        message =
+            BaseMessages.getString(
+                PKG,
+                "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header",
+                target.action.getName());
+        contextHandler = new HopGuiWorkflowActionContext(workflowMeta, target.action, this, real);
+        break;
+      case Note:
+        message =
+            BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
+        contextHandler = new HopGuiWorkflowNoteContext(workflowMeta, target.note, this, real);
+        break;
+      case Hop:
+        message =
+            BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
+        contextHandler = new HopGuiWorkflowHopContext(workflowMeta, target.hop, this, real);
+        break;
+      default:
+        break;
     }
+    if (contextHandler == null) {
+      return;
+    }
+    Shell parent = hopShell();
+    org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, canvasX, canvasY);
+
+    this.openedContextDialog = true;
+    this.hideToolTips();
+
+    // Show the context dialog
+    //
+    ignoreNextClick =
+        GuiContextUtil.getInstance()
+            .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+
+    this.openedContextDialog = false;
+  }
+
+  /**
+   * "Use right click for the context dialog": whatever the platform treats as asking for a context
+   * menu - a right click, Ctrl-click on macOS, the menu key - opens the context dialog of what is
+   * under the pointer, the way a left click does otherwise. The right button's own mouse events
+   * stay inert either way (see mouseDown), so this is the only place a right click acts.
+   */
+  private void menuDetect(Event event) {
+    // No SWT menu hangs off the canvas, and in Hop Web the browser's own menu is unwanted.
+    event.doit = false;
+    if (!PropsUi.getInstance().useRightClickForContextDialog()) {
+      return;
+    }
+    org.eclipse.swt.graphics.Point canvasPoint = canvas.toControl(event.x, event.y);
+    Point real = screen2real(canvasPoint.x, canvasPoint.y);
+    hideToolTips();
+
+    CanvasTarget target = targetUnder(getVisibleAreaOwner(real.x, real.y), real);
+    selectAsClicked(target);
+    openContextDialog(target, real, canvasPoint.x, canvasPoint.y);
+  }
+
+  /**
+   * What is under the pointer. A badge counts as what it belongs to: a hop badge as the hop, an
+   * action badge as the action.
+   */
+  private CanvasTarget targetUnder(AreaOwner areaOwner, Point real) {
+    WorkflowHopMeta hop = hopUnder(areaOwner, real);
+    if (hop != null) {
+      return new CanvasTarget(SingleClickType.Hop, null, null, hop, false);
+    }
+    NotePadMeta note = noteUnder(areaOwner, real);
+    if (note != null) {
+      return new CanvasTarget(SingleClickType.Note, null, note, null, false);
+    }
+    ActionMeta actionMeta = actionUnder(areaOwner);
+    if (actionMeta != null) {
+      return new CanvasTarget(SingleClickType.Action, actionMeta, null, null, false);
+    }
+    return new CanvasTarget(SingleClickType.Workflow, null, null, null, false);
+  }
+
+  /** Selects the action or note of {@code target} the way a left click on it would. */
+  private void selectAsClicked(CanvasTarget target) {
+    if (target.action != null && !target.action.isSelected()) {
+      workflowMeta.unselectAll();
+      target.action.setSelected(true);
+      updateGui();
+    } else if (target.note != null && !target.note.isSelected()) {
+      workflowMeta.unselectAll();
+      target.note.setSelected(true);
+      updateGui();
+    }
+  }
+
+  /** The hop under the pointer: the hop line itself or the badge drawn on it. */
+  private WorkflowHopMeta hopUnder(AreaOwner areaOwner, Point real) {
+    if (areaOwner == null) {
+      return findWorkflowHop(real.x, real.y);
+    }
+    if (areaOwner.getOwner() instanceof WorkflowHopMeta owner) {
+      return owner;
+    }
+    if (areaOwner.getParent() instanceof WorkflowHopMeta parent) {
+      return parent;
+    }
+    return null;
+  }
+
+  private NotePadMeta noteUnder(AreaOwner areaOwner, Point real) {
+    if (areaOwner == null) {
+      return null;
+    }
+    return switch (areaOwner.getAreaType()) {
+      case NOTE -> (NotePadMeta) areaOwner.getOwner();
+      case NOTE_LINK -> workflowMeta.getNote(real.x, real.y);
+      default -> null;
+    };
+  }
+
+  private static ActionMeta actionUnder(AreaOwner areaOwner) {
+    if (areaOwner == null) {
+      return null;
+    }
+    if (areaOwner.getOwner() instanceof ActionMeta owner) {
+      return owner;
+    }
+    if (areaOwner.getParent() instanceof ActionMeta parent) {
+      return parent;
+    }
+    return null;
   }
 
   /**

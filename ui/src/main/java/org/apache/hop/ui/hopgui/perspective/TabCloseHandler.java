@@ -34,6 +34,7 @@ public class TabCloseHandler {
   private final TabClosable tabClosablePerspective;
   CTabFolder tabFolder;
   CTabItem selectedItem;
+  private final Menu menu;
 
   public TabCloseHandler(TabClosable tabClosablePerspective) {
     this(tabClosablePerspective, tabClosablePerspective.getTabFolder());
@@ -43,8 +44,10 @@ public class TabCloseHandler {
     this.tabClosablePerspective = tabClosablePerspective;
     this.tabFolder = tabFolder;
 
-    Menu menu = new Menu(tabFolder);
-    tabFolder.setMenu(menu);
+    // The menu is shown from MenuDetect, and only when the click lands on a tab. It is not attached
+    // with setMenu on purpose: the Hop Web client shows an attached menu by itself, wherever in
+    // the folder the right click lands, before the server can veto it.
+    menu = new Menu(tabFolder);
     tabFolder.addListener(SWT.MenuDetect, this::handleTabMenuDetectEvent);
     tabFolder.addListener(SWT.MouseUp, event -> handleMouseUp(event, tabClosablePerspective));
 
@@ -106,11 +109,13 @@ public class TabCloseHandler {
   }
 
   private void handleTabMenuDetectEvent(Event event) {
-    Point point = tabFolder.toControl(tabFolder.getDisplay().getCursorLocation());
-    selectedItem = tabFolder.getItem(new Point(point.x, point.y));
-
-    if (selectedItem == null) {
-      event.doit = false;
+    // The event carries the click as display coordinates. Display.getCursorLocation() is only as
+    // fresh as the last mouse event the server saw, which in Hop Web need not be this click.
+    Point point = tabFolder.toControl(event.x, event.y);
+    selectedItem = tabFolder.getItem(point);
+    if (selectedItem != null) {
+      menu.setLocation(event.x, event.y);
+      menu.setVisible(true);
     }
   }
 }

@@ -23,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -472,7 +470,8 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
           clickTransformAndPickCreateHop(graph, spots, source);
 
           fire(spots.canvas, SWT.MouseMove, spots.scale, spots.target, 0, SWT.NONE);
-          List<String> popups = clickAndCatchDialogs(bot, spots, spots.target, SWT.NONE);
+          List<String> popups =
+              clickAndCatchDialogs(bot, spots.canvas, spots.scale, spots.target, 1, SWT.NONE);
 
           assertAll(
               () -> assertHopExists(pipelineMeta, source, target),
@@ -493,7 +492,8 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
           fire(spots.canvas, SWT.MouseDown, spots.scale, spots.source, 1, SWT.SHIFT);
           fire(spots.canvas, SWT.MouseUp, spots.scale, spots.source, 1, SWT.SHIFT | SWT.BUTTON1);
           fire(spots.canvas, SWT.MouseMove, spots.scale, spots.target, 0, SWT.SHIFT);
-          List<String> popups = clickAndCatchDialogs(bot, spots, spots.target, SWT.SHIFT);
+          List<String> popups =
+              clickAndCatchDialogs(bot, spots.canvas, spots.scale, spots.target, 1, SWT.SHIFT);
 
           assertAll(
               () -> assertHopExists(pipelineMeta, source, target),
@@ -580,59 +580,6 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
     String title = titleOf(popup);
     closeShell(bot, popup);
     return title;
-  }
-
-  /**
-   * Presses and releases the left button without waiting for the handlers. Both halves of the click
-   * are posted up front on purpose: the press may open a dialog, and that dialog runs its own event
-   * loop, which is what dispatches the release. Waiting for the press would deadlock the test, and
-   * holding the release back until the dialog is gone would hide the very ordering under test.
-   */
-  private List<String> clickAndCatchDialogs(SWTBot bot, Spots spots, Point at, int stateMask) {
-    Set<Shell> before = openShells();
-    fireAsync(spots.canvas, SWT.MouseDown, spots.scale, at, 1, stateMask);
-    fireAsync(spots.canvas, SWT.MouseUp, spots.scale, at, 1, stateMask | SWT.BUTTON1);
-    return catchDialogs(bot, before);
-  }
-
-  /**
-   * Collects the titles of the dialogs that opened since {@code before}, in the order they
-   * appeared, and closes every one of them so the event loops underneath are handed back.
-   *
-   * <p>Dialogs both stack and follow one another here: a dialog runs its own event loop, so
-   * anything that loop dispatches can open a second dialog on top of the first, while the code
-   * after the first dialog can open yet another one once it is gone. So a round gathers everything
-   * that is up at the same time, closes the newest first - an older one cannot return while a newer
-   * loop sits on top of it - and then looks again for whatever that let through.
-   *
-   * <p>Closing a dialog is the answer a test wants: Hop dialogs treat it as cancel, so a question
-   * like "replace this transform?" is answered with no.
-   */
-  private List<String> catchDialogs(SWTBot bot, Set<Shell> before) {
-    List<String> titles = new ArrayList<>();
-    Set<Shell> seen = new HashSet<>(before);
-    for (List<Shell> round = awaitNewShells(bot, seen);
-        !round.isEmpty();
-        round = awaitNewShells(bot, seen)) {
-      round.forEach(popup -> titles.add(titleOf(popup)));
-      for (int i = round.size() - 1; i >= 0; i--) {
-        closeShell(bot, round.get(i));
-      }
-    }
-    return titles;
-  }
-
-  /**
-   * Every dialog that is open at the same time, in the order it appeared. Adds them to {@code
-   * seen}.
-   */
-  private List<Shell> awaitNewShells(SWTBot bot, Set<Shell> seen) {
-    List<Shell> found = new ArrayList<>();
-    for (Shell popup = awaitNewShell(bot, seen); popup != null; popup = awaitNewShell(bot, seen)) {
-      found.add(popup);
-      seen.add(popup);
-    }
-    return found;
   }
 
   // ------------------------------------------------------------------ assertions

@@ -1,0 +1,181 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[CanvasMouse]]
+:imagesdir: ../assets/images
+:description: What every mouse click, double-click and drag does on the pipeline and workflow canvas, in each of the canvas modes.
+
+= Canvas mouse gestures
+
+The pipeline and workflow canvas react to where you click and with which button. This page is the reference for all of it. Two options in the xref:hop-gui/perspective-configuration.adoc[configuration perspective] (General tab, Canvas section) change the behaviour:
+
+* **Use double click on canvas** — off by default. When on, a double-click opens the properties of the item under the pointer. A single click then does the same as without the option, but only after the double-click interval has passed, so that a second click can take over.
+* **Use right click for the context dialog** — off by default. When on, a left click never opens the xref:hop-gui/hop-gui-popup-dialog.adoc[context dialog]; a right click does. Everything else a left click does (open properties from a name, press a badge, select, drag) stays the same.
+
+TIP: On macOS, `Ctrl`-click and a two-finger click both count as a right click. Where this page says `Ctrl`, use `Cmd` on macOS.
+
+== Clicks
+
+Unless a cell says otherwise, the behaviour is the same on a pipeline and on a workflow. "Context dialog" means the dialog for the item in that row: the pipeline/workflow dialog, the transform/action dialog, the hop dialog or the note dialog.
+
+[options="header",cols="2,3,3,2,3"]
+|===
+|Where you click
+|Left click
+|Double-click _(Use double click on canvas: on)_
+|Right click _(default)_
+|Right click _(Use right click for the context dialog: on)_
+
+|Empty canvas, nothing selected
+|Opens the pipeline/workflow context dialog. While the xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[palette tree] is shown the dialog lists only the pipeline/workflow actions, not the transforms/actions to create.
+|Opens the pipeline/workflow properties.
+|Nothing.
+|Opens the pipeline/workflow context dialog. The left click does nothing.
+
+|Empty canvas, something selected
+|Clears the selection ("Selection cleared"), no dialog.
+|Opens the pipeline/workflow properties.
+|Nothing.
+|Opens the pipeline/workflow context dialog. The left click clears the selection.
+
+|Transform / action icon
+|Selects it and opens its context dialog.
+|Opens its properties. With the middle or right button: a pipeline opens the description editor, a workflow opens the referenced pipeline/workflow.
+|Nothing.
+|Opens its context dialog. The left click only selects it.
+
+|Transform / action name
+|Opens its properties. Hovering the name highlights it (not in double-click mode).
+|Opens its properties.
+|Nothing.
+|Opens its context dialog, like on the icon.
+
+|Hop line
+|Opens the hop context dialog.
+|Pipeline: opens the hop dialog. Workflow: nothing.
+|Nothing.
+|Opens the hop context dialog. The left click does nothing.
+
+|Hop badge on a pipeline: copies, row distribution
+|Opens the hop context dialog.
+|Opens the hop dialog.
+|Nothing.
+|Opens the hop context dialog. The left click keeps working: badges are buttons.
+
+|Hop badge on a pipeline: info stream, target stream, error stream
+|Opens the properties of the transform the badge points to.
+|As left click.
+|Nothing.
+|Opens the hop context dialog. The left click keeps working.
+
+|Hop badge on a workflow: unconditional / true / false
+|Cycles the evaluation (only when the source action evaluates).
+|Cycles twice: each press counts.
+|Nothing.
+|Opens the hop context dialog. The left click keeps cycling.
+
+|Hop badge on a workflow: parallel
+|Opens the hop context dialog.
+|Nothing.
+|Nothing.
+|Opens the hop context dialog.
+
+|Badge on a transform: info (description), copies, error handling, data service, output data (after a run)
+|Opens the editor for that badge: description, number of copies, error handling, properties, or the rows.
+|As left click.
+|Nothing.
+|Opens the transform context dialog: a badge belongs to its transform. The left click keeps working.
+
+|Badge on a transform: partitioning
+|Opens the partitioning editor.
+|Opens the partitioning editor.
+|Nothing.
+|Opens the transform context dialog. The left click keeps working.
+
+|Badge on an action: info (description)
+|Opens the description editor.
+|As left click.
+|Nothing.
+|Opens the action context dialog. The left click keeps working.
+
+|Note
+|Selects it and opens the note context dialog.
+|Opens the note editor.
+|Nothing.
+|Opens the note context dialog. The left click only selects it.
+
+|Link in a Markdown note
+|Follows the link.
+|Opens the note editor.
+|Nothing.
+|Opens the note context dialog. The left click still follows the link.
+|===
+
+A click that ends a gesture never opens a dialog: releasing the mouse after a drag, a lasso or a hop gesture ends that gesture and nothing more.
+
+== Modifiers, middle button and drag
+
+These do not depend on the two options.
+
+[options="header",cols="2,2,2,2,2,2"]
+|===
+|Where
+|`Shift`-click
+|`Ctrl`-click
+|`Shift`+`Ctrl`-click
+|`Alt`-click
+|Middle button
+
+|Empty canvas
+|As a plain click.
+|Drag pans the canvas.
+|Drag pans the canvas.
+|As a plain click.
+|Drag pans the canvas.
+
+|Transform / action icon
+|Starts a new hop: click or drag onto the target to create it, onto empty canvas or `Esc` to cancel.
+|Adds to or removes from the selection.
+|Opens the referenced pipeline/workflow.
+|Pipeline: opens error handling (transforms that support it). Workflow: as a plain click.
+|Starts a new hop, as `Shift`-click.
+
+|Hop line
+|As a plain click.
+|Enables or disables the hop.
+|Deletes the hop.
+|As a plain click.
+|Enables or disables the hop.
+
+|Note
+|As a plain click.
+|Opens the note editor.
+|As a plain click.
+|As a plain click.
+|Nothing.
+
+|Link in a Markdown note
+|Follows the link.
+|Opens the note editor.
+|Follows the link.
+|Follows the link.
+|Drag pans the canvas.
+|===
+
+* **Left drag** on a transform, action or note moves it, together with everything selected. Dropping a transform on a hop offers to split the hop. Left drag on empty canvas draws a selection lasso.
+* **Note edges** drag to resize the note.
+* **`Esc`** cancels a hop in progress. A right click on empty canvas cancels it too.
+* In **Hop Web** a drag starts as soon as you press the button; in Hop Gui the pointer has to move a few pixels first, so a small slip of the hand still counts as a click.

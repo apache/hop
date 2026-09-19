@@ -83,6 +83,8 @@ public class PropsUi extends Props {
   private static final String LEGACY_PERSPECTIVE_MODE = "LegacyPerspectiveMode";
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
+  private static final String USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG = "UseRightClickForContextDialog";
+  private static final String DIALOGS_ON_ANY_SCREEN = "DialogsOnAnyScreen";
   private static final String DRAW_BORDER_AROUND_CANVAS_NAMES = "DrawBorderAroundCanvasNames";
   private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
   private static final String RELOAD_FILES_ON_CHANGE = "ReloadFilesOnChange";
@@ -1168,6 +1170,32 @@ public class PropsUi extends Props {
 
   public void setUseDoubleClickOnCanvas(boolean use) {
     setProperty(USE_DOUBLE_CLICK_ON_CANVAS, use ? YES : NO);
+  }
+
+  /**
+   * When set, a right click (or whatever the platform treats as asking for a context menu) opens
+   * the context dialog on the canvas and a left click never does. See the canvas mouse gestures
+   * page of the user manual.
+   */
+  public boolean useRightClickForContextDialog() {
+    return YES.equalsIgnoreCase(getProperty(USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG, NO));
+  }
+
+  public void setUseRightClickForContextDialog(boolean use) {
+    setProperty(USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG, use ? YES : NO);
+  }
+
+  /**
+   * macOS only. Off (the default): transform, action and metadata dialogs are child windows that
+   * follow the Hop window and stay above it. On: they are modal windows of their own that can be
+   * moved to another screen.
+   */
+  public boolean isDialogsOnAnyScreenEnabled() {
+    return YES.equalsIgnoreCase(getProperty(DIALOGS_ON_ANY_SCREEN, NO));
+  }
+
+  public void setDialogsOnAnyScreenEnabled(boolean enabled) {
+    setProperty(DIALOGS_ON_ANY_SCREEN, enabled ? YES : NO);
   }
 
   public boolean isBorderDrawnAroundCanvasNames() {
