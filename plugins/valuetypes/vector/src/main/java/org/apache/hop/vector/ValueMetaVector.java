@@ -59,7 +59,7 @@ import org.apache.hop.core.row.value.ValueMetaPlugin;
     image = "vector.svg")
 public class ValueMetaVector extends ValueMetaBase {
 
-  public static final int TYPE_VECTOR = 1536;
+  public static final int TYPE_VECTOR = IValueMeta.TYPE_VECTOR;
 
   public ValueMetaVector() {
     super(null, TYPE_VECTOR);

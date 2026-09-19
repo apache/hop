@@ -93,6 +93,11 @@ public final class ColumnTypeFallback {
       case IValueMeta.TYPE_BOOLEAN -> new ValueMetaString(name, 1, 0);
       case IValueMeta.TYPE_UUID -> new ValueMetaString(name, UUID_TEXT_LENGTH, 0);
       case IValueMeta.TYPE_INET -> new ValueMetaString(name, ADDRESS_TEXT_LENGTH, 0);
+        // A vector's length is its number of dimensions, not a number of characters, so it says
+        // nothing about how wide the column has to be: a four dimension vector needs far more than
+        // four characters to write "[0.1,0.2,0.3,0.4]". Taking the length at face value here
+        // produced a VARCHAR(4) that no vector of that size fits in.
+      case IValueMeta.TYPE_VECTOR -> new ValueMetaString(name, DatabaseMeta.CLOB_LENGTH, 0);
         // A JSON document has no length worth guessing at, and neither does a type Hop has never
         // heard of, so both get the widest text the database has.
       default ->

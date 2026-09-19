@@ -22,11 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaJson;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -150,5 +152,25 @@ class ColumnTypeFallbackTest {
     IValueMeta bool = ColumnTypeFallback.substituteFor(new ValueMetaBoolean("flag"));
     assertTrue(bool.isString());
     assertEquals(1, bool.getLength());
+  }
+
+  /**
+   * A vector's length counts dimensions, not characters. Taking it for a column width gave a four
+   * dimension vector a VARCHAR(4), which not one of them fits in: "[0.1,0.2,0.3,0.4]" is seventeen
+   * characters and a real embedding is far longer.
+   */
+  @Test
+  void aVectorIsNotSizedFromItsDimension() {
+    IValueMeta vector = ColumnTypeFallback.substituteFor(new VectorValueMeta("embedding", 4));
+
+    assertTrue(vector.isString());
+    assertEquals(DatabaseMeta.CLOB_LENGTH, vector.getLength());
+  }
+
+  /** A vector field, without the plugin that defines the type. */
+  private static final class VectorValueMeta extends ValueMetaBase {
+    private VectorValueMeta(String name, int dimension) {
+      super(name, IValueMeta.TYPE_VECTOR, dimension, 0);
+    }
   }
 }

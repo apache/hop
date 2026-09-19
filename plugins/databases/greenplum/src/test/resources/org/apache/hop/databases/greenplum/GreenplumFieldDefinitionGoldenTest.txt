@@ -93,6 +93,15 @@ JSON         len=      15 prec=   0 -        -> JSONB
 JSON         len=      18 prec=   0 -        -> JSONB
 JSON         len=      20 prec=   0 -        -> JSONB
 JSON         len= 9999999 prec=   0 -        -> JSONB
+VECTOR       len=      -1 prec=  -1 -        -> VECTOR
+VECTOR       len=       0 prec=   0 -        -> VECTOR
+VECTOR       len=       4 prec=   0 -        -> VECTOR(4)
+VECTOR       len=       9 prec=   0 -        -> VECTOR(9)
+VECTOR       len=      10 prec=   2 -        -> VECTOR(10)
+VECTOR       len=      15 prec=   0 -        -> VECTOR(15)
+VECTOR       len=      18 prec=   0 -        -> VECTOR(18)
+VECTOR       len=      20 prec=   0 -        -> VECTOR(20)
+VECTOR       len= 9999999 prec=   0 -        -> VECTOR(9999999)
 
 [strings]
 STRING       len=     254 prec=   0 -        -> VARCHAR(254)
@@ -278,3 +287,9 @@ JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL J
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL JSONB; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
 JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL JSONB
 JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL JSONB; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+VECTOR       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COLUMN COL VECTOR
+VECTOR       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL VECTOR; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+VECTOR       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COLUMN COL VECTOR(10)
+VECTOR       len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL VECTOR(10); UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
+VECTOR       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COLUMN COL VECTOR(15)
+VECTOR       len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD COLUMN COL_KTL VECTOR(15); UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP COLUMN COL; ALTER TABLE TBL RENAME COL_KTL TO COL;
