@@ -333,6 +333,7 @@ public final class StandardJdbcTypeMapper {
     valueMeta.setOriginalColumnTypeName(column.getNativeTypeName());
     valueMeta.setOriginalPrecision(ignoreLength ? -1 : column.getPrecision());
     valueMeta.setOriginalScale(column.getScale());
+    valueMeta.setOriginalAutoIncrement(column.isAutoIncrement());
     valueMeta.setOriginalSigned(column.isSigned());
   }
 }
