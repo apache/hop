@@ -33,6 +33,17 @@ using "true", so the other disabled projects stay disabled:
 
     ./integration-tests/scripts/run-tests-docker.sh INCLUDE_DISABLED=oracle KEEP_IMAGES=true
 
+The suite starts two databases. The second one, oracle-nchar, exists because the national
+character tests need a database whose character set is not Unicode: writing an NVARCHAR2 through
+setString converts the value to the database character set, which only loses characters when that
+character set cannot hold them. 0009 runs against the Unicode database, where the fault cannot be
+seen and the test is a regression guard; 0010 runs the same pipelines against the non-Unicode one,
+where it reproduces the fault and fails without the national character binding.
+
+The image ships a Unicode database and only honours ORACLE_CHARACTERSET when it builds one, so the
+second container removes the database it ships and lets it be rebuilt. That costs several extra
+minutes on the first run; the volume is kept afterwards, so later runs only open it.
+
 The image is pulled from Oracle's container registry under the Oracle Free Use Terms and
 Conditions. It pulls anonymously - no docker login and no license token - which is why the Free
 edition is used and not Enterprise; a 403 or an authorization error means something is pointing at

@@ -28,6 +28,7 @@ import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.validation.ColumnValueConstraints;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -1383,6 +1384,24 @@ public interface IDatabase extends Cloneable {
    * @return true if the database name is a required parameter
    */
   boolean isRequiresName();
+
+  /**
+   * Fills in the column metadata an insert's row metadata does not carry, from the target table.
+   *
+   * <p>Rows on their way into a table describe the values Hop holds, not the columns they are bound
+   * to. A string is a string whether the column is VARCHAR2 or NVARCHAR2, so by the time {@link
+   * org.apache.hop.core.database.types.IValueBinding} is asked to write one there is nothing left
+   * to tell it which. Reading the target table once, while the INSERT is being built, is what puts
+   * the column type where the binding can see it.
+   *
+   * <p>Called from {@link Database#getInsertStatement(String, String, IRowMeta)}, so it costs one
+   * round trip per prepared insert rather than one per row.
+   */
+  default void enrichInsertRowMeta(
+      Database database, String schemaName, String tableName, IRowMeta insertRowMeta)
+      throws HopDatabaseException {
+    // Default: no enrichment
+  }
 
   /**
    * If the database requires it you can generate an additional clause before the 'fields'
