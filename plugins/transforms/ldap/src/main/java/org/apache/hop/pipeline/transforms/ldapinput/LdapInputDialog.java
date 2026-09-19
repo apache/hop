@@ -219,17 +219,10 @@ public class LdapInputDialog extends BaseTransformDialog {
     FormData fdProtocol = new FormData();
     fdProtocol.left = new FormAttachment(middle, 0);
     fdProtocol.top = new FormAttachment(wPort, margin);
-    fdProtocol.right = new FormAttachment(100, -margin);
+    fdProtocol.right = new FormAttachment(100, 0);
     wProtocol.setLayoutData(fdProtocol);
     wProtocol.setItems(LdapProtocolFactory.getConnectionTypes(log).toArray(new String[] {}));
-    wProtocol.addSelectionListener(
-        new SelectionAdapter() {
-
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setProtocol();
-          }
-        });
+    wProtocol.addListener(SWT.Selection, e -> setProtocol());
 
     FormData fdHostGroup = new FormData();
     fdHostGroup.left = new FormAttachment(0, margin);
@@ -435,7 +428,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     FormData fdTrustStorePassword = new FormData();
     fdTrustStorePassword.left = new FormAttachment(middle, 0);
     fdTrustStorePassword.top = new FormAttachment(wbbFilename, margin);
-    fdTrustStorePassword.right = new FormAttachment(100, -margin);
+    fdTrustStorePassword.right = new FormAttachment(100, 0);
     wTrustStorePassword.setLayoutData(fdTrustStorePassword);
 
     // Trust all certificate?
@@ -477,12 +470,10 @@ public class LdapInputDialog extends BaseTransformDialog {
     // Test LDAP connection button
     Button wTest = new Button(wGeneralComp, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "LdapInputDialog.TestConnection.Label"));
-    PropsUi.setLook(wTest);
-    FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TestConnection.Tooltip"));
-    fdTest.top = new FormAttachment(wCertificateGroup, margin);
-    fdTest.right = new FormAttachment(100, 0);
-    wTest.setLayoutData(fdTest);
+    wTest.addListener(SWT.Selection, e -> test());
+    setButtonPositions(new Button[] {wTest}, margin, wCertificateGroup);
+    PropsUi.setLook(wTest);
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
@@ -539,7 +530,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wDynamicBase);
     wDynamicBase.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.dynamicBase.Tooltip"));
     FormData fdDynamicBase = new FormData();
-    fdDynamicBase.left = new FormAttachment(middle, -margin);
+    fdDynamicBase.left = new FormAttachment(middle, 0);
     fdDynamicBase.top = new FormAttachment(wlDynamicBase, 0, SWT.CENTER);
     wDynamicBase.setLayoutData(fdDynamicBase);
     SelectionAdapter ldynamicBase =
@@ -567,11 +558,11 @@ public class LdapInputDialog extends BaseTransformDialog {
     wSearchBaseField.setEditable(true);
     PropsUi.setLook(wSearchBaseField);
     wSearchBaseField.addModifyListener(lsMod);
-    FormData fdsearchBaseField = new FormData();
-    fdsearchBaseField.left = new FormAttachment(middle, -margin);
-    fdsearchBaseField.top = new FormAttachment(wDynamicBase, margin);
-    fdsearchBaseField.right = new FormAttachment(100, -margin);
-    wSearchBaseField.setLayoutData(fdsearchBaseField);
+    FormData fdSearchBaseField = new FormData();
+    fdSearchBaseField.left = new FormAttachment(middle, 0);
+    fdSearchBaseField.top = new FormAttachment(wDynamicBase, margin);
+    fdSearchBaseField.right = new FormAttachment(100, 0);
+    wSearchBaseField.setLayoutData(fdSearchBaseField);
     wSearchBaseField.addFocusListener(
         new FocusListener() {
           @Override
@@ -599,9 +590,9 @@ public class LdapInputDialog extends BaseTransformDialog {
     wSearchBase.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.SearchBase.Tooltip"));
     wSearchBase.addModifyListener(lsMod);
     FormData fdSearchBase = new FormData();
-    fdSearchBase.left = new FormAttachment(middle, -margin);
+    fdSearchBase.left = new FormAttachment(middle, 0);
     fdSearchBase.top = new FormAttachment(wSearchBaseField, margin);
-    fdSearchBase.right = new FormAttachment(100, -margin);
+    fdSearchBase.right = new FormAttachment(100, 0);
     wSearchBase.setLayoutData(fdSearchBase);
 
     // Is filter defined in a Field
@@ -618,7 +609,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     wDynamicFilter.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.dynamicFilter.Tooltip"));
     FormData fdynamicFilter = new FormData();
-    fdynamicFilter.left = new FormAttachment(middle, -margin);
+    fdynamicFilter.left = new FormAttachment(middle, 0);
     fdynamicFilter.top = new FormAttachment(wlDynamicFilter, 0, SWT.CENTER);
     wDynamicFilter.setLayoutData(fdynamicFilter);
     SelectionAdapter ldynamicFilter =
@@ -645,9 +636,9 @@ public class LdapInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFilterField);
     wFilterField.addModifyListener(lsMod);
     FormData fdfilterField = new FormData();
-    fdfilterField.left = new FormAttachment(middle, -margin);
+    fdfilterField.left = new FormAttachment(middle, 0);
     fdfilterField.top = new FormAttachment(wDynamicFilter, margin);
-    fdfilterField.right = new FormAttachment(100, -margin);
+    fdfilterField.right = new FormAttachment(100, 0);
     wFilterField.setLayoutData(fdfilterField);
     wFilterField.addFocusListener(
         new FocusListener() {
@@ -684,9 +675,9 @@ public class LdapInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFilterString);
     wFilterString.addModifyListener(lsMod);
     FormData fdFilterString = new FormData();
-    fdFilterString.left = new FormAttachment(middle, -margin);
+    fdFilterString.left = new FormAttachment(middle, 0);
     fdFilterString.top = new FormAttachment(wFilterField, margin);
-    fdFilterString.right = new FormAttachment(100, -margin);
+    fdFilterString.right = new FormAttachment(100, 0);
     fdFilterString.bottom = new FormAttachment(100, -margin);
     wFilterString.setLayoutData(fdFilterString);
 
@@ -801,7 +792,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.top = new FormAttachment(wAdditionalGroup, margin);
-    fdLimit.right = new FormAttachment(100, 0);
+    fdLimit.right = new FormAttachment(100, -margin);
     wLimit.setLayoutData(fdLimit);
 
     // TimeLimit
@@ -821,7 +812,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     FormData fdTimeLimit = new FormData();
     fdTimeLimit.left = new FormAttachment(middle, 0);
     fdTimeLimit.top = new FormAttachment(wLimit, margin);
-    fdTimeLimit.right = new FormAttachment(100, 0);
+    fdTimeLimit.right = new FormAttachment(100, -margin);
     wTimeLimit.setLayoutData(fdTimeLimit);
 
     // Multi valued field separator
@@ -843,7 +834,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     FormData fdMultiValuedSeparator = new FormData();
     fdMultiValuedSeparator.left = new FormAttachment(middle, 0);
     fdMultiValuedSeparator.top = new FormAttachment(wTimeLimit, margin);
-    fdMultiValuedSeparator.right = new FormAttachment(100, 0);
+    fdMultiValuedSeparator.right = new FormAttachment(100, -margin);
     wMultiValuedSeparator.setLayoutData(fdMultiValuedSeparator);
 
     // Use page ranging?
@@ -883,7 +874,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     FormData fdPageSize = new FormData();
     fdPageSize.left = new FormAttachment(wlPageSize, margin);
     fdPageSize.top = new FormAttachment(wMultiValuedSeparator, margin);
-    fdPageSize.right = new FormAttachment(100, 0);
+    fdPageSize.right = new FormAttachment(100, -margin);
     wPageSize.setLayoutData(fdPageSize);
 
     // searchScope
@@ -943,10 +934,8 @@ public class LdapInputDialog extends BaseTransformDialog {
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "LdapInputDialog.GetFields.Button"));
-    fdGet = new FormData();
-    fdGet.left = new FormAttachment(50, 0);
-    fdGet.bottom = new FormAttachment(100, 0);
-    wGet.setLayoutData(fdGet);
+    wGet.addListener(SWT.Selection, e -> get());
+    setButtonPositions(new Button[] {wGet}, margin, null);
 
     final int FieldsRows = input.getInputFieldsArray().length;
 
@@ -1029,7 +1018,7 @@ public class LdapInputDialog extends BaseTransformDialog {
         new TableView(
             variables,
             wFieldsComp,
-            SWT.FULL_SELECTION | SWT.MULTI,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             colinf,
             FieldsRows,
             lsMod,
@@ -1059,19 +1048,8 @@ public class LdapInputDialog extends BaseTransformDialog {
     fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Add listeners
-
-    wGet.addListener(SWT.Selection, e -> get());
-    wTest.addListener(SWT.Selection, e -> test());
-
     // Enable/disable the right fields to allow a row number to be added to each row...
-    wInclRownum.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setIncludeRownum();
-          }
-        });
+    wInclRownum.addListener(SWT.Selection, e -> setIncludeRownum());
 
     wTabFolder.setSelection(0);
 
