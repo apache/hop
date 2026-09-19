@@ -279,8 +279,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
    * margin.
    */
   private void addWebToolbarSeparator(Composite parent) {
-    int width = 6;
-    int height = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor()) + 6;
+    int width = 5;
+    int height = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor()) + 4;
     Canvas canvas = new Canvas(parent, SWT.NONE);
     canvas.setLayoutData(new RowData(width, height));
     canvas.setBackground(parent.getBackground());
@@ -409,7 +409,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     GridLayout layout = new GridLayout(2, false);
     layout.marginWidth = 0;
     layout.marginHeight = 0;
-    layout.horizontalSpacing = 4;
+    layout.horizontalSpacing = 2;
     layout.verticalSpacing = 0;
     composite.setLayout(layout);
     PropsUi.setLook(composite, Props.WIDGET_STYLE_TOOLBAR);

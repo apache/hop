@@ -156,7 +156,7 @@ Button {
     background-position: left top;
     border: none;
     border-radius: 4px;
-    padding: 6px 15px;
+    padding: 3px 12px;
     spacing: 2px;
     cursor: default;
     animation: none;
@@ -177,7 +177,7 @@ Button[PUSH][FLAT],
 Button[TOGGLE][FLAT] {
     border: 1px solid #404040;
     border-radius: 4px;
-    padding: 6px 15px;
+    padding: 3px 12px;
     background-image: gradient(
             linear, left top, left bottom,
             from(#363636),
@@ -192,7 +192,7 @@ Button[TOGGLE][FLAT] {
 Button[PUSH].helpButton,
 Button[PUSH][BORDER].helpButton,
 Button[PUSH][FLAT].helpButton {
-    padding: 4px 12px;
+    padding: 3px 8px;
 }
 
 Button[ARROW],
@@ -271,8 +271,8 @@ Button[TOGGLE]:selected:hover {
 
 Button[CHECK],
 Button[RADIO] {
-    padding: 3px 3px 3px 0;
-    spacing: 7px;
+    padding: 1px 2px 1px 0;
+    spacing: 4px;
 }
 
 Button[CHECK][BORDER],
@@ -391,7 +391,7 @@ Combo-Button {
             from(#404040),
             to(#363636)
     );
-    width: 30px;
+    width: 22px;
 }
 
 Combo-Button[RIGHT_TO_LEFT] {
@@ -424,7 +424,7 @@ Combo-List-Item {
     background-image: none;
     text-decoration: none;
     text-shadow: none;
-    padding: 6px 10px 6px 10px;
+    padding: 3px 6px 3px 6px;
 }
 
 Combo-List-Item:hover, Combo-List-Item:even:hover {
@@ -437,7 +437,7 @@ Combo-List-Item:selected, Combo-List-Item:even:selected {
 }
 
 Combo-Field {
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
 }
 
 Combo-FocusIndicator {
@@ -496,8 +496,8 @@ CTabItem {
     color: #b0b0b0;
     background-color: transparent;
     background-image: none;
-    padding: 8px 15px;
-    spacing: 10px;
+    padding: 4px 10px;
+    spacing: 5px;
     text-shadow: none;
     text-decoration: none;
 }
@@ -538,14 +538,14 @@ Group {
 }
 
 Group-Frame {
-    margin: 20px 0 0 0;
-    padding: 15px 8px 8px 8px;
+    margin: 10px 0 0 0;
+    padding: 8px 6px 6px 6px;
     border: 1px solid #404040;
     border-radius: 4px;
 }
 
 Group-Label {
-    padding: 2px 10px 2px 10px;
+    padding: 1px 8px 1px 8px;
     background-color: #363636;
     background-image: none;
     background-repeat: repeat;
@@ -553,7 +553,7 @@ Group-Label {
     border: 1px solid #404040;
     border-radius: 10px;
     color: inherit;
-    margin: 10px 10px 10px 20px;
+    margin: 6px 6px 6px 12px;
     text-shadow: none;
 }
 
@@ -639,7 +639,7 @@ List[BORDER] {
 }
 
 List-Item {
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: transparent;
     color: inherit;
@@ -702,7 +702,7 @@ MenuItem {
     background-image: none;
     opacity: 1;
     text-shadow: none;
-    padding: 4px 10px 4px 10px;
+    padding: 3px 8px 3px 8px;
 }
 
 MenuItem[SEPARATOR] {
@@ -733,7 +733,7 @@ MenuItem:disabled {
 }
 
 MenuItem:onMenuBar {
-    padding: 4px 6px;
+    padding: 3px 5px;
 }
 
 
@@ -840,7 +840,7 @@ Shell-Titlebar {
     );
     padding: 0 10px 0 10px;
     margin: 0px;
-    height: 38px;
+    height: 30px;
     border: none;
     border-radius: 0;
     text-shadow: none;
@@ -1139,7 +1139,7 @@ Table[BORDER] {
 
 TableColumn {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    padding: 8px 3px 8px 3px;
+    padding: 4px 6px 4px 6px;
     background-image: gradient(
             linear, left top, left bottom,
             from(#363636),
@@ -1211,8 +1211,8 @@ TableColumn-SortIndicator:down {
 }
 
 Table-Cell {
-    spacing: 3px;
-    padding: 5px 3px 5px 3px;
+    spacing: 2px;
+    padding: 2px 3px 2px 3px;
     color: #e8e8e8;
 }
 
@@ -1264,7 +1264,7 @@ Text {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
     border-radius: 4px;
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
     color: #e8e8e8;
     background-repeat: repeat;
     background-position: left top;
@@ -1279,7 +1279,7 @@ Text[MULTI] {
      * padding currently has no effect because of bug 253644
      * [TODO] remove comment if bug fixed
      */
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
 }
 
 Text[BORDER],
@@ -1348,7 +1348,7 @@ ToolBar[VERTICAL] {
 ToolBar[FLAT] {
     border: none;
     background-image: none;
-    spacing: 4px;
+    spacing: 1px;
 }
 
 ToolBar[FLAT][BORDER] {
@@ -1361,7 +1361,7 @@ ToolItem {
     background-color: transparent;
     background-image: none;
     border-radius: 0px;
-    padding: 4px;
+    padding: 2px;
     spacing: 1px;
     opacity: 1;
     animation: none;
@@ -1615,7 +1615,7 @@ TreeColumn, GridColumn {
             from(#363636),
             to(#2d2d2d)
     );
-    padding: 8px 10px 8px 6px;
+    padding: 4px 8px 4px 6px;
     border-bottom: 1px solid #404040;
     text-shadow: none;
     text-overflow: ellipsis;
@@ -1642,8 +1642,8 @@ TreeColumn-SortIndicator:down, GridColumn-SortIndicator:down {
 }
 
 Tree-Cell, Grid-Cell {
-    spacing: 3px;
-    padding: 5px 3px 5px 3px;
+    spacing: 2px;
+    padding: 2px 3px 2px 3px;
 }
 
 Tree-GridLine,
@@ -2346,7 +2346,7 @@ CCombo-Button {
     border: none;
     border-left: 1px solid #404040;
     border-radius: 0 4px 4px 0;
-    width: 30px;
+    width: 22px;
 }
 
 CCombo-Button[RIGHT_TO_LEFT] {
@@ -2379,7 +2379,7 @@ CCombo-List-Item {
     background-image: none;
     text-decoration: none;
     text-shadow: none;
-    padding: 6px 10px 6px 10px;
+    padding: 3px 6px 3px 6px;
 }
 
 CCombo-List-Item:hover, CCombo-List-Item:even:hover {
@@ -2391,7 +2391,7 @@ CCombo-List-Item:selected, CCombo-List-Item:even:selected {
 }
 
 CCombo-Field {
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
 }
 
 CCombo-FocusIndicator {
@@ -2411,8 +2411,8 @@ CLabel {
     background-repeat: repeat;
     background-position: left top;
     border: none;
-    padding: 6px;
-    spacing: 5px;
+    padding: 2px 4px 2px 4px;
+    spacing: 3px;
     cursor: default;
     opacity: 1;
     text-shadow: none;
