@@ -81,6 +81,7 @@ public class SvgGc implements IGc {
   private static SvgFile imageUnconditionalDisabled;
   private static SvgFile imageBusy;
   private static SvgFile imageWaiting;
+  private static SvgFile imageWarning;
   private static SvgFile imageMissing;
   private static SvgFile imageDeprecated;
   private static SvgFile imageInject;
@@ -273,6 +274,7 @@ public class SvgGc implements IGc {
         new SvgFile("ui/images/unconditional-disabled.svg", this.getClass().getClassLoader());
     imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader());
     imageWaiting = new SvgFile("ui/images/waiting.svg", this.getClass().getClassLoader());
+    imageWarning = new SvgFile("ui/images/warning.svg", this.getClass().getClassLoader());
     imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader());
     imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader());
     imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader());
@@ -646,6 +648,7 @@ public class SvgGc implements IGc {
       case UNCONDITIONAL_DISABLED -> imageUnconditionalDisabled;
       case BUSY -> imageBusy;
       case WAITING -> imageWaiting;
+      case WARNING -> imageWarning;
       case INJECT -> imageInject;
       case ARROW_DEFAULT -> imageArrowDefault;
       case ARROW_TRUE -> imageArrowTrue;

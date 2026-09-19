@@ -105,7 +105,7 @@ public final class LintCanvasOverlayHelper {
    * factor for crisp icons on high-DPI displays).
    */
   public static int drawTotalsOverlay(
-      IGc gc, int x, int y, int errors, int warnings, int infos, float iconMagnification) {
+      IGc gc, int x, int y, int errors, int warnings, int infos, float magnification) {
     if (gc == null) {
       return 0;
     }
@@ -147,7 +147,7 @@ public final class LintCanvasOverlayHelper {
             iconY,
             TOTALS_ICON,
             TOTALS_ICON,
-            iconMagnification,
+            magnification,
             0);
       } catch (Exception e) {
         // Best-effort: fall back to a colored swatch if the SVG cannot be rendered.
@@ -266,33 +266,39 @@ public final class LintCanvasOverlayHelper {
   }
 
   public static void drawOverlay(
-      IGc gc, int x, int y, int iconSize, boolean selected, String severity, double magnification) {
+      IGc gc, int x, int y, int iconSize, boolean selected, String severity, float magnification) {
     if (gc == null || Utils.isEmpty(severity)) {
       return;
     }
 
-    float mag = (float) magnification;
-
-    int lineWidth = selected ? 3 : 2;
+    int lineWidth = selected ? 3 : 1;
     gc.setLineWidth(lineWidth);
 
     if ("ERROR".equalsIgnoreCase(severity)) {
       gc.setForeground(IGc.EColor.RED);
-      gc.drawRoundRectangle(x - 2, y - 2, iconSize + 3, iconSize + 3, 8, 8);
-      int badgeX = x + iconSize - 8;
-      int badgeY = y - 4;
+      gc.drawLine(x + iconSize, y + iconSize / 2 - 4, x + iconSize, y + iconSize / 2 + 4);
+      gc.drawLine(x - 1, y + iconSize / 2 - 4, x - 1, y + iconSize / 2 + 4);
+      gc.drawLine(x + iconSize / 2 - 4, y - 1, x + iconSize / 2 + 4, y - 1);
+      gc.drawLine(x + iconSize / 2 - 4, y + iconSize, x + iconSize / 2 + 4, y + iconSize);
+
+      int badgeX = x - 8;
+      int badgeY = y + iconSize - 8;
       try {
-        gc.drawImage(IGc.EImage.FAILURE, badgeX, badgeY, mag);
+        gc.drawImage(IGc.EImage.ERROR, badgeX, badgeY, magnification);
       } catch (Exception ignored) {
         // Icon drawing is best-effort on the canvas overlay
       }
     } else if ("WARNING".equalsIgnoreCase(severity)) {
       gc.setForeground(IGc.EColor.YELLOW);
-      gc.drawRoundRectangle(x - 2, y - 2, iconSize + 3, iconSize + 3, 8, 8);
-      int badgeX = x + iconSize - 8;
-      int badgeY = y - 4;
+      gc.drawLine(x + iconSize, y + iconSize / 2 - 4, x + iconSize, y + iconSize / 2 + 4);
+      gc.drawLine(x - 1, y + iconSize / 2 - 4, x - 1, y + iconSize / 2 + 4);
+      gc.drawLine(x + iconSize / 2 - 4, y - 1, x + iconSize / 2 + 4, y - 1);
+      gc.drawLine(x + iconSize / 2 - 4, y + iconSize, x + iconSize / 2 + 4, y + iconSize);
+
+      int badgeX = x - 8;
+      int badgeY = y + iconSize - 8;
       try {
-        gc.drawImage(IGc.EImage.INFO, badgeX, badgeY, mag);
+        gc.drawImage(IGc.EImage.WARNING, badgeX, badgeY, magnification);
       } catch (Exception ignored) {
         // Icon drawing is best-effort on the canvas overlay
       }

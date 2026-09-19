@@ -208,7 +208,8 @@ public final class LintReportWriter {
     try {
       Path path = Paths.get(fileName);
       if (path.isAbsolute() && path.startsWith(baseDirectory)) {
-        return baseDirectory.relativize(path).toString();
+        // Reports are read on other machines and SARIF wants a URI: always use forward slashes.
+        return baseDirectory.relativize(path).toString().replace('\\', '/');
       }
     } catch (Exception ignored) {
       // Not a real path (metadata findings use labels like "connection: prod"); pass it through.

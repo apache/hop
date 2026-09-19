@@ -398,8 +398,8 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   }
 
   /**
-   * The base icon with the badge scaled into its bottom right corner, blended over whatever the
-   * base has there rather than punched through it, so a badge with soft edges does not leave a hard
+   * The base icon with the badge scaled into its bottom left corner, blended over whatever the base
+   * has there rather than punched through it, so a badge with soft edges does not leave a hard
    * outline. What the base leaves transparent stays transparent: the tree paints its own background
    * behind the icon.
    *
@@ -410,7 +410,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     ImageData composite = withPerPixelAlpha(baseData);
     ImageData scaled = badgeData.scaledTo(badgeSize, badgeSize);
     ImageData scaledMask = transparencyMask(scaled);
-    int offsetX = composite.width - badgeSize - margin;
+    int offsetX = margin;
     int offsetY = composite.height - badgeSize - margin;
 
     for (int y = 0; y < badgeSize; y++) {

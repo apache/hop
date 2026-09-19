@@ -26,10 +26,10 @@ import lombok.Getter;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
@@ -249,11 +249,9 @@ public class HopGuiWorkflowCheckDelegate {
         parentItem.setData(source);
 
         if (source instanceof IAction action) {
-          Image image =
-              GuiResource.getInstance()
-                  .getSwtImageAction(action.getPluginId())
-                  .getAsBitmapForSize(
-                      hopGui.getDisplay(), ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE);
+          SwtUniversalImage swtImage =
+              GuiResource.getInstance().getSwtImageAction(action.getPluginId());
+          Image image = GuiResource.getInstance().getSmallIcon(swtImage);
           if (image != null) {
             parentItem.setImage(image);
           }
@@ -281,6 +279,7 @@ public class HopGuiWorkflowCheckDelegate {
       case ICheckResult.TYPE_RESULT_OK -> GuiResource.getInstance().getImageTrue();
       case ICheckResult.TYPE_RESULT_ERROR -> GuiResource.getInstance().getImageError();
       case ICheckResult.TYPE_RESULT_WARNING -> GuiResource.getInstance().getImageWarning();
+      case ICheckResult.TYPE_RESULT_COMMENT -> GuiResource.getInstance().getImageInfo();
       default -> null;
     };
   }
