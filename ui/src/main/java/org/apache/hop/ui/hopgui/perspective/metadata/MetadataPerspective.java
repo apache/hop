@@ -180,7 +180,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "MetadataPerspective-ContextMenu";
 
   public static final String TOOLBAR_ITEM_NEW_TYPE = "MetadataPerspective-Toolbar-09000-NewType";
-  public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
@@ -1303,11 +1302,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     renderTree();
   }
 
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_NEW,
-      toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
-      image = "ui/images/new.svg")
   public void onNewMetadata() {
     if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
       return;
@@ -3272,7 +3266,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     boolean canReadMeta = HopSecurity.allows(Permission.METADATA_READ) || canWriteMeta;
 
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW_TYPE, canWriteMeta);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected && canReadMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected && canWriteMeta);
