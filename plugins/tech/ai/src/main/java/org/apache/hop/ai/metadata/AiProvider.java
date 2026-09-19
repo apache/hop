@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.ai.engine.AiChatFactory;
 import org.apache.hop.ai.provider.IAiProvider;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -132,6 +133,17 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       toolTip = "i18n::AiProvider.Temperature.Tooltip")
   private String temperature = "0.3";
 
+  /**
+   * Models this provider serves, one entry per {@link AiModelRole}. A transform resolves the role
+   * it needs, so one provider can back a chat transform, an embedding transform and a reranker at
+   * once.
+   *
+   * <p>Empty on a provider created before roles existed, in which case {@link AiModelRole#CHAT}
+   * falls back to {@link #modelName} and nothing changes.
+   */
+  @HopMetadataProperty(key = "models", injectionGroupKey = "MODELS")
+  private List<AiProviderModel> models = new ArrayList<>();
+
   public AiProvider() {}
 
   public AiProvider(AiProvider other) {
@@ -144,6 +156,29 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
     this.timeoutSeconds = other.timeoutSeconds;
     this.modelName = other.modelName;
     this.temperature = other.temperature;
+    for (AiProviderModel model : other.models) {
+      this.models.add(new AiProviderModel(model));
+    }
+  }
+
+  /**
+   * The model name to use for a role: the entry for that role when there is one, otherwise {@link
+   * #modelName} for {@link AiModelRole#CHAT}.
+   *
+   * <p>{@code modelName} is the chat model, so it is deliberately not a fallback for the other
+   * roles: embedding a text with a chat model fails at the provider with a confusing error, and an
+   * empty result here produces a clear one instead.
+   *
+   * @param role the role the caller needs a model for
+   * @return the model name, or an empty string when none is configured for that role
+   */
+  public String resolveModelName(AiModelRole role) {
+    for (AiProviderModel model : models) {
+      if (model != null && model.getRole() == role && !Utils.isEmpty(model.getModelName())) {
+        return model.getModelName();
+      }
+    }
+    return role == AiModelRole.CHAT ? Const.NVL(modelName, "") : "";
   }
 
   public String getPluginId() {
