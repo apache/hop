@@ -19,6 +19,11 @@ package org.apache.hop.core.database.types;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Locale;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 
 /**
  * A database column described independently of which JDBC metadata API it came from.
@@ -41,6 +46,7 @@ public final class DatabaseColumn {
   private final int displaySize;
   private final boolean signed;
   private final String comment;
+  private final boolean autoIncrement;
 
   /**
    * The result set metadata this column came from, or null when it came from a getColumns() row.
@@ -61,6 +67,7 @@ public final class DatabaseColumn {
       int displaySize,
       boolean signed,
       String comment,
+      boolean autoIncrement,
       ResultSetMetaData resultSetMetaData,
       int columnIndex) {
     this.name = name;
@@ -72,6 +79,7 @@ public final class DatabaseColumn {
     this.displaySize = displaySize;
     this.signed = signed;
     this.comment = comment;
+    this.autoIncrement = autoIncrement;
     this.resultSetMetaData = resultSetMetaData;
     this.columnIndex = columnIndex;
   }
@@ -97,6 +105,7 @@ public final class DatabaseColumn {
         rm.getColumnDisplaySize(index),
         readSigned(rm, index),
         rm.getColumnLabel(index),
+        readAutoIncrement(rm, index),
         rm,
         index);
   }
@@ -113,6 +122,12 @@ public final class DatabaseColumn {
   public static DatabaseColumn ofColumnsRow(ResultSet columnsRow) throws SQLException {
     int columnSize = columnsRow.getInt("COLUMN_SIZE");
     Object decimalDigits = columnsRow.getObject("DECIMAL_DIGITS");
+    boolean autoIncrement = false;
+    try {
+      autoIncrement = "YES".equalsIgnoreCase(columnsRow.getString("IS_AUTOINCREMENT"));
+    } catch (Exception ignored) {
+      // Driver-dependent.
+    }
     return new DatabaseColumn(
         columnsRow.getString("COLUMN_NAME"),
         columnsRow.getString("TABLE_NAME"),
@@ -123,6 +138,7 @@ public final class DatabaseColumn {
         columnSize,
         true,
         columnsRow.getString("REMARKS"),
+        autoIncrement,
         null,
         -1);
   }
@@ -143,6 +159,19 @@ public final class DatabaseColumn {
       return rm.isSigned(index);
     } catch (Exception ignored) {
       // This JDBC driver doesn't support the isSigned method. Nothing more we can do here.
+      return false;
+    }
+  }
+
+  /**
+   * Not every JDBC driver implements isAutoIncrement(); those that don't are treated as not auto
+   * increment.
+   */
+  private static boolean readAutoIncrement(ResultSetMetaData rm, int index) {
+    try {
+      return rm.isAutoIncrement(index);
+    } catch (Exception ignored) {
+      // This JDBC driver doesn't support the isAutoIncrement method.
       return false;
     }
   }
@@ -194,6 +223,10 @@ public final class DatabaseColumn {
     return comment;
   }
 
+  public boolean isAutoIncrement() {
+    return autoIncrement;
+  }
+
   public ResultSetMetaData getResultSetMetaData() {
     return resultSetMetaData;
   }
@@ -208,7 +241,263 @@ public final class DatabaseColumn {
    */
   public static DatabaseColumn of(
       String name, int sqlType, String nativeTypeName, int precision, int scale, int displaySize) {
+    return of(name, sqlType, nativeTypeName, precision, scale, displaySize, false);
+  }
+
+  /**
+   * Describes a column with an explicit auto increment indicator when the caller already has JDBC
+   * type information.
+   */
+  public static DatabaseColumn of(
+      String name,
+      int sqlType,
+      String nativeTypeName,
+      int precision,
+      int scale,
+      int displaySize,
+      boolean autoIncrement) {
     return new DatabaseColumn(
-        name, null, sqlType, nativeTypeName, precision, scale, displaySize, true, null, null, -1);
+        name,
+        null,
+        sqlType,
+        nativeTypeName,
+        precision,
+        scale,
+        displaySize,
+        true,
+        null,
+        autoIncrement,
+        null,
+        -1);
+  }
+
+  /**
+   * The definition of this column as defined in the database (for example: varchar(100), bigint,
+   * int identity, bool, float, timestamp(6), numeric(10, 2)).
+   */
+  public String getDefinition() {
+    return calculateDefinition(
+        nativeTypeName,
+        sqlType,
+        precision,
+        scale,
+        displaySize > 0 ? displaySize : precision,
+        autoIncrement);
+  }
+
+  /**
+   * Calculates the database column definition for an {@link IValueMeta} using whatever original
+   * database metadata was attached to it.
+   */
+  public static String calculateDefinition(IValueMeta valueMeta) {
+    if (valueMeta == null) {
+      return "";
+    }
+    String typeName = valueMeta.getOriginalColumnTypeName();
+    if (Utils.isEmpty(typeName)) {
+      String desc = org.apache.hop.core.row.value.ValueMetaBase.getTypeDesc(valueMeta.getType());
+      return Utils.isEmpty(desc) || "-".equals(desc)
+          ? Const.NVL(valueMeta.getTypeDesc(), "")
+          : desc;
+    }
+    int sqlType = valueMeta.getOriginalColumnType();
+    int precision =
+        valueMeta.getLength() > 0 ? valueMeta.getLength() : valueMeta.getOriginalPrecision();
+    int scale;
+    if (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+        || valueMeta.getType() == IValueMeta.TYPE_DATE) {
+      scale =
+          valueMeta.getOriginalScale() > 0 ? valueMeta.getOriginalScale() : valueMeta.getLength();
+    } else {
+      scale =
+          valueMeta.getPrecision() >= 0 ? valueMeta.getPrecision() : valueMeta.getOriginalScale();
+    }
+    int length = valueMeta.getLength();
+    boolean autoIncrement = valueMeta.isOriginalAutoIncrement();
+    return calculateDefinition(typeName, sqlType, precision, scale, length, autoIncrement);
+  }
+
+  /**
+   * Formats the database column data type definition given the native type name and column
+   * dimensions.
+   */
+  public static String calculateDefinition(
+      String nativeTypeName,
+      int sqlType,
+      int precision,
+      int scale,
+      int length,
+      boolean autoIncrement) {
+    if (Utils.isEmpty(nativeTypeName)) {
+      return "";
+    }
+    String trimmed = nativeTypeName.trim();
+    if (trimmed.contains("(")) {
+      return trimmed;
+    }
+
+    String upper = trimmed.toUpperCase(Locale.ROOT);
+
+    // 1. Types that do not take length/precision
+    if (isIntegerType(upper)
+        || isFloatingPointType(upper)
+        || isBooleanType(upper)
+        || isUnsizedType(upper)
+        || "DATE".equals(upper)) {
+      return trimmed;
+    }
+
+    // 2. String/Character and Binary types: VARCHAR, CHAR, NVARCHAR, NCHAR, VARCHAR2, NVARCHAR2,
+    // BPCHAR, BINARY, VARBINARY, RAW
+    if (isSizedStringType(upper) || isSizedBinaryType(upper)) {
+      int size = precision > 0 ? precision : length;
+      if (size > 0 && size < DatabaseMeta.CLOB_LENGTH && size < 10000000) {
+        return trimmed + "(" + size + ")";
+      }
+      return trimmed;
+    }
+
+    // 3. Decimal/Numeric types: DECIMAL, NUMERIC, NUMBER, DEC
+    if (isDecimalType(upper)) {
+      int p = precision > 0 ? precision : length;
+      if (p > 0 && p <= 1000) {
+        if (scale > 0) {
+          return trimmed + "(" + p + ", " + scale + ")";
+        } else if (scale == 0 && p <= 38) {
+          return trimmed + "(" + p + ")";
+        }
+      }
+      return trimmed;
+    }
+
+    // 4. Timestamp / Time / DateTime types: TIMESTAMP, TIMESTAMPTZ, TIME, TIMETZ, DATETIME2
+    if (isDateTimeWithPrecision(upper)) {
+      int fracSec =
+          (scale >= 0 && scale <= 9) ? scale : ((length >= 0 && length <= 9) ? length : -1);
+      if (fracSec > 0) {
+        int tzIndex = -1;
+        if (upper.contains(" WITHOUT TIME ZONE")) {
+          tzIndex = upper.indexOf(" WITHOUT TIME ZONE");
+        } else if (upper.contains(" WITH LOCAL TIME ZONE")) {
+          tzIndex = upper.indexOf(" WITH LOCAL TIME ZONE");
+        } else if (upper.contains(" WITH TIME ZONE")) {
+          tzIndex = upper.indexOf(" WITH TIME ZONE");
+        }
+        if (tzIndex >= 0) {
+          return trimmed.substring(0, tzIndex) + "(" + fracSec + ")" + trimmed.substring(tzIndex);
+        } else {
+          return trimmed + "(" + fracSec + ")";
+        }
+      }
+      return trimmed;
+    }
+
+    return trimmed;
+  }
+
+  private static boolean isIntegerType(String upper) {
+    return upper.equals("BIGINT")
+        || upper.startsWith("BIGINT ")
+        || upper.equals("INT")
+        || upper.startsWith("INT ")
+        || upper.equals("INTEGER")
+        || upper.startsWith("INTEGER ")
+        || upper.equals("SMALLINT")
+        || upper.startsWith("SMALLINT ")
+        || upper.equals("TINYINT")
+        || upper.startsWith("TINYINT ")
+        || upper.equals("MEDIUMINT")
+        || upper.startsWith("MEDIUMINT ")
+        || upper.equals("INT2")
+        || upper.equals("INT4")
+        || upper.equals("INT8")
+        || upper.equals("INT16")
+        || upper.equals("INT32")
+        || upper.equals("INT64")
+        || upper.equals("UINT")
+        || upper.equals("SERIAL")
+        || upper.equals("BIGSERIAL")
+        || upper.equals("SMALLSERIAL");
+  }
+
+  private static boolean isFloatingPointType(String upper) {
+    return upper.equals("FLOAT")
+        || upper.startsWith("FLOAT ")
+        || upper.equals("DOUBLE")
+        || upper.startsWith("DOUBLE ")
+        || upper.equals("REAL")
+        || upper.equals("DOUBLE PRECISION")
+        || upper.equals("FLOAT4")
+        || upper.equals("FLOAT8")
+        || upper.equals("BINARY_FLOAT")
+        || upper.equals("BINARY_DOUBLE");
+  }
+
+  private static boolean isBooleanType(String upper) {
+    return upper.equals("BOOL") || upper.equals("BOOLEAN") || upper.equals("BIT");
+  }
+
+  private static boolean isUnsizedType(String upper) {
+    return upper.equals("TEXT")
+        || upper.equals("TINYTEXT")
+        || upper.equals("MEDIUMTEXT")
+        || upper.equals("LONGTEXT")
+        || upper.equals("CLOB")
+        || upper.equals("NCLOB")
+        || upper.equals("BLOB")
+        || upper.equals("BYTEA")
+        || upper.equals("IMAGE")
+        || upper.equals("JSON")
+        || upper.equals("JSONB")
+        || upper.equals("XML")
+        || upper.equals("UUID")
+        || upper.equals("UNIQUEIDENTIFIER")
+        || upper.equals("MONEY")
+        || upper.equals("SMALLMONEY")
+        || upper.equals("DATETIME")
+        || upper.equals("SMALLDATETIME")
+        || upper.equals("ROWVERSION")
+        || upper.equals("DATE")
+        || upper.equals("GEOMETRY")
+        || upper.equals("GEOGRAPHY")
+        || upper.equals("HIERARCHYID")
+        || upper.equals("SQL_VARIANT")
+        || upper.equals("SYSNAME");
+  }
+
+  private static boolean isSizedStringType(String upper) {
+    return upper.equals("VARCHAR")
+        || upper.equals("CHAR")
+        || upper.equals("CHARACTER")
+        || upper.equals("CHARACTER VARYING")
+        || upper.equals("VARCHAR2")
+        || upper.equals("NVARCHAR")
+        || upper.equals("NVARCHAR2")
+        || upper.equals("NCHAR")
+        || upper.equals("BPCHAR");
+  }
+
+  private static boolean isSizedBinaryType(String upper) {
+    return upper.equals("BINARY") || upper.equals("VARBINARY") || upper.equals("RAW");
+  }
+
+  private static boolean isDecimalType(String upper) {
+    return upper.equals("DECIMAL")
+        || upper.equals("NUMERIC")
+        || upper.equals("NUMBER")
+        || upper.equals("DEC");
+  }
+
+  private static boolean isDateTimeWithPrecision(String upper) {
+    return upper.equals("TIMESTAMP")
+        || upper.startsWith("TIMESTAMP ")
+        || upper.equals("TIMESTAMPTZ")
+        || upper.startsWith("TIMESTAMPTZ ")
+        || upper.equals("DATETIME2")
+        || upper.startsWith("DATETIME2 ")
+        || upper.equals("TIME")
+        || upper.startsWith("TIME ")
+        || upper.equals("TIMETZ")
+        || upper.startsWith("TIMETZ ");
   }
 }
