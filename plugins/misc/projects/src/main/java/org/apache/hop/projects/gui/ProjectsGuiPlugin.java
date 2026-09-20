@@ -186,14 +186,21 @@ public class ProjectsGuiPlugin {
       }
 
       // Save execution perspective state (toolbar filters + open tabs) under the current project
-      // namespace before closing tabs / switching namespace.
+      // namespace before closing tabs / switching namespace. Hop Web can enable a project before
+      // every perspective exists (issue #8477).
       //
-      ExecutionPerspective.getInstance().saveState();
+      ExecutionPerspective executionPerspective = findExecutionPerspective(hopGui);
+      if (executionPerspective != null) {
+        executionPerspective.saveState();
+      }
 
       // Save explorer layout (split panes, panel visibility) while tabs are still open so the
       // restored layout matches what the user had before the switch (issue #7692 / #6708).
       //
-      ExplorerPerspective.getInstance().saveExplorerStateOnShutdown();
+      ExplorerPerspective explorerPerspective = findExplorerPerspective(hopGui);
+      if (explorerPerspective != null) {
+        explorerPerspective.saveExplorerStateOnShutdown();
+      }
 
       // Close's all (including execution information tabs)
       //
@@ -310,9 +317,12 @@ public class ProjectsGuiPlugin {
 
       // Restore the state of the execution perspective as well
       //
-      ExecutionPerspective.getInstance().restoreState();
-      if (ExecutionPerspective.getInstance().isActive()) {
-        ExecutionPerspective.getInstance().refresh();
+      executionPerspective = findExecutionPerspective(hopGui);
+      if (executionPerspective != null) {
+        executionPerspective.restoreState();
+        if (executionPerspective.isActive()) {
+          executionPerspective.refresh();
+        }
       }
 
       // Send out an event notifying that a new project is activated...
@@ -361,6 +371,24 @@ public class ProjectsGuiPlugin {
       }
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);
     }
+  }
+
+  /**
+   * Session-scoped lookup so Hop Web does not NPE when a project is enabled before perspectives
+   * exist (issue #8477).
+   */
+  static ExecutionPerspective findExecutionPerspective(HopGui hopGui) {
+    if (hopGui == null || hopGui.getPerspectiveManager() == null) {
+      return null;
+    }
+    return hopGui.getPerspectiveManager().findPerspective(ExecutionPerspective.class);
+  }
+
+  static ExplorerPerspective findExplorerPerspective(HopGui hopGui) {
+    if (hopGui == null || hopGui.getPerspectiveManager() == null) {
+      return null;
+    }
+    return hopGui.getPerspectiveManager().findPerspective(ExplorerPerspective.class);
   }
 
   /**
