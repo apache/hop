@@ -57,6 +57,9 @@ public class HdfsKerberosSession {
   private volatile LoginContext loginContext;
   private volatile long loginTimeMillis;
 
+  /** Test seam: skip JAAS login and use this Subject in {@link #doAs}. */
+  private volatile Subject subjectOverride;
+
   public HdfsKerberosSession(IVariables variables, HdfsMeta meta) {
     this(variables, meta, new KerberosUtil());
   }
@@ -111,22 +114,57 @@ public class HdfsKerberosSession {
     LogChannel.GENERAL.logBasic(BaseMessages.getString(PKG, "Hdfs.Log.KerberosRenew", principal));
   }
 
+  /**
+   * Run {@code action} as the logged-in Subject without holding {@link #JVM_KERBEROS} for the
+   * duration. HTTP transfers must not wrap execute in this method; use {@link #gss} for SPNEGO.
+   */
   @SuppressWarnings("removal")
   public <T> T doAs(PrivilegedExceptionAction<T> action) throws Exception {
+    Subject subject;
     synchronized (JVM_KERBEROS) {
-      if (loginContext == null) {
-        login();
-      }
-      try {
-        return Subject.doAs(loginContext.getSubject(), action);
-      } catch (PrivilegedActionException e) {
-        Throwable cause = e.getCause() != null ? e.getCause() : e;
-        if (cause instanceof Exception exception) {
-          throw exception;
-        }
-        throw new Exception(cause);
-      }
+      subject = currentSubject();
     }
+    return callAs(subject, action);
+  }
+
+  /**
+   * Run a short GSS action (SPNEGO token). Holds {@link #JVM_KERBEROS} only for this call so
+   * concurrent {@code initSecContext} and keytab re-login cannot overlap. HTTP transfers must not
+   * use this.
+   */
+  public <T> T gss(PrivilegedExceptionAction<T> action) throws Exception {
+    synchronized (JVM_KERBEROS) {
+      return doAs(action);
+    }
+  }
+
+  @SuppressWarnings("removal")
+  private static <T> T callAs(Subject subject, PrivilegedExceptionAction<T> action)
+      throws Exception {
+    try {
+      return Subject.doAs(subject, action);
+    } catch (PrivilegedActionException e) {
+      Throwable cause = e.getCause() != null ? e.getCause() : e;
+      if (cause instanceof Exception exception) {
+        throw exception;
+      }
+      throw new Exception(cause);
+    }
+  }
+
+  private Subject currentSubject() throws LoginException {
+    Subject override = subjectOverride;
+    if (override != null) {
+      return override;
+    }
+    if (loginContext == null) {
+      login();
+    }
+    return loginContext.getSubject();
+  }
+
+  void useSubjectForTest(Subject subject) {
+    this.subjectOverride = subject;
   }
 
   public void close() {
