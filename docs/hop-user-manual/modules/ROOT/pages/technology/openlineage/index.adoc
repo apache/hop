@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/openlineage/
 :language: en_US
 :description: The OpenLineage technology plugin is a Hop lineage sink that maps the engine's lineage events to OpenLineage JSON and posts them to a collector such as Marquez.
+:page-marketplace: hop-tech-openlineage
 
 = OpenLineage
 

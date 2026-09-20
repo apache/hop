@@ -17,6 +17,7 @@ under the License.
 [[BeamFlinkPipelineEngine]]
 :imagesdir: ../assets/images
 :description: Apache Hop supports running pipelines on Apache Flink using an Apache Beam Flink runner. This page describes how to configure this runner.
+:page-marketplace: hop-engines-beam
 = Apache Beam Flink Pipeline Engine
 
 == Beam Flink

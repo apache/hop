@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Upsert text chunks and their embeddings into a PostgreSQL table that uses the pgvector extension.
+:page-marketplace: hop-tech-pgvector
 
 = image:transforms/icons/vector-store.svg[pgvector upsert transform Icon, role="image-doc-icon"] pgvector upsert
 

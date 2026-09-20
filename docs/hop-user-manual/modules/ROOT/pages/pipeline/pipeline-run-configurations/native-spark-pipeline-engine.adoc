@@ -17,6 +17,7 @@ under the License.
 [[NativeSparkPipelineEngine]]
 :imagesdir: ../../../assets/images
 :description: Apache Hop native Spark pipeline engine run configuration options (Spark 4.1.x without Beam).
+:page-marketplace: hop-engines-spark
 
 = Native Spark Pipeline Engine
 

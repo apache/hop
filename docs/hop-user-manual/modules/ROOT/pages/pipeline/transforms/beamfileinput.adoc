@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam file input transform reads files using a file definition with the Beam execution engine.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-input.svg[Beam Input Icon, role="image-doc-icon"] Beam file input
 

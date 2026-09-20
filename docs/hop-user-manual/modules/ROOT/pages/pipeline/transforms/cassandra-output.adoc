@@ -19,6 +19,7 @@ under the License.
 :description: The Cassandra Output transform writes data to a Cassandra table of an Apache Cassandra cluster using CQL (Cassandra Query Language) version 3.x.
 
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-cassandra
 
 = image:transforms/icons/cassandraout.svg[Cassandra Output transform Icon, role="image-doc-icon"] Cassandra Output
 

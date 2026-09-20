@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam window transform adds event-time-based window functions using the Beam execution engine.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-window.svg[Beam window Icon, role="image-doc-icon"] Beam window
 

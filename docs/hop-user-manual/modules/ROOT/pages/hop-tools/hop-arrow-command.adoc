@@ -18,6 +18,7 @@ under the License.
 :imagesdir: ../../../assets/images/
 :page-pagination:
 :description: Hop Arrow command
+:page-marketplace: hop-tech-arrow
 
 = Hop Arrow command
 

@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Databricks Connection metadata for the Jobs / workspace REST API (PAT), used by Databricks job run actions.
+:page-marketplace: hop-tech-databricks
 
 = Databricks Connection
 

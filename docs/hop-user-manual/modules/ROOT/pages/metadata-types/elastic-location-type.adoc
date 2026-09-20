@@ -17,6 +17,7 @@ under the License.
 
 :documentationPath: /metadata-types/
 :language: en_US
+:page-marketplace: hop-tech-elastic
 
 = Elastic Location Type
 

@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-databricks]]
 :documentationPath: /database/databases/
 :language: en_US
+:page-marketplace: hop-tech-databricks
 
 = Databricks
 

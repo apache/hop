@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: This is used to register one or more S3 endpoints
+:page-marketplace: hop-tech-minio
 
 = Minio Connection
 

@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
+:page-marketplace: hop-tech-neo4j
 
 = Neo4j Perspective
 

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /metadata-types/redis/
 :language: en_US
+:page-marketplace: hop-tech-redis
 
 = Redis Connection
 

@@ -17,6 +17,7 @@ License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Describes a Salesforce connection. The Salesforce connection, specified on a project level, can be reused across multiple Salesforce transforms.
+:page-marketplace: hop-tech-salesforce
 
 = Salesforce Connection
 

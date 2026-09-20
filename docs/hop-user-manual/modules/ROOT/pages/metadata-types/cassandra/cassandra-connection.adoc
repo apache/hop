@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /metadata-types/cassandra/
 :language: en_US
+:page-marketplace: hop-tech-cassandra
 
 = Cassandra Connection
 
