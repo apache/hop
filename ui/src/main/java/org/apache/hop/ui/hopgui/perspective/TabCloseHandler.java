@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import lombok.Getter;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -33,8 +34,18 @@ public class TabCloseHandler {
 
   private final TabClosable tabClosablePerspective;
   CTabFolder tabFolder;
-  CTabItem selectedItem;
-  private final Menu menu;
+
+  /**
+   * The tab the context menu was opened on. It is set before the menu is shown, so listeners on the
+   * menu can rely on it being current for this click.
+   */
+  @Getter CTabItem selectedItem;
+
+  /**
+   * The tab context menu. It is not attached to the folder, so callers that want to add their own
+   * items have to get it from here rather than from {@code CTabFolder.getMenu()}.
+   */
+  @Getter private final Menu menu;
 
   public TabCloseHandler(TabClosable tabClosablePerspective) {
     this(tabClosablePerspective, tabClosablePerspective.getTabFolder());
