@@ -277,12 +277,7 @@ public final class DatabaseColumn {
    */
   public String getDefinition() {
     return calculateDefinition(
-        nativeTypeName,
-        sqlType,
-        precision,
-        scale,
-        displaySize > 0 ? displaySize : precision,
-        autoIncrement);
+        nativeTypeName, precision, scale, displaySize > 0 ? displaySize : precision);
   }
 
   /**
@@ -295,12 +290,8 @@ public final class DatabaseColumn {
     }
     String typeName = valueMeta.getOriginalColumnTypeName();
     if (Utils.isEmpty(typeName)) {
-      String desc = org.apache.hop.core.row.value.ValueMetaBase.getTypeDesc(valueMeta.getType());
-      return Utils.isEmpty(desc) || "-".equals(desc)
-          ? Const.NVL(valueMeta.getTypeDesc(), "")
-          : desc;
+      return Const.NVL(valueMeta.getTypeDesc(), "");
     }
-    int sqlType = valueMeta.getOriginalColumnType();
     int precision =
         valueMeta.getLength() > 0 ? valueMeta.getLength() : valueMeta.getOriginalPrecision();
     int scale;
@@ -313,8 +304,7 @@ public final class DatabaseColumn {
           valueMeta.getPrecision() >= 0 ? valueMeta.getPrecision() : valueMeta.getOriginalScale();
     }
     int length = valueMeta.getLength();
-    boolean autoIncrement = valueMeta.isOriginalAutoIncrement();
-    return calculateDefinition(typeName, sqlType, precision, scale, length, autoIncrement);
+    return calculateDefinition(typeName, precision, scale, length);
   }
 
   /**
@@ -322,12 +312,7 @@ public final class DatabaseColumn {
    * dimensions.
    */
   public static String calculateDefinition(
-      String nativeTypeName,
-      int sqlType,
-      int precision,
-      int scale,
-      int length,
-      boolean autoIncrement) {
+      String nativeTypeName, int precision, int scale, int length) {
     if (Utils.isEmpty(nativeTypeName)) {
       return "";
     }
@@ -342,16 +327,19 @@ public final class DatabaseColumn {
     if (isIntegerType(upper)
         || isFloatingPointType(upper)
         || isBooleanType(upper)
-        || isUnsizedType(upper)
-        || "DATE".equals(upper)) {
+        || isUnsizedType(upper)) {
       return trimmed;
     }
 
-    // 2. String/Character and Binary types: VARCHAR, CHAR, NVARCHAR, NCHAR, VARCHAR2, NVARCHAR2,
-    // BPCHAR, BINARY, VARBINARY, RAW
-    if (isSizedStringType(upper) || isSizedBinaryType(upper)) {
+    // 2. String/Character, Binary, and Bit types: VARCHAR, CHAR, NVARCHAR, NCHAR, VARCHAR2,
+    // NVARCHAR2,
+    // BPCHAR, BINARY, VARBINARY, RAW, BIT
+    if (isSizedStringType(upper) || isSizedBinaryType(upper) || isSizedBitType(upper)) {
       int size = precision > 0 ? precision : length;
-      if (size > 0 && size < DatabaseMeta.CLOB_LENGTH && size < 10000000) {
+      if (upper.equals("BIT") && size <= 1) {
+        return trimmed;
+      }
+      if (size > 0 && size < DatabaseMeta.CLOB_LENGTH) {
         return trimmed + "(" + size + ")";
       }
       return trimmed;
@@ -363,7 +351,7 @@ public final class DatabaseColumn {
       if (p > 0 && p <= 1000) {
         if (scale > 0) {
           return trimmed + "(" + p + ", " + scale + ")";
-        } else if (scale == 0 && p <= 38) {
+        } else if (scale == 0) {
           return trimmed + "(" + p + ")";
         }
       }
@@ -434,7 +422,11 @@ public final class DatabaseColumn {
   }
 
   private static boolean isBooleanType(String upper) {
-    return upper.equals("BOOL") || upper.equals("BOOLEAN") || upper.equals("BIT");
+    return upper.equals("BOOL") || upper.equals("BOOLEAN");
+  }
+
+  private static boolean isSizedBitType(String upper) {
+    return upper.equals("BIT") || upper.equals("BIT VARYING") || upper.equals("VARBIT");
   }
 
   private static boolean isUnsizedType(String upper) {

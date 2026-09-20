@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -167,5 +168,100 @@ class DatabaseTableInfoTabTest {
     Map<String, String> defs =
         DatabaseTableInfoTab.loadColumnDefinitions(db, "otherdb", "orders", null);
     assertEquals("int", defs.get("id"));
+  }
+
+  @Test
+  void loadColumnDefinitionsEscapesWildcardCharactersInTableNameAndSchema() throws Exception {
+    Database db = mock(Database.class);
+    DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+    ResultSet rs = mock(ResultSet.class);
+    ResultSetMetaData rsmd = mock(ResultSetMetaData.class);
+
+    when(db.getDatabaseMetaData()).thenReturn(metaData);
+    when(metaData.supportsCatalogsInTableDefinitions()).thenReturn(false);
+    when(metaData.supportsSchemasInTableDefinitions()).thenReturn(true);
+    when(metaData.getSearchStringEscape()).thenReturn("\\");
+    when(metaData.getColumns(any(), eq("sales\\_schema"), eq("order\\_items\\%2024"), any()))
+        .thenReturn(rs);
+    when(rs.getMetaData()).thenReturn(rsmd);
+    when(rsmd.getColumnCount()).thenReturn(10);
+    when(rs.next()).thenReturn(true, false);
+    when(rs.getString("TABLE_NAME")).thenReturn("order_items%2024");
+    when(rs.getString("TABLE_SCHEM")).thenReturn("sales_schema");
+    when(rs.getString("COLUMN_NAME")).thenReturn("item_id");
+    when(rs.getInt("DATA_TYPE")).thenReturn(java.sql.Types.INTEGER);
+    when(rs.getString("TYPE_NAME")).thenReturn("int");
+
+    Map<String, String> defs =
+        DatabaseTableInfoTab.loadColumnDefinitions(db, "sales_schema", "order_items%2024", null);
+    assertEquals("int", defs.get("item_id"));
+  }
+
+  @Test
+  void loadColumnDefinitionsFiltersMismatchedTablesAndSchemas() throws Exception {
+    Database db = mock(Database.class);
+    DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+    ResultSet rs = mock(ResultSet.class);
+    ResultSetMetaData rsmd = mock(ResultSetMetaData.class);
+
+    when(db.getDatabaseMetaData()).thenReturn(metaData);
+    when(metaData.supportsCatalogsInTableDefinitions()).thenReturn(false);
+    when(metaData.supportsSchemasInTableDefinitions()).thenReturn(true);
+    when(metaData.getSearchStringEscape()).thenReturn("\\");
+    when(metaData.getColumns(any(), eq("sales"), eq("orders"), any())).thenReturn(rs);
+    when(rs.getMetaData()).thenReturn(rsmd);
+    when(rsmd.getColumnCount()).thenReturn(10);
+    AtomicInteger row = new AtomicInteger(0);
+    when(rs.next()).thenAnswer(inv -> row.incrementAndGet() <= 3);
+    when(rs.getString("TABLE_NAME"))
+        .thenAnswer(
+            inv -> {
+              switch (row.get()) {
+                case 1:
+                  return "orders_extra";
+                case 2:
+                case 3:
+                  return "orders";
+                default:
+                  return null;
+              }
+            });
+    when(rs.getString("TABLE_SCHEM"))
+        .thenAnswer(
+            inv -> {
+              switch (row.get()) {
+                case 1:
+                case 3:
+                  return "sales";
+                case 2:
+                  return "other_schema";
+                default:
+                  return null;
+              }
+            });
+    when(rs.getString("COLUMN_NAME"))
+        .thenAnswer(
+            inv -> {
+              switch (row.get()) {
+                case 1:
+                  return "extra_col";
+                case 2:
+                  return "wrong_col";
+                case 3:
+                  return "valid_col";
+                default:
+                  return null;
+              }
+            });
+    when(rs.getInt("DATA_TYPE")).thenReturn(java.sql.Types.VARCHAR);
+    when(rs.getString("TYPE_NAME")).thenReturn("varchar");
+    when(rs.getInt("COLUMN_SIZE")).thenReturn(50);
+
+    Map<String, String> defs =
+        DatabaseTableInfoTab.loadColumnDefinitions(db, "sales", "orders", null);
+    assertEquals(1, defs.size());
+    assertEquals("varchar(50)", defs.get("valid_col"));
+    assertFalse(defs.containsKey("extra_col"));
+    assertFalse(defs.containsKey("wrong_col"));
   }
 }

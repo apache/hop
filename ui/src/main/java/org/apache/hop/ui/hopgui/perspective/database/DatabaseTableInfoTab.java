@@ -322,21 +322,53 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
           String escapedSchema = escapePattern(schemaPattern, escape);
           String escapedTable = escapePattern(tableName, escape);
 
-          readColumnDefinitions(metaData, catalog, escapedSchema, escapedTable, definitions);
+          readColumnDefinitions(
+              metaData,
+              catalog,
+              escapedSchema,
+              escapedTable,
+              catalog,
+              schemaPattern,
+              tableName,
+              definitions);
 
           // If empty and schemaName was provided, try using schemaName as catalog
           if (definitions.isEmpty() && !Utils.isEmpty(schemaName)) {
             if (catalog == null || !schemaName.equals(catalog)) {
-              readColumnDefinitions(metaData, schemaName, null, escapedTable, definitions);
+              readColumnDefinitions(
+                  metaData,
+                  schemaName,
+                  null,
+                  escapedTable,
+                  schemaName,
+                  null,
+                  tableName,
+                  definitions);
             }
           }
 
           if (definitions.isEmpty() && !Utils.isEmpty(tableName)) {
             String upperTable = escapePattern(tableName.toUpperCase(Locale.ROOT), escape);
-            readColumnDefinitions(metaData, catalog, escapedSchema, upperTable, definitions);
+            readColumnDefinitions(
+                metaData,
+                catalog,
+                escapedSchema,
+                upperTable,
+                catalog,
+                schemaPattern,
+                tableName,
+                definitions);
             if (definitions.isEmpty()) {
               String lowerTable = escapePattern(tableName.toLowerCase(Locale.ROOT), escape);
-              readColumnDefinitions(metaData, catalog, escapedSchema, lowerTable, definitions);
+              readColumnDefinitions(
+                  metaData,
+                  catalog,
+                  escapedSchema,
+                  lowerTable,
+                  catalog,
+                  schemaPattern,
+                  tableName,
+                  definitions);
             }
           }
         }
@@ -378,11 +410,40 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
       String catalog,
       String schemaPattern,
       String tableNamePattern,
+      String expectedCatalog,
+      String expectedSchema,
+      String expectedTableName,
       Map<String, String> definitions) {
     try (ResultSet columns = metaData.getColumns(catalog, schemaPattern, tableNamePattern, null)) {
       if (columns != null) {
+        String chosenSchema = null;
         while (columns.next()) {
           try {
+            if (!Utils.isEmpty(expectedTableName)) {
+              String actualTable = columns.getString("TABLE_NAME");
+              if (!Utils.isEmpty(actualTable) && !expectedTableName.equalsIgnoreCase(actualTable)) {
+                continue;
+              }
+            }
+            String actualSchema = columns.getString("TABLE_SCHEM");
+            if (!Utils.isEmpty(expectedSchema)) {
+              if (!Utils.isEmpty(actualSchema) && !expectedSchema.equalsIgnoreCase(actualSchema)) {
+                continue;
+              }
+            } else if (!Utils.isEmpty(actualSchema)) {
+              if (chosenSchema == null) {
+                chosenSchema = actualSchema;
+              } else if (!chosenSchema.equalsIgnoreCase(actualSchema)) {
+                continue;
+              }
+            }
+            if (!Utils.isEmpty(expectedCatalog)) {
+              String actualCatalog = columns.getString("TABLE_CAT");
+              if (!Utils.isEmpty(actualCatalog)
+                  && !expectedCatalog.equalsIgnoreCase(actualCatalog)) {
+                continue;
+              }
+            }
             DatabaseColumn column = DatabaseColumn.ofColumnsRow(columns);
             if (column != null && !Utils.isEmpty(column.getName())) {
               definitions.putIfAbsent(
@@ -482,13 +543,10 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
       IValueMeta value = fields.getValueMeta(i);
       TableItem item =
           i == 0 ? columnsView.table.getItem(0) : new TableItem(columnsView.table, SWT.NONE);
-      String definition = null;
-      if (definitions != null && !Utils.isEmpty(value.getName())) {
-        definition = definitions.get(value.getName().toLowerCase(Locale.ROOT));
-      }
-      if (Utils.isEmpty(definition)) {
-        definition = DatabaseColumn.calculateDefinition(value);
-      }
+      String definition =
+          definitions != null && !Utils.isEmpty(value.getName())
+              ? Const.NVL(definitions.get(value.getName().toLowerCase(Locale.ROOT)), "")
+              : DatabaseColumn.calculateDefinition(value);
       item.setText(1, Const.NVL(value.getName(), ""));
       item.setText(2, Const.NVL(definition, ""));
       item.setText(3, Const.NVL(value.getTypeDesc(), ""));
