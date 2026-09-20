@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: Spark SQL runs a SQL statement over the Datasets of the incoming transforms on the native Spark pipeline engine, so joins, unions and aggregations are planned as one Catalyst query.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-engines-spark
 
 = image:transforms/icons/spark-sql.svg[Spark SQL transform Icon, role="image-doc-icon"] Spark SQL
 

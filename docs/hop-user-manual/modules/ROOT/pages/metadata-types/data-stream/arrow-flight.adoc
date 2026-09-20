@@ -17,6 +17,7 @@ under the License.
 ////
 :imagesdir: ../assets/images
 :description: Apache Arrow Flight data stream
+:page-marketplace: hop-tech-arrow
 
 == Overview
 

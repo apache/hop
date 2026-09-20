@@ -17,6 +17,7 @@ under the License.
 [[OpenSearchLocationType]]
 :imagesdir: ../../assets/images
 :description: Store Hop execution information in an OpenSearch index.
+:page-marketplace: hop-tech-opensearch
 
 = OpenSearch Location Type
 

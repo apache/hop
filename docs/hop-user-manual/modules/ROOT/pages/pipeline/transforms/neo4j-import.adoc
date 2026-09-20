@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Neo4j import transform runs an import command using the provided CSV files.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-neo4j
 
 = image:transforms/icons/neo4j_import.svg[Neo4j import transform Icon, role="image-doc-icon"] Neo4j import
 

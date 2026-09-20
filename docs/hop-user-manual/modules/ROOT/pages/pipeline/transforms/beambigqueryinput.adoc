@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The BigQuery input transform reads data from Google Cloud BigQuery.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-bq-input.svg[BigQuery input Icon, role="image-doc-icon"] BigQuery input
 

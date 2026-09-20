@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Register a dbt Core project once and reference it from the dbt actions in your workflows.
+:page-marketplace: hop-action-dbt
 
 = dbt Project
 

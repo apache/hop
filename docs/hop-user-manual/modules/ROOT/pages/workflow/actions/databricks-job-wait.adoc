@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../../assets/images/
 :page-pagination:
 :description: Databricks job wait — poll a job run until it completes.
+:page-marketplace: hop-tech-databricks
 
 = Databricks job wait
 

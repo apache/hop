@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Run a top-k similarity search against a PostgreSQL table that uses the pgvector extension.
+:page-marketplace: hop-tech-pgvector
 
 = image:transforms/icons/vector-store.svg[pgvector search transform Icon, role="image-doc-icon"] pgvector search
 

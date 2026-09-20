@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Named HDFS connection over WebHDFS, HttpFS or Knox
+:page-marketplace: hop-tech-hadoop
 
 = HDFS Connection
 

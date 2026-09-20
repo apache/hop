@@ -19,6 +19,7 @@ under the License.
 :description: The Neo4j Cypher transform allows you to execute any Cypher through the Neo4j Bolt protocol using the Java driver.
 
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-neo4j
 
 = image:transforms/icons/neo4j_cypher.svg[Neo4j Cypher transform Icon, role="image-doc-icon"] Neo4j Cypher
 

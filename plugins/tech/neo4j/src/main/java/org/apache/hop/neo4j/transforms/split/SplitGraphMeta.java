@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "neo4j_split.svg",
     categoryDescription = "i18n::SplitGraphMeta.categoryDescription",
     keywords = "i18n::SplitGraphMeta.keyword",
-    documentationUrl = "/plugins/transforms/split-graph.html")
+    documentationUrl = "/pipeline/transforms/neo4j-split-graph.html")
 public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData> {
 
   @HopMetadataProperty(key = "graph_field")

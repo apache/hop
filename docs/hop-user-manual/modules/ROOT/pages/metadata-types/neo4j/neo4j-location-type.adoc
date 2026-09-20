@@ -17,6 +17,7 @@ under the License.
 
 :documentationPath: /metadata-types/neo4j/
 :language: en_US
+:page-marketplace: hop-tech-neo4j
 
 = Neo4j Location Type
 

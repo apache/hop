@@ -20,6 +20,7 @@ under the License.
 
 
 :toc:
+:page-marketplace: hop-engines-beam
 
 = Running the Apache Beam samples on Google Cloud Dataflow
 

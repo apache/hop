@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Avro file output transform can write Apache Avro messages to a file or field
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-avro
 
 = image:transforms/icons/avro_output.svg[Avro file output Icon, role="image-doc-icon"] Avro file output
 

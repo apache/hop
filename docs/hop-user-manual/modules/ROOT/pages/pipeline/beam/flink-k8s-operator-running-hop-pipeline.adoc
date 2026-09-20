@@ -19,6 +19,7 @@ under the License.
 :description: This page explains how you can run a Hop pipeline on a Flink cluster that is automatically started on kubernetes.
 
 :toc:
+:page-marketplace: hop-engines-beam
 
 = Running a Hop pipeline using the Flink Kubernetes Operator
 

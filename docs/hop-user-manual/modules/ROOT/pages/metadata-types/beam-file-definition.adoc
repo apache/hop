@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: A Beam File Definition describes a file layout in a Beam pipeline. The Beam File Definition specifies the file layout (name, field definitions, enclosure and separator) to be used in Beam Pipelines.
+:page-marketplace: hop-engines-beam
 
 = Beam File Definition
 

@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Spark Catalog metadata configures Spark SQL catalogs for Delta Lake and Apache Iceberg TABLE mode on the native Spark pipeline engine.
+:page-marketplace: hop-engines-spark
 
 = Spark Catalog
 

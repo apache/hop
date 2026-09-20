@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: Spark lake table output writes Delta Lake or Apache Iceberg tables on the native Spark pipeline engine with ACID commit semantics.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-engines-spark
 
 = image:transforms/icons/spark-lake-table-output.svg[Spark lake table output transform Icon, role="image-doc-icon"] Spark lake table output
 

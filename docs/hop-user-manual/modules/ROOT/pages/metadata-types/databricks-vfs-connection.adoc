@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Named Databricks VFS connection for Unity Catalog Volumes and Workspace files (Files API)
+:page-marketplace: hop-tech-databricks
 
 = Databricks VFS Connection
 

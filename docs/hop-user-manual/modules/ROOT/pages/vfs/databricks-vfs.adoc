@@ -18,6 +18,7 @@ under the License.
 :documentationPath: /vfs/
 :language: en_US
 :description: Hop VFS for Databricks Unity Catalog Volumes and Workspace files via the Files API
+:page-marketplace: hop-tech-databricks
 
 = Databricks Volumes / Workspace VFS
 

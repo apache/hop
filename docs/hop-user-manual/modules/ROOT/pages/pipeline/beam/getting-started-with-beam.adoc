@@ -19,6 +19,7 @@ under the License.
 :description: Apache Beam is an advanced unified programming model that allows you to implement and run batch and streaming data processing jobs.
 
 :toc:
+:page-marketplace: hop-engines-beam
 
 = Getting started with Apache Beam
 

@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Neo4j constraint action can be used to create or drop constraints on node or relationship properties in a Neo4j Graph
+:page-marketplace: hop-tech-neo4j
 
 = Neo4j constraint
 

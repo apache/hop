@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam Hive Catalog input transform reads data from an Apache Hive metastore.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-input.svg[Beam Input Icon, role="image-doc-icon"] (Experimental) Beam Hive catalog input
 

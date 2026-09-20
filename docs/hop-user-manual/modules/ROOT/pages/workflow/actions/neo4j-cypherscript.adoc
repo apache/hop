@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Neo4j Cypher script action executes Cypher statements in a workflow.
+:page-marketplace: hop-tech-neo4j
 
 
 = Neo4j Cypher script

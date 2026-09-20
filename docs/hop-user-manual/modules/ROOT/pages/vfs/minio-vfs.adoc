@@ -18,6 +18,7 @@ under the License.
 :documentationPath: /vfs/
 :language: en_US
 :description: Use MinIO or other S3 compatible object stores
+:page-marketplace: hop-tech-minio
 
 = MinIO
 

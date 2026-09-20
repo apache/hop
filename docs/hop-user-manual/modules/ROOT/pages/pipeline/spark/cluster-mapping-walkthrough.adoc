@@ -17,6 +17,7 @@ under the License.
 [[NativeSparkClusterMappingWalkthrough]]
 :imagesdir: ../../../assets/images
 :description: Walk-through: run Native Spark pipelines (Simple Mapping and Workflow Executor) on a Docker Spark 4.1 cluster using a project package.
+:page-marketplace: hop-engines-spark
 
 = Cluster demo walk-through (Native Spark)
 
