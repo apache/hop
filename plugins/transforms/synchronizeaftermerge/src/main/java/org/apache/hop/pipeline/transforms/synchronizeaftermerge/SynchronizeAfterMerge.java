@@ -1121,6 +1121,14 @@ public class SynchronizeAfterMerge
    * (streaming) pipeline never sends end-of-input at all. In both cases the connection stayed open,
    * and with it the uncommitted transaction and every row lock it holds. See <a
    * href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   *
+   * <p>A graceful stop leaves {@code getErrors() == 0}, so the pending batch is committed rather
+   * than rolled back - deliberately, and in line with Table Output, Update and Delete: this
+   * transform already commits every {@code commitSize} rows, so committing the final partial batch
+   * on a stop keeps the same all-or-a-multiple-of-commitSize contract. Only a real error rolls
+   * back. Note that {@link #emptyBatchBuffer(boolean)} still calls {@code putRow} for the committed
+   * rows; on a stop {@code putRow} is a no-op (nothing reads downstream anyway), while the rows are
+   * safely in the table - the same behaviour Table Output has.
    */
   @Override
   public void dispose() {
@@ -1185,6 +1193,13 @@ public class SynchronizeAfterMerge
         Integer batchCounter = data.commitCounterMap.get(schemaTable);
         if (batchCounter == null) {
           batchCounter = 0;
+        }
+
+        // Between batches there is nothing to commit for a statement that took no rows this batch.
+        // Skip it; at final completion we still fall through so emptyAndCommit closes the
+        // statement.
+        if (!closeStatements && batchCounter == 0) {
+          continue;
         }
 
         PreparedStatement statement = data.preparedStatements.get(schemaTable);

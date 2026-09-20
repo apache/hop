@@ -166,9 +166,12 @@ class SynchronizeAfterMergeDisposeTest {
 
     transform.dispose();
 
+    // Both statements are flushed and closed. Their relative order is a Hashtable artifact, so it
+    // is
+    // not asserted; what matters is that a flush precedes the disconnect.
+    verify(db).emptyAndCommit(updateStatement, true, 2, true);
     InOrder order = inOrder(db);
     order.verify(db).emptyAndCommit(insertStatement, true, 3, true);
-    order.verify(db).emptyAndCommit(updateStatement, true, 2, true);
     order.verify(db).disconnect();
     verify(db, never()).rollback();
     assertEquals(5, emitted.size(), "the buffered rows leave on the output before we disconnect");
@@ -227,6 +230,21 @@ class SynchronizeAfterMergeDisposeTest {
     assertEquals(0, data.commitCounterMap.get(UPDATE_KEY), "the batch counter starts over");
     assertEquals(5, emitted.size());
     assertTrue(data.batchBuffer.isEmpty());
+  }
+
+  /**
+   * Between batches a statement that took no rows must not trigger a no-op commit; only the
+   * statements with pending work are flushed. Issue 8288 review follow-up.
+   */
+  @Test
+  void batchCompleteSkipsStatementsWithAnEmptyBatch() throws Exception {
+    data.commitCounterMap.put(UPDATE_KEY, 0);
+    bufferRows(5);
+
+    transform.batchComplete();
+
+    verify(db).emptyAndCommit(insertStatement, true, 3, false);
+    verify(db, never()).emptyAndCommit(eq(updateStatement), anyBoolean(), anyInt(), anyBoolean());
   }
 
   @Test

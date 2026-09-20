@@ -230,7 +230,11 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
           pgCopyOut.flush();
           pgCopyOut.endCopy();
           pgCopyOut.close();
-          data.db.getConnection().close();
+          pgCopyOut = null;
+        }
+        if (data != null && data.db != null) {
+          data.db.disconnect();
+          data.db = null;
         }
 
         return false;
@@ -499,7 +503,11 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       logError("Error cancelling the COPY command while stopping the transform", e);
     } finally {
       try {
-        if (pgCopyOut != null) {
+        // Only close a copy that is no longer active. A still-active copy here means cancelCopy()
+        // above threw (a broken connection, the likely case), and pgjdbc's close() runs endCopy()
+        // on an active copy - which would commit the very rows we are trying to discard. The
+        // disconnect() below tears the connection down regardless.
+        if (pgCopyOut != null && !pgCopyOut.isActive()) {
           pgCopyOut.close();
         }
       } catch (IOException e) {
