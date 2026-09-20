@@ -54,16 +54,14 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
-import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
-import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -86,7 +84,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -94,6 +91,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.jspecify.annotations.Nullable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
@@ -106,6 +104,8 @@ import org.mozilla.javascript.ast.ScriptNode;
 
 public class ScriptValuesDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ScriptValuesMeta.class;
+
+  private static final String EDITOR_WIDGET = "ContentEditorWidget";
 
   private static final String[] YES_NO_COMBO =
       new String[] {
@@ -124,8 +124,6 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   public static final String CONST_JS_FUNCTION = "jsFunction";
 
   private TableView wFields;
-
-  private Label wlPosition;
 
   private Tree wTree;
   private TreeItem wTreeScriptsItem;
@@ -273,7 +271,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     // some information at the bottom...
     //
-    // The optimisation level...
+    // The optimization level...
     //
     Label wlOptimizationLevel = new Label(wTop, SWT.NONE);
     wlOptimizationLevel.setText(
@@ -291,7 +289,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     FormData fdOptimizationLevel = new FormData();
     fdOptimizationLevel.left = new FormAttachment(wlOptimizationLevel, margin);
     fdOptimizationLevel.top = new FormAttachment(wlOptimizationLevel, 0, SWT.CENTER);
-    fdOptimizationLevel.right = new FormAttachment(100, margin);
+    fdOptimizationLevel.right = new FormAttachment(100, 0);
     wOptimizationLevel.setLayoutData(fdOptimizationLevel);
     wOptimizationLevel.addModifyListener(lsMod);
 
@@ -315,20 +313,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     FormData fdLanguageVersion = new FormData();
     fdLanguageVersion.left = new FormAttachment(wlLanguageVersion, margin);
     fdLanguageVersion.top = new FormAttachment(wlLanguageVersion, 0, SWT.CENTER);
-    fdLanguageVersion.right = new FormAttachment(100, margin);
+    fdLanguageVersion.right = new FormAttachment(100, 0);
     wLanguageVersion.setLayoutData(fdLanguageVersion);
     wLanguageVersion.addModifyListener(lsMod);
-
-    // The position just above that and below the script...
-    //
-    wlPosition = new Label(wTop, SWT.LEFT);
-    wlPosition.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Position.Label", 1, 1));
-    PropsUi.setLook(wlPosition);
-    FormData fdlPosition = new FormData();
-    fdlPosition.left = new FormAttachment(wTree, margin);
-    fdlPosition.right = new FormAttachment(100, 0);
-    fdlPosition.bottom = new FormAttachment(wLanguageVersion, -margin);
-    wlPosition.setLayoutData(fdlPosition);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
     PropsUi.setLook(folder, Props.WIDGET_STYLE_TAB);
@@ -337,8 +324,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     FormData fdScript = new FormData();
     fdScript.left = new FormAttachment(wTree, margin);
     fdScript.top = new FormAttachment(wlScript, margin);
-    fdScript.right = new FormAttachment(100, -5);
-    fdScript.bottom = new FormAttachment(wlPosition, -margin);
+    fdScript.right = new FormAttachment(100, 0);
+    fdScript.bottom = new FormAttachment(wLanguageVersion, -margin);
     fdScript.width = 500;
     fdScript.height = 400;
     folder.setLayoutData(fdScript);
@@ -548,7 +535,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
           public void dragStart(DragSourceEvent event) {
             TreeItem item = wTree.getSelection()[0];
 
-            // Qualifikation where the Drag Request Comes from
+            // Qualification where the Drag Request Comes from
             if (item != null && item.getParentItem() != null) {
               if (item.getParentItem().equals(wTreeScriptsItem)) {
                 event.doit = false;
@@ -601,49 +588,22 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         break;
     }
 
-    TextComposite wScript;
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      wScript =
-          new StyledTextComp(
-              variables,
-              item.getParent(),
-              SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false,
-              TextComposite.STYLE_TYPE_JAVASCRIPT);
-    } else {
-      wScript =
-          new JavaScriptStyledTextComp(
-              variables,
-              item.getParent(),
-              SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
-      wScript.addLineStyleListener();
-    }
-
+    IContentEditorWidget editor =
+        ContentEditorFacade.createContentEditor(item.getParent(), "javascript");
     if ((strScript != null) && !strScript.isEmpty()) {
-      wScript.setText(strScript);
+      editor.setText(strScript);
     } else {
-      wScript.setText(
+      editor.setText(
           BaseMessages.getString(PKG, "ScriptValuesDialogMod.ScriptHere.Label")
               + Const.CR
               + Const.CR);
     }
 
-    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
-
-    Listener listener = e -> setPosition(wScript);
-    wScript.addListener(SWT.Modify, listener);
-    wScript.addListener(SWT.KeyDown, listener);
-    wScript.addListener(SWT.KeyUp, listener);
-    wScript.addListener(SWT.FocusIn, listener);
-    wScript.addListener(SWT.FocusOut, listener);
-    wScript.addListener(SWT.MouseDoubleClick, listener);
-    wScript.addListener(SWT.MouseUp, listener);
-    wScript.addListener(SWT.MouseDown, listener);
-    wScript.addModifyListener(lsMod);
+    editor.addModifyListener(lsMod);
 
     item.setImage(imageInactiveScript);
-    item.setControl(wScript);
+    item.setControl(editor.getControl());
+    item.setData(EDITOR_WIDGET, editor);
 
     // Adding new Item to Tree
     modifyScriptTree(item, ADD_ITEM);
@@ -776,17 +736,17 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     }
   }
 
-  private TextComposite getStyledTextComp() {
+  private IContentEditorWidget getContentEditorWidget() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (TextComposite) item.getControl();
+      return (IContentEditorWidget) item.getData(EDITOR_WIDGET);
     }
   }
 
-  private TextComposite getStyledTextComp(CTabItem item) {
-    return (TextComposite) item.getControl();
+  private @Nullable IContentEditorWidget getContentEditorWidget(CTabItem item) {
+    return (IContentEditorWidget) item.getData(EDITOR_WIDGET);
   }
 
   private String getNextName(String strActualName) {
@@ -802,14 +762,6 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       strRC = strActualName + "_" + i;
     }
     return strRC;
-  }
-
-  public void setPosition(TextComposite wScript) {
-    int lineNumber = wScript.getLineNumber();
-    int columnNumber = wScript.getColumnNumber();
-    wlPosition.setText(
-        BaseMessages.getString(
-            PKG, "ScriptValuesDialogMod.Position.Label", lineNumber, columnNumber));
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -956,24 +908,21 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       meta.getScriptFields().add(field);
     }
 
-    CTabItem[] cTabs = folder.getItems();
     meta.getJsScripts().clear();
-    if (cTabs.length > 0) {
-      for (int i = 0; i < cTabs.length; i++) {
-        ScriptValuesScript jsScript = new ScriptValuesScript();
-        jsScript.setType(ScriptValuesScript.NORMAL_SCRIPT);
-        jsScript.setName(cTabs[i].getText());
-        jsScript.setScript(getStyledTextComp(cTabs[i]).getText());
+    for (CTabItem cTab : folder.getItems()) {
+      ScriptValuesScript jsScript = new ScriptValuesScript();
+      jsScript.setType(ScriptValuesScript.NORMAL_SCRIPT);
+      jsScript.setName(cTab.getText());
+      jsScript.setScript(getContentEditorWidget(cTab).getText());
 
-        if (cTabs[i].getImage().equals(imageActiveScript)) {
-          jsScript.setType(ScriptValuesScript.TRANSFORM_SCRIPT);
-        } else if (cTabs[i].getImage().equals(imageActiveStartScript)) {
-          jsScript.setType(ScriptValuesScript.START_SCRIPT);
-        } else if (cTabs[i].getImage().equals(imageActiveEndScript)) {
-          jsScript.setType(ScriptValuesScript.END_SCRIPT);
-        }
-        meta.getJsScripts().add(jsScript);
+      if (cTab.getImage().equals(imageActiveScript)) {
+        jsScript.setType(ScriptValuesScript.TRANSFORM_SCRIPT);
+      } else if (cTab.getImage().equals(imageActiveStartScript)) {
+        jsScript.setType(ScriptValuesScript.START_SCRIPT);
+      } else if (cTab.getImage().equals(imageActiveEndScript)) {
+        jsScript.setType(ScriptValuesScript.END_SCRIPT);
       }
+      meta.getJsScripts().add(jsScript);
     }
   }
 
@@ -1205,8 +1154,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   private boolean test(boolean getvars, boolean popup) {
     boolean retval = true;
     boolean scriptRan = true;
-    TextComposite wScript = getStyledTextComp();
-    String scr = wScript.getText();
+    IContentEditorWidget editor = getContentEditorWidget();
+    String scr = editor.getText();
     HopException testException = null;
 
     Context jscx;
@@ -1230,8 +1179,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     // Adding the existing Scripts to the Context
     for (int i = 0; i < folder.getItemCount(); i++) {
-      TextComposite sItem = getStyledTextComp(folder.getItem(i));
-      Scriptable jsR = Context.toObject(sItem.getText(), jsscope);
+      IContentEditorWidget contentEditorWidget = getContentEditorWidget(folder.getItem(i));
+      Scriptable jsR = Context.toObject(contentEditorWidget.getText(), jsscope);
       jsscope.put(folder.getItem(i).getText(), jsscope, jsR);
     }
 
@@ -1344,7 +1293,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               && !folder.getSelection().getText().equals(strActiveStartScript)
               && !strActiveStartScript.isEmpty()) {
             String strStartScript =
-                getStyledTextComp(folder.getItem(getCTabPosition(strActiveStartScript))).getText();
+                getContentEditorWidget(folder.getItem(getCTabPosition(strActiveStartScript)))
+                    .getText();
             /* Object startScript = */ jscx.evaluateString(
                 jsscope, strStartScript, "pipeline_Start", 1, null);
           }
@@ -1621,7 +1571,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   // Adds the Current item to the current Position
   private void treeDblClick(Event event) {
-    TextComposite wScript = getStyledTextComp();
+    IContentEditorWidget editor = getContentEditorWidget();
     Point point = new Point(event.x, event.y);
     TreeItem item = wTree.getItem(point);
 
@@ -1630,9 +1580,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeScriptsItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals(CONST_FUNCTION)) {
-        int iStart = wScript.getCaretPosition();
+        int iStart = editor.getCaretPosition();
         int selCount =
-            wScript.getSelectionCount(); // this selection will be replaced by wScript.insert
+            editor.getSelectionCount(); // this selection will be replaced by wScript.insert
         iStart =
             iStart - selCount; // when a selection is already there we need to subtract the position
         if (iStart < 0) {
@@ -1642,8 +1592,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         if (strInsert.equals(CONST_JS_FUNCTION)) {
           strInsert = item.getText();
         }
-        wScript.insert(strInsert);
-        wScript.setSelection(iStart, iStart + strInsert.length());
+        editor.insert(strInsert);
+        editor.setSelection(iStart, iStart + strInsert.length());
       }
     }
   }
@@ -1668,8 +1618,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         SWT.Selection,
         e -> {
           CTabItem item = folder.getSelection();
-          StyledTextComp st = (StyledTextComp) item.getControl();
-          addCtab(item.getText(), st.getText(), ADD_COPY);
+          IContentEditorWidget contentEditorWidget = getContentEditorWidget(item);
+          addCtab(item.getText(), contentEditorWidget.getText(), ADD_COPY);
         });
     new MenuItem(cMenu, SWT.SEPARATOR);
 
@@ -1911,6 +1861,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
                 break;
             }
           });
+      PropsUi.setLook(text);
 
       editor.setEditor(text, item);
       text.setText(item.getText());
