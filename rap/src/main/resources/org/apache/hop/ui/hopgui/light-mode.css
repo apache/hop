@@ -2528,6 +2528,14 @@ FileUpload-FocusIndicator {
     opacity: 1;
 }
 
+/* Frame marking where a dragged tab would land (TabItemReorder / WebTabDropFrame) */
+
+Composite.hopDropFrame {
+    background-color: transparent;
+    border: 3px solid #3584e4;
+    padding: 0;
+}
+
 /* Sidebar button styling */
 
 Composite.sidebarButton {

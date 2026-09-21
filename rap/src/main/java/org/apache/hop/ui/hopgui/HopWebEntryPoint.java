@@ -200,6 +200,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     jsLoader.require(resourceManager.getLocation("js/log-console.js"));
     // RAP's GC leaves image onload handlers alive after dispose; see the script.
     jsLoader.require(resourceManager.getLocation("js/gc-pending-images.js"));
+    // RAP's drag cursor icon would otherwise catch the pointer on a fast move; see the script.
+    jsLoader.require(resourceManager.getLocation("js/dnd-cursor-passthrough.js"));
     jsLoader.require(resourceManager.getLocation("js/monaco-editor.js"));
     // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
     String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
