@@ -141,6 +141,23 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     return true;
   }
 
+  /**
+   * The end-of-input branch of {@link #processRow()} flushes the buffer and closes the MonetDB
+   * socket, but an error in the middle of the stream (the catch below) and a stop that breaks the
+   * run loop mid-row never reach it - the socket, and the server-side load session it holds, then
+   * stay open. Close it here as a backstop; {@link MapiSocket#close()} is null-guarded and
+   * idempotent, so a normal, already-closed load is left untouched. See <a
+   * href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   */
+  @Override
+  public void dispose() {
+    if (data.mserver != null) {
+      data.mserver.close();
+      data.mserver = null;
+    }
+    super.dispose();
+  }
+
   @Override
   public boolean processRow() throws HopException {
     try {
