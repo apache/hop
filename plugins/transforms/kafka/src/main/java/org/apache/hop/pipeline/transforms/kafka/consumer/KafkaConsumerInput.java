@@ -88,7 +88,19 @@ public class KafkaConsumerInput
     data.batchSize = Const.toIntExpanded(resolve(meta.getBatchSize()), 0);
     data.stopWhenIdle = meta.isStopWhenIdle();
     data.maxIdleTimeMs = Const.toLong(resolve(meta.getMaxIdleTimeMs()), 500L);
-    data.lastRecordTime = System.currentTimeMillis();
+    long maxConsume = Const.toLong(resolve(meta.getMaxConsumeDurationMs()), 0L);
+    data.maxConsumeDurationMs = maxConsume > 0 ? maxConsume : 0L;
+    data.startTime = System.currentTimeMillis();
+    data.lastRecordTime = data.startTime;
+    logBasic(
+        "Kafka consumer batchDuration="
+            + data.batchDuration
+            + "ms, stopWhenIdle="
+            + data.stopWhenIdle
+            + ", maxIdleTimeMs="
+            + data.maxIdleTimeMs
+            + ", maxConsumeDurationMs="
+            + data.maxConsumeDurationMs);
 
     data.consumer = buildKafkaConsumer(this, meta);
 
@@ -108,6 +120,7 @@ public class KafkaConsumerInput
 
     // Set Kafka consumer is closing flag to false
     data.isKafkaConsumerClosing = false;
+    startMaxConsumeDeadlineWakeup();
     return true;
   }
 
@@ -212,7 +225,9 @@ public class KafkaConsumerInput
 
   @Override
   public void dispose() {
+    interruptMaxConsumeDeadlineWakeup();
     if (data.consumer != null) {
+      data.consumer.wakeup();
       data.consumer.unsubscribe();
       data.consumer.close();
     }
@@ -284,16 +299,39 @@ public class KafkaConsumerInput
     // Poll records...
     // If we get any, process them...
     // When stop-when-idle is enabled, use a short poll timeout so idle time can be measured.
+    // When a max consume duration is set, cap the poll to the remaining time so a long batch
+    // duration cannot overshoot the deadline.
     //
     try {
+      long now = System.currentTimeMillis();
+      if (maxConsumeDurationReached(now, data.maxConsumeDurationMs, data.startTime)) {
+        return stopGracefully(
+            "Kafka consumer max consume duration of "
+                + data.maxConsumeDurationMs
+                + "ms reached, stopping gracefully");
+      }
       long pollMs =
-          data.stopWhenIdle ? 100L : (data.batchDuration > 0 ? data.batchDuration : Long.MAX_VALUE);
+          pollTimeoutMs(
+              data.stopWhenIdle,
+              data.batchDuration,
+              data.maxConsumeDurationMs,
+              data.startTime,
+              now);
       Duration duration = Duration.ofMillis(pollMs);
       ConsumerRecords<Object, Object> records = data.consumer.poll(duration);
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
-          // No records: optionally stop after max idle time.
+          // No records: still honor max consume duration. The deadline is wall-clock since
+          // start, not "time since last message", so an idle topic must stop here.
+          if (maxConsumeDurationReached(
+              System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
+            return stopGracefully(
+                "Kafka consumer max consume duration of "
+                    + data.maxConsumeDurationMs
+                    + "ms reached, stopping gracefully");
+          }
+          // Optionally stop after max idle time.
           // Do not count idle until partitions are assigned — group join / rebalance can take
           // longer than maxIdleTimeMs and would otherwise stop before any poll can succeed.
           //
@@ -301,16 +339,10 @@ public class KafkaConsumerInput
             if (data.consumer.assignment() == null || data.consumer.assignment().isEmpty()) {
               data.lastRecordTime = System.currentTimeMillis();
             } else if ((System.currentTimeMillis() - data.lastRecordTime) >= data.maxIdleTimeMs) {
-              logBasic(
+              return stopGracefully(
                   "Kafka consumer idle timeout of "
                       + data.maxIdleTimeMs
                       + "ms exceeded, stopping gracefully");
-              data.isKafkaConsumerClosing = true;
-              if (data.executor != null) {
-                data.executor.getPipeline().stopAll();
-              }
-              setOutputDone();
-              return false;
             }
           }
         } else {
@@ -372,13 +404,31 @@ public class KafkaConsumerInput
             data.incomingRowsBuffer.clear();
           }
         }
+
+        if (maxConsumeDurationReached(
+            System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
+          return stopGracefully(
+              "Kafka consumer max consume duration of "
+                  + data.maxConsumeDurationMs
+                  + "ms reached, stopping gracefully");
+        }
       }
     } catch (WakeupException e) {
-      // We're going to close kafka consumer because of pipeline has been stopped so stop executor
-      // too
-      data.executor.getPipeline().stopAll();
+      // Deadline wakeup (no new messages, poll was still blocked) or the pipeline was stopped.
+      if (data.maxConsumeDeadlineWakeup
+          || maxConsumeDurationReached(
+              System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
+        return stopGracefully(
+            "Kafka consumer max consume duration of "
+                + data.maxConsumeDurationMs
+                + "ms reached, stopping gracefully");
+      }
+      if (data.executor != null) {
+        data.executor.getPipeline().stopAll();
+      }
       setOutputDone();
       stopAll();
+      return false;
     }
 
     if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
@@ -399,6 +449,90 @@ public class KafkaConsumerInput
       }
     }
     return true;
+  }
+
+  /**
+   * True when a max consume duration is configured and the wall clock since transform start has
+   * reached it. {@code maxConsumeDurationMs <= 0} means no limit.
+   */
+  static boolean maxConsumeDurationReached(long now, long maxConsumeDurationMs, long startTime) {
+    return maxConsumeDurationMs > 0 && (now - startTime) >= maxConsumeDurationMs;
+  }
+
+  /**
+   * Poll timeout in milliseconds. Stop-when-idle and max-consume-duration use a short poll so the
+   * deadline can be re-checked when no records arrive. A long or infinite poll would otherwise
+   * never return on an idle topic, and the duration check after poll() would never run. A
+   * configured max consume duration also caps the timeout to the remaining window.
+   */
+  static long pollTimeoutMs(
+      boolean stopWhenIdle,
+      long batchDuration,
+      long maxConsumeDurationMs,
+      long startTime,
+      long now) {
+    boolean shortPoll = stopWhenIdle || maxConsumeDurationMs > 0;
+    long pollMs = shortPoll ? 100L : (batchDuration > 0 ? batchDuration : Long.MAX_VALUE);
+    if (maxConsumeDurationMs > 0) {
+      long remaining = maxConsumeDurationMs - (now - startTime);
+      if (remaining <= 0) {
+        return 0L;
+      }
+      pollMs = Math.min(pollMs, remaining);
+    }
+    return pollMs;
+  }
+
+  /**
+   * {@code consumer.poll()} can block beyond the requested timeout (coordinator lookup, metadata, a
+   * stuck fetch). Interrupt that wait when the max consume deadline is reached so an idle topic
+   * still finishes.
+   */
+  private void startMaxConsumeDeadlineWakeup() {
+    if (data.maxConsumeDurationMs <= 0 || data.consumer == null) {
+      return;
+    }
+    final long deadline = data.startTime + data.maxConsumeDurationMs;
+    data.maxConsumeDeadlineThread =
+        new Thread(
+            () -> {
+              try {
+                long sleepMs = deadline - System.currentTimeMillis();
+                if (sleepMs > 0) {
+                  Thread.sleep(sleepMs);
+                }
+                if (!data.isKafkaConsumerClosing && data.consumer != null) {
+                  data.maxConsumeDeadlineWakeup = true;
+                  data.consumer.wakeup();
+                }
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+            },
+            "KafkaConsumer-maxConsumeDeadline");
+    data.maxConsumeDeadlineThread.setDaemon(true);
+    data.maxConsumeDeadlineThread.start();
+  }
+
+  private void interruptMaxConsumeDeadlineWakeup() {
+    if (data.maxConsumeDeadlineThread != null) {
+      data.maxConsumeDeadlineThread.interrupt();
+      data.maxConsumeDeadlineThread = null;
+    }
+  }
+
+  private boolean stopGracefully(String reason) {
+    logBasic(reason);
+    data.isKafkaConsumerClosing = true;
+    interruptMaxConsumeDeadlineWakeup();
+    if (data.consumer != null) {
+      data.consumer.wakeup();
+    }
+    if (data.executor != null) {
+      data.executor.getPipeline().stopAll();
+    }
+    setOutputDone();
+    return false;
   }
 
   private boolean errorHandlingConditionIsSatisfied() {
