@@ -193,7 +193,20 @@ Hop Web co-deploys the RAP UI, RAP service handlers, and the Hop Server servlet 
 NOTE: The Hop Server API under `/hop/*` follows the same authorization as the rest of Hop Web.
 In the authenticated modes (`BASIC`, `EXTERNAL`, `OAUTH2`) each endpoint requires the matching permission from the caller's role — for example a *Read-only* user can call `status` and the status/image endpoints but not `addPipeline`, `startPipeline`, `execWorkflow`, or the register/remove endpoints, and an *Operator* can run and stop but not deploy (`add*`) or remove.
 Endpoints that are not recognized are denied by default.
-In mode `NONE` (the default, open install) `/hop/*` is unauthenticated just like `/ui`; put an authentication layer in front of Hop Web for any shared deployment.
+In mode `NONE` (the default, open install) the two surfaces behave differently:
+
+* `/ui` stays **open by design** — mode `NONE` is the single-user / trusted-network install and the UI is the product.
+* `/hop/*` is **closed by default** and returns `403`, because mode `NONE` has no user identity to authorize against and the Hop Server API can run and deploy pipelines and workflows.
+
+To use Hop Web as an execution server in mode `NONE`, opt in explicitly:
+
+* *Configuration perspective → Security → General → Expose the Hop Server API without authentication*, or
+* set `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API=true` (persisted as `allowUnauthenticatedServerApi` in `security-config.json`).
+
+WARNING: With that option on, anyone who can reach `/hop/*` can deploy and execute pipelines and workflows without credentials. Only enable it behind your own network controls (private network, firewall, service mesh, authenticating reverse proxy).
+The option applies to mode `NONE` only — `BASIC`, `EXTERNAL`, and `OAUTH2` always enforce the per-endpoint role permission and ignore it.
+
+Put an authentication layer in front of Hop Web for any shared deployment.
 
 === Built-in Hop roles
 
@@ -266,6 +279,14 @@ To keep audit data across container restarts, mount a volume and set the same pa
 === Tomcat BASIC authentication (EXTERNAL)
 
 The default Hop Web docker image picks up `tomcat-users.xml` and `web.xml` files and moves them to the correct location before Hop Web starts.
+
+IMPORTANT: Mode `EXTERNAL` is *delegation, not enforcement*.
+Hop itself does not challenge anyone in this mode: it only reads the `Principal` the servlet container (or authenticating reverse proxy) put on the request.
+The `web.xml` that ships with Hop Web contains no `<security-constraint>`, so selecting `EXTERNAL` without supplying your own constraint over `/*` leaves `/ui` **completely open**.
+The Security perspective makes that contradiction visible rather than hiding it: the General tab shows an authenticated mode (`EXTERNAL`), while the status line for the same session still reads `Session is unrestricted (no AuthN). Config mode: EXTERNAL.`
+If you see that combination, the container is not challenging anyone.
+`/hop/*` still returns `401` (no principal), and Hop logs a warning on every unauthenticated UI session, but the UI itself is unprotected.
+Always pair `EXTERNAL` with a `<security-constraint>` + `<login-config>` covering `/*` (see <<hop-web-external-full-webxml,the full `web.xml` sample>>) or with a proxy that rejects unauthenticated requests before they reach Tomcat.
 
 ==== Single user (minimal)
 
@@ -389,6 +410,9 @@ Environment variables (evaluated at startup):
 
 | `HOP_WEB_SEED_DEMO_USERS`
 | `true` to seed admin, developer, operator, viewer (password = username) when the store is empty
+
+| `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API`
+| `true` to open the embedded Hop Server API (`/hop/*`) in mode `NONE`. Off by default; ignored in the authenticated modes. Only use behind your own network controls.
 |===
 
 Example Docker run:
@@ -569,6 +593,7 @@ IMPORTANT: These tokens are not revoked when you log off or when an administrato
 
 Hop creates `jdbc-token.secret` with owner-only permissions (`0600`) on local filesystems when it can. Anyone who can read that file can mint tokens for any user.
 
+[[hop-web-external-full-webxml]]
 ==== Full web.xml with Tomcat BASIC (single role, EXTERNAL)
 
 The following sample `web.xml` extends Hop Web's default `web.xml` with the `<security-constraint />` and `<login-config />` elements required for basic authentication.
