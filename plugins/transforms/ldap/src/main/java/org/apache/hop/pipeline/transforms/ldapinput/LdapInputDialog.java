@@ -52,10 +52,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -143,7 +145,11 @@ public class LdapInputDialog extends BaseTransformDialog {
     wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "LdapInputDialog.General.Tab"));
 
-    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    ScrolledComposite wGeneralSComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wGeneralSComp.setLayout(new FillLayout());
+
+    Composite wGeneralComp = new Composite(wGeneralSComp, SWT.NONE);
     PropsUi.setLook(wGeneralComp);
 
     FormLayout fileLayout = new FormLayout();
@@ -475,15 +481,15 @@ public class LdapInputDialog extends BaseTransformDialog {
     setButtonPositions(new Button[] {wTest}, margin, wCertificateGroup);
     PropsUi.setLook(wTest);
 
-    FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, 0);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(100, 0);
-    wGeneralComp.setLayoutData(fdGeneralComp);
+    wGeneralComp.pack();
 
-    wGeneralComp.layout();
-    wGeneralTab.setControl(wGeneralComp);
+    wGeneralSComp.setContent(wGeneralComp);
+    wGeneralSComp.setExpandHorizontal(true);
+    wGeneralSComp.setExpandVertical(true);
+    wGeneralSComp.setMinWidth(wGeneralComp.getBounds().width);
+    wGeneralSComp.setMinHeight(wGeneralComp.getBounds().height);
+
+    wGeneralTab.setControl(wGeneralSComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
