@@ -180,6 +180,7 @@ public class KettleConst {
                 {"Mapping", "SimpleMapping"},
                 // Text File Input deprecated
                 {"TextFileInput", "TextFileInput2"},
+                {"HTTP", "Http"},
                 {"KettleKafkaConsumerInput", "KafkaConsumer"},
                 {"PentahoGoogleSheetsPluginOutputMeta", "GoogleSheetsOutput"},
                 {"PentahoGoogleSheetsPluginInputMeta", "GoogleSheetsInput"}
