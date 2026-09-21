@@ -1,0 +1,24 @@
+chunk_text
+"Overview
+
+Hop metadata 'prod-rest'"
+"Rest Connection
+
+{
+  ""baseUrl"" : ""https://api.example.com"",
+  ""bearerToken"" : ""**redacted**"",
+  ""proxyPassword"" : ""**redacted**""
+}"
+"secret-demo > Overview
+
+Hop pipeline 'secret-demo'"
+"secret-demo > Transform: DB (TableInput)
+
+transform:
+  name: DB
+  type: TableInput
+  connection:
+    hostname: localhost
+    username: hop
+    password: **redacted**
+    lookupKeys: customer_id"

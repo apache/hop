@@ -317,6 +317,7 @@ under the License.
 *** xref:pipeline/transforms/tableinput.adoc[Table Input]
 *** xref:pipeline/transforms/tableoutput.adoc[Table Output]
 *** xref:pipeline/transforms/terafast.adoc[Teradata Bulk Loader]
+*** xref:pipeline/transforms/textchunker.adoc[Text chunker]
 *** xref:pipeline/transforms/textfileinput.adoc[Text File Input]
 *** xref:pipeline/transforms/textfileoutput.adoc[Text File Output]
 *** xref:pipeline/transforms/tokenreplacement.adoc[Token replacement]

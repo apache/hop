@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90e2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a6fc9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="8" fill="url(#gradient)"/>
+  
+  <!-- Document icon -->
+  <rect x="12" y="14" width="40" height="36" rx="2" fill="white"/>
+  <rect x="14" y="16" width="36" height="32" rx="1" fill="#f0f0f0"/>
+  
+  <!-- Lines representing text -->
+  <line x1="16" y1="20" x2="48" y2="20" stroke="#666" stroke-width="1.5"/>
+  <line x1="16" y1="24" x2="44" y2="24" stroke="#666" stroke-width="1.5"/>
+  <line x1="16" y1="28" x2="48" y2="28" stroke="#666" stroke-width="1.5"/>
+  
+  <!-- Plus sign for chunking -->
+  <line x1="30" y1="34" x2="34" y2="34" stroke="white" stroke-width="2"/>
+  <line x1="32" y1="32" x2="32" y2="36" stroke="white" stroke-width="2"/>
+  
+  <!-- Additional lines -->
+  <line x1="16" y1="36" x2="30" y2="36" stroke="#666" stroke-width="1.5"/>
+  <line x1="38" y1="36" x2="48" y2="36" stroke="#666" stroke-width="1.5"/>
+</svg>
