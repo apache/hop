@@ -183,11 +183,16 @@ When using the Beam engines it uses `org.apache.beam.sdk.io.synthetic.SyntheticB
 [#_unsupported_transforms]
 === Unsupported transforms
 
-A few transforms are simply not supported because we haven't found a good way to do this on Beam yet:
+A few transforms are simply not supported because we haven't found a good way to do this on Beam yet.
+They all depend on seeing the rows in a particular order, or on holding state for the whole data set in one place, and a Beam pipeline re-shuffles rows across workers to maximize parallelism.
+Each of these transforms would therefore only ever see the slice of the data one worker happens to hold, and would quietly produce a wrong result, so the Beam engines refuse them with an error instead:
 
-* xref:pipeline/transforms/uniquerows.adoc[Unique Rows]
+* xref:pipeline/transforms/uniquerows.adoc[Unique Rows] : Use the `Memory Group By` instead
+* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/groupby.adoc[Group By] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/sort.adoc[Sort Rows]
+
+The Hop GUI knows about this list: when you set the canvas palette filter to a Beam engine these transforms are hidden, and running a pipeline that still contains one is blocked with the reason shown above.
 
 The xref:pipeline/transforms/rowdenormaliser.adoc[Denormaliser] transform works technically correct on Apache Beam in release 1.1.0 and later.
 Even so you need to consider that the aggregation of the key-value pairs in that transform (in the general case) only happens on a sub-set of the rows.

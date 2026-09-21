@@ -31,7 +31,9 @@ import org.apache.hop.core.plugins.EngineCompatibility;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
+import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,6 +59,16 @@ class BeamPipelineEngineSupportsTest {
   @Test
   void uniqueRowsMetaIsHardBanned() {
     assertTrue(engine.supports(pluginWithMainType(UniqueRowsMeta.class)).isUnsupported());
+  }
+
+  @Test
+  void sortRowsMetaIsHardBanned() {
+    assertTrue(engine.supports(pluginWithMainType(SortRowsMeta.class)).isUnsupported());
+  }
+
+  @Test
+  void uniqueRowsByHashSetMetaIsHardBanned() {
+    assertTrue(engine.supports(pluginWithMainType(UniqueRowsByHashSetMeta.class)).isUnsupported());
   }
 
   @Test
