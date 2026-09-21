@@ -2154,12 +2154,27 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     TabCloseHandler tabCloseHandler = new TabCloseHandler(this, folder);
     new TabItemReorder(this, folder);
+    addTabSplitMenuItems(folder, tabCloseHandler);
+    return folder;
+  }
+
+  /**
+   * The tab popup is owned by {@link TabCloseHandler} and is not attached to the folder. Hop Web
+   * layout restore can run before that menu exists (issue #8477).
+   */
+  static boolean isUsableTabMenu(Menu menu) {
+    return menu != null && !menu.isDisposed();
+  }
+
+  private void addTabSplitMenuItems(CTabFolder folder, TabCloseHandler tabCloseHandler) {
+    Menu menu = tabCloseHandler.getMenu();
+    if (!isUsableTabMenu(menu)) {
+      return;
+    }
 
     // Split ("Move to Right") works in both desktop and web since it operates within the docked
     // editor layout. Detach ("Move to New Window") depends on floating windows, which don't work
     // under RAP, so it is desktop-only.
-    // The tab menu is not attached to the folder, so take it from the close handler that owns it.
-    Menu menu = tabCloseHandler.getMenu();
     new MenuItem(menu, SWT.SEPARATOR);
     MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
     miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
@@ -2264,8 +2279,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             }
           }
         });
-
-    return folder;
   }
 
   private CTabFolder getTargetTabFolder() {

@@ -325,7 +325,7 @@ public class HopGuiFileDelegate {
       // viewers from the previous project open. Callers that need to remember tabs (project switch)
       // must call ExecutionPerspective.saveState() first.
       //
-      ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
+      ExecutionPerspective executionPerspective = findExecutionPerspective();
       if (executionPerspective != null) {
         executionPerspective.closeAllTabs();
       }
@@ -401,17 +401,31 @@ public class HopGuiFileDelegate {
 
     // Save explorer perspective state (file explorer panel visibility)
     //
-    ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+    ExplorerPerspective explorerPerspective = findExplorerPerspective();
     if (explorerPerspective != null) {
       explorerPerspective.saveExplorerStateOnShutdown();
     }
 
-    ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
+    ExecutionPerspective executionPerspective = findExecutionPerspective();
     if (executionPerspective != null) {
       executionPerspective.saveState();
     }
 
     return true;
+  }
+
+  private ExecutionPerspective findExecutionPerspective() {
+    if (hopGui.getPerspectiveManager() == null) {
+      return null;
+    }
+    return hopGui.getPerspectiveManager().findPerspective(ExecutionPerspective.class);
+  }
+
+  private ExplorerPerspective findExplorerPerspective() {
+    if (hopGui.getPerspectiveManager() == null) {
+      return null;
+    }
+    return hopGui.getPerspectiveManager().findPerspective(ExplorerPerspective.class);
   }
 
   /** Show all the recent files in a new dialog... */

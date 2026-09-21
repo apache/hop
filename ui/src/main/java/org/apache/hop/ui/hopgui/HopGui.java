@@ -806,10 +806,21 @@ public class HopGui
           // Terminal restoration is handled by the Projects plugin
 
           // Restore explorer perspective state (file explorer panel visibility) for current
-          // namespace (default or project set by extension point).
+          // namespace (default or project set by extension point). Skip when a perspective was
+          // not loaded (disabled, or Hop Web init before loadPerspectives(); issue #8477).
           //
-          ExplorerPerspective.getInstance().applyRestoredState();
-          ExecutionPerspective.getInstance().restoreState();
+          if (perspectiveManager != null) {
+            ExplorerPerspective explorerPerspective =
+                perspectiveManager.findPerspective(ExplorerPerspective.class);
+            if (explorerPerspective != null) {
+              explorerPerspective.applyRestoredState();
+            }
+            ExecutionPerspective executionPerspective =
+                perspectiveManager.findPerspective(ExecutionPerspective.class);
+            if (executionPerspective != null) {
+              executionPerspective.restoreState();
+            }
+          }
 
           // We need to start tracking file history again.
           //
