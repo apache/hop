@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -277,7 +278,9 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     }
     boolean editable = isEditable();
     boolean hasSelection = getSelectionCount() > 0;
-    boolean canPaste = editable && checkPaste();
+    // This runs on every Modify/Selection event: never consult the clipboard here. On desktop
+    // that is a system IPC per keystroke, on Hop Web a blocking browser round trip (see #8498).
+    boolean canPaste = editable;
 
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_UNDO, canUndo());
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_REDO, canRedo());
@@ -563,21 +566,33 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
   public abstract void setEditable(boolean editable);
 
   /**
-   * Check if something is stored inside the Clipboard.
+   * Check whether a paste action currently makes sense.
    *
-   * @return false if no text is available inside the Clipboard
+   * <p>On desktop this peeks at the system clipboard for text. On Hop Web the RWT clipboard read is
+   * a blocking client/server round trip through {@code navigator.clipboard.readText()} (permission
+   * prompt, nested event loop, fails outside a user gesture), so there we only look at editability
+   * and leave the actual clipboard access to the paste action itself.
+   *
+   * @return false if pasting is not possible right now
    */
   protected boolean checkPaste() {
+    if (!isEditable()) {
+      return false;
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return true;
+    }
+    Clipboard clipboard = null;
     try {
-      Clipboard clipboard = new Clipboard(getParent().getDisplay());
+      clipboard = new Clipboard(getParent().getDisplay());
       String text = (String) clipboard.getContents(TextTransfer.getInstance());
-      if (!Utils.isEmpty(text)) {
-        return true;
-      } else {
-        return false;
-      }
+      return !Utils.isEmpty(text);
     } catch (Exception e) {
       return false;
+    } finally {
+      if (clipboard != null) {
+        clipboard.dispose();
+      }
     }
   }
 
