@@ -22,13 +22,17 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -50,7 +54,13 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
 public class SvgGc implements IGc {
-  private static final String CONST_FREESANS = "FreeSans";
+  /**
+   * The family the canvas text is measured with: the first of {@link
+   * HopSvgGraphics2D#SANS_SERIF_FAMILIES} this JVM has, so that the browser, which is asked for the
+   * same families in the same order, lays the text out the way it was measured. Falls back to the
+   * logical SansSerif font, which Batik writes as the generic "sans-serif".
+   */
+  private static volatile String graphFontFamily;
 
   private static SvgFile imageLocked;
   private static SvgFile imageFailure;
@@ -292,16 +302,41 @@ public class SvgGc implements IGc {
     imageArrowDisabled =
         new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader());
 
-    fontGraph = new Font(CONST_FREESANS, Font.PLAIN, 10);
-    fontGraphBold = new Font(CONST_FREESANS, Font.BOLD, 10);
-    fontNote = new Font(CONST_FREESANS, Font.PLAIN, 10);
-    fontSmall = new Font(CONST_FREESANS, Font.PLAIN, 8);
-    fontTiny = new Font(CONST_FREESANS, Font.PLAIN, 6);
+    String family = getGraphFontFamily();
+    fontGraph = new Font(family, Font.PLAIN, 10);
+    fontGraphBold = new Font(family, Font.BOLD, 10);
+    fontNote = new Font(family, Font.PLAIN, 10);
+    fontSmall = new Font(family, Font.PLAIN, 8);
+    fontTiny = new Font(family, Font.PLAIN, 6);
 
     gc.setFont(fontGraph);
 
     gc.setColor(background);
     gc.fillRect(0, 0, area.x, area.y);
+  }
+
+  private static String getGraphFontFamily() {
+    String family = graphFontFamily;
+    if (family == null) {
+      family = Font.SANS_SERIF;
+      try {
+        Set<String> available =
+            new HashSet<>(
+                Arrays.asList(
+                    GraphicsEnvironment.getLocalGraphicsEnvironment()
+                        .getAvailableFontFamilyNames()));
+        for (String candidate : HopSvgGraphics2D.SANS_SERIF_FAMILIES) {
+          if (available.contains(candidate)) {
+            family = candidate;
+            break;
+          }
+        }
+      } catch (Throwable e) {
+        // No font configuration on this system: the logical font will have to do.
+      }
+      graphFontFamily = family;
+    }
+    return family;
   }
 
   @Override

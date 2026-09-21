@@ -109,6 +109,7 @@ public class ConfigGuiOptionsTab {
   private Button wHideViewport;
   private Button wUseDoubleClick;
   private Button wUseRightClickForContextDialog;
+  private Button wUseMenusInsteadOfContextDialog;
   private Button wDialogsOnAnyScreen;
   private Button wDrawBorderAroundCanvasNames;
   private Button wEnableInfiniteMove;
@@ -207,6 +208,7 @@ public class ConfigGuiOptionsTab {
       wHideViewport.setSelection(!props.isHideViewportEnabled()); // Inverted logic
       wUseDoubleClick.setSelection(props.useDoubleClick());
       wUseRightClickForContextDialog.setSelection(props.useRightClickForContextDialog());
+      wUseMenusInsteadOfContextDialog.setSelection(props.useMenusInsteadOfContextDialog());
       if (wDialogsOnAnyScreen != null) {
         wDialogsOnAnyScreen.setSelection(props.isDialogsOnAnyScreenEnabled());
       }
@@ -739,6 +741,17 @@ public class ConfigGuiOptionsTab {
             lastCanvasControl,
             margin);
     lastCanvasControl = wUseRightClickForContextDialog;
+
+    // Use menus instead of the context dialog
+    wUseMenusInsteadOfContextDialog =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.UseMenusInsteadOfContextDialog.Label",
+            "EnterOptionsDialog.UseMenusInsteadOfContextDialog.ToolTip",
+            props.useMenusInsteadOfContextDialog(),
+            lastCanvasControl,
+            margin);
+    lastCanvasControl = wUseMenusInsteadOfContextDialog;
 
     // Draw border around canvas names
     wDrawBorderAroundCanvasNames =
@@ -1369,6 +1382,7 @@ public class ConfigGuiOptionsTab {
         !wHideViewport.getSelection()); // Inverted: checkbox is "show", property is "hide"
     props.setUseDoubleClickOnCanvas(wUseDoubleClick.getSelection());
     props.setUseRightClickForContextDialog(wUseRightClickForContextDialog.getSelection());
+    props.setUseMenusInsteadOfContextDialog(wUseMenusInsteadOfContextDialog.getSelection());
     if (wDialogsOnAnyScreen != null) {
       props.setDialogsOnAnyScreenEnabled(wDialogsOnAnyScreen.getSelection());
     }

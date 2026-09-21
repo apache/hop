@@ -335,6 +335,7 @@
         this._mousemoveHandler = null;
         this._mouseleaveHandler = null;
         this._lastHoverKey = null;
+        this._hoverNotified = false;
         this._svgHost = null;
         this._effectsLayer = null;
         this._dragPreviewRects = null;
@@ -582,6 +583,7 @@
             this._mouseleaveHandler = function () {
                 if (!self._dragActive && !self._panActive && !self._navDragActive && !self._selectActive) {
                     self._lastHoverKey = null;
+                    self._notifyHoverEnd();
                     self._updateHoverChrome(null);
                     self._clearNoteResizeHandles();
                     self._clearHopLine();
@@ -2308,12 +2310,32 @@
             this._lastHoverKey = hoverKey;
             var interaction = hop._canvasInteractions && hop._canvasInteractions[this._canvasId];
             if (area && area.hover && interaction && interaction._remoteObject) {
+                this._hoverNotified = true;
                 interaction._remoteObject.notify("hover", {
                     canvasId: this._canvasId,
                     graphX: graph.x,
                     graphY: graph.y,
                     screenX: Math.round(screenX),
                     screenY: Math.round(screenY)
+                });
+            } else {
+                // Left the hovered area for empty canvas or something without a tooltip: the
+                // server only ever hears about the entering, so tell it to take the tooltip down.
+                this._notifyHoverEnd();
+            }
+        },
+
+        /** Tell the server the hover ended, once per hover the server was told about. */
+        _notifyHoverEnd: function () {
+            if (!this._hoverNotified) {
+                return;
+            }
+            this._hoverNotified = false;
+            var interaction = hop._canvasInteractions && hop._canvasInteractions[this._canvasId];
+            if (interaction && interaction._remoteObject) {
+                interaction._remoteObject.notify("hover", {
+                    canvasId: this._canvasId,
+                    leave: true
                 });
             }
         }

@@ -95,6 +95,10 @@ See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in bot
 See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in both modes.
 |no
 
+|Use menus instead of the context dialog
+|Transforms, actions, hops and notes show their actions in a pop-up menu with a submenu per category instead of the xref:hop-gui/hop-gui-popup-dialog.adoc[context dialog]. A click on the empty canvas keeps the context dialog while the xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[palette tree] is hidden, since that is where new transforms and actions are searched for; with the palette shown the empty canvas gets a menu of the pipeline/workflow actions too. The click that opens the menu is the same one that opens the context dialog (left click, or right click with the option above).
+|no
+
 |Draw border around names on canvas?
 |If this option is enabled, a border will be drawn around the names of transforms and actions on the canvas.
 |no

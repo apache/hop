@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashMap;
@@ -52,6 +53,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -205,14 +207,50 @@ class HopGuiWorkflowGraphClickContractTest extends GraphCanvasTestBase {
 
           List<String> dialogs =
               cell.button == RIGHT
-                  ? contextClickAndCatchDialogs(scene.bot, scene.canvas, scene.scale, at)
-                  : clickAndCatchDialogs(scene.bot, scene.canvas, scene.scale, at, LEFT, SWT.NONE);
+                  ? contextClickAndCatchDialogs(
+                      scene.bot, scene.canvas, scene.scale, at, scene::noteBalloon)
+                  : clickAndCatchDialogs(
+                      scene.bot, scene.canvas, scene.scale, at, LEFT, SWT.NONE, scene::noteBalloon);
 
           assertAll(
               () -> assertDialogs(cell.dialog, dialogs),
               () -> cell.sideEffect.accept(scene),
               () -> assertNoFailures(),
               () -> assertCanvasIsIdle(scene.graph));
+        });
+  }
+
+  /**
+   * The "Selection cleared" balloon is a notice, not a hover tooltip: moving the mouse over the
+   * empty canvas must leave it up, its timer takes it down.
+   */
+  @Test
+  void movingTheMouseKeepsTheSelectionClearedBalloon() {
+    Cell cell = new Cell(false, Where.EMPTY_SELECTED, LEFT, null, Scene::selectionCleared);
+    onCanvas(
+        cell,
+        scene -> {
+          Point at = scene.aim(cell.where);
+          Point nearby = new Point(at.x + 10, at.y + 10);
+          assertEmptyCanvas(scene.lookup, nearby);
+
+          List<String> dialogs =
+              clickAndCatchDialogs(
+                  scene.bot,
+                  scene.canvas,
+                  scene.scale,
+                  at,
+                  LEFT,
+                  SWT.NONE,
+                  () -> {
+                    fire(scene.canvas, SWT.MouseMove, scene.scale, nearby, 0, SWT.NONE);
+                    scene.noteBalloon();
+                  });
+
+          assertAll(
+              () -> assertDialogs(null, dialogs),
+              () -> cell.sideEffect.accept(scene),
+              () -> assertNoFailures());
         });
   }
 
@@ -343,14 +381,25 @@ class HopGuiWorkflowGraphClickContractTest extends GraphCanvasTestBase {
       assertTrue(note.isSelected(), "the click should have selected the note");
     }
 
+    /**
+     * The text of the balloon the click put up, or null when it put up none. Taken the moment the
+     * click has landed: the balloon is on a timer, so by the time the wait for dialogs is over it
+     * may well be gone again.
+     */
+    String balloon;
+
+    void noteBalloon() {
+      HopToolTip toolTip = (HopToolTip) privateField(graph, "toolTip");
+      balloon = onUi(() -> toolTip.isVisible() ? toolTip.getText() : null);
+    }
+
     /** The manual promises the selection is gone and a "Selection cleared" balloon says so. */
     void selectionCleared() {
       nothingSelected();
-      HopToolTip toolTip = (HopToolTip) privateField(graph, "toolTip");
-      assertTrue(onUi(toolTip::isVisible), "the 'Selection cleared' balloon should be showing");
+      assertNotNull(balloon, "the click should have put up the 'Selection cleared' balloon");
       assertTrue(
-          onUi(toolTip::getText).contains("Selection cleared"),
-          "the balloon should say the selection was cleared, not " + onUi(toolTip::getText));
+          balloon.contains("Selection cleared"),
+          "the balloon should say the selection was cleared, not " + balloon);
     }
 
     void nothingSelected() {

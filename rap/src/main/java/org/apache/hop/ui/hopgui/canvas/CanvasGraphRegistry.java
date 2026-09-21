@@ -53,7 +53,9 @@ public class CanvasGraphRegistry {
   }
 
   public void register(String canvasId, Canvas canvas, Object graph) {
-    canvasById.put(canvasId, canvas);
+    if (canvas != null) {
+      canvasById.put(canvasId, canvas);
+    }
     graphsByCanvasId.put(canvasId, graph);
   }
 

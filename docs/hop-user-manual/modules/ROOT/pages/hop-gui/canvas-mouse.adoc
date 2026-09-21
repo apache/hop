@@ -20,10 +20,11 @@ under the License.
 
 = Canvas mouse gestures
 
-The pipeline and workflow canvas react to where you click and with which button. This page is the reference for all of it. Two options in the xref:hop-gui/perspective-configuration.adoc[configuration perspective] (General tab, Canvas section) change the behaviour:
+The pipeline and workflow canvas react to where you click and with which button. This page is the reference for all of it. Three options in the xref:hop-gui/perspective-configuration.adoc[configuration perspective] (General tab, Canvas section) change the behaviour:
 
 * **Use double click on canvas** — off by default. When on, a double-click opens the properties of the item under the pointer. A single click then does the same as without the option, but only after the double-click interval has passed, so that a second click can take over.
 * **Use right click for the context dialog** — off by default. When on, a left click never opens the xref:hop-gui/hop-gui-popup-dialog.adoc[context dialog]; a right click does. Everything else a left click does (open properties from a name, press a badge, select, drag) stays the same.
+* **Use menus instead of the context dialog** — off by default. When on, wherever this page says "context dialog" for a transform, action, hop or note, a pop-up menu with a submenu per category opens instead. The empty canvas keeps the context dialog while the xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[palette tree] is hidden (that is where you search for transforms and actions to add); with the palette shown it gets a menu of the pipeline/workflow actions as well.
 
 TIP: On macOS, `Ctrl`-click and a two-finger click both count as a right click. Where this page says `Ctrl`, use `Cmd` on macOS.
 

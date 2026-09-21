@@ -2532,6 +2532,22 @@ Label.sidebarButton {
     border-radius: 6px;
 }
 
+/* Canvas tooltip (HopToolTip): an inverted, rounded pill */
+
+Shell.hopToolTip {
+    border: none;
+    border-radius: 6px;
+    background-color: #f3f4f6;
+    color: #1e1e1e;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+Label.hopToolTip {
+    color: #1e1e1e;
+    background-color: #f3f4f6;
+}
+
 
 /* JFace specific theming */
 
