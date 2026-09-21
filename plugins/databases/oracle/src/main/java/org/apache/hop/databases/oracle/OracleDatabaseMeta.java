@@ -45,7 +45,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -118,10 +117,10 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
           .build();
 
   /**
-   * Oracle will not take an NVARCHAR2, NCHAR or NCLOB through {@code setString}, and in a batch it
-   * rejects mixed short and long values with ORA-01461. Every string is bound through {@link
-   * OraclePreparedStatementBinding}, which picks the right JDBC call per column; plain VARCHAR2 is
-   * included because the ORA-01461 form-of-use handling is what the batch case needs.
+   * Oracle will not take an NVARCHAR2, NCHAR or NCLOB through {@code setString} without converting
+   * the value to the database character set, and a batch into a CLOB that mixes short and long
+   * values raises ORA-01461. Every string is bound through {@link OraclePreparedStatementBinding},
+   * which asks the statement which column it is writing to and picks the JDBC call for it.
    */
   private static final List<IDatabaseTypeRule> STRING_BINDING =
       DatabaseTypes.rules()
@@ -1388,14 +1387,6 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
   @Override
   public boolean isOracleVariant() {
     return true;
-  }
-
-  @Override
-  public void enrichInsertRowMeta(
-      Database database, String schemaName, String tableName, IRowMeta insertRowMeta)
-      throws HopDatabaseException {
-    OraclePreparedStatementBinding.enrichInsertRowMeta(
-        database, schemaName, tableName, insertRowMeta);
   }
 
   @Override

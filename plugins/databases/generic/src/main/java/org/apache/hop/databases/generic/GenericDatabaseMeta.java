@@ -22,18 +22,15 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 
 /** Contains Generic Database Connection information through static final members */
@@ -1013,19 +1010,5 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isRequiresName() {
     return false;
-  }
-
-  /**
-   * The dialect's own bindings arrive through {@link #getTypeRules()}, but the column metadata they
-   * depend on does not: this hook is not a type rule. A Generic connection pointed at Oracle needs
-   * it delegated or its national-character columns look like VARCHAR2.
-   */
-  @Override
-  public void enrichInsertRowMeta(
-      Database database, String schemaName, String tableName, IRowMeta insertRowMeta)
-      throws HopDatabaseException {
-    if (databaseDialect != null) {
-      databaseDialect.enrichInsertRowMeta(database, schemaName, tableName, insertRowMeta);
-    }
   }
 }

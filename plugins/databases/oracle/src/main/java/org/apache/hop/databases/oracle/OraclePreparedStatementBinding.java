@@ -18,44 +18,54 @@
 package org.apache.hop.databases.oracle;
 
 import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.sql.DatabaseMetaData;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
+import java.util.WeakHashMap;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.IValueBinding;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.Utils;
 
 /**
- * How Oracle writes strings: the ORA-01461 batch workaround, and the national-character columns
- * (NVARCHAR2/NCHAR/NCLOB) that the driver will not accept through {@code setString}.
+ * How Oracle writes strings: the national-character columns (NVARCHAR2/NCHAR/NCLOB) that the driver
+ * will not accept through {@code setString} without converting them to the database character set,
+ * and the LOB columns that need a stream bind so a batch mixing short and long values does not
+ * raise ORA-01461.
+ *
+ * <p>Which column a value is bound to is not something the value's own metadata knows -- a string
+ * is a string whether it is going into a VARCHAR2 or an NVARCHAR2 -- but the statement does. The
+ * Oracle driver parses the SQL behind {@link PreparedStatement#getParameterMetaData()} and
+ * describes the target columns, so the column type of every bind parameter is asked from the
+ * statement itself, once, and kept for as long as the statement lives. A driver that cannot say (an
+ * old one, or a statement it cannot parse) leaves the value written the way Hop always wrote it,
+ * with {@code setString}.
  *
  * <p>Write only. {@link #read} throws, so reading a string off an Oracle result set stays exactly
  * what it was before this binding existed -- see {@link
  * org.apache.hop.core.database.BaseDatabaseMeta#getValueFromResultSet}. Nothing was wrong with
  * reads.
- *
- * <p>Which column a value is bound to is not something the value's own metadata knows, so {@link
- * #enrichInsertRowMeta} reads it off the target table while the INSERT is being built. Without that
- * step every string here looks like a VARCHAR2.
  */
 final class OraclePreparedStatementBinding implements IValueBinding {
 
   static final OraclePreparedStatementBinding INSTANCE = new OraclePreparedStatementBinding();
 
-  private static final short ORACLE_JDBC_FORM_CHAR = 1;
-  private static final short ORACLE_JDBC_FORM_NCHAR = 2;
+  /** What the statement could not tell us: bound the way Hop always bound a string. */
+  private static final int UNKNOWN_COLUMN_TYPE = Types.OTHER;
+
+  /**
+   * The column types of every statement this binding has written to, by statement identity. The
+   * driver caches parameter metadata per SQL text as well, but asking it costs a lock and a lookup
+   * per value, and this is the innermost loop of every Oracle insert. Entries go when the statement
+   * is collected.
+   */
+  private static final Map<PreparedStatement, int[]> COLUMN_TYPES =
+      Collections.synchronizedMap(new WeakHashMap<>());
 
   private OraclePreparedStatementBinding() {}
 
@@ -96,268 +106,69 @@ final class OraclePreparedStatementBinding implements IValueBinding {
       preparedStatement.setNull(index, Types.VARCHAR);
       return;
     }
-    setPreparedStatementStringValue(
-        preparedStatement, index, valueMeta.getString(value), valueMeta, database);
-  }
-
-  static void enrichInsertRowMeta(
-      Database database, String schemaName, String tableName, IRowMeta insertRowMeta)
-      throws HopDatabaseException {
-    if (insertRowMeta == null || insertRowMeta.isEmpty()) {
-      return;
-    }
-
-    IRowMeta tableFields = database.getTableFieldsMeta(schemaName, tableName);
-    if (tableFields != null) {
-      for (int i = 0; i < insertRowMeta.size(); i++) {
-        IValueMeta insertMeta = insertRowMeta.getValueMeta(i);
-        int idx = tableFields.indexOfValue(insertMeta.getName());
-        if (idx < 0) {
-          continue;
-        }
-        IValueMeta tableMeta = tableFields.getValueMeta(idx);
-        insertMeta.setOriginalColumnType(tableMeta.getOriginalColumnType());
-        insertMeta.setOriginalColumnTypeName(tableMeta.getOriginalColumnTypeName());
-        if (insertMeta.isString() && tableMeta.getLength() > 0) {
-          insertMeta.setLength(tableMeta.getLength());
-        }
-      }
-    }
-
-    try {
-      enrichInsertRowMetaFromJdbcColumns(database, schemaName, tableName, insertRowMeta);
-    } catch (SQLException e) {
-      throw new HopDatabaseException(
-          "Unable to read JDBC column metadata for Oracle insert binding hints", e);
+    String string = valueMeta.getString(value);
+    switch (columnType(preparedStatement, index)) {
+      case Types.NCLOB ->
+          preparedStatement.setNCharacterStream(
+              index, new StringReader(string), (long) string.length());
+      case Types.CLOB ->
+          preparedStatement.setCharacterStream(
+              index, new StringReader(string), (long) string.length());
+      case Types.NCHAR, Types.NVARCHAR, Types.LONGNVARCHAR ->
+          preparedStatement.setNString(index, string);
+      default -> preparedStatement.setString(index, string);
     }
   }
 
-  /** The column metadata of one table, as the JDBC driver reports it. */
-  private record JdbcColumns(
-      Map<String, Integer> sqlTypes, Map<String, String> typeNames, Map<String, Integer> sizes) {
-    boolean isEmpty() {
-      return sqlTypes.isEmpty();
+  /** The JDBC type of the column behind one bind parameter, or {@link #UNKNOWN_COLUMN_TYPE}. */
+  static int columnType(PreparedStatement preparedStatement, int index) {
+    int[] types = COLUMN_TYPES.get(preparedStatement);
+    if (types == null) {
+      types = describeColumns(preparedStatement);
+      COLUMN_TYPES.put(preparedStatement, types);
     }
+    return index >= 1 && index <= types.length ? types[index - 1] : UNKNOWN_COLUMN_TYPE;
   }
 
   /**
-   * Reads the columns of one table.
-   *
-   * <p>Asking without a schema matches the table name in every schema the user can see, and the
-   * columns come back with nothing but their name to tell them apart, so a table of the same name
-   * in another schema would silently supply the types. The schema the insert itself resolves
-   * against is asked first for that reason. It is only when that finds nothing -- a synonym, or a
-   * grant from somewhere else -- that the wider question is asked, because a wrong answer is still
-   * better than treating a national column as a VARCHAR2, which is the bug this all exists to fix.
+   * Asks the statement for the column type of each of its parameters. Whatever the driver cannot
+   * answer -- a driver too old to describe binds, a statement its parser does not understand, a
+   * parameter it has no type for -- is recorded as unknown, so the question is asked once per
+   * statement whatever the outcome.
    */
-  private static JdbcColumns readJdbcColumns(Database database, String schemaName, String tableName)
-      throws SQLException {
-    DatabaseMetaData dbmd = database.getConnection().getMetaData();
-    String tablePattern = tableName.trim().toUpperCase(Locale.ROOT);
-
-    String schemaPattern =
-        Utils.isEmpty(schemaName)
-            ? currentSchema(database)
-            : schemaName.trim().toUpperCase(Locale.ROOT);
-
-    JdbcColumns columns = readJdbcColumns(dbmd, schemaPattern, tablePattern);
-    if (columns.isEmpty() && schemaPattern != null) {
-      columns = readJdbcColumns(dbmd, null, tablePattern);
+  private static int[] describeColumns(PreparedStatement preparedStatement) {
+    try {
+      ParameterMetaData metaData = preparedStatement.getParameterMetaData();
+      int[] types = new int[metaData.getParameterCount()];
+      for (int i = 0; i < types.length; i++) {
+        types[i] = columnType(metaData, i + 1);
+      }
+      return types;
+    } catch (SQLException | RuntimeException e) {
+      return new int[0];
     }
-    return columns;
   }
 
-  private static JdbcColumns readJdbcColumns(
-      DatabaseMetaData dbmd, String schemaPattern, String tablePattern) throws SQLException {
-    Map<String, Integer> sqlTypes = new HashMap<>();
-    Map<String, String> typeNames = new HashMap<>();
-    Map<String, Integer> columnSizes = new HashMap<>();
-    try (ResultSet rs = dbmd.getColumns(null, schemaPattern, tablePattern, null)) {
-      while (rs.next()) {
-        String col = rs.getString("COLUMN_NAME");
-        if (col == null) {
-          continue;
+  private static int columnType(ParameterMetaData metaData, int parameter) {
+    try {
+      int type = metaData.getParameterType(parameter);
+      // The driver reports the national types by their own JDBC codes, but a type name is the
+      // safer of the two answers when both are there.
+      String typeName = metaData.getParameterTypeName(parameter);
+      if (typeName != null) {
+        switch (typeName.toUpperCase(Locale.ROOT)) {
+          case "NCLOB" -> type = Types.NCLOB;
+          case "CLOB" -> type = Types.CLOB;
+          case "NCHAR" -> type = Types.NCHAR;
+          case "NVARCHAR2" -> type = Types.NVARCHAR;
+          default -> {
+            // Trust the code.
+          }
         }
-        String key = col.toUpperCase(Locale.ROOT);
-        sqlTypes.put(key, rs.getInt("DATA_TYPE"));
-        typeNames.put(key, rs.getString("TYPE_NAME"));
-        columnSizes.put(key, rs.getInt("COLUMN_SIZE"));
       }
-    }
-    return new JdbcColumns(sqlTypes, typeNames, columnSizes);
-  }
-
-  /** The schema an unqualified table name resolves to, or null when the driver will not say. */
-  private static String currentSchema(Database database) {
-    try {
-      String schema = database.getConnection().getSchema();
-      return Utils.isEmpty(schema) ? null : schema.trim().toUpperCase(Locale.ROOT);
-    } catch (SQLException | AbstractMethodError e) {
-      // getSchema arrived in JDBC 4.1 and an older driver may not carry it. Without it the wider
-      // question below is the only one that can be asked.
-      return null;
-    }
-  }
-
-  private static void enrichInsertRowMetaFromJdbcColumns(
-      Database database, String schemaName, String tableName, IRowMeta insertRowMeta)
-      throws SQLException {
-    JdbcColumns columns = readJdbcColumns(database, schemaName, tableName);
-    Map<String, Integer> sqlTypes = columns.sqlTypes();
-    Map<String, String> typeNames = columns.typeNames();
-    Map<String, Integer> columnSizes = columns.sizes();
-
-    for (int i = 0; i < insertRowMeta.size(); i++) {
-      IValueMeta insertMeta = insertRowMeta.getValueMeta(i);
-      if (!insertMeta.isString()) {
-        continue;
-      }
-      String key = insertMeta.getName().toUpperCase(Locale.ROOT);
-      Integer dt = sqlTypes.get(key);
-      if (dt == null) {
-        continue;
-      }
-      insertMeta.setOriginalColumnType(dt);
-      String tn = typeNames.get(key);
-      if (tn != null) {
-        insertMeta.setOriginalColumnTypeName(tn);
-      }
-      Integer colSize = columnSizes.get(key);
-      if (colSize != null && colSize > 0) {
-        insertMeta.setLength(colSize);
-      }
-    }
-  }
-
-  static void setPreparedStatementStringValue(
-      PreparedStatement preparedStatement,
-      int index,
-      String string,
-      IValueMeta valueMeta,
-      IDatabase database)
-      throws SQLException {
-    if (valueMeta.getLength() == DatabaseMeta.CLOB_LENGTH) {
-      valueMeta.setLength(database.getMaxTextFieldLength());
-    }
-
-    if (isOracleClobColumn(valueMeta)) {
-      if (isOracleNationalCharacterColumn(valueMeta)) {
-        preparedStatement.setNCharacterStream(
-            index, new StringReader(string), (long) string.length());
-      } else {
-        preparedStatement.setCharacterStream(
-            index, new StringReader(string), (long) string.length());
-      }
-      return;
-    }
-
-    /*
-     * Oracle batch mode needs setFormOfUse(FORM_NCHAR|FORM_CHAR) before setNString/setString for
-     * VARCHAR2/NVARCHAR2. Stream binds still trigger ORA-01461 when batch rows mix short and long
-     * values.
-     */
-    applyOracleJdbcFormOfUse(preparedStatement, index, isOracleNationalCharacterColumn(valueMeta));
-    if (isOracleNationalCharacterColumn(valueMeta)) {
-      preparedStatement.setNString(index, string);
-      return;
-    }
-
-    preparedStatement.setString(index, string);
-  }
-
-  /**
-   * Whether the column being written is a LOB, which is decided by the column type and not by the
-   * length of the value.
-   *
-   * <p>A string read out of a CLOB arrives carrying {@link DatabaseMeta#CLOB_LENGTH} whatever it is
-   * being written to, so taking that as the answer would stream into a VARCHAR2 whenever the target
-   * column could not be read -- and a stream is what raises ORA-01461 on a batch that mixes long
-   * and short values, which is one of the things this class exists to avoid. When nothing is known
-   * about the column there is no reason to believe it is a LOB, and writing it the way Hop wrote it
-   * before any of this existed is the safer answer.
-   */
-  private static boolean isOracleClobColumn(IValueMeta valueMeta) {
-    int columnType = valueMeta.getOriginalColumnType();
-    return columnType == Types.CLOB || columnType == Types.NCLOB;
-  }
-
-  private static boolean isOracleNationalCharacterColumn(IValueMeta valueMeta) {
-    String typeName = valueMeta.getOriginalColumnTypeName();
-    if (typeName != null) {
-      String upper = typeName.toUpperCase(Locale.ROOT);
-      if (upper.contains("NVARCHAR")
-          || "NCHAR".equals(upper)
-          || upper.startsWith("NCHAR(")
-          || "NCLOB".equals(upper)
-          || upper.startsWith("NCLOB(")) {
-        return true;
-      }
-    }
-    int columnType = valueMeta.getOriginalColumnType();
-    return columnType == Types.NCHAR
-        || columnType == Types.NVARCHAR
-        || columnType == Types.LONGNVARCHAR
-        || columnType == Types.NCLOB;
-  }
-
-  /**
-   * setFormOfUse is reached reflectively because the driver is not on the compile classpath, and it
-   * is reached for every string this dialect writes. Looking the method up per value would make the
-   * innermost loop of an Oracle insert do a class lookup and allocate a Method each time, so it is
-   * resolved once. Holder-class initialisation is what makes that thread safe.
-   *
-   * <p>Resolved against this plugin's own classloader, which is the one the driver is loaded in
-   * (the dialect declares classLoaderGroup "oracle-db"); the isInstance check below is still what
-   * decides whether the statement in hand is really the driver's, so a stale or unrelated class can
-   * only cause the call to be skipped, never misapplied.
-   */
-  private static final class SetFormOfUse {
-    private static final Class<?> ORACLE_PS = resolveClass();
-    private static final Method METHOD = resolveMethod();
-
-    private static Class<?> resolveClass() {
-      try {
-        return Class.forName("oracle.jdbc.OraclePreparedStatement");
-      } catch (ClassNotFoundException | LinkageError e) {
-        return null;
-      }
-    }
-
-    private static Method resolveMethod() {
-      if (ORACLE_PS == null) {
-        return null;
-      }
-      try {
-        return ORACLE_PS.getMethod("setFormOfUse", int.class, short.class);
-      } catch (NoSuchMethodException | LinkageError e) {
-        // An older JDBC build without it.
-        return null;
-      }
-    }
-
-    private SetFormOfUse() {}
-  }
-
-  private static void applyOracleJdbcFormOfUse(
-      PreparedStatement preparedStatement, int index, boolean national) throws SQLException {
-    Class<?> oraclePsClass = SetFormOfUse.ORACLE_PS;
-    Method setFormOfUse = SetFormOfUse.METHOD;
-    if (oraclePsClass == null || setFormOfUse == null) {
-      return;
-    }
-    Object oraclePs = preparedStatement;
-    if (!oraclePsClass.isInstance(preparedStatement)) {
-      if (preparedStatement.isWrapperFor(oraclePsClass)) {
-        oraclePs = preparedStatement.unwrap(oraclePsClass);
-      } else {
-        return;
-      }
-    }
-    short form = national ? ORACLE_JDBC_FORM_NCHAR : ORACLE_JDBC_FORM_CHAR;
-    try {
-      setFormOfUse.invoke(oraclePs, index, form);
-    } catch (ReflectiveOperationException | ClassCastException ignored) {
-      // Not the Oracle driver after all, or it refused the call.
+      return type;
+    } catch (SQLException | RuntimeException e) {
+      return UNKNOWN_COLUMN_TYPE;
     }
   }
 }
