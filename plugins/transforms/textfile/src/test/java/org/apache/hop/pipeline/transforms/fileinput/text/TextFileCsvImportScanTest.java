@@ -200,12 +200,25 @@ class TextFileCsvImportScanTest {
         .orElseThrow();
   }
 
+  /**
+   * Checkout may store this fixture with LF (core.autocrlf). The scan under test has to see CRLF,
+   * because Unix mode then leaves a blank line after every row.
+   */
   private static Path fixture() throws Exception {
     var resource = TextFileCsvImportScanTest.class.getResource("files/customers-crlf.csv");
     if (resource == null) {
       throw new IllegalStateException("customers-crlf.csv fixture is missing");
     }
-    return Path.of(resource.toURI());
+    String text =
+        Files.readString(Path.of(resource.toURI()), StandardCharsets.UTF_8)
+            .replace("\r\n", "\n")
+            .replace("\n", "\r\n");
+    if (!text.contains("\r\n")) {
+      throw new IllegalStateException("customers fixture has no lines to scan");
+    }
+    Path copy = Files.createTempFile("customers-crlf", ".csv");
+    Files.writeString(copy, text, StandardCharsets.UTF_8);
+    return copy;
   }
 
   private record Scan(TextFileInputMeta meta, CountingDialog dialog, String message) {}
