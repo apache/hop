@@ -35,6 +35,7 @@ public final class SparkConst {
   public static final String MEMORY_GROUP_BY_PLUGIN_ID = "MemoryGroupBy";
   public static final String MERGE_JOIN_PLUGIN_ID = "MergeJoin";
   public static final String UNIQUE_ROWS_PLUGIN_ID = "Unique";
+  public static final String UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID = "UniqueRowsByHashSet";
   public static final String SORT_ROWS_PLUGIN_ID = "SortRows";
   public static final String GROUP_BY_PLUGIN_ID = "GroupBy";
 

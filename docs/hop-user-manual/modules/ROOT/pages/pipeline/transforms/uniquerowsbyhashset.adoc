@@ -29,6 +29,17 @@ This transform differs from the xref:pipeline/transforms/uniquerows.adoc[Unique 
 
 WARNING: When using this transform on larger sets of data there is a risk of hash collisions unless "Compare using stored row values" is enabled.
 
+[WARNING]
+====
+This transform is not supported on the distributed pipeline engines: neither the Beam engines nor the native Spark engine.
+The hash set it uses to spot duplicates lives in the memory of a single worker, and these engines spread the rows over many workers, so duplicates that end up on different workers would survive.
+Both refuse the transform with an error rather than hand you that incomplete result.
+
+Use a xref:pipeline/transforms/memgroupby.adoc[Memory Group By] to get distinct rows instead: it is translated into the engine's own grouping operation and covers the whole data set.
+On the native Spark engine xref:pipeline/transforms/uniquerows.adoc[Unique Rows] is an option too, because that engine maps it onto its own distinct operation; on the Beam engines it is not, as it is refused there as well.
+See xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam].
+====
+
 == Options
 
 [options="header"]
