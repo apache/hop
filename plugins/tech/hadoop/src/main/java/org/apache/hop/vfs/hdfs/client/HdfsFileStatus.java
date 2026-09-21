@@ -22,6 +22,8 @@ public class HdfsFileStatus {
   private String type = "FILE";
   private long length;
   private long modificationTime;
+  private String owner = "";
+  private String permission = "";
 
   public String getPathSuffix() {
     return pathSuffix;
@@ -53,6 +55,22 @@ public class HdfsFileStatus {
 
   public void setModificationTime(long modificationTime) {
     this.modificationTime = modificationTime;
+  }
+
+  public String getOwner() {
+    return owner;
+  }
+
+  public void setOwner(String owner) {
+    this.owner = owner == null ? "" : owner;
+  }
+
+  public String getPermission() {
+    return permission;
+  }
+
+  public void setPermission(String permission) {
+    this.permission = permission == null ? "" : permission;
   }
 
   public boolean isDirectory() {

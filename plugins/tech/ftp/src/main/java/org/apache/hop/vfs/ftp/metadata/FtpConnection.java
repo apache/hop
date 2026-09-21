@@ -19,6 +19,7 @@ package org.apache.hop.vfs.ftp.metadata;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -50,7 +51,7 @@ import org.apache.hop.vfs.ftp.IFtpConnection;
     supportsGlobalReplace = true,
     classLoaderGroup = "sftp")
 public class FtpConnection extends HopMetadataBase
-    implements Serializable, IHopMetadata, IFtpConnection {
+    implements Serializable, IHopMetadata, IFtpConnection, IVfsBrowseLocation {
 
   @HopMetadataProperty private String description;
 

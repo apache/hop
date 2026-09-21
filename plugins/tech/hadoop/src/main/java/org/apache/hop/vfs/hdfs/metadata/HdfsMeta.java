@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -50,7 +51,8 @@ import org.eclipse.swt.widgets.MessageBox;
     documentationUrl = "/metadata-types/hdfs-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_HDFS_CONNECTION,
     classLoaderGroup = "vfs-hdfs")
-public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetadata {
+public class HdfsMeta extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   private static final Class<?> PKG = HdfsMeta.class;
 

@@ -35,3 +35,5 @@ Using an Azure connection to connect to a blob store requires you to specify the
 |Storage Account Key| The primary or secondary key of the storage account
 |Storage Endpoint| Leave empty for default Azure endpoints or fill in when using a compatible service
 |===
+
+**Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.

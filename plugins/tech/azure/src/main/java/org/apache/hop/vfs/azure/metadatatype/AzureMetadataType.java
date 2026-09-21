@@ -19,6 +19,7 @@ package org.apache.hop.vfs.azure.metadatatype;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -37,7 +38,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     classLoaderGroup = "vfs-azure")
 @Getter
 @Setter
-public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {
+public class AzureMetadataType extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   private static final Class<?> PKG = AzureMetadataType.class;
   @HopMetadataProperty private String description;

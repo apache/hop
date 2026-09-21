@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -41,7 +42,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     documentationUrl = "/metadata-types/minio-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_MINIO_CONNECTION,
     classLoaderGroup = "vfs-minio")
-public class MinioMeta extends HopMetadataBase implements Serializable, IHopMetadata {
+public class MinioMeta extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
   private static final String WIDGET_ID_MINIO_DESCRIPTION = "10000-minio-description";
   private static final String WIDGET_ID_MINIO_ACCESS_KEY = "10050-minio-access-key";
   private static final String WIDGET_ID_MINIO_SECRET_KEY = "10100-minio-secret-key";
