@@ -25,6 +25,7 @@ import dev.langchain4j.model.output.TokenUsage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.ai.metadata.AiModelRole;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.exception.HopException;
@@ -110,7 +111,7 @@ public final class AiChatFactory {
     if (Utils.isEmpty(baseUrl) && useProviderDefaults) {
       baseUrl = backend.getDefaultBaseUrl();
     }
-    String modelName = resolve(variables, provider.getModelName());
+    String modelName = resolve(variables, provider.resolveModelName(AiModelRole.CHAT));
     if (Utils.isEmpty(modelName) && useProviderDefaults) {
       modelName = backend.getDefaultModelName();
     }

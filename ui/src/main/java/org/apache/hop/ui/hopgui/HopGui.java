@@ -806,10 +806,21 @@ public class HopGui
           // Terminal restoration is handled by the Projects plugin
 
           // Restore explorer perspective state (file explorer panel visibility) for current
-          // namespace (default or project set by extension point).
+          // namespace (default or project set by extension point). Skip when a perspective was
+          // not loaded (disabled, or Hop Web init before loadPerspectives(); issue #8477).
           //
-          ExplorerPerspective.getInstance().applyRestoredState();
-          ExecutionPerspective.getInstance().restoreState();
+          if (perspectiveManager != null) {
+            ExplorerPerspective explorerPerspective =
+                perspectiveManager.findPerspective(ExplorerPerspective.class);
+            if (explorerPerspective != null) {
+              explorerPerspective.applyRestoredState();
+            }
+            ExecutionPerspective executionPerspective =
+                perspectiveManager.findPerspective(ExecutionPerspective.class);
+            if (executionPerspective != null) {
+              executionPerspective.restoreState();
+            }
+          }
 
           // We need to start tracking file history again.
           //
@@ -2167,8 +2178,10 @@ public class HopGui
         ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     statusToolbar = statusToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
-    int sidebarWidth = (int) (40 * PropsUi.getNativeZoomFactor());
-    fdToolBar.left = new FormAttachment(0, sidebarWidth);
+    // Span the full width of the shell, like the main toolbar at the top. Insetting this bar by
+    // the sidebar width leaves a strip of shell background in the bottom left corner which does
+    // not match the toolbar background.
+    fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.bottom = new FormAttachment(100, 0);
     statusToolbar.setLayoutData(fdToolBar);
@@ -2216,7 +2229,9 @@ public class HopGui
     bottomLayout.marginHeight = 0;
     bottomLayout.verticalSpacing = 1;
     bottomToolbar.setLayout(bottomLayout);
-    bottomToolbar.setBackground(GuiResource.getInstance().getWidgetBackGroundColor());
+    // Use the toolbar background so this strip matches the main and status toolbars instead of
+    // the sidebar behind it.
+    PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
     FormData fdBottomToolbar = new FormData();
     fdBottomToolbar.left = new FormAttachment(0, 0);
     fdBottomToolbar.right = new FormAttachment(100, 0);
@@ -2714,7 +2729,9 @@ public class HopGui
       child.dispose();
     }
 
-    Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
+    // Take the background from the strip itself so the buttons stay in step with the toolbar
+    // style on every platform and theme.
+    Color normalBg = bottomToolbar.getBackground();
     Color selectionBg = GuiResource.getInstance().getColorLightBlue();
     Color hoverBg = GuiResource.getInstance().getColorGray();
     int buttonSize = (int) (34 * PropsUi.getNativeZoomFactor());

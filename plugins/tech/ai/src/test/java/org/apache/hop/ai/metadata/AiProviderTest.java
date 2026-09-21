@@ -29,6 +29,73 @@ import org.junit.jupiter.api.Test;
 class AiProviderTest {
 
   @Test
+  void aProviderWithoutRolesBehavesExactlyAsBefore() {
+    // The compatibility guarantee: anything serialized before roles existed has no models entry,
+    // so CHAT still comes from modelName and no other role resolves.
+    AiProvider provider = new AiProvider();
+    provider.setModelName("gpt-4o-mini");
+
+    assertTrue(provider.getModels().isEmpty());
+    assertEquals("gpt-4o-mini", provider.resolveModelName(AiModelRole.CHAT));
+    assertEquals("", provider.resolveModelName(AiModelRole.EMBEDDING));
+  }
+
+  @Test
+  void eachRoleResolvesItsOwnModel() {
+    AiProvider provider = new AiProvider();
+    provider.setModelName("gpt-4o-mini");
+    provider.setModels(
+        List.of(
+            new AiProviderModel(AiModelRole.CHAT, "llama3.2"),
+            new AiProviderModel(AiModelRole.EMBEDDING, "nomic-embed-text"),
+            new AiProviderModel(AiModelRole.SCORING, "bge-reranker-v2-m3")));
+
+    assertEquals("llama3.2", provider.resolveModelName(AiModelRole.CHAT));
+    assertEquals("nomic-embed-text", provider.resolveModelName(AiModelRole.EMBEDDING));
+    assertEquals("bge-reranker-v2-m3", provider.resolveModelName(AiModelRole.SCORING));
+    assertEquals("", provider.resolveModelName(AiModelRole.IMAGE));
+  }
+
+  @Test
+  void theChatModelIsNotAFallbackForTheOtherRoles() {
+    // Embedding a text with a chat model fails at the provider with a confusing message. An empty
+    // result here lets the caller say what is actually wrong.
+    AiProvider provider = new AiProvider();
+    provider.setModelName("gpt-4o-mini");
+    provider.setModels(List.of(new AiProviderModel(AiModelRole.SCORING, "bge-reranker-v2-m3")));
+
+    assertEquals("", provider.resolveModelName(AiModelRole.EMBEDDING));
+  }
+
+  @Test
+  void anEmptyModelNameOnARoleDoesNotCount() {
+    AiProvider provider = new AiProvider();
+    provider.setModelName("gpt-4o-mini");
+    provider.setModels(List.of(new AiProviderModel(AiModelRole.CHAT, "")));
+
+    assertEquals("gpt-4o-mini", provider.resolveModelName(AiModelRole.CHAT));
+  }
+
+  @Test
+  void copyConstructorDeepCopiesTheModels() {
+    AiProvider source = new AiProvider();
+    source.setModels(List.of(new AiProviderModel(AiModelRole.EMBEDDING, "nomic-embed-text")));
+
+    AiProvider copy = new AiProvider(source);
+    copy.getModels().get(0).setModelName("changed");
+
+    assertEquals("nomic-embed-text", source.resolveModelName(AiModelRole.EMBEDDING));
+  }
+
+  @Test
+  void theRoleEnumReadsBackFromItsDisplayedText() {
+    // Generated dialogs fill an enum combo with toString() and read it back with Enum.valueOf.
+    for (AiModelRole role : AiModelRole.values()) {
+      assertEquals(role.name(), role.toString());
+    }
+  }
+
+  @Test
   void copyConstructorClonesProvider() {
     AiProvider source = new AiProvider();
     source.setName("prod-openai");

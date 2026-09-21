@@ -1,0 +1,17 @@
+{
+  "modelName": "",
+  "models": [
+    {
+      "role": "EMBEDDING",
+      "model_name": "nomic-embed-text"
+    }
+  ],
+  "baseUrl": "http://ollama:11434",
+  "apiKey": "Encrypted ",
+  "provider": {
+    "ollama": {}
+  },
+  "name": "ollama-embeddings",
+  "temperature": "0.3",
+  "timeoutSeconds": "60"
+}

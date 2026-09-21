@@ -236,6 +236,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     } catch (Throwable e) {
       // No HopGuiImpl in unit tests
     }
+    // Fallback for tests and the disabled-perspective case (constructed, never initialized).
+    // Hop Web project activation can reach us before loadPerspectives() has run, or when this
+    // perspective is excluded; callers must not NPE on a null singleton (issue #8477).
+    if (instance == null) {
+      new ExecutionPerspective();
+    }
     return instance;
   }
 

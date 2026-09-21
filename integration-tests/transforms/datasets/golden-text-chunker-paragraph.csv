@@ -1,0 +1,4 @@
+chunk_text,chunk_index,chunk_start_position,total_chunks
+"First paragraph text.",0,0,3
+"Second paragraph text.",1,23,3
+"Third paragraph text.",2,47,3

@@ -27,12 +27,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
@@ -54,6 +58,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.postgresql.copy.PGCopyOutputStream;
 
 class PGBulkLoaderTest {
   @RegisterExtension
@@ -244,6 +249,101 @@ class PGBulkLoaderTest {
       assertTrue(
           aHopException.getMessage().contains("There is no connection defined in this transform."));
     }
+  }
+
+  private PGBulkLoader disposableLoader(PGBulkLoaderData data, PGCopyOutputStream copyOut)
+      throws Exception {
+    PGBulkLoader loader =
+        spy(
+            new PGBulkLoader(
+                transformMockHelper.transformMeta,
+                transformMockHelper.iTransformMeta,
+                data,
+                0,
+                transformMockHelper.pipelineMeta,
+                transformMockHelper.pipeline));
+    Field field = PGBulkLoader.class.getDeclaredField("pgCopyOut");
+    field.setAccessible(true);
+    field.set(loader, copyOut);
+    return loader;
+  }
+
+  /**
+   * A stop or an error leaves the COPY open. dispose() must abort it - not endCopy(), which would
+   * commit the partial rows - and release the connection. Issue 8288.
+   */
+  @Test
+  void disposeCancelsAnActiveCopyAndDisconnects() throws Exception {
+    PGBulkLoaderData data = new PGBulkLoaderData();
+    Database db = mock(Database.class);
+    data.db = db;
+    PGCopyOutputStream copyOut = mock(PGCopyOutputStream.class);
+    // Active on entry (so the copy is cancelled), inactive afterwards (a successful cancel), so the
+    // stream is then closed without an endCopy() commit.
+    when(copyOut.isActive()).thenReturn(true, false);
+
+    PGBulkLoader loader = disposableLoader(data, copyOut);
+    loader.dispose();
+
+    verify(copyOut).cancelCopy();
+    verify(copyOut, never()).endCopy();
+    verify(copyOut).close();
+    verify(db).disconnect();
+    assertNull(data.db);
+  }
+
+  /**
+   * The normal end-of-input path already finished and closed the COPY. dispose() then only has to
+   * release the connection, and must not touch the already-closed copy.
+   */
+  @Test
+  void disposeDoesNotCancelAnAlreadyFinishedCopy() throws Exception {
+    PGBulkLoaderData data = new PGBulkLoaderData();
+    Database db = mock(Database.class);
+    data.db = db;
+    PGCopyOutputStream copyOut = mock(PGCopyOutputStream.class);
+    when(copyOut.isActive()).thenReturn(false);
+
+    PGBulkLoader loader = disposableLoader(data, copyOut);
+    loader.dispose();
+
+    verify(copyOut, never()).cancelCopy();
+    verify(copyOut).close();
+    verify(db).disconnect();
+  }
+
+  /**
+   * If cancelCopy() throws (a broken connection mid-load, the likely case), dispose() must not fall
+   * through to close() - pgjdbc's close() runs endCopy() on a still-active copy, committing the
+   * very rows we are discarding. The connection is torn down instead. Issue 8288 review follow-up.
+   */
+  @Test
+  void disposeDoesNotCommitWhenCancelFailsOnAnActiveCopy() throws Exception {
+    PGBulkLoaderData data = new PGBulkLoaderData();
+    Database db = mock(Database.class);
+    data.db = db;
+    PGCopyOutputStream copyOut = mock(PGCopyOutputStream.class);
+    when(copyOut.isActive()).thenReturn(true);
+    doThrow(new SQLException("connection reset")).when(copyOut).cancelCopy();
+
+    PGBulkLoader loader = disposableLoader(data, copyOut);
+    loader.dispose();
+
+    verify(copyOut).cancelCopy();
+    verify(copyOut, never()).endCopy();
+    verify(copyOut, never()).close();
+    verify(db).disconnect();
+    assertNull(data.db);
+  }
+
+  /** A transform stopped before the first row opened neither the copy nor the connection. */
+  @Test
+  void disposeSurvivesWithoutACopyOrConnection() throws Exception {
+    PGBulkLoaderData data = new PGBulkLoaderData();
+    data.db = null;
+    PGBulkLoader loader = disposableLoader(data, null);
+
+    loader.dispose();
   }
 
   private static PGBulkLoaderMeta getPgBulkLoaderMock(String DbNameOverride)

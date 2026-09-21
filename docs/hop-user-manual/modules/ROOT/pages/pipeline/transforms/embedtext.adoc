@@ -1,0 +1,90 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Turn a text field into an embedding vector using an AI provider.
+
+= image:transforms/icons/embedtext.svg[Embed text transform Icon, role="image-doc-icon"] Embed text
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Embed text transform turns a text field into an embedding vector by calling the embedding model of an xref:metadata-types/ai-provider.adoc[AI provider]. It is the middle step of a retrieval pipeline: chunk the documents, embed the chunks, then write them to a vector store.
+
+One row in, one row out. The embedding is added to the row, so nothing already on it is lost.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Choosing the model
+
+The model comes from the **EMBEDDING** entry of the selected AI provider, so one provider can serve a chat transform and this transform at the same time, with the credentials configured once.
+
+The optional **Model** option overrides that for this transform only, which is useful when one pipeline needs a different model than the rest.
+
+A provider with no EMBEDDING entry is an error rather than a silent fallback to its chat model: embedding text with a chat model fails at the provider with a message that is hard to act on.
+
+Ollama and OpenAI compatible providers are supported. The OpenAI path covers anything that speaks that API, such as Azure OpenAI, vLLM, LM Studio or a gateway.
+
+== Output format
+
+The embedding is written either as:
+
+* a **String** holding a JSON array, for example `[0.1,-0.2,0.35]`, which xref:pipeline/transforms/pgvector-upsert.adoc[pgvector upsert] accepts as a literal, or
+* a field of the **Vector** value type, which avoids rendering the numbers to text and back.
+
+Vector is the better choice when the Vector value type plugin is installed. When it is not, the transform falls back to the String form rather than failing, so a pipeline moved between installations keeps running.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|AI provider|The AI provider serving the embedding model.
+|Model|Optional. Overrides the provider's EMBEDDING model for this transform only. Accepts variables.
+|Input field|Field holding the text to embed. A row whose text is empty is passed on with empty output fields rather than being dropped, and keeps its place in the stream.
+|Output field|Field the embedding is written to.
+|Output format|`STRING` for a JSON array, `VECTOR` for a Vector field.
+|Batch size|Rows buffered before the provider is called. Accepts variables. Rows with empty text are buffered so they keep their place in the stream, but are not sent, so a batch can send fewer texts than its size.
+|Include model metadata|Adds the model name and the vector width to each row.
+|Model field|Output field for the embedding model name.
+|Dimensions field|Output field for the number of dimensions in the vector.
+|===
+
+== Notes
+
+Embedding calls are billed and rate limited per request, so **Batch size** is the main throughput control. The provider embeds the texts in a batch in one call.
+
+Rows leave this transform in the order they arrived, including the ones with no text to embed, which wait for the batch around them rather than overtaking it.
+
+That also shapes what happens on failure. The provider answers per batch and cannot say which text it choked on, so when an error hop is attached every row that was sent is diverted rather than one row. Rows with empty text were never sent and are passed on normally. A batch size of 1 gives per-row precision at the cost of throughput.
+
+**Include model metadata** is worth leaving on for anything that will be re-indexed later. Knowing which model produced a stored vector is what lets you re-embed only what a model change actually affects, and mixing vectors from two models in one index produces silently poor results.

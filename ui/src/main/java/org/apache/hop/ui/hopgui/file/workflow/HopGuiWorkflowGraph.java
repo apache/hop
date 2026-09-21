@@ -5192,7 +5192,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               pluginTabClass.getConstructor(HopGui.class, HopGuiWorkflowGraph.class);
           Object object = constructor.newInstance(hopGui, this);
           CTabItem tab = (CTabItem) tabItem.getMethod().invoke(object, extraViewTabFolder);
-          tab.setData(EXTRA_TAB_ID, tabItem.getId());
+          // Some plugins may return `null`, for example, if a feature is not enabled.
+          if (tab != null) {
+            tab.setData(EXTRA_TAB_ID, tabItem.getId());
+          }
         } catch (Exception e) {
           new ErrorDialog(
               getShell(),

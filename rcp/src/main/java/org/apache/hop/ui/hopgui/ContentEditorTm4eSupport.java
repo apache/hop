@@ -60,20 +60,22 @@ final class ContentEditorTm4eSupport {
   private static final String SCOPE_YAML = "source.yaml";
   private static final String SCOPE_SHELL = "source.shell";
   private static final String SCOPE_BATCH = "source.batchfile";
+  private static final String SCOPE_JAVASCRIPT = "source.js";
   private static final String SCOPE_MARKDOWN = "text.html.markdown";
 
   /** Maps TM4E scope names to grammar resource filenames (classpath-relative to grammars/). */
   private static final Map<String, String> GRAMMAR_FILES =
-      Map.of(
-          SCOPE_JSON, "json.json",
-          SCOPE_XML, "xml.json",
-          SCOPE_SQL, "sql.json",
-          SCOPE_TEXT, "text.json",
-          SCOPE_PYTHON, "python.json",
-          SCOPE_YAML, "yaml.json",
-          SCOPE_SHELL, "shell.json",
-          SCOPE_BATCH, "bat.json",
-          SCOPE_MARKDOWN, "markdown.json");
+      Map.ofEntries(
+          Map.entry(SCOPE_JSON, "json.json"),
+          Map.entry(SCOPE_XML, "xml.json"),
+          Map.entry(SCOPE_SQL, "sql.json"),
+          Map.entry(SCOPE_TEXT, "text.json"),
+          Map.entry(SCOPE_PYTHON, "python.json"),
+          Map.entry(SCOPE_YAML, "yaml.json"),
+          Map.entry(SCOPE_SHELL, "shell.json"),
+          Map.entry(SCOPE_BATCH, "bat.json"),
+          Map.entry(SCOPE_JAVASCRIPT, "javascript.json"),
+          Map.entry(SCOPE_MARKDOWN, "markdown.json"));
 
   // Same palette as before (light/dark) for consistency
   private static final RGB L_COMMENT = new RGB(128, 128, 128);
@@ -126,6 +128,7 @@ final class ContentEditorTm4eSupport {
       case "sql" -> SCOPE_SQL;
       case "python", "py" -> SCOPE_PYTHON;
       case "yaml", "yml" -> SCOPE_YAML;
+      case "javascript", "js" -> SCOPE_JAVASCRIPT;
       case "shell", "bash", "sh" -> SCOPE_SHELL;
       case "bat", "cmd", "batch" -> SCOPE_BATCH;
       case "markdown", "md" -> SCOPE_MARKDOWN;

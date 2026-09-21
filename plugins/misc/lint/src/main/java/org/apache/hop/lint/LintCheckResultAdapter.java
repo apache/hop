@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.IAction;
 
 /** Converts between lint results and Hop native verify results ({@link ICheckResult}). */
 public final class LintCheckResultAdapter {
@@ -163,7 +164,8 @@ public final class LintCheckResultAdapter {
     if (source instanceof TransformMeta) {
       return LintSourceRef.transform(source.getName());
     }
-    if (source instanceof ActionMeta) {
+    // Hop's own workflow verify reports the IAction as the source, not its ActionMeta.
+    if (source instanceof ActionMeta || source instanceof IAction) {
       return LintSourceRef.action(source.getName());
     }
     if (source instanceof PipelineMeta) {

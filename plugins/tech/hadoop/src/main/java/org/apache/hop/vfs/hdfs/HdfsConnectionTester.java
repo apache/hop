@@ -95,7 +95,7 @@ public final class HdfsConnectionTester {
           throw failed(succeeded, "Kerberos", probeHost, e);
         }
         try {
-          session.doAs(() -> HdfsSpnego.authorizationHeader(probeHost));
+          session.gss(() -> HdfsSpnego.authorizationHeader(probeHost));
           succeeded.add(BaseMessages.getString(PKG, "Hdfs.Test.Ok.Spnego", probeHost));
         } catch (Exception e) {
           throw failed(succeeded, "SPNEGO", "HTTP@" + probeHost, e);

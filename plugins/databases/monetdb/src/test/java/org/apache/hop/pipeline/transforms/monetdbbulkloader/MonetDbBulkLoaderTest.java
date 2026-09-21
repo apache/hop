@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -30,6 +32,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.monetdb.mcl.net.MapiSocket;
 
 /** Test for MonetDbBulkLoader (excluding dialog). */
 class MonetDbBulkLoaderTest {
@@ -82,6 +85,42 @@ class MonetDbBulkLoaderTest {
             meta, new byte[] {(byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef}));
     assertEquals("", MonetDbBulkLoader.hexFieldForMonetDbCopy(meta, new byte[0]));
     assertNull(MonetDbBulkLoader.hexFieldForMonetDbCopy(meta, null));
+  }
+
+  private MonetDbBulkLoader newLoader(MonetDbBulkLoaderData data) {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta transformMeta = new TransformMeta("test", new MonetDbBulkLoaderMeta());
+    pipelineMeta.addTransform(transformMeta);
+    MonetDbBulkLoaderMeta meta = new MonetDbBulkLoaderMeta();
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    return new MonetDbBulkLoader(transformMeta, meta, data, 0, pipelineMeta, pipeline);
+  }
+
+  /**
+   * An error or a stop in the middle of the stream skips the end-of-input close. dispose() has to
+   * close the MonetDB socket so the load session does not stay open on the server. Issue 8288.
+   */
+  @Test
+  void disposeClosesTheOpenSocket() {
+    MonetDbBulkLoaderData data = new MonetDbBulkLoaderData();
+    MapiSocket mserver = mock(MapiSocket.class);
+    data.mserver = mserver;
+
+    newLoader(data).dispose();
+
+    verify(mserver).close();
+    assertNull(data.mserver);
+  }
+
+  /** A transform that never opened a socket must dispose cleanly. */
+  @Test
+  void disposeSurvivesWithoutASocket() {
+    MonetDbBulkLoaderData data = new MonetDbBulkLoaderData();
+    data.mserver = null;
+
+    newLoader(data).dispose();
+
+    assertNull(data.mserver);
   }
 
   @Test

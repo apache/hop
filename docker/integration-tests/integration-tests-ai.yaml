@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_ai:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      ollama:
+        condition: service_healthy
+    links:
+      - ollama
+
+  # One Ollama for every AI integration test. Each transform needs a different kind of model, so
+  # the models are pulled together here rather than standing up a container per transform. Add a
+  # pull line below when a new AI test needs another model, and add it to the healthcheck so the
+  # test container waits for it.
+  ollama:
+    # Pin version for CI stability; tests reach it over compose DNS (ollama:11434).
+    image: ollama/ollama:0.34.0
+    hostname: ollama
+    # The image ships no models, so the server is started and the test model pulled here. The
+    # healthcheck below is what holds the test container back until that pull has finished.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        until ollama list >/dev/null 2>&1; do sleep 1; done
+        ollama pull nomic-embed-text
+        wait
+    healthcheck:
+      # nomic-embed-text is ~274MB and returns 768 dimensions, which the Embed text test asserts
+      # on. Extend this condition when another model is added above.
+      test: ["CMD-SHELL", "ollama list | grep -q nomic-embed-text"]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 20s

@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "chunk_text",
+          "data_set_field": "chunk_text"
+        },
+        {
+          "transform_field": "chunk_index",
+          "data_set_field": "chunk_index"
+        },
+        {
+          "transform_field": "chunk_start_position",
+          "data_set_field": "chunk_start_position"
+        },
+        {
+          "transform_field": "total_chunks",
+          "data_set_field": "total_chunks"
+        }
+      ],
+      "field_order": [
+        "chunk_text",
+        "chunk_index",
+        "chunk_start_position",
+        "total_chunks"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-text-chunker-structure-markdown"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0115-text-chunker-structure-markdown UNIT",
+  "description": "Structure chunking of Markdown: one chunk per section, prefixed with its heading path",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0115-text-chunker-structure-markdown.hpl",
+  "test_type": "UNIT_TEST"
+}

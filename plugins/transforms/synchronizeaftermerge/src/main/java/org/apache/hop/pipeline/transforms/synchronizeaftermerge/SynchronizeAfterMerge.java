@@ -1083,10 +1083,74 @@ public class SynchronizeAfterMerge
     return databaseMeta;
   }
 
+  /**
+   * A single-threaded (streaming) pipeline never sends the end-of-input signal that {@link
+   * #processRow()} flushes on; it calls this after every batch of rows instead. Commit what is
+   * pending now, so it does not sit uncommitted - and, on databases like Oracle, locked - until the
+   * stream ends. See <a href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   */
+  @Override
+  public void batchComplete() throws HopException {
+    if (data.db == null || data.db.getConnection() == null) {
+      return;
+    }
+    try {
+      emptyBatchBuffer(false);
+    } catch (HopDatabaseBatchException be) {
+      // The statements stay open for the next batch, so drop what failed before going on. The rest
+      // is the recovery a failure in the middle of the stream gets.
+      for (PreparedStatement statement : data.preparedStatements.values()) {
+        data.db.clearBatch(statement);
+      }
+      if (getTransformMeta().isDoingErrorHandling()) {
+        data.db.commit(true);
+        processBatchException(be.toString(), be.getUpdateCounts(), be.getExceptionsList());
+      } else {
+        data.db.rollback();
+        throw new HopException(
+            BaseMessages.getString(PKG, "SynchronizeAfterMerge.Error.UpdatingBatch"), be);
+      }
+    } catch (SQLException e) {
+      throw new HopDatabaseException("Unexpected error committing the database connection.", e);
+    }
+  }
+
+  /**
+   * The end-of-input path in {@link #processRow()} has normally flushed and disconnected by now. It
+   * is skipped when the transform is stopped or fails in the middle of a row, and a single-threaded
+   * (streaming) pipeline never sends end-of-input at all. In both cases the connection stayed open,
+   * and with it the uncommitted transaction and every row lock it holds. See <a
+   * href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   *
+   * <p>A graceful stop leaves {@code getErrors() == 0}, so the pending batch is committed rather
+   * than rolled back - deliberately, and in line with Table Output, Update and Delete: this
+   * transform already commits every {@code commitSize} rows, so committing the final partial batch
+   * on a stop keeps the same all-or-a-multiple-of-commitSize contract. Only a real error rolls
+   * back. Note that {@link #emptyBatchBuffer(boolean)} still calls {@code putRow} for the committed
+   * rows; on a stop {@code putRow} is a no-op (nothing reads downstream anyway), while the rows are
+   * safely in the table - the same behaviour Table Output has.
+   */
+  @Override
+  public void dispose() {
+    if (data.db != null) {
+      if (data.db.getConnection() != null) {
+        if (getErrors() > 0) {
+          // The transform failed: nothing that is still pending may reach the table.
+          rollback();
+          data.db.disconnect();
+        } else {
+          finishTransform();
+        }
+      }
+      data.db = null;
+    }
+    super.dispose();
+  }
+
   private void finishTransform() {
     if (data.db != null && data.db.getConnection() != null) {
       try {
-        finishTransformEmptyBatchBuffer();
+        emptyBatchBuffer(true);
       } catch (HopDatabaseBatchException be) {
         finishTransformErrorHandling(be);
       } catch (Exception dbe) {
@@ -1098,11 +1162,7 @@ public class SynchronizeAfterMerge
         setOutputDone();
 
         if (getErrors() > 0) {
-          try {
-            data.db.rollback();
-          } catch (HopDatabaseException e) {
-            logError("Unexpected error rolling back the database connection.", e);
-          }
+          rollback();
         }
 
         data.db.disconnect();
@@ -1110,7 +1170,21 @@ public class SynchronizeAfterMerge
     }
   }
 
-  private void finishTransformEmptyBatchBuffer()
+  private void rollback() {
+    try {
+      data.db.rollback();
+    } catch (HopDatabaseException e) {
+      logError("Unexpected error rolling back the database connection.", e);
+    }
+  }
+
+  /**
+   * Execute and commit the pending batch of every prepared statement and pass the buffered rows on.
+   *
+   * @param closeStatements true at the end of the transform; false between the batches of a
+   *     single-threaded pipeline, where the statements are reused.
+   */
+  private void emptyBatchBuffer(boolean closeStatements)
       throws SQLException, HopDatabaseException, HopTransformException, HopValueException {
     if (!data.db.getConnection().isClosed()) {
       for (String schemaTable : data.preparedStatements.keySet()) {
@@ -1121,9 +1195,17 @@ public class SynchronizeAfterMerge
           batchCounter = 0;
         }
 
-        PreparedStatement insertStatement = data.preparedStatements.get(schemaTable);
+        // Between batches there is nothing to commit for a statement that took no rows this batch.
+        // Skip it; at final completion we still fall through so emptyAndCommit closes the
+        // statement.
+        if (!closeStatements && batchCounter == 0) {
+          continue;
+        }
 
-        data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter);
+        PreparedStatement statement = data.preparedStatements.get(schemaTable);
+
+        data.db.emptyAndCommit(statement, data.batchMode, batchCounter, closeStatements);
+        data.commitCounterMap.put(schemaTable, 0);
       }
       for (int i = 0; i < data.batchBuffer.size(); i++) {
         Object[] row = data.batchBuffer.get(i);
