@@ -5413,10 +5413,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public void onTabMovedBetweenFolders(CTabFolder sourceFolder, CTabFolder targetFolder) {
     activeTabFolder = targetFolder;
-    reclaimFolder(sourceFolder);
     if (EnvironmentUtils.getInstance().isWeb()) {
+      // A drop that empties the source pane wants to collapse it, but we are still inside the drop
+      // handler of the target pane's drag-and-drop request. Disposing the source pane (and with it
+      // its drag source) now makes RAP render a disposed widget at the end of that same request -
+      // "Widget is disposed". Collapse it on the next tick, once the drop request is done. The
+      // desktop disposes in place: native DnD does not revisit the source pane after the drop.
+      CTabFolder folderToReclaim = sourceFolder;
+      hopGui.getDisplay().asyncExec(() -> reclaimFolder(folderToReclaim));
       notifyZoomHandlerForActiveTab();
       updateWebUrlForActiveTab();
+    } else {
+      reclaimFolder(sourceFolder);
     }
   }
 
@@ -5425,6 +5433,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (isEditorTabFolder(folder)) {
       activeTabFolder = folder;
     }
+  }
+
+  private CTabItem draggedTabItem;
+
+  @Override
+  public void setDraggedTabItem(CTabItem tabItem) {
+    this.draggedTabItem = tabItem;
+  }
+
+  @Override
+  public CTabItem getDraggedTabItem() {
+    return draggedTabItem;
   }
 
   @Override
