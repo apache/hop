@@ -257,6 +257,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
               e ->
                   host.asyncExec(
                       () -> {
+                        clearSearchFilter(false);
                         closeSqlEditorTabs();
                         operationsPanel.cancelAll();
                         operationsPanel.clearAll();
@@ -427,12 +428,19 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   }
 
   public void clearSearchFilter() {
+    clearSearchFilter(true);
+  }
+
+  public void clearSearchFilter(boolean rebuildTree) {
     if (searchText != null && !searchText.isDisposed()) {
       searchText.setText("");
     }
+    cancelScheduledFilterApply();
     filterText = "";
     filterMatcher = new SearchMatcher("", false, false, false);
-    rebuildTree();
+    if (rebuildTree) {
+      rebuildTree();
+    }
   }
 
   private void scheduleFilterApply() {
@@ -463,9 +471,6 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     try {
       tree.removeAll();
       for (DatabaseConnectionState state : connections.values()) {
-        if (!connectionMatches(state)) {
-          continue;
-        }
         TreeItem connectionItem = new TreeItem(tree, SWT.NONE);
         connectionItem.setText(state.getDatabaseMeta().getName());
         connectionItem.setImage(
@@ -542,62 +547,6 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     }
   }
 
-  private boolean connectionMatches(DatabaseConnectionState state) {
-    if (Utils.isEmpty(filterText)) {
-      return true;
-    }
-    DatabaseMeta meta = state.getDatabaseMeta();
-    if (filterMatcher.matches(meta.getName())) {
-      return true;
-    }
-    DatabaseMetaInformation info = state.getInformation();
-    if (info == null) {
-      return false;
-    }
-    if (info.getSchemas() != null) {
-      for (Schema schema : info.getSchemas()) {
-        if (filterMatcher.matches(schema.getSchemaName())) {
-          return true;
-        }
-        if (schema.getItems() != null) {
-          for (String table : schema.getItems()) {
-            if (filterMatcher.matches(table)) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-    if (info.getTables() != null) {
-      for (String table : info.getTables()) {
-        if (filterMatcher.matches(table)) {
-          return true;
-        }
-      }
-    }
-    if (mapHasMatch(info.getViewMap()) || mapHasMatch(info.getSynonymMap())) {
-      return true;
-    }
-    return false;
-  }
-
-  private boolean mapHasMatch(Map<String, Collection<String>> map) {
-    if (map == null) {
-      return false;
-    }
-    for (Collection<String> names : map.values()) {
-      if (names == null) {
-        continue;
-      }
-      for (String name : names) {
-        if (filterMatcher.matches(name)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   private void fillConnectionChildren(TreeItem connectionItem, DatabaseConnectionState state) {
     DatabaseMetaInformation info = state.getInformation();
     String connectionName = state.getDatabaseMeta().getName();
@@ -619,6 +568,9 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     Catalog[] catalogs = info.getCatalogs();
     if (catalogs != null && catalogs.length > 0) {
       for (Catalog catalog : catalogs) {
+        if (!catalogOrChildMatches(catalog, info)) {
+          continue;
+        }
         TreeItem catalogItem = new TreeItem(connectionItem, SWT.NONE);
         catalogItem.setText(Const.NVL(catalog.getCatalogName(), ""));
         catalogItem.setImage(GuiResource.getInstance().getImageFolder());
@@ -649,22 +601,72 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   }
 
   private boolean schemaOrChildMatches(Schema schema, DatabaseMetaInformation info) {
+    return schemaOrChildMatches(filterMatcher, filterText, schema, info);
+  }
+
+  static boolean schemaOrChildMatches(
+      SearchMatcher matcher, String filterText, Schema schema, DatabaseMetaInformation info) {
     if (Utils.isEmpty(filterText)) {
       return true;
     }
-    if (filterMatcher.matches(schema.getSchemaName())) {
+    if (matcher.matches(schema.getSchemaName())) {
       return true;
     }
     if (schema.getItems() != null) {
       for (String table : schema.getItems()) {
-        if (filterMatcher.matches(table)) {
+        if (matcher.matches(table)) {
           return true;
         }
       }
     }
-    for (String view : DatabaseTreeUtil.namesForSchema(info.getViewMap(), schema.getSchemaName())) {
-      if (filterMatcher.matches(view)) {
-        return true;
+    if (info != null) {
+      for (String view :
+          DatabaseTreeUtil.namesForSchema(info.getViewMap(), schema.getSchemaName())) {
+        if (matcher.matches(view)) {
+          return true;
+        }
+      }
+      for (String synonym :
+          DatabaseTreeUtil.namesForSchema(info.getSynonymMap(), schema.getSchemaName())) {
+        if (matcher.matches(synonym)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean catalogOrChildMatches(Catalog catalog, DatabaseMetaInformation info) {
+    return catalogOrChildMatches(filterMatcher, filterText, catalog, info);
+  }
+
+  static boolean catalogOrChildMatches(
+      SearchMatcher matcher, String filterText, Catalog catalog, DatabaseMetaInformation info) {
+    if (Utils.isEmpty(filterText)) {
+      return true;
+    }
+    if (matcher.matches(catalog.getCatalogName())) {
+      return true;
+    }
+    if (catalog.getItems() != null) {
+      for (String table : catalog.getItems()) {
+        if (matcher.matches(table)) {
+          return true;
+        }
+      }
+    }
+    if (info != null) {
+      for (String view :
+          DatabaseTreeUtil.namesForSchema(info.getViewMap(), catalog.getCatalogName())) {
+        if (matcher.matches(view)) {
+          return true;
+        }
+      }
+      for (String synonym :
+          DatabaseTreeUtil.namesForSchema(info.getSynonymMap(), catalog.getCatalogName())) {
+        if (matcher.matches(synonym)) {
+          return true;
+        }
       }
     }
     return false;
@@ -698,7 +700,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     }
     names.sort(String.CASE_INSENSITIVE_ORDER);
     for (String name : names) {
-      if (!matchesFilter(name, schemaName, connectionName)) {
+      if (!matchesFilter(name, schemaName)) {
         continue;
       }
       DatabaseTreeNode.Kind kind = DatabaseTreeUtil.kindOf(name, views, synonyms);
@@ -709,13 +711,16 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     }
   }
 
-  private boolean matchesFilter(String name, String schemaName, String connectionName) {
+  private boolean matchesFilter(String name, String schemaName) {
+    return matchesFilter(filterMatcher, filterText, name, schemaName);
+  }
+
+  static boolean matchesFilter(
+      SearchMatcher matcher, String filterText, String name, String schemaName) {
     if (Utils.isEmpty(filterText)) {
       return true;
     }
-    return filterMatcher.matches(name)
-        || filterMatcher.matches(schemaName)
-        || filterMatcher.matches(connectionName);
+    return matcher.matches(name) || (schemaName != null && matcher.matches(schemaName));
   }
 
   private void addFolder(
@@ -732,6 +737,10 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     folder.setImage(GuiResource.getInstance().getImageFolder());
     folder.setData(DatabaseTreeNode.folder(connectionName, folderName));
     addTables(folder, connectionName, null, names, kind);
+    if (!Utils.isEmpty(filterText) && folder.getItemCount() == 0) {
+      folder.dispose();
+      return;
+    }
     FolderTreeIcons.setExpanded(folder, true);
   }
 
@@ -745,10 +754,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     for (String name : names) {
-      if (!Utils.isEmpty(filterText)
-          && !filterMatcher.matches(name)
-          && !filterMatcher.matches(schemaName)
-          && !filterMatcher.matches(connectionName)) {
+      if (!matchesFilter(name, schemaName)) {
         continue;
       }
       TreeItem item = new TreeItem(parent, SWT.NONE);
