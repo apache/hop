@@ -1,0 +1,11 @@
+{
+  "modelName": "qwen2.5:0.5b",
+  "baseUrl": "http://ollama:11434",
+  "apiKey": "Encrypted ",
+  "provider": {
+    "ollama": {}
+  },
+  "name": "ollama-chat",
+  "temperature": "0",
+  "timeoutSeconds": "120"
+}

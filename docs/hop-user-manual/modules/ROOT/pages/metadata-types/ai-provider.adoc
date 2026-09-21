@@ -131,7 +131,7 @@ Each row pairs a role with a model name:
 |Role |Used by
 
 |`CHAT`
-|Conversation and completion, for example Language Model Chat and the AI Advisor.
+|Conversation and completion, for example Language Model Chat, the AI Advisor and xref:pipeline/transforms/structuredextract.adoc[Structured extract].
 
 |`EMBEDDING`
 |Turning text into a vector, for example xref:pipeline/transforms/embedtext.adoc[Embed text].

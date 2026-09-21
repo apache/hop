@@ -311,6 +311,7 @@ under the License.
 *** xref:pipeline/transforms/streamschemamerge.adoc[Stream schema merge]
 *** xref:pipeline/transforms/stringcut.adoc[String cut]
 *** xref:pipeline/transforms/stringoperations.adoc[String operations]
+*** xref:pipeline/transforms/structuredextract.adoc[Structured extract]
 *** xref:pipeline/transforms/switchcase.adoc[Switch / Case]
 *** xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize after merge]
 *** xref:pipeline/transforms/tablecompare.adoc[Table Compare]

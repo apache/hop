@@ -19,10 +19,8 @@ package org.apache.hop.ai.engine;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import java.time.Duration;
 import org.apache.hop.ai.metadata.AiModelRole;
 import org.apache.hop.ai.metadata.AiProvider;
-import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -60,15 +58,7 @@ public final class AiEmbeddingFactory {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopException {
-    AiProvider provider;
-    try {
-      provider = metadataProvider.getSerializer(AiProvider.class).load(providerName);
-    } catch (Exception e) {
-      throw new HopException("Error loading AI provider '" + providerName + "'", e);
-    }
-    if (provider == null) {
-      throw new HopException("AI provider not found: " + providerName);
-    }
+    AiProvider provider = AiProviderLoader.load(providerName, metadataProvider);
     String resolvedName =
         Utils.isEmpty(modelName)
             ? variables.resolve(provider.resolveModelName(AiModelRole.EMBEDDING))
@@ -82,13 +72,8 @@ public final class AiEmbeddingFactory {
 
   public static EmbeddingModel createEmbeddingModel(
       AiProvider provider, String modelName, IVariables variables) throws HopException {
-    if (provider == null) {
-      throw new HopException("An AI provider is required to create an embedding model");
-    }
-    IAiProvider backend = provider.getProvider();
-    if (backend == null) {
-      throw new HopException("AI provider type is not set on '" + provider.getName() + "'");
-    }
+    // of() rejects a null or half configured provider, so there is one guard, not two.
+    AiProviderSettings settings = AiProviderSettings.of(provider, variables);
 
     // Resolution order: the transform's override, then the provider's EMBEDDING row. The
     // provider's plain modelName is the chat model and is deliberately not a fallback here.
@@ -104,60 +89,39 @@ public final class AiEmbeddingFactory {
               + "'.");
     }
 
-    String baseUrl = variables.resolve(provider.getBaseUrl());
-    if (Utils.isEmpty(baseUrl)) {
-      baseUrl = backend.getDefaultBaseUrl();
-    }
-    String apiKey = variables.resolve(provider.getApiKey());
-    Duration timeout = parseTimeout(variables.resolve(provider.getTimeoutSeconds()));
-
-    String hopType = backend.getHopModelType();
-    return switch (hopType == null ? "" : hopType) {
-      case "OLLAMA" -> ollamaModel(baseUrl, model, timeout);
-      case "OPEN_AI" -> openAiModel(baseUrl, apiKey, model, timeout);
+    return switch (settings.type()) {
+      case "OLLAMA" -> ollamaModel(settings, model);
+      case "OPEN_AI" -> openAiModel(settings, model);
       default ->
           throw new HopException(
               "Provider type '"
-                  + hopType
+                  + settings.type()
                   + "' does not serve embedding models yet. Use an Ollama or OpenAI compatible"
                   + " provider.");
     };
   }
 
-  private static EmbeddingModel ollamaModel(String baseUrl, String model, Duration timeout) {
+  private static EmbeddingModel ollamaModel(AiProviderSettings settings, String model) {
     OllamaEmbeddingModel.OllamaEmbeddingModelBuilder builder =
-        OllamaEmbeddingModel.builder().baseUrl(baseUrl).modelName(model);
-    if (timeout != null) {
-      builder.timeout(timeout);
+        OllamaEmbeddingModel.builder().baseUrl(settings.baseUrl()).modelName(model);
+    if (settings.timeout() != null) {
+      builder.timeout(settings.timeout());
     }
     return builder.build();
   }
 
-  private static EmbeddingModel openAiModel(
-      String baseUrl, String apiKey, String model, Duration timeout) {
+  private static EmbeddingModel openAiModel(AiProviderSettings settings, String model) {
     OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder =
         OpenAiEmbeddingModel.builder().modelName(model);
-    if (!Utils.isEmpty(baseUrl)) {
-      builder.baseUrl(baseUrl);
+    if (!Utils.isEmpty(settings.baseUrl())) {
+      builder.baseUrl(settings.baseUrl());
     }
-    if (!Utils.isEmpty(apiKey)) {
-      builder.apiKey(apiKey);
+    if (!Utils.isEmpty(settings.apiKey())) {
+      builder.apiKey(settings.apiKey());
     }
-    if (timeout != null) {
-      builder.timeout(timeout);
+    if (settings.timeout() != null) {
+      builder.timeout(settings.timeout());
     }
     return builder.build();
-  }
-
-  private static Duration parseTimeout(String seconds) {
-    if (Utils.isEmpty(seconds)) {
-      return null;
-    }
-    try {
-      long value = Long.parseLong(seconds.trim());
-      return value > 0 ? Duration.ofSeconds(value) : null;
-    } catch (NumberFormatException e) {
-      return null;
-    }
   }
 }
