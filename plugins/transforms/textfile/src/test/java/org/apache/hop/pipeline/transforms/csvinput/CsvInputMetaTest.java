@@ -26,11 +26,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -45,6 +48,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.inject.HopMetadataInjector;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,5 +168,131 @@ class CsvInputMetaTest {
     Object[] row = {"abc".getBytes(StandardCharsets.UTF_8)};
     assertDoesNotThrow(() -> rowMeta.getString(row, 0));
     assertEquals("abc", rowMeta.getString(row, 0));
+  }
+
+  @Test
+  void checkFilenameFromFieldDoesNotFlagIncomingHopsAsError() throws Exception {
+    HopClientEnvironment.init();
+
+    CsvInputMeta meta = new CsvInputMeta();
+    meta.setFilenameField("csv_path");
+
+    RowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("csv_path"));
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        prev,
+        new String[] {"Generate filename"},
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    assertEquals(0, errorCount(remarks));
+  }
+
+  @Test
+  void checkFilenameFromFieldReportsMissingField() throws Exception {
+    HopClientEnvironment.init();
+
+    CsvInputMeta meta = new CsvInputMeta();
+    meta.setFilenameField("csv_path");
+
+    RowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("other"));
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        prev,
+        new String[] {"Generate filename"},
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    assertTrue(errorCount(remarks) >= 1);
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("csv_path")));
+  }
+
+  @Test
+  void checkFilenameFromFieldReportsMissingFilenameField() throws Exception {
+    HopClientEnvironment.init();
+
+    CsvInputMeta meta = new CsvInputMeta();
+
+    RowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("csv_path"));
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        prev,
+        new String[] {"Generate filename"},
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    assertTrue(errorCount(remarks) >= 1);
+  }
+
+  @Test
+  void checkStaticFilenameWithNoInputIsOk() throws Exception {
+    HopClientEnvironment.init();
+
+    CsvInputMeta meta = new CsvInputMeta();
+    meta.setFilename("file.csv");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        new RowMeta(),
+        new String[0],
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    assertEquals(0, errorCount(remarks));
+  }
+
+  @Test
+  void checkStaticFilenameReportsMissingFile() throws Exception {
+    HopClientEnvironment.init();
+
+    CsvInputMeta meta = new CsvInputMeta();
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        new RowMeta(),
+        new String[0],
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    assertTrue(errorCount(remarks) >= 1);
+  }
+
+  private static long errorCount(List<ICheckResult> remarks) {
+    return remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
   }
 }
