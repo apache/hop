@@ -172,6 +172,17 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     return !emptyCanvas || GraphPalette.isVisible();
   }
 
+  /**
+   * The hide for a mouse move: takes down the tooltip of whatever was under the pointer, but not a
+   * notice such as "Selection cleared". That one is not tied to the pointer and stays until its
+   * timer fires or something else is shown or hidden.
+   */
+  protected void hideHoverToolTip() {
+    if (!toolTip.isNotice()) {
+      toolTip.setVisible(false);
+    }
+  }
+
   protected void showToolTip(org.eclipse.swt.graphics.Point location) {
     org.eclipse.swt.graphics.Point p = canvas.toDisplay(location);
 

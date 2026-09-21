@@ -766,7 +766,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void handleWebCanvasHoverEnd() {
-    hideToolTips();
+    hideHoverToolTip();
   }
 
   @Override
@@ -2461,7 +2461,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // disable the tooltip
     //
-    toolTip.setVisible(false);
+    hideHoverToolTip();
 
     // First, check for operations that have been started, such as move selection, dragging the
     // view, creating a hop or resizing a note.
@@ -4892,7 +4892,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     if (newTip == null) {
-      toolTip.setVisible(false);
+      hideHoverToolTip();
       if (hi != null) { // We clicked on a HOP!
 
         // Set the tooltip for the hop:

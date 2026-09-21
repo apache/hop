@@ -655,7 +655,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void handleWebCanvasHoverEnd() {
-    hideToolTips();
+    hideHoverToolTip();
   }
 
   protected void hideToolTips() {
@@ -2154,7 +2154,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // disable the tooltip
     //
-    hideToolTips();
+    hideHoverToolTip();
 
     // First, check for operations that have been started, such as move selection, dragging the
     // view, creating a hop or resizing a note.
@@ -4149,7 +4149,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     if (Utils.isEmpty(tip)) {
-      toolTip.setVisible(false);
+      hideHoverToolTip();
     } else {
       if (!tip.toString().equalsIgnoreCase(getToolTipText())) {
         toolTip.setText(tip.toString());

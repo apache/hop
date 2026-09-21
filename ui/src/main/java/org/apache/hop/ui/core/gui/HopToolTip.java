@@ -58,6 +58,13 @@ public class HopToolTip {
   private int generation;
 
   /**
+   * True while a notice shown with {@link #hideAfter(int)} is up. A notice is not tied to what is
+   * under the pointer, so a mouse move must not take it down: its timer does, or whatever is shown
+   * or hidden next.
+   */
+  private boolean notice;
+
+  /**
    * Creates a new custom tooltip
    *
    * @param parent The parent shell
@@ -112,6 +119,7 @@ public class HopToolTip {
   public void setText(String text) {
     if (tipLabel != null && !tipLabel.isDisposed()) {
       generation++;
+      notice = false;
       tipLabel.setText(cleanText(text));
       tipShell.pack();
       if (!web) {
@@ -185,21 +193,24 @@ public class HopToolTip {
   public void setVisible(boolean visible) {
     if (tipShell != null && !tipShell.isDisposed()) {
       generation++;
+      notice = false;
       tipShell.setVisible(visible);
     }
   }
 
   /**
-   * Hide the tooltip after a delay, unless it was changed or hidden and shown again in the
-   * meantime. For notices like "Selection cleared" that are not tied to something under the
-   * pointer: on the desktop the next mouse move takes them down, in Hop Web nothing would.
+   * Turn the tooltip that is showing into a notice: hide it after a delay, unless it was changed or
+   * hidden and shown again in the meantime. For notices like "Selection cleared" that are not tied
+   * to something under the pointer. Call it after the tooltip was shown.
    *
    * @param millis the delay in milliseconds
+   * @see #isNotice()
    */
   public void hideAfter(int millis) {
     if (tipShell == null || tipShell.isDisposed()) {
       return;
     }
+    notice = true;
     final int shown = generation;
     tipShell
         .getDisplay()
@@ -210,6 +221,16 @@ public class HopToolTip {
                 setVisible(false);
               }
             });
+  }
+
+  /**
+   * Whether a notice shown with {@link #hideAfter(int)} is still up. The canvas leaves such a
+   * notice alone on mouse moves and lets its timer take it down.
+   *
+   * @return true while a notice is showing
+   */
+  public boolean isNotice() {
+    return notice && isVisible();
   }
 
   /**

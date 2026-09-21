@@ -345,9 +345,28 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
    */
   protected List<String> clickAndCatchDialogs(
       SWTBot bot, Canvas canvas, double scale, Point at, int button, int stateMask) {
+    return clickAndCatchDialogs(bot, canvas, scale, at, button, stateMask, () -> {});
+  }
+
+  /**
+   * Like {@link #clickAndCatchDialogs(SWTBot, Canvas, double, Point, int, int)}, and runs {@code
+   * landed} on this thread once the canvas has handled both halves of the click, before the wait
+   * for dialogs starts. That wait takes a couple of seconds when nothing opens, which is too late
+   * to look at what the click leaves behind only briefly, like a balloon on a timer.
+   */
+  protected List<String> clickAndCatchDialogs(
+      SWTBot bot,
+      Canvas canvas,
+      double scale,
+      Point at,
+      int button,
+      int stateMask,
+      Runnable landed) {
     Set<Shell> before = openShells();
     fireAsync(canvas, SWT.MouseDown, scale, at, button, stateMask);
     fireAsync(canvas, SWT.MouseUp, scale, at, button, stateMask | buttonMask(button));
+    awaitPostedEvents();
+    landed.run();
     return catchDialogs(bot, before);
   }
 
@@ -359,11 +378,31 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
    */
   protected List<String> contextClickAndCatchDialogs(
       SWTBot bot, Canvas canvas, double scale, Point at) {
+    return contextClickAndCatchDialogs(bot, canvas, scale, at, () -> {});
+  }
+
+  /**
+   * Like {@link #contextClickAndCatchDialogs(SWTBot, Canvas, double, Point)}, with a {@code landed}
+   * hook as in {@link #clickAndCatchDialogs(SWTBot, Canvas, double, Point, int, int, Runnable)}.
+   */
+  protected List<String> contextClickAndCatchDialogs(
+      SWTBot bot, Canvas canvas, double scale, Point at, Runnable landed) {
     Set<Shell> before = openShells();
     fireAsync(canvas, SWT.MouseDown, scale, at, 3, SWT.NONE);
     fireMenuDetectAsync(canvas, scale, at);
     fireAsync(canvas, SWT.MouseUp, scale, at, 3, SWT.BUTTON3);
+    awaitPostedEvents();
+    landed.run();
     return catchDialogs(bot, before);
+  }
+
+  /**
+   * Returns once every event posted so far has been dispatched. The display runs its queue in
+   * order, so a round trip posted after the events comes back after their handlers ran; a dialog
+   * one of them opened dispatches the round trip from its own loop, so this cannot deadlock.
+   */
+  private void awaitPostedEvents() {
+    onUi(() -> {});
   }
 
   /**
