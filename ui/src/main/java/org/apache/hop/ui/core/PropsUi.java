@@ -84,6 +84,8 @@ public class PropsUi extends Props {
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
   private static final String USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG = "UseRightClickForContextDialog";
+  private static final String USE_MENUS_INSTEAD_OF_CONTEXT_DIALOG =
+      "UseMenusInsteadOfContextDialog";
   private static final String DIALOGS_ON_ANY_SCREEN = "DialogsOnAnyScreen";
   private static final String DRAW_BORDER_AROUND_CANVAS_NAMES = "DrawBorderAroundCanvasNames";
   private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
@@ -1183,6 +1185,20 @@ public class PropsUi extends Props {
 
   public void setUseRightClickForContextDialog(boolean use) {
     setProperty(USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG, use ? YES : NO);
+  }
+
+  /**
+   * When set, the pipeline and workflow canvas show the actions of a transform, action, hop or note
+   * as a pop-up menu instead of the context dialog. A click on the empty canvas keeps the context
+   * dialog while the design palette is hidden: that is where new transforms and actions are
+   * searched for. With the palette shown the empty canvas gets a menu as well.
+   */
+  public boolean useMenusInsteadOfContextDialog() {
+    return YES.equalsIgnoreCase(getProperty(USE_MENUS_INSTEAD_OF_CONTEXT_DIALOG, NO));
+  }
+
+  public void setUseMenusInsteadOfContextDialog(boolean use) {
+    setProperty(USE_MENUS_INSTEAD_OF_CONTEXT_DIALOG, use ? YES : NO);
   }
 
   /**

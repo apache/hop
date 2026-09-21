@@ -129,6 +129,7 @@ import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
+import org.apache.hop.ui.hopgui.context.GuiContextMenu;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -650,6 +651,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Only the tooltip needs the server. The bold name under the mouse is drawn by canvas-svg.js;
     // re-rendering the whole graph for it cost a full SVG render per name entered or left.
     setToolTip(graphX, graphY, screenX, screenY);
+  }
+
+  @Override
+  public void handleWebCanvasHoverEnd() {
+    hideToolTips();
   }
 
   protected void hideToolTips() {
@@ -1416,6 +1422,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       toolTip.setVisible(false);
       toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
       showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
 
       return;
     }
@@ -1481,11 +1488,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     this.openedContextDialog = true;
     this.hideToolTips();
 
-    // Show the context dialog
+    // Show the context dialog, or a pop-up menu when the user prefers those
     //
-    ignoreNextClick =
-        GuiContextUtil.getInstance()
-            .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+    if (useContextMenu(target.type == SingleClickType.Workflow)) {
+      GuiContextMenu.show(parent, contextHandler, p.x, p.y);
+      ignoreNextClick = false;
+    } else {
+      ignoreNextClick =
+          GuiContextUtil.getInstance()
+              .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+    }
 
     this.openedContextDialog = false;
   }
@@ -4080,6 +4092,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           } else if (!Utils.isEmpty(actionMetaInfo.getDescription())) {
             tip.append(actionMetaInfo.getDescription());
           }
+          break;
+        case ACTION_NAME:
+          // A single click on the name opens the action dialog: say so.
+          tip.append(BaseMessages.getString(PKG, "WorkflowGraph.ActionName.Tooltip"));
           break;
         default:
           // For plugins...

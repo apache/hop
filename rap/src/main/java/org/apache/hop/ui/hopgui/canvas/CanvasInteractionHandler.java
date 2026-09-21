@@ -65,7 +65,7 @@ public class CanvasInteractionHandler extends Widget {
             @Override
             public void handleNotify(String event, JsonObject properties) {
               if ("hover".equals(event)) {
-                handleHover(properties);
+                handleHover(CanvasGraphRegistry.getInstance(), properties);
               }
             }
           });
@@ -77,13 +77,23 @@ public class CanvasInteractionHandler extends Widget {
     }
   }
 
-  private static void handleHover(JsonObject properties) {
+  /**
+   * Route a client hover notification to the graph of its canvas: coordinates while the pointer is
+   * over something with a tooltip, {@code leave: true} once it moved off it or off the canvas.
+   */
+  static void handleHover(CanvasGraphRegistry registry, JsonObject properties) {
     if (properties.get("canvasId") == null) {
       return;
     }
     String canvasId = properties.get("canvasId").asString();
-    Object graph = CanvasGraphRegistry.getInstance().getGraph(canvasId);
+    Object graph = registry.getGraph(canvasId);
     if (graph == null) {
+      return;
+    }
+    if (properties.get("leave") != null && properties.get("leave").asBoolean()) {
+      if (graph instanceof IWebCanvasGraph webCanvasGraph) {
+        webCanvasGraph.handleWebCanvasHoverEnd();
+      }
       return;
     }
     int graphX = properties.get("graphX").asInt();

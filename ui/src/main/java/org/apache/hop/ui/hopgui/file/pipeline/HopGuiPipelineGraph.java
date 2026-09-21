@@ -171,6 +171,7 @@ import org.apache.hop.ui.hopgui.TestIdFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
+import org.apache.hop.ui.hopgui.context.GuiContextMenu;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
@@ -761,6 +762,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Only the tooltip needs the server. The bold name under the mouse is drawn by canvas-svg.js;
     // re-rendering the whole graph for it cost a full SVG render per name entered or left.
     setToolTip(graphX, graphY, screenX, screenY);
+  }
+
+  @Override
+  public void handleWebCanvasHoverEnd() {
+    hideToolTips();
   }
 
   @Override
@@ -1699,6 +1705,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       toolTip.setAutoHide(true);
       toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
       showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
+      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
 
       return;
     }
@@ -1764,11 +1771,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.openedContextDialog = true;
     this.hideToolTips();
 
-    // Show the context dialog
+    // Show the context dialog, or a pop-up menu when the user prefers those
     //
-    avoidContextDialog =
-        GuiContextUtil.getInstance()
-            .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+    if (useContextMenu(target.type == SingleClickType.Pipeline)) {
+      GuiContextMenu.show(parent, contextHandler, p.x, p.y);
+      avoidContextDialog = false;
+    } else {
+      avoidContextDialog =
+          GuiContextUtil.getInstance()
+              .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+    }
 
     this.openedContextDialog = false;
   }
@@ -4773,6 +4785,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
           break;
 
+        case TRANSFORM_NAME:
+          // A single click on the name opens the transform dialog: say so.
+          tip.append(BaseMessages.getString(PKG, "HopGuiPipelineGraph.TransformName.Tooltip"));
+          break;
         case TRANSFORM_INFO_ICON, TRANSFORM_ICON:
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
 
