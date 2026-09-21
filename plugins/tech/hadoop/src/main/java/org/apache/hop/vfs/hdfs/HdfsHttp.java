@@ -22,12 +22,14 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
@@ -54,12 +56,24 @@ public final class HdfsHttp {
     builder.disableContentCompression();
     // CREATE/OPEN 307s are followed explicitly so NameNode SPNEGO is not sent to a DataNode.
     builder.disableRedirectHandling();
+    builder.evictIdleConnections(TimeValue.ofSeconds(30));
     builder.setDefaultRequestConfig(
         RequestConfig.custom()
-            .setConnectTimeout(Timeout.ofSeconds(30))
+            .setConnectionRequestTimeout(Timeout.ofSeconds(30))
             .setResponseTimeout(Timeout.ofSeconds(300))
+            .setExpectContinueEnabled(false)
             .build());
     try {
+      PoolingHttpClientConnectionManagerBuilder pool =
+          PoolingHttpClientConnectionManagerBuilder.create()
+              .setMaxConnTotal(128)
+              .setMaxConnPerRoute(64)
+              .setDefaultConnectionConfig(
+                  ConnectionConfig.custom()
+                      .setConnectTimeout(Timeout.ofSeconds(30))
+                      .setSocketTimeout(Timeout.ofSeconds(300))
+                      .setValidateAfterInactivity(TimeValue.ofSeconds(10))
+                      .build());
       if (https) {
         SSLContext sslContext = HdfsTls.sslContext(variables, meta);
         HostnameVerifier verifier =
@@ -68,9 +82,9 @@ public final class HdfsHttp {
             verifier == null
                 ? new DefaultClientTlsStrategy(sslContext)
                 : new DefaultClientTlsStrategy(sslContext, verifier);
-        builder.setConnectionManager(
-            PoolingHttpClientConnectionManagerBuilder.create().setTlsSocketStrategy(tls).build());
+        pool.setTlsSocketStrategy(tls);
       }
+      builder.setConnectionManager(pool.build());
       return builder.build();
     } catch (Exception e) {
       throw new FileSystemException("Unable to create HTTP client for HDFS VFS", e);

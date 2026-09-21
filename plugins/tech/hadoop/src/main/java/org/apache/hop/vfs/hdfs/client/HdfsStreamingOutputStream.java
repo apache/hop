@@ -24,6 +24,9 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.vfs.hdfs.HdfsTransport;
 
@@ -34,47 +37,63 @@ import org.apache.hop.vfs.hdfs.HdfsTransport;
  */
 public class HdfsStreamingOutputStream extends OutputStream {
   private static final Class<?> PKG = HdfsTransport.class;
-  private static final int PIPE_BUFFER = 1024 * 1024;
+  private static final int PIPE_BUFFER = 8 * 1024 * 1024;
+  static final long CLOSE_TIMEOUT_SECONDS = 120;
 
   @FunctionalInterface
   public interface Uploader {
-    void upload(InputStream body) throws IOException;
+    void upload(InputStream body, HdfsStreamingOutputStream stream) throws IOException;
   }
 
   private final PipedOutputStream pipe;
-  private final Future<Void> upload;
   private final String path;
+  private final long closeTimeoutSeconds;
+  private Future<Void> upload;
+  private volatile HttpUriRequestBase inflight;
   private volatile IOException uploadError;
   private boolean closed;
 
   public static HdfsStreamingOutputStream start(
       ExecutorService executor, Uploader uploader, String path) throws IOException {
+    return start(executor, uploader, path, CLOSE_TIMEOUT_SECONDS);
+  }
+
+  static HdfsStreamingOutputStream start(
+      ExecutorService executor, Uploader uploader, String path, long closeTimeoutSeconds)
+      throws IOException {
     PipedInputStream in = new PipedInputStream(PIPE_BUFFER);
     PipedOutputStream out = new PipedOutputStream(in);
     HdfsStreamingOutputStream stream =
-        new HdfsStreamingOutputStream(out, executor, uploader, in, path);
-    return stream;
-  }
-
-  private HdfsStreamingOutputStream(
-      PipedOutputStream pipe,
-      ExecutorService executor,
-      Uploader uploader,
-      PipedInputStream in,
-      String path) {
-    this.pipe = pipe;
-    this.path = path;
-    this.upload =
+        new HdfsStreamingOutputStream(out, path, closeTimeoutSeconds);
+    stream.upload =
         executor.submit(
             () -> {
               try (PipedInputStream body = in) {
-                uploader.upload(body);
+                uploader.upload(body, stream);
               } catch (IOException e) {
-                uploadError = e;
+                stream.uploadError = e;
                 throw e;
               }
               return null;
             });
+    return stream;
+  }
+
+  private HdfsStreamingOutputStream(PipedOutputStream pipe, String path, long closeTimeoutSeconds) {
+    this.pipe = pipe;
+    this.path = path;
+    this.closeTimeoutSeconds = closeTimeoutSeconds;
+  }
+
+  void watch(HttpUriRequestBase request) {
+    this.inflight = request;
+  }
+
+  private void abortInflight() {
+    HttpUriRequestBase request = inflight;
+    if (request != null) {
+      request.cancel();
+    }
   }
 
   @Override
@@ -110,18 +129,28 @@ public class HdfsStreamingOutputStream extends OutputStream {
     try {
       pipe.close();
     } finally {
-      try {
-        upload.get();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new IOException(BaseMessages.getString(PKG, "Hdfs.Error.UploadFailed", path), e);
-      } catch (ExecutionException e) {
-        Throwable cause = e.getCause() != null ? e.getCause() : e;
-        if (cause instanceof IOException io) {
-          throw io;
-        }
-        throw new IOException(BaseMessages.getString(PKG, "Hdfs.Error.UploadFailed", path), cause);
+      awaitUpload();
+    }
+  }
+
+  private void awaitUpload() throws IOException {
+    try {
+      upload.get(closeTimeoutSeconds, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      abortInflight();
+      upload.cancel(true);
+      throw new IOException(BaseMessages.getString(PKG, "Hdfs.Error.UploadTimedOut", path), e);
+    } catch (InterruptedException e) {
+      abortInflight();
+      upload.cancel(true);
+      Thread.currentThread().interrupt();
+      throw new IOException(BaseMessages.getString(PKG, "Hdfs.Error.UploadFailed", path), e);
+    } catch (ExecutionException e) {
+      Throwable cause = e.getCause() != null ? e.getCause() : e;
+      if (cause instanceof IOException io) {
+        throw io;
       }
+      throw new IOException(BaseMessages.getString(PKG, "Hdfs.Error.UploadFailed", path), cause);
     }
     if (uploadError != null) {
       throw uploadError;

@@ -21,6 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.security.auth.Subject;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
 import org.junit.jupiter.api.AfterEach;
@@ -55,6 +59,50 @@ class HdfsKerberosSessionTest {
     assertEquals("C:/Users/hop/krb5.conf", System.getProperty(KRB5_CONF));
     assertNotEquals("OTHER.COM", System.getProperty(KRB5_REALM));
     assertEquals("C:/Users/hop/hop.keytab", session.keytabPath());
+  }
+
+  @Test
+  void doAsDoesNotHoldJvmKerberosDuringAction() throws Exception {
+    HdfsMeta meta = new HdfsMeta();
+    meta.setName("cdp");
+    meta.setPrincipal("hop@EXAMPLE.COM");
+    meta.setKeytabPath("/tmp/hop.keytab");
+    HdfsKerberosSession session = new HdfsKerberosSession(new Variables(), meta);
+    session.useSubjectForTest(new Subject());
+    CountDownLatch inAction = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicBoolean acquired = new AtomicBoolean();
+    Thread actionThread =
+        new Thread(
+            () -> {
+              try {
+                session.doAs(
+                    () -> {
+                      inAction.countDown();
+                      if (!release.await(5, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("release");
+                      }
+                      return null;
+                    });
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
+    actionThread.start();
+    assertTrue(inAction.await(5, TimeUnit.SECONDS));
+    Thread locker =
+        new Thread(
+            () -> {
+              synchronized (HdfsKerberosSession.JVM_KERBEROS) {
+                acquired.set(true);
+              }
+            });
+    locker.start();
+    locker.join(1000);
+    assertTrue(acquired.get(), "JVM_KERBEROS must not be held while doAs action runs");
+    release.countDown();
+    actionThread.join(5000);
+    session.close();
   }
 
   @Test

@@ -18,9 +18,13 @@ package org.apache.hop.vfs.hdfs.client;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +36,7 @@ class HdfsStreamingOutputStreamTest {
     var executor = Executors.newSingleThreadExecutor();
     try (HdfsStreamingOutputStream out =
         HdfsStreamingOutputStream.start(
-            executor, in -> in.transferTo(received), "/it/file.parquet")) {
+            executor, (in, stream) -> in.transferTo(received), "/it/file.parquet")) {
       out.write("abc".getBytes(StandardCharsets.UTF_8));
       out.flush();
     }
@@ -41,11 +45,42 @@ class HdfsStreamingOutputStreamTest {
     // already closed by try-with-resources; construct another and close twice
     ByteArrayOutputStream received2 = new ByteArrayOutputStream();
     HdfsStreamingOutputStream out2 =
-        HdfsStreamingOutputStream.start(executor, in -> in.transferTo(received2), "/it/x");
+        HdfsStreamingOutputStream.start(
+            executor, (in, stream) -> in.transferTo(received2), "/it/x");
     out2.write(1);
     out2.close();
     assertDoesNotThrow(out2::close);
     assertDoesNotThrow(out2::flush);
     executor.shutdownNow();
+  }
+
+  @Test
+  void closeTimesOutAndUnblocksWhenUploaderNeverReads() throws Exception {
+    CountDownLatch block = new CountDownLatch(1);
+    var executor = Executors.newSingleThreadExecutor();
+    try {
+      HdfsStreamingOutputStream out =
+          HdfsStreamingOutputStream.start(
+              executor,
+              (in, stream) -> {
+                try {
+                  block.await();
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                  throw new IOException(e);
+                }
+                in.transferTo(new ByteArrayOutputStream());
+              },
+              "/it/stuck.parquet",
+              1);
+      out.write(1);
+      long started = System.nanoTime();
+      IOException error = assertThrows(IOException.class, out::close);
+      assertTrue(error.getMessage().contains("timed out"));
+      assertTrue(System.nanoTime() - started < 10_000_000_000L);
+    } finally {
+      block.countDown();
+      executor.shutdownNow();
+    }
   }
 }

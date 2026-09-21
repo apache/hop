@@ -27,8 +27,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.security.auth.login.LoginException;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hop.core.variables.Variables;
@@ -272,6 +275,35 @@ class HdfsWebHdfsClientTest {
     }
   }
 
+  /**
+   * Serializes {@link HdfsKerberosSession#doAs} the way a process-wide Kerberos lock used to wrap
+   * the whole HTTP PUT. Parallel CREATEs must still overlap; if execute() is inside doAs this test
+   * fails.
+   */
+  static class LockingSession extends HdfsKerberosSession {
+    private final Object lock = new Object();
+
+    LockingSession(HdfsMeta meta) {
+      super(new Variables(), meta);
+    }
+
+    @Override
+    public <T> T doAs(PrivilegedExceptionAction<T> action) throws Exception {
+      synchronized (lock) {
+        return action.run();
+      }
+    }
+
+    @Override
+    public <T> T gss(PrivilegedExceptionAction<T> action) throws Exception {
+      synchronized (lock) {
+        @SuppressWarnings("unchecked")
+        T header = (T) "Negotiate dGVzdA==";
+        return header;
+      }
+    }
+  }
+
   static class TrackingSession extends HdfsKerberosSession {
     boolean doAsCalled;
 
@@ -283,6 +315,78 @@ class HdfsWebHdfsClientTest {
     public <T> T doAs(PrivilegedExceptionAction<T> action) throws Exception {
       doAsCalled = true;
       throw new LoginException("doAs-was-called");
+    }
+  }
+
+  @Test
+  void fourParallelCreatesOverlapWithoutKerberos() throws Exception {
+    server.requireConcurrentPuts(4);
+    var pool = Executors.newFixedThreadPool(4);
+    try {
+      List<Future<?>> futures = new ArrayList<>();
+      for (int i = 0; i < 4; i++) {
+        int n = i;
+        futures.add(
+            pool.submit(
+                () -> {
+                  try (OutputStream out = webhdfs.create("/warehouse/p" + n + ".parquet", true)) {
+                    out.write(new byte[4096]);
+                  }
+                  return null;
+                }));
+      }
+      for (Future<?> future : futures) {
+        future.get(15, TimeUnit.SECONDS);
+      }
+      assertEquals(4, server.maxConcurrentPuts());
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
+  void fourParallelCreatesOverlapWhenDoAsIsGloballyLocked() throws Exception {
+    server.requireConcurrentPuts(4);
+    HdfsMeta meta = new HdfsMeta();
+    meta.setPrincipal("hop@EXAMPLE.COM");
+    meta.setKeytabPath("/tmp/hop.keytab");
+    LockingSession session = new LockingSession(meta);
+    var executor = Executors.newCachedThreadPool();
+    var pool = Executors.newFixedThreadPool(4);
+    try {
+      HdfsWebHdfsClient client =
+          new HdfsWebHdfsClient(
+              HttpClientBuilder.create()
+                  .disableContentCompression()
+                  .disableRedirectHandling()
+                  .build(),
+              HdfsTransport.WebHDFS,
+              List.of(server.endpoint()),
+              "http",
+              "/webhdfs/v1",
+              "hop",
+              true,
+              session,
+              executor);
+      List<Future<?>> futures = new ArrayList<>();
+      for (int i = 0; i < 4; i++) {
+        int n = i;
+        futures.add(
+            pool.submit(
+                () -> {
+                  try (OutputStream out = client.create("/warehouse/k" + n + ".parquet", true)) {
+                    out.write(new byte[4096]);
+                  }
+                  return null;
+                }));
+      }
+      for (Future<?> future : futures) {
+        future.get(15, TimeUnit.SECONDS);
+      }
+      assertEquals(4, server.maxConcurrentPuts());
+    } finally {
+      pool.shutdownNow();
+      executor.shutdownNow();
     }
   }
 
