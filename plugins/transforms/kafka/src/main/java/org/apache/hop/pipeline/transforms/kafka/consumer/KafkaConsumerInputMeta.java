@@ -182,6 +182,12 @@ public class KafkaConsumerInputMeta
   private String maxIdleTimeMs;
 
   @HopMetadataProperty(
+      key = "maxConsumeDurationMs",
+      injectionKey = "MAX_CONSUME_DURATION_MS",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.MAX_CONSUME_DURATION_MS")
+  private String maxConsumeDurationMs;
+
+  @HopMetadataProperty(
       groupKey = "options",
       key = "option",
       injectionGroupKey = "CONFIGURATION_PROPERTIES",
@@ -209,6 +215,7 @@ public class KafkaConsumerInputMeta
     batchSize = "1000";
     batchDuration = "1000";
     maxIdleTimeMs = "500";
+    maxConsumeDurationMs = "0";
     subTransform = "";
     topics = new ArrayList<>();
     options = new ArrayList<>();
@@ -418,6 +425,28 @@ public class KafkaConsumerInputMeta
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Max idle time"),
+                transformMeta));
+      }
+    }
+
+    String maxConsumeResolved = variables.resolve(Const.NVL(getMaxConsumeDurationMs(), "0"));
+    if (StringUtils.isNotBlank(maxConsumeResolved)) {
+      try {
+        long maxConsume = Long.parseLong(maxConsumeResolved);
+        if (maxConsume < 0) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "KafkaConsumerInputMeta.CheckResult.Negative", "Max consume duration"),
+                  transformMeta));
+        }
+      } catch (NumberFormatException e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Max consume duration"),
                 transformMeta));
       }
     }

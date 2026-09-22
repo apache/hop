@@ -131,6 +131,7 @@ The xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer] runs a sub-pipel
 
 * *Long-lived*: leave the consumer running and process batches by *Duration* and/or *Number of records*. Use this for near-real-time apply.
 * *Scheduled drain*: enable *Stop when idle* (and an idle timeout) so a workflow can start the pipeline, empty the topic, and finish. That is the “queue + schedule” pattern.
+* *Timed window*: set *Max consume duration (ms)* when the topic never goes idle (a low continuous trickle) but you still want a scheduled run to process for a fixed time and then finish.
 
 Prefer *Offset management: when batch completed* so a failed sub-pipeline does not commit past records it never applied.
 
