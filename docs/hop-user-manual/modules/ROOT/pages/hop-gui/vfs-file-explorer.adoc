@@ -66,6 +66,9 @@ Delete is set apart on the right-click menu so it is not next to the other actio
 
 The file toolbar copies, cuts, pastes and deletes the rows you select, and renames a file when exactly one file is selected.
 **Download** opens the VFS save dialog with that file's name so you can store a copy somewhere else.
+**Upload** is next to it.
+Select one or more files, then choose the folder to place them in.
+That folder can be any VFS location, including a named cloud connection.
 **Open as text file** opens the file in a text editor even when Hop has a richer editor for it.
 Paste goes into the folder you are viewing.
 Copy and cut stay inside Hop: they are not the system clipboard.

@@ -31,6 +31,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -102,6 +103,7 @@ public class VfsFileExplorerLocation extends Composite {
   private static final String DETAILS_OPEN = "VfsFileExplorer-Details-0010-Open";
   private static final String DETAILS_OPEN_TEXT = "VfsFileExplorer-Details-0015-OpenText";
   private static final String DETAILS_DOWNLOAD = "VfsFileExplorer-Details-0020-Download";
+  private static final String DETAILS_UPLOAD = "VfsFileExplorer-Details-0025-Upload";
   private static final String DETAILS_DRILL = "VfsFileExplorer-Details-0030-Drill";
   private static final String DETAILS_COPY = "VfsFileExplorer-Details-0040-Copy";
   private static final String DETAILS_CUT = "VfsFileExplorer-Details-0050-Cut";
@@ -744,6 +746,37 @@ public class VfsFileExplorerLocation extends Composite {
 
   @GuiToolbarElement(
       root = DETAILS_TOOLBAR_PARENT_ID,
+      id = DETAILS_UPLOAD,
+      toolTip = "i18n::VfsFileExplorer.Details.Upload.Tooltip",
+      image = "ui/images/upload.svg")
+  public void uploadSelected() {
+    List<VfsFileTransfer.Entry> files = selectedUploadEntries();
+    if (files.isEmpty()) {
+      return;
+    }
+    String start = currentFolderUri();
+    String destination =
+        BaseDialog.presentDirectoryDialog(
+            getShell(),
+            StringUtils.isBlank(start) ? null : start,
+            BaseMessages.getString(PKG, "VfsFileExplorer.Upload.Message"),
+            variables);
+    if (StringUtils.isBlank(destination)) {
+      return;
+    }
+    if (variables != null) {
+      destination = variables.resolve(destination);
+    }
+    String description =
+        files.size() == 1
+            ? BaseMessages.getString(
+                PKG, "VfsFileExplorer.Operation.Uploading", files.get(0).getName())
+            : BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Uploading.Many", files.size());
+    copyIntoFolder(destination, files, VfsFileTransfer.Mode.COPY, description);
+  }
+
+  @GuiToolbarElement(
+      root = DETAILS_TOOLBAR_PARENT_ID,
       id = DETAILS_DRILL,
       toolTip = "i18n::VfsFileExplorer.Details.Drill.Tooltip",
       image = "ui/images/zipfile.svg")
@@ -1306,6 +1339,7 @@ public class VfsFileExplorerLocation extends Composite {
     detailsToolbar.enableToolbarItem(DETAILS_OPEN, row != null && canOpen(row));
     detailsToolbar.enableToolbarItem(DETAILS_OPEN_TEXT, file != null);
     detailsToolbar.enableToolbarItem(DETAILS_DOWNLOAD, file != null);
+    detailsToolbar.enableToolbarItem(DETAILS_UPLOAD, hasSelectedFiles());
     detailsToolbar.enableToolbarItem(
         DETAILS_DRILL, file != null && HopVfsFileDialog.getArchiveScheme(file.getName()) != null);
     detailsToolbar.enableToolbarItem(DETAILS_COPY, tableSelected);
@@ -1398,8 +1432,23 @@ public class VfsFileExplorerLocation extends Composite {
         mode == VfsFileTransfer.Mode.MOVE
             ? "VfsFileExplorer.Operation.Moving"
             : "VfsFileExplorer.Operation.Copying";
+    copyIntoFolder(
+        destinationUri,
+        entries,
+        mode,
+        BaseMessages.getString(PKG, operationKey, entries.get(0).getName()));
+  }
+
+  private void copyIntoFolder(
+      String destinationUri,
+      List<VfsFileTransfer.Entry> entries,
+      VfsFileTransfer.Mode mode,
+      String description) {
+    if (StringUtils.isBlank(destinationUri) || entries.isEmpty()) {
+      return;
+    }
     runChange(
-        BaseMessages.getString(PKG, operationKey, entries.get(0).getName()),
+        description,
         destinationUri,
         () -> {
           FileObject destination = HopVfs.getFileObject(destinationUri, variables);
@@ -1609,6 +1658,12 @@ public class VfsFileExplorerLocation extends Composite {
         this::downloadSelected);
     menuItem(
         menu,
+        "VfsFileExplorer.Menu.Upload",
+        "ui/images/upload.svg",
+        hasSelectedFiles(),
+        this::uploadSelected);
+    menuItem(
+        menu,
         "VfsFileExplorer.Menu.Drill",
         "ui/images/zipfile.svg",
         file != null && HopVfsFileDialog.getArchiveScheme(file.getName()) != null,
@@ -1716,6 +1771,28 @@ public class VfsFileExplorerLocation extends Composite {
       }
     }
     return VfsFileTransfer.withoutNested(entries);
+  }
+
+  private boolean hasSelectedFiles() {
+    for (VfsFileRow row : selectedTableRows()) {
+      if (!row.isFolder()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Files in the list selection. Folders are left out: upload copies files into a chosen folder.
+   */
+  private List<VfsFileTransfer.Entry> selectedUploadEntries() {
+    List<VfsFileTransfer.Entry> entries = new ArrayList<>();
+    for (VfsFileRow row : selectedTableRows()) {
+      if (!row.isFolder()) {
+        entries.add(new VfsFileTransfer.Entry(row.getUri(), row.getName(), false));
+      }
+    }
+    return entries;
   }
 
   private List<VfsFileTransfer.Entry> selectedFileEntries() {
