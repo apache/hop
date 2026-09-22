@@ -20,7 +20,9 @@ package org.apache.hop.testing.xp;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -29,7 +31,9 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataPropertyWalker;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -76,8 +80,11 @@ public class PipelineMetaModifier {
     //
     copyPipelineMeta.setMetadataProvider(pipelineMeta.getMetadataProvider());
 
-    // Replace certain connections with another
+    // Connections are metadata loaded by name. Rewriting the name on the test copy is what
+    // transforms such as Database Lookup read at runtime. Do not call DatabaseMeta.replaceMeta():
+    // findDatabase() returns either a throwaway load or the shared metadata object.
     //
+    Map<String, String> connectionReplacements = new LinkedHashMap<>();
     for (PipelineUnitTestDatabaseReplacement dbReplacement : unitTest.getDatabaseReplacements()) {
       String sourceDatabaseName = variables.resolve(dbReplacement.getOriginalDatabaseName());
       String replacementDatabaseName =
@@ -99,16 +106,33 @@ public class PipelineMetaModifier {
                 + replacementDatabaseName
                 + "', can not be used to replace");
       }
+      connectionReplacements.put(sourceDatabaseName, replacementDatabaseName);
+    }
 
-      if (log.isDetailed()) {
+    int replacedFields = 0;
+    if (!connectionReplacements.isEmpty()) {
+      for (TransformMeta transformMeta : copyPipelineMeta.getTransforms()) {
+        replacedFields +=
+            HopMetadataPropertyWalker.rewriteStrings(
+                transformMeta.getTransform(),
+                HopMetadataPropertyType.RDBMS_CONNECTION,
+                value -> replacementFor(variables, connectionReplacements, value));
+      }
+    }
+
+    if (log.isDetailed()) {
+      for (Map.Entry<String, String> replacement : connectionReplacements.entrySet()) {
         log.logDetailed(
             "Replaced database connection '"
-                + sourceDatabaseName
+                + replacement.getKey()
                 + "' with connection '"
-                + replacementDatabaseName
+                + replacement.getValue()
                 + "'");
       }
-      sourceDatabaseMeta.replaceMeta(replacementDatabaseMeta);
+      if (!connectionReplacements.isEmpty()) {
+        log.logDetailed(
+            "Rewrote " + replacedFields + " relational connection reference(s) for this unit test");
+      }
     }
 
     // Replace all transforms with an Input Data Set marker with an Injector
@@ -158,6 +182,20 @@ public class PipelineMetaModifier {
     }
 
     return copyPipelineMeta;
+  }
+
+  /**
+   * Map a connection name to its replacement once. A later replacement of the replacement name does
+   * not chain. Variable expressions are resolved before matching, and a match is stored as the
+   * literal replacement name.
+   */
+  private static String replacementFor(
+      IVariables variables, Map<String, String> connectionReplacements, String value) {
+    if (value == null) {
+      return null;
+    }
+    String replacement = connectionReplacements.get(variables.resolve(value));
+    return replacement == null ? value : replacement;
   }
 
   private void handleInputDataSet(

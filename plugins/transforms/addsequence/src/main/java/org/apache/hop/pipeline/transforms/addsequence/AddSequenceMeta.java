@@ -34,6 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -66,7 +67,8 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
 
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "AddSequenceMeta.Injection.Connection")
+      injectionKeyDescription = "AddSequenceMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
