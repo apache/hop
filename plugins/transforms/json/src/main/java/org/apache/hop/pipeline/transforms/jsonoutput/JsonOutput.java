@@ -143,6 +143,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     }
 
     data.rowsAreSafe = false;
+    data.lastRow = r;
     execute(r);
 
     if (data.writeToFile && !data.outputValue) {
@@ -155,8 +156,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   private void writeJsonToFile() throws HopTransformException {
     // no more input to be expected...
     if (!data.rowsAreSafe) {
-      // Let's output the remaining unsafe data
-      outputRow(null);
+      // Let's output the remaining unsafe data on the last row we've seen
+      outputRow(data.lastRow);
     }
   }
 
@@ -189,6 +190,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     }
     // Data are safe
     data.rowsAreSafe = true;
+    data.lastRow = null;
     data.ja = new JSONArray();
   }
 
@@ -239,7 +241,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       //
       if (!data.ja.isEmpty()) {
         try {
-          outputRow(null);
+          outputRow(data.lastRow);
         } catch (Exception e) {
           logError("Error writing final rows to disk", e);
         }
