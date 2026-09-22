@@ -16,7 +16,9 @@
  */
 package org.apache.hop.lint;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -63,18 +65,27 @@ public class PipelineVerifyLintExtension implements IExtensionPoint<CheckTransfo
         return;
       }
 
-      List<LintResult> policyResults =
-          linter.applyPolicy(linter.runPolicyRules(pipelineMeta, fileName), fileName);
-      extension
-          .getRemarks()
-          .addAll(LintCheckResultAdapter.toCheckResults(policyResults, pipelineMeta));
-
       // Hop collected its own remarks before this point, so they have passed no suppression yet.
+      // The policy findings added below have: applyPolicy suppresses them as it builds them.
       linter.removeSuppressed(extension.getRemarks(), fileName);
 
-      List<LintResult> verifyViewResults =
-          LintResultDeduplicator.deduplicate(
-              LintCheckResultAdapter.fromCheckResults(extension.getRemarks(), fileName));
+      // Read while the list still holds Hop's own remarks alone. The blanket native rule names no
+      // plugin and no message, so it matches anything put in front of it - including a policy
+      // finding turned into a remark, whose own rule id it would overwrite.
+      List<LintResult> results =
+          new ArrayList<>(linter.fromNativeRemarks(extension.getRemarks(), fileName));
+
+      List<LintResult> policyResults =
+          linter.applyPolicy(linter.runPolicyRules(pipelineMeta, fileName), fileName);
+      List<ICheckResult> policyRemarks =
+          LintCheckResultAdapter.toCheckResults(policyResults, pipelineMeta);
+      extension.getRemarks().addAll(policyRemarks);
+
+      // Through the same conversion as before. This view has always reported a policy finding as
+      // Hop's own verify output renders it, and reporting it differently here would leave the
+      // Problems bar disagreeing with the background lint about the same file.
+      results.addAll(LintCheckResultAdapter.fromCheckResults(policyRemarks, fileName));
+      List<LintResult> verifyViewResults = LintResultDeduplicator.deduplicate(results);
       LintResultsManager.getInstance().updateResultsForFile(fileName, verifyViewResults);
       LintProblemsBarManager.getInstance().updateProblemsBar(fileName);
 

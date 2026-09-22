@@ -27,6 +27,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaJson;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -164,6 +165,31 @@ class ColumnValueValidatorTest {
     assertEquals(
         ColumnValueErrorCode.INVALID_JSON,
         ColumnValueValidator.validate(json, "payload", meta, "{", false).get(0).code());
+  }
+
+  /**
+   * What PostgreSQL actually hands the validator. A jsonb column is read as {@link ValueMetaJson},
+   * not as a string, so an invalid document fails to convert to the target type before the JSON
+   * check ever sees it. Reported as a conversion failure it carried the parser's wording instead of
+   * naming the fault, and INVALID_JSON was unreachable on every database that has the type.
+   */
+  @Test
+  void invalidJsonOnAColumnReadAsJson() {
+    ColumnValueConstraints json = new ColumnValueConstraints();
+    json.setColumnName("payload");
+    json.setJson(true);
+    json.setHopType(IValueMeta.TYPE_JSON);
+    json.setTargetValueMeta(new ValueMetaJson("payload"));
+    ValueMetaString streamMeta = new ValueMetaString("payload");
+
+    assertTrue(
+        ColumnValueValidator.validate(json, "payload", streamMeta, "{\"a\":1}", false).isEmpty());
+
+    List<ColumnValueError> errors =
+        ColumnValueValidator.validate(json, "payload", streamMeta, "{", false);
+    assertEquals(1, errors.size());
+    assertEquals(ColumnValueErrorCode.INVALID_JSON, errors.get(0).code());
+    assertEquals("column 'payload': invalid JSON; value='{'", errors.get(0).message());
   }
 
   @Test

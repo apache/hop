@@ -144,6 +144,53 @@ public class LintSuppressionInEditorTest {
         "only the named rule should have been silenced: " + after);
   }
 
+  /**
+   * The rules the core pack states about Hop's own remarks have to reach the canvas.
+   *
+   * <p>They did not: only the command line classified native remarks, so a project that switched
+   * {@code HOP-CHECK} off saw its build go quiet while every badge stayed on the canvas, and a
+   * severity the pack had capped was still reported as the transform wrote it.
+   */
+  @Test
+  public void disablingTheNativeRuleSilencesTheEditorToo() throws Exception {
+    assertTrue(countOfRule(lintAsEditor(), "HOP-CHECK") > 0, "no native findings to switch off");
+
+    writeProjectConfig(
+        """
+        rules:
+          HOP-CHECK:
+            enabled: false
+        """);
+
+    List<LintResult> results = lintAsEditor();
+
+    assertEquals(
+        0, countOfRule(results, "HOP-CHECK"), "Hop's own remarks should be gone: " + results);
+    assertTrue(
+        results.stream().anyMatch(r -> "TRANS-002".equals(r.getRuleId())),
+        "switching off the native rule must leave the linter's own rules alone: " + results);
+  }
+
+  /**
+   * The blanket native rule names no plugin and no message, so it matches every check result put in
+   * front of it. The linter's own findings travel through {@code ICheckResult} on this path, and
+   * classifying them along with Hop's remarks would rename every one of them to {@code HOP-CHECK} -
+   * silently collapsing the rule ids a project writes its suppressions against.
+   */
+  @Test
+  public void policyFindingsKeepTheirOwnRuleIdInTheEditor() throws Exception {
+    List<LintResult> results = lintAsEditor();
+
+    assertTrue(
+        results.stream()
+            .anyMatch(r -> "TRANS-002".equals(r.getRuleId()) && "Fonte Sql".equals(sourceName(r))),
+        "the orphaned-transform finding on Fonte Sql lost its rule id: " + results);
+    assertTrue(
+        results.stream()
+            .anyMatch(r -> "TRANS-002".equals(r.getRuleId()) && "Salva S3".equals(sourceName(r))),
+        "the orphaned-transform finding on Salva S3 lost its rule id: " + results);
+  }
+
   private long countOfRule(List<LintResult> results, String ruleId) {
     return results.stream().filter(r -> ruleId.equals(r.getRuleId())).count();
   }
