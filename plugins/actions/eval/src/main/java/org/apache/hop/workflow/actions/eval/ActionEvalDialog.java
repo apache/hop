@@ -17,30 +17,22 @@
 
 package org.apache.hop.workflow.actions.eval;
 
-import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TextComposite;
-import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
@@ -48,9 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionEvalDialog extends ActionDialog {
   private static final Class<?> PKG = ActionEval.class;
 
-  private TextComposite wScript;
-
-  private Label wlPosition;
+  private IContentEditorWidget wScript;
 
   private ActionEval action;
 
@@ -74,93 +64,22 @@ public class ActionEvalDialog extends ActionDialog {
 
     ModifyListener lsMod = e -> action.setChanged();
 
-    wlPosition = new Label(shell, SWT.NONE);
-    wlPosition.setText(BaseMessages.getString(PKG, "ActionEval.LineNr.Label", "0"));
-    PropsUi.setLook(wlPosition);
-    FormData fdlPosition = new FormData();
-    fdlPosition.left = new FormAttachment(0, 0);
-    fdlPosition.bottom = new FormAttachment(wOk, -margin);
-    wlPosition.setLayoutData(fdlPosition);
-
     // Script line
     Label wlScript = new Label(shell, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "ActionEval.Script.Label"));
+    wlScript.setLayoutData(new FormDataBuilder().left().top(wSpacer, margin).result());
     PropsUi.setLook(wlScript);
-    FormData fdlScript = new FormData();
-    fdlScript.left = new FormAttachment(0, 0);
-    fdlScript.top = new FormAttachment(wSpacer, margin);
-    wlScript.setLayoutData(fdlScript);
 
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      wScript =
-          new StyledTextComp(
-              action,
-              shell,
-              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-              false,
-              TextComposite.STYLE_TYPE_JAVASCRIPT);
-    } else {
-      wScript =
-          new JavaScriptStyledTextComp(
-              action,
-              shell,
-              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
-      wScript.addLineStyleListener();
-    }
+    Composite composite = new Composite(shell, SWT.BORDER);
+    composite.setLayout(new FormLayout());
+    composite.setLayoutData(
+        new FormDataBuilder().top(wlScript, margin).bottom(wOk, -margin).fullWidth().result());
+    PropsUi.setLook(composite);
+
+    wScript = ContentEditorFacade.createContentEditor(composite, "javascript");
     wScript.setText(BaseMessages.getString(PKG, "ActionEval.Script.Default"));
-    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     wScript.addModifyListener(lsMod);
-    FormData fdScript = new FormData();
-    fdScript.left = new FormAttachment(0, 0);
-    fdScript.top = new FormAttachment(wlScript, margin);
-    fdScript.right = new FormAttachment(100, 0);
-    fdScript.bottom = new FormAttachment(wlPosition, -margin);
-    wScript.setLayoutData(fdScript);
-    wScript.addModifyListener(arg0 -> setPosition());
-
-    wScript.addKeyListener(
-        new KeyAdapter() {
-          @Override
-          public void keyPressed(KeyEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void keyReleased(KeyEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void focusLost(FocusEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDoubleClick(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseDown(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseUp(MouseEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addModifyListener(lsMod);
+    wScript.getControl().setLayoutData(new FormDataBuilder().fullSize().result());
 
     getData();
     focusActionName();
@@ -170,15 +89,7 @@ public class ActionEvalDialog extends ActionDialog {
     return action;
   }
 
-  public void setPosition() {
-    int lineNumber = wScript.getLineNumber();
-    int columnNumber = wScript.getColumnNumber();
-    wlPosition.setText(
-        BaseMessages.getString(
-            PKG, "ActionEval.Position.Label", "" + lineNumber, "" + columnNumber));
-  }
-
-  /** Copy information from the meta-data input to the dialog fields. */
+  /** Copy information from the metadata input to the dialog fields. */
   public void getData() {
     if (action.getName() != null) {
       wName.setText(action.getName());
