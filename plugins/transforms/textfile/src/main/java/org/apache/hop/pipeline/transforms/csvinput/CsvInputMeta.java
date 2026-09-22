@@ -389,41 +389,110 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    CheckResult cr;
+    // Same split as the dialog and CsvInput.init(): a previous hop means the filename comes from a
+    // field, otherwise a static filename is used.
+    if (input != null && input.length > 0) {
+      checkFilenameFromField(remarks, transformMeta, prev, variables);
+    } else {
+      checkStaticFilename(remarks, transformMeta, prev, variables);
+    }
+  }
+
+  private void checkFilenameFromField(
+      List<ICheckResult> remarks,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      IVariables variables) {
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_OK,
+            BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.TransformRecevingData2"),
+            transformMeta));
+
     if (prev == null || prev.isEmpty()) {
-      cr =
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.NotReceivingFields"),
+              transformMeta));
+      return;
+    }
+
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_OK,
+            BaseMessages.getString(
+                PKG, "CsvInputMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+            transformMeta));
+    remarks.add(checkFilenameField(transformMeta, prev, variables));
+  }
+
+  private CheckResult checkFilenameField(
+      TransformMeta transformMeta, IRowMeta prev, IVariables variables) {
+    if (Utils.isEmpty(filenameField)) {
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameFieldMissing"),
+          transformMeta);
+    }
+
+    String resolvedField = variables != null ? variables.resolve(filenameField) : filenameField;
+    if (prev.indexOfValue(resolvedField) < 0) {
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(
+              PKG, "CsvInputMeta.CheckResult.FilenameFieldNotFound", resolvedField),
+          transformMeta);
+    }
+
+    return new CheckResult(
+        ICheckResult.TYPE_RESULT_OK,
+        BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameFieldOk", resolvedField),
+        transformMeta);
+  }
+
+  private void checkStaticFilename(
+      List<ICheckResult> remarks,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      IVariables variables) {
+    if (prev == null || prev.isEmpty()) {
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.NotReceivingFields"),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     } else {
-      cr =
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "CsvInputMeta.CheckResult.TransformRecevingData", prev.size() + ""),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     }
 
-    // See if we have input streams leading to this transform!
-    if (input.length > 0) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.TransformRecevingData2"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                  PKG, "CsvInputMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
-              transformMeta);
-      remarks.add(cr);
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_OK,
+            BaseMessages.getString(
+                PKG, "CsvInputMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+            transformMeta));
+    remarks.add(checkStaticFilenameSpecified(transformMeta, variables));
+  }
+
+  private CheckResult checkStaticFilenameSpecified(
+      TransformMeta transformMeta, IVariables variables) {
+    String resolvedFilename = variables != null ? variables.resolve(filename) : filename;
+    if (Utils.isEmpty(resolvedFilename)) {
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameMissing"),
+          transformMeta);
     }
+    return new CheckResult(
+        ICheckResult.TYPE_RESULT_OK,
+        BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameOk"),
+        transformMeta);
   }
 
   @Override
