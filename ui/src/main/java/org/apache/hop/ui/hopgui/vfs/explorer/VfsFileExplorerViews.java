@@ -177,23 +177,30 @@ public class VfsFileExplorerViews {
       id = CONTEXT_MENU_OPEN_LOCATION,
       label = "i18n::VfsFileExplorer.Menu.OpenLocation",
       image = "ui/images/folder.svg")
-  public static void openSelectionInVfsExplorer(ExplorerPerspective perspective) {
-    if (perspective == null) {
+  public void openSelectionInVfsExplorer() {
+    // The menu caller looks up a public no-argument method. A parameter here is never invoked.
+    ExplorerPerspective perspective;
+    HopGui hopGui;
+    try {
+      perspective = ExplorerPerspective.getInstance();
+      hopGui = HopGui.getInstance();
+    } catch (Throwable e) {
+      return;
+    }
+    if (perspective == null || hopGui == null) {
       return;
     }
     ExplorerFile selected = perspective.getSelectedFile();
     if (selected == null || StringUtils.isBlank(selected.getFilename())) {
       return;
     }
-    boolean folder = selected.getFileType() instanceof FolderFileType;
-    String location = VfsLocations.folderToBrowse(selected.getFilename(), folder);
-    if (StringUtils.isBlank(location)) {
-      return;
+    String path = selected.getFilename();
+    if (hopGui.getVariables() != null) {
+      path = hopGui.getVariables().resolve(path);
     }
-    HopGui hopGui;
-    try {
-      hopGui = HopGui.getInstance();
-    } catch (Throwable e) {
+    boolean folder = selected.getFileType() instanceof FolderFileType;
+    String location = VfsLocations.folderToBrowse(path, folder);
+    if (StringUtils.isBlank(location)) {
       return;
     }
     openAtPreferredHost(hopGui, location);

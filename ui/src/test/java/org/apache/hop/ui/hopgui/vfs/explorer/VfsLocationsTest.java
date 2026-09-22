@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 
 class VfsLocationsTest {
@@ -35,6 +36,13 @@ class VfsLocationsTest {
     assertEquals("/", VfsLocations.parentOf("/notes.txt"));
     assertNull(VfsLocations.folderToBrowse("notes.txt", false));
     assertNull(VfsLocations.folderToBrowse("  ", true));
+  }
+
+  @Test
+  void explorerMenuCallbackHasNoArguments() throws Exception {
+    // GuiMenuWidgets.executeMenuItem looks up the public no-argument method by name.
+    Method method = VfsFileExplorerViews.class.getMethod("openSelectionInVfsExplorer");
+    assertEquals(0, method.getParameterCount());
   }
 
   @Test
