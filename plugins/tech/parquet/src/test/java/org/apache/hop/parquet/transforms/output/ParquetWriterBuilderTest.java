@@ -42,7 +42,7 @@ class ParquetWriterBuilderTest {
     ParquetOutputFile outputFile = new ParquetOutputFile(new ByteArrayOutputStream());
 
     ParquetWriterBuilder builder =
-        new ParquetWriterBuilder(messageType, avroSchema, outputFile, indexes, fields);
+        new ParquetWriterBuilder(messageType, outputFile, indexes, fields);
 
     WriteSupport<?> writeSupport = builder.getWriteSupport(new Configuration());
     assertInstanceOf(ParquetWriteSupport.class, writeSupport);

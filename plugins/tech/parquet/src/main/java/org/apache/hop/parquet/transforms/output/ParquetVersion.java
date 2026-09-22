@@ -17,15 +17,17 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import lombok.Getter;
 import org.apache.hop.metadata.api.IEnumHasCode;
 
+@Getter
 @SuppressWarnings("java:S115")
 public enum ParquetVersion implements IEnumHasCode {
   Version1("1.0", "Parquet 1.0"),
   Version2("2.0", "Parquet 2.0");
 
-  private String code;
-  private String description;
+  private final String code;
+  private final String description;
 
   ParquetVersion(String code, String description) {
     this.code = code;
@@ -52,38 +54,5 @@ public enum ParquetVersion implements IEnumHasCode {
       }
     }
     return Version1;
-  }
-
-  /**
-   * Gets code
-   *
-   * @return value of code
-   */
-  @Override
-  public String getCode() {
-    return code;
-  }
-
-  /**
-   * @param code The code to set
-   */
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  /**
-   * Gets description
-   *
-   * @return value of description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * @param description The description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
   }
 }

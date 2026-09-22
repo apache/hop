@@ -19,9 +19,11 @@ package org.apache.hop.parquet.transforms.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +32,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -40,6 +43,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.parquet.column.ParquetProperties;
+import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +102,7 @@ class ParquetOutputTest {
     assertTrue(output.init());
     assertEquals(ParquetProperties.DEFAULT_PAGE_SIZE, data.pageSize);
     assertEquals(ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE, data.dictionaryPageSize);
-    assertEquals(ParquetProperties.DEFAULT_PAGE_ROW_COUNT_LIMIT, data.rowGroupSize);
+    assertEquals(ParquetWriter.DEFAULT_BLOCK_SIZE, data.rowGroupSize);
     assertEquals(-1, data.maxSplitSizeRows);
   }
 
@@ -216,6 +220,62 @@ class ParquetOutputTest {
     ParquetOutput output = createTransform(meta, data);
 
     assertEquals("/tmp/output.parquet", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameWithEveryNamePart() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingDate(true);
+    meta.setFilenameIncludingTime(true);
+    meta.setFilenameIncludingDateTime(true);
+    meta.setFilenameDateTimeFormat("yyyy-MM-dd'T'HH");
+    meta.setFilenameIncludingCopyNr(true);
+    meta.setFilenameIncludingSplitNr(true);
+    meta.setCompressionCodec(CompressionCodecName.GZIP);
+
+    ParquetOutputData data = new ParquetOutputData();
+    data.split = 3;
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals(
+        "/tmp/output-20240115-103000-2024-01-15T10-00-0003.gz.parquet",
+        output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameDefaultsTheExtensionAndResolvesVariables() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("${OUT}/data");
+    meta.setFilenameExtension("");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setCompressionCodec(CompressionCodecName.UNCOMPRESSED);
+
+    ParquetOutput output = createTransform(meta, new ParquetOutputData());
+    output.setVariable("OUT", "/var/out");
+
+    assertEquals("/var/out/data.parquet", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testInitClampsMaxOpenPartitionsToAtLeastOne() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setMaxOpenPartitions("0");
+    ParquetOutputData data = new ParquetOutputData();
+    assertTrue(createTransform(meta, data).init());
+    assertEquals(1, data.maxOpenPartitions);
+  }
+
+  @Test
+  void testAvroTypeRejectsUnsupportedHopTypes() {
+    IValueMeta unsupported = mock(IValueMeta.class);
+    when(unsupported.getType()).thenReturn(IValueMeta.TYPE_INET);
+    when(unsupported.getTypeDesc()).thenReturn("Internet Address");
+
+    HopException e = assertThrows(HopException.class, () -> ParquetOutput.avroType(unsupported));
+    assertTrue(e.getMessage().contains("Internet Address"));
   }
 
   private static Date fixedDate() {

@@ -18,29 +18,21 @@
 package org.apache.hop.parquet.transforms.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
 
-/** Unit test for {@link ParquetOutputData} */
-class ParquetOutputDataTest {
+/** Unit test for {@link ParquetTypeFilename} */
+class ParquetTypeFilenameTest {
 
   @Test
-  void testDefaultValues() {
-    ParquetOutputData data = new ParquetOutputData();
-    assertNull(data.sourceFieldIndexes);
-    assertNull(data.outputFields);
-    assertNull(data.props);
-    assertNull(data.filename);
-    assertNull(data.outputStream);
-    assertNull(data.countingStream);
-    assertNull(data.outputFile);
-    assertNull(data.writer);
-    assertEquals(0, data.split);
-    assertEquals(0, data.splitRowCount);
-    assertEquals(0, data.maxSplitSizeRows);
-    assertEquals(0, data.rowGroupSize);
-    assertEquals(0, data.pageSize);
-    assertEquals(0, data.dictionaryPageSize);
+  void filtersParquetFilesFirst() {
+    ParquetTypeFilename type = new ParquetTypeFilename();
+    assertEquals(".parquet", type.getDefaultFileExtension());
+    assertEquals("*.parquet", type.getFilterExtensions()[0]);
+    assertEquals(type.getFilterExtensions().length, type.getFilterNames().length);
+    for (String name : type.getFilterNames()) {
+      assertFalse(name.startsWith("!"), "untranslated filter name: " + name);
+    }
   }
 }

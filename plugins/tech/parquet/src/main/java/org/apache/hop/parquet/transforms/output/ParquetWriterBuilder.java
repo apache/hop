@@ -18,7 +18,6 @@
 package org.apache.hop.parquet.transforms.output;
 
 import java.util.List;
-import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.parquet.hadoop.ParquetWriter;
@@ -30,19 +29,16 @@ public class ParquetWriterBuilder
     extends ParquetWriter.Builder<RowMetaAndData, ParquetWriterBuilder> {
 
   private final MessageType messageType;
-  private final Schema avroSchema;
   private final List<Integer> sourceFieldIndexes;
   private final List<ParquetField> fields;
 
   protected ParquetWriterBuilder(
       MessageType messageType,
-      Schema avroSchema,
       OutputFile path,
       List<Integer> sourceFieldIndexes,
       List<ParquetField> fields) {
     super(path);
     this.messageType = messageType;
-    this.avroSchema = avroSchema;
     this.sourceFieldIndexes = sourceFieldIndexes;
     this.fields = fields;
   }
@@ -54,6 +50,6 @@ public class ParquetWriterBuilder
 
   @Override
   protected WriteSupport<RowMetaAndData> getWriteSupport(Configuration conf) {
-    return new ParquetWriteSupport(messageType, avroSchema, sourceFieldIndexes, fields);
+    return new ParquetWriteSupport(messageType, sourceFieldIndexes, fields);
   }
 }

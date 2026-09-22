@@ -35,11 +35,10 @@ The dialog is split across four tabs so it fits a 1080p screen at 100% zoom: **F
 Notes:
 
 * The date optionally referenced in the output file name(s) will be the start of the pipeline execution.
-* Hop Date types are serialized as EPOC: milliseconds since `1970-01-01 00:00:00.000`
-* Strings are written as binary in UTF-8
-* Compression of data into columnar format is being done in memory.
-This happens when all rows are written.
-To not run out of memory make sure to specify a split size.
+* Hop Date and Timestamp types are serialized as milliseconds since `1970-01-01 00:00:00.000` UTC, with the Parquet `timestamp-millis` logical type.
+* Strings, BigNumbers, JSON and UUID values are written as UTF-8 strings.
+* Rows are buffered in memory until a row group is full (see the *Row group size* option), then encoded, compressed and written.
+Memory use is therefore bounded by the row group size (times the number of copies and, when partitioning, the number of open partitions), not by the split size.
 
 === File
 
@@ -80,7 +79,7 @@ The copy number is formatted with mask `00`
 
 |Split into parts and include number?
 |Enable this option if you want to split the output into multiple parts.
-Specify a split size larger than 0 and this is then the number of rows per file.
+Specify a split size larger than 0 and this is then the number of *rows* per file.
 The file part (split) number will be included in the filename to make sure that the same file is not being overwritten.
 The split number is formatted with mask `0000`
 
@@ -108,15 +107,37 @@ The default is UNCOMPRESSED.
 |Version
 |Choose the protocol version of Parquet (1.0 or 2.0)
 
-|Row group size
-|The amount of rows in a group
+|Row group size (bytes)
+|The size of a row group in *bytes*, not rows.
+A row group is the unit of work for a reader: the transform buffers rows in memory until the row group is full, then encodes, compresses and writes it.
+The default is `268435456` (256 MB); Parquet itself defaults to 128 MB, and the Parquet project recommends 512 MB to 1 GB for large files.
+See <<row-group-size,Row group size and the file footer>> below before lowering this value.
 
-|Data page size
-|The data page size on a 1kB boundary (default is 1048576)
+|Data page size (bytes)
+|The size of a data page in bytes, the unit of encoding and compression inside a column chunk.
+The default is `8192` (8 kB), which the Parquet project recommends for good read performance; Parquet itself defaults to `1048576` (1 MB).
 
-|Dictionary page size
-|The data dictionary page size on a 1kB boundary (default is 1048576)
+|Dictionary page size (bytes)
+|The maximum size of a dictionary page in bytes.
+When the dictionary of a column grows past this size the writer falls back to plain encoding for that column chunk.
+The default is `1048576` (1 MB).
 |===
+
+The three size options accept human-friendly numbers such as `256m` (256,000,000), `1.5m` or `1e6`, and variables.
+
+[#row-group-size]
+==== Row group size and the file footer
+
+Every row group adds an entry per column to the file footer: offsets, sizes, encodings and min/max statistics.
+The footer therefore grows with the number of row groups times the number of columns, and with the size of the string values in the statistics.
+Readers such as Dremio and Apache Drill refuse files whose footer is larger than 16 MB (`Max supported footer size is 16777216`).
+
+Small row groups are the usual cause of an oversized footer.
+Hop 2.3 and 2.4 saved a row group size of `20000` into every new Parquet file output transform, so pipelines created with those versions write a row group every 20 kB and can produce footers of tens of megabytes.
+Open such transforms and set the row group size back to the default, or at least to a few megabytes.
+The transform logs a warning at startup when the row group size is below 1 MB.
+
+With detailed logging enabled the transform logs every file it closes with its size, its number of rows and row groups and the size of its footer, so you can see the effect of the settings on your data without inspecting the files.
 
 === Partitioning
 
