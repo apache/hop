@@ -17,7 +17,9 @@
 
 package org.apache.hop.databases.duckdb;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -256,5 +258,91 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public void addDefaultOptions() {
     setSupportsBooleanDataType(true);
     setSupportsTimestampDataType(true);
+  }
+
+  @Override
+  public boolean isSupportsSequences() {
+    return true;
+  }
+
+  @Override
+  public boolean isSupportsSequenceNoMaxValueOption() {
+    return true;
+  }
+
+  /** DuckDB's parser only knows the two word form; the default NOMAXVALUE is a syntax error. */
+  @Override
+  public String getSequenceNoMaxValueOption() {
+    return "NO MAXVALUE";
+  }
+
+  /** Sequences live in the duckdb_sequences() catalog function; information_schema has no view. */
+  @Override
+  public String getSqlListOfSequences() {
+    return "SELECT sequence_name FROM duckdb_sequences() ORDER BY schema_name, sequence_name";
+  }
+
+  @Override
+  public String getSqlNextSequenceValue(String sequenceName) {
+    return "SELECT nextval('" + sequenceName + "')";
+  }
+
+  @Override
+  public String getSqlCurrentSequenceValue(String sequenceName) {
+    return "SELECT currval('" + sequenceName + "')";
+  }
+
+  @Override
+  public String getSqlSequenceExists(String sequenceName) {
+    // The name arrives the way getQuotedSchemaTableCombination built it, so it can carry a schema
+    // and, since a DuckDB schema is listed as catalog.schema, a catalog before that.
+    List<String> parts = splitQualifiedName(sequenceName);
+    StringBuilder sql =
+        new StringBuilder("SELECT sequence_name FROM duckdb_sequences() WHERE ")
+            // Identifiers are case-insensitive in DuckDB, quoted ones included.
+            .append("lower(sequence_name) = ")
+            .append(quoteSqlString(lower(parts.getLast())));
+    if (parts.size() > 1) {
+      sql.append(" AND lower(schema_name) = ")
+          .append(quoteSqlString(lower(parts.get(parts.size() - 2))));
+    }
+    if (parts.size() > 2) {
+      sql.append(" AND lower(database_name) = ")
+          .append(quoteSqlString(lower(parts.get(parts.size() - 3))));
+    }
+    return sql.toString();
+  }
+
+  /**
+   * Splits a qualified name into its parts, on the dots outside a quoted identifier, and gives
+   * every part back the way the catalog holds it: unquoted.
+   */
+  private static List<String> splitQualifiedName(String name) {
+    List<String> parts = new ArrayList<>();
+    StringBuilder part = new StringBuilder();
+    boolean quoted = false;
+    for (int i = 0; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if (c == '"') {
+        // Two quotes within a quoted identifier stand for one quote in the name itself.
+        if (quoted && i + 1 < name.length() && name.charAt(i + 1) == '"') {
+          part.append('"');
+          i++;
+        } else {
+          quoted = !quoted;
+        }
+      } else if (c == '.' && !quoted) {
+        parts.add(part.toString().trim());
+        part.setLength(0);
+      } else {
+        part.append(c);
+      }
+    }
+    parts.add(part.toString().trim());
+    return parts;
+  }
+
+  private static String lower(String identifier) {
+    return identifier.toLowerCase(Locale.ROOT);
   }
 }
