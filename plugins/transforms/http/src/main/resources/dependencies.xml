@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -16,24 +15,12 @@
   ~ limitations under the License.
   ~
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-transforms</artifactId>
-        <version>2.20.0-SNAPSHOT</version>
-    </parent>
-
-    <artifactId>hop-transform-httppost</artifactId>
-    <packaging>jar</packaging>
-    <name>Hop Plugins Transforms HTTP Post</name>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-misc-rest</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
-</project>
+<!--
+  The REST connection metadata type lives in its own plugin. Declaring its folder here puts
+  hop-misc-rest on this plugin's class path, which the class loader group alone does not do:
+  the group only decides which loader is shared, not which jars it carries.
+-->
+<dependencies>
+    <folder>../../misc/rest/</folder>
+</dependencies>

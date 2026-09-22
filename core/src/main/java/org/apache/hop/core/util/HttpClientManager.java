@@ -102,6 +102,7 @@ public class HttpClientManager {
     private int connectionTimeout;
     private int socketTimeout;
     private HttpHost proxy;
+    private String nonProxyHosts;
     private boolean ignoreSsl;
 
     public HttpClientBuilderFacade setConnectionTimeout(int connectionTimeout) {
@@ -114,14 +115,20 @@ public class HttpClientManager {
       return this;
     }
 
+    /**
+     * Adds credentials for one authentication scope. Call it more than once to serve several scopes
+     * from the same client -- a target server and a proxy, say, each keeping its own credentials
+     * rather than one pair being offered to whichever of them asks first.
+     */
     public HttpClientBuilderFacade setCredentials(
         String user, String password, AuthScope authScope) {
-      BasicCredentialsProvider provider = new BasicCredentialsProvider();
+      if (provider == null) {
+        provider = new BasicCredentialsProvider();
+      }
       char[] passwordChars = password != null ? password.toCharArray() : new char[0];
       UsernamePasswordCredentials credentials =
           new UsernamePasswordCredentials(user, passwordChars);
       provider.setCredentials(authScope, credentials);
-      this.provider = provider;
       return this;
     }
 
@@ -136,6 +143,15 @@ public class HttpClientManager {
 
     public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort, String scheme) {
       this.proxy = new HttpHost(scheme, proxyHost, proxyPort);
+      return this;
+    }
+
+    /**
+     * Target hosts that bypass the proxy, in JDK {@code http.nonProxyHosts} syntax. Only has an
+     * effect together with a proxy.
+     */
+    public HttpClientBuilderFacade setNonProxyHosts(String nonProxyHosts) {
+      this.nonProxyHosts = nonProxyHosts;
       return this;
     }
 
@@ -186,10 +202,13 @@ public class HttpClientManager {
       if (connectionTimeout > 0) {
         requestConfigBuilder.setConnectTimeout(Timeout.ofMilliseconds(connectionTimeout));
       }
-      if (proxy != null) {
-        requestConfigBuilder.setProxy(proxy);
-      }
       httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
+
+      if (proxy != null) {
+        // A route planner rather than RequestConfig.setProxy(): a proxy set on the request config
+        // is returned for every target, so a bypass list could never be honoured.
+        httpClientBuilder.setRoutePlanner(new ProxyRoutePlanner(proxy, nonProxyHosts));
+      }
 
       if (provider != null) {
         httpClientBuilder.setDefaultCredentialsProvider(provider);

@@ -25,11 +25,14 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -50,6 +53,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -109,6 +113,8 @@ public class ActionHttpDialog extends ActionDialog {
 
   private Button wbUploadFile;
 
+  private MetaSelectionLine<RestConnection> wConnection;
+
   private TextVar wUserName;
 
   private TextVar wPassword;
@@ -116,6 +122,10 @@ public class ActionHttpDialog extends ActionDialog {
   private TextVar wProxyServer;
 
   private TextVar wProxyPort;
+
+  private TextVar wProxyUserName;
+
+  private TextVar wProxyPassword;
 
   private TextVar wNonProxyHosts;
 
@@ -158,6 +168,7 @@ public class ActionHttpDialog extends ActionDialog {
 
     Composite wGeneralComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.General.Label");
 
+    setupConnectionLine(margin, wGeneralComp);
     setupUrlLine(lsMod, middle, margin, wGeneralComp);
     setupIgnoreSslLine(middle, margin, wGeneralComp);
     setupRunEveryRwoLine(middle, margin, wGeneralComp);
@@ -180,9 +191,6 @@ public class ActionHttpDialog extends ActionDialog {
 
     setupUsernameLine(lsMod, middle, margin, wAuthentication);
     setupPasswordLine(lsMod, middle, margin, wAuthentication);
-    setupProxyServerLine(lsMod, middle, margin, wAuthentication);
-    setupProxyPortLine(lsMod, middle, margin, wAuthentication);
-    setupIgnoreHostLine(lsMod, middle, margin, wAuthentication);
 
     FormData fdAuthentication = new FormData();
     fdAuthentication.left = new FormAttachment(0, margin);
@@ -194,6 +202,33 @@ public class ActionHttpDialog extends ActionDialog {
 
     // ///////////////////////////////////////////////////////////
     // / END OF AUTHENTICATION TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
+    // START OF PROXY TAB ///
+    // ////////////////////////
+
+    // The proxy has a tab of its own rather than sharing the authentication one: its credentials
+    // belong to the proxy, not to the web server, and the two are never interchangeable.
+    Composite wProxyComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.Proxy.Label");
+    Group wProxy = setupProxyGroup(wProxyComp);
+
+    setupProxyServerLine(lsMod, middle, margin, wProxy);
+    setupProxyPortLine(lsMod, middle, margin, wProxy);
+    setupProxyUsernameLine(lsMod, middle, margin, wProxy);
+    setupProxyPasswordLine(lsMod, middle, margin, wProxy);
+    setupIgnoreHostLine(lsMod, middle, margin, wProxy);
+
+    FormData fdProxy = new FormData();
+    fdProxy.left = new FormAttachment(0, margin);
+    fdProxy.top = new FormAttachment(0, margin);
+    fdProxy.right = new FormAttachment(100, -margin);
+    wProxy.setLayoutData(fdProxy);
+
+    finishScrolledTab(wProxyComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF PROXY TAB
     // ///////////////////////////////////////////////////////////
 
     // ////////////////////////
@@ -556,33 +591,73 @@ public class ActionHttpDialog extends ActionDialog {
     return wUpLoadFile;
   }
 
-  private void setupIgnoreHostLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyUsernameLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
+    // Proxy user name line
+    Label wlProxyUserName = new Label(wProxy, SWT.RIGHT);
+    wlProxyUserName.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyUser.Label"));
+    PropsUi.setLook(wlProxyUserName);
+    FormData fdlProxyUserName = new FormData();
+    fdlProxyUserName.left = new FormAttachment(0, 0);
+    fdlProxyUserName.top = new FormAttachment(wProxyPort, margin);
+    fdlProxyUserName.right = new FormAttachment(middle, -margin);
+    wlProxyUserName.setLayoutData(fdlProxyUserName);
+    wProxyUserName = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProxyUserName);
+    wProxyUserName.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyUser.Tooltip"));
+    wProxyUserName.addModifyListener(lsMod);
+    FormData fdProxyUserName = new FormData();
+    fdProxyUserName.left = new FormAttachment(middle, 0);
+    fdProxyUserName.top = new FormAttachment(wProxyPort, margin);
+    fdProxyUserName.right = new FormAttachment(100, 0);
+    wProxyUserName.setLayoutData(fdProxyUserName);
+  }
+
+  private void setupProxyPasswordLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
+    // Proxy password line
+    Label wlProxyPassword = new Label(wProxy, SWT.RIGHT);
+    wlProxyPassword.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPassword.Label"));
+    PropsUi.setLook(wlProxyPassword);
+    FormData fdlProxyPassword = new FormData();
+    fdlProxyPassword.left = new FormAttachment(0, 0);
+    fdlProxyPassword.top = new FormAttachment(wProxyUserName, margin);
+    fdlProxyPassword.right = new FormAttachment(middle, -margin);
+    wlProxyPassword.setLayoutData(fdlProxyPassword);
+    wProxyPassword = new PasswordTextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProxyPassword);
+    wProxyPassword.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPassword.Tooltip"));
+    wProxyPassword.addModifyListener(lsMod);
+    FormData fdProxyPassword = new FormData();
+    fdProxyPassword.left = new FormAttachment(middle, 0);
+    fdProxyPassword.top = new FormAttachment(wProxyUserName, margin);
+    fdProxyPassword.right = new FormAttachment(100, 0);
+    wProxyPassword.setLayoutData(fdProxyPassword);
+  }
+
+  private void setupIgnoreHostLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
     // IgnoreHosts line
-    Label wlNonProxyHosts = new Label(wAuthentication, SWT.RIGHT);
+    Label wlNonProxyHosts = new Label(wProxy, SWT.RIGHT);
     wlNonProxyHosts.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyIgnoreRegexp.Label"));
     PropsUi.setLook(wlNonProxyHosts);
     FormData fdlNonProxyHosts = new FormData();
     fdlNonProxyHosts.left = new FormAttachment(0, 0);
-    fdlNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
+    fdlNonProxyHosts.top = new FormAttachment(wProxyPassword, margin);
     fdlNonProxyHosts.right = new FormAttachment(middle, -margin);
     wlNonProxyHosts.setLayoutData(fdlNonProxyHosts);
-    wNonProxyHosts = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNonProxyHosts = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wNonProxyHosts);
     wNonProxyHosts.setToolTipText(
         BaseMessages.getString(PKG, "ActionHTTP.ProxyIgnoreRegexp.Tooltip"));
     wNonProxyHosts.addModifyListener(lsMod);
     FormData fdNonProxyHosts = new FormData();
     fdNonProxyHosts.left = new FormAttachment(middle, 0);
-    fdNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
+    fdNonProxyHosts.top = new FormAttachment(wProxyPassword, margin);
     fdNonProxyHosts.right = new FormAttachment(100, 0);
     wNonProxyHosts.setLayoutData(fdNonProxyHosts);
   }
 
-  private void setupProxyPortLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyPortLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
     // ProxyPort line
-    Label wlProxyPort = new Label(wAuthentication, SWT.RIGHT);
+    Label wlProxyPort = new Label(wProxy, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPort.Label"));
     PropsUi.setLook(wlProxyPort);
     FormData fdlProxyPort = new FormData();
@@ -590,7 +665,7 @@ public class ActionHttpDialog extends ActionDialog {
     fdlProxyPort.top = new FormAttachment(wProxyServer, margin);
     fdlProxyPort.right = new FormAttachment(middle, -margin);
     wlProxyPort.setLayoutData(fdlProxyPort);
-    wProxyPort = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyPort = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProxyPort);
     wProxyPort.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPort.Tooltip"));
     wProxyPort.addModifyListener(lsMod);
@@ -601,24 +676,23 @@ public class ActionHttpDialog extends ActionDialog {
     wProxyPort.setLayoutData(fdProxyPort);
   }
 
-  private void setupProxyServerLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyServerLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
     // ProxyServer line
-    Label wlProxyServer = new Label(wAuthentication, SWT.RIGHT);
+    Label wlProxyServer = new Label(wProxy, SWT.RIGHT);
     wlProxyServer.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyHost.Label"));
     PropsUi.setLook(wlProxyServer);
     FormData fdlProxyServer = new FormData();
     fdlProxyServer.left = new FormAttachment(0, 0);
-    fdlProxyServer.top = new FormAttachment(wPassword, 3 * margin);
+    fdlProxyServer.top = new FormAttachment(0, margin);
     fdlProxyServer.right = new FormAttachment(middle, -margin);
     wlProxyServer.setLayoutData(fdlProxyServer);
-    wProxyServer = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyServer = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProxyServer);
     wProxyServer.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyHost.Tooltip"));
     wProxyServer.addModifyListener(lsMod);
     FormData fdProxyServer = new FormData();
     fdProxyServer.left = new FormAttachment(middle, 0);
-    fdProxyServer.top = new FormAttachment(wPassword, 3 * margin);
+    fdProxyServer.top = new FormAttachment(0, margin);
     fdProxyServer.right = new FormAttachment(100, 0);
     wProxyServer.setLayoutData(fdProxyServer);
   }
@@ -677,6 +751,80 @@ public class ActionHttpDialog extends ActionDialog {
     authenticationgroupLayout.marginHeight = 10;
     wAuthentication.setLayout(authenticationgroupLayout);
     return wAuthentication;
+  }
+
+  private void setupConnectionLine(int margin, Composite wGeneralComp) {
+    wConnection =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            RestConnection.class,
+            wGeneralComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionHTTP.Connection.Label"),
+            BaseMessages.getString(PKG, "ActionHTTP.Connection.Tooltip"));
+    PropsUi.setLook(wConnection);
+    FormData fdConnection = new FormData();
+    fdConnection.left = new FormAttachment(0, 0);
+    fdConnection.top = new FormAttachment(0, margin);
+    fdConnection.right = new FormAttachment(100, 0);
+    wConnection.setLayoutData(fdConnection);
+    wConnection.addListener(
+        SWT.Selection,
+        e -> {
+          action.setChanged();
+          activateConnectionSupersededFields();
+        });
+    wConnection.addModifyListener(
+        e -> {
+          action.setChanged();
+          activateConnectionSupersededFields();
+        });
+    try {
+      wConnection.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          "Error getting the list of REST connections",
+          e);
+    }
+  }
+
+  /**
+   * A selected REST connection supplies the whole client, so the action's own authentication and
+   * proxy fields stop being read. Grey them out rather than leave them looking as though they still
+   * do something. The values are kept: deselecting the connection brings them back.
+   */
+  private void activateConnectionSupersededFields() {
+    boolean editable = Utils.isEmpty(wConnection.getText());
+    for (Control control :
+        new Control[] {
+          wUserName,
+          wPassword,
+          wProxyServer,
+          wProxyPort,
+          wProxyUserName,
+          wProxyPassword,
+          wNonProxyHosts,
+          wIgnoreSsl
+        }) {
+      if (control != null && !control.isDisposed()) {
+        control.setEnabled(editable);
+      }
+    }
+  }
+
+  private Group setupProxyGroup(Composite wProxyComp) {
+    Group wProxy = new Group(wProxyComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wProxy);
+    wProxy.setText(BaseMessages.getString(PKG, "ActionHTTP.Proxy.Group.Label"));
+
+    FormLayout proxyGroupLayout = new FormLayout();
+    proxyGroupLayout.marginWidth = 10;
+    proxyGroupLayout.marginHeight = 10;
+    wProxy.setLayout(proxyGroupLayout);
+    return wProxy;
   }
 
   private void setupDestFileLine(
@@ -808,7 +956,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
-    fdlURL.top = new FormAttachment(0, margin);
+    fdlURL.top = new FormAttachment(wConnection, margin);
     fdlURL.right = new FormAttachment(middle, -margin);
     wlURL.setLayoutData(fdlURL);
     wURL =
@@ -821,7 +969,7 @@ public class ActionHttpDialog extends ActionDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
-    fdURL.top = new FormAttachment(0, margin);
+    fdURL.top = new FormAttachment(wConnection, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
   }
@@ -859,6 +1007,8 @@ public class ActionHttpDialog extends ActionDialog {
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
 
+    wConnection.setText(Const.NVL(action.getConnectionName(), ""));
+
     wURL.setText(Const.NVL(action.getUrl(), ""));
     wRunEveryRow.setSelection(action.isRunForEveryRow());
     wIgnoreSsl.setSelection(action.isIgnoreSsl());
@@ -880,6 +1030,8 @@ public class ActionHttpDialog extends ActionDialog {
 
     wProxyServer.setText(Const.NVL(action.getProxyHostname(), ""));
     wProxyPort.setText(Const.NVL(action.getProxyPort(), ""));
+    wProxyUserName.setText(Const.NVL(action.getProxyUsername(), ""));
+    wProxyPassword.setText(Const.NVL(action.getProxyPassword(), ""));
     wNonProxyHosts.setText(Const.NVL(action.getNonProxyHosts(), ""));
     if (action.getHeaders() != null) {
       String[] headerNames = new String[action.getHeaders().size()];
@@ -908,6 +1060,7 @@ public class ActionHttpDialog extends ActionDialog {
     wAddFilenameToResult.setSelection(action.isAddFilenameToResult());
     wReplyVariable.setText(Const.NVL(action.getReplyVariableName(), ""));
     setFlags();
+    activateConnectionSupersededFields();
   }
 
   private void cancel() {
@@ -925,6 +1078,7 @@ public class ActionHttpDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
+    action.setConnectionName(wConnection.getText());
     action.setUrl(wURL.getText());
     action.setRunForEveryRow(wRunEveryRow.getSelection());
     action.setIgnoreSsl(wIgnoreSsl.getSelection());
@@ -936,6 +1090,8 @@ public class ActionHttpDialog extends ActionDialog {
     action.setPassword(wPassword.getText());
     action.setProxyHostname(wProxyServer.getText());
     action.setProxyPort(wProxyPort.getText());
+    action.setProxyUsername(wProxyUserName.getText());
+    action.setProxyPassword(wProxyPassword.getText());
     action.setNonProxyHosts(wNonProxyHosts.getText());
 
     action.setUploadFilename(wUploadFile.getText());

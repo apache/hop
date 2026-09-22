@@ -19,27 +19,36 @@ package org.apache.hop.workflow.actions.http;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import javax.net.ssl.HttpsURLConnection;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.utils.DateUtils;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -47,6 +56,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.io.CountingOutputStream;
@@ -61,7 +71,10 @@ import org.apache.hop.lineage.LineageHttpIoEmitter;
 import org.apache.hop.lineage.model.HttpDirection;
 import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -80,7 +93,10 @@ import org.w3c.dom.Node;
     image = "HTTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionHttp.keyword",
-    documentationUrl = "/workflow/actions/http.html")
+    documentationUrl = "/workflow/actions/http.html",
+    // Shared with the REST connection metadata type and the REST transform: a connection selected
+    // here is loaded from the same class loader that defined it.
+    classLoaderGroup = "rest")
 @Getter
 @Setter
 public class ActionHttp extends ActionBase {
@@ -89,13 +105,21 @@ public class ActionHttp extends ActionBase {
   private static final String CONST_URL_FIELDNAME = "URL";
   private static final String COSNT_UPLOADFILE_FIELDNAME = "UPLOAD";
   private static final String CONST_TARGETFILE_FIELDNAME = "DESTINATION";
-  public static final String CONST_HTTP_PROXY_HOST = "http.proxyHost";
-  public static final String CONST_HTTP_PROXY_PORT = "http.proxyPort";
-  public static final String CONST_HTTPS_PROXY_HOST = "https.proxyHost";
-  public static final String CONST_HTTPS_PROXY_PORT = "https.proxyPort";
-  public static final String CONST_HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
+
+  /** Port used when a proxy host is given without one, matching the JDK's own default. */
+  private static final int DEFAULT_PROXY_PORT = 8080;
 
   // Base info
+
+  /**
+   * Optional REST connection supplying the client: proxy, credentials, TLS and timeouts. When one
+   * is selected the action's own authentication and proxy fields are not read.
+   */
+  @HopMetadataProperty(
+      key = "connection_name",
+      hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+  private String connectionName;
+
   @HopMetadataProperty(key = "url")
   private String url;
 
@@ -141,6 +165,12 @@ public class ActionHttp extends ActionBase {
 
   @HopMetadataProperty(key = "non_proxy_hosts")
   private String nonProxyHosts;
+
+  @HopMetadataProperty(key = "proxy_username")
+  private String proxyUsername;
+
+  @HopMetadataProperty(key = "proxy_password", password = true)
+  private String proxyPassword;
 
   @HopMetadataProperty(key = "username")
   private String username;
@@ -198,13 +228,8 @@ public class ActionHttp extends ActionBase {
     this.addFilenameResult = addfilenameresult;
   }
 
-  /**
-   * We made this one synchronized in the JVM because otherwise, this is not thread safe. In that
-   * case if (on an application server for example) several HTTP's are running at the same time, you
-   * get into problems because the System.setProperty() calls are system wide!
-   */
   @Override
-  public synchronized Result execute(Result previousResult, int nr) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
 
@@ -252,20 +277,19 @@ public class ActionHttp extends ActionBase {
       resultRows.add(row);
     }
 
-    URL server = null;
-
-    String beforeProxyHost = getVariable(CONST_HTTP_PROXY_HOST);
-    String beforeProxyPort = getVariable(CONST_HTTP_PROXY_PORT);
-    String beforeHttpsProxyHost = getVariable(CONST_HTTPS_PROXY_HOST);
-    String beforeHttpsProxyPort = getVariable(CONST_HTTPS_PROXY_PORT);
-    String beforeNonProxyHosts = getVariable(CONST_HTTP_NON_PROXY_HOSTS);
+    RestConnection restConnection;
+    try {
+      restConnection = loadRestConnection();
+    } catch (HopException e) {
+      result.setNrErrors(1);
+      logError(e.getMessage());
+      return result;
+    }
 
     for (int i = 0; i < resultRows.size() && result.getNrErrors() == 0; i++) {
       RowMetaAndData row = resultRows.get(i);
 
       OutputStream outputFile = null;
-      OutputStream uploadStream = null;
-      InputStream fileStream = null;
       InputStream input = null;
       long bytesReadThisRow = 0L;
       long bytesWrittenThisRow = 0L;
@@ -275,35 +299,17 @@ public class ActionHttp extends ActionBase {
 
       try {
         httpLineageStart = System.currentTimeMillis();
-        String urlToUse = resolve(row.getString(urlFieldnameToUse, ""));
+        String urlToUse =
+            restConnection == null
+                ? resolve(row.getString(urlFieldnameToUse, ""))
+                : RestConnection.resolveAgainstBase(
+                    resolve(restConnection.getBaseUrl()),
+                    resolve(row.getString(urlFieldnameToUse, "")));
         String realUploadFile = resolve(row.getString(uploadFieldnameToUse, ""));
         String realTargetFile = resolve(row.getString(destinationFieldnameToUse, ""));
 
         if (isBasic()) {
           logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.ConnectingURL", urlToUse));
-        }
-
-        if (!Utils.isEmpty(proxyHostname)) {
-          System.setProperty(CONST_HTTP_PROXY_HOST, resolve(proxyHostname));
-          System.setProperty(CONST_HTTP_PROXY_PORT, resolve(proxyPort));
-          System.setProperty(CONST_HTTPS_PROXY_HOST, resolve(proxyHostname));
-          System.setProperty(CONST_HTTPS_PROXY_PORT, resolve(proxyPort));
-          if (nonProxyHosts != null) {
-            System.setProperty(CONST_HTTP_NON_PROXY_HOSTS, resolve(nonProxyHosts));
-          }
-        }
-
-        if (!Utils.isEmpty(username)) {
-          Authenticator.setDefault(
-              new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                  String realPassword = Encr.decryptPasswordOptionallyEncrypted(resolve(password));
-                  return new PasswordAuthentication(
-                      resolve(username),
-                      realPassword != null ? realPassword.toCharArray() : new char[] {});
-                }
-              });
         }
 
         if (dateTimeAdded) {
@@ -323,165 +329,142 @@ public class ActionHttp extends ActionBase {
         // Create the output File...
         outputFile = new CountingOutputStream(HopVfs.getOutputStream(realTargetFile, fileAppended));
 
-        // Get a stream for the specified URL
-        server = new URL(urlToUse);
-        URLConnection connection = server.openConnection();
+        URI uri = toUri(urlToUse);
+        HttpHost target = HttpClientManager.createHttpHost(uri);
 
-        if (isIgnoreSsl()) {
-          HttpsURLConnection httpsConn = (HttpsURLConnection) connection;
-          httpsConn.setSSLSocketFactory(
-              HttpClientManager.getTrustAllSslContext().getSocketFactory());
-          httpsConn.setHostnameVerifier(
-              HttpClientManager.getHostnameVerifier(isDebug(), getLogChannel()));
-        }
+        ClassicHttpRequest request =
+            Utils.isEmpty(realUploadFile) ? new HttpGet(uri) : new HttpPost(uri);
+        addRequestHeaders(request);
+        addConnectionAuthentication(request, restConnection, urlToUse);
 
-        // if we have HTTP headers, add them
-        if (!Utils.isEmpty(headers)) {
-          if (isDebug()) {
-            logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
+        CountingInputStream uploadStream = null;
+
+        // A client per request: the target host decides which credentials apply, and with a URL
+        // taken from a result row that host changes from row to row.
+        try (CloseableHttpClient httpClient =
+            restConnection == null
+                ? createHttpClient(target)
+                : RestClientFactory.createClient(restConnection.createClientSettings())) {
+
+          // See if we need to send a file over?
+          if (!Utils.isEmpty(realUploadFile)) {
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(PKG, "ActionHTTP.Log.SendingFile", realUploadFile));
+            }
+            FileObject uploadFileObject = HopVfs.getFileObject(realUploadFile);
+            uploadStream =
+                new CountingInputStream(
+                    new BufferedInputStream(HopVfs.getInputStream(uploadFileObject)));
+            request.setEntity(
+                new InputStreamEntity(uploadStream, uploadFileObject.getContent().getSize(), null));
           }
-          for (Header header : headers) {
-            if (!Utils.isEmpty(header.getHeaderValue())) {
-              connection.setRequestProperty(
-                  resolve(header.getHeaderName()), resolve(header.getHeaderValue()));
-              if (isDebug()) {
-                logDebug(
+
+          if (isDetailed()) {
+            logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.StartReadingReply"));
+          }
+
+          try (CloseableHttpResponse response = httpClient.execute(target, request)) {
+            int statusCode = response.getCode();
+
+            if (uploadStream != null) {
+              bytesReadThisRow += uploadStream.getCount();
+              bytesWrittenThisRow += uploadStream.getCount();
+              httpLineageRequestBytes = uploadStream.getCount();
+              if (isDetailed()) {
+                logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.FinishedSendingFile"));
+              }
+            }
+
+            if (statusCode >= HttpStatus.SC_BAD_REQUEST) {
+              result.setNrErrors(1);
+              logError(statusErrorMessage(statusCode, urlToUse));
+            } else {
+              HttpEntity entity = response.getEntity();
+              String contentType = entity == null ? null : entity.getContentType();
+
+              Instant lastModified =
+                  DateUtils.parseStandardDate(response, HttpHeaders.LAST_MODIFIED);
+              if (isBasic()) {
+                logBasic(
                     BaseMessages.getString(
                         PKG,
-                        "ActionHTTP.Log.HeaderSet",
-                        resolve(header.getHeaderName()),
-                        resolve(header.getHeaderValue())));
+                        "ActionHTTP.Log.ReplayInfo",
+                        contentType,
+                        lastModified == null ? new Date(0) : Date.from(lastModified)));
+              }
+
+              ByteArrayOutputStream replyBuffer = null;
+              String resolvedReplyVariable =
+                  Utils.isEmpty(replyVariableName) ? "" : resolve(replyVariableName);
+              if (!Utils.isEmpty(resolvedReplyVariable)) {
+                replyBuffer = new ByteArrayOutputStream();
+              }
+
+              input =
+                  new CountingInputStream(
+                      entity == null ? InputStream.nullInputStream() : entity.getContent());
+              byte[] buffer = new byte[8192];
+              int bytesRead;
+              while ((bytesRead = input.read(buffer)) != -1) {
+                outputFile.write(buffer, 0, bytesRead);
+                if (replyBuffer != null) {
+                  replyBuffer.write(buffer, 0, bytesRead);
+                }
+              }
+              bytesReadThisRow += ((CountingInputStream) input).getCount();
+              bytesWrittenThisRow += ((CountingOutputStream) outputFile).getCount();
+              httpLineageResponseBytes = ((CountingInputStream) input).getCount();
+
+              if (replyBuffer != null) {
+                storeReplyInVariable(resolvedReplyVariable, replyBuffer.toByteArray(), contentType);
+              }
+
+              if (isBasic()) {
+                logBasic(
+                    BaseMessages.getString(
+                        PKG,
+                        "ActionHTTP.Log.FinisedWritingReply",
+                        ((CountingInputStream) input).getCount(),
+                        realTargetFile));
+              }
+
+              if (addFilenameResult) {
+                // Add to the result files...
+                ResultFile resultFile =
+                    new ResultFile(
+                        ResultFile.FILE_TYPE_GENERAL,
+                        HopVfs.getFileObject(realTargetFile),
+                        parentWorkflow.getWorkflowName(),
+                        toString());
+                result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+              }
+
+              result.setResult(true);
+
+              if (parentWorkflow != null) {
+                LineageHttpIoEmitter.emitWorkflowActionHttpIo(
+                    parentWorkflow,
+                    this,
+                    new HttpLineagePayload(
+                        HttpDirection.CLIENT,
+                        request.getMethod(),
+                        urlToUse,
+                        statusCode,
+                        httpLineageRequestBytes > 0 ? httpLineageRequestBytes : null,
+                        httpLineageResponseBytes > 0 ? httpLineageResponseBytes : null,
+                        System.currentTimeMillis() - httpLineageStart,
+                        true,
+                        null));
               }
             }
           }
-        }
-
-        connection.setDoOutput(true);
-
-        // See if we need to send a file over?
-        if (!Utils.isEmpty(realUploadFile)) {
-          if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.SendingFile", realUploadFile));
-          }
-
-          // Grab an output stream to upload data to web server
-          uploadStream = new CountingOutputStream(connection.getOutputStream());
-          fileStream =
-              new CountingInputStream(
-                  new BufferedInputStream(new FileInputStream(new File(realUploadFile))));
-          try {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = fileStream.read(buffer)) >= 0) {
-              uploadStream.write(buffer, 0, bytesRead);
-            }
-          } finally {
-            if (fileStream instanceof CountingInputStream countingInputStream) {
-              bytesReadThisRow += countingInputStream.getCount();
-            }
-            if (uploadStream instanceof CountingOutputStream countingOutputStream) {
-              bytesWrittenThisRow += countingOutputStream.getCount();
-              httpLineageRequestBytes = countingOutputStream.getCount();
-            }
-            // Close upload and file
-            if (uploadStream != null) {
-              uploadStream.close();
-              uploadStream = null;
-            }
-            if (fileStream != null) {
-              fileStream.close();
-              fileStream = null;
-            }
-          }
-          if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.FinishedSendingFile"));
+        } finally {
+          if (uploadStream != null) {
+            uploadStream.close();
           }
         }
-
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.StartReadingReply"));
-        }
-
-        // Read the result from the server...
-        input = new CountingInputStream(connection.getInputStream());
-        Date date = new Date(connection.getLastModified());
-        if (isBasic()) {
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "ActionHTTP.Log.ReplayInfo", connection.getContentType(), date));
-        }
-
-        ByteArrayOutputStream replyBuffer = null;
-        String resolvedReplyVariable =
-            Utils.isEmpty(replyVariableName) ? "" : resolve(replyVariableName);
-        if (!Utils.isEmpty(resolvedReplyVariable)) {
-          replyBuffer = new ByteArrayOutputStream();
-        }
-
-        byte[] buffer = new byte[8192];
-        int bytesRead;
-        while ((bytesRead = input.read(buffer)) != -1) {
-          outputFile.write(buffer, 0, bytesRead);
-          if (replyBuffer != null) {
-            replyBuffer.write(buffer, 0, bytesRead);
-          }
-        }
-        bytesReadThisRow += ((CountingInputStream) input).getCount();
-        bytesWrittenThisRow += ((CountingOutputStream) outputFile).getCount();
-        httpLineageResponseBytes = ((CountingInputStream) input).getCount();
-
-        if (replyBuffer != null) {
-          storeReplyInVariable(
-              resolvedReplyVariable, replyBuffer.toByteArray(), connection.getContentType());
-        }
-
-        if (isBasic()) {
-          logBasic(
-              BaseMessages.getString(
-                  PKG,
-                  "ActionHTTP.Log.FinisedWritingReply",
-                  ((CountingInputStream) input).getCount(),
-                  realTargetFile));
-        }
-
-        if (addFilenameResult) {
-          // Add to the result files...
-          ResultFile resultFile =
-              new ResultFile(
-                  ResultFile.FILE_TYPE_GENERAL,
-                  HopVfs.getFileObject(realTargetFile),
-                  parentWorkflow.getWorkflowName(),
-                  toString());
-          result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-        }
-
-        result.setResult(true);
-
-        if (parentWorkflow != null) {
-          Integer responseCode = null;
-          try {
-            if (connection instanceof HttpURLConnection) {
-              responseCode = ((HttpURLConnection) connection).getResponseCode();
-            }
-          } catch (Exception ignored) {
-            // optional for lineage
-          }
-          String httpMethod = Utils.isEmpty(realUploadFile) ? "GET" : "POST";
-          LineageHttpIoEmitter.emitWorkflowActionHttpIo(
-              parentWorkflow,
-              this,
-              new HttpLineagePayload(
-                  HttpDirection.CLIENT,
-                  httpMethod,
-                  urlToUse,
-                  responseCode,
-                  httpLineageRequestBytes > 0 ? httpLineageRequestBytes : null,
-                  httpLineageResponseBytes > 0 ? httpLineageResponseBytes : null,
-                  System.currentTimeMillis() - httpLineageStart,
-                  true,
-                  null));
-        }
-      } catch (MalformedURLException e) {
+      } catch (URISyntaxException e) {
         result.setNrErrors(1);
         logError(BaseMessages.getString(PKG, "ActionHTTP.Error.NotValidURL", url, e.getMessage()));
         logError(Const.getStackTracker(e));
@@ -498,13 +481,6 @@ public class ActionHttp extends ActionBase {
       } finally {
         // Close it all
         try {
-          if (uploadStream != null) {
-            uploadStream.close(); // just to make sure
-          }
-          if (fileStream != null) {
-            fileStream.close(); // just to make sure
-          }
-
           if (input != null) {
             input.close();
           }
@@ -516,13 +492,6 @@ public class ActionHttp extends ActionBase {
               BaseMessages.getString(PKG, "ActionHTTP.Error.CanNotCloseStream", e.getMessage()));
           result.setNrErrors(1);
         }
-
-        // Set the proxy settings back as they were on the system!
-        System.setProperty(CONST_HTTP_PROXY_HOST, Const.NVL(beforeProxyHost, ""));
-        System.setProperty(CONST_HTTP_PROXY_PORT, Const.NVL(beforeProxyPort, ""));
-        System.setProperty(CONST_HTTPS_PROXY_HOST, Const.NVL(beforeHttpsProxyHost, ""));
-        System.setProperty(CONST_HTTPS_PROXY_PORT, Const.NVL(beforeHttpsProxyPort, ""));
-        System.setProperty(CONST_HTTP_NON_PROXY_HOSTS, Const.NVL(beforeNonProxyHosts, ""));
       }
 
       result.setBytesReadThisAction(result.getBytesReadThisAction() + bytesReadThisRow);
@@ -530,6 +499,137 @@ public class ActionHttp extends ActionBase {
     }
 
     return result;
+  }
+
+  /**
+   * The URL to call, as a URI HttpClient can route. Anything without a scheme and a host is
+   * rejected here rather than further down, where it would surface as a less obvious error.
+   */
+  private static URI toUri(String urlToUse) throws URISyntaxException {
+    URI uri = new URI(Const.NVL(urlToUse, "").trim());
+    if (uri.getScheme() == null || uri.getAuthority() == null) {
+      throw new URISyntaxException(String.valueOf(urlToUse), "No protocol or host in the URL");
+    }
+    return uri;
+  }
+
+  /**
+   * The client for one request: proxy routing, the bypass list and both sets of credentials.
+   *
+   * <p>Server and proxy credentials are registered for their own host only. They used to share a
+   * single JVM-wide {@link java.net.Authenticator}, which answers a 401 from the server and a 407
+   * from the proxy alike, so whichever asked first received the other's user name and password.
+   */
+  private CloseableHttpClient createHttpClient(HttpHost target) {
+    HttpClientManager.HttpClientBuilderFacade builder =
+        HttpClientManager.getInstance().createBuilder();
+
+    String realProxyHost = resolve(proxyHostname);
+    if (!Utils.isEmpty(realProxyHost)) {
+      int realProxyPort = Const.toInt(resolve(proxyPort), DEFAULT_PROXY_PORT);
+      HttpHost proxy = new HttpHost("http", realProxyHost, realProxyPort);
+      builder.setProxy(proxy.getHostName(), proxy.getPort(), proxy.getSchemeName());
+      builder.setNonProxyHosts(resolve(nonProxyHosts));
+      if (!Utils.isEmpty(resolve(proxyUsername))) {
+        builder.setCredentials(
+            resolve(proxyUsername),
+            Encr.decryptPasswordOptionallyEncrypted(resolve(proxyPassword)),
+            new AuthScope(proxy));
+      }
+    }
+
+    if (!Utils.isEmpty(resolve(username))) {
+      builder.setCredentials(
+          resolve(username),
+          Encr.decryptPasswordOptionallyEncrypted(resolve(password)),
+          new AuthScope(target));
+    }
+
+    builder.ignoreSsl(isIgnoreSsl());
+    return builder.build();
+  }
+
+  /**
+   * The REST connection this action was pointed at, or {@code null} when it configures its own
+   * client.
+   */
+  private RestConnection loadRestConnection() throws HopException {
+    String realConnectionName = resolve(connectionName);
+    if (Utils.isEmpty(realConnectionName)) {
+      return null;
+    }
+    IHopMetadataProvider provider = getMetadataProvider();
+    if (provider == null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionHTTP.Error.ConnectionNotFound", realConnectionName));
+    }
+    try {
+      RestConnection connection =
+          provider.getSerializer(RestConnection.class).load(realConnectionName);
+      if (connection == null) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ActionHTTP.Error.ConnectionNotFound", realConnectionName));
+      }
+      connection.setVariables(this);
+      return connection;
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      // Keep the cause: a class loader split between the metadata plugin and this action surfaces
+      // here as a ClassCastException, which is not a missing connection at all.
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionHTTP.Error.ConnectionNotLoaded", realConnectionName),
+          e);
+    }
+  }
+
+  /**
+   * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
+   * a challenge, so the connection writes them onto every request itself.
+   */
+  private void addConnectionAuthentication(
+      ClassicHttpRequest request, RestConnection restConnection, String urlToUse)
+      throws HopException {
+    if (restConnection == null) {
+      return;
+    }
+    Map<String, String> authHeaders = new LinkedHashMap<>();
+    restConnection.applyAuthentication(authHeaders, urlToUse);
+    for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
+      request.setHeader(authHeader.getKey(), authHeader.getValue());
+    }
+  }
+
+  /** Copies the configured headers onto the request. */
+  private void addRequestHeaders(ClassicHttpRequest request) {
+    if (Utils.isEmpty(headers)) {
+      return;
+    }
+    if (isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
+    }
+    for (Header header : headers) {
+      if (!Utils.isEmpty(header.getHeaderValue())) {
+        String name = resolve(header.getHeaderName());
+        String value = resolve(header.getHeaderValue());
+        request.setHeader(name, value);
+        if (isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeaderSet", name, value));
+        }
+      }
+    }
+  }
+
+  /**
+   * A 407 gets its own message: it means the proxy rejected the request rather than the server, and
+   * the fix is to fill in the proxy user name and password rather than the server's.
+   */
+  private String statusErrorMessage(int statusCode, String urlToUse) {
+    if (statusCode == HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED) {
+      return BaseMessages.getString(
+          PKG, "ActionHTTP.Error.ProxyAuthenticationRequired", resolve(proxyHostname));
+    }
+    return BaseMessages.getString(PKG, "ActionHTTP.Error.HttpStatus", statusCode, urlToUse);
   }
 
   @Override

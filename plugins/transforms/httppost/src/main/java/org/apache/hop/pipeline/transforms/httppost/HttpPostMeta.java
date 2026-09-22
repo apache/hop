@@ -34,6 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -92,6 +93,16 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.requestEntity")
   private String requestEntity;
 
+  /**
+   * Optional REST connection supplying the client: proxy, credentials, TLS and timeouts. When one
+   * is selected the transform's own authentication, proxy and SSL fields are not read.
+   */
+  @HopMetadataProperty(
+      key = "connection_name",
+      injectionKeyDescription = "HTTPPOST.Injection.connectionName",
+      hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+  private String connectionName;
+
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.encoding")
   private String encoding;
 
@@ -111,6 +122,21 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.proxyPort")
   private String proxyPort;
+
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.proxyUsername")
+  private String proxyUsername;
+
+  @HopMetadataProperty(
+      password = true,
+      injectionKeyDescription = "HTTPPOST.Injection.proxyPassword")
+  private String proxyPassword;
+
+  /**
+   * Target hosts reached directly instead of through the proxy, in JDK {@code http.nonProxyHosts}
+   * syntax: entries separated by {@code |}, each optionally using {@code *} as a wildcard.
+   */
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.nonProxyHosts")
+  private String nonProxyHosts;
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.httpLogin")
   private String httpLogin;

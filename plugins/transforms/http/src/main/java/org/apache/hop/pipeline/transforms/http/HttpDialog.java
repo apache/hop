@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -35,6 +36,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -43,12 +45,15 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -85,9 +90,17 @@ public class HttpDialog extends BaseTransformDialog {
 
   private TextVar wHttpPassword;
 
+  private MetaSelectionLine<RestConnection> wConnection;
+
   private TextVar wProxyHost;
 
   private TextVar wProxyPort;
+
+  private TextVar wProxyUsername;
+
+  private TextVar wProxyPassword;
+
+  private TextVar wNonProxyHosts;
 
   private TextVar wResultCode;
 
@@ -131,25 +144,16 @@ public class HttpDialog extends BaseTransformDialog {
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
-    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
-    wGeneralTab.setText(BaseMessages.getString(PKG, "HTTPDialog.GeneralTab.Title"));
 
-    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wGeneralComp);
-
-    FormLayout fileLayout = new FormLayout();
-    fileLayout.marginWidth = 3;
-    fileLayout.marginHeight = 3;
-    wGeneralComp.setLayout(fileLayout);
+    Composite wGeneralComp = addTab(wTabFolder, "HTTPDialog.GeneralTab.Title");
 
     // ////////////////////////
     // START Settings GROUP
 
     Group gSettings = setupSettingGroup(wGeneralComp);
-    Control lastControl = setupUrlLine(lsMod, gSettings);
+    Control lastControl = setupConnectionLine(gSettings);
+    lastControl = setupUrlLine(lsMod, lastControl, gSettings);
     lastControl = setupUrlInFieldLine(lastControl, gSettings);
-    lastControl = setupIgnoreSslLine(lastControl, gSettings);
     lastControl = setupUrlFieldNameLine(lsMod, lastControl, gSettings);
     setupEncodingLine(lsMod, lastControl, gSettings);
     setupConnectionTimeoutLine(lsMod, gSettings);
@@ -162,14 +166,12 @@ public class HttpDialog extends BaseTransformDialog {
     fdSettings.top = new FormAttachment(0, margin);
     gSettings.setLayoutData(fdSettings);
 
-    // END Output Settings GROUP
-    // ////////////////////////
-    lastControl = gSettings;
+    // END Settings GROUP
     // ////////////////////////
     // START Output Fields GROUP
 
     Group gOutputFields = setupOutputFieldGroup(wGeneralComp);
-    setupResultLine(lsMod, lastControl, gOutputFields);
+    setupResultLine(lsMod, gOutputFields);
     setupStatusCodeLine(lsMod, gOutputFields);
     setupResponseTimeLine(lsMod, gOutputFields);
     setupResponseHeaderLine(lsMod, gOutputFields);
@@ -177,71 +179,101 @@ public class HttpDialog extends BaseTransformDialog {
     FormData fdOutputFields = new FormData();
     fdOutputFields.left = new FormAttachment(0, 0);
     fdOutputFields.right = new FormAttachment(100, 0);
-    fdOutputFields.top = new FormAttachment(lastControl);
+    fdOutputFields.top = new FormAttachment(gSettings, margin);
     gOutputFields.setLayoutData(fdOutputFields);
 
     // END Output Fields GROUP
     // ////////////////////////
 
-    lastControl = gOutputFields;
+    finishTab(wGeneralComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF GENERAL TAB
+    // ///////////////////////////////////////////////////////////
 
     // ////////////////////////
-    // START Http AUTH GROUP
+    // START OF AUTHENTICATION TAB ///
+    // ////////////////////////
 
-    Group gHttpAuth = setupHttpAuthGroup(wGeneralComp);
+    Composite wAuthComp = addTab(wTabFolder, "HTTPDialog.AuthenticationTab.Title");
+
+    Group gHttpAuth = setupHttpAuthGroup(wAuthComp);
     setupHttpLoginLine(lsMod, gHttpAuth);
     setupHttpPasswordLine(lsMod, gHttpAuth);
 
     FormData fdHttpAuth = new FormData();
     fdHttpAuth.left = new FormAttachment(0, 0);
     fdHttpAuth.right = new FormAttachment(100, 0);
-    fdHttpAuth.top = new FormAttachment(lastControl, margin);
+    fdHttpAuth.top = new FormAttachment(0, margin);
     gHttpAuth.setLayoutData(fdHttpAuth);
 
-    // END Http AUTH GROUP
+    finishTab(wAuthComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF AUTHENTICATION TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
+    // START OF PROXY TAB ///
     // ////////////////////////
 
-    lastControl = gHttpAuth;
+    Composite wProxyComp = addTab(wTabFolder, "HTTPDialog.ProxyTab.Title");
 
-    // ////////////////////////
-    // START PROXY GROUP
-
-    Group gProxy = setupProxyGroup(wGeneralComp);
+    Group gProxy = setupProxyGroup(wProxyComp);
     setupProxyHost(lsMod, gProxy);
-    setupProxyPort(lsMod, lastControl, gProxy);
+    setupProxyPort(lsMod, gProxy);
+    setupProxyUsername(lsMod, gProxy);
+    setupProxyPassword(lsMod, gProxy);
+    setupNonProxyHosts(lsMod, gProxy);
 
-    // END Http Proxy GROUP
+    FormData fdProxy = new FormData();
+    fdProxy.left = new FormAttachment(0, 0);
+    fdProxy.right = new FormAttachment(100, 0);
+    fdProxy.top = new FormAttachment(0, margin);
+    gProxy.setLayoutData(fdProxy);
+
+    finishTab(wProxyComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF PROXY TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
+    // START OF SSL TAB ///
     // ////////////////////////
 
-    FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, margin);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(100, 0);
-    wGeneralComp.setLayoutData(fdGeneralComp);
+    Composite wSslComp = addTab(wTabFolder, "HTTPDialog.SslTab.Title");
 
-    wGeneralComp.layout();
-    wGeneralTab.setControl(wGeneralComp);
+    Group gSsl = setupSslGroup(wSslComp);
+    setupIgnoreSslLine(null, gSsl);
+
+    FormData fdSsl = new FormData();
+    fdSsl.left = new FormAttachment(0, 0);
+    fdSsl.right = new FormAttachment(100, 0);
+    fdSsl.top = new FormAttachment(0, margin);
+    gSsl.setLayoutData(fdSsl);
+
+    finishTab(wSslComp);
 
     // ///////////////////////////////////////////////////////////
-    // / END OF GENERAL TAB
+    // / END OF SSL TAB
     // ///////////////////////////////////////////////////////////
-    // Additional tab...
-    //
-    CTabItem wAdditionalTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAdditionalTab.setFont(GuiResource.getInstance().getFontDefault());
-    wAdditionalTab.setText(BaseMessages.getString(PKG, "HTTPDialog.FieldsTab.Title"));
 
-    FormLayout addLayout = new FormLayout();
-    addLayout.marginWidth = PropsUi.getFormMargin();
-    addLayout.marginHeight = PropsUi.getFormMargin();
+    // ////////////////////////
+    // START OF PARAMETERS TAB ///
+    // ////////////////////////
 
-    Composite wAdditionalComp = new Composite(wTabFolder, SWT.NONE);
-    wAdditionalComp.setLayout(addLayout);
-    PropsUi.setLook(wAdditionalComp);
+    Composite wParametersComp = addTab(wTabFolder, "HTTPDialog.ParametersTab.Title");
+    setupParamBlock(lsMod, wParametersComp);
+    finishTab(wParametersComp);
 
-    setupParamBlock(lsMod, wAdditionalComp);
-    setupHeadBlock(lsMod, wAdditionalComp);
+    // ////////////////////////
+    // START OF HEADERS TAB ///
+    // ////////////////////////
+
+    Composite wHeadersComp = addTab(wTabFolder, "HTTPDialog.HeadersTab.Title");
+    setupHeadBlock(lsMod, wHeadersComp);
+    finishTab(wHeadersComp);
 
     //
     // Search the fields in the background
@@ -265,17 +297,6 @@ public class HttpDialog extends BaseTransformDialog {
         };
     BackgroundThreadFacade.start(runnable);
 
-    FormData fdAdditionalComp = new FormData();
-    fdAdditionalComp.left = new FormAttachment(0, 0);
-    fdAdditionalComp.top = new FormAttachment(0, margin);
-    fdAdditionalComp.right = new FormAttachment(100, 0);
-    fdAdditionalComp.bottom = new FormAttachment(100, 0);
-    wAdditionalComp.setLayoutData(fdAdditionalComp);
-
-    wAdditionalComp.layout();
-    wAdditionalTab.setControl(wAdditionalComp);
-    // ////// END of Additional Tab
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wSpacer, margin);
@@ -293,6 +314,62 @@ public class HttpDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  /**
+   * A tab whose content scrolls: the options of one tab can outgrow a small dialog, and without a
+   * scrolled composite the widgets below the fold are simply unreachable.
+   */
+  private Composite addTab(CTabFolder wTabFolder, String titleKey) {
+    CTabItem tab = new CTabItem(wTabFolder, SWT.NONE);
+    tab.setFont(GuiResource.getInstance().getFontDefault());
+    tab.setText(BaseMessages.getString(PKG, titleKey));
+
+    ScrolledComposite scrolled = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    scrolled.setLayout(new FillLayout());
+    PropsUi.setLook(scrolled);
+
+    Composite composite = new Composite(scrolled, SWT.NONE);
+    PropsUi.setLook(composite);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    composite.setLayout(layout);
+
+    tab.setControl(scrolled);
+    return composite;
+  }
+
+  /** Sizes the scrolled content of a tab built by {@link #addTab}. */
+  private void finishTab(Composite composite) {
+    FormData fdComp = new FormData();
+    fdComp.left = new FormAttachment(0, 0);
+    fdComp.top = new FormAttachment(0, 0);
+    fdComp.right = new FormAttachment(100, 0);
+    fdComp.bottom = new FormAttachment(100, 0);
+    composite.setLayoutData(fdComp);
+
+    composite.layout();
+    composite.pack();
+    Rectangle bounds = composite.getBounds();
+
+    ScrolledComposite scrolled = (ScrolledComposite) composite.getParent();
+    scrolled.setContent(composite);
+    scrolled.setExpandHorizontal(true);
+    scrolled.setExpandVertical(true);
+    scrolled.setMinWidth(bounds.width);
+    scrolled.setMinHeight(bounds.height);
+  }
+
+  private Group setupSslGroup(Composite wSslComp) {
+    Group gSsl = new Group(wSslComp, SWT.SHADOW_NONE);
+    gSsl.setText(BaseMessages.getString(PKG, "HTTPDialog.SslGroup.Label"));
+    FormLayout sslLayout = new FormLayout();
+    sslLayout.marginWidth = 3;
+    sslLayout.marginHeight = 3;
+    gSsl.setLayout(sslLayout);
+    PropsUi.setLook(gSsl);
+    return gSsl;
+  }
+
   private void setupHeadBlock(ModifyListener lsMod, Composite wAdditionalComp) {
     int margin = PropsUi.getMargin();
     Label wlHeaders = new Label(wAdditionalComp, SWT.NONE);
@@ -300,7 +377,7 @@ public class HttpDialog extends BaseTransformDialog {
     PropsUi.setLook(wlHeaders);
     FormData fdlHeaders = new FormData();
     fdlHeaders.left = new FormAttachment(0, 0);
-    fdlHeaders.top = new FormAttachment(wFields, margin);
+    fdlHeaders.top = new FormAttachment(0, margin);
     wlHeaders.setLayoutData(fdlHeaders);
 
     final int nrHeadersRows = input.getLookupParameters().getHeaders().size();
@@ -390,11 +467,11 @@ public class HttpDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wGet, -margin);
-    fdFields.bottom = new FormAttachment(45, 0);
+    fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
   }
 
-  private void setupProxyPort(ModifyListener lsMod, Control lastControl, Group gProxy) {
+  private void setupProxyPort(ModifyListener lsMod, Group gProxy) {
     // Proxy port
     Label wlProxyPort = new Label(gProxy, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyPort.Label"));
@@ -413,12 +490,72 @@ public class HttpDialog extends BaseTransformDialog {
     fdProxyPort.left = new FormAttachment(middle, 0);
     fdProxyPort.right = new FormAttachment(100, 0);
     wProxyPort.setLayoutData(fdProxyPort);
+  }
 
-    FormData fdProxy = new FormData();
-    fdProxy.left = new FormAttachment(0, 0);
-    fdProxy.right = new FormAttachment(100, 0);
-    fdProxy.top = new FormAttachment(lastControl, margin);
-    gProxy.setLayoutData(fdProxy);
+  private void setupProxyUsername(ModifyListener lsMod, Group gProxy) {
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlProxyUsername = new Label(gProxy, SWT.RIGHT);
+    wlProxyUsername.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyUsername.Label"));
+    PropsUi.setLook(wlProxyUsername);
+    FormData fdlProxyUsername = new FormData();
+    fdlProxyUsername.top = new FormAttachment(wProxyPort, margin);
+    fdlProxyUsername.left = new FormAttachment(0, 0);
+    fdlProxyUsername.right = new FormAttachment(middle, -margin);
+    wlProxyUsername.setLayoutData(fdlProxyUsername);
+    wProxyUsername = new TextVar(variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyUsername.addModifyListener(lsMod);
+    wProxyUsername.setToolTipText(BaseMessages.getString(PKG, "HTTPDialog.ProxyUsername.Tooltip"));
+    PropsUi.setLook(wProxyUsername);
+    FormData fdProxyUsername = new FormData();
+    fdProxyUsername.top = new FormAttachment(wProxyPort, margin);
+    fdProxyUsername.left = new FormAttachment(middle, 0);
+    fdProxyUsername.right = new FormAttachment(100, 0);
+    wProxyUsername.setLayoutData(fdProxyUsername);
+  }
+
+  private void setupProxyPassword(ModifyListener lsMod, Group gProxy) {
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlProxyPassword = new Label(gProxy, SWT.RIGHT);
+    wlProxyPassword.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyPassword.Label"));
+    PropsUi.setLook(wlProxyPassword);
+    FormData fdlProxyPassword = new FormData();
+    fdlProxyPassword.top = new FormAttachment(wProxyUsername, margin);
+    fdlProxyPassword.left = new FormAttachment(0, 0);
+    fdlProxyPassword.right = new FormAttachment(middle, -margin);
+    wlProxyPassword.setLayoutData(fdlProxyPassword);
+    wProxyPassword = new PasswordTextVar(variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyPassword.addModifyListener(lsMod);
+    wProxyPassword.setToolTipText(BaseMessages.getString(PKG, "HTTPDialog.ProxyPassword.Tooltip"));
+    PropsUi.setLook(wProxyPassword);
+    FormData fdProxyPassword = new FormData();
+    fdProxyPassword.top = new FormAttachment(wProxyUsername, margin);
+    fdProxyPassword.left = new FormAttachment(middle, 0);
+    fdProxyPassword.right = new FormAttachment(100, 0);
+    wProxyPassword.setLayoutData(fdProxyPassword);
+  }
+
+  private void setupNonProxyHosts(ModifyListener lsMod, Group gProxy) {
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlNonProxyHosts = new Label(gProxy, SWT.RIGHT);
+    wlNonProxyHosts.setText(BaseMessages.getString(PKG, "HTTPDialog.NonProxyHosts.Label"));
+    PropsUi.setLook(wlNonProxyHosts);
+    FormData fdlNonProxyHosts = new FormData();
+    fdlNonProxyHosts.top = new FormAttachment(wProxyPassword, margin);
+    fdlNonProxyHosts.left = new FormAttachment(0, 0);
+    fdlNonProxyHosts.right = new FormAttachment(middle, -margin);
+    wlNonProxyHosts.setLayoutData(fdlNonProxyHosts);
+    wNonProxyHosts = new TextVar(variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNonProxyHosts.addModifyListener(lsMod);
+    wNonProxyHosts.setToolTipText(BaseMessages.getString(PKG, "HTTPDialog.NonProxyHosts.Tooltip"));
+    PropsUi.setLook(wNonProxyHosts);
+    FormData fdNonProxyHosts = new FormData();
+    fdNonProxyHosts.top = new FormAttachment(wProxyPassword, margin);
+    fdNonProxyHosts.left = new FormAttachment(middle, 0);
+    fdNonProxyHosts.right = new FormAttachment(100, 0);
+    wNonProxyHosts.setLayoutData(fdNonProxyHosts);
   }
 
   private void setupProxyHost(ModifyListener lsMod, Group gProxy) {
@@ -578,7 +715,7 @@ public class HttpDialog extends BaseTransformDialog {
     wResultCode.setLayoutData(fdResultCode);
   }
 
-  private void setupResultLine(ModifyListener lsMod, Control lastControl, Group gOutputFields) {
+  private void setupResultLine(ModifyListener lsMod, Group gOutputFields) {
     // Result line...
     //
     int margin = PropsUi.getMargin();
@@ -589,14 +726,14 @@ public class HttpDialog extends BaseTransformDialog {
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(lastControl, margin);
+    fdlResult.top = new FormAttachment(0, margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new TextVar(variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(lastControl, margin);
+    fdResult.top = new FormAttachment(0, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
   }
@@ -799,20 +936,23 @@ public class HttpDialog extends BaseTransformDialog {
     return lastControl;
   }
 
-  private Control setupIgnoreSslLine(Control lastControl, Group gSettings) {
+  private Control setupIgnoreSslLine(Control lastControl, Group gSsl) {
     // ignoreSsl line
     //
     int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
-    Label wlIgnoreSsl = new Label(gSettings, SWT.RIGHT);
+    Label wlIgnoreSsl = new Label(gSsl, SWT.RIGHT);
     wlIgnoreSsl.setText(BaseMessages.getString(PKG, "HTTPDialog.IgnoreSsl.Label"));
     PropsUi.setLook(wlIgnoreSsl);
     FormData fdlIgnoreSsl = new FormData();
     fdlIgnoreSsl.left = new FormAttachment(0, 0);
-    fdlIgnoreSsl.top = new FormAttachment(lastControl, margin);
+    fdlIgnoreSsl.top =
+        lastControl == null
+            ? new FormAttachment(0, margin)
+            : new FormAttachment(lastControl, margin);
     fdlIgnoreSsl.right = new FormAttachment(middle, -margin);
     wlIgnoreSsl.setLayoutData(fdlIgnoreSsl);
-    wIgnoreSsl = new Button(gSettings, SWT.CHECK);
+    wIgnoreSsl = new Button(gSsl, SWT.CHECK);
     PropsUi.setLook(wIgnoreSsl);
     FormData fdIgnoreSsl = new FormData();
     fdIgnoreSsl.left = new FormAttachment(middle, 0);
@@ -830,7 +970,7 @@ public class HttpDialog extends BaseTransformDialog {
     return lastControl;
   }
 
-  private Control setupUrlLine(ModifyListener lsMod, Group gSettings) {
+  private Control setupUrlLine(ModifyListener lsMod, Control lastControl, Group gSettings) {
     // The URL to use
     //
     int margin = PropsUi.getMargin();
@@ -841,7 +981,7 @@ public class HttpDialog extends BaseTransformDialog {
     FormData fdlUrl = new FormData();
     fdlUrl.left = new FormAttachment(0, 0);
     fdlUrl.right = new FormAttachment(middle, -margin);
-    fdlUrl.top = new FormAttachment(0, margin);
+    fdlUrl.top = new FormAttachment(lastControl, margin);
     wlUrl.setLayoutData(fdlUrl);
 
     wUrl = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -849,10 +989,71 @@ public class HttpDialog extends BaseTransformDialog {
     wUrl.addModifyListener(lsMod);
     FormData fdUrl = new FormData();
     fdUrl.left = new FormAttachment(middle, 0);
-    fdUrl.top = new FormAttachment(0, margin);
+    fdUrl.top = new FormAttachment(lastControl, margin);
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
     return wUrl;
+  }
+
+  private Control setupConnectionLine(Group gSettings) {
+    wConnection =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            RestConnection.class,
+            gSettings,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "HTTPDialog.Connection.Label"),
+            BaseMessages.getString(PKG, "HTTPDialog.Connection.Tooltip"));
+    PropsUi.setLook(wConnection);
+    FormData fdConnection = new FormData();
+    fdConnection.left = new FormAttachment(0, 0);
+    fdConnection.top = new FormAttachment(0, PropsUi.getMargin());
+    fdConnection.right = new FormAttachment(100, 0);
+    wConnection.setLayoutData(fdConnection);
+    wConnection.addListener(SWT.Selection, e -> connectionChanged());
+    wConnection.addModifyListener(e -> connectionChanged());
+    try {
+      wConnection.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          "Error getting the list of REST connections",
+          e);
+    }
+    return wConnection;
+  }
+
+  private void connectionChanged() {
+    input.setChanged();
+    activateConnectionSupersededFields();
+  }
+
+  /**
+   * A selected REST connection supplies the whole client, so the transform's own authentication,
+   * proxy and SSL fields stop being read. Grey them out rather than leave them looking as though
+   * they still do something. The values are kept: deselecting the connection brings them back.
+   */
+  private void activateConnectionSupersededFields() {
+    boolean editable = Utils.isEmpty(wConnection.getText());
+    for (Control control :
+        new Control[] {
+          wHttpLogin,
+          wHttpPassword,
+          wProxyHost,
+          wProxyPort,
+          wProxyUsername,
+          wProxyPassword,
+          wNonProxyHosts,
+          wIgnoreSsl,
+          wConnectionTimeOut,
+          wSocketTimeOut
+        }) {
+      if (control != null && !control.isDisposed()) {
+        control.setEnabled(editable);
+      }
+    }
   }
 
   private Group setupSettingGroup(Composite wGeneralComp) {
@@ -923,8 +1124,12 @@ public class HttpDialog extends BaseTransformDialog {
 
     wHttpLogin.setText(Const.NVL(input.getHttpLogin(), ""));
     wHttpPassword.setText(Const.NVL(input.getHttpPassword(), ""));
+    wConnection.setText(Const.NVL(input.getConnectionName(), ""));
     wProxyHost.setText(Const.NVL(input.getProxyHost(), ""));
     wProxyPort.setText(Const.NVL(input.getProxyPort(), ""));
+    wProxyUsername.setText(Const.NVL(input.getProxyUsername(), ""));
+    wProxyPassword.setText(Const.NVL(input.getProxyPassword(), ""));
+    wNonProxyHosts.setText(Const.NVL(input.getNonProxyHosts(), ""));
     wResult.setText(Const.NVL(input.getResultFields().getFieldName(), ""));
     wResultCode.setText(Const.NVL(input.getResultFields().getResultCodeFieldName(), ""));
     wResponseTime.setText(Const.NVL(input.getResultFields().getResponseTimeFieldName(), ""));
@@ -934,6 +1139,7 @@ public class HttpDialog extends BaseTransformDialog {
     wFields.optWidth(true);
     wHeaders.setRowNums();
     wHeaders.optWidth(true);
+    activateConnectionSupersededFields();
   }
 
   private void cancel() {
@@ -980,8 +1186,12 @@ public class HttpDialog extends BaseTransformDialog {
     input.setEncoding(wEncoding.getText());
     input.setHttpLogin(wHttpLogin.getText());
     input.setHttpPassword(wHttpPassword.getText());
+    input.setConnectionName(wConnection.getText());
     input.setProxyHost(wProxyHost.getText());
     input.setProxyPort(wProxyPort.getText());
+    input.setProxyUsername(wProxyUsername.getText());
+    input.setProxyPassword(wProxyPassword.getText());
+    input.setNonProxyHosts(wNonProxyHosts.getText());
     input.getResultFields().setFieldName(wResult.getText());
     input.getResultFields().setResultCodeFieldName(wResultCode.getText());
     input.getResultFields().setResponseTimeFieldName(wResponseTime.getText());

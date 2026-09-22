@@ -438,6 +438,48 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     getResponse(resolve(testUrl));
   }
 
+  /**
+   * Resolves a URL against this connection's base URL: an absolute URL is taken as it stands, a
+   * relative one is appended to the base with exactly one slash between the two.
+   */
+  public static String resolveAgainstBase(String base, String value) {
+    String url = Const.NVL(value, "");
+    if (Utils.isEmpty(base) || hasScheme(url)) {
+      return url;
+    }
+    if (url.isEmpty()) {
+      return base;
+    }
+    boolean baseEndsWithSlash = base.endsWith("/");
+    boolean valueStartsWithSlash = url.startsWith("/");
+    if (baseEndsWithSlash && valueStartsWithSlash) {
+      return base + url.substring(1);
+    }
+    if (!baseEndsWithSlash && !valueStartsWithSlash) {
+      return base + "/" + url;
+    }
+    return base + url;
+  }
+
+  /** True when the value is an absolute URL rather than a path to hang off the base URL. */
+  private static boolean hasScheme(String url) {
+    int separator = url.indexOf("://");
+    if (separator <= 0) {
+      return false;
+    }
+    // A scheme is ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ).
+    if (!Character.isLetter(url.charAt(0))) {
+      return false;
+    }
+    for (int i = 1; i < separator; i++) {
+      char c = url.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '+' && c != '-' && c != '.') {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public RestConnection() {}
 
   public RestConnection(RestConnection connection) {

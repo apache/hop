@@ -275,45 +275,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    * and the base is ignored.
    */
   protected static String resolveAgainstBase(String base, String value) {
-    String url = NVL(value, "");
-    if (Utils.isEmpty(base) || hasScheme(url)) {
-      return url;
-    }
-    if (url.isEmpty()) {
-      return base;
-    }
-    boolean baseEndsWithSlash = base.endsWith("/");
-    boolean valueStartsWithSlash = url.startsWith("/");
-    if (baseEndsWithSlash && valueStartsWithSlash) {
-      return base + url.substring(1);
-    }
-    if (!baseEndsWithSlash && !valueStartsWithSlash) {
-      return base + "/" + url;
-    }
-    return base + url;
-  }
-
-  /**
-   * True when the value is an absolute URL rather than a path to hang off the base URL. The scheme
-   * has to be followed by {@code ://}: requiring only a colon would read {@code localhost:8080/x}
-   * as scheme {@code localhost} instead of a host and port.
-   */
-  private static boolean hasScheme(String url) {
-    int separator = url.indexOf("://");
-    if (separator <= 0) {
-      return false;
-    }
-    // A scheme is ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ).
-    if (!Character.isLetter(url.charAt(0))) {
-      return false;
-    }
-    for (int i = 1; i < separator; i++) {
-      char c = url.charAt(i);
-      if (!Character.isLetterOrDigit(c) && c != '+' && c != '-' && c != '.') {
-        return false;
-      }
-    }
-    return true;
+    return RestConnection.resolveAgainstBase(base, value);
   }
 
   /**

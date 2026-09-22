@@ -23,9 +23,12 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
@@ -55,6 +58,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageHttpIoEmitter;
 import org.apache.hop.lineage.model.HttpDirection;
 import org.apache.hop.lineage.model.HttpLineagePayload;
+import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -107,8 +112,6 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
   @VisibleForTesting
   Object[] callHttpService(IRowMeta rowMeta, Object[] rowData) throws HopException {
-    CloseableHttpClient httpClient = createClientBuilder().build();
-
     // Prepare Http get
     URI uri = null;
     long lineageStart = System.currentTimeMillis();
@@ -127,6 +130,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
       // Add Custom Http headers
       addHeadersToMethod(rowData, method);
+      addConnectionAuthentication(method, uri);
 
       Object[] newRow = null;
       if (rowData != null) {
@@ -139,15 +143,18 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         long startTime = System.currentTimeMillis();
 
         // Preemptive Basic auth: AuthCache must be keyed to the origin host (same as the request
-        // target). Proxy routing is configured on the client via RequestConfig — do not pass the
+        // target). Proxy routing is configured on the client via a route planner — do not pass the
         // proxy as HttpHost here (breaks credentials + preemptive cache matching in HttpClient 5).
         HttpHost target = HttpClientManager.createHttpHost(uri);
+        CloseableHttpClient httpClient = httpClient(target);
 
         httpResponse =
             httpClient.execute(
                 target,
                 method,
-                buildHttpClientContext(target, data.realHttpLogin, data.realHttpPassword));
+                data.restConnection == null
+                    ? buildHttpClientContext(target, data.realHttpLogin, data.realHttpPassword)
+                    : HttpClientContext.create());
 
         // calculate the responseTime
         long responseTime = System.currentTimeMillis() - startTime;
@@ -279,6 +286,32 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     }
   }
 
+  /**
+   * The client to execute with: the one built from the selected REST connection, or a client
+   * configured from this transform's own fields.
+   */
+  private CloseableHttpClient httpClient(HttpHost target) {
+    if (data.restConnectionClient != null) {
+      return data.restConnectionClient;
+    }
+    return createClientBuilder(target).build();
+  }
+
+  /**
+   * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
+   * a challenge, so the connection writes them onto every request itself.
+   */
+  private void addConnectionAuthentication(HttpGet method, URI uri) throws HopException {
+    if (data.restConnection == null) {
+      return;
+    }
+    Map<String, String> authHeaders = new LinkedHashMap<>();
+    data.restConnection.applyAuthentication(authHeaders, uri.toString());
+    for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
+      method.setHeader(authHeader.getKey(), authHeader.getValue());
+    }
+  }
+
   /** HttpClient 5 requires {@link BasicScheme#initPreemptive} for preemptive Basic auth. */
   private static @NotNull HttpClientContext buildHttpClientContext(
       HttpHost target, String httpLogin, String httpPassword) {
@@ -313,7 +346,15 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     }
   }
 
-  private HttpClientManager.HttpClientBuilderFacade createClientBuilder() {
+  /**
+   * The client for one request.
+   *
+   * <p>Credentials are registered for the host they belong to rather than for any host at all: a
+   * proxy asking for authentication of its own used to be answered with the web server's user name
+   * and password, because a single wildcard {@link org.apache.hc.client5.http.auth.AuthScope}
+   * matched both challenges (issue #3440).
+   */
+  private HttpClientManager.HttpClientBuilderFacade createClientBuilder(HttpHost target) {
     HttpClientManager.HttpClientBuilderFacade clientBuilder =
         HttpClientManager.getInstance().createBuilder();
 
@@ -324,10 +365,17 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       clientBuilder.setSocketTimeout(data.realSocketTimeout);
     }
     if (StringUtils.isNotBlank(data.realHttpLogin)) {
-      clientBuilder.setCredentials(data.realHttpLogin, data.realHttpPassword);
+      clientBuilder.setCredentials(
+          data.realHttpLogin, data.realHttpPassword, new AuthScope(target));
     }
     if (StringUtils.isNotBlank(data.realProxyHost)) {
-      clientBuilder.setProxy(data.realProxyHost, data.realProxyPort);
+      HttpHost proxy = new HttpHost("http", data.realProxyHost, data.realProxyPort);
+      clientBuilder.setProxy(proxy.getHostName(), proxy.getPort(), proxy.getSchemeName());
+      clientBuilder.setNonProxyHosts(data.realNonProxyHosts);
+      if (StringUtils.isNotBlank(data.realProxyUsername)) {
+        clientBuilder.setCredentials(
+            data.realProxyUsername, data.realProxyPassword, new AuthScope(proxy));
+      }
     }
     if (meta.isIgnoreSsl()) {
       clientBuilder.ignoreSsl(true);
@@ -342,6 +390,10 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       if (meta.isUrlInField()) {
         // get dynamic url
         baseUrl = outputRowMeta.getString(row, data.indexOfUrlField);
+        if (data.restConnection != null) {
+          baseUrl =
+              RestConnection.resolveAgainstBase(resolve(data.restConnection.getBaseUrl()), baseUrl);
+        }
       }
 
       if (isDetailed()) {
@@ -435,8 +487,6 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
                   PKG, CONST_HTTP_EXCEPTION_ERROR_FINDING_FIELD, realUrlFieldName));
         }
       }
-    } else {
-      data.realUrl = resolve(meta.getUrl());
     }
 
     // check for headers
@@ -477,8 +527,23 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       // get authentication settings once
       data.realProxyHost = resolve(meta.getProxyHost());
       data.realProxyPort = Const.toInt(resolve(meta.getProxyPort()), 8080);
+      data.realProxyUsername = resolve(meta.getProxyUsername());
+      data.realProxyPassword = Utils.resolvePassword(variables, meta.getProxyPassword());
+      data.realNonProxyHosts = resolve(meta.getNonProxyHosts());
       data.realHttpLogin = resolve(meta.getHttpLogin());
       data.realHttpPassword = Utils.resolvePassword(variables, meta.getHttpPassword());
+
+      if (!loadRestConnection()) {
+        return false;
+      }
+
+      // Resolved here rather than on the first row: the base URL it may hang off belongs to the
+      // connection just loaded, and every request needs it, including the first.
+      data.realUrl =
+          data.restConnection == null
+              ? resolve(meta.getUrl())
+              : RestConnection.resolveAgainstBase(
+                  resolve(data.restConnection.getBaseUrl()), resolve(meta.getUrl()));
 
       data.realSocketTimeout = Const.toInt(resolve(meta.getSocketTimeout()), -1);
       data.realConnectionTimeout = Const.toInt(resolve(meta.getConnectionTimeout()), -1);
@@ -489,5 +554,48 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Loads the selected REST connection and the client that goes with it. Returns false when a
+   * connection is named but cannot be loaded, which has to stop the transform: falling back to the
+   * transform's own fields would send the request somewhere else, unauthenticated.
+   */
+  private boolean loadRestConnection() {
+    String realConnectionName = resolve(meta.getConnectionName());
+    if (Utils.isEmpty(realConnectionName)) {
+      return true;
+    }
+    try {
+      data.restConnection =
+          metadataProvider.getSerializer(RestConnection.class).load(realConnectionName);
+      if (data.restConnection == null) {
+        logError(BaseMessages.getString(PKG, "HTTP.Error.ConnectionNotFound", realConnectionName));
+        return false;
+      }
+      data.restConnection.setVariables(this);
+      data.restConnectionClient =
+          RestClientFactory.createClient(data.restConnection.createClientSettings());
+      return true;
+    } catch (Exception e) {
+      // Keep the cause: a class loader split between the metadata plugin and this transform
+      // surfaces here as a ClassCastException, which is not a missing connection at all.
+      logError(
+          BaseMessages.getString(PKG, "HTTP.Error.ConnectionNotLoaded", realConnectionName), e);
+      return false;
+    }
+  }
+
+  @Override
+  public void dispose() {
+    if (data.restConnectionClient != null) {
+      try {
+        data.restConnectionClient.close();
+      } catch (IOException e) {
+        logError(BaseMessages.getString(PKG, "HTTP.Error.ClosingClient"), e);
+      }
+      data.restConnectionClient = null;
+    }
+    super.dispose();
   }
 }
