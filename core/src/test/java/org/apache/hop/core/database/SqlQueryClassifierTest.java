@@ -164,4 +164,44 @@ class SqlQueryClassifierTest {
     assertNull(SqlQueryClassifier.statementVerb("   "));
     assertNull(SqlQueryClassifier.statementVerb("(SELECT 1)"));
   }
+
+  @Test
+  void schemaChangesOnTablesAndViewsAreDetected() {
+    assertTrue(SqlQueryClassifier.isSchemaChange("ALTER TABLE t ADD COLUMN c INT"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("create table t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP TABLE t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("RENAME TABLE a TO b"));
+  }
+
+  @Test
+  void schemaChangesAreDetectedPastModifiersAndTrivia() {
+    // The old check was a startsWith() on the upper-cased statement, so all of these were missed.
+    assertTrue(SqlQueryClassifier.isSchemaChange("\n\t ALTER TABLE t ADD COLUMN c INT"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("-- fix the layout\nALTER TABLE t DROP COLUMN c"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("/* ticket 42 */ DROP TABLE IF EXISTS t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE TABLE IF NOT EXISTS t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE VIEW v AS SELECT * FROM t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR ALTER VIEW v AS SELECT * FROM t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("ALTER VIEW v AS SELECT * FROM t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP VIEW v"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE MATERIALIZED VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE GLOBAL TEMPORARY TABLE t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP SYNONYM s"));
+  }
+
+  @Test
+  void otherStatementsAreNotSchemaChanges() {
+    assertFalse(SqlQueryClassifier.isSchemaChange(null));
+    assertFalse(SqlQueryClassifier.isSchemaChange("   "));
+    assertFalse(SqlQueryClassifier.isSchemaChange("SELECT * FROM t"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("INSERT INTO t VALUES (1)"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("DELETE FROM t"));
+    // TRUNCATE removes rows, it does not change the layout
+    assertFalse(SqlQueryClassifier.isSchemaChange("TRUNCATE t"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("TRUNCATE TABLE t"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("CREATE INDEX i ON t (a)"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("CREATE SEQUENCE s"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("ALTER SESSION SET x = 1"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("DROP INDEX i"));
+  }
 }

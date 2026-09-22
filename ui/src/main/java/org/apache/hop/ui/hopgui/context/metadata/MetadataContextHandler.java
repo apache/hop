@@ -132,9 +132,9 @@ public class MetadataContextHandler implements IGuiContextHandler {
               null,
               (shiftClicked, controlClicked, parameters) ->
                   DbCache.getInstance().clear((String) parameters[0]));
-      newAction.setClassLoader(metadataObjectClass.getClassLoader());
-      newAction.setCategory(CONST_METADATA);
-      newAction.setCategoryOrder("3");
+      databaseClearCacheAction.setClassLoader(metadataObjectClass.getClassLoader());
+      databaseClearCacheAction.setCategory(CONST_METADATA);
+      databaseClearCacheAction.setCategoryOrder("3");
       actions.add(databaseClearCacheAction);
     }
 

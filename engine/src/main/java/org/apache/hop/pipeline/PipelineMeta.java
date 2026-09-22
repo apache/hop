@@ -38,6 +38,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -150,6 +151,14 @@ public class PipelineMeta extends AbstractMeta
 
   /** The transforms fields cache. */
   protected Map<String, IRowMeta> transformFieldsCache;
+
+  /**
+   * The {@link DbCache} generation the transform fields cache was filled against. Transforms like
+   * Table Input derive their output fields from the database cache, so clearing that cache has to
+   * invalidate the fields we cached here as well. Without this, clearing the database cache only
+   * takes effect after the pipeline is reloaded.
+   */
+  protected int transformFieldsCacheDbGeneration;
 
   /** The loop cache. */
   protected Map<String, Boolean> loopCache;
@@ -286,6 +295,7 @@ public class PipelineMeta extends AbstractMeta
     maxUndo = Const.MAX_UNDO;
     undoPosition = -1;
     transformFieldsCache = new HashMap<>();
+    transformFieldsCacheDbGeneration = DbCache.getInstance().getGeneration();
     loopCache = new HashMap<>();
     previousTransformCache = new HashMap<>();
     super.clear();
@@ -1209,6 +1219,8 @@ public class PipelineMeta extends AbstractMeta
     if (transformMeta == null) {
       return row;
     }
+
+    discardTransformFieldsCacheIfDatabaseCacheCleared();
 
     String fromToCacheEntry = calculateFieldsCacheEntryKey(transformMeta, targetTransform);
     IRowMeta rowMeta = transformFieldsCache.get(fromToCacheEntry);
@@ -3449,6 +3461,20 @@ public class PipelineMeta extends AbstractMeta
   /** Clears the transform fields cache. */
   private void clearTransformFieldsCache() {
     transformFieldsCache.clear();
+    transformFieldsCacheDbGeneration = DbCache.getInstance().getGeneration();
+  }
+
+  /**
+   * Drop the cached transform fields when the database cache was cleared since we filled them.
+   * Transforms which read their layout from the database (Table Input, Table Output, Database
+   * Lookup, ...) go through {@link DbCache}, so a stale entry here survives clearing that cache and
+   * keeps showing the old columns until the pipeline is reloaded.
+   */
+  private void discardTransformFieldsCacheIfDatabaseCacheCleared() {
+    int currentGeneration = DbCache.getInstance().getGeneration();
+    if (currentGeneration != transformFieldsCacheDbGeneration) {
+      clearTransformFieldsCache();
+    }
   }
 
   /** Clears the loop cache. */

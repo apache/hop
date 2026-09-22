@@ -32,6 +32,13 @@ public class DbCache {
 
   private Hashtable<DbCacheEntry, IRowMeta> cache;
 
+  /**
+   * Bumped every time entries are removed from this cache. Anything which derives row metadata from
+   * this cache and keeps the result around can compare the generation it last saw with {@link
+   * #getGeneration()} to find out whether its own copy went stale.
+   */
+  private volatile int generation;
+
   @Getter @Setter private boolean active;
 
   public void put(DbCacheEntry entry, IRowMeta fields) {
@@ -73,6 +80,7 @@ public class DbCache {
    *     to clear it all.
    */
   public void clear(String dbname) {
+    generation++;
     if (dbname == null) {
       cache = new Hashtable<>();
     } else {
@@ -85,6 +93,17 @@ public class DbCache {
         }
       }
     }
+  }
+
+  /**
+   * The number of times this cache was cleared. Callers which cache anything derived from the
+   * database cache can store this value alongside their own copy and drop that copy as soon as the
+   * generation changes.
+   *
+   * @return the current generation of this cache
+   */
+  public int getGeneration() {
+    return generation;
   }
 
   private DbCache() {

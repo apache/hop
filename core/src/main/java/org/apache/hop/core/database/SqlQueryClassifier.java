@@ -36,6 +36,39 @@ public final class SqlQueryClassifier {
       Set.of("SELECT", "SHOW", "EXPLAIN", "DESCRIBE", "DESC", "VALUES", "TABLE");
 
   /**
+   * Verbs which can change the layout of a table or a view. {@code TRUNCATE} is deliberately
+   * absent: it removes rows, not columns.
+   */
+  private static final Set<String> SCHEMA_CHANGE_VERBS =
+      Set.of("CREATE", "ALTER", "DROP", "RENAME");
+
+  /**
+   * Keywords which are allowed between the verb and the object type, so that {@code CREATE OR
+   * REPLACE VIEW}, {@code CREATE OR ALTER VIEW} and {@code DROP TABLE IF EXISTS} are recognised as
+   * well as the plain forms.
+   */
+  private static final Set<String> SCHEMA_CHANGE_MODIFIERS =
+      Set.of(
+          "OR",
+          "REPLACE",
+          "ALTER",
+          "TEMP",
+          "TEMPORARY",
+          "GLOBAL",
+          "LOCAL",
+          "UNLOGGED",
+          "MATERIALIZED",
+          "EXTERNAL",
+          "VIRTUAL",
+          "FOREIGN",
+          "IF",
+          "NOT",
+          "EXISTS");
+
+  /** Object types whose layout is reflected in cached row metadata. */
+  private static final Set<String> SCHEMA_CHANGE_OBJECTS = Set.of("TABLE", "VIEW", "SYNONYM");
+
+  /**
    * First keywords of a complete statement. Leftover clauses after a semicolon ({@code WHERE},
    * {@code AND}, {@code ORDER}, …) are not in this set.
    */
@@ -151,6 +184,36 @@ public final class SqlQueryClassifier {
       first = keywordAt(sql, indexAfterCteList(sql, i));
     }
     return first;
+  }
+
+  /**
+   * Whether a statement changes the layout of a table or a view, which makes any row metadata
+   * cached for that connection unreliable.
+   *
+   * @param sql one statement, comments allowed
+   * @return {@code true} for statements such as {@code ALTER TABLE ...}, {@code DROP TABLE IF
+   *     EXISTS ...} or {@code CREATE OR REPLACE VIEW ...}
+   */
+  public static boolean isSchemaChange(String sql) {
+    if (Utils.isEmpty(sql)) {
+      return false;
+    }
+    int i = skipTrivia(sql, 0);
+    String keyword = keywordAt(sql, i);
+    if (keyword == null || !SCHEMA_CHANGE_VERBS.contains(keyword)) {
+      return false;
+    }
+    i = skipKeyword(sql, i);
+    while ((keyword = keywordAt(sql, i)) != null) {
+      if (SCHEMA_CHANGE_OBJECTS.contains(keyword)) {
+        return true;
+      }
+      if (!SCHEMA_CHANGE_MODIFIERS.contains(keyword)) {
+        return false;
+      }
+      i = skipKeyword(sql, i);
+    }
+    return false;
   }
 
   /**
