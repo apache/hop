@@ -172,6 +172,28 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     return !emptyCanvas || GraphPalette.isVisible();
   }
 
+  /** Whether the user left this kind of canvas tooltip on in the Look &amp; Feel options. */
+  protected boolean isToolTipShown(CanvasToolTip toolTip) {
+    return hopGui.getProps().isCanvasToolTipShown(toolTip);
+  }
+
+  /**
+   * Whether any of the tooltips an area can put up is still on. The icon of a transform or action
+   * carries either a deprecation warning or a description, so it stays hoverable as long as one of
+   * the two is on; the branch that builds the text checks the exact one.
+   */
+  protected boolean isAreaToolTipShown(AreaOwner areaOwner) {
+    if (areaOwner == null || areaOwner.getAreaType() == null) {
+      return false;
+    }
+    for (CanvasToolTip toolTip : CanvasToolTip.forAreaType(areaOwner.getAreaType())) {
+      if (isToolTipShown(toolTip)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * The hide for a mouse move: takes down the tooltip of whatever was under the pointer, but not a
    * notice such as "Selection cleared". That one is not tied to the pointer and stays until its

@@ -137,6 +137,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
@@ -1420,9 +1421,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Show a short tooltip
       //
       toolTip.setVisible(false);
-      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-      showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
-      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      if (isToolTipShown(CanvasToolTip.NOTICE)) {
+        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+        showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+        toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      }
 
       return;
     }
@@ -3934,7 +3937,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     StringBuilder tip = new StringBuilder();
     AreaOwner areaOwner = getVisibleAreaOwner(x, y);
-    if (areaOwner != null && areaOwner.getAreaType() != null) {
+    if (isAreaToolTipShown(areaOwner)) {
       ActionMeta actionCopy;
       switch (areaOwner.getAreaType()) {
         case NOTE_LINK:
@@ -4063,7 +4066,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           ActionMeta actionMetaInfo = (ActionMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
-          if (actionMetaInfo.isDeprecated()) { // only need tooltip if action is deprecated
+          if (actionMetaInfo.isDeprecated() && isToolTipShown(CanvasToolTip.DEPRECATION)) {
             tip.append(BaseMessages.getString(PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Title"))
                 .append(Const.CR);
             String tipNext =
@@ -4089,7 +4092,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                       actionMetaInfo.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-          } else if (!Utils.isEmpty(actionMetaInfo.getDescription())) {
+          } else if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && !Utils.isEmpty(actionMetaInfo.getDescription())) {
             tip.append(actionMetaInfo.getDescription());
           }
           break;
@@ -4121,7 +4125,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.isEmpty()) {
+    if (hi != null && tip.isEmpty() && isToolTipShown(CanvasToolTip.HOP)) {
       // Set the tooltip for the hop:
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo")).append(Const.CR);
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry"))

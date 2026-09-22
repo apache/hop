@@ -197,6 +197,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelega
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.PipelineRenamedExtension;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
@@ -1702,10 +1703,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Show a short tooltip
       //
       toolTip.setVisible(false);
-      toolTip.setAutoHide(true);
-      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-      showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
-      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      if (isToolTipShown(CanvasToolTip.NOTICE)) {
+        toolTip.setAutoHide(true);
+        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+        showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
+        toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      }
 
       return;
     }
@@ -4659,7 +4662,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     StringBuilder tip = new StringBuilder();
     AreaOwner areaOwner = getVisibleAreaOwner(x, y);
-    if (areaOwner != null && areaOwner.getAreaType() != null) {
+    if (isAreaToolTipShown(areaOwner)) {
       AreaType areaType = areaOwner.getAreaType();
       switch (areaType) {
         case NOTE_LINK:
@@ -4793,7 +4796,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
-          if (iconTransformMeta.isDeprecated()) {
+          if (iconTransformMeta.isDeprecated() && isToolTipShown(CanvasToolTip.DEPRECATION)) {
             tip.append(
                     BaseMessages.getString(PKG, "PipelineGraph.DeprecatedTransform.Tooltip.Title"))
                 .append(Const.CR);
@@ -4818,11 +4821,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       iconTransformMeta.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-          } else if (!Utils.isEmpty(iconTransformMeta.getDescription())) {
+          } else if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && !Utils.isEmpty(iconTransformMeta.getDescription())) {
             tip.append(iconTransformMeta.getDescription());
           }
           ITransformMeta sourceMeta = iconTransformMeta.getTransform();
-          if (sourceMeta != null && sourceMeta.canStartWithoutInput()) {
+          if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && sourceMeta != null
+              && sourceMeta.canStartWithoutInput()) {
             if (tip.length() > 0) {
               tip.append(Const.CR);
             }
@@ -4877,7 +4883,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.isEmpty()) { // We clicked on a HOP!
+    boolean hopTipShown = hi != null && isToolTipShown(CanvasToolTip.HOP);
+    if (hopTipShown && tip.isEmpty()) { // We clicked on a HOP!
       // Set the tooltip for the hop:
       tip.append(Const.CR)
           .append(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo"))
@@ -4893,7 +4900,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (newTip == null) {
       hideHoverToolTip();
-      if (hi != null) { // We clicked on a HOP!
+      if (hopTipShown) { // We clicked on a HOP!
 
         // Set the tooltip for the hop:
         newTip =

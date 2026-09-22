@@ -38,6 +38,7 @@ import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -70,6 +71,7 @@ public class PropsUi extends Props {
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
+  private static final String SHOW_CANVAS_TOOL_TIP_PREFIX = "ShowCanvasToolTip";
   private static final String RESOLVE_VARIABLES_IN_TOOLTIPS = "ResolveVariablesInToolTips";
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
   private static final String HIDE_MENU_BAR = "HideMenuBar";
@@ -1251,6 +1253,18 @@ public class PropsUi extends Props {
 
   public void setShowToolTips(boolean show) {
     setProperty(SHOW_TOOL_TIPS, show ? YES : NO);
+  }
+
+  /**
+   * Whether the pipeline and workflow canvas show one kind of tooltip. Every kind is on by default;
+   * {@link #showToolTips()} switches all of them off at once.
+   */
+  public boolean isCanvasToolTipShown(CanvasToolTip toolTip) {
+    return YES.equalsIgnoreCase(getProperty(SHOW_CANVAS_TOOL_TIP_PREFIX + toolTip.getCode(), YES));
+  }
+
+  public void setCanvasToolTipShown(CanvasToolTip toolTip, boolean show) {
+    setProperty(SHOW_CANVAS_TOOL_TIP_PREFIX + toolTip.getCode(), show ? YES : NO);
   }
 
   public boolean resolveVariablesInToolTips() {

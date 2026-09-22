@@ -103,6 +103,19 @@ See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in bot
 |If this option is enabled, a border will be drawn around the names of transforms and actions on the canvas.
 |no
 
+|Tooltips
+a|A group of its own in the *Pipeline and Workflow canvas* section: one checkbox per kind of tooltip the canvas shows when the mouse rests on something. Untick a kind to stop only that one; *Show tool tips?* on the General tab still switches all of them off at once.
+
+* *Edit hint on transform and action names*: the "Click to edit" hint on a name.
+* *Transform and action descriptions*: the description on an icon and its info badge, along with the transform partitioning and whether a transform can start a pipeline.
+* *Deprecation warnings*: the warning on the icon of a deprecated transform or action, and its replacement.
+* *Hop details*: the source, target and status of a hop when the mouse rests on its line, and the badges on it: info, error, copies, row distribution, target streams and the conditions of workflow hops.
+* *Execution results*: after a run, the failure logs, the output rows a transform or hop holds, the result of an action and where a workflow restarted from a checkpoint.
+* *Note links*: where a hyperlink in a note leads.
+* *Plugin tooltips*: tooltips that plugins add to the canvas, such as the custom debug levels.
+* *Selection cleared notice*: the short "Selection cleared" notice after a click on the empty canvas while something was selected.
+|all on
+
 |Use global bookmarks in the file dialog|Bookmarks in the file dialog are global (across projects) by default. Enable to make them project-specific|yes
 
 |===
