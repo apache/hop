@@ -35,6 +35,7 @@ Each tab is one location.
 Enter a path or a VFS URI to go there.
 Variables are resolved.
 * The tree on the left lists folders and loads a folder when you expand it.
+Select more than one folder to copy, cut or delete them together.
 * The table on the right lists the files and folders in the selected folder.
 You can sort by clicking a column.
 Name is always shown.
@@ -42,18 +43,46 @@ Size, last modified, owner, extension and permissions can be turned off from the
 Owner and permissions stay empty when the VFS provider does not report them.
 * The filter box limits the table to the current folder.
 It does not search subfolders.
+* **Show or hide hidden folders** applies to the tree.
+**Show or hide hidden files** applies to the table.
+A hidden name starts with a dot.
+The two switches are independent.
 * Bookmarks are the same list as in the file dialog, including the option that makes them global or per project.
-* The status line shows the listing or file change that is running, and the error when one fails.
+* The status line shows the listing or file change that is running, how long it took, how many rows are listed and their size, and how many rows are selected and their size.
 Stop interrupts that work.
 Expand shows the recent operations.
+* **Open a new location** adds a tab for the folder you are viewing.
+Ctrl+T does the same, and Cmd+T on macOS.
 
 Double-click a folder to open it.
 Double-click a Hop file (a pipeline, a workflow, a text file, and so on) to open it in Hop.
 Double-click a zip, jar, tar, tgz or tbz2 archive to browse inside it.
 
+== Copy, rename and download
+
+The folder toolbar copies, cuts, pastes, renames and deletes folders.
+Rename applies to one folder.
+Delete is set apart on the right-click menu so it is not next to the other actions.
+
+The file toolbar copies, cuts, pastes and deletes the rows you select, and renames a file when exactly one file is selected.
+**Download** opens the VFS save dialog with that file's name so you can store a copy somewhere else.
+**Open as text file** opens the file in a text editor even when Hop has a richer editor for it.
+Paste goes into the folder you are viewing.
+Copy and cut stay inside Hop: they are not the system clipboard.
+A folder is not copied into itself, its parent, or one of its own subfolders.
+
 == Named connections
 
-On the editor of a file-storage connection (S3, MinIO, Azure, Google Storage, HDFS, FTP, SFTP, WebDAV, Databricks VFS) the **Explore** button opens this browser at `+name:///+`.
+On the editor of a file-storage connection (S3, MinIO, Azure, Google Storage, FTP, SFTP, WebDAV, Databricks VFS) the **Explore** button opens this browser at `+name:///+`.
+An HDFS connection opens at `+name://+`.
 That is the root of the connection.
 A configured default path, such as an HDFS default root or a Databricks base path, is applied by the connection itself.
 Save the connection first: Explore follows the saved definition, and saves unsaved edits before it opens.
+
+== From the File Explorer perspective
+
+Right-click a file or folder in the xref:hop-gui/perspective-file-explorer.adoc[File Explorer perspective] and choose **Open in VFS File Explorer**.
+A folder opens itself.
+A file opens its parent folder.
+When the VFS File Explorer is already showing in the bottom panel, the folder is added there.
+Otherwise it opens in the window.

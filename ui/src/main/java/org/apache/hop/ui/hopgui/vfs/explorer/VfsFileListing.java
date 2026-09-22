@@ -50,11 +50,13 @@ public final class VfsFileListing {
 
   /**
    * Drop hidden names and names that miss the filter, then sort. Folders stay ahead of files.
-   * Hidden names start with {@code .}. The filter is the file dialog's current-folder matcher.
+   * Hidden names start with {@code .}. Folders and files are hidden independently. The filter is
+   * the file dialog's current-folder matcher.
    */
   public static List<VfsFileRow> visible(
       List<VfsFileRow> rows,
-      boolean showHidden,
+      boolean showHiddenFolders,
+      boolean showHiddenFiles,
       String filter,
       VfsFileColumn column,
       boolean ascending) {
@@ -67,7 +69,8 @@ public final class VfsFileListing {
         if (row == null) {
           continue;
         }
-        if (!showHidden && row.getName().startsWith(".")) {
+        if (isHiddenName(row.getName())
+            && ((row.isFolder() && !showHiddenFolders) || (!row.isFolder() && !showHiddenFiles))) {
           continue;
         }
         if (filtering && !matcher.matches(row.getName())) {
@@ -133,6 +136,11 @@ public final class VfsFileListing {
       return current == null ? List.of() : current;
     }
     return incoming == null ? List.of() : incoming;
+  }
+
+  /** A hidden name starts with {@code .}. */
+  public static boolean isHiddenName(String name) {
+    return name != null && name.startsWith(".");
   }
 
   private static int text(String left, String right) {

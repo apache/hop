@@ -69,6 +69,7 @@ public class VfsExplorerOperationsPanel extends Composite {
 
   private final VfsFileExplorer explorer;
   private final List<VfsExplorerOperation> operations = new ArrayList<>();
+  private VfsListingCounts listingCounts = VfsListingCounts.NONE;
   private final Table table;
   private final GuiToolbarWidgets toolBarWidgets;
   private final GuiToolbarWidgets statusToolBarWidgets;
@@ -185,6 +186,10 @@ public class VfsExplorerOperationsPanel extends Composite {
     updateStopEnablement();
     armTimer();
     return operation;
+  }
+
+  public void setListingCounts(VfsListingCounts listingCounts) {
+    this.listingCounts = listingCounts == null ? VfsListingCounts.NONE : listingCounts;
   }
 
   public void refresh() {
@@ -331,7 +336,7 @@ public class VfsExplorerOperationsPanel extends Composite {
     if (statusLabel.isDisposed()) {
       return;
     }
-    String text = formatStatusLine(currentOperation());
+    String text = formatStatusLine(currentOperation(), listingCounts);
     statusLabel.setText(text);
     statusLabel.setToolTipText(text);
   }
@@ -355,18 +360,44 @@ public class VfsExplorerOperationsPanel extends Composite {
   }
 
   static String formatStatusLine(VfsExplorerOperation operation) {
+    return formatStatusLine(operation, VfsListingCounts.NONE);
+  }
+
+  /**
+   * {@code Listing hdfs://some/folder - Done - 890ms - 200 files (2.1GB) - 10 files selected
+   * (120MB)}. Milliseconds have no space before {@code ms}. Longer durations keep the operations
+   * table format.
+   */
+  static String formatStatusLine(VfsExplorerOperation operation, VfsListingCounts counts) {
     if (operation == null) {
-      return "";
+      return counts == null ? "" : stripLeadingSeparator(counts.statusSuffix());
     }
     StringBuilder line = new StringBuilder();
     line.append(Const.NVL(operation.getDescription(), ""));
     line.append(" - ").append(statusLabel(operation));
-    line.append(" - ").append(formatElapsed(operation.elapsedMillis()));
+    line.append(" - ").append(formatStatusElapsed(operation.elapsedMillis()));
+    if (counts != null) {
+      line.append(counts.statusSuffix());
+    }
     if (operation.getStatus() == VfsExplorerOperation.Status.FAILED
         && !Utils.isEmpty(operation.getErrorMessage())) {
       line.append(" - ").append(operation.getErrorMessage());
     }
     return line.toString();
+  }
+
+  static String formatStatusElapsed(long millis) {
+    if (millis < 1000) {
+      return millis + "ms";
+    }
+    return formatElapsed(millis);
+  }
+
+  private static String stripLeadingSeparator(String suffix) {
+    if (suffix == null || suffix.isEmpty()) {
+      return "";
+    }
+    return suffix.startsWith(" - ") ? suffix.substring(3) : suffix;
   }
 
   static String formatElapsed(long millis) {

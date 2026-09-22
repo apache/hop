@@ -136,6 +136,7 @@ import org.apache.hop.ui.hopgui.search.ReferenceSearchResults;
 import org.apache.hop.ui.hopgui.shared.CanvasSvgHelper;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -782,6 +783,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           MenuItem openInExplorerItem = menuWidgets.findMenuItem(CONTEXT_MENU_OPEN_IN_EXPLORER);
           if (openInExplorerItem != null) {
             openInExplorerItem.setEnabled(tif != null && HopVfs.isLocalFileSystem(tif.path));
+          }
+          MenuItem openInVfsExplorerItem =
+              menuWidgets.findMenuItem(VfsFileExplorerViews.CONTEXT_MENU_OPEN_LOCATION);
+          if (openInVfsExplorerItem != null) {
+            openInVfsExplorerItem.setEnabled(selection.length == 1 && tif != null);
           }
 
           MenuItem renameItem = menuWidgets.findMenuItem(CONTEXT_MENU_RENAME);

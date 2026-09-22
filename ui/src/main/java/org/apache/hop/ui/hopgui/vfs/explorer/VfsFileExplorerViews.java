@@ -28,6 +28,9 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
@@ -44,6 +47,9 @@ public class VfsFileExplorerViews {
   public static final String DOCK_TOOL_ID = "vfs-file-explorer";
 
   public static final String ID_MAIN_MENU_TOOLS_VFS_EXPLORER = "40030-menu-tools-vfs-explorer";
+
+  public static final String CONTEXT_MENU_OPEN_LOCATION =
+      "ExplorerPerspective-ContextMenu-10103-OpenInVfsExplorer";
 
   @GuiMenuElement(
       root = HopGui.ID_MAIN_MENU,
@@ -140,6 +146,57 @@ public class VfsFileExplorerViews {
     explorer.openLocation(location);
     explorer.activate();
     return explorer;
+  }
+
+  /**
+   * Open {@code location} in the bottom panel when that panel is already showing the explorer, and
+   * in the floating window otherwise.
+   */
+  public static void openAtPreferredHost(HopGui hopGui, String location) {
+    if (hopGui == null || StringUtils.isBlank(location)) {
+      return;
+    }
+    if (isExplorerDockVisible(hopGui)) {
+      openDock(hopGui, location);
+    } else {
+      VfsFileExplorerDialog.openAt(hopGui, location);
+    }
+  }
+
+  /** True when the explorer tab exists and the bottom panel is on screen. */
+  public static boolean isExplorerDockVisible(HopGui hopGui) {
+    if (!isDockOpen(hopGui)) {
+      return false;
+    }
+    return hopGui.getTerminalPanel().isTerminalVisible();
+  }
+
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_OPEN_LOCATION,
+      label = "i18n::VfsFileExplorer.Menu.OpenLocation",
+      image = "ui/images/folder.svg")
+  public static void openSelectionInVfsExplorer(ExplorerPerspective perspective) {
+    if (perspective == null) {
+      return;
+    }
+    ExplorerFile selected = perspective.getSelectedFile();
+    if (selected == null || StringUtils.isBlank(selected.getFilename())) {
+      return;
+    }
+    boolean folder = selected.getFileType() instanceof FolderFileType;
+    String location = VfsLocations.folderToBrowse(selected.getFilename(), folder);
+    if (StringUtils.isBlank(location)) {
+      return;
+    }
+    HopGui hopGui;
+    try {
+      hopGui = HopGui.getInstance();
+    } catch (Throwable e) {
+      return;
+    }
+    openAtPreferredHost(hopGui, location);
   }
 
   public static boolean isDockOpen(HopGui hopGui) {

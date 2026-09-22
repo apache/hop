@@ -71,14 +71,35 @@ class VfsFileListingTest {
     assertEquals("", find(rows, "incoming").getSizeText());
 
     List<VfsFileRow> visible =
-        VfsFileListing.visible(rows, false, "note", VfsFileColumn.NAME, true);
+        VfsFileListing.visible(rows, false, false, "note", VfsFileColumn.NAME, true);
     assertEquals(List.of("notes.txt"), visible.stream().map(VfsFileRow::getName).toList());
     assertTrue(
-        VfsFileListing.visible(rows, false, "", VfsFileColumn.NAME, true).stream()
+        VfsFileListing.visible(rows, false, false, "", VfsFileColumn.NAME, true).stream()
             .noneMatch(row -> row.getName().startsWith(".")));
     assertTrue(
-        VfsFileListing.visible(rows, true, "", VfsFileColumn.NAME, true).stream()
+        VfsFileListing.visible(rows, true, true, "", VfsFileColumn.NAME, true).stream()
             .anyMatch(row -> ".secret".equals(row.getName())));
+  }
+
+  @Test
+  void hiddenFoldersAndHiddenFilesAreIndependent() {
+    List<VfsFileRow> rows =
+        List.of(
+            row(".git", "ram:///.git", true, VfsFileRow.UNKNOWN),
+            row(".secret", "ram:///.secret", false, 3),
+            row("notes.txt", "ram:///notes.txt", false, 5));
+
+    List<String> filesOnly =
+        VfsFileListing.visible(rows, false, true, "", VfsFileColumn.NAME, true).stream()
+            .map(VfsFileRow::getName)
+            .toList();
+    assertEquals(List.of(".secret", "notes.txt"), filesOnly);
+
+    List<String> foldersOnly =
+        VfsFileListing.visible(rows, true, false, "", VfsFileColumn.NAME, true).stream()
+            .map(VfsFileRow::getName)
+            .toList();
+    assertEquals(List.of(".git", "notes.txt"), foldersOnly);
   }
 
   @Test

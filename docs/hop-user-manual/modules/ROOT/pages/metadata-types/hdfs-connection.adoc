@@ -107,7 +107,7 @@ Each tab has a **Test** button that uses the values currently in the editor (inc
 == Tips
 
 * Test the connection from Hop GUI: File - Open, type `ChosenName:///` and list `/`.
-* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`. The connection's default root is applied by the provider.
+* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name://+`. The connection's default root is applied by the provider.
 * Give the connection a short functional name. Do not name it `hdfs`, `file`, `http` or another existing VFS scheme.
 * From OpenShift, point the connection at HttpFS or Knox and open NetworkPolicy only to that gateway.
 * A 7.1.8 to 7.3.2 cluster upgrade does not require a new plugin version; only host, TLS and principal may change.

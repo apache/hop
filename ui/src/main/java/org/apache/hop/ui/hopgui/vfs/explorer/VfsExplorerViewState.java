@@ -42,7 +42,13 @@ public final class VfsExplorerViewState {
 
   @Setter private VfsFileColumn sortColumn = VfsFileColumn.NAME;
   @Setter private boolean ascending = true;
-  @Setter private boolean showHidden;
+
+  /** Hidden folders (names starting with {@code .}) in the tree and in the file list. */
+  @Setter private boolean showHiddenFolders;
+
+  /** Hidden files in the file list. Independent of {@link #showHiddenFolders}. */
+  @Setter private boolean showHiddenFiles;
+
   private final EnumSet<VfsFileColumn> visible = defaultVisible();
 
   public boolean isVisible(VfsFileColumn column) {
@@ -76,7 +82,7 @@ public final class VfsExplorerViewState {
         state.sortColumn = VfsFileColumn.NAME;
       }
       state.ascending = stored.extractBoolean("ascending", true);
-      state.showHidden = stored.extractBoolean("showHidden", false);
+      applyStoredHidden(state, stored);
       applyStoredColumns(state, stored);
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading VFS explorer view state", e);
@@ -88,7 +94,8 @@ public final class VfsExplorerViewState {
     Map<String, Object> values = new HashMap<>();
     values.put("sortColumn", sortColumn == null ? VfsFileColumn.NAME.name() : sortColumn.name());
     values.put("ascending", ascending);
-    values.put("showHidden", showHidden);
+    values.put("showHiddenFolders", showHiddenFolders);
+    values.put("showHiddenFiles", showHiddenFiles);
     values.put("columnsVersion", COLUMNS_VERSION);
     for (VfsFileColumn column : VfsFileColumn.values()) {
       if (column != VfsFileColumn.NAME) {
@@ -109,6 +116,25 @@ public final class VfsExplorerViewState {
     columns.add(VfsFileColumn.SIZE);
     columns.add(VfsFileColumn.MODIFIED);
     return columns;
+  }
+
+  /**
+   * Older states had one {@code showHidden} flag for folders and files together. A state that
+   * already stores the two flags is used as written.
+   */
+  static void applyStoredHidden(VfsExplorerViewState state, AuditState stored) {
+    if (state == null || stored == null || stored.getStateMap() == null) {
+      return;
+    }
+    if (stored.getStateMap().containsKey("showHiddenFolders")
+        || stored.getStateMap().containsKey("showHiddenFiles")) {
+      state.showHiddenFolders = stored.extractBoolean("showHiddenFolders", false);
+      state.showHiddenFiles = stored.extractBoolean("showHiddenFiles", false);
+      return;
+    }
+    boolean legacy = stored.extractBoolean("showHidden", false);
+    state.showHiddenFolders = legacy;
+    state.showHiddenFiles = legacy;
   }
 
   /**

@@ -15,34 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.hop.vfs.hdfs.metadata;
+package org.apache.hop.ui.hopgui.vfs.explorer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
 
-class HdfsMetaBrowseRootTest {
+class VfsLocationsTest {
 
   @Test
-  void browseRootLeavesTheDefaultRootToTheProvider() {
-    HdfsMeta meta = new HdfsMeta();
-    meta.setName("cluster");
-    meta.setDefaultRoot("/warehouse/tablespace/managed/hive");
-    meta.setBasePath("/webhdfs/v1");
-    String root = meta.getBrowseRoot(new Variables());
-    assertEquals("cluster://", root);
-    assertFalse(root.contains("warehouse"));
-    assertFalse(root.contains("webhdfs"));
+  void folderOpensItselfAndAFileOpensItsParent() {
+    assertEquals("/tmp", VfsLocations.folderToBrowse("/tmp", true));
+    assertEquals("/tmp", VfsLocations.folderToBrowse("/tmp/notes.txt", false));
+    assertEquals("ram://", VfsLocations.folderToBrowse("ram:///notes.txt", false));
+    assertEquals("ram:///dir", VfsLocations.folderToBrowse("ram:///dir/notes.txt", false));
+    assertEquals("/", VfsLocations.parentOf("/notes.txt"));
+    assertNull(VfsLocations.folderToBrowse("notes.txt", false));
+    assertNull(VfsLocations.folderToBrowse("  ", true));
+  }
 
-    Variables variables = new Variables();
-    variables.setVariable("CONN", "cluster");
-    meta.setName("${CONN}");
-    assertEquals("cluster://", meta.getBrowseRoot(variables));
-
-    meta.setName("  ");
-    assertNull(meta.getBrowseRoot(new Variables()));
+  @Test
+  void underRequiresASeparatorBoundary() {
+    assertTrue(VfsLocations.isUnder("ram:///a", "ram:///a/b"));
+    assertFalse(VfsLocations.isUnder("ram:///a", "ram:///ab"));
+    assertFalse(VfsLocations.isUnder("ram:///a", "ram:///a"));
+    assertFalse(VfsLocations.isUnder("ram:///a/", "ram:///a"));
   }
 }

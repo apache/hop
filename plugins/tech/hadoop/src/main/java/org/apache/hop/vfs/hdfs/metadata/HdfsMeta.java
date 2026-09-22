@@ -404,6 +404,20 @@ public class HdfsMeta extends HopMetadataBase
     }
   }
 
+  /**
+   * Explore opens {@code name://}. The HDFS provider reads that as {@code /} and then applies the
+   * configured default root. A third slash is the same folder after parsing; the button uses the
+   * two-slash form.
+   */
+  @Override
+  public String getBrowseRoot(IVariables variables) {
+    String root = IVfsBrowseLocation.super.getBrowseRoot(variables);
+    if (root != null && root.endsWith(":///")) {
+      return root.substring(0, root.length() - 1);
+    }
+    return root;
+  }
+
   public HdfsMeta() {
     this.transport = HdfsTransport.HttpFS;
     this.simpleUser = "hop";

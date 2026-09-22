@@ -104,7 +104,15 @@ public class VfsFileExplorer extends Composite {
             }
           }
         });
-    tabFolder.addListener(SWT.Selection, e -> activate());
+    tabFolder.addListener(
+        SWT.Selection,
+        e -> {
+          activate();
+          VfsFileExplorerLocation location = activeLocation();
+          if (location != null) {
+            location.publishCounts();
+          }
+        });
 
     operationsPanel = new VfsExplorerOperationsPanel(sash, this, this);
     operationsPanel.setExpandedListener(this::layoutOperations);
@@ -164,6 +172,17 @@ public class VfsFileExplorer extends Composite {
     }
   }
 
+  /**
+   * Status-line counts for the active location. A listing that finishes on another tab is ignored.
+   */
+  public void setListingCounts(VfsFileExplorerLocation source, VfsListingCounts counts) {
+    if (source == null || source != activeLocation()) {
+      return;
+    }
+    operationsPanel.setListingCounts(counts);
+    refreshOperations();
+  }
+
   public void cancelListings() {
     for (CTabItem item : tabFolder.getItems()) {
       if (item.getData() instanceof VfsFileExplorerLocation location) {
@@ -190,8 +209,15 @@ public class VfsFileExplorer extends Composite {
       id = HOST_NEW_TAB,
       toolTip = "i18n::VfsFileExplorer.Toolbar.NewTab.Tooltip",
       image = "ui/images/add.svg")
+  @GuiKeyboardShortcut(control = true, key = 't')
+  @GuiOsxKeyboardShortcut(command = true, key = 't')
   public void newTab() {
-    newTab(System.getProperty("user.home"));
+    VfsFileExplorerLocation location = activeLocation();
+    String target = location == null ? "" : location.shownFolder();
+    if (StringUtils.isBlank(target)) {
+      target = System.getProperty("user.home");
+    }
+    newTab(target);
   }
 
   @GuiToolbarElement(
@@ -233,7 +259,7 @@ public class VfsFileExplorer extends Composite {
   public void renameActive() {
     VfsFileExplorerLocation location = activeLocation();
     if (location != null) {
-      location.renameSelected();
+      location.renameFromShortcut();
     }
   }
 

@@ -73,4 +73,28 @@ class VfsExplorerViewStateTest {
     assertFalse(state.isVisible(VfsFileColumn.PERMISSIONS));
     assertFalse(state.isVisible(VfsFileColumn.MODIFIED));
   }
+
+  @Test
+  void legacyShowHiddenAppliesToFoldersAndFiles() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("showHidden", true);
+    VfsExplorerViewState state = new VfsExplorerViewState();
+    VfsExplorerViewState.applyStoredHidden(
+        state, new AuditState(VfsExplorerViewState.STATE_NAME, values));
+    assertTrue(state.isShowHiddenFolders());
+    assertTrue(state.isShowHiddenFiles());
+  }
+
+  @Test
+  void storedHiddenFlagsStayIndependent() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("showHidden", true);
+    values.put("showHiddenFolders", false);
+    values.put("showHiddenFiles", true);
+    VfsExplorerViewState state = new VfsExplorerViewState();
+    VfsExplorerViewState.applyStoredHidden(
+        state, new AuditState(VfsExplorerViewState.STATE_NAME, values));
+    assertFalse(state.isShowHiddenFolders());
+    assertTrue(state.isShowHiddenFiles());
+  }
 }
