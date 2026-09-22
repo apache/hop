@@ -87,18 +87,26 @@ public final class ColumnValueValidator {
         converted = spec.getTargetValueMeta().convertData(streamMeta, value);
         workingMeta = spec.getTargetValueMeta();
       } catch (HopValueException e) {
-        errors.add(
-            error(
-                field,
-                spec,
-                ColumnValueErrorCode.CONVERSION,
-                BaseMessages.getString(
-                    PKG,
-                    "ColumnValueValidator.Conversion",
-                    spec.getColumnName(),
-                    typeLabel(spec),
-                    Const.NVL(e.getMessage(), ""),
-                    preview(streamMeta, value, omitValues))));
+        // A uuid or json column is read as its own value type, so a value that is not one fails
+        // to convert before the check that knows what is wrong with it can run. Those checks go
+        // first here: they say what is wrong with the value, where the converter can only report
+        // that the target type refused it, in whatever words the driver or parser used.
+        checkUuid(spec, field, streamMeta, value, omitValues, errors);
+        checkJson(spec, field, streamMeta, value, omitValues, errors);
+        if (errors.isEmpty()) {
+          errors.add(
+              error(
+                  field,
+                  spec,
+                  ColumnValueErrorCode.CONVERSION,
+                  BaseMessages.getString(
+                      PKG,
+                      "ColumnValueValidator.Conversion",
+                      spec.getColumnName(),
+                      typeLabel(spec),
+                      Const.NVL(e.getMessage(), ""),
+                      preview(streamMeta, value, omitValues))));
+        }
         return errors;
       }
     }
