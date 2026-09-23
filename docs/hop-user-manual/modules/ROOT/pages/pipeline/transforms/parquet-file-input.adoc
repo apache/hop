@@ -32,17 +32,12 @@ For more information on this see: http://parquet.apache.org/[Apache Parquet].
 
 Notes:
 
-* To support reading from any location through Apache VFS each file is loaded into memory (one at a time).
-Make sure to allocate enough memory to allow this.
-* Long values can be de-serialized to Dates if they are EPOC: milliseconds since `1970-01-01 00:00:00.000`
-* Parquet Binary fields are considered to be Hop Strings but you can read them as Hop Binary.
-* All input values are passed to the output
-* INT96 is converted to the Hop Binary data type.
-* Columns annotated as JSON are read as the Hop JSON type, columns annotated as BSON as Hop Binary.
-* A column which is stored as an integer in one file and as a floating point number in another can
-be read as either Hop Integer or Hop Number: the value is widened or rounded to match the type you
-configured for the field.  This is useful when reading a set of files whose schemas drifted over
-time.
+* Files are read in place through Apache VFS: local files directly, other locations (S3, Azure, ...) by seeking in the file.
+* All input values are passed to the output.
+* A column must have the same type in every file read by the transform, or be read into a Hop type both of its types convert to (see the table below).
+A value which can't be converted stops the transform with an error naming the Parquet column, its type and the field.
+* Timestamps annotated as adjusted to UTC are instants.
+The ones which aren't hold the date and time fields of a local time, taken in the time zone of the Hop JVM.
 
 [options="header"]
 |===
@@ -71,4 +66,77 @@ This row can then be used to extract metadata with the xref:pipeline/transforms/
 |Get fields button
 |With this button you can select a parquet file from which we'll read the schema to populate the Fields grid.
 
+|===
+
+== Parquet to Hop types
+
+The *Get fields* button proposes a Hop type for every column, based on its https://parquet.apache.org/docs/file-format/types/logicaltypes/[logical type] or, without one, its physical type.
+You can pick another Hop type from the last column instead.
+
+[options="header"]
+|===
+|Parquet column|Get fields proposes|Can also be read as
+
+|BOOLEAN
+|Boolean
+|String, Integer (1 or 0)
+
+|INT32, INT64, INT(8/16/32/64, signed), INT(8/16/32, unsigned)
+|Integer
+|String, Number, BigNumber
+
+|INT(64, unsigned)
+|BigNumber
+|String, Number, Integer (up to 9223372036854775807)
+
+|DECIMAL (on INT32, INT64, FIXED_LEN_BYTE_ARRAY or BINARY)
+|BigNumber, with the precision as length and the scale as precision
+|String, Number, Integer (the fraction is dropped), Binary (the stored bytes)
+
+|FLOAT, DOUBLE
+|Number
+|String, BigNumber, Integer (rounded)
+
+|FLOAT16
+|Number
+|String, BigNumber, Integer (rounded), Binary (the stored bytes)
+
+|DATE
+|Date, midnight in the local time zone
+|Timestamp. String, Integer, Number and BigNumber get the stored number of days.
+
+|TIME (MILLIS, MICROS, NANOS)
+|Timestamp, the time on 1970-01-01
+|Date. String, Integer, Number and BigNumber get the stored number.
+
+|TIMESTAMP (MILLIS, MICROS, NANOS)
+|Timestamp, with its full precision
+|Date. String, Integer, Number and BigNumber get the stored number.
+
+|INT96
+|Timestamp
+|Date
+
+|STRING, ENUM
+|String
+|BigNumber (text holding a number), JSON (text holding JSON), Binary
+
+|JSON
+|JSON
+|String, BigNumber (text holding a number), Binary
+
+|UUID
+|UUID, or String when the UUID value type isn't installed
+|String, Binary
+
+|BINARY, FIXED_LEN_BYTE_ARRAY without a logical type
+|Binary
+|String (UTF-8 text), JSON, BigNumber (text holding a number, or else the unscaled bytes of a decimal with the length and precision of the field)
+
+|BSON, INTERVAL, GEOMETRY, GEOGRAPHY
+|Binary
+|
+
+|LIST, MAP, VARIANT and other nested columns
+2+|Not supported
 |===

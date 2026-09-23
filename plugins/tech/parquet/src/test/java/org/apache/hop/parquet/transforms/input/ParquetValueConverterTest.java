@@ -140,7 +140,7 @@ class ParquetValueConverterTest {
     ByteBuffer buffer = ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN);
     buffer.putLong(nanosInDay).putInt((int) julianDay);
 
-    converter(new ValueMetaTimestamp("ts"), null)
+    converter(new ValueMetaTimestamp("ts"), PrimitiveTypeName.INT96, null)
         .addBinary(Binary.fromConstantByteArray(buffer.array()));
 
     Timestamp timestamp = (Timestamp) value();
@@ -155,7 +155,7 @@ class ParquetValueConverterTest {
     ByteBuffer buffer = ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN);
     buffer.putLong(86_399_500_000_000L).putInt(2440587);
 
-    converter(new ValueMetaTimestamp("ts"), null)
+    converter(new ValueMetaTimestamp("ts"), PrimitiveTypeName.INT96, null)
         .addBinary(Binary.fromConstantByteArray(buffer.array()));
 
     Timestamp timestamp = (Timestamp) value();

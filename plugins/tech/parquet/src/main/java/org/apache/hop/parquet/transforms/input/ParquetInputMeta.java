@@ -40,13 +40,16 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.column.ColumnDescriptor;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
-import org.apache.parquet.schema.LogicalTypeAnnotation.BsonLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.DateLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.EnumLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.Float16LogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.IntLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.JsonLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.StringLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.TimeLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.TimestampLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.UUIDLogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 
@@ -147,43 +150,70 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
             sourceField += path[i];
           }
         }
-        PrimitiveType primitiveType = column.getPrimitiveType();
-        int hopType = IValueMeta.TYPE_STRING;
-        LogicalTypeAnnotation logicalType = primitiveType.getLogicalTypeAnnotation();
-        if (logicalType != null) {
-          if ((logicalType instanceof TimestampLogicalTypeAnnotation)
-              || (logicalType instanceof TimeLogicalTypeAnnotation)) {
-            hopType = IValueMeta.TYPE_TIMESTAMP;
-          } else if (logicalType instanceof DateLogicalTypeAnnotation) {
-            hopType = IValueMeta.TYPE_DATE;
-          } else if (logicalType instanceof JsonLogicalTypeAnnotation) {
-            hopType = IValueMeta.TYPE_JSON;
-          } else if (logicalType instanceof BsonLogicalTypeAnnotation) {
-            // A BSON document is binary, reading it as text would mangle it.
-            hopType = IValueMeta.TYPE_BINARY;
-          } else if (logicalType instanceof DecimalLogicalTypeAnnotation) {
-            hopType = IValueMeta.TYPE_BIGNUMBER;
-          } else if (logicalType instanceof IntLogicalTypeAnnotation) {
-            hopType = IValueMeta.TYPE_INTEGER;
-          }
-        } else {
-          hopType =
-              switch (primitiveType.getPrimitiveTypeName()) {
-                case INT32, INT64 -> IValueMeta.TYPE_INTEGER;
-                case INT96 -> IValueMeta.TYPE_TIMESTAMP;
-                case FLOAT, DOUBLE -> IValueMeta.TYPE_NUMBER;
-                case BOOLEAN -> IValueMeta.TYPE_BOOLEAN;
-                case BINARY -> IValueMeta.TYPE_BINARY;
-                default -> hopType;
-              };
-        }
-        IValueMeta valueMeta = ValueMetaFactory.createValueMeta(sourceField, hopType, -1, -1);
-        rowMeta.addValueMeta(valueMeta);
+        rowMeta.addValueMeta(hopValueMeta(sourceField, column.getPrimitiveType()));
       }
       return rowMeta;
     } catch (Exception e) {
       throw new HopException(
           "Unable to extract row metadata from parquet file '" + filename + "'", e);
     }
+  }
+
+  /**
+   * The Hop field a Parquet column is read into by default: from its logical type when it has one
+   * we know, from its physical type otherwise.
+   *
+   * @param name the name of the field
+   * @param primitiveType the type of the column
+   * @return the value metadata of the field
+   * @see <a href="https://parquet.apache.org/docs/file-format/types/logicaltypes/">Parquet logical
+   *     types</a>
+   */
+  static IValueMeta hopValueMeta(String name, PrimitiveType primitiveType) throws HopException {
+    LogicalTypeAnnotation logicalType = primitiveType.getLogicalTypeAnnotation();
+    int length = -1;
+    int precision = -1;
+    int hopType;
+    if (logicalType instanceof StringLogicalTypeAnnotation
+        || logicalType instanceof EnumLogicalTypeAnnotation) {
+      hopType = IValueMeta.TYPE_STRING;
+    } else if (logicalType instanceof JsonLogicalTypeAnnotation) {
+      hopType = IValueMeta.TYPE_JSON;
+    } else if (logicalType instanceof TimestampLogicalTypeAnnotation
+        || logicalType instanceof TimeLogicalTypeAnnotation) {
+      hopType = IValueMeta.TYPE_TIMESTAMP;
+    } else if (logicalType instanceof DateLogicalTypeAnnotation) {
+      hopType = IValueMeta.TYPE_DATE;
+    } else if (logicalType instanceof DecimalLogicalTypeAnnotation decimal) {
+      hopType = IValueMeta.TYPE_BIGNUMBER;
+      length = decimal.getPrecision();
+      precision = decimal.getScale();
+    } else if (logicalType instanceof IntLogicalTypeAnnotation intType) {
+      // An unsigned 64-bit value can be larger than a Hop Integer can hold.
+      hopType =
+          !intType.isSigned() && intType.getBitWidth() == 64
+              ? IValueMeta.TYPE_BIGNUMBER
+              : IValueMeta.TYPE_INTEGER;
+    } else if (logicalType instanceof Float16LogicalTypeAnnotation) {
+      hopType = IValueMeta.TYPE_NUMBER;
+    } else if (logicalType instanceof UUIDLogicalTypeAnnotation) {
+      // The UUID value type is a plugin: fall back to its text when it isn't installed.
+      hopType =
+          "-".equals(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_UUID))
+              ? IValueMeta.TYPE_STRING
+              : IValueMeta.TYPE_UUID;
+    } else {
+      // No logical type, or one Hop has no type for (BSON, INTERVAL, GEOMETRY, ...): go by the
+      // physical type. Binary values we can't interpret are passed on as bytes.
+      hopType =
+          switch (primitiveType.getPrimitiveTypeName()) {
+            case INT32, INT64 -> IValueMeta.TYPE_INTEGER;
+            case INT96 -> IValueMeta.TYPE_TIMESTAMP;
+            case FLOAT, DOUBLE -> IValueMeta.TYPE_NUMBER;
+            case BOOLEAN -> IValueMeta.TYPE_BOOLEAN;
+            case BINARY, FIXED_LEN_BYTE_ARRAY -> IValueMeta.TYPE_BINARY;
+          };
+    }
+    return ValueMetaFactory.createValueMeta(name, hopType, length, precision);
   }
 }

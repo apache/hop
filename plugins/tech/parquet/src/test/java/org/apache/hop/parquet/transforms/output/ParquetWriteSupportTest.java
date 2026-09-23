@@ -17,9 +17,14 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -29,8 +34,10 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -38,6 +45,8 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.parquet.avro.AvroSchemaConverter;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
 import org.junit.jupiter.api.Test;
 
@@ -139,5 +148,82 @@ class ParquetWriteSupportTest {
     verify(consumer).addLong(1_000L);
     verify(consumer).addLong(2_000L);
     verify(consumer).addLong(3_000L);
+  }
+
+  private static final DecimalLogicalTypeAnnotation DECIMAL_10_2 =
+      (DecimalLogicalTypeAnnotation) LogicalTypeAnnotation.decimalType(2, 10);
+
+  private static BigDecimal decimal(String fieldValue, ValueMetaBigNumber valueMeta) {
+    byte[] bytes =
+        ParquetWriteSupport.decimalBytes("n", valueMeta, new BigDecimal(fieldValue), DECIMAL_10_2)
+            .getBytes();
+    return new BigDecimal(new BigInteger(bytes), DECIMAL_10_2.getScale());
+  }
+
+  @Test
+  void testDecimalIsRoundedTheWayTheFieldRounds() {
+    ValueMetaBigNumber halfEven = new ValueMetaBigNumber("n");
+    assertEquals(new BigDecimal("1234.56"), decimal("1234.565", halfEven));
+    assertEquals(new BigDecimal("1234.58"), decimal("1234.575", halfEven));
+
+    ValueMetaBigNumber halfUp = new ValueMetaBigNumber("n");
+    halfUp.setRoundingType("half_up");
+    assertEquals(new BigDecimal("1234.57"), decimal("1234.565", halfUp));
+
+    ValueMetaBigNumber unknown = new ValueMetaBigNumber("n");
+    unknown.setRoundingType("sideways");
+    assertEquals(new BigDecimal("1234.56"), decimal("1234.565", unknown));
+  }
+
+  @Test
+  void testDecimalWhichDoesNotFitFailsWithTheFieldName() {
+    // DECIMAL(10,2) leaves 8 digits before the point.
+    assertEquals(
+        new BigDecimal("99999999.99"), decimal("99999999.99", new ValueMetaBigNumber("n")));
+
+    HopRuntimeException e =
+        assertThrows(
+            HopRuntimeException.class,
+            () ->
+                ParquetWriteSupport.decimalBytes(
+                    "amount",
+                    new ValueMetaBigNumber("amount"),
+                    new BigDecimal("123456789.00"),
+                    DECIMAL_10_2));
+    assertTrue(e.getMessage().contains("'amount'"), e.getMessage());
+    assertTrue(e.getMessage().contains("DECIMAL(10,2)"), e.getMessage());
+  }
+
+  @Test
+  void testTimestampMicrosKeepTheFractionAlsoBeforeTheEpoch() throws Exception {
+    LogicalTypeAnnotation micros =
+        LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MICROS);
+    ValueMetaTimestamp valueMeta = new ValueMetaTimestamp("ts");
+
+    Timestamp after = new Timestamp(1_000L);
+    after.setNanos(123_456_789);
+    assertEquals(1_123_456L, ParquetWriteSupport.epochValue(valueMeta, after, micros));
+
+    // One microsecond before 1970: -1, not -1001 or +999999.
+    Timestamp before = new Timestamp(-1_000L);
+    before.setNanos(999_999_000);
+    assertEquals(-1L, ParquetWriteSupport.epochValue(valueMeta, before, micros));
+
+    // A Date in a TIMESTAMP(MICROS) column: its milliseconds, in microseconds.
+    assertEquals(
+        2_000_000L,
+        ParquetWriteSupport.epochValue(new ValueMetaDate("d"), new Date(2_000L), micros));
+
+    // Any other column: milliseconds.
+    assertEquals(1_123L, ParquetWriteSupport.epochValue(valueMeta, after, null));
+  }
+
+  @Test
+  void testUuidBytesAreBigEndian() {
+    byte[] bytes = ParquetWriteSupport.uuidBytes("00112233-4455-6677-8899-aabbccddeeff").getBytes();
+    assertEquals(16, bytes.length);
+    assertEquals(0x00, bytes[0]);
+    assertEquals(0x11, bytes[1]);
+    assertEquals((byte) 0xff, bytes[15]);
   }
 }

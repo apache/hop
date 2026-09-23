@@ -35,9 +35,6 @@ The dialog is split across four tabs so it fits a 1080p screen at 100% zoom: **F
 Notes:
 
 * The date optionally referenced in the output file name(s) will be the start of the pipeline execution.
-* Hop Date and Timestamp types are serialized as milliseconds since `1970-01-01 00:00:00.000` UTC, with the Parquet `timestamp-millis` logical type.
-* Strings, BigNumbers, JSON and UUID values are written as UTF-8 strings.
-JSON columns also carry the Parquet JSON annotation, so that they are read back as JSON rather than as a String.
 * Rows are buffered in memory until a row group is full (see the *Row group size* option), then encoded, compressed and written.
 Memory use is therefore bounded by the row group size (times the number of copies and, when partitioning, the number of open partitions), not by the split size.
 
@@ -180,3 +177,49 @@ You can use the "Get Fields" button to populate the dialog.
 Leave empty to output all input fields.
 
 |===
+
+== Hop to Parquet types
+
+Every field is written as an optional column of the https://parquet.apache.org/docs/file-format/types/logicaltypes/[Parquet type] below.
+
+[options="header"]
+|===
+|Hop type|Parquet column
+
+|Integer
+|INT64
+
+|Number
+|DOUBLE
+
+|BigNumber with a length of 1 to 38
+|DECIMAL(length, precision), rounded with the rounding type of the field.
+A value with more digits before the decimal point than the column holds stops the transform with an error.
+
+|BigNumber without a length, or longer than 38
+|STRING, the number as text
+
+|String
+|STRING
+
+|Boolean
+|BOOLEAN
+
+|Date
+|TIMESTAMP(MILLIS), adjusted to UTC
+
+|Timestamp
+|TIMESTAMP(MICROS), adjusted to UTC.
+The nanoseconds beyond the microsecond are dropped.
+
+|Binary
+|BINARY
+
+|JSON
+|JSON, the JSON text
+
+|UUID
+|UUID, the 16 bytes of the UUID
+|===
+
+Other Hop types can't be written to Parquet.

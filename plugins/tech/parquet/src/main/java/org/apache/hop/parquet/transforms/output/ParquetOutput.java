@@ -23,12 +23,12 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
@@ -55,6 +55,7 @@ import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
 
@@ -269,25 +270,47 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
     // Convert from Avro to Parquet schema
     //
-    return annotateJsonFields(new AvroSchemaConverter().convert(fieldAssembler.endRecord()));
+    return withParquetOnlyTypes(new AvroSchemaConverter().convert(fieldAssembler.endRecord()));
   }
 
+  /** The largest DECIMAL precision readers such as Spark, Hive and Trino accept. */
+  static final int MAX_DECIMAL_PRECISION = 38;
+
   /**
-   * The Avro type a Hop value is written as. Match these with class ParquetWriteSupport.
-   * BigDecimal, JSON and UUID values are written as strings, which avoids all sorts of conversion
-   * issues on the reading side.
+   * The Avro type a Hop value is written as. Class ParquetWriteSupport writes the values according
+   * to the Parquet column this becomes.
+   *
+   * <ul>
+   *   <li>A Date is an instant with millisecond precision: timestamp-millis.
+   *   <li>A Timestamp keeps its sub-millisecond part: timestamp-micros, the most precise unit
+   *       Spark, Hive and Trino all read.
+   *   <li>A BigNumber with a length (precision) of at most 38 is a DECIMAL with the field's
+   *       precision (scale). Without a length there is no precision to declare, so it is written as
+   *       a string.
+   *   <li>JSON and UUID are strings here: Avro has no JSON type and the Avro converter writes a
+   *       UUID as a string. {@link #withParquetOnlyTypes(MessageType)} gives them their Parquet
+   *       type.
+   * </ul>
    */
   static Schema avroType(IValueMeta valueMeta) throws HopException {
     return switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE ->
+      case IValueMeta.TYPE_DATE ->
           LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
+      case IValueMeta.TYPE_TIMESTAMP ->
+          LogicalTypes.timestampMicros().addToSchema(Schema.create(Schema.Type.LONG));
+      case IValueMeta.TYPE_BIGNUMBER -> {
+        int length = valueMeta.getLength();
+        int precision = Math.max(valueMeta.getPrecision(), 0);
+        if (length > 0 && length <= MAX_DECIMAL_PRECISION && precision <= length) {
+          yield LogicalTypes.decimal(length, precision)
+              .addToSchema(Schema.create(Schema.Type.BYTES));
+        }
+        yield Schema.create(Schema.Type.STRING);
+      }
       case IValueMeta.TYPE_INTEGER -> Schema.create(Schema.Type.LONG);
       case IValueMeta.TYPE_NUMBER -> Schema.create(Schema.Type.DOUBLE);
       case IValueMeta.TYPE_BOOLEAN -> Schema.create(Schema.Type.BOOLEAN);
-      case IValueMeta.TYPE_STRING,
-              IValueMeta.TYPE_BIGNUMBER,
-              IValueMeta.TYPE_JSON,
-              IValueMeta.TYPE_UUID ->
+      case IValueMeta.TYPE_STRING, IValueMeta.TYPE_JSON, IValueMeta.TYPE_UUID ->
           Schema.create(Schema.Type.STRING);
       case IValueMeta.TYPE_BINARY -> Schema.create(Schema.Type.BYTES);
       default ->
@@ -299,31 +322,37 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   }
 
   /**
-   * Avro has no JSON logical type, so the schema coming out of the Avro converter describes a Hop
-   * JSON field as a plain string. Annotate those columns as JSON again so that readers, Parquet
-   * Input included, recognise them as JSON instead of String.
+   * Gives the columns Avro can't describe their Parquet type. Avro has no JSON type and the Avro
+   * converter writes a UUID as a string, so both come out of it as plain strings:
+   *
+   * <ul>
+   *   <li>JSON: a string annotated as JSON, so readers, Parquet Input included, see JSON.
+   *   <li>UUID: the 16 bytes of the UUID annotated as UUID.
+   * </ul>
    *
    * @param messageType the schema as converted from Avro
-   * @return the same schema with the JSON columns annotated
+   * @return the same schema with the JSON and UUID columns retyped
    */
-  private MessageType annotateJsonFields(MessageType messageType) {
-    Set<String> jsonFieldNames = new HashSet<>();
+  private MessageType withParquetOnlyTypes(MessageType messageType) {
+    Map<String, Integer> hopTypes = new HashMap<>();
     for (int i = 0; i < data.outputFields.size(); i++) {
       IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
-      if (valueMeta.getType() == IValueMeta.TYPE_JSON) {
-        jsonFieldNames.add(data.outputFields.get(i).getTargetFieldName());
-      }
-    }
-    if (jsonFieldNames.isEmpty()) {
-      return messageType;
+      hopTypes.put(data.outputFields.get(i).getTargetFieldName(), valueMeta.getType());
     }
 
     List<Type> types = new ArrayList<>();
     for (Type type : messageType.getFields()) {
-      if (jsonFieldNames.contains(type.getName()) && type.isPrimitive()) {
+      int hopType = hopTypes.getOrDefault(type.getName(), IValueMeta.TYPE_NONE);
+      if (hopType == IValueMeta.TYPE_JSON) {
         types.add(
-            Types.primitive(type.asPrimitiveType().getPrimitiveTypeName(), type.getRepetition())
+            Types.primitive(PrimitiveTypeName.BINARY, type.getRepetition())
                 .as(LogicalTypeAnnotation.jsonType())
+                .named(type.getName()));
+      } else if (hopType == IValueMeta.TYPE_UUID) {
+        types.add(
+            Types.primitive(PrimitiveTypeName.FIXED_LEN_BYTE_ARRAY, type.getRepetition())
+                .length(16)
+                .as(LogicalTypeAnnotation.uuidType())
                 .named(type.getName()));
       } else {
         types.add(type);
