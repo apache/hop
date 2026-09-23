@@ -33,7 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Setter
 @GuiPlugin
 @HopMetadata(
-    key = "MinioConnectionDefinition",
+    key = "minio-connection",
+    legacyKeys = {"MinioConnectionDefinition"},
     name = "i18n::MinioMeta.Name",
     description = "i18n::MinioMeta.Description",
     image = "minio.svg",

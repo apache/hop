@@ -14,43 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.vfs.gs.metadatatype;
 
-import java.io.Serializable;
+package org.apache.hop.metadata.serializer.json.renamed;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
-import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
-@HopMetadata(
-    key = "google-storage-connection",
-    legacyKeys = {"GoogleStorageConnectionDefinition"},
-    name = "i18n::GoogleStorageMetadataType.Name",
-    description = "i18n::GoogleStorageMetadataType.Description",
-    image = "ui/images/authentication.svg",
-    category = HopMetadataCategory.FILE_STORAGE,
-    documentationUrl = "/metadata-types/google-storage-authentication.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.VFS_GCP_CONNECTION,
-    classLoaderGroup = "vfs-google")
+/** A metadata type renamed twice: from "OriginalName" to "TwiceRenamed" to "twice-renamed". */
 @Getter
 @Setter
-public class GoogleStorageMetadataType extends HopMetadataBase
-    implements Serializable, IHopMetadata {
+@HopMetadata(
+    name = "TwiceRenamedType",
+    key = "twice-renamed",
+    legacyKeys = {"TwiceRenamed", "OriginalName"})
+public class TwiceRenamedType extends HopMetadataBase implements IHopMetadata {
 
-  private static final Class<?> PKG = GoogleStorageMetadataType.class;
   @HopMetadataProperty private String description;
 
-  @HopMetadataProperty(password = true)
-  private GoogleStorageCredentialsType storageCredentialsType;
+  public TwiceRenamedType() {}
 
-  @HopMetadataProperty(password = true)
-  private String storageAccountKey;
-
-  public GoogleStorageMetadataType() {
-    // Do nothing
+  public TwiceRenamedType(String name, String description) {
+    this.name = name;
+    this.description = description;
   }
 }

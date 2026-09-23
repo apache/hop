@@ -62,6 +62,15 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
   @Override
   public String getFilename() {
     if (serializer instanceof JsonMetadataSerializer jsonMetadataSerializer) {
+      // Objects of a renamed metadata type can still live in a legacy folder.
+      try {
+        String filename = jsonMetadataSerializer.findFilename(getName());
+        if (filename != null) {
+          return filename;
+        }
+      } catch (Exception e) {
+        // Fall back to where the object would be saved.
+      }
       return jsonMetadataSerializer.calculateFilename(getName());
     }
     return null;

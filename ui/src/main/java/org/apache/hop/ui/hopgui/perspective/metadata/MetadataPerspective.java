@@ -2461,7 +2461,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 annotation.image(),
                 metadataClass);
 
-        knownKeys.add(annotation.key());
+        // A folder named after a legacy key holds objects of this type which weren't saved since
+        // the type was renamed: they are not unknown.
+        //
+        knownKeys.addAll(HopMetadataUtil.getAllKeys(annotation));
 
         IHopMetadataSerializer<IHopMetadata> serializer =
             metadataProvider.getSerializer(metadataClass);
@@ -2585,14 +2588,31 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * provider which has it. Returns null if no file was found (or the metadata isn't file based).
    */
   private String findMetadataFilename(String typeKey, String name) {
+    // An object which wasn't saved since its type was renamed still lives in a legacy key folder.
+    //
+    List<String> typeKeys = List.of(typeKey);
+    try {
+      HopMetadata annotation =
+          hopGui
+              .getMetadataProvider()
+              .getMetadataClassForKey(typeKey)
+              .getAnnotation(HopMetadata.class);
+      if (annotation != null) {
+        typeKeys = HopMetadataUtil.getAllKeys(annotation);
+      }
+    } catch (Exception e) {
+      // An unknown type: only look in the folder named after the key.
+    }
     for (JsonMetadataProvider jsonProvider : getJsonProviders(hopGui.getMetadataProvider())) {
-      String filename = jsonProvider.getBaseFolder() + "/" + typeKey + "/" + name + ".json";
-      try {
-        if (HopVfs.fileExists(filename)) {
-          return filename;
+      for (String key : typeKeys) {
+        String filename = jsonProvider.getBaseFolder() + "/" + key + "/" + name + ".json";
+        try {
+          if (HopVfs.fileExists(filename)) {
+            return filename;
+          }
+        } catch (Exception e) {
+          LogChannel.UI.logError("Error checking metadata file " + filename, e);
         }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error checking metadata file " + filename, e);
       }
     }
     return null;
@@ -2603,28 +2623,45 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * its metadata type model, so explicitly-created (and possibly empty) folders are rendered.
    */
   private void loadPersistedFolders() {
+    // Folders can have been stored under a key the metadata type had before it was renamed.
+    //
     Map<String, MetadataTypeModel> byKey = new LinkedHashMap<>();
     for (MetadataTypeModel typeModel : typeModels) {
-      byKey.put(typeModel.key, typeModel);
+      HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(typeModel.metadataClass);
+      for (String key : HopMetadataUtil.getAllKeys(annotation)) {
+        byKey.putIfAbsent(key, typeModel);
+      }
     }
     try {
-      AuditList list =
-          AuditManager.getActive().retrieveList(getAuditNamespace(), FOLDER_AUDIT_TYPE);
+      IAuditManager auditManager = AuditManager.getActive();
+      String namespace = getAuditNamespace();
+      AuditList list = auditManager.retrieveList(namespace, FOLDER_AUDIT_TYPE);
       if (list == null || list.getNames() == null) {
         return;
       }
-      for (String entry : list.getNames()) {
+      boolean migrated = false;
+      for (int i = 0; i < list.getNames().size(); i++) {
+        String entry = list.getNames().get(i);
         int sep = entry.indexOf(FOLDER_AUDIT_SEPARATOR);
         if (sep < 0) {
           continue;
         }
-        MetadataTypeModel typeModel = byKey.get(entry.substring(0, sep));
+        String key = entry.substring(0, sep);
+        MetadataTypeModel typeModel = byKey.get(key);
         String path = entry.substring(sep + FOLDER_AUDIT_SEPARATOR.length());
+        if (typeModel != null && !typeModel.key.equals(key)) {
+          // Store it under the current key so removing the folder later on works.
+          list.getNames().set(i, typeModel.key + FOLDER_AUDIT_SEPARATOR + path);
+          migrated = true;
+        }
         if (typeModel != null
             && !Utils.isEmpty(path)
             && !typeModel.folderVirtualPaths.contains(path)) {
           typeModel.folderVirtualPaths.add(path);
         }
+      }
+      if (migrated) {
+        auditManager.storeList(namespace, FOLDER_AUDIT_TYPE, list);
       }
     } catch (Exception e) {
       LogChannel.UI.logError("Error reading metadata virtual folders from the audit trail", e);

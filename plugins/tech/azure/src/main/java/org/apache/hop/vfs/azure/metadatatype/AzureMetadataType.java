@@ -27,7 +27,8 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
-    key = "AzureConnectionDefinition",
+    key = "azure-connection",
+    legacyKeys = {"AzureConnectionDefinition"},
     name = "i18n::AzureMetadataType.Name",
     description = "i18n::AzureMetadataType.Description",
     image = "ui/images/authentication.svg",

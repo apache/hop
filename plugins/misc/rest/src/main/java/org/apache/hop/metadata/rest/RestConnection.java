@@ -60,7 +60,8 @@ import org.apache.hop.metadata.rest.client.RestOAuth2Grant;
 @Getter
 @Setter
 @HopMetadata(
-    key = "restconnection",
+    key = "rest-connection",
+    legacyKeys = {"restconnection"},
     name = "i18n::RestConnection.name",
     description = "i18n::RestConnection.description",
     image = "rest.svg",
