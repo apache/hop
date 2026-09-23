@@ -19,7 +19,10 @@ package org.apache.hop.beam.core.util;
 
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlHandlerCache;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -60,6 +63,38 @@ public class HopBeamUtil {
     Object[] newRow = new Object[rowMeta.size()];
     System.arraycopy(hopRow.getRow(), 0, newRow, 0, rowMeta.size());
     return new HopRow(newRow);
+  }
+
+  /**
+   * Rows leaving a Hop transform in Beam are serialized with the HopRowCoder and described
+   * downstream by JSON row metadata, which only knows about normal storage. Values kept in lazy
+   * (binary string) or indexed storage, such as those of a CSV File Input with lazy conversion, are
+   * therefore converted to normal storage here. Values already in normal storage, including real
+   * binary data, are passed along untouched.
+   *
+   * @param rowMeta The row metadata of the transform output, including the storage information
+   * @param row The row to convert
+   * @return The given row if all values are in normal storage, a converted copy otherwise
+   * @throws HopTransformException In case a value can't be converted
+   */
+  public static Object[] toNormalStorage(IRowMeta rowMeta, Object[] row)
+      throws HopTransformException {
+    Object[] normalRow = row;
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      if (!valueMeta.isStorageNormal()) {
+        if (normalRow == row) {
+          normalRow = row.clone();
+        }
+        try {
+          normalRow[i] = valueMeta.convertToNormalStorageType(row[i]);
+        } catch (HopValueException e) {
+          throw new HopTransformException(
+              "Error converting field '" + valueMeta.getName() + "' to normal storage", e);
+        }
+      }
+    }
+    return normalRow;
   }
 
   private static final Object object = new Object();
