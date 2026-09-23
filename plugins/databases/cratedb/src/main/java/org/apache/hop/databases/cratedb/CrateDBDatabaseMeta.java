@@ -17,11 +17,18 @@
 
 package org.apache.hop.databases.cratedb;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
@@ -45,8 +52,61 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
           .as("OBJECT")
           .write(IValueMeta.TYPE_INET)
           .as("IP")
-          .include(PostgreSqlDatabaseMeta.POSTGRES_TYPE_RULES)
+          // CrateDB's vector type is its own, and it is declared before the PostgreSQL rules are
+          // taken so that this answers instead of pgvector's VECTOR, which CrateDB does not have.
+          // The dimension is not optional, so a vector without one falls back to text.
+          //
+          // The value goes across as a float array rather than as text: CrateDB rejects a string
+          // with "Cannot convert VALUES element of type `text` to `float_vector`", and reads the
+          // column back as a float4 array, which is what it is underneath.
+          .write(IValueMeta.TYPE_VECTOR)
+          .where(v -> v.getLength() > 0)
+          .as(v -> "FLOAT_VECTOR(" + v.getLength() + ")")
+          .bind(
+              IValueMeta.TYPE_VECTOR,
+              (database, valueMeta) -> valueMeta.getLength() > 0,
+              new CrateDbVectorBinding())
+          .include(PostgreSqlDatabaseMeta.POSTGRES_BASE_TYPE_RULES)
           .build();
+
+  /** Writes a vector as the float array CrateDB stores it as. */
+  private static final class CrateDbVectorBinding implements IValueBinding {
+    @Override
+    public Object read(IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index) {
+      throw new UnsupportedOperationException("This binding only writes values");
+    }
+
+    @Override
+    public void write(
+        IDatabase database,
+        IValueMeta valueMeta,
+        PreparedStatement preparedStatement,
+        int index,
+        Object value)
+        throws SQLException, HopValueException {
+      float[] vector = (float[]) valueMeta.convertData(valueMeta, value);
+      if (vector == null) {
+        preparedStatement.setNull(index, Types.ARRAY);
+        return;
+      }
+      // The primitive array, and not a boxed one: the CrateDB driver answers a Float[] with
+      // "Can't infer the SQL type to use for an instance of [Ljava.lang.Float;". The alternative
+      // it accepts is createArrayOf("float4", ...), which means naming the server type in a
+      // string - and it only knows that one spelling, not "real" - so the primitive array is both
+      // shorter and the one thing there is nothing to get wrong about.
+      preparedStatement.setObject(index, vector);
+    }
+  }
+
+  /**
+   * CrateDB inherits the PostgreSQL dialect, including its check for the pgvector extension. That
+   * check is about a type CrateDB does not have, and the type it does have needs no check of its
+   * own, so the inherited answer is replaced by a plain yes.
+   */
+  @Override
+  public boolean isColumnTypeAvailable(String columnType) {
+    return true;
+  }
 
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {

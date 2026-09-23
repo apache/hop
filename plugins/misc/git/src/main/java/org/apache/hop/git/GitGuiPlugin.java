@@ -18,8 +18,6 @@
 
 package org.apache.hop.git;
 
-import static org.apache.hop.core.vfs.HopVfs.fileExists;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -243,6 +241,7 @@ public class GitGuiPlugin
         return;
       }
       List<String> changedFilesToCommit = git.getRevertPathFiles(relativePath);
+      List<String> committedFiles = new ArrayList<>();
       if (changedFilesToCommit.isEmpty()) {
         MessageBox box =
             new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
@@ -280,13 +279,14 @@ public class GitGuiPlugin
             // Now stage/add the selected files and commit...
             //
             int[] selectedNrs = selectionDialog.getSelectionIndeces();
-            List<String> committedFiles = new ArrayList<>();
+            FileObject rootObj = HopVfs.getFileObject(git.getDirectory());
             for (int selectedNr : selectedNrs) {
               // If the file is gone, git.rm(), otherwise add()
               //
               String file = files[selectedNr];
               committedFiles.add(file);
-              if (fileExists(file)) {
+              FileObject fileObj = rootObj.resolveFile(file);
+              if (fileObj.exists()) {
                 git.add(file);
               } else {
                 git.rm(file);
@@ -317,9 +317,27 @@ public class GitGuiPlugin
         }
       }
 
-      // Refresh the tree, change colors...
+      // Refresh the tree, change colors and re-reveal committed files...
       //
-      ExplorerPerspective.getInstance().refresh();
+      ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+      if (explorerPerspective != null) {
+        explorerPerspective.refresh();
+        if (git != null && !committedFiles.isEmpty()) {
+          try {
+            FileObject rootObj = HopVfs.getFileObject(git.getDirectory());
+            for (String file : committedFiles) {
+              FileObject fileObj = rootObj.resolveFile(file);
+              if (fileObj.exists()) {
+                explorerPerspective.selectInTree(HopVfs.getFilename(fileObj), false);
+              }
+            }
+          } catch (Exception e) {
+            HopGui.getInstance()
+                .getLog()
+                .logDebug("Unable to reselect committed files in explorer tree: " + e.getMessage());
+          }
+        }
+      }
       enableButtons();
     } catch (Exception e) {
       new ErrorDialog(

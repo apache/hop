@@ -707,14 +707,12 @@ public class ContextDialog extends Dialog {
 
     removePlacementArmFilters();
 
-    // Store the toolbar settings
-    storeDialogSettings();
-
     if (ContextDialogSvgFacade.isSupported() && wCanvas != null) {
       ContextDialogSvgFacade.unregister(wCanvas);
     }
 
-    // Close the dialog window
+    // Close the dialog window. The SWT.Close listener stores the dialog settings, so they are not
+    // stored a second time here.
     shell.close();
 
     // Do not dispose item images. They are cached by GuiResource so that they're only ever loaded
@@ -1080,11 +1078,19 @@ public class ContextDialog extends Dialog {
     int correctedIconSize = (int) (iconSize / props.getZoomFactor());
     Display display = shell != null && !shell.isDisposed() ? shell.getDisplay() : null;
 
+    // Hop Web draws the items as one SVG document straight from the icon files, so rasterizing a
+    // bitmap per action here would only slow down the first open of every session.
+    boolean loadBitmaps = !ContextDialogSvgFacade.isSupported();
+
     items.clear();
     for (GuiAction action : actions) {
       ClassLoader classLoader = action.getClassLoader();
       if (classLoader == null) {
         classLoader = ClassLoader.getSystemClassLoader();
+      }
+      if (!loadBitmaps) {
+        items.add(new Item(action, null));
+        continue;
       }
       Image image;
       try {
@@ -1454,6 +1460,14 @@ public class ContextDialog extends Dialog {
   }
 
   private void selectItem(Item selectedItem, boolean scroll) {
+    selectItem(selectedItem, scroll, true);
+  }
+
+  /**
+   * @param redraw false when the caller redraws the canvas itself afterwards. Without paint
+   *     coalescing (Hop Web) every redraw renders the whole item list again.
+   */
+  private void selectItem(Item selectedItem, boolean scroll, boolean redraw) {
 
     for (Item item : items) {
       item.setSelected(false);
@@ -1494,7 +1508,9 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    wCanvas.redraw();
+    if (redraw) {
+      wCanvas.redraw();
+    }
   }
 
   /**
@@ -1563,20 +1579,20 @@ public class ContextDialog extends Dialog {
     }
 
     if (filteredItems.isEmpty()) {
-      selectItem(null, false);
+      selectItem(null, false, false);
     }
 
     // Typing something's full name selects that thing, even if the selection was already on a
     // result that survived the narrowing.
     //
     else if (exactMatch != null) {
-      selectItem(exactMatch, false);
+      selectItem(exactMatch, false, false);
     }
 
     // if selected item is exclude, change to a new default selection: first in the list
     //
     else if (!filteredItems.contains(selectedItem)) {
-      selectItem(filteredItems.get(0), false);
+      selectItem(filteredItems.get(0), false, false);
     }
 
     // Update vertical bar

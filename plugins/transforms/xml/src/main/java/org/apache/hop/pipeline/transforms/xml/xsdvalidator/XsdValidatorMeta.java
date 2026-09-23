@@ -59,7 +59,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION =
       "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";
-  public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "true";
+  public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "false";
 
   public static final String SPECIFY_FILENAME = "filename";
   public static final String SPECIFY_FIELDNAME = "fieldname";

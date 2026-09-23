@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Apache Tika transform parses files in all sorts of formats and extracts the text content as well as the available metadata.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-transform-tika
 
 = image:transforms/icons/tika.svg[Apache Tika Icon, role="image-doc-icon"] Apache Tika
 

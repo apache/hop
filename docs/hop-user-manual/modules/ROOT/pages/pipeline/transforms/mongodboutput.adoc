@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The MongoDB Output transform can output data to a MongoDB database collection.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-mongodb
 
 = image:transforms/icons/mongodb-output.svg[MongoDB Output transform Icon, role="image-doc-icon"] MongoDB Output
 

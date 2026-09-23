@@ -34,7 +34,7 @@ ENV HOP_LOG_LEVEL="Basic"
 # any JRE settings you want to pass on
 # The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
 # this removed the need to calculate the necessary heap Xmx
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
 # path to jdbc drivers
@@ -86,6 +86,8 @@ COPY ./assemblies/client/target/hop/lib/core "${CATALINA_HOME}"/webapps/ROOT/WEB
 COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/
+# Tomcat configuration with response compression (see the comments in the file)
+COPY ./docker/resources/server.xml "${CATALINA_HOME}"/conf/server.xml
 
 # Desktop (RCP) UI fragment must not ship in Hop Web. Client lib/core is shared with the
 # desktop assembly and includes hop-ui-rcp; loading its GuiPlugins (e.g. ContentEditorWidget)

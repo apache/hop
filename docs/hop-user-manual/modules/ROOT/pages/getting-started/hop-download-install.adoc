@@ -17,30 +17,131 @@ under the License.
 [[DownloadInstall]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: Getting Started (3/8): Installing Hop is as easy and accessible as possible: download, unzip, start.
+:description: Getting Started (2/9): installing Hop is download, unzip, start. This page also covers the Java requirement, the Docker images, and the one configuration step worth doing before you begin.
 
-= Download and Install Hop
+= Download and install Hop
 
 Hop is designed to be as easy and accessible to use as possible.
+There is no installer and no server to set up: download, unzip, start.
 
-Getting and starting Hop couldn't be easier:
+== Check your Java
 
-== Download
+Hop is self-contained. The only thing it needs is a Java runtime.
 
-Download Hop from the http://hop.apache.org/download/[downloads page].
+The official Java version for Hop is **21**.
 
-== Prerequisites
+[source,shell]
+----
+java -version
+----
 
-Hop is self contained, all you need is a Java runtime.
-Hop official java version is 21. Check the https://java.com/en/download/help/download_options.html[Java docs] to download and install a Java runtime for your operating system.
+You should see something like:
 
-== Install
+[source,shell]
+----
+openjdk version "21.0.10" 2026-01-20
+OpenJDK Runtime Environment (build 21.0.10)
+OpenJDK 64-Bit Server VM (build 21.0.10, mixed mode, sharing)
+----
 
-Unzip Hop to a folder of your choice.
-From that folder, you'll be able to run the different Hop xref:hop-tools/index.adoc[tools] through their corresponding scripts.
+If that command is not found, or reports an older version, install a Java 21 runtime first.
+See xref:supported-jvms.adoc[Supported Java Versions] for which runtimes are known to work, and which one to avoid.
 
-Recommended next step: point Hop at a user-level config folder so upgrades keep your projects and settings. In Hop Gui use *Tools → Configure Hop environment...*, or from the install directory run `./hop setup apply --defaults` (then restart). See xref:hop-tools/hop-setup.adoc[Hop setup].
+== Download and unzip
 
-Now that you have Hop installed, let's have a look at all of the Hop tools you have at your disposal.
+Download the client from the https://hop.apache.org/download/[Apache Hop downloads page] and unzip it to a folder of your choice.
 
+That folder is your Hop installation.
+Everything you need is in it:
 
+[options="header"]
+|===
+|What|Where
+|The launcher scripts|`hop`, `hop.bat` and the individual `hop-*.sh` / `hop-*.bat` scripts
+|Configuration|`config/`
+|Plugins|`plugins/`
+|Projects created for you|`config/projects/default` and `config/projects/samples`
+|===
+
+== One step worth doing now
+
+By default Hop keeps its configuration inside the installation folder.
+That means an upgrade - a new unzip - leaves your projects and settings behind in the old folder.
+
+Point Hop at a user-level configuration folder instead, once, before you start:
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+hop.bat setup apply --defaults
+----
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop setup apply --defaults
+----
+--
+====
+
+Restart Hop afterwards.
+You can do the same thing from the GUI later with *Tools -> Configure Hop environment...*.
+
+See xref:hop-tools/hop-setup.adoc[Hop Setup] for what it changes and how to undo it.
+
+== Start Hop Gui
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+hop-gui.bat
+----
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-gui.sh
+----
+--
+====
+
+The first start takes a little longer than the ones after it, because Hop scans and registers its plugins.
+
+== Other ways to run Hop
+
+Unzipping the client is the right way to start, but it is not the only option:
+
+[options="header",cols="25%,45%,30%"]
+|===
+|Option|When you'd use it|Read more
+
+|Docker - `apache/hop`
+|Running pipelines and workflows in a container, and Hop Server. This is how most production deployments run.
+|xref:docker-container.adoc[Hop in Docker]
+
+|Docker - `apache/hop-web`
+|Hop Gui in a browser, for shared or hosted development environments.
+|xref:hop-web-docker.adoc[Hop Web in Docker]
+
+|Hop Web
+|The same Hop Gui, running in a browser instead of on your desktop.
+|xref:hop-gui/hop-web.adoc[Hop Web]
+|===
+
+TIP: xref:installation-configuration.adoc[Installation and Configuration] covers system requirements, memory settings and the environment variables Hop reads at startup.
+
+Now that Hop is running, let's look at the words Hop uses for things.

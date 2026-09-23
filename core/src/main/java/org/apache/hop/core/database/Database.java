@@ -1542,24 +1542,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           count = stmt.getUpdateCount();
         }
       }
-      String upperSql = sql.toUpperCase();
-      if (!resultSet && count > 0) {
+      if (!resultSet) {
         // if the result is a resultset, we don't do anything with it!
         // You should have called something else!
-        if (upperSql.startsWith("INSERT")) {
-          result.setNrLinesOutput(count);
-        } else if (!databaseMeta.isSupportsCustomUpdateStmt() && upperSql.startsWith("UPDATE")) {
-          result.setNrLinesUpdated(count);
-        } else if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
-          result.setNrLinesUpdated(count);
-        } else if (!databaseMeta.isSupportsCustomDeleteStmt() && upperSql.startsWith("DELETE")) {
-          result.setNrLinesDeleted(count);
-        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
-          result.setNrLinesDeleted(count);
-        }
+        countAffectedRows(result, sql, count);
       }
 
       // See if a cache needs to be cleared...
+      String upperSql = sql.toUpperCase();
       if (upperSql.startsWith("ALTER TABLE")
           || upperSql.startsWith("DROP TABLE")
           || upperSql.startsWith("CREATE TABLE")) {
@@ -1572,6 +1562,36 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     return result;
+  }
+
+  /**
+   * Attribute the number of rows a statement affected to the matching counter of the result. JDBC
+   * reports a single count per statement; for MERGE, UPSERT and REPLACE it covers the inserted,
+   * updated and deleted rows together and lands in the update counter.
+   */
+  private void countAffectedRows(Result result, String sql, int count) {
+    if (count <= 0) {
+      return;
+    }
+    String verb = SqlQueryClassifier.statementVerb(sql);
+    if (verb == null) {
+      return;
+    }
+    switch (verb) {
+      case "INSERT" -> result.setNrLinesOutput(count);
+      case "UPDATE", "MERGE", "UPSERT", "REPLACE" -> result.setNrLinesUpdated(count);
+      case "DELETE" -> result.setNrLinesDeleted(count);
+      default -> {
+        // Databases that update or delete through another statement, like ClickHouse with
+        // ALTER TABLE ... UPDATE / DELETE
+        String upperSql = sql.toUpperCase();
+        if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
+          result.setNrLinesUpdated(count);
+        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
+          result.setNrLinesDeleted(count);
+        }
+      }
+    }
   }
 
   /**

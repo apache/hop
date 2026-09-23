@@ -92,7 +92,9 @@ public class HopPipelineMetaToSparkConverter {
   public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
       Map.of(
           SparkConst.GROUP_BY_PLUGIN_ID,
-          "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on Local/Beam.");
+          "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on the Local engine.",
+          SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
+          "Unique Rows By Hashset is not supported on the native Spark engine. Every partition would keep its own hash set, so duplicates spread over different partitions would survive. Use Unique Rows (native Spark distinct) or Memory Group By instead.");
 
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;

@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -188,7 +187,7 @@ public class HdfsWebHdfsClient {
         String uri = buildUri(endpoint, path, params);
         HttpGet request = new HttpGet(uri);
         addSpnego(request, uri);
-        response = privileged(() -> httpClient.execute(request));
+        response = httpClient.execute(request);
         int code = response.getCode();
         if (code >= 400) {
           String error = readBody(response);
@@ -239,7 +238,8 @@ public class HdfsWebHdfsClient {
     if (transport.dataOnCreateRequest()) {
       params.put("data", "true");
       String uri = firstWorkingUri(path, params);
-      return HdfsStreamingOutputStream.start(executor, in -> putStream(uri, in), path);
+      return HdfsStreamingOutputStream.start(
+          executor, (in, stream) -> putStream(uri, in, stream), path);
     }
     params.put("noredirect", "true");
     String body = executeString("PUT", path, params, null);
@@ -247,7 +247,8 @@ public class HdfsWebHdfsClient {
     if (location == null || location.isBlank()) {
       throw new IOException("WebHDFS CREATE did not return a DataNode Location for " + path);
     }
-    return HdfsStreamingOutputStream.start(executor, in -> putStream(location, in), path);
+    return HdfsStreamingOutputStream.start(
+        executor, (in, stream) -> putStream(location, in, stream), path);
   }
 
   private String locationFromCreate(String body) throws IOException {
@@ -270,9 +271,11 @@ public class HdfsWebHdfsClient {
     return status;
   }
 
-  private void putStream(String uri, InputStream body) throws IOException {
+  private void putStream(String uri, InputStream body, HdfsStreamingOutputStream stream)
+      throws IOException {
     rejectHttpDowngrade(uri);
     HttpPut put = new HttpPut(uri);
+    stream.watch(put);
     put.setEntity(new InputStreamEntity(body, ContentType.APPLICATION_OCTET_STREAM));
     put.setHeader("Content-Type", "application/octet-stream");
     if (shouldSpnegoForLocation(uri)) {
@@ -289,7 +292,7 @@ public class HdfsWebHdfsClient {
     }
     CloseableHttpResponse response = null;
     try {
-      response = privileged(() -> httpClient.execute(get));
+      response = httpClient.execute(get);
       int code = response.getCode();
       if (code >= 400) {
         String error = readBody(response);
@@ -461,32 +464,17 @@ public class HdfsWebHdfsClient {
   }
 
   private String executeRequest(ClassicHttpRequest request) throws IOException {
-    try {
-      return privileged(
-          () ->
-              httpClient.execute(
-                  request,
-                  response -> {
-                    int code = response.getCode();
-                    String body = readBody(response);
-                    if (code >= 400) {
-                      throw new IOException(
-                          errorMessage(request.getMethod(), request.getRequestUri(), code, body));
-                    }
-                    return body == null ? "" : body;
-                  }));
-    } catch (IOException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IOException(e);
-    }
-  }
-
-  private <T> T privileged(PrivilegedExceptionAction<T> action) throws Exception {
-    if (kerberos && kerberosSession != null) {
-      return kerberosSession.doAs(action);
-    }
-    return action.run();
+    return httpClient.execute(
+        request,
+        response -> {
+          int code = response.getCode();
+          String body = readBody(response);
+          if (code >= 400) {
+            throw new IOException(
+                errorMessage(request.getMethod(), request.getRequestUri(), code, body));
+          }
+          return body == null ? "" : body;
+        });
   }
 
   private HttpUriRequestBase request(String method, String uri) throws IOException {
@@ -513,8 +501,8 @@ public class HdfsWebHdfsClient {
     }
     try {
       // GSS reads the TGT from the current Subject. useSubjectCredsOnly=true, so this
-      // must run inside session.doAs, not on the calling thread after a separate login.
-      String header = privileged(() -> HdfsSpnego.authorizationHeader(host));
+      // must run inside session.gss / Subject.doAs. HTTP execute stays outside that lock.
+      String header = kerberosSession.gss(() -> HdfsSpnego.authorizationHeader(host));
       request.setHeader("Authorization", header);
     } catch (GSSException e) {
       throw new IOException(

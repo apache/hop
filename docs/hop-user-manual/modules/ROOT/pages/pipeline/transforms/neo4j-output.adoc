@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Neo4j output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-neo4j
 
 = image:transforms/icons/neo4j_output.svg[Neo4j output transform Icon, role="image-doc-icon"] Neo4j output
 

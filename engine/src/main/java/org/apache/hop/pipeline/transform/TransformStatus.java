@@ -83,10 +83,23 @@ public class TransformStatus {
   }
 
   public TransformStatus(IEngineComponent component) {
-    updateAll(component);
+    this(component, true);
+  }
+
+  /**
+   * @param includeLogText whether to copy the component's log text as well. That text is the
+   *     component's complete log formatted from the central log buffer, which is expensive; the GUI
+   *     refreshes a status per transform every second and only needs the numbers.
+   */
+  public TransformStatus(IEngineComponent component, boolean includeLogText) {
+    updateAll(component, includeLogText);
   }
 
   public synchronized void updateAll(IEngineComponent component) {
+    updateAll(component, true);
+  }
+
+  public synchronized void updateAll(IEngineComponent component, boolean includeLogText) {
     // Proc: nr of lines processed: input + output!
 
     this.transformName = component.getName();
@@ -112,7 +125,9 @@ public class TransformStatus {
     this.errors = errors + component.getErrors();
     this.accumulatedRuntime = accumulatedRuntime + component.getExecutionDuration();
     this.statusDescription = component.getStatusDescription();
-    this.logText = component.getLogText();
+    if (includeLogText) {
+      this.logText = component.getLogText();
+    }
 
     long inProc = Math.max(linesInput, linesRead);
     long outProc = Math.max(linesOutput + linesUpdated, linesWritten + linesRejected);

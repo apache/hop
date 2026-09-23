@@ -66,7 +66,9 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
+import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.IndexView;
@@ -97,7 +99,11 @@ public class HopPipelineMetaToBeamPipelineConverter {
           GroupByMeta.class,
           "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.",
           UniqueRowsMeta.class,
-          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");
+          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows",
+          SortRowsMeta.class,
+          "Sort Rows is not supported on Beam.  A Beam pipeline re-shuffles rows across workers to maximize parallelism, so this transform would only order the rows a single worker happens to hold, not the data set as a whole.",
+          UniqueRowsByHashSetMeta.class,
+          "Unique Rows By Hashset is not supported on Beam.  Every worker keeps its own hash set, so duplicates spread over different workers would survive.  Use a Memory Group By to get distinct rows.");
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;

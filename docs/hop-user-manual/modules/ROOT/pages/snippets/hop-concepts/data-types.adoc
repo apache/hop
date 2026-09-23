@@ -119,3 +119,63 @@ Arrays are compared element by element; if all compared elements are equal, the 
 The JSON type supports all standard JSON values when reading or writing to MongoDB.
 Values that are part of MongoDB’s extended JSON (for example, Date objects) are not supported.
 To fully support MongoDB-specific BSON values, use the String type instead.
+
+=== Vector
+
+The Vector type holds a dense floating point vector, as produced by an embedding model and consumed by a vector store.
+Values are stored as a `float[]`.
+
+The canonical text form is a bracketed, comma separated list of numbers:
+
+```
+[0.1,0.2,0.3]
+```
+
+That form is both valid JSON and the literal syntax pgvector accepts, so a vector survives a round trip through a text file, a Data Grid, a JSON document or a database column without a conversion step in between.
+
+*Conversions*
+
+Vector converts to and from String using the canonical text form above.
+Conversion from other types is not supported: convert to String first if an intermediate type is involved.
+
+*Databases*
+
+When Hop generates DDL, a vector field becomes the database's own vector column wherever there is one:
+
+[cols="3*",options="header"]
+|===
+| Database | Dimension known | Dimension unknown
+| PostgreSQL | `VECTOR(n)` | `VECTOR`
+| Oracle 23ai and later | `VECTOR(n, FLOAT32)` | `VECTOR(*, *)`
+| SQL Server 2025 and later | `VECTOR(n)` | text
+| MySQL 9 and later | `VECTOR(n)` | text
+| CrateDB | `FLOAT_VECTOR(n)` | text
+| DuckDB | `FLOAT[n]` | `FLOAT[]`
+|===
+
+Whether the type is available is decided per server rather than per database product.
+Oracle and SQL Server grew their vector type at a known release, so the dialect compares the version the driver reports.
+On PostgreSQL the type comes from the pgvector extension, which is installed per database, so the dialect looks for the type in the list the driver reports instead of comparing versions.
+A connection to a database without the extension therefore writes a text column, and so does a server older than the release that introduced the type.
+Generating DDL without a connection keeps the native type, because an unknown server is not treated as a server that lacks it.
+
+A database with no vector type of its own writes a text column, which holds the canonical form above.
+That is also what a vector without a dimension falls back to where the native type has no unsized spelling.
+
+Hop sends the value in whatever form the database accepts, which is not always the text form:
+PostgreSQL needs it as an unspecified type so the server applies the column's own input function, MySQL takes its storage format of one little endian float32 per dimension, and CrateDB takes a float array.
+Oracle, SQL Server and DuckDB accept the text form as it stands.
+None of this is configurable, and none of it changes what a pipeline looks like.
+
+*Dimensions*
+
+The field's `length` carries the number of dimensions, the way it carries the size of a String.
+A length of zero or less means the dimension is unspecified.
+
+Hop never pads or truncates a vector to match a declared length.
+An embedding resized to fit would still return results from a vector store, and those results would be wrong, so a mismatch is left for the store to reject.
+
+*Gotchas*
+
+The type does not itself enforce the number of dimensions.
+A vector store will reject a value whose length does not match the column it is written to, so the dimensions of the embedding model and of the target column have to be kept aligned by the pipeline author.

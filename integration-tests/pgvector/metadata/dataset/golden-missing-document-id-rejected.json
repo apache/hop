@@ -1,0 +1,15 @@
+{
+  "base_filename": "golden-missing-document-id-rejected.csv",
+  "name": "golden-missing-document-id-rejected",
+  "description": "The row without a document ID reaches the error hop. Its chunk index is kept so the test shows which row was rejected.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "chunk_index",
+      "field_format": "0"
+    }
+  ]
+}

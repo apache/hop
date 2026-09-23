@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Salesforce Upsert transform updates existing records and inserts new records into your Salesforce database using the Salesforce Web Service.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-salesforce
 
 = image:transforms/icons/SFU.svg[Salesforce Upsert transform Icon, role="image-doc-icon"] Salesforce Upsert
 

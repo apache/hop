@@ -26,6 +26,7 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 //
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -229,7 +230,11 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
           pgCopyOut.flush();
           pgCopyOut.endCopy();
           pgCopyOut.close();
-          data.db.getConnection().close();
+          pgCopyOut = null;
+        }
+        if (data != null && data.db != null) {
+          data.db.disconnect();
+          data.db = null;
         }
 
         return false;
@@ -479,6 +484,42 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     } catch (Exception e) {
       throw new HopException("Error serializing rows of data to the COPY command", e);
     }
+  }
+
+  /**
+   * The end-of-input branch of {@link #processRow()} finishes the COPY and closes the connection. A
+   * stop or an error in the middle of the stream never reaches it, leaving the COPY and its
+   * connection open on the server - and with them the locks the load holds. Abort the copy here
+   * ({@code endCopy()} would commit the partial rows, {@code cancelCopy()} discards them) and
+   * release the connection. See <a href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   */
+  @Override
+  public void dispose() {
+    try {
+      if (pgCopyOut != null && pgCopyOut.isActive()) {
+        pgCopyOut.cancelCopy();
+      }
+    } catch (SQLException e) {
+      logError("Error cancelling the COPY command while stopping the transform", e);
+    } finally {
+      try {
+        // Only close a copy that is no longer active. A still-active copy here means cancelCopy()
+        // above threw (a broken connection, the likely case), and pgjdbc's close() runs endCopy()
+        // on an active copy - which would commit the very rows we are trying to discard. The
+        // disconnect() below tears the connection down regardless.
+        if (pgCopyOut != null && !pgCopyOut.isActive()) {
+          pgCopyOut.close();
+        }
+      } catch (IOException e) {
+        logError("Error closing the COPY output stream", e);
+      }
+      pgCopyOut = null;
+      if (data.db != null) {
+        data.db.disconnect();
+        data.db = null;
+      }
+    }
+    super.dispose();
   }
 
   protected void verifyDatabaseConnection() throws HopException {

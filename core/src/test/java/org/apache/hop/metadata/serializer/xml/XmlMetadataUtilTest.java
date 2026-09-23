@@ -95,7 +95,7 @@ class XmlMetadataUtilTest {
     Node fieldsNode = XmlHandler.getSubNode(node, "fields");
     List<Node> fieldNodes = XmlHandler.getNodes(fieldsNode, "field");
     assertEquals(3, fieldNodes.size());
-    Node fieldNode = fieldNodes.get(0);
+    Node fieldNode = fieldNodes.getFirst();
     assertEquals("a", XmlHandler.getTagValue(fieldNode, "name"));
     assertEquals("String", XmlHandler.getTagValue(fieldNode, "type"));
     assertEquals("50", XmlHandler.getTagValue(fieldNode, "length"));
@@ -239,7 +239,7 @@ class XmlMetadataUtilTest {
 
     assertEquals(1, withCopy.getSteps().size());
     assertEquals(1, withCopy.getHops().size());
-    assertEquals("S1", withCopy.getHops().get(0).getFrom().getName());
-    assertNull(withCopy.getHops().get(0).getTo());
+    assertEquals("S1", withCopy.getHops().getFirst().getFrom().getName());
+    assertNull(withCopy.getHops().getFirst().getTo());
   }
 }

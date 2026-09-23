@@ -19,9 +19,11 @@ package org.apache.hop.databases.mariadb;
 import com.google.common.collect.Sets;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
+import java.util.List;
 import java.util.Set;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.util.Utils;
@@ -36,6 +38,18 @@ import org.apache.hop.i18n.BaseMessages;
     classLoaderGroup = "mariadb-db")
 @GuiPlugin(id = "GUI-MariaDBDatabaseMeta")
 public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
+
+  /**
+   * MariaDB grew a VECTOR type of its own in 11.7, with its own conversion functions. Whether it
+   * accepts the value the way MySQL does is not something this dialect has been tested against, and
+   * a column Hop cannot write to is worse than the text column it writes today, so MariaDB keeps
+   * the MySQL rules without the vector ones until someone can verify it against a server.
+   */
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return BASE_TYPE_RULES;
+  }
+
   private static final Class<?> PKG = MariaDBDatabaseMeta.class;
 
   private static final Set<String> SHORT_MESSAGE_EXCEPTIONS =

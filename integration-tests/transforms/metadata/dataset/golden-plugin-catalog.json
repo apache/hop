@@ -1,0 +1,39 @@
+{
+  "base_filename": "golden-plugin-catalog.csv",
+  "name": "golden-plugin-catalog",
+  "description": "Plugin Catalog output for the Plugin Catalog transform itself. Deliberately excludes name/description/category (locale dependent) and any other plugin (Marketplace churn).",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "plugin_id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "plugin_type",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "property_xml_key",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "property_java_type",
+      "field_format": ""
+    }
+  ]
+}

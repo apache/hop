@@ -80,12 +80,22 @@ if [ -z "$GPG_BIN" ]; then
   exit 1
 fi
 
+# gpg starts an agent bound to this home's socket and leaves it running. Deleting the home
+# under a live agent, then racing gpg's five-second auto-launch of a fresh one, is what made
+# key generation fail now and then with "No agent running" or "Broken pipe". Stop the previous
+# test's agent first.
+if [ -d "$GNUPG_HOME" ]; then
+  gpgconf --homedir "$GNUPG_HOME" --kill all &gt;/dev/null 2&gt;&amp;1 || true
+fi
 rm -rf "$GNUPG_HOME" "$DETACHED"
 mkdir -p "$GNUPG_HOME" "$DETACHED"
 chmod 700 "$GNUPG_HOME"
 
 printf '#!/bin/sh\nexec "%s" --homedir "%s" "$@"\n' "$GPG_BIN" "$GNUPG_HOME" &gt; "$WRAPPER"
 chmod 700 "$WRAPPER"
+
+# Start the agent for this home ourselves, and wait for it, before asking it for a key.
+gpg-connect-agent --homedir "$GNUPG_HOME" /bye &gt;/dev/null 2&gt;&amp;1 || true
 
 "$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback --passphrase '' \
   --quiet --quick-generate-key "Hop Integration Test &lt;hop-it@example.org&gt;" default default never 2&gt;&amp;1

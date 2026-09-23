@@ -30,10 +30,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -102,6 +104,8 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
     try {
       canvas.notifyListeners(type, event);
     } catch (Throwable t) {
+      // The assertion only quotes the exception; the trace is what tells where it came from.
+      t.printStackTrace();
       swallowed.add(t);
     }
   }
@@ -227,6 +231,57 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
     }
   }
 
+  /**
+   * Waits for the painter to register an area of {@code type} that {@code matches}, and returns a
+   * graph coordinate inside it that resolves to that very area - the centre when it can be, else a
+   * corner: a badge sits on top of its transform, hop or note, and its centre may fall on the area
+   * underneath.
+   */
+  protected Point awaitArea(
+      SWTBot bot,
+      Object graph,
+      AreaLookup lookup,
+      AreaOwner.AreaType type,
+      Predicate<AreaOwner> matches) {
+    for (int attempt = 0; attempt < POLL_ATTEMPTS; attempt++) {
+      Point hit =
+          onUi(
+              () -> {
+                @SuppressWarnings("unchecked")
+                List<AreaOwner> areaOwners = (List<AreaOwner>) privateField(graph, "areaOwners");
+                for (AreaOwner areaOwner : new ArrayList<>(areaOwners)) {
+                  if (areaOwner.getAreaType() == type && matches.test(areaOwner)) {
+                    return visiblePointOf(areaOwner, lookup);
+                  }
+                }
+                return null;
+              });
+      if (hit != null) {
+        return hit;
+      }
+      bot.sleep(POLL_MILLIS);
+    }
+    throw new AssertionError("the canvas never painted an area of type " + type);
+  }
+
+  private static Point visiblePointOf(AreaOwner areaOwner, AreaLookup lookup) {
+    Rectangle area = areaOwner.getArea();
+    int inset = 2;
+    Point[] candidates = {
+      new Point(area.x + area.width / 2, area.y + area.height / 2),
+      new Point(area.x + inset, area.y + inset),
+      new Point(area.x + area.width - inset, area.y + inset),
+      new Point(area.x + inset, area.y + area.height - inset),
+      new Point(area.x + area.width - inset, area.y + area.height - inset),
+    };
+    for (Point candidate : candidates) {
+      if (lookup.at(candidate.x, candidate.y) == areaOwner) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
   // ---------------------------------------------------------------- dialogs
 
   protected Set<Shell> openShells() {
@@ -279,6 +334,142 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
   /** The title of a dialog that opened, or null when nothing opened. */
   protected String titleOf(Shell shell) {
     return shell == null ? null : onUi(shell::getText);
+  }
+
+  /**
+   * Presses and releases a button without waiting for the handlers, and reports every dialog that
+   * opened. Both halves of the click are posted up front on purpose: the press may open a dialog,
+   * and that dialog runs its own event loop, which is what dispatches the release. Waiting for the
+   * press would deadlock the test, and holding the release back until the dialog is gone would hide
+   * the very ordering under test.
+   */
+  protected List<String> clickAndCatchDialogs(
+      SWTBot bot, Canvas canvas, double scale, Point at, int button, int stateMask) {
+    return clickAndCatchDialogs(bot, canvas, scale, at, button, stateMask, () -> {});
+  }
+
+  /**
+   * Like {@link #clickAndCatchDialogs(SWTBot, Canvas, double, Point, int, int)}, and runs {@code
+   * landed} on this thread once the canvas has handled both halves of the click, before the wait
+   * for dialogs starts. That wait takes a couple of seconds when nothing opens, which is too late
+   * to look at what the click leaves behind only briefly, like a balloon on a timer.
+   */
+  protected List<String> clickAndCatchDialogs(
+      SWTBot bot,
+      Canvas canvas,
+      double scale,
+      Point at,
+      int button,
+      int stateMask,
+      Runnable landed) {
+    Set<Shell> before = openShells();
+    fireAsync(canvas, SWT.MouseDown, scale, at, button, stateMask);
+    fireAsync(canvas, SWT.MouseUp, scale, at, button, stateMask | buttonMask(button));
+    awaitPostedEvents();
+    landed.run();
+    return catchDialogs(bot, before);
+  }
+
+  /**
+   * A right click as the platform delivers it - the press, the request for a context menu and the
+   * release - without waiting for the handlers, since the request may open a dialog. SWT sends the
+   * {@code MenuDetect} between press and release on GTK and macOS and after the release on Windows;
+   * the graphs do not depend on the order, and the tests use the former.
+   */
+  protected List<String> contextClickAndCatchDialogs(
+      SWTBot bot, Canvas canvas, double scale, Point at) {
+    return contextClickAndCatchDialogs(bot, canvas, scale, at, () -> {});
+  }
+
+  /**
+   * Like {@link #contextClickAndCatchDialogs(SWTBot, Canvas, double, Point)}, with a {@code landed}
+   * hook as in {@link #clickAndCatchDialogs(SWTBot, Canvas, double, Point, int, int, Runnable)}.
+   */
+  protected List<String> contextClickAndCatchDialogs(
+      SWTBot bot, Canvas canvas, double scale, Point at, Runnable landed) {
+    Set<Shell> before = openShells();
+    fireAsync(canvas, SWT.MouseDown, scale, at, 3, SWT.NONE);
+    fireMenuDetectAsync(canvas, scale, at);
+    fireAsync(canvas, SWT.MouseUp, scale, at, 3, SWT.BUTTON3);
+    awaitPostedEvents();
+    landed.run();
+    return catchDialogs(bot, before);
+  }
+
+  /**
+   * Returns once every event posted so far has been dispatched. The display runs its queue in
+   * order, so a round trip posted after the events comes back after their handlers ran; a dialog
+   * one of them opened dispatches the round trip from its own loop, so this cannot deadlock.
+   */
+  private void awaitPostedEvents() {
+    onUi(() -> {});
+  }
+
+  /**
+   * {@code MenuDetect} carries display coordinates, so the graph point is mapped on the UI thread.
+   */
+  private void fireMenuDetectAsync(Canvas canvas, double scale, Point graphPoint) {
+    display.asyncExec(
+        () -> {
+          org.eclipse.swt.graphics.Point onDisplay =
+              canvas.toDisplay(
+                  (int) Math.round(graphPoint.x * scale), (int) Math.round(graphPoint.y * scale));
+          Event event = new Event();
+          event.x = onDisplay.x;
+          event.y = onDisplay.y;
+          event.detail = SWT.MENU_MOUSE;
+          event.doit = true;
+          dispatch(canvas, SWT.MenuDetect, event);
+        });
+  }
+
+  /** The state mask bit SWT sets for the button being released. */
+  protected static int buttonMask(int button) {
+    return switch (button) {
+      case 2 -> SWT.BUTTON2;
+      case 3 -> SWT.BUTTON3;
+      default -> SWT.BUTTON1;
+    };
+  }
+
+  /**
+   * Collects the titles of the dialogs that opened since {@code before}, in the order they
+   * appeared, and closes every one of them so the event loops underneath are handed back.
+   *
+   * <p>Dialogs both stack and follow one another here: a dialog runs its own event loop, so
+   * anything that loop dispatches can open a second dialog on top of the first, while the code
+   * after the first dialog can open yet another one once it is gone. So a round gathers everything
+   * that is up at the same time, closes the newest first - an older one cannot return while a newer
+   * loop sits on top of it - and then looks again for whatever that let through.
+   *
+   * <p>Closing a dialog is the answer a test wants: Hop dialogs treat it as cancel, so a question
+   * like "replace this transform?" is answered with no.
+   */
+  protected List<String> catchDialogs(SWTBot bot, Set<Shell> before) {
+    List<String> titles = new ArrayList<>();
+    Set<Shell> seen = new HashSet<>(before);
+    for (List<Shell> round = awaitNewShells(bot, seen);
+        !round.isEmpty();
+        round = awaitNewShells(bot, seen)) {
+      round.forEach(popup -> titles.add(titleOf(popup)));
+      for (int i = round.size() - 1; i >= 0; i--) {
+        closeShell(bot, round.get(i));
+      }
+    }
+    return titles;
+  }
+
+  /**
+   * Every dialog that is open at the same time, in the order it appeared. Adds them to {@code
+   * seen}.
+   */
+  private List<Shell> awaitNewShells(SWTBot bot, Set<Shell> seen) {
+    List<Shell> found = new ArrayList<>();
+    for (Shell popup = awaitNewShell(bot, seen); popup != null; popup = awaitNewShell(bot, seen)) {
+      found.add(popup);
+      seen.add(popup);
+    }
+    return found;
   }
 
   // ---------------------------------------------------------------- graph state

@@ -108,6 +108,14 @@
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <gib.disable>true</gib.disable>
+        <!-- Paths that never affect the Maven build result. GIB maps a changed file to the
+             nearest enclosing module; files outside every module land on the ROOT module,
+             and every module is downstream of its parent, so a docs- or integration-test
+             change alone used to turn the PR build into a full rebuild (#8408 built 313/313
+             modules for one new transform). The plugins/<kind>/pom.xml aggregators are
+             pure <module> lists (adding a plugin edits them); keep them that way, since
+             anything else put there is not seen by the incremental PR build. -->
+        <gib.excludePathsMatching>(docs|docker|helm|dist|integration-tests)/.*|plugins/(actions|engines|misc|tech|transforms|valuetypes)/pom\.xml|[^/]+\.md|Jenkinsfile.*|\.asf\.yaml</gib.excludePathsMatching>
         <gib.fetchReferenceBranch>true</gib.fetchReferenceBranch>
         <!-- lib-p2 wrappers are never published (maven.deploy.skip, and they are
              excluded from the snapshot wagon deploy). Incremental PR builds must
@@ -118,8 +126,6 @@
         <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
-        <gmavenplus-plugin.version>4.3.1</gmavenplus-plugin.version>
-        <groovy.version>4.0.28</groovy.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
@@ -396,98 +402,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>${gmavenplus-plugin.version}</version>
-                <!-- inherited so `cd <module> && mvn` and `-pl <module>` still attach
-                     Lombok and materialize the Eclipse compiler Plexus descriptor.
-                     Debian/Ubuntu Maven never indexes plexus-compiler-eclipse 2.17.0
-                     (Sisu 0.3.x ASM stops at Java 14 class files). -->
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.groovy</groupId>
-                        <artifactId>groovy</artifactId>
-                        <version>${groovy.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok</artifactId>
-                        <version>${lombok.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>attach-lombok-ecj-agent</id>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <skipScriptExecution>${lombok.ecj.agent.skip}</skipScriptExecution>
-                            <scripts>
-                                <script><![CDATA[
-import com.sun.tools.attach.VirtualMachine
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-
-def projectDir = new File(System.getProperty('maven.multiModuleProjectDirectory'))
-synchronized (System.getProperties()) {
-    def hintXml = new File(projectDir, '.mvn/plexus-eclipse-hint/META-INF/plexus/components.xml')
-    def hintJar = new File(projectDir, '.mvn/plexus-eclipse-hint.jar')
-    if (hintXml.isFile() && (!hintJar.isFile() || hintJar.lastModified() < hintXml.lastModified())) {
-        hintJar.withOutputStream { fos ->
-            def zos = new ZipOutputStream(fos)
-            zos.putNextEntry(new ZipEntry('META-INF/plexus/components.xml'))
-            hintXml.withInputStream { it.transferTo(zos) }
-            zos.closeEntry()
-            zos.close()
-        }
-        log.info('Wrote Eclipse compiler Plexus descriptor jar: ' + hintJar)
-    }
-
-    if (System.getProperty('lombok.ecj.agent.skip') != 'true'
-            && System.getProperty('lombok.ecj.agent.attached') == null) {
-        def lombokJar = null
-        try {
-            def loc = Class.forName('lombok.launch.Agent').protectionDomain.codeSource.location
-            if (loc != null && loc.protocol == 'file') {
-                lombokJar = new File(loc.toURI())
-            }
-        } catch (ClassNotFoundException ignored) {
-            // fall through to .mvn/lombok-*.jar
-        }
-        if (lombokJar == null || !lombokJar.isFile()) {
-            lombokJar = new File(projectDir, '.mvn/lombok-' + project.properties['lombok.version'] + '.jar')
-        }
-        if (!lombokJar.isFile() || lombokJar.length() < 1000000L) {
-            throw new IllegalStateException('Lombok jar missing or incomplete for the ECJ agent attach, expected ' + lombokJar)
-        }
-        def agentJar = Files.createTempFile('lombok-ecj-agent-', '.jar').toFile()
-        agentJar.deleteOnExit()
-        Files.copy(lombokJar.toPath(), agentJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        try {
-            def vm = VirtualMachine.attach(String.valueOf(ProcessHandle.current().pid()))
-            try {
-                vm.loadAgent(agentJar.absolutePath, 'ECJ')
-            } finally {
-                vm.detach()
-            }
-            System.setProperty('lombok.ecj.agent.attached', 'true')
-            log.info('Lombok ECJ agent attached (source: ' + lombokJar + ')')
-        } catch (Throwable t) {
-            throw new IllegalStateException('Unable to self-attach the Lombok ECJ agent, ensure -Djdk.attach.allowAttachSelf=true is in .mvn/jvm.config and the environment allows self-attach, or skip it with -Dlombok.ecj.agent.skip=true', t)
-        }
-    }
-}
-                                ]]></script>
-                            </scripts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.16.0</version>
@@ -498,6 +412,16 @@ synchronized (System.getProperties()) {
                     </compilerArgs>
                 </configuration>
                 <dependencies>
+                    <!-- Plexus XML registration of compilerId=eclipse. Required for
+                         Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
+                         Java 17 EclipseJavaCompiler class. The descriptor ships as a
+                         real artifact of the ecj-lombok project
+                         (https://github.com/rmannibucau/ecj-lombok-extension). -->
+                    <dependency>
+                        <groupId>com.github.rmannibucau.maven</groupId>
+                        <artifactId>ecj-plexus-hint</artifactId>
+                        <version>1.0.1</version>
+                    </dependency>
                     <dependency>
                         <groupId>org.codehaus.plexus</groupId>
                         <artifactId>plexus-compiler-eclipse</artifactId>
@@ -507,16 +431,6 @@ synchronized (System.getProperties()) {
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
                         <version>${lombok.version}</version>
-                    </dependency>
-                    <!-- Plexus XML registration of compilerId=eclipse. Required for
-                         Debian/Ubuntu Maven, whose Sisu 0.3.x cannot ASM-index the
-                         Java 17 EclipseJavaCompiler class. See .mvn/plexus-eclipse-hint/. -->
-                    <dependency>
-                        <groupId>org.apache.hop</groupId>
-                        <artifactId>plexus-eclipse-hint</artifactId>
-                        <version>1.0</version>
-                        <scope>system</scope>
-                        <systemPath>${maven.multiModuleProjectDirectory}/.mvn/plexus-eclipse-hint.jar</systemPath>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -569,7 +483,6 @@ synchronized (System.getProperties()) {
                         <exclude>.dockerignore</exclude>
                         <!-- symlink alias of AGENTS.md (header lives on the target) -->
                         <exclude>CLAUDE.md</exclude>
-                        <exclude>.mvn/plexus-eclipse-hint.jar</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>

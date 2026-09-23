@@ -18,6 +18,7 @@ under the License.
 :documentationPath: /vfs/
 :language: en_US
 :description: HDFS through a named VFS connection (WebHDFS / HttpFS / Knox)
+:page-marketplace: hop-tech-hadoop
 
 = HDFS
 

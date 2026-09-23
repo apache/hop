@@ -149,6 +149,24 @@ The official image already includes the standard plugin set; extra JDBC drivers 
 
 The full persist/replace table, Compose example, and upgrade steps are in the xref:hop-web-docker.adoc[Hop Web in Docker] page.
 
+== Response compression
+
+Hop Web talks to the browser in JSON, and the pipeline canvas and the transform selector are sent as SVG documents that run to several hundred kB for a large pipeline or a full plugin list.
+gzip shrinks these responses four to five times, which keeps the interface responsive on slower links.
+
+The `apache/hop-web` image enables compression on its Tomcat connector; its `conf/server.xml` is `docker/resources/server.xml` in the Hop source tree.
+If you deploy `hop.war` on your own Tomcat, add it to the HTTP connector in `conf/server.xml`; `image/svg+xml` is not in Tomcat's default list:
+
+[source,xml]
+----
+<Connector port="8080" protocol="HTTP/1.1"
+           compression="on"
+           compressibleMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,image/svg+xml"
+           ... />
+----
+
+Other servlet containers and reverse proxies have an equivalent setting.
+
 == Using the Hop CLI tools in Hop Web.
 
 Hop Web contains the default xref:hop-tools/index.adoc[Hop tools] like xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], xref:hop-run/index.adoc[hop-run] etc.
@@ -175,7 +193,20 @@ Hop Web co-deploys the RAP UI, RAP service handlers, and the Hop Server servlet 
 NOTE: The Hop Server API under `/hop/*` follows the same authorization as the rest of Hop Web.
 In the authenticated modes (`BASIC`, `EXTERNAL`, `OAUTH2`) each endpoint requires the matching permission from the caller's role — for example a *Read-only* user can call `status` and the status/image endpoints but not `addPipeline`, `startPipeline`, `execWorkflow`, or the register/remove endpoints, and an *Operator* can run and stop but not deploy (`add*`) or remove.
 Endpoints that are not recognized are denied by default.
-In mode `NONE` (the default, open install) `/hop/*` is unauthenticated just like `/ui`; put an authentication layer in front of Hop Web for any shared deployment.
+In mode `NONE` (the default, open install) the two surfaces behave differently:
+
+* `/ui` stays **open by design** — mode `NONE` is the single-user / trusted-network install and the UI is the product.
+* `/hop/*` is **closed by default** and returns `403`, because mode `NONE` has no user identity to authorize against and the Hop Server API can run and deploy pipelines and workflows.
+
+To use Hop Web as an execution server in mode `NONE`, opt in explicitly:
+
+* *Configuration perspective → Security → General → Expose the Hop Server API without authentication*, or
+* set `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API=true` (persisted as `allowUnauthenticatedServerApi` in `security-config.json`).
+
+WARNING: With that option on, anyone who can reach `/hop/*` can deploy and execute pipelines and workflows without credentials. Only enable it behind your own network controls (private network, firewall, service mesh, authenticating reverse proxy).
+The option applies to mode `NONE` only — `BASIC`, `EXTERNAL`, and `OAUTH2` always enforce the per-endpoint role permission and ignore it.
+
+Put an authentication layer in front of Hop Web for any shared deployment.
 
 === Built-in Hop roles
 
@@ -248,6 +279,14 @@ To keep audit data across container restarts, mount a volume and set the same pa
 === Tomcat BASIC authentication (EXTERNAL)
 
 The default Hop Web docker image picks up `tomcat-users.xml` and `web.xml` files and moves them to the correct location before Hop Web starts.
+
+IMPORTANT: Mode `EXTERNAL` is *delegation, not enforcement*.
+Hop itself does not challenge anyone in this mode: it only reads the `Principal` the servlet container (or authenticating reverse proxy) put on the request.
+The `web.xml` that ships with Hop Web contains no `<security-constraint>`, so selecting `EXTERNAL` without supplying your own constraint over `/*` leaves `/ui` **completely open**.
+The Security perspective makes that contradiction visible rather than hiding it: the General tab shows an authenticated mode (`EXTERNAL`), while the status line for the same session still reads `Session is unrestricted (no AuthN). Config mode: EXTERNAL.`
+If you see that combination, the container is not challenging anyone.
+`/hop/*` still returns `401` (no principal), and Hop logs a warning on every unauthenticated UI session, but the UI itself is unprotected.
+Always pair `EXTERNAL` with a `<security-constraint>` + `<login-config>` covering `/*` (see <<hop-web-external-full-webxml,the full `web.xml` sample>>) or with a proxy that rejects unauthenticated requests before they reach Tomcat.
 
 ==== Single user (minimal)
 
@@ -371,6 +410,9 @@ Environment variables (evaluated at startup):
 
 | `HOP_WEB_SEED_DEMO_USERS`
 | `true` to seed admin, developer, operator, viewer (password = username) when the store is empty
+
+| `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API`
+| `true` to open the embedded Hop Server API (`/hop/*`) in mode `NONE`. Off by default; ignored in the authenticated modes. Only use behind your own network controls.
 |===
 
 Example Docker run:
@@ -400,7 +442,7 @@ The *Security* tab appears only in **Hop Web**, and only for administrators (rol
 It is not shown in the desktop Hop GUI.
 The page is split into tabs:
 
-* *General* — authentication mode (`NONE` / `EXTERNAL` / `BASIC` / `OAUTH2`) and login welcome message
+* *General* — authentication mode (`NONE` / `EXTERNAL` / `BASIC` / `OAUTH2`), login welcome message, and the <<Cross-site requests to the Hop Server API,cross-site policy>> for `/hop/*`
 * *OAuth* — OIDC issuer, client id/secret, redirect, scopes, role/username claims, PKCE
 * *External* — container / IdP / LDAP group → Hop role mappings (also used for OAuth claim groups)
 * *Basic* — Hop-managed users (`users.json`: username, role, enabled, password)
@@ -510,6 +552,39 @@ After sign-in, your session should include the *Admin* role (`security.manage`) 
 Other users without a mapping fall back to the *User* role.
 ====
 
+=== Cross-site requests to the Hop Server API
+
+Hop Web co-deploys the Hop Server API on `/hop/*`.
+Those servlets answer state-changing operations on `GET` — a single URL starts a pipeline, stops a workflow or removes one — so without a check, a web page an operator happens to be visiting can drive them in the operator's browser, using the session cookie the browser attaches by itself.
+
+Hop Web therefore rejects requests whose https://developer.mozilla.org/docs/Web/HTTP/Headers/Sec-Fetch-Site[`Sec-Fetch-Site`] header says they were started by another site, answering `403 Forbidden` before authentication and before the RBAC check run.
+This is the same policy the standalone xref:hop-server/index.adoc[Hop Server] applies, and it is set the same way:
+
+[options="header"]
+|===
+
+|Value|Behaviour
+
+|`same-site`
+|The default.
+Rejects requests started by a site on a different registrable domain.
+
+|`same-origin`
+|Also rejects requests started by another host of the same domain, so only Hop Web's own pages may drive the API.
+
+|`off`
+|Does not look at `Sec-Fetch-Site` at all.
+
+|===
+
+Set it in *Configuration → Security → General*, as `crossSitePolicy` in `security-config.json`, or with the `HOP_SERVER_CROSS_SITE_POLICY` environment variable (which overrides the config file).
+A `crossSitePolicy` init-param on the `CrossSiteRequest` filter in `web.xml` pins it for a single deployment and wins over both.
+
+Only browsers send `Sec-Fetch-*` headers, and requests without them are always accepted, so hop-run, the Hop GUI, `curl` and your own automation calling `/hop/*` are unaffected.
+Following a link to `/hop/*` **from another site** does land on a `403`; Hop Web's own UI is unaffected because its calls are same-origin.
+
+NOTE: This guards the Hop Server API only. The Hop Web UI itself (`/ui`) is not covered by this filter.
+
 === JDBC and API Bearer tokens
 
 JDBC drivers and `curl` cannot complete an OIDC browser login. After you sign in to Hop Web (BASIC or OAUTH2), use *File → Copy JDBC token* or `GET /hop/jdbcToken` (`file.view`) to mint a short-lived HMAC JWT (`aud=hop-jdbc`). Send it as `Authorization: Bearer <token>`.
@@ -518,6 +593,7 @@ IMPORTANT: These tokens are not revoked when you log off or when an administrato
 
 Hop creates `jdbc-token.secret` with owner-only permissions (`0600`) on local filesystems when it can. Anyone who can read that file can mint tokens for any user.
 
+[[hop-web-external-full-webxml]]
 ==== Full web.xml with Tomcat BASIC (single role, EXTERNAL)
 
 The following sample `web.xml` extends Hop Web's default `web.xml` with the `<security-constraint />` and `<login-config />` elements required for basic authentication.

@@ -59,6 +59,13 @@ public final class LineageHub {
 
   private final AtomicLong droppedEvents = new AtomicLong();
   private final AtomicBoolean running = new AtomicBoolean(false);
+
+  /**
+   * Set once the sinks failed to initialize. Without it every later emit() would start a fresh
+   * worker that fails the same way and logs the same error, once per event.
+   */
+  private final AtomicBoolean sinkInitFailed = new AtomicBoolean(false);
+
   private volatile Thread worker;
 
   private volatile List<ILineageSink> sinks = List.of();
@@ -88,6 +95,7 @@ public final class LineageHub {
   public void environmentReady() {
     LineageConfiguration.invalidate();
     sinksInitialized.set(false);
+    sinkInitFailed.set(false);
     sinks = List.of();
   }
 
@@ -106,7 +114,7 @@ public final class LineageHub {
    */
   public void emit(LineageEvent event) {
     LineageConfiguration cfg = resolveConfig();
-    if (!cfg.isEnabled()) {
+    if (!cfg.isEnabled() || sinkInitFailed.get()) {
       return;
     }
     ensureWorkerStarted(cfg);
@@ -132,6 +140,11 @@ public final class LineageHub {
     FlushRequest request = new FlushRequest();
     try {
       queue.put(request);
+      if (!running.get()) {
+        // The worker stopped while the request was being queued: nobody will pick it up.
+        queue.remove(request);
+        return;
+      }
       request.done.await(60, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -165,6 +178,7 @@ public final class LineageHub {
     drainRemaining();
     shutdownSinks();
     sinksInitialized.set(false);
+    sinkInitFailed.set(false);
     sinks = List.of();
     LineageConfiguration.invalidate();
   }
@@ -234,12 +248,26 @@ public final class LineageHub {
   }
 
   private void runLoop() {
+    try {
+      dispatchUntilStopped();
+    } finally {
+      // Whatever ends this thread, callers must not keep waiting on a worker that is gone: with
+      // running still true every flush() would sit out its full timeout, once per pipeline or
+      // workflow completion, and every event would be queued for nobody.
+      running.set(false);
+      releaseWaitingFlushes();
+    }
+  }
+
+  private void dispatchUntilStopped() {
     LineageConfiguration cfg = resolveConfig();
     try {
       initSinksIfNeeded();
-    } catch (HopException e) {
+    } catch (Exception | LinkageError e) {
+      // A sink whose classes do not load (NoClassDefFoundError) ends up here too. It used to
+      // kill this thread silently, leaving the hub "running" but dispatching nothing.
+      sinkInitFailed.set(true);
       log.logError("Unable to initialize lineage sinks; lineage delivery is disabled", e);
-      running.set(false);
       return;
     }
 
@@ -278,7 +306,22 @@ public final class LineageHub {
         log.logError("Unexpected error in lineage dispatcher", e);
       }
     }
-    running.set(false);
+  }
+
+  /** Wake up every flush() still waiting on this worker. Only meaningful once it has stopped. */
+  private void releaseWaitingFlushes() {
+    BlockingQueue<Object> q = queue;
+    if (q == null) {
+      return;
+    }
+    q.removeIf(
+        o -> {
+          if (o instanceof FlushRequest fr) {
+            fr.done.countDown();
+            return true;
+          }
+          return false;
+        });
   }
 
   private void processFlush(FlushRequest fr, LineageConfiguration cfg) {

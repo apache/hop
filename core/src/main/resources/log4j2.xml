@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  Default Log4j2 configuration for Apache Hop.
+
+  Hop's in-memory ``LoggingBuffer`` is always fed synchronously by ``LogChannel`` through
+  ``HopLogStore``; ``Slf4jLoggingEventListener`` forwards those events to SLF4J. This file turns the
+  SLF4J output into something the operator can see once ``log4j-slf4j2-impl`` provides the binding.
+
+  Hop's own log lines already reach the console through Hop's console writer
+  (``ConsoleLoggingEventListener``), so the ``org.apache.hop`` logger is deliberately left without an
+  appender and is not additive: the lines are available to Log4j2 but are not printed a second time.
+  Third-party libraries (WARN and above) go to the console through the root logger.
+
+  To route Hop's own lines through Log4j2 instead (JSON layout, Kafka, OpenTelemetry, ...), supply a
+  custom ``log4j2.xml`` (``-Dlog4j2.configurationFile=...`` in ``HOP_OPTIONS``) that adds an
+  ``AppenderRef`` to the ``org.apache.hop`` logger, and set ``HOP_DISABLE_CONSOLE_LOGGING=Y`` to
+  switch off Hop's own console writer so the lines are not duplicated. The Hop buffer is independent
+  of this file, so no Log4j2 configuration can empty the GUI or the hop-server log views.
+  -->
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="hopConsole" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{ISO8601} %-5p [%logger{40}] - %m%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <!-- Hop's own lines: forwarded at every level, printed by Hop's console writer, not by Log4j2. -->
+    <Logger name="org.apache.hop" level="trace" additivity="false"/>
+    <Root level="warn">
+      <AppenderRef ref="hopConsole"/>
+    </Root>
+  </Loggers>
+</Configuration>

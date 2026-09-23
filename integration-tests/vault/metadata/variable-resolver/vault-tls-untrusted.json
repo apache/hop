@@ -1,0 +1,15 @@
+{
+  "virtualPath": "",
+  "name": "vault-tls-untrusted",
+  "description": "Hashicorp Vault over HTTPS without the CA of the server certificate",
+  "variable-resolver": {
+    "Vault-Variable-Resolver": {
+      "vaultAddress": "https://vault-tls:8200",
+      "pemString": "",
+      "openTimeout": "",
+      "pemFilePath": "",
+      "readTimeout": "",
+      "vaultToken": "myroot"
+    }
+  }
+}

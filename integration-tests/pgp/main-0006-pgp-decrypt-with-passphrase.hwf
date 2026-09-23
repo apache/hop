@@ -92,6 +92,9 @@ chmod 700 "$GNUPG_HOME"
 printf '#!/bin/sh\nexec "%s" --homedir "%s" "$@"\n' "$GPG_BIN" "$GNUPG_HOME" &gt; "$WRAPPER"
 chmod 700 "$WRAPPER"
 
+# Start the agent for this home ourselves, and wait for it, before asking it for a key.
+gpg-connect-agent --homedir "$GNUPG_HOME" /bye &gt;/dev/null 2&gt;&amp;1 || true
+
 "$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback \
   --passphrase "$PASSPHRASE" --quiet \
   --quick-generate-key "Hop Locked Key &lt;hop-locked@example.org&gt;" default default never 2&gt;&amp;1

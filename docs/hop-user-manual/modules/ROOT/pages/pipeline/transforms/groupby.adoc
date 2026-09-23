@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/groupby.svg[Group By transform Icon, role="image-doc-icon"] Group By
 
@@ -36,6 +36,20 @@ If your input is not sorted, only double consecutive rows are grouped correctly.
 If you sort the data outside of Hop, the case sensitivity of the data in the fields may produce unexpected grouping results.
 
 You can use the xref:pipeline/transforms/memgroupby.adoc[Memory Group By] transform to handle non-sorted input.
+
+[WARNING]
+====
+Group By does not run on the distributed pipeline engines.
+Both the Beam engines and the native Spark engine refuse the transform and stop the pipeline with an error.
+
+The reason is the sorted input this transform relies on.
+A distributed engine spreads the rows over many workers and re-shuffles them to maximize parallelism, so a sort upstream only ever orders the rows one worker happens to hold.
+The groups would be formed per worker and the aggregates would be silently wrong.
+
+Use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] instead.
+It needs no sorted input, and both engines map it onto their own shuffle (`GroupByKey` on Beam) so the grouping covers the whole data set.
+See xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam] for the other transforms in this situation.
+====
 
 == Options
 

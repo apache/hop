@@ -285,9 +285,10 @@ public final class ContextDialogSvgRenderer {
         }
       }
 
+      // Nobody reads this document: indentation is 15% of a payload that is sent on every
+      // keystroke.
       Transformer transformer = XmlHandler.createSecureTransformerFactory().newTransformer();
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+      transformer.setOutputProperty(OutputKeys.INDENT, "no");
       StringWriter writer = new StringWriter();
       transformer.transform(new DOMSource(root), new StreamResult(writer));
       return new ContextDialogSvgRenderResult(writer.toString(), areaOwners, totalContentHeight);

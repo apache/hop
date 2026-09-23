@@ -36,6 +36,8 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -50,6 +52,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
 
 /** Metadata editor for {@link AiProvider}. */
 public class AiProviderEditor extends MetadataEditor<AiProvider> {
@@ -63,6 +66,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   private ScrolledComposite wScrolled;
   private Composite wContent;
   private final AtomicBoolean busyChangingType = new AtomicBoolean(false);
+  private TableView wModels;
 
   public AiProviderEditor(HopGui hopGui, MetadataManager<AiProvider> manager, AiProvider metadata) {
     super(hopGui, manager, metadata);
@@ -119,6 +123,8 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     widgets.createCompositeWidgets(
         getMetadata(), null, wContent, AiProvider.GUI_WIDGETS_PARENT_ID, null);
 
+    addModelsTable();
+
     wScrolled.addListener(SWT.Resize, e -> relayoutScrolledContent());
 
     setWidgetsContent();
@@ -133,6 +139,65 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
             setChanged();
           }
         });
+  }
+
+  /**
+   * The per-role model table. It sits below the generated widgets rather than being one of them,
+   * because a list of rows is not something {@code @GuiWidgetElement} can express.
+   */
+  private void addModelsTable() {
+    Control last = widgets.getWidgetsMap().get(AiProvider.WIDGET_TEMPERATURE);
+
+    Label wlModels = new Label(wContent, SWT.LEFT);
+    wlModels.setText(BaseMessages.getString(PKG, "AiProviderEditor.Models.Label"));
+    wlModels.setToolTipText(BaseMessages.getString(PKG, "AiProviderEditor.Models.Tooltip"));
+    PropsUi.setLook(wlModels);
+    FormData fdlModels = new FormData();
+    fdlModels.left = new FormAttachment(0, 0);
+    fdlModels.right = new FormAttachment(100, 0);
+    fdlModels.top =
+        last == null
+            ? new FormAttachment(0, PropsUi.getMargin())
+            : new FormAttachment(last, PropsUi.getMargin() * 3);
+    wlModels.setLayoutData(fdlModels);
+
+    ColumnInfo[] columns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "AiProviderEditor.Models.Column.Role"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              roleNames(),
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "AiProviderEditor.Models.Column.ModelName"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false)
+        };
+
+    wModels =
+        new TableView(
+            manager.getVariables(),
+            wContent,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            columns,
+            0,
+            e -> setChanged(),
+            PropsUi.getInstance());
+    FormData fdModels = new FormData();
+    fdModels.left = new FormAttachment(0, 0);
+    fdModels.right = new FormAttachment(100, 0);
+    fdModels.top = new FormAttachment(wlModels, PropsUi.getMargin());
+    fdModels.height = (int) (PropsUi.getInstance().getZoomFactor() * 140);
+    wModels.setLayoutData(fdModels);
+  }
+
+  private static String[] roleNames() {
+    AiModelRole[] roles = AiModelRole.values();
+    String[] names = new String[roles.length];
+    for (int i = 0; i < roles.length; i++) {
+      names[i] = roles[i].name();
+    }
+    return names;
   }
 
   private void changeProviderType() {
@@ -203,6 +268,17 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
       wProviderType.setText(meta.getPluginName());
     }
     widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
+    if (wModels != null) {
+      wModels.clearAll();
+      for (AiProviderModel model : meta.getModels()) {
+        TableItem item = new TableItem(wModels.table, SWT.NONE);
+        item.setText(1, model.getRole() == null ? AiModelRole.CHAT.name() : model.getRole().name());
+        item.setText(2, Const.NVL(model.getModelName(), ""));
+      }
+      wModels.removeEmptyRows();
+      wModels.setRowNums();
+      wModels.optWidth(true);
+    }
     updateVisibility();
   }
 
@@ -210,6 +286,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   public void getWidgetsContent(AiProvider meta) {
     meta.setName(wName.getText());
     widgets.getWidgetsContents(meta, AiProvider.GUI_WIDGETS_PARENT_ID);
+    meta.setModels(readModels());
     String selected = wProviderType.getText();
     if (selected != null && !selected.isEmpty()) {
       try {
@@ -220,6 +297,20 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
         throw new HopRuntimeException(e);
       }
     }
+  }
+
+  private List<AiProviderModel> readModels() {
+    List<AiProviderModel> models = new ArrayList<>();
+    if (wModels == null || wModels.isDisposed()) {
+      return models;
+    }
+    for (TableItem item : wModels.getNonEmptyItems()) {
+      String modelName = item.getText(2);
+      if (!Utils.isEmpty(modelName)) {
+        models.add(new AiProviderModel(AiModelRole.fromString(item.getText(1)), modelName));
+      }
+    }
+    return models;
   }
 
   @Override

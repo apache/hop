@@ -138,10 +138,6 @@ class HopGuiPipelineGraphHopEnablingTest extends GraphCanvasTestBase {
     return title;
   }
 
-  private static int buttonMask(int button) {
-    return button == 2 ? SWT.BUTTON2 : SWT.BUTTON1;
-  }
-
   // ------------------------------------------------------------------ assertions
 
   /**

@@ -93,6 +93,15 @@ JSON         len=      15 prec=   0 -        -> JSON
 JSON         len=      18 prec=   0 -        -> JSON
 JSON         len=      20 prec=   0 -        -> JSON
 JSON         len= 9999999 prec=   0 -        -> JSON
+VECTOR       len=      -1 prec=  -1 -        -> STRING
+VECTOR       len=       0 prec=   0 -        -> STRING
+VECTOR       len=       4 prec=   0 -        -> STRING
+VECTOR       len=       9 prec=   0 -        -> STRING
+VECTOR       len=      10 prec=   2 -        -> STRING
+VECTOR       len=      15 prec=   0 -        -> STRING
+VECTOR       len=      18 prec=   0 -        -> STRING
+VECTOR       len=      20 prec=   0 -        -> STRING
+VECTOR       len= 9999999 prec=   0 -        -> STRING
 
 [strings]
 STRING       len=     254 prec=   0 -        -> VARCHAR(254)
@@ -278,3 +287,9 @@ JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL JSON
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL JSON
 JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL JSON
 JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL JSON
+VECTOR       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD COL STRING
+VECTOR       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL MODIFY COL STRING
+VECTOR       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD COL STRING
+VECTOR       len=      10 prec=   2 modify   -> ALTER TABLE TBL MODIFY COL STRING
+VECTOR       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD COL STRING
+VECTOR       len=      15 prec=   0 modify   -> ALTER TABLE TBL MODIFY COL STRING

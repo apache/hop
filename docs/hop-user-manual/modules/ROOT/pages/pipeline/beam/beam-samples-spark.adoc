@@ -19,6 +19,7 @@ under the License.
 :description: Follow the instruction on this page to set up a minimal installation to run the Apache Hop samples for the Apache Beam run configurations for Apache Spark.
 
 :toc:
+:page-marketplace: hop-engines-beam
 
 = Running the Apache Beam samples With Apache Spark
 

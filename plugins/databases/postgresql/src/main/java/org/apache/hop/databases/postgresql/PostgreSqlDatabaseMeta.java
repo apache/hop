@@ -36,6 +36,7 @@ import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.database.types.ServerInfo;
 import org.apache.hop.core.database.types.StandardJdbcTypeMapper;
 import org.apache.hop.core.database.validation.ColumnValueConstraints;
 import org.apache.hop.core.database.validation.StringLengthUnit;
@@ -118,8 +119,14 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         }
       };
 
-  /** Visible so a dialect that derives from Postgres can prepend its own and keep these. */
-  public static final List<IDatabaseTypeRule> POSTGRES_TYPE_RULES =
+  /**
+   * Everything except the vector rules. Visible so a dialect that derives from Postgres can prepend
+   * its own and keep these, and split out so that a derived dialect whose vector type is its own
+   * does not also inherit pgvector's. CrateDB takes these: its FLOAT_VECTOR answers a vector with a
+   * dimension, and without the split a vector without one would fall through to VECTOR, which
+   * CrateDB has not got.
+   */
+  public static final List<IDatabaseTypeRule> POSTGRES_BASE_TYPE_RULES =
       DatabaseTypes.rules()
           // The driver reports the widest a double can hold rather than a declared size.
           .read(Types.DOUBLE)
@@ -153,6 +160,29 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           .rule(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG)
           .build();
 
+  /**
+   * pgvector's type. Sized when the dimension is known, because only a sized column can carry an
+   * index; unsized otherwise, which pgvector accepts and which still holds vectors, unlike the text
+   * column a vector falls back to on a database without the extension.
+   */
+  private static final List<IDatabaseTypeRule> VECTOR_RULES =
+      DatabaseTypes.rules()
+          .write(IValueMeta.TYPE_VECTOR)
+          .as(v -> v.getLength() > 0 ? "VECTOR(" + v.getLength() + ")" : "VECTOR")
+          .rule(ColumnTypeRules.vectorColumn("VECTOR"))
+          // The same binding UUID and INET use, and for the same reason. A vector's text form is
+          // what pgvector's input function reads, but the driver sends a String as character
+          // varying, and PostgreSQL will not coerce that into a vector: "column is of type vector
+          // but expression is of type character varying". Sending it as an unspecified type lets
+          // the server apply the column's own input function, so the value lands in a vector
+          // column and, when there is no extension and the column is text, in a text one.
+          .bind(IValueMeta.TYPE_VECTOR, UNSPECIFIED_STRING_BINDING)
+          .build();
+
+  /** The whole set, vector included, as PostgreSQL itself uses them. */
+  public static final List<IDatabaseTypeRule> POSTGRES_TYPE_RULES =
+      DatabaseTypes.rules().include(VECTOR_RULES).include(POSTGRES_BASE_TYPE_RULES).build();
+
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
     return POSTGRES_TYPE_RULES;
@@ -169,6 +199,27 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   public boolean isPostgresVariant() {
     return true;
   }
+
+  /**
+   * pgvector is an extension, not a version: the same server has the type in one database and not
+   * in the next, so there is no release to compare against. The driver answers it directly, because
+   * it reads its type list from the catalog of the database it is connected to - an installed
+   * extension is in there, and on a database without it the name is simply absent.
+   *
+   * <p>With no connection the type stands, which is what makes a CREATE TABLE generated offline
+   * still say VECTOR. Connected to a database without the extension, the column falls back to text
+   * the way any unclaimed type does.
+   */
+  @Override
+  public boolean isColumnTypeAvailable(String columnType) {
+    if (VECTOR_TYPE_NAME.equals(columnType)) {
+      ServerInfo serverInfo = getServerInfo();
+      return serverInfo == null || serverInfo.hasTypeName(VECTOR_TYPE_NAME);
+    }
+    return true;
+  }
+
+  private static final String VECTOR_TYPE_NAME = "VECTOR";
 
   /**
    * @return The extra option separator in database URL for this platform

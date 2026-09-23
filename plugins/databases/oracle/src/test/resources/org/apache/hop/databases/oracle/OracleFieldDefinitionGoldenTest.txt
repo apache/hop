@@ -93,6 +93,15 @@ JSON         len=      15 prec=   0 -        -> JSON
 JSON         len=      18 prec=   0 -        -> JSON
 JSON         len=      20 prec=   0 -        -> JSON
 JSON         len= 9999999 prec=   0 -        -> JSON
+VECTOR       len=      -1 prec=  -1 -        -> VECTOR(*, *)
+VECTOR       len=       0 prec=   0 -        -> VECTOR(*, *)
+VECTOR       len=       4 prec=   0 -        -> VECTOR(4, FLOAT32)
+VECTOR       len=       9 prec=   0 -        -> VECTOR(9, FLOAT32)
+VECTOR       len=      10 prec=   2 -        -> VECTOR(10, FLOAT32)
+VECTOR       len=      15 prec=   0 -        -> VECTOR(15, FLOAT32)
+VECTOR       len=      18 prec=   0 -        -> VECTOR(18, FLOAT32)
+VECTOR       len=      20 prec=   0 -        -> VECTOR(20, FLOAT32)
+VECTOR       len= 9999999 prec=   0 -        -> VECTOR(9999999, FLOAT32)
 
 [strings]
 STRING       len=     254 prec=   0 -        -> VARCHAR2(254)
@@ -278,3 +287,9 @@ JSON         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD ( COL JSON )
 JSON         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD ( COL_KTL JSON ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL JSON ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
 JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD ( COL JSON )
 JSON         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD ( COL_KTL JSON ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL JSON ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
+VECTOR       len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD ( COL VECTOR(*, *) )
+VECTOR       len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD ( COL_KTL VECTOR(*, *) ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL VECTOR(*, *) ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
+VECTOR       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD ( COL VECTOR(10, FLOAT32) )
+VECTOR       len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD ( COL_KTL VECTOR(10, FLOAT32) ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL VECTOR(10, FLOAT32) ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
+VECTOR       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD ( COL VECTOR(15, FLOAT32) )
+VECTOR       len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD ( COL_KTL VECTOR(15, FLOAT32) ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL VECTOR(15, FLOAT32) ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )

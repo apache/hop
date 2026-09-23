@@ -27,11 +27,14 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /**
- * Guards the Hop Web canvas overlay against issue #8286.
+ * Guards the Hop Web canvas overlay against issues #8286 and #8432.
  *
  * <p>RAP does not put widget ids on DOM elements unless enableUITests is on, so looking up {@code
  * document.getElementById(canvasId)} and then guessing "the first canvas larger than 500x500" left
  * a blank graph in a small viewport and drew the graph inside a dialog when one was open.
+ *
+ * <p>A session-wide {@code hop.CanvasSvgRenderer} remote then moved that overlay into a second
+ * canvas (dialog over editor tab). Each canvas must keep its own overlay for its lifetime.
  */
 class CanvasOverlayAttachTest {
 
@@ -46,12 +49,25 @@ class CanvasOverlayAttachTest {
   }
 
   @Test
+  void svgOverlayIsPinnedToOneCanvasAndRecreatedIfDestroyed() throws IOException {
+    String js = readResource("org/apache/hop/ui/hopgui/canvas-svg.js");
+
+    assertFalse(js.contains("_overlay.parentNode !== parent"), js);
+    assertFalse(js.contains("widget._svgHost.innerHTML = \"\""), js);
+    assertTrue(js.contains("_overlayIsLive"), js);
+    assertTrue(js.contains("isConnected"), js);
+    assertTrue(js.contains("hop._canvasInteractions"), js);
+    assertFalse(js.contains("hop._canvasInteractionInstance"), js);
+  }
+
+  @Test
   void zoomResolvesTheRapWidgetNotALargeCanvas() throws IOException {
     String js = readResource("org/apache/hop/ui/hopgui/canvas-zoom.js");
 
     assertFalse(js.contains("rect.width > 500"), js);
     assertTrue(js.contains("ObjectRegistry"), js);
     assertTrue(js.contains("this._canvasId = properties.canvas"), js);
+    assertTrue(js.contains("widget._canvasId && widget._canvasId !== value"), js);
   }
 
   @Test

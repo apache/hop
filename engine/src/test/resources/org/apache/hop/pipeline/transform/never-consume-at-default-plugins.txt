@@ -57,6 +57,7 @@ MetadataInput
 MongoDbInput
 ODataInput
 PipelineLogging
+PluginCatalog
 PropertyInput
 RowGenerator
 RowsFromResult

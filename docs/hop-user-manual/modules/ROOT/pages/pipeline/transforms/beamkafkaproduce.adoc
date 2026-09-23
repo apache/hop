@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam Kafka produce transform publishes records to a Kafka cluster using the Beam execution engine.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-kafka-output.svg[Beam Kafka produce Icon, role="image-doc-icon"] Beam Kafka produce
 

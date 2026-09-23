@@ -40,9 +40,10 @@ A consumer group is a set of consumers sharing a common group identifier.
 
 By default the Kafka consumer transform continuously ingests streaming data.
 To stop after the topic has been drained, enable *Stop when idle* on the Batch tab (with an optional max idle time).
+To consume for a fixed wall-clock window even when messages keep arriving, set *Max consume duration (ms)* (for example 15 minutes once per hour).
 You can also use the Abort transform in your parent or sub-pipeline to stop consuming records for other conditions.
 
-For example, you can run the parent pipeline on a timed schedule, drain a topic once per hour with stop-when-idle, or abort the sub-pipeline if sensor data exceeds a preset range.
+For example, you can run the parent pipeline on a timed schedule, drain a topic once per hour with stop-when-idle, consume for a fixed duration on a topic that never goes idle, or abort the sub-pipeline if sensor data exceeds a preset range.
 
 == Options
 
@@ -93,6 +94,12 @@ This supports batch-style use cases such as draining a topic periodically instea
 While this option is enabled, the consumer polls with a short (100 ms) timeout so idle time can be measured accurately.
 |Max idle time (ms)|The maximum time in milliseconds to wait without receiving records before stopping when *Stop when idle* is enabled.
 Defaults to 500.
+Supports variables.
+|Max consume duration (ms)|Maximum time in milliseconds to consume since the transform started.
+This is not the batch *Duration (ms)* field: batch duration only controls how long each poll waits for a batch.
+When this limit is reached the transform finishes gracefully after the current batch is processed and committed.
+0 or empty means no limit (the default).
+*Stop when idle* can still finish earlier if the topic goes quiet first.
 Supports variables.
 |Offset management a|Choose when to commit
 

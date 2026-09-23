@@ -19,6 +19,7 @@ under the License.
 :description: Open table formats (Delta Lake and Apache Iceberg) on the Apache Hop native Spark pipeline engine
 :toc:
 :toclevels: 3
+:page-marketplace: hop-engines-spark
 
 = Lakehouse tables on the native Spark engine
 

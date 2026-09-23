@@ -22,6 +22,9 @@
     if (!window.hop) {
         window.hop = {};
     }
+    if (!hop._canvasInteractions) {
+        hop._canvasInteractions = {};
+    }
 
     var serviceBasePath = (function () {
         var path = window.location.pathname;
@@ -322,12 +325,17 @@
         this._areas = [];
         this._props = {};
         this._remoteObject = null;
+        this._fetchInFlight = false;
+        this._pendingFetchRev = null;
+        this._hoveredNameKey = null;
+        this._hoveredNameArea = null;
+        this._hoveredNameElement = null;
         this._pollTimer = null;
-        this._pollCount = 0;
         this._emptyRetries = 0;
         this._mousemoveHandler = null;
         this._mouseleaveHandler = null;
         this._lastHoverKey = null;
+        this._hoverNotified = false;
         this._svgHost = null;
         this._effectsLayer = null;
         this._dragPreviewRects = null;
@@ -398,6 +406,25 @@
             if (this._overlay && this._overlay.parentNode) {
                 this._overlay.parentNode.removeChild(this._overlay);
             }
+            this._resetOverlayDom();
+        },
+
+        _resetOverlayDom: function () {
+            this._overlay = null;
+            this._svgHost = null;
+            this._effectsLayer = null;
+            this._panBoundsOutline = null;
+            this._navViewportPreview = null;
+            this._selectLasso = null;
+            this._ghostSvg = null;
+            this._ghostRectPool = null;
+            this._hopLineEl = null;
+            this._dragPreviewRects = null;
+            this._noteHandleRects = null;
+        },
+
+        _overlayIsLive: function () {
+            return !!(this._overlay && this._overlay.isConnected);
         },
 
         attachListener: function () {
@@ -409,6 +436,9 @@
         },
 
         setCanvasId: function (properties) {
+            if (this._canvasId && this._canvasId !== properties.value) {
+                return;
+            }
             this._canvasId = properties.value;
         },
 
@@ -445,13 +475,11 @@
                     return;
                 }
                 self._findTimer = null;
-                if (self._canvas === canvas) {
-                    var parent = canvas.parentElement;
-                    if (parent && self._overlay && self._overlay.parentNode !== parent) {
-                        self._attachToCanvas(canvas);
-                    } else if (self._overlay) {
-                        self._syncOverlayLayout(canvas);
-                    }
+                if (!self._overlayIsLive()) {
+                    self._resetOverlayDom();
+                }
+                if (self._canvas === canvas && self._overlayIsLive()) {
+                    self._syncOverlayLayout(canvas);
                     return;
                 }
                 self._attachToCanvas(canvas);
@@ -472,6 +500,10 @@
             }
             this._detachInteractionListeners();
             this._canvas = canvas;
+
+            if (this._overlay && !this._overlayIsLive()) {
+                this._resetOverlayDom();
+            }
 
             if (!this._overlay) {
                 this._overlay = document.createElement("div");
@@ -533,7 +565,7 @@
             }
 
             var parent = canvas.parentElement;
-            if (parent && this._overlay.parentNode !== parent) {
+            if (parent && !this._overlay.parentNode) {
                 if (window.getComputedStyle(parent).position === "static") {
                     parent.style.position = "relative";
                 }
@@ -551,6 +583,7 @@
             this._mouseleaveHandler = function () {
                 if (!self._dragActive && !self._panActive && !self._navDragActive && !self._selectActive) {
                     self._lastHoverKey = null;
+                    self._notifyHoverEnd();
                     self._updateHoverChrome(null);
                     self._clearNoteResizeHandles();
                     self._clearHopLine();
@@ -571,7 +604,6 @@
 
             if (!this._pollTimer) {
                 this._pollTimer = setInterval(function () {
-                    self._pollCount++;
                     if (self._canvas && !self._canvas.parentNode) {
                         self._canvas = null;
                         self._findAndAttachCanvas();
@@ -580,9 +612,11 @@
                     if (self._canvas) {
                         self._syncOverlayLayout(self._canvas);
                     }
-                    // Periodically force a full refresh to recover from missed updates.
-                    var clientRev = (self._pollCount % 10 === 0) ? 0 : self._revision;
-                    self._fetchAndRender(clientRev);
+                    // Every publish bumps the server revision, so this conditional poll (304 when
+                    // unchanged) already recovers a missed update within half a second. It used to
+                    // force a full fetch every 10th poll as well, which re-downloaded a large
+                    // pipeline's SVG every 5 seconds for as long as the tab was open.
+                    self._fetchAndRender(self._revision);
                 }, 500);
             }
 
@@ -691,6 +725,26 @@
             if (!this._sessionUuid || !this._canvasId) {
                 return;
             }
+            // One download at a time. Binding a canvas asks for the SVG from several places at
+            // once (attach, canvasId, renderRevision, the first poll), all before the first
+            // response has set _revision, so each of them fetched the whole document again. Remember
+            // the most demanding request (0 = unconditional) and issue it once this one is done.
+            if (this._fetchInFlight) {
+                var wanted = clientRev || 0;
+                this._pendingFetchRev = this._pendingFetchRev === null
+                    ? wanted : Math.min(this._pendingFetchRev, wanted);
+                return;
+            }
+            this._fetchInFlight = true;
+            var finished = function () {
+                self._fetchInFlight = false;
+                if (self._pendingFetchRev !== null && !self._destroyed) {
+                    var rev = self._pendingFetchRev;
+                    self._pendingFetchRev = null;
+                    // A conditional follow-up should use what we have by now, not a stale number.
+                    self._fetchAndRender(rev === 0 ? 0 : self._revision);
+                }
+            };
             fetch(this._serviceUrl(clientRev), { credentials: "same-origin" })
                 .then(function (response) {
                     if (response.status === 304) {
@@ -734,6 +788,8 @@
                             svg.style.display = "block";
                             svg.style.pointerEvents = "none";
                         }
+                        self._hoveredNameElement = null;
+                        self._applyHoveredName();
                         if (self._canvas) {
                             self._syncOverlayLayout(self._canvas);
                         }
@@ -745,7 +801,8 @@
                     if (window.console && console.debug) {
                         console.debug("Hop canvas SVG fetch failed", err);
                     }
-                });
+                })
+                .then(finished, finished);
         },
 
         _updateHoverChrome: function (area, graphX, graphY) {
@@ -778,6 +835,63 @@
                 this._canvas.style.cursor = "default";
             } else {
                 this._canvas.style.cursor = "";
+            }
+            this._setHoveredName(
+                area && (area.areaType === "TRANSFORM_NAME" || area.areaType === "ACTION_NAME") ? area : null);
+        },
+
+        /**
+         * Bold the hovered transform / action name. The server used to do this by re-rendering
+         * the whole graph on every name enter and leave (issue #8435); the <text> is right here.
+         */
+        _setHoveredName: function (area) {
+            var key = area ? area.areaType + ":" + area.x + ":" + area.y : null;
+            if (key === this._hoveredNameKey) {
+                return;
+            }
+            this._clearHoveredName();
+            this._hoveredNameKey = key;
+            this._hoveredNameArea = area;
+            this._applyHoveredName();
+        },
+
+        _clearHoveredName: function () {
+            if (this._hoveredNameElement) {
+                this._hoveredNameElement.style.fontWeight = "";
+                this._hoveredNameElement = null;
+            }
+            this._hoveredNameKey = null;
+            this._hoveredNameArea = null;
+        },
+
+        _applyHoveredName: function () {
+            var area = this._hoveredNameArea;
+            if (!area || !this._svgHost || !this._overlay) {
+                return;
+            }
+            var label = area.owner && area.owner.kind === "label" ? area.owner.value : null;
+            var props = this._getCanvasProps();
+            if (props.magnification == null && this._props && this._props.magnification != null) {
+                props = this._props;
+            }
+            var rect = graphRectToScreen(area.x, area.y, area.width, area.height, props);
+            var overlayRect = this._overlay.getBoundingClientRect();
+            var left = overlayRect.left + rect.left;
+            var top = overlayRect.top + rect.top;
+            var texts = this._svgHost.querySelectorAll("text");
+            for (var i = 0; i < texts.length; i++) {
+                var text = texts[i];
+                if (label != null && text.textContent.trim() !== label) {
+                    continue;
+                }
+                var box = text.getBoundingClientRect();
+                var cx = box.left + box.width / 2;
+                var cy = box.top + box.height / 2;
+                if (cx >= left && cx <= left + rect.width && cy >= top && cy <= top + rect.height) {
+                    text.style.fontWeight = "bold";
+                    this._hoveredNameElement = text;
+                    return;
+                }
             }
         },
 
@@ -2194,14 +2308,34 @@
                 return;
             }
             this._lastHoverKey = hoverKey;
-            var interaction = hop._canvasInteractionInstance;
+            var interaction = hop._canvasInteractions && hop._canvasInteractions[this._canvasId];
             if (area && area.hover && interaction && interaction._remoteObject) {
+                this._hoverNotified = true;
                 interaction._remoteObject.notify("hover", {
                     canvasId: this._canvasId,
                     graphX: graph.x,
                     graphY: graph.y,
                     screenX: Math.round(screenX),
                     screenY: Math.round(screenY)
+                });
+            } else {
+                // Left the hovered area for empty canvas or something without a tooltip: the
+                // server only ever hears about the entering, so tell it to take the tooltip down.
+                this._notifyHoverEnd();
+            }
+        },
+
+        /** Tell the server the hover ended, once per hover the server was told about. */
+        _notifyHoverEnd: function () {
+            if (!this._hoverNotified) {
+                return;
+            }
+            this._hoverNotified = false;
+            var interaction = hop._canvasInteractions && hop._canvasInteractions[this._canvasId];
+            if (interaction && interaction._remoteObject) {
+                interaction._remoteObject.notify("hover", {
+                    canvasId: this._canvasId,
+                    leave: true
                 });
             }
         }
@@ -2220,19 +2354,13 @@
                 widget._sessionUuid = value;
             },
             canvasId: function (widget, value) {
-                var changed = widget._canvasId !== value;
-                widget._canvasId = value;
-                // Tab switch: re-bind overlay to the newly active canvas and force SVG fetch.
-                if (changed) {
-                    widget._revision = 0;
-                    if (widget._svgHost) {
-                        widget._svgHost.innerHTML = "";
-                    }
-                    widget._findAndAttachCanvas();
-                    widget._fetchAndRender(0);
-                } else {
-                    widget._findAndAttachCanvas();
+                // canvasId is instance identity. A second canvas must get its own remote;
+                // never steal this overlay by rewriting the id (issue #8432).
+                if (widget._canvasId && widget._canvasId !== value) {
+                    return;
                 }
+                widget._canvasId = value;
+                widget._findAndAttachCanvas();
             },
             renderRevision: function (widget, value) {
                 if (value !== widget._revision) {
@@ -2249,17 +2377,28 @@
     hop.CanvasInteraction = function (properties) {
         this._canvasId = properties.canvas;
         this._remoteObject = null;
-        hop._canvasInteractionInstance = this;
+        if (!hop._canvasInteractions) {
+            hop._canvasInteractions = {};
+        }
+        if (this._canvasId) {
+            hop._canvasInteractions[this._canvasId] = this;
+        }
     };
 
     hop.CanvasInteraction.prototype = {
         destroy: function () {
-            if (hop._canvasInteractionInstance === this) {
-                hop._canvasInteractionInstance = null;
+            if (this._canvasId && hop._canvasInteractions && hop._canvasInteractions[this._canvasId] === this) {
+                delete hop._canvasInteractions[this._canvasId];
             }
         },
         attachListener: function () {
             this._remoteObject = rap.getRemoteObject(this);
+            if (this._canvasId) {
+                if (!hop._canvasInteractions) {
+                    hop._canvasInteractions = {};
+                }
+                hop._canvasInteractions[this._canvasId] = this;
+            }
         }
     };
 
@@ -2273,7 +2412,16 @@
         events: ["hover"],
         propertyHandler: {
             canvas: function (widget, value) {
+                if (widget._canvasId && hop._canvasInteractions && hop._canvasInteractions[widget._canvasId] === widget) {
+                    delete hop._canvasInteractions[widget._canvasId];
+                }
                 widget._canvasId = value;
+                if (!hop._canvasInteractions) {
+                    hop._canvasInteractions = {};
+                }
+                if (value) {
+                    hop._canvasInteractions[value] = widget;
+                }
             }
         }
     });

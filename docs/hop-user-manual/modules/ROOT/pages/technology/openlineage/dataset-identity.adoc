@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/openlineage/
 :language: en_US
 :description: How the Hop OpenLineage sink identifies datasets, and the naming another lineage producer has to match to stitch into Hop's graph.
+:page-marketplace: hop-tech-openlineage
 
 = OpenLineage dataset identity
 

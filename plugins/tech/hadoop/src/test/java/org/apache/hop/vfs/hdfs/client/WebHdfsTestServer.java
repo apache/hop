@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Minimal WebHDFS/HttpFS stub for unit tests. In-memory files, no Hadoop. */
@@ -40,6 +41,10 @@ public class WebHdfsTestServer {
   private volatile boolean standby;
   private volatile boolean openUses307;
   private final AtomicInteger requests = new AtomicInteger();
+  private volatile int barrierPuts;
+  private final AtomicInteger arrivedPuts = new AtomicInteger();
+  private final AtomicInteger currentPuts = new AtomicInteger();
+  private final AtomicInteger maxConcurrentPuts = new AtomicInteger();
 
   public WebHdfsTestServer() {
     dirs.put("/", true);
@@ -81,6 +86,16 @@ public class WebHdfsTestServer {
 
   public int requestCount() {
     return requests.get();
+  }
+
+  /** CREATE body handlers wait until this many PUTs are in flight (0 = no wait). */
+  public void requireConcurrentPuts(int n) {
+    barrierPuts = n;
+    arrivedPuts.set(0);
+  }
+
+  public int maxConcurrentPuts() {
+    return maxConcurrentPuts.get();
   }
 
   private void handle(HttpExchange exchange) throws IOException {
@@ -188,10 +203,31 @@ public class WebHdfsTestServer {
       send(exchange, 201, "{\"Location\":\"" + location + "\"}");
       return;
     }
-    byte[] body = readAll(exchange.getRequestBody());
-    files.put(path, body);
-    parentDir(path);
-    send(exchange, 201, "");
+    int inFlight = currentPuts.incrementAndGet();
+    maxConcurrentPuts.updateAndGet(seen -> Math.max(seen, inFlight));
+    try {
+      int need = barrierPuts;
+      if (need > 0) {
+        arrivedPuts.incrementAndGet();
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(8);
+        while (arrivedPuts.get() < need && System.nanoTime() < deadline) {
+          Thread.sleep(20);
+        }
+        if (arrivedPuts.get() < need) {
+          send(exchange, 500, "only " + arrivedPuts.get() + " concurrent PUTs, expected " + need);
+          return;
+        }
+      }
+      byte[] body = readAll(exchange.getRequestBody());
+      files.put(path, body);
+      parentDir(path);
+      send(exchange, 201, "");
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      send(exchange, 500, "interrupted");
+    } finally {
+      currentPuts.decrementAndGet();
+    }
   }
 
   private void open(HttpExchange exchange, String path, Map<String, String> query)

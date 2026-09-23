@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.CrossSitePolicy;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -90,6 +91,12 @@ public class WebServer {
   private String passwordFile;
 
   private final SslConfiguration sslConfig;
+
+  /**
+   * Which browser requests are accepted. Applied centrally in {@link #start()} by a {@link
+   * CrossSiteRequestHandler} wrapped around every context.
+   */
+  @Setter @Getter private CrossSitePolicy crossSitePolicy = CrossSitePolicy.SAME_SITE;
 
   public WebServer(
       ILogChannel log,
@@ -206,7 +213,16 @@ public class WebServer {
       log.logBasic("Hop Server: Basic authentication is DISABLED (enableAuth=false)");
     }
 
-    server.setHandler(innerHandler);
+    // Keep cross-site browser requests away from the servlets, the static resources and the JSON
+    // API alike, whether or not authentication was enabled above.
+    if (crossSitePolicy == CrossSitePolicy.OFF) {
+      log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.CrossSiteCheckDisabled"));
+      server.setHandler(innerHandler);
+    } else {
+      log.logBasic(
+          BaseMessages.getString(PKG, "WebServer.Log.CrossSitePolicy", crossSitePolicy.getCode()));
+      server.setHandler(new CrossSiteRequestHandler(innerHandler, crossSitePolicy, log));
+    }
 
     // Setup timeout to allow graceful timeout of server components
     server.setStopTimeout(1000L);

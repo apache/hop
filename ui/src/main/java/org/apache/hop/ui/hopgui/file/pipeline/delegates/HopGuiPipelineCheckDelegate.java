@@ -27,12 +27,12 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
@@ -275,11 +275,10 @@ public class HopGuiPipelineCheckDelegate {
         parentItem.setData(source);
 
         if (source instanceof TransformMeta transform) {
-          Image image =
-              GuiResource.getInstance()
-                  .getSwtImageTransform(transform.getPluginId())
-                  .getAsBitmapForSize(
-                      hopGui.getDisplay(), ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE);
+          SwtUniversalImage swtImage =
+              GuiResource.getInstance().getSwtImageTransform(transform.getPluginId());
+          Image image = GuiResource.getInstance().getSmallIcon(swtImage);
+
           if (image != null) {
             parentItem.setImage(image);
           }
@@ -306,6 +305,7 @@ public class HopGuiPipelineCheckDelegate {
       case ICheckResult.TYPE_RESULT_OK -> GuiResource.getInstance().getImageTrue();
       case ICheckResult.TYPE_RESULT_ERROR -> GuiResource.getInstance().getImageError();
       case ICheckResult.TYPE_RESULT_WARNING -> GuiResource.getInstance().getImageWarning();
+      case ICheckResult.TYPE_RESULT_COMMENT -> GuiResource.getInstance().getImageInfo();
       default -> null;
     };
   }

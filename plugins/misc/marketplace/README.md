@@ -199,6 +199,14 @@ combined with `HOP_MARKETPLACE_PASSWORD` from the environment. A mixed pair
 counts as deliberate — the anonymous retry below applies only when the entry
 supplies neither field.
 
+Repositories declared by a hop-env install spec are scoped: because the URL
+comes from the project, the configured credentials are only reused when the
+spec points at the same scheme, host and port as a repository in
+`hop-config.json` (the path may differ). A spec repository on any other host
+gets only what the spec declares — neither a stored `username` / `password` nor
+the global `HOP_MARKETPLACE_*` pair reaches it. Give it credentials with its own
+entry fields or the scoped `HOP_MARKETPLACE_<ID>_*` variables.
+
 A `password` on a repository entry is stored obfuscated (`Encrypted 2be98afc…`,
 Hop's two-way password encoder) in `hop-config.json`, in exported repository
 definitions and in environment files. Older clear-text configurations are read

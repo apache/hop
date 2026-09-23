@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The rules executor uses Drools to check rows against a rule set
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-transform-drools
 
 = image:transforms/icons/rules_exec.svg[Rules executor transform Icon, role="image-doc-icon"] Rules executor
 

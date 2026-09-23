@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The dbt action runs a dbt Core operation against a dbt project and reports its per-model results back to the workflow.
+:page-marketplace: hop-action-dbt
 
 = dbt
 

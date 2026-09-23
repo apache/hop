@@ -245,7 +245,10 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
-    chmod +x /build/hop-web-prepared/run-web.sh
+    chmod +x /build/hop-web-prepared/run-web.sh && \
+    # Tomcat configuration with response compression (see the comments in the file)
+    mkdir -p /build/hop-web-prepared/conf && \
+    cp /build/docker/resources/server.xml /build/hop-web-prepared/conf/server.xml
 
 # Make scripts executable
 RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
@@ -363,7 +366,7 @@ ENV HOP_AES_ENCODER_KEY_FILE=""
 ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS=${CATALINA_HOME}/plugins
 ENV HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"

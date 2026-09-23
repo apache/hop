@@ -20,6 +20,7 @@ under the License.
 
 :toc:
 :toclevels: 3
+:page-marketplace: hop-engines-spark
 
 = Getting started with the native Spark pipeline engine
 

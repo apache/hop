@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam timestamp transform adds a custom timestamp using the Beam execution engine.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-timestamp.svg[Beam timestamp Icon, role="image-doc-icon"] Beam timestamp
 

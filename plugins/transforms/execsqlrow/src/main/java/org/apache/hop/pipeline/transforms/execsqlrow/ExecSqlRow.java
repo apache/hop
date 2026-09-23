@@ -80,6 +80,13 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
     return resultRow;
   }
 
+  /** Reflect the rows the statements read and affected in the transform's own counters. */
+  private void addResultToStats(Result result) {
+    setLinesInput(getLinesInput() + result.getNrLinesRead());
+    setLinesOutput(getLinesOutput() + result.getNrLinesOutput());
+    setLinesUpdated(getLinesUpdated() + result.getNrLinesUpdated() + result.getNrLinesDeleted());
+  }
+
   @Override
   public boolean processRow() throws HopException {
 
@@ -142,6 +149,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
           data.result = data.db.execStatements(sql);
         }
       }
+      addResultToStats(data.result);
 
       RowMetaAndData add =
           getResultRow(

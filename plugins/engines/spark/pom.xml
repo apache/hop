@@ -222,7 +222,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Hard-banned transform meta for annotation lockstep tests only -->
+        <!-- Hard-banned transform metas for annotation lockstep tests only -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-groupby</artifactId>
@@ -240,6 +240,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-uniquerowsbyhashset</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

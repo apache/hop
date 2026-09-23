@@ -46,4 +46,10 @@ public interface IWebCanvasGraph {
    * @param screenY screen Y relative to the canvas widget
    */
   void handleWebCanvasHover(int graphX, int graphY, int screenX, int screenY);
+
+  /**
+   * The pointer left the hovered area (or the canvas altogether): whatever the hover showed, such
+   * as a tooltip, goes away.
+   */
+  void handleWebCanvasHoverEnd();
 }

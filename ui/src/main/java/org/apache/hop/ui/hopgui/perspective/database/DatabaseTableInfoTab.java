@@ -32,6 +32,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseObjectDdl;
+import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -205,6 +206,7 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
           IRowMeta fields;
           List<DatabaseIndexInfo> indexes;
           String ddl;
+          Map<String, String> definitions;
           boolean view = kind == DatabaseTreeNode.Kind.VIEW;
           try (Database db =
               new Database(host.getLoggingObject(), host.getVariables(), databaseMeta)) {
@@ -215,6 +217,7 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
             }
             fields = loadFields(db, qualified);
             indexes = loadIndexes(db, schemaName, tableName);
+            definitions = loadColumnDefinitions(db, schemaName, tableName, fields);
             try {
               ddl = db.getObjectDdl(schemaName, tableName, view, fields);
             } catch (Exception e) {
@@ -223,12 +226,13 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
           }
           IRowMeta loadedFields = fields;
           List<DatabaseIndexInfo> loadedIndexes = indexes;
+          Map<String, String> loadedDefinitions = definitions;
           String loadedDdl =
               view
                   ? ddl
                   : withIndexStatements(
                       databaseMeta, host.getVariables(), schemaName, tableName, ddl, indexes);
-          host.asyncExec(() -> populate(loadedFields, loadedIndexes, loadedDdl));
+          host.asyncExec(() -> populate(loadedFields, loadedIndexes, loadedDdl, loadedDefinitions));
         });
   }
 
@@ -277,11 +281,193 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
     return new ArrayList<>(byName.values());
   }
 
-  private void populate(IRowMeta fields, List<DatabaseIndexInfo> indexes, String ddl) {
+  static Map<String, String> loadColumnDefinitions(
+      Database db, String schemaName, String tableName, IRowMeta fields) {
+    Map<String, String> definitions = new HashMap<>();
+    if (db != null) {
+      try {
+        DatabaseMetaData metaData = db.getDatabaseMetaData();
+        if (metaData != null) {
+          String escape = null;
+          try {
+            escape = metaData.getSearchStringEscape();
+          } catch (Exception ignored) {
+            // Driver-dependent.
+          }
+          boolean supportsCatalogs = false;
+          boolean supportsSchemas = false;
+          try {
+            supportsCatalogs = metaData.supportsCatalogsInTableDefinitions();
+            supportsSchemas = metaData.supportsSchemasInTableDefinitions();
+          } catch (Exception ignored) {
+            // Driver-dependent.
+          }
+
+          String catalog = null;
+          String schemaPattern = Utils.isEmpty(schemaName) ? null : schemaName;
+          if (supportsCatalogs && !supportsSchemas) {
+            // Catalogs are used instead of schemas (e.g. MySQL / MariaDB)
+            catalog = schemaName;
+            schemaPattern = null;
+          } else {
+            try {
+              if (supportsCatalogs && db.getConnection() != null) {
+                catalog = db.getConnection().getCatalog();
+              }
+            } catch (Exception ignored) {
+              // Driver-dependent.
+            }
+          }
+
+          String escapedSchema = escapePattern(schemaPattern, escape);
+          String escapedTable = escapePattern(tableName, escape);
+
+          readColumnDefinitions(
+              metaData,
+              catalog,
+              escapedSchema,
+              escapedTable,
+              catalog,
+              schemaPattern,
+              tableName,
+              definitions);
+
+          // If empty and schemaName was provided, try using schemaName as catalog
+          if (definitions.isEmpty() && !Utils.isEmpty(schemaName)) {
+            if (catalog == null || !schemaName.equals(catalog)) {
+              readColumnDefinitions(
+                  metaData,
+                  schemaName,
+                  null,
+                  escapedTable,
+                  schemaName,
+                  null,
+                  tableName,
+                  definitions);
+            }
+          }
+
+          if (definitions.isEmpty() && !Utils.isEmpty(tableName)) {
+            String upperTable = escapePattern(tableName.toUpperCase(Locale.ROOT), escape);
+            readColumnDefinitions(
+                metaData,
+                catalog,
+                escapedSchema,
+                upperTable,
+                catalog,
+                schemaPattern,
+                tableName,
+                definitions);
+            if (definitions.isEmpty()) {
+              String lowerTable = escapePattern(tableName.toLowerCase(Locale.ROOT), escape);
+              readColumnDefinitions(
+                  metaData,
+                  catalog,
+                  escapedSchema,
+                  lowerTable,
+                  catalog,
+                  schemaPattern,
+                  tableName,
+                  definitions);
+            }
+          }
+        }
+      } catch (Exception ignored) {
+        // Fall back to fields.
+      }
+    }
+    if (fields != null) {
+      for (int i = 0; i < fields.size(); i++) {
+        IValueMeta value = fields.getValueMeta(i);
+        if (value != null && !Utils.isEmpty(value.getName())) {
+          String key = value.getName().toLowerCase(Locale.ROOT);
+          if (!definitions.containsKey(key)) {
+            definitions.put(key, DatabaseColumn.calculateDefinition(value));
+          }
+        }
+      }
+    }
+    return definitions;
+  }
+
+  static String escapePattern(String value, String escape) {
+    if (Utils.isEmpty(value) || Utils.isEmpty(escape)) {
+      return value;
+    }
+    char escapeChar = escape.charAt(0);
+    StringBuilder escaped = new StringBuilder(value.length() + 4);
+    for (char c : value.toCharArray()) {
+      if (c == '_' || c == '%' || c == escapeChar) {
+        escaped.append(escapeChar);
+      }
+      escaped.append(c);
+    }
+    return escaped.toString();
+  }
+
+  private static void readColumnDefinitions(
+      DatabaseMetaData metaData,
+      String catalog,
+      String schemaPattern,
+      String tableNamePattern,
+      String expectedCatalog,
+      String expectedSchema,
+      String expectedTableName,
+      Map<String, String> definitions) {
+    try (ResultSet columns = metaData.getColumns(catalog, schemaPattern, tableNamePattern, null)) {
+      if (columns != null) {
+        String chosenSchema = null;
+        while (columns.next()) {
+          try {
+            if (!Utils.isEmpty(expectedTableName)) {
+              String actualTable = columns.getString("TABLE_NAME");
+              if (!Utils.isEmpty(actualTable) && !expectedTableName.equalsIgnoreCase(actualTable)) {
+                continue;
+              }
+            }
+            String actualSchema = columns.getString("TABLE_SCHEM");
+            if (!Utils.isEmpty(expectedSchema)) {
+              if (!Utils.isEmpty(actualSchema) && !expectedSchema.equalsIgnoreCase(actualSchema)) {
+                continue;
+              }
+            } else if (!Utils.isEmpty(actualSchema)) {
+              if (chosenSchema == null) {
+                chosenSchema = actualSchema;
+              } else if (!chosenSchema.equalsIgnoreCase(actualSchema)) {
+                continue;
+              }
+            }
+            if (!Utils.isEmpty(expectedCatalog)) {
+              String actualCatalog = columns.getString("TABLE_CAT");
+              if (!Utils.isEmpty(actualCatalog)
+                  && !expectedCatalog.equalsIgnoreCase(actualCatalog)) {
+                continue;
+              }
+            }
+            DatabaseColumn column = DatabaseColumn.ofColumnsRow(columns);
+            if (column != null && !Utils.isEmpty(column.getName())) {
+              definitions.putIfAbsent(
+                  column.getName().toLowerCase(Locale.ROOT), column.getDefinition());
+            }
+          } catch (Exception ignored) {
+            // Ignore single column read errors
+          }
+        }
+      }
+    } catch (Exception ignored) {
+      // Driver error on getColumns
+    }
+  }
+
+  private void populate(
+      IRowMeta fields,
+      List<DatabaseIndexInfo> indexes,
+      String ddl,
+      Map<String, String> definitions) {
     if (control.isDisposed()) {
       return;
     }
-    fillColumns(fields);
+    fillColumns(fields, definitions);
     fillIndexes(indexes);
     fillDdl(ddl);
   }
@@ -346,7 +532,7 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
         || DatabaseObjectDdl.startsWithCreate(ddl) && upper.contains(" KEY ");
   }
 
-  private void fillColumns(IRowMeta fields) {
+  private void fillColumns(IRowMeta fields, Map<String, String> definitions) {
     columnsView.clearAll(false);
     if (fields == null) {
       columnsView.removeEmptyRows();
@@ -357,11 +543,16 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
       IValueMeta value = fields.getValueMeta(i);
       TableItem item =
           i == 0 ? columnsView.table.getItem(0) : new TableItem(columnsView.table, SWT.NONE);
+      String definition =
+          definitions != null && !Utils.isEmpty(value.getName())
+              ? Const.NVL(definitions.get(value.getName().toLowerCase(Locale.ROOT)), "")
+              : DatabaseColumn.calculateDefinition(value);
       item.setText(1, Const.NVL(value.getName(), ""));
-      item.setText(2, Const.NVL(value.getTypeDesc(), ""));
-      item.setText(3, value.getLength() >= 0 ? Integer.toString(value.getLength()) : "");
-      item.setText(4, value.getPrecision() >= 0 ? Integer.toString(value.getPrecision()) : "");
-      item.setText(5, Const.NVL(value.getComments(), ""));
+      item.setText(2, Const.NVL(definition, ""));
+      item.setText(3, Const.NVL(value.getTypeDesc(), ""));
+      item.setText(4, value.getLength() >= 0 ? Integer.toString(value.getLength()) : "");
+      item.setText(5, value.getPrecision() >= 0 ? Integer.toString(value.getPrecision()) : "");
+      item.setText(6, Const.NVL(value.getComments(), ""));
     }
     columnsView.removeEmptyRows();
     columnsView.setRowNums();
@@ -392,14 +583,18 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
     indexesView.optWidth(true);
   }
 
-  private ColumnInfo[] columnInfos() {
+  static ColumnInfo[] columnInfos() {
     return new ColumnInfo[] {
       new ColumnInfo(
           BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Column.Name"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false),
       new ColumnInfo(
-          BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Column.Type"),
+          BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Column.Definition"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DatabasePerspective.TableInfo.Column.HopType"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false),
       new ColumnInfo(

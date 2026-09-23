@@ -18,6 +18,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
+import java.util.function.Consumer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
@@ -36,6 +37,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
@@ -65,6 +67,7 @@ import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -105,6 +108,9 @@ public class ConfigGuiOptionsTab {
   private Button wShowCanvasGrid;
   private Button wHideViewport;
   private Button wUseDoubleClick;
+  private Button wUseRightClickForContextDialog;
+  private Button wUseMenusInsteadOfContextDialog;
+  private Button wDialogsOnAnyScreen;
   private Button wDrawBorderAroundCanvasNames;
   private Button wEnableInfiniteMove;
   private Button wDisableZoomScrolling;
@@ -201,6 +207,11 @@ public class ConfigGuiOptionsTab {
 
       wHideViewport.setSelection(!props.isHideViewportEnabled()); // Inverted logic
       wUseDoubleClick.setSelection(props.useDoubleClick());
+      wUseRightClickForContextDialog.setSelection(props.useRightClickForContextDialog());
+      wUseMenusInsteadOfContextDialog.setSelection(props.useMenusInsteadOfContextDialog());
+      if (wDialogsOnAnyScreen != null) {
+        wDialogsOnAnyScreen.setSelection(props.isDialogsOnAnyScreenEnabled());
+      }
       wDrawBorderAroundCanvasNames.setSelection(props.isBorderDrawnAroundCanvasNames());
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
       wHideMenuBar.setSelection(props.isHidingMenuBar());
@@ -540,6 +551,26 @@ public class ConfigGuiOptionsTab {
 
     lastControl = appearanceExpandBar;
 
+    // macOS section: only there, since it only concerns how macOS attaches dialogs to windows.
+    if (OsHelper.isMac()) {
+      lastControl =
+          addSection(
+              wLookComp,
+              sLookComp,
+              lastControl,
+              margin,
+              "EnterOptionsDialog.Section.MacOs",
+              content ->
+                  wDialogsOnAnyScreen =
+                      createCheckbox(
+                          content,
+                          "EnterOptionsDialog.DialogsOnAnyScreen.Label",
+                          "EnterOptionsDialog.DialogsOnAnyScreen.ToolTip",
+                          props.isDialogsOnAnyScreenEnabled(),
+                          null,
+                          margin));
+    }
+
     // Fonts section - using ExpandBar
     ExpandBar fontsExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(fontsExpandBar);
@@ -699,6 +730,28 @@ public class ConfigGuiOptionsTab {
             lastCanvasControl,
             margin);
     lastCanvasControl = wUseDoubleClick;
+
+    // Use right click for the context dialog
+    wUseRightClickForContextDialog =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.UseRightClickForContextDialog.Label",
+            "EnterOptionsDialog.UseRightClickForContextDialog.ToolTip",
+            props.useRightClickForContextDialog(),
+            lastCanvasControl,
+            margin);
+    lastCanvasControl = wUseRightClickForContextDialog;
+
+    // Use menus instead of the context dialog
+    wUseMenusInsteadOfContextDialog =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.UseMenusInsteadOfContextDialog.Label",
+            "EnterOptionsDialog.UseMenusInsteadOfContextDialog.ToolTip",
+            props.useMenusInsteadOfContextDialog(),
+            lastCanvasControl,
+            margin);
+    lastCanvasControl = wUseMenusInsteadOfContextDialog;
 
     // Draw border around canvas names
     wDrawBorderAroundCanvasNames =
@@ -1328,6 +1381,11 @@ public class ConfigGuiOptionsTab {
     props.setHideViewportEnabled(
         !wHideViewport.getSelection()); // Inverted: checkbox is "show", property is "hide"
     props.setUseDoubleClickOnCanvas(wUseDoubleClick.getSelection());
+    props.setUseRightClickForContextDialog(wUseRightClickForContextDialog.getSelection());
+    props.setUseMenusInsteadOfContextDialog(wUseMenusInsteadOfContextDialog.getSelection());
+    if (wDialogsOnAnyScreen != null) {
+      props.setDialogsOnAnyScreenEnabled(wDialogsOnAnyScreen.getSelection());
+    }
     props.setDrawBorderAroundCanvasNames(wDrawBorderAroundCanvasNames.getSelection());
     props.setInfiniteCanvasMoveEnabled(wEnableInfiniteMove.getSelection());
     props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
@@ -1600,6 +1658,55 @@ public class ConfigGuiOptionsTab {
    * @param margin The margin to use
    * @return The created Button (checkbox)
    */
+  /**
+   * Adds an expandable section to the Look &amp; Feel tab below {@code above}: an ExpandBar with
+   * one expanded item whose content {@code build} fills, and the expand/collapse listeners that
+   * hand the reclaimed space back to the scrolled tab.
+   */
+  private ExpandBar addSection(
+      Composite wLookComp,
+      ScrolledComposite sLookComp,
+      Control above,
+      int margin,
+      String titleKey,
+      Consumer<Composite> build) {
+    ExpandBar expandBar = new ExpandBar(wLookComp, SWT.NONE);
+    PropsUi.setLook(expandBar);
+    FormData fdExpandBar = new FormData();
+    fdExpandBar.left = new FormAttachment(0, 0);
+    fdExpandBar.right = new FormAttachment(100, 0);
+    fdExpandBar.top = new FormAttachment(above, 2 * margin);
+    expandBar.setLayoutData(fdExpandBar);
+
+    Composite content = new Composite(expandBar, SWT.NONE);
+    PropsUi.setLook(content);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    content.setLayout(layout);
+    build.accept(content);
+
+    ExpandItem item = new ExpandItem(expandBar, SWT.NONE);
+    item.setText(BaseMessages.getString(PKG, titleKey));
+    item.setControl(content);
+    item.setHeight(content.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+    item.setExpanded(true);
+
+    Listener relayout =
+        e ->
+            Display.getCurrent()
+                .asyncExec(
+                    () -> {
+                      if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
+                        wLookComp.layout();
+                        sLookComp.setMinHeight(wLookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    });
+    expandBar.addListener(SWT.Expand, relayout);
+    expandBar.addListener(SWT.Collapse, relayout);
+    return expandBar;
+  }
+
   private Button createCheckbox(
       Composite parent,
       String labelKey,

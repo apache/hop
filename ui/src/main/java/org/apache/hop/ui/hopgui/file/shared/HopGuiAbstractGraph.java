@@ -44,6 +44,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -70,6 +71,13 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   protected Rectangle resizeArea;
   protected Resize resize;
   protected HopToolTip toolTip;
+
+  /**
+   * How long a notice such as "Selection cleared" stays up. On the desktop the next mouse move
+   * hides it anyway; Hop Web does not forward mouse moves, so the timer is what takes it down.
+   */
+  protected static final int TRANSIENT_TOOLTIP_MILLIS = 1500;
+
   protected String mouseOverName;
 
   /** Hovered Markdown note hyperlink (for underline emphasis and hand cursor). */
@@ -146,6 +154,33 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
       offset.y = Double.parseDouble(yOffset.toString());
     }
     redraw();
+  }
+
+  /**
+   * "Use menus instead of the context dialog": the actions of a transform, action, hop or note are
+   * shown in a pop-up menu. A click on the empty canvas keeps the context dialog while the design
+   * palette is hidden, because that is where new transforms and actions are searched for; with the
+   * palette shown the empty canvas gets a menu too.
+   *
+   * @param emptyCanvas true when the click was on the empty canvas (pipeline/workflow context)
+   * @return true when a pop-up menu should be shown instead of the context dialog
+   */
+  protected boolean useContextMenu(boolean emptyCanvas) {
+    if (!PropsUi.getInstance().useMenusInsteadOfContextDialog()) {
+      return false;
+    }
+    return !emptyCanvas || GraphPalette.isVisible();
+  }
+
+  /**
+   * The hide for a mouse move: takes down the tooltip of whatever was under the pointer, but not a
+   * notice such as "Selection cleared". That one is not tied to the pointer and stays until its
+   * timer fires or something else is shown or hidden.
+   */
+  protected void hideHoverToolTip() {
+    if (!toolTip.isNotice()) {
+      toolTip.setVisible(false);
+    }
   }
 
   protected void showToolTip(org.eclipse.swt.graphics.Point location) {

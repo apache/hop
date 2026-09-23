@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam Kinesis consume transform consumes records from a Kinesis stream using the Beam pipeline execution engine.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-kinesis-consume.svg[Beam Kinesis consume Icon, role="image-doc-icon"] Beam Kinesis consume
 

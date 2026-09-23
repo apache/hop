@@ -31,6 +31,10 @@
     <firstmails>5</firstmails>
     <delete>N</delete>
     <protocol>IMAP</protocol>
+    <actiontype>get</actiontype>
+    <valueimaplist>imaplistunread</valueimaplist>
+    <conditionreceiveddate>ignore</conditionreceiveddate>
+    <aftergetimap>nothing</aftergetimap>
     <saveattachment>Y</saveattachment>
     <savemessage>Y</savemessage>
     <usedifferentfolderforattachment>N</usedifferentfolderforattachment>

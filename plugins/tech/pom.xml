@@ -48,6 +48,7 @@
         <module>openlineage</module>
         <module>opensearch</module>
         <module>parquet</module>
+        <module>pgvector</module>
         <module>redis</module>
         <module>salesforce</module>
         <module>sftp</module>

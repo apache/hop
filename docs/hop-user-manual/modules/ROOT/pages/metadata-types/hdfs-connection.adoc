@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Named HDFS connection over WebHDFS, HttpFS or Knox
+:page-marketplace: hop-tech-hadoop
 
 = HDFS Connection
 
@@ -83,6 +84,9 @@ That is the library-conflict and OpenShift-network path this plugin exists to av
 
 The plugin re-logs from the keytab in Java (JAAS).
 It does not call the `kinit` binary and does not use Hadoop `UserGroupInformation`.
+
+Parallel Parquet File Output copies (and other concurrent VFS writers) share one HTTP connection pool per named connection.
+Kerberos SPNEGO is generated per NameNode / HttpFS / Knox request and does **not** hold the login lock while file bytes are uploaded, so several files can be written at once.
 
 === TLS
 

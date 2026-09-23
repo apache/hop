@@ -74,6 +74,28 @@ class DatabaseSqlTabMemoryTest {
     assertEquals(0, DatabaseSqlTabMemory.number("nope", 0));
   }
 
+  @Test
+  void untitledSessionBuffersRestoreClean() {
+    DatabaseSqlTabMemory.Snapshot untitledDirty =
+        new DatabaseSqlTabMemory.Snapshot("warehouse", "", "SELECT 1", true, "SQL");
+    DatabaseSqlTabMemory.Snapshot untitledClean =
+        new DatabaseSqlTabMemory.Snapshot("warehouse", "", "SELECT 1", false, "SQL");
+    assertFalse(DatabaseSqlTabMemory.restoredTabIsDirty(untitledDirty));
+    assertFalse(DatabaseSqlTabMemory.restoredTabIsDirty(untitledClean));
+    assertFalse(DatabaseSqlTabMemory.restoredTabIsDirty(null));
+  }
+
+  @Test
+  void namedDirtyFilesStayDirtyAfterRestore() {
+    DatabaseSqlTabMemory.Snapshot dirtyFile =
+        new DatabaseSqlTabMemory.Snapshot(
+            "warehouse", "/tmp/load.sql", "SELECT 1", true, "load.sql");
+    DatabaseSqlTabMemory.Snapshot cleanFile =
+        new DatabaseSqlTabMemory.Snapshot("warehouse", "/tmp/load.sql", null, false, "load.sql");
+    assertTrue(DatabaseSqlTabMemory.restoredTabIsDirty(dirtyFile));
+    assertFalse(DatabaseSqlTabMemory.restoredTabIsDirty(cleanFile));
+  }
+
   private static java.util.Map<String, Object> originalEmptyConnection() {
     java.util.Map<String, Object> map = new java.util.LinkedHashMap<>();
     map.put(DatabaseSqlTabMemory.PROP_CONNECTION, "");

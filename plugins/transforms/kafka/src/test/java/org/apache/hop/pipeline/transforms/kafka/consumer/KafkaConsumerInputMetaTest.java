@@ -22,11 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.junit.jupiter.api.Test;
@@ -106,6 +110,7 @@ class KafkaConsumerInputMetaTest {
     meta.setAutoCommit(true);
     meta.setStopWhenIdle(true);
     meta.setMaxIdleTimeMs("1500");
+    meta.setMaxConsumeDurationMs("900000");
     meta.getOptions().clear();
     meta.getOptions().add(new KafkaOption("auto.offset.reset", "latest"));
     meta.getOptions().add(new KafkaOption("ssl.key.password", ""));
@@ -147,6 +152,7 @@ class KafkaConsumerInputMetaTest {
     assertEquals("222", copy.getBatchDuration());
     assertTrue(copy.isStopWhenIdle());
     assertEquals("1500", copy.getMaxIdleTimeMs());
+    assertEquals("900000", copy.getMaxConsumeDurationMs());
     assertTrue(copy.getTopics().contains("topic1"));
     assertTrue(copy.getTopics().contains("topic2"));
 
@@ -200,6 +206,7 @@ class KafkaConsumerInputMetaTest {
     // Legacy XML without the new fields keeps defaults
     assertFalse(meta.isStopWhenIdle());
     assertEquals("500", meta.getMaxIdleTimeMs());
+    assertEquals("0", meta.getMaxConsumeDurationMs());
 
     assertEquals(6, meta.getOptions().size());
     assertEquals("auto.offset.reset", meta.getOptions().getFirst().getProperty());
@@ -241,6 +248,7 @@ class KafkaConsumerInputMetaTest {
     KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
     assertFalse(meta.isStopWhenIdle());
     assertEquals("500", meta.getMaxIdleTimeMs());
+    assertEquals("0", meta.getMaxConsumeDurationMs());
   }
 
   @Test
@@ -248,10 +256,108 @@ class KafkaConsumerInputMetaTest {
     KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
     meta.setStopWhenIdle(true);
     meta.setMaxIdleTimeMs("2500");
+    meta.setMaxConsumeDurationMs("15000");
 
     KafkaConsumerInputMeta copy = (KafkaConsumerInputMeta) meta.clone();
     assertTrue(copy.isStopWhenIdle());
     assertEquals("2500", copy.getMaxIdleTimeMs());
+    assertEquals("15000", copy.getMaxConsumeDurationMs());
+  }
+
+  @Test
+  void testMaxConsumeDurationCheckNan() {
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    meta.setMaxConsumeDurationMs("not-a-number");
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        null,
+        new String[0],
+        new String[0],
+        null,
+        new Variables(),
+        null);
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("Max consume duration")));
+  }
+
+  @Test
+  void testMaxConsumeDurationCheckNegative() {
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    meta.setMaxConsumeDurationMs("-1");
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        null,
+        new String[0],
+        new String[0],
+        null,
+        new Variables(),
+        null);
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("cannot be negative")));
+  }
+
+  @Test
+  void testMaxConsumeDurationLoadedFromLegacyStyleXml() throws Exception {
+    String xml =
+        """
+        <transform>
+            <topic>hop-test-max-duration</topic>
+            <consumerGroup>hop-max-duration</consumerGroup>
+            <pipelinePath>${PROJECT_HOME}/child.hpl</pipelinePath>
+            <subTransform>Out record</subTransform>
+            <batchSize>10</batchSize>
+            <batchDuration>500</batchDuration>
+            <stopWhenIdle>N</stopWhenIdle>
+            <maxIdleTimeMs>500</maxIdleTimeMs>
+            <maxConsumeDurationMs>10000</maxConsumeDurationMs>
+            <directBootstrapServers>${BOOTSTRAP_SERVERS}</directBootstrapServers>
+            <AUTO_COMMIT>N</AUTO_COMMIT>
+        </transform>
+        """;
+    Node node = XmlHandler.loadXmlString(xml, "transform");
+    KafkaConsumerInputMeta meta =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, KafkaConsumerInputMeta.class, new MemoryMetadataProvider());
+    assertEquals("10000", meta.getMaxConsumeDurationMs());
+    assertFalse(meta.isStopWhenIdle());
+    assertEquals("500", meta.getBatchDuration());
+  }
+
+  @Test
+  void testMaxConsumeDurationCheckZeroIsValid() {
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    meta.setMaxConsumeDurationMs("0");
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        null,
+        new String[0],
+        new String[0],
+        null,
+        new Variables(),
+        null);
+    assertTrue(
+        remarks.stream()
+            .noneMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("Max consume duration")));
   }
 
   /**

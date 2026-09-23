@@ -47,8 +47,7 @@
         <module>concatfields</module>
         <module>constant</module>
         <module>creditcardvalidator</module>
-        <module>cubeinput</module>
-        <module>cubeoutput</module>
+        <module>cube</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>databasevaluevalidation</module>
@@ -118,6 +117,7 @@
         <module>odata</module>
         <module>pgp</module>
         <module>pipelineexecutor</module>
+        <module>plugincatalog</module>
         <module>processfiles</module>
         <module>propertyinput</module>
         <module>propertyoutput</module>
@@ -161,6 +161,7 @@
         <module>tableexists</module>
         <module>tableinput</module>
         <module>tableoutput</module>
+        <module>textchunker</module>
         <module>textfile</module>
         <module>tika</module>
         <module>tokenreplacement</module>

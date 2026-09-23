@@ -76,7 +76,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
       int idx = inputRowMeta.indexOfValue(field.getFieldName());
       if (idx >= 0) {
         IValueMeta valueMeta = inputRowMeta.getValueMeta(idx);
-        valueMeta.setSortedDescending(field.isAscending());
+        valueMeta.setSortedDescending(!field.isAscending());
       }
     }
   }

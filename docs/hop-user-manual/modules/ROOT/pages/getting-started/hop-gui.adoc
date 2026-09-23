@@ -15,17 +15,17 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[HopGui]]
-:imagesdir: ../../assets/images/
+:imagesdir: ../../assets/images
 :page-pagination:
-:description: Getting Started (5/8): Hop Gui is Hop's visual development environment where you design, run and debug your workflows and pipelines. In this step, we'll take a quick tour of the user interface and describe some of the functionalities in Hop GUI.
+:description: Getting Started (4/9): Hop Gui is Hop's visual development environment. A quick tour of the window, the toolbars and the perspectives before you build your first pipeline.
 
-= Hop Gui
+= Hop Gui overview
 
-The Apache Hop GUI is your local development environment to build, run, preview and debug workflows and pipelines.
+Hop Gui is where you build, run, preview and debug workflows and pipelines.
 
-== Start the Apache Hop GUI
+Before we start building, here's a short tour so you know what you're looking at.
 
-As we've seen in xref:getting-started/hop-tools.adoc[Hop Tools], starting Hop-Gui is easy:
+== Start Hop Gui
 
 [tabs]
 ====
@@ -33,51 +33,60 @@ Windows::
 +
 --
 [source,shell]
+----
 hop-gui.bat
+----
 --
 
 Linux, macOS::
 +
 --
 [source,shell]
-￼./hop-gui.sh
+----
+./hop-gui.sh
+----
 --
 ====
 
-== Walking through the Hop GUI
+== The main window
 
-After starting the Apache Hop GUI, you’ll be presented with the window below.
-
-image:getting-started/gs-hop-gui-overview-1.png[Hop Gui Overview]
+image:getting-started/gs-hop-gui-overview-1.png[The Hop Gui window]
 
 {nbsp} +
 
-Let's divide the view into two parts:
+There are two toolbars, and everything else is the work area.
 
-image:getting-started/gs-hop-gui-overview-2.png[Hop Gui Overview]
-￼
+image:getting-started/gs-hop-gui-overview-2.png[The Hop Gui toolbars]
 
-* The **main toolbar** offers a range of functions, including creating new files (such as pipelines and workflows) and adding metadata. It also provides options for managing projects and environments, as well as tools specifically for handling pipelines, workflows, and project settings.
-* The **perspectives toolbar** includes switcher icons between the various perspectives.
+The **main toolbar**, along the top, creates new files (pipelines, workflows, metadata), opens and saves them, and holds the run and preview controls for whatever you have open.
 
+The **perspectives toolbar**, down the left-hand side, switches between the different things you can do in Hop Gui.
 
-** image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
+At the **bottom left** of the status bar you'll find the active project and environment.
+You'll use those in xref:getting-started/hop-projects.adoc[Projects and environments].
 
-** image:icons/execution.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
+== Perspectives
 
-** image:icons/gear.svg[width="24px"] xref:hop-gui/perspective-configuration.adoc[Configuration]
+A perspective is a mode of the whole window.
+You'll spend nearly all of your time in the first one, Data Orchestration, which is where pipelines and workflows are edited.
 
-** image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
+include::../snippets/hop-gui/perspectives-list.adoc[]
 
-** image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File explorer]
+Switch perspective by clicking its icon, or cycle through them with `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down`.
 
-** image:icons/database.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database]
+== Worth knowing early
 
-** image:icons/plugin.svg[width="24px"] xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
+Click anywhere::
+Most of Hop Gui is driven by clicking on empty canvas or on an item, which opens a context dialog with everything you can do from there.
+You'll use it constantly in the next chapter.
 
-** image:icons/neo4j_logo.svg[width="24px"] xref:hop-gui/perspective-neo4j.adoc[Neo4j]
+`CTRL-F` searches everything::
+Not just the open file: it searches metadata, pipelines and workflows across the project.
+See xref:hop-gui/perspective-search.adoc[Search].
 
-Let's see how we can use Hop Gui to do what Hop is all about: create pipelines and workflows!
+There are shortcuts for most things::
+See xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts].
 
-INFO: check the xref:../hop-gui/index.adoc[Hop Gui] section of the Hop documentation for a more detailed tour of the Hop Gui.
+TIP: the xref:hop-gui/index.adoc[Hop Gui] section of this manual has the detailed tour, including how to xref:hop-gui/disable-ui-elements.adoc[hide parts of the UI] for new users.
 
+Let's build a pipeline.

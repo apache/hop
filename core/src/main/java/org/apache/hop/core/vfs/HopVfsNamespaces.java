@@ -17,7 +17,9 @@
 
 package org.apache.hop.core.vfs;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -39,6 +41,16 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
  * running a pipeline by filename.
  *
  * <p>See Apache Hop issue #8106.
+ *
+ * <h2>Locking</h2>
+ *
+ * <p>Registering the named connections of a namespace runs VFS plugin code, which reads metadata,
+ * which resolves files through {@link HopVfs} - whose monitor another execution may be holding
+ * while it looks its own namespace up here. So nothing in this class holds a lock while calling
+ * out: the registry is only ever locked for a lookup or an update of the map, never around plugin
+ * code or around closing a manager. A namespace created by one thread and wanted by another is
+ * waited for through {@link HopVfsNamespace#awaitReady()}, again without a lock. A Hop Server
+ * running two exports at once deadlocked before this was the rule.
  */
 public class HopVfsNamespaces {
 
@@ -50,6 +62,13 @@ public class HopVfsNamespaces {
       new IdentityHashMap<>();
 
   /**
+   * Guards {@link #NAMESPACES} and the use counts. Held for map operations only: whoever holds the
+   * {@link HopVfs} monitor may be waiting on it, so no plugin code, no metadata reads and no
+   * closing of managers ever happen under it.
+   */
+  private static final Object REGISTRY = new Object();
+
+  /**
    * Where the current namespace lives, for the call sites that resolve a file without any variables
    * in hand. Per thread unless something replaces it: {@code Pipeline} and {@code Workflow} spawn
    * their threads with a plain {@code new Thread(...)}, so the threads of an execution inherit the
@@ -59,7 +78,7 @@ public class HopVfsNamespaces {
    * <p>This is the fallback. Where an {@link IVariables} is available, resolving through it is
    * exact and does not depend on where the work ended up running.
    */
-  private static IHopScope<HopVfsNamespace> scope = IHopScope.inheritedByThreads();
+  private static volatile IHopScope<HopVfsNamespace> scope = IHopScope.inheritedByThreads();
 
   /**
    * Change how far "current" reaches. Call this once at startup, before anything resolves a file:
@@ -69,7 +88,7 @@ public class HopVfsNamespaces {
    *
    * @param newScope the scope to hold the current namespace in, null restores the default
    */
-  public static synchronized void setScope(IHopScope<HopVfsNamespace> newScope) {
+  public static void setScope(IHopScope<HopVfsNamespace> newScope) {
     scope = newScope == null ? IHopScope.inheritedByThreads() : newScope;
     // A runtime only installs a scope of its own when several tenants share the JVM. There, no
     // tenant may fall back to the process wide manager: they would share it, and one of them
@@ -78,7 +97,7 @@ public class HopVfsNamespaces {
   }
 
   /** Set when the runtime serves several tenants at once, so nobody shares the process manager. */
-  private static boolean isolateEverything;
+  private static volatile boolean isolateEverything;
 
   /**
    * Does this JVM serve several tenants at once - Hop Web, with a session scope installed?
@@ -89,7 +108,7 @@ public class HopVfsNamespaces {
    *
    * @return true when a runtime installed a scope of its own with {@link #setScope(IHopScope)}
    */
-  public static synchronized boolean isIsolated() {
+  public static boolean isIsolated() {
     return isolateEverything;
   }
 
@@ -147,7 +166,7 @@ public class HopVfsNamespaces {
    * @param description what this namespace belongs to, for logging
    * @return the namespace, or null when the process wide manager applies
    */
-  public static synchronized HopVfsNamespace acquire(
+  public static HopVfsNamespace acquire(
       IVariables variables, IHopMetadataProvider metadataProvider, String description) {
     if (metadataProvider == null || isProcessMetadata(metadataProvider)) {
       LogChannel.GENERAL.logDebug(
@@ -157,29 +176,64 @@ public class HopVfsNamespaces {
       return null;
     }
 
-    HopVfsNamespace namespace = NAMESPACES.get(metadataProvider);
-    if (namespace == null) {
-      try {
-        namespace = new HopVfsNamespace(description);
-      } catch (HopException e) {
-        LogChannel.GENERAL.logError(
-            "Unable to create a VFS namespace for "
-                + description
-                + ", falling back to the process wide file system manager",
-            e);
-        return null;
+    // Publish-or-retry: the namespace is built outside the lock, so whoever publishes first wins
+    // and a loser closes what it built. Nothing is ever put in the map or counted that is not
+    // fully constructed, and a namespace released and removed between two looks is simply not
+    // found the second time.
+    HopVfsNamespace namespace = null;
+    HopVfsNamespace fresh = null;
+    boolean creator = false;
+    while (namespace == null) {
+      synchronized (REGISTRY) {
+        namespace = NAMESPACES.get(metadataProvider);
+        if (namespace == null && fresh != null) {
+          // Publish before registering: registering the named connections reads metadata, which
+          // resolves files, which lands right back in resolve() on this very thread.
+          namespace = fresh;
+          fresh = null;
+          NAMESPACES.put(metadataProvider, namespace);
+          creator = true;
+        }
+        if (namespace != null) {
+          namespace.retain();
+        }
       }
-      // Publish before registering: registering the named connections reads metadata, which
-      // resolves files, which lands right back in resolve().
-      NAMESPACES.put(metadataProvider, namespace);
-      namespace.registerNamedProviders(variables, metadataProvider);
-      LogChannel.GENERAL.logBasic(
-          "Created a VFS namespace for "
-              + description
-              + ", holding the named VFS connections of "
-              + metadataProvider.getDescription());
+      if (namespace == null) {
+        try {
+          fresh = new HopVfsNamespace(description);
+        } catch (HopException e) {
+          LogChannel.GENERAL.logError(
+              "Unable to create a VFS namespace for "
+                  + description
+                  + ", falling back to the process wide file system manager",
+              e);
+          return null;
+        }
+      }
     }
-    namespace.retain();
+    if (fresh != null) {
+      // Somebody published one for this metadata in the meantime; theirs is the namespace.
+      fresh.close();
+    }
+
+    if (creator) {
+      // Outside the lock: this runs plugin code that reads metadata through HopVfs, and another
+      // execution may be holding the HopVfs monitor while it waits for a lookup here.
+      try {
+        namespace.registerNamedProviders(variables, metadataProvider);
+        LogChannel.GENERAL.logBasic(
+            "Created a VFS namespace for "
+                + description
+                + ", holding the named VFS connections of "
+                + metadataProvider.getDescription());
+      } finally {
+        namespace.markReady();
+      }
+    } else {
+      // Somebody else is still registering its connections; a file resolved before they are in
+      // would silently miss a named connection.
+      namespace.awaitReady();
+    }
     return namespace;
   }
 
@@ -190,17 +244,24 @@ public class HopVfsNamespaces {
    *
    * @param metadataProvider the metadata the namespace was taken for
    */
-  public static synchronized void release(IHopMetadataProvider metadataProvider) {
+  public static void release(IHopMetadataProvider metadataProvider) {
     if (metadataProvider == null) {
       return;
     }
-    HopVfsNamespace namespace = NAMESPACES.get(metadataProvider);
-    if (namespace == null) {
-      return;
+    HopVfsNamespace lastUse = null;
+    synchronized (REGISTRY) {
+      HopVfsNamespace namespace = NAMESPACES.get(metadataProvider);
+      if (namespace == null) {
+        return;
+      }
+      if (namespace.release() <= 0) {
+        NAMESPACES.remove(metadataProvider);
+        lastUse = namespace;
+      }
     }
-    if (namespace.release() <= 0) {
-      NAMESPACES.remove(metadataProvider);
-      namespace.close();
+    if (lastUse != null) {
+      // Closing a manager closes its providers - plugin code again, so not under the lock.
+      lastUse.close();
     }
   }
 
@@ -273,17 +334,20 @@ public class HopVfsNamespaces {
    * @return true when a namespace was rebuilt
    * @throws HopException if the namespace cannot be rebuilt
    */
-  public static synchronized boolean refresh(IVariables variables) throws HopException {
+  public static boolean refresh(IVariables variables) throws HopException {
     HopVfsNamespace namespace = resolve(variables);
     if (namespace == null) {
       return false;
     }
+    // Registers the connections again, so plugin code: the namespace serializes its own rebuilds.
     namespace.rebuild();
     return true;
   }
 
-  private static synchronized HopVfsNamespace existing(IHopMetadataProvider provider) {
-    return NAMESPACES.get(provider);
+  private static HopVfsNamespace existing(IHopMetadataProvider provider) {
+    synchronized (REGISTRY) {
+      return NAMESPACES.get(provider);
+    }
   }
 
   /**
@@ -292,14 +356,20 @@ public class HopVfsNamespaces {
    * <p>Leaves the installed scope in place: which runtime this is does not change because the
    * namespaces were closed. A test that installed one puts it back with {@code setScope(null)}.
    */
-  public static synchronized void reset() {
-    NAMESPACES.values().forEach(HopVfsNamespace::close);
-    NAMESPACES.clear();
+  public static void reset() {
+    List<HopVfsNamespace> open;
+    synchronized (REGISTRY) {
+      open = new ArrayList<>(NAMESPACES.values());
+      NAMESPACES.clear();
+    }
+    open.forEach(HopVfsNamespace::close);
     scope.remove();
   }
 
   /** How many namespaces are open right now. For tests and diagnostics. */
-  public static synchronized int size() {
-    return NAMESPACES.size();
+  public static int size() {
+    synchronized (REGISTRY) {
+      return NAMESPACES.size();
+    }
   }
 }

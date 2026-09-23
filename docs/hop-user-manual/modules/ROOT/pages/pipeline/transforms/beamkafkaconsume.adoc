@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Beam Kafka consume transform consumes records from a Kafka cluster using the Beam execution engine.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-kafka-input.svg[Beam Kafka consume Icon, role="image-doc-icon"] Beam Kafka consume
 

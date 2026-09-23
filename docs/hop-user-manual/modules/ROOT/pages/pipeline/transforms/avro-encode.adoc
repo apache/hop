@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Avro encode transform allows you to encode a new Avro field using a selection of Hop fields.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-avro
 
 = image:transforms/icons/avro_encode.svg[Avro encode Icon, role="image-doc-icon"] Avro encode
 

@@ -30,6 +30,14 @@ However, it **does** require all data to fit into memory.
 
 TIP: When the number of rows is too large to fit into memory, use a combination of xref:pipeline/transforms/sort.adoc[Sort Rows] and xref:pipeline/transforms/groupby.adoc[Group By] transforms.
 
+[NOTE]
+====
+That fallback to xref:pipeline/transforms/sort.adoc[Sort Rows] and xref:pipeline/transforms/groupby.adoc[Group By] only applies to the Hop engines.
+Neither of those transforms runs on the Beam engines or on the native Spark engine.
+
+On those engines Memory Group By is the aggregation to reach for: it is translated into the engine's own grouping operation (`org.apache.beam.sdk.transforms.GroupByKey` on Beam, a Spark shuffle on native Spark) rather than run as a Hop transform per worker, so neither the sorting nor the memory limit described above applies.
+====
+
 == Options
 
 [options="header"]

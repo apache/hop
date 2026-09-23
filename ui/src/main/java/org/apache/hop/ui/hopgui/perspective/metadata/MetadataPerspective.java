@@ -83,6 +83,7 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
@@ -179,7 +180,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "MetadataPerspective-ContextMenu";
 
   public static final String TOOLBAR_ITEM_NEW_TYPE = "MetadataPerspective-Toolbar-09000-NewType";
-  public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
@@ -589,6 +589,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     // Remember expand/collapse within the session (shared TreeMemory, keyed by stable node ids).
     tree.addListener(SWT.Expand, e -> recordTreeState((TreeItem) e.item, true));
     tree.addListener(SWT.Collapse, e -> recordTreeState((TreeItem) e.item, false));
+    FolderTreeIcons.install(tree);
 
     // Drag and drop: reorganize within tree (same type only) and drag to canvas to open
     createTreeDragSource(tree);
@@ -787,7 +788,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       onUnknownMetadataDetails();
     } else {
       // Expand/Collapse category
-      treeItem.setExpanded(!treeItem.getExpanded());
+      FolderTreeIcons.setExpanded(treeItem, !treeItem.getExpanded());
     }
   }
 
@@ -983,7 +984,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public void selectType(String key) {
     TreeItem typeItem = findTypeItem(key);
     if (typeItem != null) {
-      typeItem.setExpanded(true);
+      FolderTreeIcons.setExpanded(typeItem, true);
       tree.setSelection(typeItem);
       tree.showSelection();
       updateSelection();
@@ -1301,11 +1302,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     renderTree();
   }
 
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_NEW,
-      toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
-      image = "ui/images/new.svg")
   public void onNewMetadata() {
     if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
       return;
@@ -3160,7 +3156,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     if (path != null) {
       if (!Utils.isEmpty(currentSearchFilter)) {
         // While searching, expand everything so matches are visible (not recorded as a choice).
-        item.setExpanded(true);
+        FolderTreeIcons.setExpanded(item, true);
       } else {
         // Categories (including the "Unknown" one) expand by default; types and folders collapse
         // by default. Seed each default-expanded node once per session so the default holds until
@@ -3169,7 +3165,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         if (defaultExpanded && treeStateSeeded.add(String.join("\0", path))) {
           TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
         }
-        item.setExpanded(TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
+        FolderTreeIcons.setExpanded(
+            item, TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
       }
     }
     for (TreeItem child : item.getItems()) {
@@ -3240,7 +3237,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /** Recursively expand or collapse a tree item and all its children */
   private void expandTreeItem(TreeItem item, boolean expand) {
-    item.setExpanded(expand);
+    FolderTreeIcons.setExpanded(item, expand);
     for (TreeItem child : item.getItems()) {
       expandTreeItem(child, expand);
     }
@@ -3269,7 +3266,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     boolean canReadMeta = HopSecurity.allows(Permission.METADATA_READ) || canWriteMeta;
 
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW_TYPE, canWriteMeta);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected && canReadMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected && canWriteMeta);

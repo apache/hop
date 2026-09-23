@@ -1439,7 +1439,9 @@ public class HopGuiPipelineGridDelegate {
   }
 
   private void updateRowFromBaseTransform(ITransform baseTransform, TableItem row) {
-    TransformStatus transformStatus = new TransformStatus(baseTransform);
+    // The row shows the numbers only; the log text would be the transform's whole log formatted
+    // once a second (issue #8435).
+    TransformStatus transformStatus = new TransformStatus(baseTransform, false);
 
     String[] fields = transformStatus.getPipelineLogFields();
 

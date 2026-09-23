@@ -16,7 +16,9 @@
  */
 package org.apache.hop.core.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -130,5 +132,36 @@ class SqlQueryClassifierTest {
             "WITH s AS (SELECT 1 AS x) SELECT * FROM s;\nINSERT INTO t VALUES (1);");
     assertTrue(statements.get(0).isQuery());
     assertFalse(statements.get(1).isQuery());
+  }
+
+  @Test
+  void statementVerbIsTheFirstKeyword() {
+    assertEquals("MERGE", SqlQueryClassifier.statementVerb("MERGE INTO t USING s ON t.id = s.id"));
+    assertEquals(
+        "insert".toUpperCase(), SqlQueryClassifier.statementVerb("insert into t values (1)"));
+    assertEquals("UPDATE", SqlQueryClassifier.statementVerb("  \n/* c */ UPDATE t SET a = 1"));
+    assertEquals("DELETE", SqlQueryClassifier.statementVerb("-- comment\nDELETE FROM t"));
+  }
+
+  @Test
+  void statementVerbSkipsTheCteList() {
+    assertEquals(
+        "UPDATE",
+        SqlQueryClassifier.statementVerb(
+            "WITH s AS (SELECT id FROM src WHERE id IN (2,3)) UPDATE t SET a = 1 FROM s"));
+    assertEquals(
+        "MERGE",
+        SqlQueryClassifier.statementVerb(
+            "WITH RECURSIVE a AS (SELECT 1), b (x) AS NOT MATERIALIZED (SELECT 2) "
+                + "MERGE INTO t USING b ON t.id = b.x WHEN MATCHED THEN DELETE"));
+    assertEquals(
+        "SELECT", SqlQueryClassifier.statementVerb("WITH s AS (SELECT 1) SELECT * FROM s"));
+  }
+
+  @Test
+  void statementVerbIsNullWithoutAKeyword() {
+    assertNull(SqlQueryClassifier.statementVerb(null));
+    assertNull(SqlQueryClassifier.statementVerb("   "));
+    assertNull(SqlQueryClassifier.statementVerb("(SELECT 1)"));
   }
 }

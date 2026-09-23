@@ -886,6 +886,11 @@ public class TextFileInputMeta
   }
 
   @Override
+  public boolean skipEmptyLines() {
+    return content != null && content.isNoEmptyLines();
+  }
+
+  @Override
   public String getEscapeCharacter() {
     return content == null ? null : content.escapeCharacter;
   }

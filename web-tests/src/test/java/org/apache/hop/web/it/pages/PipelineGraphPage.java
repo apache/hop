@@ -332,6 +332,7 @@ public class PipelineGraphPage {
         }
       }
     }
+    HopGuiPage.awaitIdle(driver);
     new Actions(driver).moveToElement(canvas(), offsetX, offsetY).click().perform();
     lastClickAt = System.currentTimeMillis();
     lastClickX = offsetX;

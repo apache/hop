@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Cassandra SSTable Output transform writes to a file system directory as a Cassandra SSTable.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-cassandra
 
 = image:transforms/icons/cassandra.svg[Cassandra SSTable Output transform Icon, role="image-doc-icon"] Cassandra SSTable Output
 

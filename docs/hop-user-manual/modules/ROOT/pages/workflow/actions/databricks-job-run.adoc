@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../../assets/images/
 :page-pagination:
 :description: Databricks job run workflow action — run or submit Jobs API work and wait for completion.
+:page-marketplace: hop-tech-databricks
 
 = Databricks job run
 

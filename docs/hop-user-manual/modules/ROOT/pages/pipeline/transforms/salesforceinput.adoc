@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-salesforce
 
 = image:transforms/icons/SFI.svg[Salesforce Input transform Icon, role="image-doc-icon"] Salesforce Input
 

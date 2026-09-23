@@ -878,13 +878,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-cubeinput</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-cubeoutput</artifactId>
+            <artifactId>hop-transform-cube</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1292,6 +1286,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-plugincatalog</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-processfiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1544,6 +1544,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-textchunker</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1635,6 +1641,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-valuetypes-uuid</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-valuetypes-vector</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1770,6 +1782,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-parquet</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-pgvector</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

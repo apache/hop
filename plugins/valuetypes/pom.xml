@@ -30,5 +30,6 @@
     <name>Hop Plugins Value Types</name>
     <modules>
         <module>uuid</module>
+        <module>vector</module>
     </modules>
 </project>

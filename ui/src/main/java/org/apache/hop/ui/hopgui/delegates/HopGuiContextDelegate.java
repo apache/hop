@@ -20,24 +20,19 @@ package org.apache.hop.ui.hopgui.delegates;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextMenu;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -86,7 +81,7 @@ public class HopGuiContextDelegate {
           Comparator.comparing((GuiAction a) -> Const.NVL(a.getCategoryOrder(), "9999"))
               .thenComparing(a -> Const.NVL(a.getName(), a.getId())));
       for (GuiAction action : fileActions) {
-        addActionMenuItem(menu, action, shell);
+        GuiContextMenu.addActionMenuItem(menu, action, shell);
       }
     }
 
@@ -135,53 +130,6 @@ public class HopGuiContextDelegate {
     menu.addListener(SWT.Hide, event -> menu.getDisplay().asyncExec(menu::dispose));
 
     menu.setVisible(true);
-  }
-
-  /** Adds a single push menu item for a {@link GuiAction} (icon, label and its action lambda). */
-  private void addActionMenuItem(Menu menu, GuiAction action, Shell shell) {
-    MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-    menuItem.setText(Const.NVL(action.getName(), action.getId()));
-
-    // Load the action image (SVG) when there is one.
-    //
-    if (StringUtils.isNotEmpty(action.getImage())) {
-      try {
-        ClassLoader classLoader = action.getClassLoader();
-        if (classLoader == null) {
-          classLoader = getClass().getClassLoader();
-        }
-        Image image =
-            GuiResource.getInstance()
-                .getImage(
-                    action.getImage(),
-                    classLoader,
-                    ConstUi.SMALL_ICON_SIZE,
-                    ConstUi.SMALL_ICON_SIZE);
-        menuItem.setImage(image);
-      } catch (Exception e) {
-        // Ignore image loading errors, the menu item text is enough.
-      }
-    }
-
-    menuItem.addListener(
-        SWT.Selection,
-        event -> {
-          boolean shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
-          boolean ctrlClicked = (event.stateMask & SWT.CONTROL) != 0;
-          // Defer execution until the menu is fully closed.
-          //
-          hopGui
-              .getDisplay()
-              .asyncExec(
-                  () -> {
-                    try {
-                      IGuiActionLambda<?> actionLambda = action.getActionLambda();
-                      actionLambda.executeAction(shiftClicked, ctrlClicked);
-                    } catch (Exception e) {
-                      new ErrorDialog(shell, "Error", "An error occurred executing action", e);
-                    }
-                  });
-        });
   }
 
   /** Edit a metadata object... */

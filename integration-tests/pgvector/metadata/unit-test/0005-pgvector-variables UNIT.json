@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "document_id",
+          "data_set_field": "document_id"
+        },
+        {
+          "transform_field": "chunk_index",
+          "data_set_field": "chunk_index"
+        }
+      ],
+      "field_order": [
+        "document_id",
+        "chunk_index"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-variables-stored"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-pgvector-variables UNIT",
+  "description": "Commit size and embedding dimensions are resolved from variables at run time",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0005-pgvector-variables.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -32,6 +32,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,7 +56,8 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTIONNAME",
-      injectionKeyDescription = "GetTableNames.Injection.CONNECTION_NAME")
+      injectionKeyDescription = "GetTableNames.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(

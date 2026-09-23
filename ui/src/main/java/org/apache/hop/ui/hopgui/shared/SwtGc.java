@@ -233,6 +233,7 @@ public class SwtGc implements IGc {
       case UNCONDITIONAL_DISABLED -> GuiResource.getInstance().getSwtImageUnconditionalDisabled();
       case BUSY -> GuiResource.getInstance().getSwtImageBusy();
       case WAITING -> GuiResource.getInstance().getSwtImageWaiting();
+      case WARNING -> GuiResource.getInstance().getSwtImageWarning();
       case INJECT -> GuiResource.getInstance().getSwtImageInject();
       case ARROW_DEFAULT -> GuiResource.getInstance().getSwtImageArrowDefault();
       case ARROW_TRUE -> GuiResource.getInstance().getSwtImageArrowTrue();

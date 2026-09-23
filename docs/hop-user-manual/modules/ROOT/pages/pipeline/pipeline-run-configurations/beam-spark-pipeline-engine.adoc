@@ -17,6 +17,7 @@ under the License.
 [[BeamSparkPipelineEngine]]
 :imagesdir: ../assets/images
 :description: Apache Hop supports running pipelines on Apache Spark over Apache Beam. The Apache Spark Runner can be used to execute Beam pipelines using Apache Spark.
+:page-marketplace: hop-engines-beam
 
 = Apache Beam Spark Pipeline Engine
 

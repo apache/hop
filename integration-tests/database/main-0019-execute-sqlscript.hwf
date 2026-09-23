@@ -204,6 +204,59 @@ CREATE TABLE public.testtable
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>Prepare Test 4</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>
+DROP TABLE IF EXISTS public.merge_target;
+DROP TABLE IF EXISTS public.merge_source;
+
+CREATE TABLE public.merge_target (id int PRIMARY KEY, value varchar NULL);
+CREATE TABLE public.merge_source (id int PRIMARY KEY, value varchar NULL);
+
+INSERT INTO public.merge_target VALUES (1, 'old1'), (2, 'old2'), (3, 'old3');
+INSERT INTO public.merge_source VALUES (2, 'new2'), (3, 'new3'), (4, 'new4'), (5, 'new5');
+</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>1296</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0019-execute-sqlscript-merge</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0019-execute-sqlscript-merge.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>1456</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -244,6 +297,20 @@ CREATE TABLE public.testtable
     <hop>
       <from>Prepare Test 3</from>
       <to>0019-execute-sqlscript-sql-file</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0019-execute-sqlscript-sql-file</from>
+      <to>Prepare Test 4</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare Test 4</from>
+      <to>0019-execute-sqlscript-merge</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>

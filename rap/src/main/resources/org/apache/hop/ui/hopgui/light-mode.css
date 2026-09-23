@@ -89,9 +89,14 @@ Display {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
 }
 
+/*
+ * The wait hint RAP shows while a request runs longer than the timeout set in HopWebEntryPoint.
+ * A near-transparent overlay (it still blocks input, which is what it is for) with RAP's small
+ * spinner in the middle, instead of greying out the page, which read as a freeze (issue #8435).
+ */
 SystemMessage-DisplayOverlay {
-    background-color: rgba(128, 128, 128, 0.3);
-    background-image: none;
+    background-color: rgba(128, 128, 128, 0.06);
+    background-image: url(resource/widget/rap/display/loading.gif);
 }
 
 ErrorBox-Titlebar {
@@ -149,7 +154,7 @@ Button {
     background-position: left top;
     border: none;
     border-radius: 2px;
-    padding: 6px 15px;
+    padding: 3px 12px;
     spacing: 2px;
     cursor: default;
     animation: none;
@@ -170,7 +175,7 @@ Button[PUSH][FLAT],
 Button[TOGGLE][FLAT] {
     border: 1px solid #bdbdbd;
     border-radius: 2px;
-    padding: 6px 15px;
+    padding: 3px 12px;
     background-image: gradient(
             linear, left top, left bottom,
             from(#f9f9f9),
@@ -185,7 +190,7 @@ Button[TOGGLE][FLAT] {
 Button[PUSH].helpButton,
 Button[PUSH][BORDER].helpButton,
 Button[PUSH][FLAT].helpButton {
-    padding: 4px 12px;
+    padding: 3px 8px;
 }
 
 Button[ARROW],
@@ -263,8 +268,8 @@ Button[TOGGLE]:selected:hover {
 
 Button[CHECK],
 Button[RADIO] {
-    padding: 3px 3px 3px 0;
-    spacing: 7px;
+    padding: 1px 2px 1px 0;
+    spacing: 4px;
 }
 
 Button[CHECK][BORDER],
@@ -385,7 +390,7 @@ Combo-Button {
             from(#f9f9f9),
             to(#e4e4e4)
     );
-    width: 30px;
+    width: 22px;
 }
 
 Combo-Button[RIGHT_TO_LEFT] {
@@ -418,7 +423,7 @@ Combo-List-Item {
     background-image: none;
     text-decoration: none;
     text-shadow: none;
-    padding: 6px 10px 6px 10px;
+    padding: 3px 6px 3px 6px;
 }
 
 Combo-List-Item:hover, Combo-List-Item:even:hover {
@@ -430,7 +435,7 @@ Combo-List-Item:selected, Combo-List-Item:even:selected {
 }
 
 Combo-Field {
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
 }
 
 Combo-FocusIndicator {
@@ -488,8 +493,8 @@ CTabItem {
     color: #4a4a4a;
     background-color: transparent;
     background-image: none;
-    padding: 8px 15px;
-    spacing: 10px;
+    padding: 4px 10px;
+    spacing: 5px;
     text-shadow: none;
     text-decoration: none;
 }
@@ -530,14 +535,14 @@ Group {
 }
 
 Group-Frame {
-    margin: 20px 0 0 0;
-    padding: 15px 8px 8px 8px;
+    margin: 10px 0 0 0;
+    padding: 8px 6px 6px 6px;
     border: 1px solid #bdbdbd;
     border-radius: 2px;
 }
 
 Group-Label {
-    padding: 2px 10px 2px 10px;
+    padding: 1px 8px 1px 8px;
     background-color: #f0f0f0;
     background-image: none;
     background-repeat: repeat;
@@ -545,7 +550,7 @@ Group-Label {
     border: 1px solid #bdbdbd;
     border-radius: 10px;
     color: inherit;
-    margin: 10px 10px 10px 20px;
+    margin: 6px 6px 6px 12px;
     text-shadow: none;
 }
 
@@ -630,7 +635,7 @@ List[BORDER] {
 }
 
 List-Item {
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #ffffff;
     color: inherit;
@@ -699,7 +704,7 @@ MenuItem {
     background-image: none;
     opacity: 1;
     text-shadow: none;
-    padding: 4px 10px 4px 10px;
+    padding: 3px 8px 3px 8px;
 }
 
 MenuItem[SEPARATOR] {
@@ -730,7 +735,7 @@ MenuItem:disabled {
 }
 
 MenuItem:onMenuBar {
-    padding: 4px 6px;
+    padding: 3px 5px;
 }
 
 
@@ -838,7 +843,7 @@ Shell-Titlebar {
     );
     padding: 0 10px 0 10px;
     margin: 0px;
-    height: 38px;
+    height: 30px;
     border: none;
     border-radius: 0;
     text-shadow: none;
@@ -1138,7 +1143,7 @@ Table[BORDER] {
 TableColumn {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #f0f0f0;
-    padding: 8px 3px 8px 3px;
+    padding: 4px 6px 4px 6px;
     background-image: gradient(
             linear, left top, left bottom,
             from(#f9f9f9),
@@ -1213,8 +1218,8 @@ TableColumn-SortIndicator:down {
 }
 
 Table-Cell {
-    spacing: 3px;
-    padding: 5px 3px 5px 3px;
+    spacing: 2px;
+    padding: 2px 3px 2px 3px;
 }
 
 Table-GridLine,
@@ -1265,7 +1270,7 @@ Text {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
     border-radius: 0;
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
     color: #000000;
     background-repeat: repeat;
     background-position: left top;
@@ -1280,7 +1285,7 @@ Text[MULTI] {
      * padding currently has no effect because of bug 253644
      * [TODO] remove comment if bug fixed
      */
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
 }
 
 Text[BORDER],
@@ -1344,7 +1349,7 @@ ToolBar[VERTICAL] {
 ToolBar[FLAT] {
     border: none;
     background-image: none;
-    spacing: 4px;
+    spacing: 1px;
 }
 
 ToolBar[FLAT][BORDER] {
@@ -1357,7 +1362,7 @@ ToolItem {
     background-color: transparent;
     background-image: none;
     border-radius: 0px;
-    padding: 4px;
+    padding: 2px;
     spacing: 1px;
     opacity: 1;
     animation: none;
@@ -1614,7 +1619,7 @@ TreeColumn, GridColumn {
             from(#f9f9f9),
             to(#e4e4e4)
     );
-    padding: 8px 10px 8px 6px;
+    padding: 4px 8px 4px 6px;
     border-bottom: 1px solid #bdbdbd;
     text-shadow: none;
     text-overflow: ellipsis;
@@ -1641,8 +1646,8 @@ TreeColumn-SortIndicator:down, GridColumn-SortIndicator:down {
 }
 
 Tree-Cell, Grid-Cell {
-    spacing: 3px;
-    padding: 5px 3px 5px 3px;
+    spacing: 2px;
+    padding: 2px 3px 2px 3px;
 }
 
 Tree-GridLine,
@@ -2349,7 +2354,7 @@ CCombo-Button {
     border: none;
     border-left: 1px solid #bdbdbd;
     border-radius: 0px 2px 2px 0px;
-    width: 30px;
+    width: 22px;
 }
 
 CCombo-Button[RIGHT_TO_LEFT] {
@@ -2382,7 +2387,7 @@ CCombo-List-Item {
     background-image: none;
     text-decoration: none;
     text-shadow: none;
-    padding: 6px 10px 6px 10px;
+    padding: 3px 6px 3px 6px;
 }
 
 CCombo-List-Item:hover, CCombo-List-Item:even:hover {
@@ -2394,7 +2399,7 @@ CCombo-List-Item:selected, CCombo-List-Item:even:selected {
 }
 
 CCombo-Field {
-    padding: 5px 10px 5px 10px;
+    padding: 2px 6px 2px 6px;
 }
 
 CCombo-FocusIndicator {
@@ -2414,8 +2419,8 @@ CLabel {
     background-repeat: repeat;
     background-position: left top;
     border: none;
-    padding: 6px;
-    spacing: 5px;
+    padding: 2px 4px 2px 4px;
+    spacing: 3px;
     cursor: default;
     opacity: 1;
     text-shadow: none;
@@ -2523,6 +2528,14 @@ FileUpload-FocusIndicator {
     opacity: 1;
 }
 
+/* Frame marking where a dragged tab would land (TabItemReorder / WebTabDropFrame) */
+
+Composite.hopDropFrame {
+    background-color: transparent;
+    border: 3px solid #3584e4;
+    padding: 0;
+}
+
 /* Sidebar button styling */
 
 Composite.sidebarButton {
@@ -2531,6 +2544,22 @@ Composite.sidebarButton {
 
 Label.sidebarButton {
     border-radius: 6px;
+}
+
+/* Canvas tooltip (HopToolTip): an inverted, rounded pill */
+
+Shell.hopToolTip {
+    border: none;
+    border-radius: 6px;
+    background-color: #2b2d30;
+    color: #f2f2f2;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+Label.hopToolTip {
+    color: #f2f2f2;
+    background-color: #2b2d30;
 }
 
 /* JFace specific theming */

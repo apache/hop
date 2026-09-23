@@ -131,6 +131,31 @@ public class HopLinter {
   }
 
   /**
+   * The rules in force for Hop's own verify remarks.
+   *
+   * <p>Every path that reports a native remark classifies it through this. A remark reported under
+   * one rule id from the CLI and another from the canvas cannot be suppressed once for both: the
+   * project writes the id it was shown, and {@link LintPolicy#isSuppressed} matches on it.
+   *
+   * <p>It is for native remarks alone. The blanket rule in the core pack names no plugin and no
+   * message, so it matches every {@link ICheckResult} put in front of it — including a lint finding
+   * that {@code toCheckResults} has turned into one, whose own rule id it would overwrite.
+   */
+  private NativeCheckClassifier nativeClassifier() {
+    ensureEffectiveRuleSet();
+    return new NativeCheckClassifier(effectiveRuleSet.getNativeVerifyRules());
+  }
+
+  /**
+   * Hop's own verify remarks as lint findings, reported under the rules in force.
+   *
+   * @param remarks Hop's own remarks, and only those
+   */
+  public List<LintResult> fromNativeRemarks(List<ICheckResult> remarks, String fileName) {
+    return LintCheckResultAdapter.fromCheckResults(remarks, fileName, nativeClassifier());
+  }
+
+  /**
    * Run the linter on a Hop project
    *
    * @param projectPath Path to the Hop project directory
@@ -483,13 +508,17 @@ public class HopLinter {
             pipelineMeta.checkTransforms(
                 remarks, false, new NullProgressMonitor(), variables, metadataProvider));
 
+    List<LintResult> results = new ArrayList<>(fromNativeRemarks(remarks, fileName));
+
     if (shouldIncludeLintInPipelineVerify()) {
-      remarks.addAll(
-          LintCheckResultAdapter.toCheckResults(
-              runPolicyRules(pipelineMeta, fileName), pipelineMeta));
+      results.addAll(
+          LintCheckResultAdapter.fromCheckResults(
+              LintCheckResultAdapter.toCheckResults(
+                  runPolicyRules(pipelineMeta, fileName), pipelineMeta),
+              fileName));
     }
 
-    return applyPolicy(LintCheckResultAdapter.fromCheckResults(remarks, fileName), fileName);
+    return applyPolicy(results, fileName);
   }
 
   /** Compute workflow lint results the same way as workflow verify plus optional policy rules. */
@@ -508,13 +537,17 @@ public class HopLinter {
             workflowMeta.checkActions(
                 remarks, false, new NullProgressMonitor(), variables, metadataProvider));
 
+    List<LintResult> results = new ArrayList<>(fromNativeRemarks(remarks, fileName));
+
     if (shouldIncludeLintInWorkflowVerify()) {
-      remarks.addAll(
-          WorkflowCheckResultAdapter.toCheckResults(
-              runPolicyRules(workflowMeta, fileName), workflowMeta));
+      results.addAll(
+          LintCheckResultAdapter.fromCheckResults(
+              WorkflowCheckResultAdapter.toCheckResults(
+                  runPolicyRules(workflowMeta, fileName), workflowMeta),
+              fileName));
     }
 
-    return applyPolicy(LintCheckResultAdapter.fromCheckResults(remarks, fileName), fileName);
+    return applyPolicy(results, fileName);
   }
 
   private boolean shouldIncludeLintInWorkflowVerify() {
@@ -584,14 +617,9 @@ public class HopLinter {
       throws HopException {
     List<LintResult> results = new ArrayList<>(policyResults);
     if (shouldIncludeNativeChecks() && hopObject != null) {
-      ensureEffectiveRuleSet();
       results.addAll(
           HopNativeCheckRunner.runNativeChecks(
-              hopObject,
-              fileName,
-              variables,
-              metadataProvider,
-              new NativeCheckClassifier(effectiveRuleSet.getNativeVerifyRules())));
+              hopObject, fileName, variables, metadataProvider, nativeClassifier()));
     }
     // Suppressions are applied last, so they cover Hop's native remarks as well as policy
     // findings — a team accepting something should not have to care which produced it.
@@ -668,9 +696,13 @@ public class HopLinter {
     // Resolved once: the project root is the same for every remark, and finding it walks the
     // filesystem.
     Path projectRoot = projectRootFor(fileName);
+    // Classified like anywhere else: a suppression names the rule id the person was shown, so
+    // reading the raw error code here would leave the finding on the canvas after they accepted
+    // it in the report, or the other way round.
+    NativeCheckClassifier classifier = nativeClassifier();
     remarks.removeIf(
         remark -> {
-          LintResult result = LintCheckResultAdapter.fromCheckResult(remark, fileName);
+          LintResult result = LintCheckResultAdapter.fromCheckResult(remark, fileName, classifier);
           return result != null && policy.isSuppressed(result, projectRoot);
         });
   }

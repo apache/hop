@@ -32,6 +32,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -330,6 +331,7 @@ public abstract class BaseFieldDefinitionGoldenTest {
     list.add(new TypeCase("BINARY", () -> new ValueMetaBinary(COLUMN)));
     list.add(new TypeCase("INET", () -> new ValueMetaInternetAddress(COLUMN)));
     list.add(new TypeCase("JSON", () -> new ValueMetaJson(COLUMN)));
+    list.add(new TypeCase("VECTOR", () -> new VectorValueMeta(COLUMN)));
     return list;
   }
 
@@ -359,6 +361,21 @@ public abstract class BaseFieldDefinitionGoldenTest {
     Files.createDirectories(target.getParent());
     Files.writeString(target, content, StandardCharsets.UTF_8);
     System.out.println("Wrote golden file: " + target);
+  }
+
+  /**
+   * A vector field, without the plugin that defines the type.
+   *
+   * <p>Core cannot see plugins/valuetypes/vector, and it does not need to: a dialect decides a
+   * vector column from the type id and the length, both of which this carries. What the matrix is
+   * for is the dialects that have no vector type of their own - including any that inherits one
+   * from a parent dialect by accident, which shows up here as a golden diff rather than as a bug
+   * report.
+   */
+  private static final class VectorValueMeta extends ValueMetaBase {
+    private VectorValueMeta(String name) {
+      super(name, IValueMeta.TYPE_VECTOR);
+    }
   }
 
   /** One value type in the matrix, created fresh per case. */

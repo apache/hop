@@ -109,6 +109,9 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 |Model name
 |Model identifier for the chosen provider. *Refresh models* fills the combo from the live catalog when the provider supports it. For Hugging Face, a model id is sent to the inference router; an `http(s)` URL is called as a dedicated endpoint. If this field is empty, Base URL is used instead.
 
+|Models per role
+|Optional. One model for each role this provider serves, so a single provider can back a chat transform and an embedding transform at the same time. See below.
+
 |Timeout (seconds)
 |HTTP timeout for completions.
 
@@ -117,3 +120,38 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 |===
 
 When Language Model Chat points at an AI Provider, extra transform options (proxy, retries, mock, I/O fields) are not taken from the provider.
+
+== Models per role
+
+A provider endpoint usually serves more than one kind of model. The same OpenAI key reaches a chat model and an embedding model; the same Ollama server serves both, and a reranker besides. **Models per role** lets one provider object cover all of them, so the base URL and the API key are configured once.
+
+Each row pairs a role with a model name:
+
+|===
+|Role |Used by
+
+|`CHAT`
+|Conversation and completion, for example Language Model Chat and the AI Advisor.
+
+|`EMBEDDING`
+|Turning text into a vector, for example xref:pipeline/transforms/embedtext.adoc[Embed text].
+
+|`SCORING`
+|Scoring a passage against a query, used by rerankers.
+
+|`IMAGE`
+|Image generation.
+
+|`MODERATION`
+|Content moderation.
+|===
+
+A transform never asks which role to use: it needs one kind of model and looks up that role. Point a chat transform and an embedding transform at the same provider and each finds its own model.
+
+Use at most one row per role, since that is what makes the lookup unambiguous. A transform that needs a different model than the provider's default for its role can override it on the transform itself.
+
+=== Relationship to Model name
+
+**Model name** above is the chat model, and it stays that way. A provider with no rows in this table behaves exactly as before: `CHAT` falls back to **Model name**, and nothing else resolves.
+
+The fallback is deliberately limited to `CHAT`. Handing a chat model to an embedding endpoint fails inside the provider with a message that is hard to act on, so a provider with no `EMBEDDING` row reports that plainly instead.

@@ -31,6 +31,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurityConfig;
 import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
@@ -45,6 +46,7 @@ import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.rap.rwt.client.service.JavaScriptLoader;
 import org.eclipse.rap.rwt.client.service.StartupParameters;
+import org.eclipse.rap.rwt.internal.client.ConnectionMessages;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.rap.rwt.service.UISessionEvent;
 import org.eclipse.rap.rwt.service.UISessionListener;
@@ -55,6 +57,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
+
+  /** How long a request may run before the browser shows RAP's wait hint (RAP default: 1000). */
+  static final int WAIT_HINT_TIMEOUT_MS = 1500;
 
   /**
    * Shortcuts that must remain active (sent to the server) but must not be cancelled in the
@@ -159,20 +164,44 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
           "Hop Web security: user ''{0}'' roles={1}",
           securityContext.getUsername(), securityContext.getRoleIds());
     } else {
-      LogChannel.UI.logDebug(
-          "Hop Web security: no authenticated principal (mode NONE or unrestricted)");
+      HopSecurityConfig.AuthMode mode = resolveAuthMode();
+      if (mode == HopSecurityConfig.AuthMode.NONE) {
+        LogChannel.UI.logDebug("Hop Web security: no authenticated principal (mode NONE)");
+      } else {
+        // A principal-less session in a non-NONE mode is unexpected: log at error level so
+        // EXTERNAL without a container security-constraint is visible instead of failing open.
+        LogChannel.UI.logError(
+            "Hop Web security WARNING: authentication mode is ''{0}'' but this request has no "
+                + "authenticated principal, so the UI is being served unauthenticated. "
+                + "In EXTERNAL mode Hop relies on the servlet container or reverse proxy: add a "
+                + "<security-constraint> covering /* (and a <login-config>) to WEB-INF/web.xml, "
+                + "or switch to BASIC / OAUTH2.",
+            mode.name());
+      }
     }
 
     ResourceManager resourceManager = RWT.getResourceManager();
     JavaScriptLoader jsLoader = RWT.getClient().getService(JavaScriptLoader.class);
+
+    // RAP dims the whole page (the "wait hint") when a request runs longer than 1 s. Response-time
+    // guidance puts the point where feedback is due at about a second, but a grey-out reads as a
+    // freeze, so give ordinary work another half second before the hint comes up; the theme keeps
+    // the hint itself light (SystemMessage-DisplayOverlay in light-mode.css / dark-mode.css).
+    ConnectionMessages connectionMessages = RWT.getClient().getService(ConnectionMessages.class);
+    if (connectionMessages != null) {
+      connectionMessages.setWaitHintTimeout(WAIT_HINT_TIMEOUT_MS);
+    }
 
     // Load canvas zoom handler and Monaco editor client script
     String jsLocation = resourceManager.getLocation("js/canvas-zoom.js");
     jsLoader.require(jsLocation);
     jsLoader.require(resourceManager.getLocation("js/canvas-svg.js"));
     jsLoader.require(resourceManager.getLocation("js/context-dialog-svg.js"));
+    jsLoader.require(resourceManager.getLocation("js/log-console.js"));
     // RAP's GC leaves image onload handlers alive after dispose; see the script.
     jsLoader.require(resourceManager.getLocation("js/gc-pending-images.js"));
+    // RAP's drag cursor icon would otherwise catch the pointer on a fast move; see the script.
+    jsLoader.require(resourceManager.getLocation("js/dnd-cursor-passthrough.js"));
     jsLoader.require(resourceManager.getLocation("js/monaco-editor.js"));
     // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
     String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
@@ -310,6 +339,20 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
                 }
               }
             });
+  }
+
+  /**
+   * The configured Hop Web authentication mode, or {@code NONE} when the security configuration
+   * cannot be read. Used to decide whether an unauthenticated request is expected (mode {@code
+   * NONE}) or a sign that the container security constraint for {@code EXTERNAL} is missing.
+   */
+  private HopSecurityConfig.AuthMode resolveAuthMode() {
+    try {
+      return HopSecurityConfig.load().getAuthMode();
+    } catch (Exception e) {
+      LogChannel.UI.logDebug("Could not read the Hop Web security configuration", e);
+      return HopSecurityConfig.AuthMode.NONE;
+    }
   }
 
   /**

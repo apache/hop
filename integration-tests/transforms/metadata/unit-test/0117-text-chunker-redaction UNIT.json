@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "chunk_text",
+          "data_set_field": "chunk_text"
+        }
+      ],
+      "field_order": [
+        "chunk_text"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-text-chunker-redaction"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0117-text-chunker-redaction UNIT",
+  "description": "Credentials in Hop XML and metadata JSON do not reach chunk text",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0117-text-chunker-redaction.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -18,6 +18,7 @@
 package org.apache.hop.databases.duckdb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -70,9 +71,8 @@ class DuckDBDatabaseMetaTest {
    */
   @Test
   void tablesAreListedWhicheverNameTheDriverGivesTheirType() throws Exception {
-    Database db = database("tables");
-    db.connect();
-    try {
+    try (Database db = database("tables")) {
+      db.connect();
       db.execStatement("CREATE TABLE ORDINARY(a INT)");
       db.execStatement("CREATE TEMP TABLE TEMPORARY_ONE(a INT)");
       db.execStatement("CREATE VIEW A_VIEW AS SELECT * FROM ORDINARY");
@@ -80,7 +80,7 @@ class DuckDBDatabaseMetaTest {
       List<String> tables = Arrays.asList(db.getTablenames());
       assertTrue(tables.contains("ORDINARY"), "an ordinary table is a table: " + tables);
       assertTrue(tables.contains("TEMPORARY_ONE"), "a temporary table is a table: " + tables);
-      assertTrue(!tables.contains("A_VIEW"), "a view is not a table: " + tables);
+      assertFalse(tables.contains("A_VIEW"), "a view is not a table: " + tables);
 
       assertTrue(
           db.getTableMap().values().stream().anyMatch(names -> names.contains("ORDINARY")),
@@ -88,8 +88,6 @@ class DuckDBDatabaseMetaTest {
 
       List<String> views = Arrays.asList(db.getViews(false));
       assertTrue(views.contains("A_VIEW"), "a view is still a view: " + views);
-    } finally {
-      db.disconnect();
     }
   }
 
@@ -117,5 +115,56 @@ class DuckDBDatabaseMetaTest {
         schemas.size(),
         schemas.stream().distinct().count(),
         "no two schemas share a name once qualified: " + schemas);
+  }
+
+  /** DuckDB has CREATE SEQUENCE, nextval() and currval() */
+  @Test
+  void sequencesAreCreatedListedAndRead() throws Exception {
+    try (Database db = database("sequences")) {
+      db.connect();
+      db.execStatement(db.getCreateSequenceStatement(null, "SEQ_ONE", 1L, 1L, 999L, false));
+
+      assertTrue(db.checkSequenceExists("SEQ_ONE"), "the sequence just created is found");
+      assertFalse(
+          db.checkSequenceExists("SEQ_MISSING"), "one that was never created is not invented");
+      assertTrue(
+          Arrays.asList(db.getSequences()).contains("SEQ_ONE"),
+          "the picker lists it: " + Arrays.toString(db.getSequences()));
+
+      assertEquals(Long.valueOf(1L), db.getNextSequenceValue("SEQ_ONE", "id"));
+      assertEquals(Long.valueOf(2L), db.getNextSequenceValue("SEQ_ONE", "id"));
+    }
+  }
+
+  /** A maximum of -1 stands for an unbounded sequence, spelled NO MAXVALUE on DuckDB. */
+  @Test
+  void aSequenceWithoutAMaximumIsCreated() throws Exception {
+    try (Database db = database("unbounded")) {
+      db.connect();
+      String sql = db.getCreateSequenceStatement(null, "SEQ_UNBOUNDED", "1", "1", "-1", false);
+      assertTrue(sql.contains("NO MAXVALUE"), "NOMAXVALUE is a syntax error on DuckDB: " + sql);
+
+      db.execStatement(sql);
+      assertEquals(Long.valueOf(1L), db.getNextSequenceValue("SEQ_UNBOUNDED", "id"));
+    }
+  }
+
+  /** A schema tells two sequences of the same name apart, catalog qualified schemas included. */
+  @Test
+  void sequencesAreLookedUpWithinTheirSchema() throws Exception {
+    try (Database db = database("schemas")) {
+      db.connect();
+      db.execStatement("CREATE SCHEMA SIDE");
+      db.execStatement(db.getCreateSequenceStatement("SIDE", "SEQ_TWO", 5L, 1L, 999L, false));
+
+      assertTrue(db.checkSequenceExists("SIDE", "SEQ_TWO"), "found in the schema holding it");
+      assertFalse(
+          db.checkSequenceExists("main", "SEQ_TWO"), "and not in the one that does not hold it");
+      assertTrue(
+          db.checkSequenceExists("memory.SIDE", "SEQ_TWO"),
+          "the schema list qualifies schemas by their catalog, so a lookup has to take that form");
+
+      assertEquals(Long.valueOf(5L), db.getNextSequenceValue("SIDE", "SEQ_TWO", "id"));
+    }
   }
 }

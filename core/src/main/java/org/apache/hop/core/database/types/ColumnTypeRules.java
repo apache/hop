@@ -20,6 +20,7 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 
 /**
@@ -105,6 +106,38 @@ public final class ColumnTypeRules {
    * wherever one exists, and it is not a plain integer column.
    */
   public static final IDatabaseTypeRule UNSIZED_INTEGER_AS_LONG = new UnsizedIntegerRule();
+
+  /**
+   * A column of the database's own vector type, read back as a Hop Vector.
+   *
+   * <p>Shared because the read side is the same everywhere the type has a name of its own: the
+   * driver reports it as {@link Types#OTHER} with a type name, which the standard mapping takes for
+   * text. Only the name differs, so the dialect passes its own - VECTOR, FLOAT_VECTOR - and the
+   * rest is common.
+   *
+   * <p>No length is set, and that is deliberate rather than an omission. The dimension is not in
+   * JDBC column metadata: PostgreSQL reports a precision of 2147483647 for a vector(1536) and the
+   * same for an unsized one, because the dimension lives in the catalog. A length taken from the
+   * driver would therefore be wrong on every column, and a wrong dimension is worse than none - it
+   * would be written straight into the next CREATE TABLE. An unknown dimension is written back as
+   * an unsized vector by the dialects that have one.
+   *
+   * <p>The rule stands down when the Vector value type is not installed, so a deployment without
+   * that plugin keeps reading these columns the way it does today instead of failing on them.
+   */
+  public static IDatabaseTypeRule vectorColumn(String... nativeTypeNames) {
+    return DatabaseTypes.rules()
+        .readNative(nativeTypeNames)
+        .where((variables, databaseMeta, column) -> isVectorTypeInstalled())
+        .as(IValueMeta.TYPE_VECTOR)
+        .build()
+        .get(0);
+  }
+
+  /** Whether the value type that {@link IValueMeta#TYPE_VECTOR} names is on the classpath. */
+  private static boolean isVectorTypeInstalled() {
+    return ValueMetaFactory.getIdForValueMeta("Vector") == IValueMeta.TYPE_VECTOR;
+  }
 
   /** The most significant digits a Java Long is guaranteed to hold. */
   private static final int LONG_DIGITS = 18;

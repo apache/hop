@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-avro
 
 = image:transforms/icons/avro_decode.svg[Avro decode Icon, role="image-doc-icon"] Avro decode
 

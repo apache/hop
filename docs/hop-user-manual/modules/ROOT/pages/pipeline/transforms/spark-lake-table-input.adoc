@@ -18,6 +18,7 @@ under the License.
 :language: en_US
 :description: Spark lake table input reads Delta Lake or Apache Iceberg tables on the native Spark pipeline engine, with optional time travel and projection.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-engines-spark
 
 = image:transforms/icons/spark-lake-table-input.svg[Spark lake table input transform Icon, role="image-doc-icon"] Spark lake table input
 

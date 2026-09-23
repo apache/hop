@@ -25,6 +25,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.svg.SvgImageFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -34,6 +35,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -287,7 +289,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
       }
 
       boolean noBase = base == null || base.isDisposed();
-      org.eclipse.swt.graphics.Rectangle bounds = noBase ? null : base.getBounds();
+      Rectangle bounds = noBase ? null : base.getBounds();
       // Rasterize the badge at the size it will occupy on this icon, so nothing is resampled.
       Image lintIcon =
           badgeIcon(
@@ -349,18 +351,27 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
    * NullPointerException, and disposing it then fails with "A factory-created resource cannot be
    * disposed", which is the exception that reaches the log. Working on the {@link ImageData} of
    * both icons needs no drawing surface at all, so Hop Web gets the same badges as the desktop.
+   *
+   * <p>On Hop Web the icons are vectors the browser renders, so the badge is first tried as a
+   * vector overlay ({@link SvgImageFacade#overlay}) and stays sharp on a high-DPI screen; pixel
+   * compositing is the fallback for anything that is not vector-backed.
    */
   private Image createCompositeIcon(Image originalIcon, Image lintIcon) {
     try {
       if (display == null || display.isDisposed()) {
         return null;
       }
-      ImageData baseData = SwtUniversalImage.getImageDataAtZoom(originalIcon, 100);
-      if (baseData == null) {
+      Rectangle bounds = originalIcon.getBounds();
+      int badgeSize = badgeSizeFor(bounds.width, bounds.height);
+      if (badgeSize <= 0) {
         return null;
       }
-      int badgeSize = badgeSizeFor(baseData.width, baseData.height);
-      if (badgeSize <= 0) {
+      Image vector = SvgImageFacade.overlay(display, originalIcon, lintIcon, badgeSize, 1);
+      if (vector != null) {
+        return vector;
+      }
+      ImageData baseData = SwtUniversalImage.getImageDataAtZoom(originalIcon, 100);
+      if (baseData == null) {
         return null;
       }
       // Composited again for every zoom the platform asks for, out of what both icons themselves
@@ -387,8 +398,8 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   }
 
   /**
-   * The base icon with the badge scaled into its bottom right corner, blended over whatever the
-   * base has there rather than punched through it, so a badge with soft edges does not leave a hard
+   * The base icon with the badge scaled into its bottom left corner, blended over whatever the base
+   * has there rather than punched through it, so a badge with soft edges does not leave a hard
    * outline. What the base leaves transparent stays transparent: the tree paints its own background
    * behind the icon.
    *
@@ -399,7 +410,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
     ImageData composite = withPerPixelAlpha(baseData);
     ImageData scaled = badgeData.scaledTo(badgeSize, badgeSize);
     ImageData scaledMask = transparencyMask(scaled);
-    int offsetX = composite.width - badgeSize - margin;
+    int offsetX = margin;
     int offsetY = composite.height - badgeSize - margin;
 
     for (int y = 0; y < badgeSize; y++) {
