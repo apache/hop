@@ -83,6 +83,7 @@ public class ProjectDialog extends Dialog {
   private final PropsUi props;
 
   private TextVar wName;
+  private Text wProjectId;
   private TextVar wHome;
   private Button wReadOnly;
   private ComboVar wParentProject;
@@ -107,6 +108,11 @@ public class ProjectDialog extends Dialog {
   @Getter @Setter private boolean needingProjectRefresh;
 
   private final boolean editMode;
+
+  /** Create mode only: project id tracks the name until the user edits the id. */
+  private boolean projectIdFollowsName;
+
+  private boolean updatingProjectId;
 
   public ProjectDialog(
       Shell parent,
@@ -247,6 +253,40 @@ public class ProjectDialog extends Dialog {
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     wName.setLayoutData(fdName);
     Control lastControl = wName;
+
+    Label wlProjectId = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlProjectId);
+    wlProjectId.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectId"));
+    wlProjectId.setToolTipText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectId.Tooltip"));
+    FormData fdlProjectId = new FormData();
+    fdlProjectId.left = new FormAttachment(0, 0);
+    fdlProjectId.right = new FormAttachment(middle, 0);
+    fdlProjectId.top = new FormAttachment(lastControl, margin);
+    wlProjectId.setLayoutData(fdlProjectId);
+    wProjectId = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wProjectId);
+    wProjectId.setToolTipText(BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectId.Tooltip"));
+    FormData fdProjectId = new FormData();
+    fdProjectId.left = new FormAttachment(middle, margin);
+    fdProjectId.right = new FormAttachment(100, 0);
+    fdProjectId.top = new FormAttachment(wlProjectId, 0, SWT.CENTER);
+    wProjectId.setLayoutData(fdProjectId);
+    wName.addModifyListener(
+        e -> {
+          if (projectIdFollowsName) {
+            updatingProjectId = true;
+            wProjectId.setText(wName.getText());
+            updatingProjectId = false;
+          }
+        });
+    wProjectId.addModifyListener(
+        e -> {
+          if (!updatingProjectId) {
+            projectIdFollowsName = false;
+          }
+        });
+    lastControl = wProjectId;
 
     Label wlHome = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlHome);
@@ -648,6 +688,7 @@ public class ProjectDialog extends Dialog {
     boolean editable = !wReadOnly.getSelection();
 
     wbConfigFile.setEnabled(editable);
+    wProjectId.setEnabled(editable);
     wParentProject.setEnabled(editable);
     wDescription.setEnabled(editable);
     wCompany.setEnabled(editable);
@@ -938,6 +979,17 @@ public class ProjectDialog extends Dialog {
             || ProjectConfig.isArchiveUri(variables.resolve(projectConfig.getProjectHome())));
 
     wDescription.setText(Const.NVL(project.getDescription(), ""));
+    String storedProjectId = StringUtils.trimToNull(project.getProjectId());
+    // New projects suggest the project name. Editing an existing project must not fill it in:
+    // saving the dialog would otherwise start filtering execution information.
+    projectIdFollowsName = !editMode && storedProjectId == null;
+    String shownProjectId = storedProjectId;
+    if (projectIdFollowsName) {
+      shownProjectId = StringUtils.defaultString(projectConfig.getProjectName());
+    }
+    updatingProjectId = true;
+    wProjectId.setText(Const.NVL(shownProjectId, ""));
+    updatingProjectId = false;
     wCompany.setText(Const.NVL(project.getCompany(), ""));
     wDepartment.setText(Const.NVL(project.getDepartment(), ""));
     wVersion.setText(Const.NVL(project.getVersion(), ""));
@@ -999,6 +1051,7 @@ public class ProjectDialog extends Dialog {
     projectConfig.setReadOnly(wReadOnly.getSelection());
 
     project.setParentProjectName(wParentProject.getText());
+    project.setProjectId(StringUtils.trimToNull(wProjectId.getText()));
     project.setDescription(wDescription.getText());
     project.setCompany(wCompany.getText());
     project.setDepartment(wDepartment.getText());

@@ -24,6 +24,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
@@ -35,6 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
@@ -382,6 +384,11 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     log.logBasic(CONST_PROJECT + projectName + "' was created for home folder : " + projectHome);
 
+    String configFilename = projectConfig.getActualProjectConfigFilename(variables);
+    boolean configFileExisted = false;
+    try (FileObject configFile = HopVfs.getFileObject(configFilename)) {
+      configFileExisted = configFile.exists();
+    }
     Project project = projectConfig.loadProject(variables);
     // Keep an existing parent from a pre-existing project-config.json (Docker
     // --project-keep-config-file). Only fall back to the standard parent when none is set.
@@ -389,6 +396,11 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     //
     if (StringUtils.isEmpty(project.getParentProjectName())) {
       project.setParentProjectName(config.getStandardParentProject());
+    }
+    // A brand-new config file starts from the project name. An existing file keeps its id,
+    // including none, so a 2.19.0 project is not switched on to execution filtering.
+    if (!configFileExisted && StringUtils.isEmpty(project.getProjectId())) {
+      project.setProjectId(projectName);
     }
     modifyProjectSettings(project);
 

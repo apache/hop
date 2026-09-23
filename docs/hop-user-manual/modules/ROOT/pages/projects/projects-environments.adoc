@@ -45,6 +45,7 @@ image:hop-gui/environment/create-project-dialog.png[Project Properties Basic tab
 |===
 |Property|Description|Variables Supported|Mandatory|Default
 |Name|The project name|Yes|No|
+|Project id|Optional id stored in `project-config.json` and copied onto execution information. A shared execution database or search index can then be filtered to this project. Leave empty to keep the 2.19 behavior: no filtering. The project name is a readable value; a UUID also works. Not inherited from the parent project.|No|No|empty (the project name is suggested for a new project)
 |Home folder|The folder where the project is located. Paths starting with `~` (e.g. `~/my-project` or `~\my-project` on Windows) automatically resolve to the user's home directory (`+${user.home}+`).|Yes|No|
 |This project is read only|When checked, Hop does not write `project-config.json` (archives, HTTP, and similar)|No|No|unchecked
 |Configuration file (relative path)|The project's configuration json, relative to the home folder.|Yes|Yes|`project-config.json`

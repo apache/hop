@@ -1945,6 +1945,7 @@ public class ProjectsGuiPlugin {
                         && !name.contains("HOP_PROJECTS")
                         && !name.contains("HOP_PLATFORM_OS")
                         && !name.contains("HOP_PROJECT_NAME")
+                        && !name.contains("HOP_PROJECT_ID")
                         && !name.contains("HOP_SERVER_URL")) {
                       String value = variables.getVariable(name);
                       variablesMap.put(name, value);

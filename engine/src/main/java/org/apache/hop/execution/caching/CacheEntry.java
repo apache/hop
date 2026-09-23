@@ -19,6 +19,7 @@
 package org.apache.hop.execution.caching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.OutputStream;
@@ -51,6 +52,13 @@ public class CacheEntry {
 
   // The name of the pipeline of workflow
   private String name;
+
+  /**
+   * Root copy of {@link Execution#getProjectId()}. Elastic and OpenSearch filter on this field.
+   * Omitted when empty so 2.19 readers can still open the document.
+   */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private String projectId;
 
   // The creation date of this entry
   //
@@ -90,6 +98,41 @@ public class CacheEntry {
     lastWritten = new Date();
     creationDate = new Date();
     dirty = true;
+  }
+
+  /**
+   * Copy a non-empty project id between this entry and its execution before writing JSON. Does not
+   * replace a stored id with an empty one; callers that loaded a previous document should call
+   * {@link #keepStoredProjectId} first.
+   */
+  public void prepareForPersist() {
+    if (execution == null) {
+      return;
+    }
+    if (StringUtils.isEmpty(projectId)) {
+      projectId = StringUtils.trimToNull(execution.getProjectId());
+    } else if (StringUtils.isEmpty(execution.getProjectId())) {
+      execution.setProjectId(projectId);
+    }
+  }
+
+  /**
+   * Keep a project id already stored on disk or in the database when this in-memory entry has none.
+   * A later update from a process that has no {@code HOP_PROJECT_ID} must not wipe it.
+   */
+  public void keepStoredProjectId(CacheEntry stored) {
+    if (stored == null) {
+      return;
+    }
+    if (StringUtils.isEmpty(projectId) && StringUtils.isNotEmpty(stored.getProjectId())) {
+      projectId = stored.getProjectId();
+    }
+    if (execution != null
+        && stored.getExecution() != null
+        && StringUtils.isEmpty(execution.getProjectId())
+        && StringUtils.isNotEmpty(stored.getExecution().getProjectId())) {
+      execution.setProjectId(stored.getExecution().getProjectId());
+    }
   }
 
   /**

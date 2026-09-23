@@ -173,6 +173,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
     try {
+      cacheEntry.prepareForPersist();
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
 
@@ -430,6 +431,10 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       body = body.replace("__FROM_CLAUSE__", "FROM " + actualIndexName);
 
       String whereClause = "";
+      String projectClause = projectIdWhereClause(getActiveProjectId());
+      if (StringUtils.isNotEmpty(projectClause)) {
+        whereClause = addToWhereClause(whereClause, projectClause);
+      }
       LastPeriod dateFilter = selector != null ? selector.startDateFilter() : null;
       if (dateFilter != null && dateFilter != LastPeriod.NONE) {
         // OpenSearch uses UTC and the GUI runs in local time.
@@ -511,6 +516,77 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
     }
   }
 
+  /**
+   * SQL fragment without {@code WHERE}. Empty when the active project id is empty, so the list
+   * query stays the 2.19.0 shape. Single quotes in the id are escaped.
+   */
+  static String projectIdWhereClause(String activeProjectId) {
+    if (StringUtils.isEmpty(activeProjectId)) {
+      return "";
+    }
+    String escaped = activeProjectId.replace("'", "''");
+    return "(projectId = '" + escaped + "' OR projectId IS NULL OR projectId = '')";
+  }
+
+  static String createIndexBody() {
+    return """
+        {
+          "mappings" : {
+            "properties": {
+              "id"  : { "type": "text"},
+              "name": { "type": "text"},
+              "projectId": { "type": "keyword" },
+              "creationDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+              "summary": {
+                "type" : "nested",
+                "properties": {
+                  "startDate"  : { "type": "date", "format": "yyyy/MM/dd HH:mm:ss.SSS" },
+                  "endDate"    : { "type": "date", "format": "yyyy/MM/dd HH:mm:ss.SSS" },
+                  "durationMs" : { "type": "long" }
+                }
+              },
+              "execution": {
+                "type" : "nested",
+                "properties": {
+                  "id"              : { "type": "text"} ,
+                  "name"            : { "type": "text" },
+                  "filename"        : { "type": "text" },
+                  "executionType"   : { "type": "text" },
+                  "parentId"        : { "type": "text" },
+                  "projectId"       : { "type": "keyword" },
+                  "registrationDate": { "type": "long" }
+                }
+              },
+              "executionState": {
+                "type" : "nested",
+                "properties": {
+                  "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                  "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                  "updateTime":         { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                  "statusDescription":  { "type": "text" }
+                }
+              },
+              "childExecutions"     : { "type": "object", "enabled": false },
+              "childExecutionStates": { "type": "object", "enabled": false },
+              "childExecutionData"  : { "type": "object", "enabled": false }
+            }
+          }, "settings": {
+            "index.mapping.total_fields.limit": 500
+          }
+        }
+        """;
+  }
+
+  static String projectIdMappingBody() {
+    return """
+        { "properties": { "projectId": { "type": "keyword" } } }
+        """;
+  }
+
+  static boolean isIndexAlreadyExists(int statusCode, String body) {
+    return statusCode == 400 && body != null && body.contains("resource_already_exists_exception");
+  }
+
   private String addToWhereClause(String whereClause, String clause) {
     String result = whereClause;
     if (StringUtils.isEmpty(whereClause)) {
@@ -536,51 +612,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
 
     try {
       location.initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
-      String putBody =
-          """
-              {
-                "mappings" : {
-                  "properties": {
-                    "id"  : { "type": "text"},
-                    "name": { "type": "text"},
-                    "creationDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
-                    "summary": {
-                      "type" : "nested",
-                      "properties": {
-                        "startDate"  : { "type": "date", "format": "yyyy/MM/dd HH:mm:ss.SSS" },
-                        "endDate"    : { "type": "date", "format": "yyyy/MM/dd HH:mm:ss.SSS" },
-                        "durationMs" : { "type": "long" }
-                      }
-                    },
-                    "execution": {
-                      "type" : "nested",
-                      "properties": {
-                        "id"              : { "type": "text"} ,
-                        "name"            : { "type": "text" },
-                        "filename"        : { "type": "text" },
-                        "executionType"   : { "type": "text" },
-                        "parentId"        : { "type": "text" },
-                        "registrationDate": { "type": "long" }
-                      }
-                    },
-                    "executionState": {
-                      "type" : "nested",
-                      "properties": {
-                        "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "updateTime":         { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "statusDescription":  { "type": "text" }
-                      }
-                    },
-                    "childExecutions"     : { "type": "object", "enabled": false },
-                    "childExecutionStates": { "type": "object", "enabled": false },
-                    "childExecutionData"  : { "type": "object", "enabled": false }
-                  }
-                }, "settings": {
-                  "index.mapping.total_fields.limit": 500
-                }
-              }
-            """;
+      String putBody = createIndexBody();
       String result;
       RestCaller restCaller =
           new RestCaller(
@@ -593,6 +625,21 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
               location.ignoreSsl,
               getHeaders());
       result = getResultFromPipeline(restCaller);
+      if (isIndexAlreadyExists(
+          restCaller.getStatusCode() == null ? 0 : restCaller.getStatusCode().intValue(), result)) {
+        putBody = projectIdMappingBody();
+        restCaller =
+            new RestCaller(
+                new MemoryMetadataProvider(),
+                location.actualUrl + "/" + location.actualIndexName + "/_mapping",
+                location.actualUsername,
+                location.actualPassword,
+                "PUT",
+                putBody,
+                location.ignoreSsl,
+                getHeaders());
+        result = getResultFromPipeline(restCaller);
+      }
       if (restCaller.getResult() == null || restCaller.getResult().getNrErrors() > 0) {
         result += Const.CR + "Logging: " + restCaller.getLoggingText();
       }

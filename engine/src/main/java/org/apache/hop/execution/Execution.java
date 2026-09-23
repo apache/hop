@@ -19,6 +19,7 @@
 package org.apache.hop.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,12 @@ import org.apache.hop.core.logging.LogLevel;
 @Setter
 @Getter
 public class Execution {
+
+  /**
+   * Set when a project is enabled. Empty means execution information is not filtered by project.
+   * The projects plugin writes the same name ({@code HOP_PROJECT_ID}).
+   */
+  public static final String VARIABLE_HOP_PROJECT_ID = "HOP_PROJECT_ID";
 
   @SuppressWarnings("java:S115")
   public enum EnvironmentDetailType {
@@ -49,6 +56,13 @@ public class Execution {
 
   /** The name of the pipeline or workflow execution */
   private String name;
+
+  /**
+   * Project that registered this execution. Omitted from JSON when empty so a 2.19 reader, which
+   * rejects unknown properties, can still open the document.
+   */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private String projectId;
 
   /** The filename that is executing */
   private String filename;
