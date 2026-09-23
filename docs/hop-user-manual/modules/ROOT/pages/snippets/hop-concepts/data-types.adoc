@@ -56,6 +56,38 @@ A common issue is the decimal separator, which differs between environments: an 
 
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates] for Format, Length, Precision, Decimal, Group and Currency.
 
+[[boolean-type]]
+=== Boolean
+
+A Boolean field holds `true`, `false` or null.
+
+*Reading text as a Boolean*
+
+- Without a Format, `Y`, `yes`, `true` (in any case) and `1` are read as true. Any other text is read as false, and empty text is null.
+- With a Boolean Format such as `on/off`, text that matches the true or the false part of the mask (ignoring case) is read as that value.
+Text that matches neither part falls back to the rules above.
+
+*Writing a Boolean as text*
+
+This applies wherever Hop turns a Boolean into text: Write to log, the preview grid, text files, Concat fields and so on.
+
+- With a Boolean Format, Hop prints the true or the false part of the mask.
+- Without a Format, the field's *Length* decides: a length of 3 or more prints `true` / `false`, any other length (including no length) prints `Y` / `N`.
+
+A Boolean Format is the text for true, a slash, and the text for false, for example `true/false`, `Y/N`, `1/0` or `yes/no`.
+The mask must contain exactly one slash, so neither text can contain a slash itself.
+The Format column offers the common masks for Boolean fields, and you can type any other pair, for example `Ja/Nein` to write German words.
+See xref:pipeline/formatting-values.adoc#boolean-own-format[Your own true and false text].
+
+*Why two Boolean fields can print differently*
+
+The length is often set for you rather than by you.
+Converting a String field to a Boolean, for example in the Meta-data tab of xref:pipeline/transforms/selectvalues.adoc[Select Values], keeps the String's length.
+A `true`/`false` column read from a database with length 4 therefore becomes a Boolean of length 4 and prints `true`, while a Boolean read by JSON Input has no length and prints `Y`.
+Both values are the same `true`.
+
+Set a Boolean Format on the fields to get the same text everywhere, whatever their length.
+
 === Timestamp
 
 A Timestamp value can be created from a Date, String, Number, or another Timestamp.

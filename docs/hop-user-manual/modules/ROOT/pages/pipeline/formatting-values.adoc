@@ -194,6 +194,61 @@ Fixes, in order of preference:
 When you *write* dates to text, CSV, JSON or logs from a DST-observing JVM, use a mask with an offset, or set the output field's Date Time Zone to `UTC`.
 Otherwise a reader in another zone — or the same pipeline after a DST weekend — will not reconstruct the instant you had.
 
+== Boolean formats
+
+A Boolean format is the text for true, a slash, and the text for false.
+It is used both to print a Boolean and to read one from text.
+
+[options="header"]
+|===
+|Format|true|false
+|`true/false`|`true`|`false`
+|`Y/N`|`Y`|`N`
+|`1/0`|`1`|`0`
+|`yes/no`|`yes`|`no`
+|===
+
+Without a format, the Length of the field decides how a Boolean is printed.
+See xref:concepts.adoc#boolean-type[Boolean] for the details.
+
+[[boolean-own-format]]
+=== Your own true and false text
+
+The list above only holds suggestions.
+You can type any pair into the Format column, so a file can use the words of its readers' language:
+
+[options="header"]
+|===
+|Format|true|false
+|`Ja/Nee`|`Ja`|`Nee`
+|`Ja/Nein`|`Ja`|`Nein`
+|`Oui/Non`|`Oui`|`Non`
+|`Sí/No`|`Sí`|`No`
+|`on/off`|`on`|`off`
+|===
+
+For example, to write German Booleans with xref:pipeline/transforms/textfileoutput.adoc[Text File Output]:
+
+. Open the *Fields* tab and click *Get Fields*.
+. Check that the *Type* of the field is `Boolean`.
+Text File Output does not convert types, so a field that arrives as a String has to be converted first, for example with xref:pipeline/transforms/selectvalues.adoc[Select Values].
+. Type `Ja/Nein` in the *Format* column.
+
+Every `true` is then written as `Ja` and every `false` as `Nein`, whatever format or length the field had before.
+A null stays empty.
+
+To read such a file again, give the field the same Format in xref:pipeline/transforms/textfileinput.adoc[Text File Input] or in the Meta-data tab of xref:pipeline/transforms/selectvalues.adoc[Select Values].
+Reading ignores case, so `ja`, `JA` and `Ja` are all true.
+Text that matches neither word falls back to the standard rules: `Y`, `yes`, `true` and `1` are true, anything else is false.
+
+Keep these rules in mind when you define your own format:
+
+* Use exactly one slash: the text before it means true, the text after it means false.
+Neither word can contain a slash, and a mask with more than one slash (such as the date mask `yyyy/MM/dd`) is not treated as a Boolean format.
+* Both words must be non-empty.
+* Pick two different words, or a file written with the format cannot be read back.
+* Text File Output ignores all formats when *Fast data dump (no formatting)* is enabled, and then writes `true` or `false`.
+
 == Rounding
 
 include::../snippets/rounding-types.adoc[]

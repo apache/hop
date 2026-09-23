@@ -284,10 +284,12 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     // Prepare a list of possible formats...
     String[] dats = Const.getDateFormats();
     String[] nums = Const.getNumberFormats();
-    int totalSize = dats.length + nums.length;
+    String[] bools = Const.getBooleanFormats();
+    int totalSize = dats.length + nums.length + bools.length;
     String[] formats = new String[totalSize];
     System.arraycopy(dats, 0, formats, 0, dats.length);
     System.arraycopy(nums, 0, formats, dats.length, nums.length);
+    System.arraycopy(bools, 0, formats, dats.length + nums.length, bools.length);
 
     fieldColumns = new ColumnInfo[FieldsCols];
     fieldColumns[0] =

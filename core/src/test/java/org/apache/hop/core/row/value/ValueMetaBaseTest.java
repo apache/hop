@@ -304,6 +304,87 @@ class ValueMetaBaseTest {
   }
 
   @Test
+  void testBooleanToStringWithoutMaskFollowsLength() throws HopValueException {
+    // Without a mask, the length decides (#5958): 3 or more prints true/false, anything else Y/N
+    assertEquals("Y", new ValueMetaBoolean("b").getString(true));
+    assertEquals("N", new ValueMetaBoolean("b", 1, -1).getString(false));
+    assertEquals("true", new ValueMetaBoolean("b", 4, -1).getString(true));
+    assertEquals("false", new ValueMetaBoolean("b", 4, -1).getString(false));
+  }
+
+  @Test
+  void testBooleanToStringWithMask() throws HopValueException {
+    ValueMetaBoolean shortField = new ValueMetaBoolean("b");
+    ValueMetaBoolean longField = new ValueMetaBoolean("b", 4, -1);
+    for (String mask : Const.getBooleanFormats()) {
+      String[] texts = mask.split("/");
+      shortField.setConversionMask(mask);
+      longField.setConversionMask(mask);
+      // The mask wins over the length, so both fields print the same
+      assertEquals(texts[0], shortField.getString(true), mask);
+      assertEquals(texts[1], shortField.getString(false), mask);
+      assertEquals(texts[0], longField.getString(true), mask);
+      assertEquals(texts[1], longField.getString(false), mask);
+    }
+
+    ValueMetaBoolean custom = new ValueMetaBoolean("b");
+    custom.setConversionMask("Ja/Nee");
+    assertEquals("Ja", custom.getString(true));
+    assertEquals("Nee", custom.getString(false));
+    assertNull(custom.getString(null));
+  }
+
+  @Test
+  void testBooleanToBinaryStringWithMask() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("yes/no");
+    assertArrayEquals("yes".getBytes(), field.getBinaryString(true));
+    assertArrayEquals("no".getBytes(), field.getBinaryString(false));
+  }
+
+  @Test
+  void testNonBooleanMaskIsIgnored() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    for (String mask : new String[] {"yyyy/MM/dd", "#.##", "/N", "Y/", "/"}) {
+      field.setConversionMask(mask);
+      assertEquals("Y", field.getString(true), mask);
+      assertEquals("N", field.getString(false), mask);
+    }
+  }
+
+  @Test
+  void testStringToBooleanWithMask() throws HopValueException {
+    ValueMetaString string = new ValueMetaString("s");
+    string.setConversionMask("Ja/Nee");
+    assertTrue(string.getBoolean("Ja"));
+    assertTrue(string.getBoolean("ja"));
+    assertFalse(string.getBoolean("NEE"));
+    // Text outside the mask falls back to the standard rules
+    assertTrue(string.getBoolean("Y"));
+    assertTrue(string.getBoolean("true"));
+    assertFalse(string.getBoolean("maybe"));
+    assertNull(string.getBoolean(""));
+
+    // A mask whose true text is not in the standard rules, e.g. T/F
+    string.setConversionMask("T/F");
+    assertTrue(string.getBoolean("t"));
+    assertFalse(string.getBoolean("F"));
+  }
+
+  @Test
+  void testConvertDataFromStringToBooleanWithMask() throws Exception {
+    ValueMetaBoolean target = new ValueMetaBoolean("b");
+    target.setConversionMask("on/off");
+    IValueMeta convertMeta = ValueMetaFactory.cloneValueMeta(target, IValueMeta.TYPE_STRING);
+    assertEquals(
+        Boolean.TRUE,
+        target.convertDataFromString("on", convertMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+    assertEquals(
+        Boolean.FALSE,
+        target.convertDataFromString(" OFF ", convertMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+  }
+
+  @Test
   void testConvertDataFromStringToString() throws HopValueException {
     ValueMetaBase inValueMetaString = new ValueMetaString();
     ValueMetaBase outValueMetaString = new ValueMetaString();

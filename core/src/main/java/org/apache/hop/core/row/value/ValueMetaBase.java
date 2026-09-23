@@ -1698,10 +1698,35 @@ public class ValueMetaBase implements IValueMeta {
 
   // BOOLEAN + STRING
 
+  /**
+   * A Boolean format mask holds the text for true and the text for false, separated by a single
+   * slash, for example {@code true/false}, {@code Y/N} or {@code 1/0}. A mask with no slash, or
+   * with more than one (a date mask like {@code yyyy/MM/dd}), is not a Boolean mask.
+   *
+   * @param mask the conversion mask
+   * @return the position of the separating slash, or -1 when the mask is not a Boolean mask
+   */
+  static int getBooleanMaskSeparator(String mask) {
+    if (mask == null) {
+      return -1;
+    }
+    int slash = mask.indexOf('/');
+    if (slash <= 0 || slash == mask.length() - 1 || mask.indexOf('/', slash + 1) >= 0) {
+      return -1;
+    }
+    return slash;
+  }
+
   protected String convertBooleanToString(Boolean bool) {
     if (bool == null) {
       return null;
     }
+    int slash = getBooleanMaskSeparator(conversionMask);
+    if (slash > 0) {
+      return bool ? conversionMask.substring(0, slash) : conversionMask.substring(slash + 1);
+    }
+    // Without a mask the length decides, a legacy rule kept for compatibility
+    //
     if (length >= 3) {
       return bool ? "true" : CONST_FALSE;
     } else {
@@ -1718,6 +1743,32 @@ public class ValueMetaBase implements IValueMeta {
         || "TRUE".equalsIgnoreCase(string)
         || "YES".equalsIgnoreCase(string)
         || "1".equals(string);
+  }
+
+  /**
+   * Converts a String to a Boolean, first matching the true and false text of a Boolean conversion
+   * mask (ignoring case). Text that matches neither falls back to {@link
+   * #convertStringToBoolean(String)}.
+   *
+   * @param string the string to convert
+   * @return the Boolean, or null for an empty string
+   */
+  protected Boolean convertMaskedStringToBoolean(String string) {
+    if (Utils.isEmpty(string)) {
+      return null;
+    }
+    int slash = getBooleanMaskSeparator(conversionMask);
+    if (slash > 0) {
+      if (string.length() == slash && conversionMask.regionMatches(true, 0, string, 0, slash)) {
+        return true;
+      }
+      int falseLength = conversionMask.length() - slash - 1;
+      if (string.length() == falseLength
+          && conversionMask.regionMatches(true, slash + 1, string, 0, falseLength)) {
+        return false;
+      }
+    }
+    return convertStringToBoolean(string);
   }
 
   // BOOLEAN + NUMBER
@@ -2703,12 +2754,12 @@ public class ValueMetaBase implements IValueMeta {
         };
       case TYPE_STRING:
         return switch (storageType) {
-          case STORAGE_TYPE_NORMAL -> convertStringToBoolean(trim((String) object));
+          case STORAGE_TYPE_NORMAL -> convertMaskedStringToBoolean(trim((String) object));
           case STORAGE_TYPE_BINARY_STRING ->
-              convertStringToBoolean(
+              convertMaskedStringToBoolean(
                   trim((String) convertBinaryStringToNativeType((byte[]) object)));
           case STORAGE_TYPE_INDEXED ->
-              convertStringToBoolean(trim((String) index[(Integer) object]));
+              convertMaskedStringToBoolean(trim((String) index[(Integer) object]));
           default ->
               throw new HopValueException(
                   this
