@@ -17,12 +17,14 @@
 
 package org.apache.hop.beam.core.coder;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.avro.Schema;
@@ -154,5 +156,43 @@ class HopRowCoderTest {
       assertTrue(verify.hasField(key));
       assertEquals(genericRecord.get(key), verify.get(key));
     }
+  }
+
+  @Test
+  void testEncodeDecodeBinary() throws IOException {
+    // Longer than 255 bytes so a length written as a single byte can't pass by accident
+    byte[] binary = new byte[300];
+    for (int i = 0; i < binary.length; i++) {
+      binary[i] = (byte) i;
+    }
+    HopRow row1 = new HopRow(new Object[] {"before", binary, new byte[0], "after", 42L});
+
+    hopRowCoder.encode(row1, outputStream);
+    HopRow row1d = hopRowCoder.decode(new ByteArrayInputStream(outputStream.toByteArray()));
+
+    Object[] decoded = row1d.getRow();
+    assertEquals(5, row1d.length());
+    assertEquals("before", decoded[0]);
+    assertArrayEquals(binary, (byte[]) decoded[1]);
+    assertArrayEquals(new byte[0], (byte[]) decoded[2]);
+    assertEquals("after", decoded[3]);
+    assertEquals(42L, decoded[4]);
+  }
+
+  @Test
+  void testEncodeDecodeInet() throws IOException {
+    InetAddress ipv4 = InetAddress.getByAddress("host4", new byte[] {10, 0, 0, 1});
+    InetAddress ipv6 =
+        InetAddress.getByAddress(
+            "host6",
+            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
+    HopRow row1 = new HopRow(new Object[] {ipv4, ipv6, "after"});
+
+    hopRowCoder.encode(row1, outputStream);
+    HopRow row1d = hopRowCoder.decode(new ByteArrayInputStream(outputStream.toByteArray()));
+
+    assertEquals(row1, row1d);
+    assertEquals("host4", ((InetAddress) row1d.getRow()[0]).getHostName());
+    assertEquals("host6", ((InetAddress) row1d.getRow()[1]).getHostName());
   }
 }
