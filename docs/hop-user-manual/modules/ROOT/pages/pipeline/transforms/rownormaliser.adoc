@@ -27,7 +27,20 @@ The Row Normaliser transform converts the columns of an input stream into rows.
 
 You can use this transform to normalize repeating groups of columns.
 
-*Important*: When combining multiple columns with different meta types (e.g., String and Integer) into a new field, no automatic type conversion is performed. Instead the first meta type is set. This lack of conversion may lead to issues with subsequent transformations on the resulting data rows. It is strongly advised to ensure that the data types of values being put into the same field are aligned before normalization.
+For every row it reads, the transform writes one row per type. Each input field goes into the new field it names on the row of its type, whatever order the fields are listed in. A type that has no field for one of the new fields leaves that field empty (`null`) on its rows.
+
+A type can fill each new field from only one input field: listing two fields with the same type and the same new field is an error.
+
+== Data types of the new fields
+
+A new field is filled from a different input field on every row, so its data type depends on all of them:
+
+* When the input fields filling a new field share a data type, the new field has that type, with the length, precision and format of the first of them. The values are passed on unchanged.
+* When they do not, the new field is a String, and every value is converted to text using the format of the input field it comes from. To control how a number or a date is written, set the format on that input field before this transform, for example with a xref:pipeline/transforms/selectvalues.adoc[Select Values] transform.
+
+For example, normalising a String, an Integer and a Number into one field gives a String field holding `a`, `1` and `1.2`. **Verify** on this transform warns about every new field that is filled from input fields of different data types.
+
+NOTE: Before Hop 2.20, a new field took the data type of the first input field filling it, and the values of the other input fields were passed on unchanged. Rows with a value that did not match that type failed further down the pipeline, for example in a Sort rows transform that writes rows to disk.
 
 == Options
 
@@ -92,4 +105,33 @@ Similar to example 1, but remove the **RecordID** field from the **Fields table*
 |824-21-0000|FirstName|Rory
 |824-21-0000|LastName|Ledner
 |824-21-0000|City|Scottieview
+|===
+
+=== Normalized data (example 3)
+Several new fields can be filled at once. With this input:
+
+[options="header"]
+|===
+|Date|PR1_SL|PR1_NR|PR2_SL|PR2_NR
+|2003-01-01|100|5|250|10
+|===
+
+set **Typefield** = "Product" and fill the **Fields table** like this:
+
+[options="header"]
+|===
+|Fieldname|Type|New field
+|PR1_SL|Product1|Sales
+|PR1_NR|Product1|Number
+|PR2_NR|Product2|Number
+|PR2_SL|Product2|Sales
+|===
+
+The result has one row per product, each value in the new field it names:
+
+[options="header"]
+|===
+|Date|Product|Sales|Number
+|2003-01-01|Product1|100|5
+|2003-01-01|Product2|250|10
 |===
