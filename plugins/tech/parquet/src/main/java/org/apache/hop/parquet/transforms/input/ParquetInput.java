@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.lineage.LineageFileIoEmitter;
 import org.apache.hop.lineage.model.FileIoOperation;
@@ -55,8 +56,14 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
       // Do we need the file metadata and the file was empty?
       //
       if (meta.isSendingNullsRowWhenEmpty() && getLinesInput() == 0) {
-        Object[] outputRow = RowDataUtil.allocateRowData(getInputRowMeta().size());
-        putRow(data.outputRowMeta, outputRow);
+        if (data.outputRowMeta == null) {
+          // No file name ever came in, so the output is just the fields of this transform.
+          data.outputRowMeta =
+              getInputRowMeta() == null ? new RowMeta() : getInputRowMeta().clone();
+          meta.getFields(
+              data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+        }
+        putRow(data.outputRowMeta, RowDataUtil.allocateRowData(data.outputRowMeta.size()));
       }
 
       setOutputDone();
@@ -91,8 +98,12 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
       // If we don't have any fields specified, we read them all.
       //
       if (fields.isEmpty()) {
-        //
         IRowMeta parquetRowMeta = ParquetInputMeta.extractRowMeta(this, filename);
+        if (data.outputRowMeta.size() == getInputRowMeta().size()) {
+          // Nothing was known at design time (no fields and no metadata file), so the first
+          // file's schema describes the values this transform appends to the row.
+          data.outputRowMeta.addRowMeta(parquetRowMeta);
+        }
         for (int i = 0; i < parquetRowMeta.size(); i++) {
           IValueMeta parquetValueMeta = parquetRowMeta.getValueMeta(i);
           fields.add(
@@ -117,10 +128,10 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
         }
       }
 
-      ParquetStream inputFile = new ParquetStream(fileObject, filename);
+      data.parquetStream = new ParquetStream(fileObject, filename);
 
       ParquetReadSupport readSupport = new ParquetReadSupport(fields);
-      data.reader = new ParquetReaderBuilder<>(readSupport, inputFile).build();
+      data.reader = new ParquetReaderBuilder<>(readSupport, data.parquetStream).build();
 
       RowMetaAndData r = data.reader.read();
       while (r != null && !isStopped()) {
@@ -133,22 +144,28 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
       }
     } catch (Exception e) {
       throw new HopException("Error read file " + filename, e);
+    } finally {
+      // Every file gets its own reader; release this one before the next file name comes in.
+      closeFile();
     }
 
     return true;
   }
 
+  /** Closes the reader and stream of the file being read, if any. Safe to call more than once. */
   public void closeFile() {
-    if (!data.readerClosed && data.reader != null) {
-      try {
+    try {
+      if (data.reader != null) {
         data.reader.close();
-        if (data.parquetStream != null) {
-          data.parquetStream.close();
-        }
-      } catch (IOException e) {
-        logError("Unable to properly close parquet reader!");
       }
-      data.readerClosed = true;
+      if (data.parquetStream != null) {
+        data.parquetStream.close();
+      }
+    } catch (IOException e) {
+      logError("Unable to properly close parquet reader!", e);
+    } finally {
+      data.reader = null;
+      data.parquetStream = null;
     }
   }
 

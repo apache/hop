@@ -117,17 +117,16 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
     try {
       FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename), variables);
 
-      ParquetStream inputFile = new ParquetStream(fileObject, filename);
-
       // Empty list of fields to retrieve: we still grab the schema
       //
       ParquetReadSupport readSupport = new ParquetReadSupport(new ArrayList<>());
-      ParquetReader<RowMetaAndData> reader =
-          new ParquetReaderBuilder<>(readSupport, inputFile).build();
-
-      // Read one empty row...
-      //
-      reader.read();
+      try (ParquetStream inputFile = new ParquetStream(fileObject, filename);
+          ParquetReader<RowMetaAndData> reader =
+              new ParquetReaderBuilder<>(readSupport, inputFile).build()) {
+        // Read one empty row so the read support sees the file schema.
+        //
+        reader.read();
+      }
 
       // Now we have the schema...
       //

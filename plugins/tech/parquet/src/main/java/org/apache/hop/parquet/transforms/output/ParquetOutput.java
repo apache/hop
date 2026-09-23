@@ -17,8 +17,8 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.avro.LogicalTypes;
@@ -33,15 +34,14 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.Selectors;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
 import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
@@ -56,6 +56,8 @@ import org.apache.parquet.schema.MessageType;
 
 public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData> {
 
+  private static final Class<?> PKG = ParquetOutputMeta.class;
+
   /** How many partitions are written to at the same time when nothing else is configured. */
   static final int DEFAULT_MAX_OPEN_PARTITIONS = 10;
 
@@ -64,6 +66,13 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
    * can be read back by them.
    */
   static final String DEFAULT_PARTITION_NAME = "__HIVE_DEFAULT_PARTITION__";
+
+  /**
+   * Row groups smaller than this are almost certainly a mistake: Parquet's own default is 128 MiB,
+   * and a row group holds at least one page. Hop 2.3 and 2.4 saved 20000 (a row count constant used
+   * as a byte size) into every pipeline, which produced footers of tens of megabytes.
+   */
+  static final int MIN_SENSIBLE_ROW_GROUP_SIZE = 1024 * 1024;
 
   public ParquetOutput(
       TransformMeta transformMeta,
@@ -86,8 +95,15 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         Const.toIntExpanded(
             resolve(meta.getDictionaryPageSize()), ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE);
     data.rowGroupSize =
-        Const.toIntExpanded(
-            resolve(meta.getRowGroupSize()), ParquetProperties.DEFAULT_PAGE_ROW_COUNT_LIMIT);
+        Const.toIntExpanded(resolve(meta.getRowGroupSize()), ParquetWriter.DEFAULT_BLOCK_SIZE);
+    if (data.rowGroupSize < MIN_SENSIBLE_ROW_GROUP_SIZE) {
+      logBasic(
+          BaseMessages.getString(
+              PKG,
+              "ParquetOutput.Log.SmallRowGroupSize",
+              String.format(Locale.ROOT, "%,d", data.rowGroupSize),
+              String.format(Locale.ROOT, "%,d", ParquetWriter.DEFAULT_BLOCK_SIZE)));
+    }
     data.maxSplitSizeRows = Const.toLongExpanded(resolve(meta.getFileSplitSize()), -1);
     data.maxOpenPartitions =
         Const.toIntExpanded(resolve(meta.getMaxOpenPartitions()), DEFAULT_MAX_OPEN_PARTITIONS);
@@ -120,10 +136,10 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     if (first) {
       first = false;
       resolveOutputFields();
+      initWriterProperties();
+      data.messageType = buildSchema();
       if (meta.isPartitioning()) {
         data.runToken = UUID.randomUUID().toString().substring(0, 8);
-        initWriterProperties();
-        data.messageType = buildSchema();
         data.partitionWriters = data.newPartitionWriterMap();
         data.clearedPartitions = new HashSet<>();
         if (meta.getWriteMode() == ParquetWriteMode.OverwriteAll) {
@@ -149,46 +165,14 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     // Write the row, handled by class ParquetWriteSupport
     //
     try {
-      IRowMeta parquetRowMeta = getInputRowMeta().clone();
-
-      // convert date/timestamp => long
-      for (int i = 0; i < data.sourceFieldIndexes.size(); i++) {
-        int idx = data.sourceFieldIndexes.get(i);
-        IValueMeta valueMeta = parquetRowMeta.getValueMeta(idx);
-        if (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
-          // Update of type meta
-          IValueMeta longMeta = new ValueMetaInteger(valueMeta.getName());
-          longMeta.setConversionMask(valueMeta.getConversionMask());
-          longMeta.setLength(valueMeta.getLength(), valueMeta.getPrecision());
-          parquetRowMeta.setValueMeta(idx, longMeta);
-        }
-      }
-
-      // Clone Rows and convert Date & Timetims to Long
-      Object[] parquetRow = row.clone();
-      for (int i = 0; i < data.sourceFieldIndexes.size(); i++) {
-        int idx = data.sourceFieldIndexes.get(i);
-        Object value = parquetRow[idx];
-        if (getInputRowMeta().getValueMeta(idx).getType() == IValueMeta.TYPE_TIMESTAMP) {
-          if (value instanceof java.util.Date date) {
-            parquetRow[idx] = date.getTime();
-          } else if (value instanceof byte[] bytes) {
-            String dateStr = new String(bytes, StandardCharsets.UTF_8);
-            SimpleDateFormat sdf =
-                new SimpleDateFormat(parquetRowMeta.getValueMeta(idx).getFormatMask());
-            Date date = sdf.parse(dateStr);
-            parquetRow[idx] = date.getTime();
-          }
-        }
-      }
-
+      RowMetaAndData parquetRow = new RowMetaAndData(getInputRowMeta(), row);
       if (meta.isPartitioning()) {
         ParquetOutputData.PartitionWriter partitionWriter =
             getPartitionWriter(partitionPath(getInputRowMeta(), row));
-        partitionWriter.writer.write(new RowMetaAndData(parquetRowMeta, parquetRow));
+        partitionWriter.writer.write(parquetRow);
         partitionWriter.rowCount++;
       } else {
-        data.writer.write(new RowMetaAndData(parquetRowMeta, parquetRow));
+        data.writer.write(parquetRow);
         data.splitRowCount++;
       }
       incrementLinesOutput();
@@ -204,13 +188,9 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     data.splitRowCount = 0;
     data.split++;
 
-    initWriterProperties();
-
-    MessageType messageType = buildSchema();
-
     // Calculate the filename...
     //
-    data.filename = buildFilename(getPipeline().getExecutionStartDate());
+    data.filename = buildFilename(executionStartDate());
 
     try {
       FileObject fileObject = HopVfs.getFileObject(data.filename, variables);
@@ -232,11 +212,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
       data.writer =
           new ParquetWriterBuilder(
-                  messageType,
-                  data.avroSchema,
-                  data.outputFile,
-                  data.sourceFieldIndexes,
-                  data.outputFields)
+                  data.messageType, data.outputFile, data.sourceFieldIndexes, data.outputFields)
               .withPageSize(data.pageSize)
               .withDictionaryPageSize(data.dictionaryPageSize)
               .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
@@ -252,79 +228,70 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   }
 
   /**
-   * Sets up the Hadoop configuration and Parquet properties. Both the single-file and the
-   * partitioned paths need these before a writer can be built.
+   * Sets up the Parquet properties. Both the single-file and the partitioned paths need these
+   * before a writer can be built.
    */
   private void initWriterProperties() {
-    data.conf = new Configuration();
-
-    ParquetProperties.Builder builder = ParquetProperties.builder();
-    builder =
+    ParquetProperties.WriterVersion writerVersion =
         switch (meta.getVersion()) {
-          case Version1 -> builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_1_0);
-          case Version2 -> builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_2_0);
+          case Version1 -> ParquetProperties.WriterVersion.PARQUET_1_0;
+          case Version2 -> ParquetProperties.WriterVersion.PARQUET_2_0;
         };
-    data.props = builder.build();
+    data.props = ParquetProperties.builder().withWriterVersion(writerVersion).build();
   }
 
   /**
-   * Builds the Avro schema for the resolved output fields and converts it to a Parquet schema. Kept
-   * separate from opening a file so the partitioned path can build it once and reuse it for every
-   * partition.
+   * Builds the Avro schema for the resolved output fields and converts it to a Parquet schema.
+   * Built once and reused for every split or partition file.
    */
   private MessageType buildSchema() throws HopException {
     SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
         SchemaBuilder.record("ApacheHopParquetSchema").fields();
 
-    // Build the Parquet Schema
+    // Build the Parquet Schema: every field is a nullable union of the Avro type for the Hop type.
     for (int i = 0; i < data.outputFields.size(); i++) {
       ParquetField field = data.outputFields.get(i);
       IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
-
-      // Start a new field
-      SchemaBuilder.BaseFieldTypeBuilder<Schema> fieldBuilder =
-          fieldAssembler.name(field.getTargetFieldName()).type().nullable();
-
-      // Match these data types with class ParquetWriteSupport
-      //
-      Schema timestampMilliType;
       fieldAssembler =
-          switch (valueMeta.getType()) {
-            case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE -> {
-              timestampMilliType =
-                  LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
-              yield fieldAssembler
-                  .name(field.getTargetFieldName())
-                  .type()
-                  .unionOf()
-                  .nullType()
-                  .and()
-                  .type(timestampMilliType)
-                  .endUnion()
-                  .noDefault();
-            }
-            case IValueMeta.TYPE_INTEGER -> fieldBuilder.longType().noDefault();
-            case IValueMeta.TYPE_NUMBER -> fieldBuilder.doubleType().noDefault();
-            case IValueMeta.TYPE_BOOLEAN -> fieldBuilder.booleanType().noDefault();
-            case IValueMeta.TYPE_STRING, IValueMeta.TYPE_BIGNUMBER ->
-                // Convert BigDecimal to String,otherwise we'll have all sorts of conversion issues.
-                //
-                fieldBuilder.stringType().noDefault();
-            case IValueMeta.TYPE_BINARY -> fieldBuilder.bytesType().noDefault();
-            case IValueMeta.TYPE_JSON -> fieldBuilder.stringType().noDefault();
-            case IValueMeta.TYPE_UUID -> fieldBuilder.stringType().noDefault();
-            default ->
-                throw new HopException(
-                    "Writing Hop data type '"
-                        + valueMeta.getTypeDesc()
-                        + "' to Parquet is not supported");
-          };
+          fieldAssembler
+              .name(field.getTargetFieldName())
+              .type()
+              .unionOf()
+              .nullType()
+              .and()
+              .type(avroType(valueMeta))
+              .endUnion()
+              .noDefault();
     }
-    data.avroSchema = fieldAssembler.endRecord();
-
     // Convert from Avro to Parquet schema
     //
-    return new AvroSchemaConverter().convert(data.avroSchema);
+    return new AvroSchemaConverter().convert(fieldAssembler.endRecord());
+  }
+
+  /**
+   * The Avro type a Hop value is written as. Match these with class ParquetWriteSupport.
+   * BigDecimal, JSON and UUID values are written as strings, which avoids all sorts of conversion
+   * issues on the reading side.
+   */
+  static Schema avroType(IValueMeta valueMeta) throws HopException {
+    return switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE ->
+          LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
+      case IValueMeta.TYPE_INTEGER -> Schema.create(Schema.Type.LONG);
+      case IValueMeta.TYPE_NUMBER -> Schema.create(Schema.Type.DOUBLE);
+      case IValueMeta.TYPE_BOOLEAN -> Schema.create(Schema.Type.BOOLEAN);
+      case IValueMeta.TYPE_STRING,
+              IValueMeta.TYPE_BIGNUMBER,
+              IValueMeta.TYPE_JSON,
+              IValueMeta.TYPE_UUID ->
+          Schema.create(Schema.Type.STRING);
+      case IValueMeta.TYPE_BINARY -> Schema.create(Schema.Type.BYTES);
+      default ->
+          throw new HopException(
+              "Writing Hop data type '"
+                  + valueMeta.getTypeDesc()
+                  + "' to Parquet is not supported");
+    };
   }
 
   void resolveOutputFields() throws HopException {
@@ -392,6 +359,12 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
           "Every output field is a partition field, which would leave nothing to write into the "
               + "Parquet files. Leave at least one non-partition field.");
     }
+  }
+
+  /** The date stamped into file names: when the pipeline started, or now if that is unknown. */
+  private Date executionStartDate() {
+    Date date = getPipeline().getExecutionStartDate();
+    return date == null ? new Date() : date;
   }
 
   String buildFilename(Date date) {
@@ -508,7 +481,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     String folder = partitionFolder(partitionPath);
     applyWriteMode(partitionPath, folder);
 
-    String filename = buildPartitionFilename(folder, getPipeline().getExecutionStartDate());
+    String filename = buildPartitionFilename(folder, executionStartDate());
     try {
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
       FileObject parentFolder = fileObject.getParent();
@@ -524,11 +497,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
       ParquetWriter<RowMetaAndData> writer =
           new ParquetWriterBuilder(
-                  data.messageType,
-                  data.avroSchema,
-                  outputFile,
-                  data.sourceFieldIndexes,
-                  data.outputFields)
+                  data.messageType, outputFile, data.sourceFieldIndexes, data.outputFields)
               .withPageSize(data.pageSize)
               .withDictionaryPageSize(data.dictionaryPageSize)
               .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
@@ -683,20 +652,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   private void closePartitionWriter(
       String partitionPath, ParquetOutputData.PartitionWriter partitionWriter) throws HopException {
     try {
-      partitionWriter.writer.close();
-      if (partitionWriter.countingStream != null) {
-        long written = partitionWriter.countingStream.getCount();
-        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
-        if (!data.isBeamContext() && written > 0) {
-          try {
-            FileObject outFile = HopVfs.getFileObject(partitionWriter.filename, variables);
-            LineageFileIoEmitter.emitTransformFileIo(
-                this, FileIoOperation.WRITE, null, outFile, written, true, null);
-          } catch (Exception ignored) {
-            // optional lineage
-          }
-        }
-      }
+      closeWriter(partitionWriter.writer, partitionWriter.countingStream, partitionWriter.filename);
     } catch (Exception e) {
       throw new HopException(
           "Error closing file "
@@ -709,23 +665,50 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   }
 
   private void closeFile() throws HopException {
+    if (data.writer == null) {
+      // Nothing was opened, or the file was already closed at the end of the stream.
+      return;
+    }
     try {
-      data.writer.close();
-      if (data.countingStream != null) {
-        long written = data.countingStream.getCount();
-        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
-        if (!data.isBeamContext() && written > 0 && data.filename != null) {
-          try {
-            FileObject outFile = HopVfs.getFileObject(data.filename, variables);
-            LineageFileIoEmitter.emitTransformFileIo(
-                this, FileIoOperation.WRITE, null, outFile, written, true, null);
-          } catch (Exception ignored) {
-            // optional lineage
-          }
-        }
-      }
+      closeWriter(data.writer, data.countingStream, data.filename);
     } catch (Exception e) {
       throw new HopException("Error closing file " + data.filename, e);
+    } finally {
+      data.writer = null;
+    }
+  }
+
+  /**
+   * Finishes a file: writes the footer, accounts for the bytes, reports the file to lineage and
+   * logs what the file ended up looking like. The footer size is what a reader such as Dremio
+   * checks first, and it is driven by the number of row groups, so both are logged.
+   */
+  private void closeWriter(
+      ParquetWriter<RowMetaAndData> writer, CountingOutputStream countingStream, String filename)
+      throws IOException {
+    writer.close();
+    if (countingStream == null) {
+      return;
+    }
+    long written = countingStream.getCount();
+    dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+    if (isDetailed() && writer.getFooter() != null) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ParquetOutput.Log.FileClosed",
+              filename,
+              String.format(Locale.ROOT, "%,d", written),
+              ParquetFileStats.of(writer.getFooter(), written).toString()));
+    }
+    if (!data.isBeamContext() && written > 0 && filename != null) {
+      try {
+        FileObject outFile = HopVfs.getFileObject(filename, variables);
+        LineageFileIoEmitter.emitTransformFileIo(
+            this, FileIoOperation.WRITE, null, outFile, written, true, null);
+      } catch (Exception ignored) {
+        // optional lineage
+      }
     }
   }
 

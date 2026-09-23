@@ -66,16 +66,15 @@ public class ParquetValueConverter extends PrimitiveConverter {
         object = value.getBytes();
         break;
       case IValueMeta.TYPE_BIGNUMBER:
-        try {
-          object = new BigDecimal(value.toStringUsingUTF8());
-        } catch (NumberFormatException e) {
-          if ((this.logicalTypeAnnotation instanceof DecimalLogicalTypeAnnotation)) {
-            object =
-                binaryToDecimal(
-                    value,
-                    ((DecimalLogicalTypeAnnotation) this.logicalTypeAnnotation).getPrecision(),
-                    ((DecimalLogicalTypeAnnotation) this.logicalTypeAnnotation).getScale());
-          } else {
+        if (this.logicalTypeAnnotation instanceof DecimalLogicalTypeAnnotation decimal) {
+          // A DECIMAL column holds the unscaled two's complement value, never text. Trying the
+          // text route first would misread bytes that happen to be ASCII digits.
+          object = binaryToDecimal(value, decimal.getPrecision(), decimal.getScale());
+        } else {
+          try {
+            // Hop itself writes big numbers as strings.
+            object = new BigDecimal(value.toStringUsingUTF8());
+          } catch (NumberFormatException e) {
             object = binaryToDecimal(value, valueMeta.getLength(), valueMeta.getPrecision());
           }
         }
@@ -108,11 +107,17 @@ public class ParquetValueConverter extends PrimitiveConverter {
               BigInteger.valueOf(julianDay - 2440588L)
                   .multiply(BigInteger.valueOf(86400L * 1000 * 1000 * 1000))
                   .add(BigInteger.valueOf(nsDay));
-          BigInteger bms = bns.divide(BigInteger.valueOf(1000000));
-          long ms = bms.longValue();
-          int nanos = (int) (ms % 1000000000);
-          Timestamp timestamp = new Timestamp(ms);
-          timestamp.setNanos(nanos);
+          BigInteger nanosPerSecond = BigInteger.valueOf(1_000_000_000L);
+          BigInteger[] secondsAndNanos = bns.divideAndRemainder(nanosPerSecond);
+          BigInteger seconds = secondsAndNanos[0];
+          BigInteger nanos = secondsAndNanos[1];
+          if (nanos.signum() < 0) {
+            // Before 1970: keep the nanos positive, as Timestamp requires.
+            seconds = seconds.subtract(BigInteger.ONE);
+            nanos = nanos.add(nanosPerSecond);
+          }
+          Timestamp timestamp = new Timestamp(seconds.longValue() * 1000L);
+          timestamp.setNanos(nanos.intValue());
           object = timestamp;
           break;
         }
@@ -146,10 +151,11 @@ public class ParquetValueConverter extends PrimitiveConverter {
         }
         break;
       case IValueMeta.TYPE_BIGNUMBER:
-        object = new BigDecimal(value);
-        if ((this.logicalTypeAnnotation instanceof DecimalLogicalTypeAnnotation)) {
-          int scale = ((DecimalLogicalTypeAnnotation) this.logicalTypeAnnotation).getScale();
-          object = (new BigDecimal(((BigDecimal) object).doubleValue())).movePointLeft(scale);
+        if (this.logicalTypeAnnotation instanceof DecimalLogicalTypeAnnotation decimal) {
+          // The long is the unscaled value.
+          object = BigDecimal.valueOf(value, decimal.getScale());
+        } else {
+          object = BigDecimal.valueOf(value);
         }
         break;
       case IValueMeta.TYPE_TIMESTAMP:
