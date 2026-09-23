@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
@@ -52,7 +53,10 @@ import org.apache.parquet.avro.AvroSchemaConverter;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
 
 public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData> {
 
@@ -265,7 +269,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
     // Convert from Avro to Parquet schema
     //
-    return new AvroSchemaConverter().convert(fieldAssembler.endRecord());
+    return annotateJsonFields(new AvroSchemaConverter().convert(fieldAssembler.endRecord()));
   }
 
   /**
@@ -292,6 +296,40 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
                   + valueMeta.getTypeDesc()
                   + "' to Parquet is not supported");
     };
+  }
+
+  /**
+   * Avro has no JSON logical type, so the schema coming out of the Avro converter describes a Hop
+   * JSON field as a plain string. Annotate those columns as JSON again so that readers, Parquet
+   * Input included, recognise them as JSON instead of String.
+   *
+   * @param messageType the schema as converted from Avro
+   * @return the same schema with the JSON columns annotated
+   */
+  private MessageType annotateJsonFields(MessageType messageType) {
+    Set<String> jsonFieldNames = new HashSet<>();
+    for (int i = 0; i < data.outputFields.size(); i++) {
+      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
+      if (valueMeta.getType() == IValueMeta.TYPE_JSON) {
+        jsonFieldNames.add(data.outputFields.get(i).getTargetFieldName());
+      }
+    }
+    if (jsonFieldNames.isEmpty()) {
+      return messageType;
+    }
+
+    List<Type> types = new ArrayList<>();
+    for (Type type : messageType.getFields()) {
+      if (jsonFieldNames.contains(type.getName()) && type.isPrimitive()) {
+        types.add(
+            Types.primitive(type.asPrimitiveType().getPrimitiveTypeName(), type.getRepetition())
+                .as(LogicalTypeAnnotation.jsonType())
+                .named(type.getName()));
+      } else {
+        types.add(type);
+      }
+    }
+    return new MessageType(messageType.getName(), types);
   }
 
   void resolveOutputFields() throws HopException {

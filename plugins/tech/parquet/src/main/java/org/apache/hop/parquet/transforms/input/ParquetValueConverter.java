@@ -36,20 +36,46 @@ import org.apache.parquet.io.api.PrimitiveConverter;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.DateLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
+import org.apache.parquet.schema.PrimitiveType;
 
 public class ParquetValueConverter extends PrimitiveConverter {
 
   private final RowMetaAndData group;
   private final IValueMeta valueMeta;
   private final int rowIndex;
+  private final PrimitiveType primitiveType;
   private final LogicalTypeAnnotation logicalTypeAnnotation;
 
-  public ParquetValueConverter(
-      RowMetaAndData group, int rowIndex, LogicalTypeAnnotation logicalTypeAnnotation) {
+  public ParquetValueConverter(RowMetaAndData group, int rowIndex, PrimitiveType primitiveType) {
     this.group = group;
     this.valueMeta = group.getValueMeta(rowIndex);
     this.rowIndex = rowIndex;
-    this.logicalTypeAnnotation = logicalTypeAnnotation;
+    this.primitiveType = primitiveType;
+    // A column which isn't mapped to a field is never converted, so it is allowed to come in
+    // without a type.
+    this.logicalTypeAnnotation =
+        primitiveType == null ? null : primitiveType.getLogicalTypeAnnotation();
+  }
+
+  /**
+   * Build an error which names both ends of the conversion: the Parquet column with its physical
+   * type and the Hop field with its type. Files read by a single transform all have to match the
+   * configured fields, so a mismatch here usually means the files don't share the same schema.
+   *
+   * @return the exception to throw
+   */
+  private HopRuntimeException conversionError() {
+    return new HopRuntimeException(
+        "Unable to convert Parquet column '"
+            + primitiveType.getName()
+            + "' of type "
+            + primitiveType.getPrimitiveTypeName()
+            + (logicalTypeAnnotation == null ? "" : " (" + logicalTypeAnnotation + ")")
+            + " to field '"
+            + valueMeta.getName()
+            + "' of type "
+            + valueMeta.getTypeDesc()
+            + ". Please verify that all the files being read have the same schema.");
   }
 
   @Override
@@ -122,8 +148,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           break;
         }
       default:
-        throw new HopRuntimeException(
-            "Unable to convert Binary source data to type " + valueMeta.getTypeDesc());
+        throw conversionError();
     }
     group.getData()[rowIndex] = object;
   }
@@ -137,6 +162,11 @@ public class ParquetValueConverter extends PrimitiveConverter {
     switch (valueMeta.getType()) {
       case IValueMeta.TYPE_INTEGER:
         object = value;
+        break;
+      case IValueMeta.TYPE_NUMBER:
+        // An integer column read into a Number field: the same column can be stored as an
+        // integer in one file and as a double in the next one.
+        object = (double) value;
         break;
       case IValueMeta.TYPE_STRING:
         object = Long.toString(value);
@@ -162,8 +192,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
         object = convertToTimestamp(value, this.logicalTypeAnnotation);
         break;
       default:
-        throw new HopRuntimeException(
-            "Unable to convert Long source data to type " + valueMeta.getTypeDesc());
+        throw conversionError();
     }
     group.getData()[rowIndex] = object;
   }
@@ -173,14 +202,17 @@ public class ParquetValueConverter extends PrimitiveConverter {
     if (rowIndex < 0) {
       return;
     }
+    // A floating point column can be read into an Integer field: the same column can be stored
+    // as a double in one file and as an integer in the next one. We round it like Hop does
+    // everywhere else when converting a Number to an Integer.
+    //
     Object object =
         switch (valueMeta.getType()) {
           case IValueMeta.TYPE_NUMBER -> value;
+          case IValueMeta.TYPE_INTEGER -> Math.round(value);
           case IValueMeta.TYPE_STRING -> Double.toString(value);
           case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.valueOf(value);
-          default ->
-              throw new HopRuntimeException(
-                  "Unable to convert Double/Float source data to type " + valueMeta.getTypeDesc());
+          default -> throw conversionError();
         };
     group.getData()[rowIndex] = object;
   }
@@ -195,9 +227,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           case IValueMeta.TYPE_BOOLEAN -> value;
           case IValueMeta.TYPE_STRING -> value ? "true" : "false";
           case IValueMeta.TYPE_INTEGER -> value ? 1L : 0L;
-          default ->
-              throw new HopRuntimeException(
-                  "Unable to convert Boolean source data to type " + valueMeta.getTypeDesc());
+          default -> throw conversionError();
         };
     group.getData()[rowIndex] = object;
   }

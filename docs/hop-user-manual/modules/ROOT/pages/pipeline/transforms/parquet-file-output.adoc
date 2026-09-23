@@ -37,6 +37,7 @@ Notes:
 * The date optionally referenced in the output file name(s) will be the start of the pipeline execution.
 * Hop Date and Timestamp types are serialized as milliseconds since `1970-01-01 00:00:00.000` UTC, with the Parquet `timestamp-millis` logical type.
 * Strings, BigNumbers, JSON and UUID values are written as UTF-8 strings.
+JSON columns also carry the Parquet JSON annotation, so that they are read back as JSON rather than as a String.
 * Rows are buffered in memory until a row group is full (see the *Row group size* option), then encoded, compressed and written.
 Memory use is therefore bounded by the row group size (times the number of copies and, when partitioning, the number of open partitions), not by the split size.
 

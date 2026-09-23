@@ -143,7 +143,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
         r = data.reader.read();
       }
     } catch (Exception e) {
-      throw new HopException("Error read file " + filename, e);
+      throw new HopException("Error reading Parquet file '" + filename + "'", e);
     } finally {
       // Every file gets its own reader; release this one before the next file name comes in.
       closeFile();

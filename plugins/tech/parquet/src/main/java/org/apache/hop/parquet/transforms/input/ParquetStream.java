@@ -38,11 +38,24 @@ public class ParquetStream implements InputFile, Closeable {
   public ParquetStream(FileObject fileObject, String filename) throws IOException {
     this.fileObject = fileObject;
     this.filename = filename;
-    // Detect if the file is local by checking the VFS scheme
-    // For remote files, localInputFile is null. VfsSeekableInputStream will be used instead
-    this.isLocal = "file".equals(fileObject.getName().getScheme());
-    this.localInputFile =
-        isLocal ? new LocalInputFile(Paths.get(fileObject.getName().getPath())) : null;
+
+    // Use the native Parquet implementation when the file is a plain local file.
+    // We can't simply use the VFS path for this: on Windows it holds the drive letter in the
+    // root of the file name, so the path alone would resolve against the current drive.
+    // HopVfs.getFilename() puts the two back together and hands back a URI for anything it
+    // can't express as a local path, a Windows network share for example.
+    // For those, and for remote files, localInputFile is null and VfsSeekableInputStream is
+    // used instead.
+    //
+    String localFilename = null;
+    if ("file".equals(fileObject.getName().getScheme())) {
+      String candidate = HopVfs.getFilename(fileObject);
+      if (!candidate.startsWith("file:")) {
+        localFilename = candidate;
+      }
+    }
+    this.isLocal = localFilename != null;
+    this.localInputFile = isLocal ? new LocalInputFile(Paths.get(localFilename)) : null;
   }
 
   @Override
@@ -83,7 +96,10 @@ public class ParquetStream implements InputFile, Closeable {
 
   @Override
   public String toString() {
-    return "ParquetStream of file '" + filename + "'";
+    // Parquet uses this to identify the file in its error messages ("...in file %s"), so keep
+    // it to the plain file name.
+    //
+    return filename;
   }
 
   // SeekableInputStream implementation for remote files

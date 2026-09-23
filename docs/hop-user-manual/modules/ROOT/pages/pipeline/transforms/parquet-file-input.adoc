@@ -38,6 +38,11 @@ Make sure to allocate enough memory to allow this.
 * Parquet Binary fields are considered to be Hop Strings but you can read them as Hop Binary.
 * All input values are passed to the output
 * INT96 is converted to the Hop Binary data type.
+* Columns annotated as JSON are read as the Hop JSON type, columns annotated as BSON as Hop Binary.
+* A column which is stored as an integer in one file and as a floating point number in another can
+be read as either Hop Integer or Hop Number: the value is widened or rounded to match the type you
+configured for the field.  This is useful when reading a set of files whose schemas drifted over
+time.
 
 [options="header"]
 |===

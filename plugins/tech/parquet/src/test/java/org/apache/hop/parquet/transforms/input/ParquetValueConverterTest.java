@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
@@ -47,6 +49,10 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.TimeUnit;
+import org.apache.parquet.schema.PrimitiveType;
+import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
+import org.apache.parquet.schema.Type;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ParquetValueConverter}: every Parquet primitive into every Hop type. */
@@ -54,11 +60,25 @@ class ParquetValueConverterTest {
 
   private RowMetaAndData group;
 
+  @BeforeAll
+  static void setUpBeforeAll() throws Exception {
+    // The value types need to be registered for IValueMeta.getTypeDesc() to name them.
+    HopClientEnvironment.init();
+  }
+
   private ParquetValueConverter converter(IValueMeta valueMeta, LogicalTypeAnnotation annotation) {
+    return converter(valueMeta, PrimitiveTypeName.BINARY, annotation);
+  }
+
+  private ParquetValueConverter converter(
+      IValueMeta valueMeta, PrimitiveTypeName typeName, LogicalTypeAnnotation annotation) {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(valueMeta);
     group = new RowMetaAndData(rowMeta, new Object[1]);
-    return new ParquetValueConverter(group, 0, annotation);
+    PrimitiveType column =
+        new PrimitiveType(Type.Repetition.OPTIONAL, typeName, "column")
+            .withLogicalTypeAnnotation(annotation);
+    return new ParquetValueConverter(group, 0, column);
   }
 
   private Object value() {
@@ -241,7 +261,14 @@ class ParquetValueConverterTest {
     converter(new ValueMetaNumber("n"), null).addFloat(2.5F);
     assertEquals(2.5D, value());
 
-    ParquetValueConverter c = converter(new ValueMetaInteger("i"), null);
+    // The same column can be a double in one file and an integer in the next one (#3598).
+    converter(new ValueMetaInteger("i"), null).addDouble(1.5D);
+    assertEquals(2L, value());
+
+    converter(new ValueMetaInteger("i"), null).addFloat(41.4F);
+    assertEquals(41L, value());
+
+    ParquetValueConverter c = converter(new ValueMetaBoolean("b"), null);
     assertThrows(HopRuntimeException.class, () -> c.addDouble(1.5D));
   }
 
@@ -288,5 +315,34 @@ class ParquetValueConverterTest {
         ParquetValueConverter.binaryToDecimal(
             Binary.fromConstantByteArray(new byte[] {(byte) 0xFF}), 38, 1);
     assertEquals(0, new BigDecimal("-0.1").compareTo(large));
+  }
+
+  /** The same column can be an integer in one file and a double in the next one (#3598). */
+  @Test
+  void longAndIntIntoNumber() {
+    converter(new ValueMetaNumber("n"), PrimitiveTypeName.INT64, null).addLong(9081496L);
+    assertEquals(9081496.0D, value());
+
+    converter(new ValueMetaNumber("n"), PrimitiveTypeName.INT32, null).addInt(42);
+    assertEquals(42.0D, value());
+  }
+
+  /**
+   * A conversion which really can't be made names the Parquet column, its type, the Hop field and
+   * its type, so the schema mismatch behind it can be found (#3598).
+   */
+  @Test
+  void unsupportedConversionNamesColumnAndField() {
+    ParquetValueConverter c =
+        converter(new ValueMetaBoolean("flag"), PrimitiveTypeName.DOUBLE, null);
+
+    HopRuntimeException e = assertThrows(HopRuntimeException.class, () -> c.addDouble(1.5D));
+
+    String message = e.getMessage();
+    assertTrue(message.contains("'column'"), message);
+    assertTrue(message.contains("DOUBLE"), message);
+    assertTrue(message.contains("'flag'"), message);
+    assertTrue(message.contains("Boolean"), message);
+    assertTrue(message.contains("same schema"), message);
   }
 }

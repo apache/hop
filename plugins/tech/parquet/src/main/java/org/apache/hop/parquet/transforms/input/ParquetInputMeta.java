@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.column.ColumnDescriptor;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.BsonLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.DateLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
 import org.apache.parquet.schema.LogicalTypeAnnotation.IntLogicalTypeAnnotation;
@@ -157,6 +158,9 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
             hopType = IValueMeta.TYPE_DATE;
           } else if (logicalType instanceof JsonLogicalTypeAnnotation) {
             hopType = IValueMeta.TYPE_JSON;
+          } else if (logicalType instanceof BsonLogicalTypeAnnotation) {
+            // A BSON document is binary, reading it as text would mangle it.
+            hopType = IValueMeta.TYPE_BINARY;
           } else if (logicalType instanceof DecimalLogicalTypeAnnotation) {
             hopType = IValueMeta.TYPE_BIGNUMBER;
           } else if (logicalType instanceof IntLogicalTypeAnnotation) {
