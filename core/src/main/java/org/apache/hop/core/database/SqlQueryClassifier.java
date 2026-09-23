@@ -45,7 +45,8 @@ public final class SqlQueryClassifier {
   /**
    * Keywords which are allowed between the verb and the object type, so that {@code CREATE OR
    * REPLACE VIEW}, {@code CREATE OR ALTER VIEW} and {@code DROP TABLE IF EXISTS} are recognised as
-   * well as the plain forms.
+   * well as the plain forms. Treating a statement as a schema change when it is not only costs a
+   * cache clear, so this list errs on the generous side.
    */
   private static final Set<String> SCHEMA_CHANGE_MODIFIERS =
       Set.of(
@@ -63,7 +64,22 @@ public final class SqlQueryClassifier {
           "FOREIGN",
           "IF",
           "NOT",
-          "EXISTS");
+          "EXISTS",
+          // Oracle: CREATE OR REPLACE FORCE EDITIONABLE VIEW, CREATE PUBLIC SYNONYM
+          "FORCE",
+          "EDITIONABLE",
+          "NONEDITIONABLE",
+          "PUBLIC",
+          // PostgreSQL: CREATE RECURSIVE VIEW
+          "RECURSIVE",
+          // Snowflake: CREATE TRANSIENT TABLE, CREATE SECURE VIEW, CREATE DYNAMIC TABLE, ...
+          "TRANSIENT",
+          "SECURE",
+          "DYNAMIC",
+          "HYBRID",
+          // Teradata: CREATE MULTISET TABLE, CREATE VOLATILE TABLE
+          "MULTISET",
+          "VOLATILE");
 
   /** Object types whose layout is reflected in cached row metadata. */
   private static final Set<String> SCHEMA_CHANGE_OBJECTS = Set.of("TABLE", "VIEW", "SYNONYM");

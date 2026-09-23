@@ -190,6 +190,31 @@ class SqlQueryClassifierTest {
   }
 
   @Test
+  void dialectSpecificModifiersAreSchemaChanges() {
+    // Oracle, DBMS_METADATA emits the FORCE EDITIONABLE form verbatim
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE FORCE VIEW v AS SELECT 1"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE FORCE EDITIONABLE VIEW v AS SELECT 1 FROM dual"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE EDITIONABLE VIEW v AS SELECT 1"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE NONEDITIONABLE VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE PUBLIC SYNONYM s FOR t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP PUBLIC SYNONYM s"));
+    // PostgreSQL
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE RECURSIVE VIEW v (a) AS SELECT 1"));
+    // Snowflake
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE TRANSIENT TABLE t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE SECURE VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE DYNAMIC TABLE t AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE HYBRID TABLE t (id int PRIMARY KEY)"));
+    // Teradata
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE MULTISET TABLE t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE VOLATILE TABLE t (id int)"));
+  }
+
+  @Test
   void otherStatementsAreNotSchemaChanges() {
     assertFalse(SqlQueryClassifier.isSchemaChange(null));
     assertFalse(SqlQueryClassifier.isSchemaChange("   "));

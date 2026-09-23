@@ -19,6 +19,7 @@ package org.apache.hop.core;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.row.IRowMeta;
@@ -28,16 +29,16 @@ import org.apache.hop.core.row.IRowMeta;
  * often launched to the databases to get information on tables etc.
  */
 public class DbCache {
-  private static DbCache dbCache;
+  private static final DbCache dbCache = new DbCache();
 
-  private Hashtable<DbCacheEntry, IRowMeta> cache;
+  private volatile Hashtable<DbCacheEntry, IRowMeta> cache;
 
   /**
    * Bumped every time entries are removed from this cache. Anything which derives row metadata from
    * this cache and keeps the result around can compare the generation it last saw with {@link
    * #getGeneration()} to find out whether its own copy went stale.
    */
-  private volatile int generation;
+  private final AtomicInteger generation = new AtomicInteger();
 
   @Getter @Setter private boolean active;
 
@@ -80,7 +81,6 @@ public class DbCache {
    *     to clear it all.
    */
   public void clear(String dbname) {
-    generation++;
     if (dbname == null) {
       cache = new Hashtable<>();
     } else {
@@ -93,6 +93,9 @@ public class DbCache {
         }
       }
     }
+    // Only bump the generation once the entries are gone. A reader which sees the new generation
+    // and re-derives its row metadata must not be able to pick up the entries we are removing.
+    generation.incrementAndGet();
   }
 
   /**
@@ -103,7 +106,7 @@ public class DbCache {
    * @return the current generation of this cache
    */
   public int getGeneration() {
-    return generation;
+    return generation.get();
   }
 
   private DbCache() {
@@ -112,14 +115,9 @@ public class DbCache {
   }
 
   /**
-   * Create the database cache instance by loading it from disk
-   *
    * @return the database cache instance.
    */
   public static DbCache getInstance() {
-    if (dbCache == null) {
-      dbCache = new DbCache();
-    }
     return dbCache;
   }
 

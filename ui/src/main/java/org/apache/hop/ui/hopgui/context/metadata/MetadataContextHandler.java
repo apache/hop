@@ -130,8 +130,9 @@ public class MetadataContextHandler implements IGuiContextHandler {
               BaseMessages.getString(
                   PKG, "HopGui.Context.Database.Menu.ClearDatabaseCache.Tooltip"),
               null,
-              (shiftClicked, controlClicked, parameters) ->
-                  DbCache.getInstance().clear((String) parameters[0]));
+              // No connection is selected in this context, and the action is executed without
+              // parameters: clear the cache of every connection.
+              (shiftClicked, controlClicked, parameters) -> DbCache.getInstance().clear(null));
       databaseClearCacheAction.setClassLoader(metadataObjectClass.getClassLoader());
       databaseClearCacheAction.setCategory(CONST_METADATA);
       databaseClearCacheAction.setCategoryOrder("3");
