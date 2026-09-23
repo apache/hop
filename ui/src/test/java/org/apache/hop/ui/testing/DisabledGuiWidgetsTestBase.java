@@ -18,6 +18,7 @@
 package org.apache.hop.ui.testing;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import java.lang.reflect.Method;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -121,6 +123,40 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
         "Nothing that disabledGuiElements.xml can switch off is registered for "
             + (packagesUnderTest().isEmpty() ? "any package" : packagesUnderTest())
             + ", so the tests below would pass without testing anything");
+  }
+
+  /**
+   * Every UI test class in a module shares one JVM and one registry, and several of them call
+   * {@link HopGuiEnvironment#init()}. A registry that appends a second copy of each widget on every
+   * init makes the composite cases below grow with the number of classes that happened to run
+   * first, and a composite built from it holds two widgets with the same id. Registering once more
+   * here makes that visible no matter in which order the classes run.
+   */
+  @Test
+  void registeringTheGuiPluginsAgainDoesNotDuplicateWidgets() throws Exception {
+    HopGuiEnvironment.init();
+
+    Map<Element, Long> occurrences =
+        compositeElements().stream()
+            .collect(Collectors.groupingBy(element -> element, Collectors.counting()));
+    List<String> duplicates =
+        occurrences.entrySet().stream()
+            .filter(entry -> entry.getValue() > 1)
+            .map(
+                entry ->
+                    entry.getKey().owner()
+                        + " "
+                        + entry.getKey().container()
+                        + " '"
+                        + entry.getKey().id()
+                        + "' x"
+                        + entry.getValue())
+            .sorted()
+            .toList();
+
+    assertTrue(
+        duplicates.isEmpty(),
+        "Widgets registered more than once in the GuiRegistry: " + duplicates);
   }
 
   @TestFactory

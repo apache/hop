@@ -372,12 +372,18 @@ public class GuiRegistry {
     // See if we need to disable something of if something is disabled already...
     // In those scenarios we ignore the GuiWidgetElement
     //
-    GuiElements existing = guiElements.findChild(guiElement.id());
+    GuiElements existing = guiElements.findChild(child.getId());
     if (existing != null && existing.isIgnored()) {
       return;
     }
     if (existing != null && child.isIgnored()) {
       existing.setIgnored(true);
+      return;
+    }
+    // Already registered: HopGuiEnvironment.init() can run more than once in the same JVM, and a
+    // second copy of the element would be built as a second widget with the same id.
+    //
+    if (existing != null) {
       return;
     }
 
@@ -435,12 +441,18 @@ public class GuiRegistry {
     // See if we need to disable something of if something is disabled already...
     // In those scenarios we ignore the GuiWidgetElement
     //
-    GuiElements existing = guiElements.findChild(guiElement.id());
+    GuiElements existing = guiElements.findChild(child.getId());
     if (existing != null && existing.isIgnored()) {
       return;
     }
     if (existing != null && child.isIgnored()) {
       existing.setIgnored(true);
+      return;
+    }
+    // Already registered: HopGuiEnvironment.init() can run more than once in the same JVM, and a
+    // second copy of the element would be built as a second widget with the same id.
+    //
+    if (existing != null) {
       return;
     }
 
