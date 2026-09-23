@@ -41,6 +41,20 @@ import org.apache.hop.core.variables.IVariables;
 public interface IDatabaseTypeRule {
 
   /**
+   * Read path, before any rule maps the column: correct what the driver reported about it.
+   *
+   * <p>For a driver whose report depends on something other than the column itself. SQLite's
+   * driver, for one, answers with the type of the value on the current row, so the same column
+   * reads as one type before the query runs and as another once it has.
+   *
+   * @return the column as it should be mapped, or null to leave it as reported
+   */
+  default DatabaseColumn correctColumn(
+      IVariables variables, DatabaseMeta databaseMeta, DatabaseColumn column) {
+    return null;
+  }
+
+  /**
    * Read path: claim this column and describe it as Hop value metadata.
    *
    * @return the value metadata, or null to defer to the next rule

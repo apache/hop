@@ -99,6 +99,9 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static final List<IDatabaseTypeRule> TYPE_RULES =
       DatabaseTypes.rules()
+          // The driver types a table column from its data once a query runs; read it as declared.
+          // See SqliteDeclaredTypes and issue #3633.
+          .rule(SqliteDeclaredTypes.RULE)
           // Dynamic typing means a binary column is as likely to hold text.
           .read(Types.BINARY, Types.BLOB, Types.VARBINARY, Types.LONGVARBINARY)
           .where(

@@ -176,6 +176,26 @@ public final class DatabaseColumn {
     }
   }
 
+  /**
+   * This column as reported with another {@link java.sql.Types} constant, for a dialect correcting
+   * what its driver said. Everything else, including the result set metadata, is kept.
+   */
+  public DatabaseColumn withSqlType(int sqlType) {
+    return new DatabaseColumn(
+        name,
+        tableName,
+        sqlType,
+        nativeTypeName,
+        precision,
+        scale,
+        displaySize,
+        signed,
+        comment,
+        autoIncrement,
+        resultSetMetaData,
+        columnIndex);
+  }
+
   public String getName() {
     return name;
   }

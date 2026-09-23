@@ -19,8 +19,12 @@ package org.apache.hop.core.database.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.sql.ResultSetMetaData;
 import java.sql.Types;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IValueMeta;
@@ -154,5 +158,32 @@ class DatabaseColumnTest {
     // Fallback to Hop type description when originalColumnTypeName is null
     IValueMeta vmFallback = new ValueMetaString("raw_field");
     assertEquals("String", DatabaseColumn.calculateDefinition(vmFallback));
+  }
+
+  @Test
+  void aColumnWithAnotherSqlTypeKeepsEverythingElse() throws Exception {
+    ResultSetMetaData rm = mock(ResultSetMetaData.class);
+    when(rm.getColumnName(2)).thenReturn("id");
+    when(rm.getColumnLabel(2)).thenReturn("id");
+    when(rm.getTableName(2)).thenReturn("producttype");
+    when(rm.getColumnType(2)).thenReturn(Types.INTEGER);
+    when(rm.getColumnTypeName(2)).thenReturn("DECIMAL");
+    when(rm.getPrecision(2)).thenReturn(10);
+    when(rm.getScale(2)).thenReturn(2);
+    when(rm.getColumnDisplaySize(2)).thenReturn(12);
+    DatabaseColumn reported = DatabaseColumn.of(rm, 2);
+
+    DatabaseColumn corrected = reported.withSqlType(Types.DECIMAL);
+
+    assertEquals(Types.DECIMAL, corrected.getSqlType());
+    assertEquals(Types.INTEGER, reported.getSqlType());
+    assertEquals("id", corrected.getName());
+    assertEquals("producttype", corrected.getTableName());
+    assertEquals("DECIMAL", corrected.getNativeTypeName());
+    assertEquals(10, corrected.getPrecision());
+    assertEquals(2, corrected.getScale());
+    assertEquals(12, corrected.getDisplaySize());
+    assertSame(rm, corrected.getResultSetMetaData());
+    assertEquals(2, corrected.getColumnIndex());
   }
 }
