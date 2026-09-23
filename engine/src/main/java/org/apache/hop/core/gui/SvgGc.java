@@ -22,6 +22,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GraphicsEnvironment;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
@@ -582,7 +583,11 @@ public class SvgGc implements IGc {
     String[] lines = text.split(Const.CR);
     int maxWidth = 0;
     for (String line : lines) {
-      Rectangle2D bounds = gc.getFontMetrics().getStringBounds(line, gc);
+      // The canvas font has no glyphs for CJK text; measure such lines with a font that does.
+      Font measuringFont = HopSvgGraphics2D.measuringFont(gc.getFont(), line);
+      FontMetrics metrics =
+          measuringFont == null ? gc.getFontMetrics() : gc.getFontMetrics(measuringFont);
+      Rectangle2D bounds = metrics.getStringBounds(line, gc);
       if (bounds.getWidth() > maxWidth) {
         maxWidth = (int) bounds.getWidth();
       }
