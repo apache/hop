@@ -523,8 +523,9 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
 
     meta.check(remarks, pipelineMeta, transform, prev, input, output, info, variables, null);
 
-    // Check that there's a check result for the method field
-    assertFalse(remarks.isEmpty());
+    long errorCount =
+        remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
+    assertEquals(0, errorCount);
   }
 
   @Override

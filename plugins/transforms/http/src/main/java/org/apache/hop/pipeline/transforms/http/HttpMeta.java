@@ -235,7 +235,7 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
       } else {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "HTTPMeta.CheckResult.UrlfieldOk"),
                 transformMeta);
       }

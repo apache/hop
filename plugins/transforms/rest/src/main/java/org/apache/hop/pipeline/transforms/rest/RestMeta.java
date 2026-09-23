@@ -457,7 +457,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       } else {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.MethodFieldOk"),
                 transformMeta);
       }

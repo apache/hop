@@ -18,14 +18,25 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
@@ -60,6 +71,54 @@ class HttpPostMetaTest {
 
     meta.setDefault();
     assertEquals(Const.UTF_8, meta.getEncoding());
+  }
+
+  @Test
+  void testCheckWithUrlInField() {
+    HttpPostMeta meta = new HttpPostMeta();
+    meta.setUrlInField(true);
+    meta.setUrlField("url");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    IRowMeta prev = new RowMeta();
+    String[] input = new String[] {"Generate rows"};
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        prev,
+        input,
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    long errorCount =
+        remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
+    assertEquals(0, errorCount);
+  }
+
+  @Test
+  void testFirstLookupFieldWhenListEmpty() {
+    HttpPostMeta meta = new HttpPostMeta();
+    assertTrue(meta.getLookupFields().isEmpty());
+
+    HttpPostLookupField lookupField = meta.getFirstLookupField();
+    assertNotNull(lookupField);
+    assertEquals(1, meta.getLookupFields().size());
+    assertSame(lookupField, meta.getFirstLookupField());
+  }
+
+  @Test
+  void testFirstResultFieldWhenListEmpty() {
+    HttpPostMeta meta = new HttpPostMeta();
+    assertTrue(meta.getResultFields().isEmpty());
+
+    HttpPostResultField resultField = meta.getFirstResultField();
+    assertNotNull(resultField);
+    assertEquals(1, meta.getResultFields().size());
+    assertSame(resultField, meta.getFirstResultField());
   }
 
   public static final class HttpPostLookupFieldValidator

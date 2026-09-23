@@ -24,13 +24,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -107,5 +114,31 @@ class HttpMetaTest {
     HttpMeta.HeaderParameter h2 = meta.getLookupParameters().getHeaders().get(2);
     assertEquals("headerField3", h2.getField());
     assertEquals("headerParameter3", h2.getParameter());
+  }
+
+  @Test
+  void testCheckWithUrlInField() {
+    HttpMeta meta = new HttpMeta();
+    meta.setUrlInField(true);
+    meta.setUrlField("url");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    IRowMeta prev = new RowMeta();
+    String[] input = new String[] {"Generate rows"};
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        prev,
+        input,
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    long errorCount =
+        remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
+    assertEquals(0, errorCount);
   }
 }
