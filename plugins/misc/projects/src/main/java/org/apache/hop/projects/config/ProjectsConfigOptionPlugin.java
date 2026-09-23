@@ -67,8 +67,6 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_DEFAULT_ENVIRONMENT = "10040-default-environment";
   private static final String WIDGET_ID_STANDARD_PARENT_PROJECT = "10050-standard-parent-project";
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
-  private static final String WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT =
-      "10070-restrict-environments-to-active-project";
   private static final String WIDGET_ID_CLEAR_DB_CACHE = "10080-clear-db-cache";
   private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
       "10070-default-project-config-filename";
@@ -163,15 +161,15 @@ public class ProjectsConfigOptionPlugin
       description = "The project configuration filename for new projects")
   private String defaultProjectConfigFile;
 
-  @GuiWidgetElement(
-      id = WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT,
-      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.CHECKBOX,
-      variables = false,
-      label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message")
+  /**
+   * No longer has any effect: since 2.17 the environment menu in the status bar always lists only
+   * the environments of the active project. The option is still accepted so that existing hop-conf
+   * scripts keep working.
+   */
   @CommandLine.Option(
       names = {"-eap", "--environments-for-active-project"},
-      description = "Restrict environment list to active project")
+      hidden = true,
+      description = "Deprecated, no longer has any effect")
   private Boolean environmentsForActiveProject;
 
   @GuiWidgetElement(
@@ -212,7 +210,6 @@ public class ProjectsConfigOptionPlugin
     instance.standardParentProject = config.getStandardParentProject();
     instance.standardProjectsFolder = config.getStandardProjectsFolder();
     instance.defaultProjectConfigFile = config.getDefaultProjectConfigFile();
-    instance.environmentsForActiveProject = config.isEnvironmentsForActiveProject();
     instance.sortByNameLastUsedProjects = config.isSortByNameLastUsedProjects();
     instance.clearingDbCacheWhenSwitching = config.isClearingDbCacheWhenSwitching();
     return instance;
@@ -287,13 +284,9 @@ public class ProjectsConfigOptionPlugin
         changed = true;
       }
       if (environmentsForActiveProject != null) {
-        config.setEnvironmentsForActiveProject(environmentsForActiveProject);
-        if (environmentsForActiveProject) {
-          log.logBasic("Only listing environments for the active project");
-        } else {
-          log.logBasic("Listing all environments, regardless of the active project");
-        }
-        changed = true;
+        log.logBasic(
+            "Option --environments-for-active-project is deprecated and has no effect: the"
+                + " environment list is always restricted to the active project");
       }
       if (clearingDbCacheWhenSwitching != null) {
         config.setClearingDbCacheWhenSwitching(clearingDbCacheWhenSwitching);
@@ -403,11 +396,6 @@ public class ProjectsConfigOptionPlugin
         case WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME:
           defaultProjectConfigFile = ((TextVar) control).getText();
           ProjectsConfigSingleton.getConfig().setDefaultProjectConfigFile(defaultProjectConfigFile);
-          break;
-        case WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT:
-          environmentsForActiveProject = ((Button) control).getSelection();
-          ProjectsConfigSingleton.getConfig()
-              .setEnvironmentsForActiveProject(environmentsForActiveProject);
           break;
         case WIDGET_ID_SORT_BY_NAME_LAST_USED_PROJECTS:
           sortByNameLastUsedProjects = ((Button) control).getSelection();

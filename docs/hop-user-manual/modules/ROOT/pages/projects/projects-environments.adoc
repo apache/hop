@@ -218,6 +218,7 @@ Click the project indicator at the bottom left and choose a recent project from 
 image:hop-gui/environment/switch-project-list.png[Switch project]
 
 After switching to a project, click the environment indicator (cube icon) next to the project name and choose an environment from the menu.
+The menu only lists the environments of the active project, plus environments that are not linked to any project.
 All open files will be restored, including their zoom level and other UI settings.
 
 image:hop-gui/environment/switch-environment-list.png[Switch environment]

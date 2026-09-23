@@ -995,13 +995,6 @@ public class ProjectsGuiPlugin {
     HopGui hopGui = HopGui.getInstance();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    if (config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)) {
-      // list all environments and select the first one if we don't have a project selected
-      List<String> allEnvironments = config.listEnvironmentNames();
-      updateEnvironmentToolItem(allEnvironments.getFirst());
-      return;
-    }
-
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       return;
@@ -1678,16 +1671,6 @@ public class ProjectsGuiPlugin {
         });
 
     return names;
-  }
-
-  /**
-   * Called by the environment menu in the toolbar
-   *
-   * @param log
-   * @param metadataProvider
-   */
-  public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    return ProjectsConfigSingleton.getConfig().listEnvironmentNames();
   }
 
   // Add a "Navigate to project home" button to the file dialog browser toolbar

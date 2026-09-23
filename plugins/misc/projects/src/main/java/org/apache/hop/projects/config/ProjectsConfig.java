@@ -30,7 +30,7 @@ import org.apache.hop.projects.project.ProjectConfig;
 
 @Getter
 @Setter
-@JsonIgnoreProperties(value = {"openingLastProjectAtStartup"})
+@JsonIgnoreProperties(value = {"openingLastProjectAtStartup", "environmentsForActiveProject"})
 public class ProjectsConfig {
 
   public static final String HOP_CONFIG_PROJECTS_CONFIG_KEY = "projectsConfig";
@@ -40,7 +40,6 @@ public class ProjectsConfig {
 
   private boolean projectMandatory;
   private boolean environmentMandatory;
-  private boolean environmentsForActiveProject;
   private boolean sortByNameLastUsedProjects;
   private boolean clearingDbCacheWhenSwitching;
   private String defaultProject;
@@ -75,7 +74,6 @@ public class ProjectsConfig {
     standardParentProject = config.standardParentProject;
     standardProjectsFolder = config.standardProjectsFolder;
     defaultProjectConfigFile = config.defaultProjectConfigFile;
-    environmentsForActiveProject = config.environmentsForActiveProject;
     clearingDbCacheWhenSwitching = config.clearingDbCacheWhenSwitching;
     sortByNameLastUsedProjects = config.sortByNameLastUsedProjects;
   }
@@ -218,19 +216,6 @@ public class ProjectsConfig {
   public List<String> listEnvironmentNames() {
     List<String> names = new ArrayList<>();
     lifecycleEnvironments.stream().forEach(env -> names.add(env.getName()));
-    Collections.sort(names);
-    return names;
-  }
-
-  public List<String> listEnvironmentNamesForProject(String projectName) {
-    List<String> names = new ArrayList<>();
-    lifecycleEnvironments.forEach(
-        env -> {
-          if (env.getProjectName().equals(projectName)) {
-            names.add(env.getName());
-          }
-        });
-
     Collections.sort(names);
     return names;
   }
