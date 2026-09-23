@@ -39,6 +39,8 @@ class PipelineExecutorMetaTest {
 
     assertEquals("${PROJECT_HOME}/loops/child-loops-log-counter.hpl", meta.getFilename());
     assertEquals("1500", meta.getWaitTimeout());
+    assertEquals("3", meta.getRetryAttempts());
+    assertEquals("250", meta.getRetryDelay());
     assertEquals("execution results", meta.getExecutionResultTargetTransform());
     assertEquals("ExecutionTime", meta.getExecutionTimeField());
     assertEquals("ExecutionResult", meta.getExecutionResultField());
@@ -91,6 +93,8 @@ class PipelineExecutorMetaTest {
     assertEquals(meta.getResultFilesFileNameField(), clone.getResultFilesFileNameField());
     assertEquals(meta.getExecutorsOutputTransform(), clone.getExecutorsOutputTransform());
     assertEquals(meta.getWaitTimeout(), clone.getWaitTimeout());
+    assertEquals(meta.getRetryAttempts(), clone.getRetryAttempts());
+    assertEquals(meta.getRetryDelay(), clone.getRetryDelay());
     assertEquals(meta.getParameters().size(), clone.getParameters().size());
     assertEquals(meta.getResultRows().size(), clone.getResultRows().size());
   }
@@ -104,6 +108,8 @@ class PipelineExecutorMetaTest {
     assertEquals("1", meta.getGroupSize());
     assertEquals("", meta.getGroupField());
     assertEquals("", meta.getGroupTime());
+    assertEquals("0", meta.getRetryAttempts());
+    assertEquals("", meta.getRetryDelay());
     assertEquals("ExecutionTime", meta.getExecutionTimeField());
     assertEquals("ExecutionResult", meta.getExecutionResultField());
     assertEquals("ExecutionNrErrors", meta.getExecutionNrErrorsField());

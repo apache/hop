@@ -25,9 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -429,5 +431,50 @@ class PipelineExecutorTest {
 
     assertNotNull(loaded);
     assertFalse(loaded.getTransforms().isEmpty());
+  }
+
+  @Test
+  void executeWithRetriesRetriesFailedAttemptUntilSuccess() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("2");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+    Result success = new Result();
+    success.setResult(true);
+    success.setNrErrors(0);
+
+    doReturn(failed, success).when(executor).executePipelineAttempt(any());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertTrue(result.isResult());
+    verify(executor, times(2)).executePipelineAttempt(any());
+  }
+
+  @Test
+  void executeWithRetriesDoesNotRetryWhenRetriesAreDisabled() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("0");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, times(1)).executePipelineAttempt(any());
   }
 }
