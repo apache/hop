@@ -87,6 +87,14 @@ public class PipelineExecutorMeta
   @HopMetadataProperty(key = "wait_timeout")
   private String waitTimeout;
 
+  /** Number of retries when child pipeline execution fails. */
+  @HopMetadataProperty(key = "retry_attempts")
+  private String retryAttempts;
+
+  /** Delay between retries in milliseconds. */
+  @HopMetadataProperty(key = "retry_delay")
+  private String retryDelay;
+
   /** Flag that indicate that pipeline name is specified in a stream's field */
   @HopMetadataProperty(key = "filenameInField")
   private boolean filenameInField;
@@ -287,6 +295,8 @@ public class PipelineExecutorMeta
     executionLogTextField = "ExecutionLogText";
     executionLogChannelIdField = "ExecutionLogChannelId";
     resultFilesFileNameField = "FileName";
+    retryAttempts = "0";
+    retryDelay = "";
   }
 
   void prepareExecutionResultsFields(IRowMeta row, TransformMeta nextTransform)
