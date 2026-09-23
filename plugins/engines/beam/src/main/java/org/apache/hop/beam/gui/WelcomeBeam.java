@@ -109,7 +109,7 @@ public class WelcomeBeam {
   private static final String EXAMPLE2_FILE = "${PROJECT_HOME}/beam/pipelines/complex.hpl";
 
   @GuiWidgetElement(
-      id = "WelcomeBeam.11000.example1",
+      id = "WelcomeBeam.11010.example2",
       parentId = WELCOME_BEAM_PARENT_ID,
       type = GuiElementType.LINK,
       label =
