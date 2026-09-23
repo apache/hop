@@ -49,6 +49,27 @@ public final class VfsFileListing {
   }
 
   /**
+   * Folders for the left-hand tree, in case-insensitive name order. Hidden folders (names starting
+   * with {@code .}) are omitted unless {@code showHiddenFolders} is set. Files are not included.
+   */
+  public static List<VfsFileRow> foldersForTree(List<VfsFileRow> rows, boolean showHiddenFolders) {
+    List<VfsFileRow> folders = new ArrayList<>();
+    if (rows != null) {
+      for (VfsFileRow row : rows) {
+        if (row == null || !row.isFolder()) {
+          continue;
+        }
+        if (isHiddenName(row.getName()) && !showHiddenFolders) {
+          continue;
+        }
+        folders.add(row);
+      }
+    }
+    folders.sort((left, right) -> compare(left, right, VfsFileColumn.NAME, true));
+    return folders;
+  }
+
+  /**
    * Drop hidden names and names that miss the filter, then sort. Folders stay ahead of files.
    * Hidden names start with {@code .}. Folders and files are hidden independently. The filter is
    * the file dialog's current-folder matcher.

@@ -103,6 +103,24 @@ class VfsFileListingTest {
   }
 
   @Test
+  void treeFoldersAreAlphabeticalIgnoringCase() {
+    List<VfsFileRow> rows =
+        List.of(
+            row("Zebra", "ram:///Zebra", true, 0),
+            row("notes.txt", "ram:///notes.txt", false, 1),
+            row("apple", "ram:///apple", true, 0),
+            row(".git", "ram:///.git", true, 0),
+            row("Banana", "ram:///Banana", true, 0));
+
+    assertEquals(
+        List.of("apple", "Banana", "Zebra"),
+        VfsFileListing.foldersForTree(rows, false).stream().map(VfsFileRow::getName).toList());
+    assertEquals(
+        List.of(".git", "apple", "Banana", "Zebra"),
+        VfsFileListing.foldersForTree(rows, true).stream().map(VfsFileRow::getName).toList());
+  }
+
+  @Test
   void sortIsTotalWhenSizeAndDateAreMissing() {
     VfsFileRow first = row("b.txt", "ram:///b.txt", false, VfsFileRow.UNKNOWN);
     VfsFileRow second = row("a.txt", "ram:///a.txt", false, VfsFileRow.UNKNOWN);

@@ -1174,13 +1174,7 @@ public class VfsFileExplorerLocation extends Composite {
       return;
     }
     boolean showHiddenFolders = explorer.getViewState().isShowHiddenFolders();
-    for (VfsFileRow row : rows) {
-      if (!row.isFolder()) {
-        continue;
-      }
-      if (VfsFileListing.isHiddenName(row.getName()) && !showHiddenFolders) {
-        continue;
-      }
+    for (VfsFileRow row : VfsFileListing.foldersForTree(rows, showHiddenFolders)) {
       TreeItem child = new TreeItem(item, SWT.NONE);
       child.setText(row.getName());
       child.setImage(folderImage);
