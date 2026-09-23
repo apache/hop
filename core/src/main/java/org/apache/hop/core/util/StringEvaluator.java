@@ -67,6 +67,8 @@ public class StringEvaluator {
 
   protected static final Pattern PRECISION_PATTERN = Pattern.compile("[^0-9#]");
 
+  private static final String NUMBER_CURRENCY = "number-currency";
+
   public StringEvaluator() {
     this(true);
   }
@@ -245,7 +247,11 @@ public class StringEvaluator {
   }
 
   private void evaluatePrecision(String value) {
-    int p = determinePrecision(value);
+    char decimalSymbol =
+        ((DecimalFormat) NumberFormat.getInstance())
+            .getDecimalFormatSymbols()
+            .getDecimalSeparator();
+    int p = determinePrecision(value, decimalSymbol);
     if (p > maxPrecision) {
       maxPrecision = p;
     }
@@ -367,15 +373,94 @@ public class StringEvaluator {
 
       StringEvaluationResult result = evaluationResults.get(0);
       IValueMeta conversionMeta = result.getConversionMeta();
-      if (conversionMeta.isNumber() && conversionMeta.getCurrencySymbol() == null) {
-        conversionMeta.setPrecision(maxPrecision);
-        if (maxPrecision > 0 && maxLength > 0) {
-          conversionMeta.setLength(maxLength);
+      if (conversionMeta.isNumber() && !isCurrencyResult(result)) {
+        // Every decimal mask parses every decimal value, so the shortest mask (#.#) always wins
+        // the sort. Its precision would round away the decimals the data actually has.
+        int dataPrecision = determineDataPrecision(conversionMeta);
+        result = findMaskKeepingPrecision(result, dataPrecision);
+        IValueMeta advised = result.getConversionMeta();
+        if (determinePrecision(advised.getConversionMask()) < dataPrecision) {
+          advised.setConversionMask(widenMask(advised.getConversionMask(), dataPrecision));
         }
+        advised.setPrecision(dataPrecision);
       }
 
       return result;
     }
+  }
+
+  private static boolean isCurrencyResult(StringEvaluationResult result) {
+    return NUMBER_CURRENCY.equals(result.getConversionMeta().getName());
+  }
+
+  /** The largest number of decimals in the evaluated values, read with the mask's symbols. */
+  private int determineDataPrecision(IValueMeta conversionMeta) {
+    char decimalSymbol = conversionMeta.getDecimalSymbol().charAt(0);
+    int precision = 0;
+    for (String value : values) {
+      if (value != null) {
+        precision = Math.max(precision, determinePrecision(value.trim(), decimalSymbol));
+      }
+    }
+    return precision;
+  }
+
+  /**
+   * Picks the shortest mask with the same decimal symbol as the given one that keeps all the
+   * decimals. When no mask keeps them all, the one keeping the most decimals is used.
+   */
+  private StringEvaluationResult findMaskKeepingPrecision(
+      StringEvaluationResult shortest, int dataPrecision) {
+    IValueMeta shortestMeta = shortest.getConversionMeta();
+    StringEvaluationResult best = shortest;
+    int bestPrecision = determinePrecision(shortestMeta.getConversionMask());
+    // the results are sorted on mask length, so the first one that keeps the decimals wins
+    for (StringEvaluationResult candidate : evaluationResults) {
+      if (bestPrecision >= dataPrecision) {
+        break;
+      }
+      IValueMeta meta = candidate.getConversionMeta();
+      if (meta.isNumber()
+          && !isCurrencyResult(candidate)
+          && meta.getTrimType() == shortestMeta.getTrimType()
+          && meta.getDecimalSymbol().equals(shortestMeta.getDecimalSymbol())) {
+        int maskPrecision = determinePrecision(meta.getConversionMask());
+        if (maskPrecision > bestPrecision) {
+          best = candidate;
+          bestPrecision = maskPrecision;
+        }
+      }
+    }
+    return best;
+  }
+
+  /**
+   * Gives a mask the given number of decimals. The mask parsed all the values already, the number
+   * of decimals in a mask only changes how values are formatted.
+   */
+  static String widenMask(String mask, int precision) {
+    // a mask can have a positive and a negative pattern
+    StringBuilder widened = new StringBuilder();
+    for (String pattern : mask.split(";", -1)) {
+      if (!widened.isEmpty()) {
+        widened.append(';');
+      }
+      int dot = pattern.lastIndexOf('.');
+      if (dot < 0) {
+        widened.append(pattern).append('.').append("0".repeat(precision));
+      } else {
+        int end = pattern.length();
+        Matcher m = PRECISION_PATTERN.matcher(pattern.substring(dot + 1));
+        if (m.find()) {
+          end = dot + 1 + m.start();
+        }
+        widened
+            .append(pattern, 0, dot + 1)
+            .append("0".repeat(precision))
+            .append(pattern.substring(end));
+      }
+    }
+    return widened.toString();
   }
 
   public String[] getDateFormats() {
@@ -430,7 +515,7 @@ public class StringEvaluator {
       // Try the locale's Currency
       DecimalFormat currencyFormat = ((DecimalFormat) NumberFormat.getCurrencyInstance());
 
-      IValueMeta conversionMeta = new ValueMetaNumber("number-currency");
+      IValueMeta conversionMeta = new ValueMetaNumber(NUMBER_CURRENCY);
       // replace the universal currency symbol with the locale's currency symbol for user
       // recognition
       String currencyMask =
@@ -497,12 +582,17 @@ public class StringEvaluator {
     }
   }
 
+  /**
+   * The number of decimals a number format mask describes. Masks are non-localized {@link
+   * DecimalFormat} patterns, so the decimal separator is always a dot, whatever the locale.
+   */
   protected static int determinePrecision(String numericFormat) {
+    return determinePrecision(numericFormat, '.');
+  }
+
+  /** The number of digits (or mask digits) after the last decimal symbol. */
+  protected static int determinePrecision(String numericFormat, char decimalSymbol) {
     if (numericFormat != null) {
-      char decimalSymbol =
-          ((DecimalFormat) NumberFormat.getInstance())
-              .getDecimalFormatSymbols()
-              .getDecimalSeparator();
       int loc = numericFormat.lastIndexOf(decimalSymbol);
       if (loc >= 0 && loc < numericFormat.length()) {
         Matcher m = PRECISION_PATTERN.matcher(numericFormat.substring(loc + 1));

@@ -1,0 +1,12 @@
+charset,delimiter,enclosure,field_count,skip_header_lines,skip_footer_lines,header_line_present,name,type,length,precision,mask,decimal_symbol,grouping_symbol
+US-ASCII,",","""",11,0,0,Y,FY_DC,Integer,15,0,#,".",","
+US-ASCII,",","""",11,0,0,Y,DEPT_CD,String,3,,,".",","
+US-ASCII,",","""",11,0,0,Y,FUND_CD,Integer,15,0,#,".",","
+US-ASCII,",","""",11,0,0,Y,UNIT_CD,Integer,15,0,#,".",","
+US-ASCII,",","""",11,0,0,Y,UNIT_NM,String,28,,,".",","
+US-ASCII,",","""",11,0,0,Y,VEND_CUST_CD,String,13,,,".",","
+US-ASCII,",","""",11,0,0,Y,EDU_VENDOR,Boolean,,,,".",","
+US-ASCII,",","""",11,0,0,Y,LGL_NM_UP,String,18,,,".",","
+US-ASCII,",","""",11,0,0,Y,OBJ_CD,Integer,15,0,#,".",","
+US-ASCII,",","""",11,0,0,Y,OBJ_NM,String,16,,,".",","
+US-ASCII,",","""",11,0,0,Y,SUM_PSTNG_AM,Number,15,2,#.00,".",","
