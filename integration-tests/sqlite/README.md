@@ -46,6 +46,7 @@ are listed in <https://www.sqlite.org/lang_datefunc.html> and include
 | `main-0003-write-read-dates.hwf` | Dates Hop writes into SQLite, read back both through Hop and through SQLite's own `DATE()`/`DATETIME()` |
 | `main-0004-read-data-types.hwf` | One column of every declared type a SQLite table is likely to carry, plus two expression columns |
 | `main-0005-write-read-data-types.hwf` | One value of every Hop type, written into SQLite and read back |
+| `main-0006-database-join-numeric-ids.hwf` | Ids in `NUMERIC` columns walked with a Database Join and a recursive query ([issue #3633](https://github.com/apache/hop/issues/3633)) |
 
 Every fixture row carries the expected rendering of its own columns as plain
 text (`x_date`, `x_integer`, …), so the pipelines compare what Hop read against
@@ -58,6 +59,14 @@ as broken as one that reads a value wrong. In `scripts/create-date-samples.sql`
 that row comes **first**, deliberately — the SQLite JDBC driver types an
 expression column from the first row it sees, and a leading `NULL` is what makes
 `STRFTIME()` and friends report `NUMERIC` instead of `TEXT`.
+
+The same driver types a *table* column from its data too, once a query has
+run: a column declared `NUMERIC` reads as `INTEGER` on a row holding an
+integer and as `NUMERIC` on a row holding `NULL`, where the prepared statement
+said `NUMERIC` for both. `main-0006` joins a hierarchy whose root has a `NULL`
+parent, which is how a Database Join ended up with a `Long` in a `Number` field.
+The dialect now reads a table column declared `NUMERIC`, `DECIMAL` or `NUMBER`
+as an exact BigNumber on both paths, whatever the row holds.
 
 The two expression columns in `main-0004` are the other side of that: the driver
 did see a value in their first row, so they have to keep the type it gave them.
