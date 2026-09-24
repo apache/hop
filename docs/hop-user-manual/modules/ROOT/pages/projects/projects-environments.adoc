@@ -143,11 +143,12 @@ image:hop-gui/environment/environment-dialog-configuration-files-tab.png[Environ
 [id="tab-env-props-files",cols="20%,45%,5%,5%,25%",options="header"]
 |===
 |Property|Description|Variables Supported|Mandatory|Default
-|Configuration files|One or more files that define environment-specific variables|Yes|No|
+|Configuration files|One or more files that define environment-specific variables. Each row is a filename and a description|Yes|No|
+|Description|Short note about that file. It is stored in the JSON file, not on the environment|No|No|
 |Import variables|Scan the project for `+${VARIABLE}+` expressions and add missing names to a configuration file|No|No|
 |Select...|Add an existing configuration file|No|No|
 |New...|Create a new configuration file and add it to the environment|No|No|
-|Edit...|Open the selected configuration file to set variable names, values and descriptions|No|No|
+|Edit...|Open the selected configuration file to set its description and the variable names, values and descriptions|No|No|
 |===
 
 Each environment contains one or more configuration files where you manage environment-specific variables.
@@ -159,9 +160,31 @@ See xref:best-practices/index.adoc[Best practices: security] and xref:hop-gui/pe
 
 image:hop-gui/environment/environment-files.png[Environment configuration files,width="90%"]
 
-*Edit...* opens the described variables dialog for the selected file:
+*Edit...* opens the described variables dialog for the selected file.
+The description at the top of that dialog is the same file description as the *Description* column.
 
 image::hop-gui/environment/environment-variables.png[Environment Variables,width="80%"]
+
+The description is written into the configuration file when you confirm the environment dialog.
+A file whose description did not change is left as it is.
+A file that does not exist yet is created when the description is not empty.
+Hover a row to see that description and the variables stored in the file.
+Values are shown as they are written, not with variables resolved.
+The value is hidden when the variable name contains `password`, `passwd`, `secret`, `token` or `credential`, and when the value is an encrypted Hop password.
+
+A configuration file looks like this:
+
+[source,json]
+----
+{
+  "description" : "Warehouse connection for this environment",
+  "variables" : [ {
+    "name" : "DB_HOSTNAME",
+    "value" : "db.example.com",
+    "description" : "Warehouse host"
+  } ]
+}
+----
 
 When you browse for a file or directory in Hop Gui with a project active, paths under a matching path-like variable are rewritten automatically. For example, `+${PROJECT_HOME}+` is used for files under the project home, and an environment variable such as `SOURCE_FILES=/data/incoming` (or `SOURCE_FILES=~/incoming`) rewrites a selection under that folder to `+${SOURCE_FILES}/…+`. If more than one variable matches, the longest (most specific) path wins. The same applies to path variables defined on the project itself.
 

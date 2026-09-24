@@ -37,10 +37,12 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** Allows the user to edit the system settings of the hop.config file. */
 public class HopDescribedVariablesDialog extends Dialog {
@@ -53,6 +55,14 @@ public class HopDescribedVariablesDialog extends Dialog {
   private String message;
   private List<DescribedVariable> describedVariables;
   private String selectedVariable;
+
+  /**
+   * When true, the dialog edits the configuration file's own description as well as its variables.
+   */
+  private boolean editFileDescription;
+
+  private String fileDescription;
+  private Text wFileDescription;
 
   /**
    * Constructs a new dialog
@@ -70,6 +80,29 @@ public class HopDescribedVariablesDialog extends Dialog {
     this.describedVariables = describedVariables;
     this.selectedVariable = selectedVariable;
     props = PropsUi.getInstance();
+  }
+
+  /**
+   * Show a single-line description stored on the configuration file itself, next to its variables.
+   *
+   * <p>Call this before {@link #open()}. System variables, database variables and the import dialog
+   * leave it off: only an environment configuration file has this field.
+   *
+   * @param description current file description, or null when the file has none
+   */
+  public void setFileDescriptionEditing(String description) {
+    this.editFileDescription = true;
+    this.fileDescription = description;
+  }
+
+  /**
+   * The file description from the dialog.
+   *
+   * @return the entered text, or null when the dialog was cancelled or file descriptions are not
+   *     being edited
+   */
+  public String getFileDescription() {
+    return fileDescription;
   }
 
   public List<DescribedVariable> open() {
@@ -117,6 +150,31 @@ public class HopDescribedVariablesDialog extends Dialog {
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
+    Control descriptionAnchor = wlFields;
+    if (editFileDescription) {
+      Label wlFileDescription = new Label(shell, SWT.NONE);
+      wlFileDescription.setText(
+          BaseMessages.getString(PKG, "HopDescribedVariablesDialog.FileDescription.Label"));
+      PropsUi.setLook(wlFileDescription);
+      FormData fdlFileDescription = new FormData();
+      fdlFileDescription.left = new FormAttachment(0, 0);
+      fdlFileDescription.top = new FormAttachment(wlFields, margin);
+      fdlFileDescription.right = new FormAttachment(100, 0);
+      wlFileDescription.setLayoutData(fdlFileDescription);
+
+      wFileDescription = new Text(shell, SWT.BORDER | SWT.SINGLE);
+      PropsUi.setLook(wFileDescription);
+      wFileDescription.setText(Const.NVL(fileDescription, ""));
+      wFileDescription.setToolTipText(
+          BaseMessages.getString(PKG, "HopDescribedVariablesDialog.FileDescription.ToolTip"));
+      FormData fdFileDescription = new FormData();
+      fdFileDescription.left = new FormAttachment(0, 0);
+      fdFileDescription.top = new FormAttachment(wlFileDescription, margin);
+      fdFileDescription.right = new FormAttachment(100, 0);
+      wFileDescription.setLayoutData(fdFileDescription);
+      descriptionAnchor = wFileDescription;
+    }
+
     int fieldsRows = 0;
 
     ColumnInfo[] columns = {
@@ -155,7 +213,7 @@ public class HopDescribedVariablesDialog extends Dialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wlFields, 2 * margin);
+    fdFields.top = new FormAttachment(descriptionAnchor, 2 * margin);
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
@@ -209,10 +267,14 @@ public class HopDescribedVariablesDialog extends Dialog {
 
   private void cancel() {
     describedVariables = null;
+    fileDescription = null;
     dispose();
   }
 
   private void ok() {
+    if (editFileDescription && wFileDescription != null && !wFileDescription.isDisposed()) {
+      fileDescription = wFileDescription.getText();
+    }
     describedVariables.clear();
     for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       TableItem item = wFields.getNonEmpty(i);

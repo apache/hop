@@ -18,6 +18,7 @@
 package org.apache.hop.projects.environment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +58,8 @@ import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -73,6 +76,12 @@ import org.eclipse.swt.widgets.Text;
 public class LifecycleEnvironmentDialog extends Dialog {
   private static final Class<?> PKG = LifecycleEnvironmentDialog.class;
   public static final String CONST_ERROR = "Error";
+
+  private static final int COL_FILENAME = 1;
+  private static final int COL_DESCRIPTION = 2;
+
+  /** Resolved path last read into this row, so leaving the filename cell does not reload it. */
+  private static final String DATA_RESOLVED_FILENAME = "resolvedConfigFilename";
 
   private final LifecycleEnvironment environment;
 
@@ -107,6 +116,11 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
   /** Localized purpose label → fixed English suffix (for new-environment name suggestion). */
   private Map<String, String> knownPurposeSuffixes;
+
+  /**
+   * Resolved configuration-file path → last read, so a description edit does not re-read the file.
+   */
+  private final Map<String, EnvironmentConfigFileSummary> configFileSummaries = new HashMap<>();
 
   public LifecycleEnvironmentDialog(
       Shell parent, LifecycleEnvironment environment, IVariables variables) {
@@ -347,16 +361,23 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wbSelect.setLayoutData(fdAdd);
     wbSelect.addListener(SWT.Selection, this::addConfigFile);
 
-    ColumnInfo[] columnInfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.DetailTable.Label.Filename"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
-    columnInfo[0].setUsingVariables(true);
-    columnInfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
+    ColumnInfo filenameColumn =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.DetailTable.Label.Filename"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    filenameColumn.setUsingVariables(true);
+    filenameColumn.setNamingSchemeType(NamingSchemeTypes.FILE);
+    ColumnInfo descriptionColumn =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.DetailTable.Label.Description"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    descriptionColumn.setToolTip(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.DetailTable.ToolTip.Description"));
+    ColumnInfo[] columnInfo = new ColumnInfo[] {filenameColumn, descriptionColumn};
 
     wConfigFiles =
         new TableView(
@@ -368,6 +389,10 @@ public class LifecycleEnvironmentDialog extends Dialog {
             null,
             props);
     PropsUi.setLook(wConfigFiles);
+    wConfigFiles.setContentListener(this::onConfigFileCellChanged);
+    // SWT 3.134 has no TableItem.setToolTipText. The table tooltip is set from the row under the
+    // pointer. Clearing it first is what makes GTK replace the previous row's text.
+    wConfigFiles.table.addListener(SWT.MouseHover, this::onConfigFileHover);
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment(0, 0);
     fdConfigFiles.right = new FormAttachment(wbImportVariables, -2 * margin);
@@ -404,11 +429,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
       if (index < 0) {
         return;
       }
-      String configFilename = wConfigFiles.getItem(index, 1);
+      String configFilename = wConfigFiles.getItem(index, COL_FILENAME);
       if (StringUtils.isEmpty(configFilename)) {
         return;
       }
       String realConfigFilename = variables.resolve(configFilename);
+      String cellDescription = wConfigFiles.getItem(index, COL_DESCRIPTION);
 
       DescribedVariablesConfigFile variablesConfigFile =
           new DescribedVariablesConfigFile(realConfigFilename);
@@ -425,10 +451,15 @@ public class LifecycleEnvironmentDialog extends Dialog {
       } else {
         variablesConfigFile.readFromFile();
       }
+      // An unsaved description in the table has to win over the file, or Edit would drop it.
+      if (!sameDescription(variablesConfigFile.getDescription(), cellDescription)) {
+        variablesConfigFile.setDescription(cellDescription);
+      }
 
       boolean changed = HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
       if (changed) {
         needingEnvironmentRefresh = true;
+        loadConfigFileIntoRow(wConfigFiles.table.getItem(index));
       }
 
     } catch (Exception e) {
@@ -447,7 +478,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
             true);
     if (configFile != null) {
       TableItem item = new TableItem(wConfigFiles.table, SWT.NONE);
-      item.setText(1, configFile);
+      item.setText(COL_FILENAME, configFile);
+      loadConfigFileIntoRow(item);
       wConfigFiles.removeEmptyRows();
       wConfigFiles.setRowNums();
       wConfigFiles.optWidth(true);
@@ -491,7 +523,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
               true);
       if (configFile != null) {
         TableItem item = new TableItem(wConfigFiles.table, SWT.NONE);
-        item.setText(1, configFile);
+        item.setText(COL_FILENAME, configFile);
+        loadConfigFileIntoRow(item);
         wConfigFiles.removeEmptyRows();
         wConfigFiles.setRowNums();
         wConfigFiles.optWidth(true);
@@ -538,7 +571,10 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
       List<String> configurationFiles = new ArrayList<>();
       for (TableItem item : wConfigFiles.getNonEmptyItems()) {
-        configurationFiles.add(item.getText(1));
+        String filename = item.getText(COL_FILENAME);
+        if (StringUtils.isNotEmpty(filename)) {
+          configurationFiles.add(filename);
+        }
       }
 
       List<DescribedVariable> proposed =
@@ -584,20 +620,27 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
       // Ensure the path is listed on the environment
       boolean alreadyListed = false;
+      TableItem savedItem = null;
       for (TableItem item : wConfigFiles.getNonEmptyItems()) {
-        if (configFilename.equals(item.getText(1))
-            || realConfigFilename.equals(variables.resolve(item.getText(1)))) {
+        if (configFilename.equals(item.getText(COL_FILENAME))
+            || realConfigFilename.equals(variables.resolve(item.getText(COL_FILENAME)))) {
           alreadyListed = true;
+          savedItem = item;
           break;
         }
       }
       if (!alreadyListed) {
         TableItem item = new TableItem(wConfigFiles.table, SWT.NONE);
-        item.setText(1, configFilename);
+        item.setText(COL_FILENAME, configFilename);
+        savedItem = item;
         wConfigFiles.removeEmptyRows();
         wConfigFiles.setRowNums();
         wConfigFiles.optWidth(true);
         wConfigFiles.table.setSelection(item);
+      }
+      if (savedItem != null) {
+        // Keep a description the user typed and has not saved; the file now has the new variables.
+        rereadConfigFileSummary(savedItem);
       }
 
       needingEnvironmentRefresh = true;
@@ -705,6 +748,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
             "Sorry, renaming environment '" + originalName + "' is not supported.");
       }
 
+      saveConfigFileDescriptions();
       getInfo(environment);
       if (dialogExtension != null) {
         dialogExtension.getContext().setProjectName(environment.getProjectName());
@@ -807,10 +851,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
     }
 
     wConfigFiles.table.removeAll();
+    configFileSummaries.clear();
     for (int i = 0; i < environment.getConfigurationFiles().size(); i++) {
       String configurationFile = environment.getConfigurationFiles().get(i);
       TableItem item = new TableItem(wConfigFiles.table, SWT.NONE);
-      item.setText(1, Const.NVL(configurationFile, ""));
+      item.setText(COL_FILENAME, Const.NVL(configurationFile, ""));
+      loadConfigFileIntoRow(item);
     }
     if (environment.getConfigurationFiles().isEmpty()) {
       new TableItem(wConfigFiles.table, SWT.NONE);
@@ -881,8 +927,113 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     env.getConfigurationFiles().clear();
     for (TableItem item : wConfigFiles.getNonEmptyItems()) {
-      env.getConfigurationFiles().add(item.getText(1));
+      String filename = item.getText(COL_FILENAME);
+      if (StringUtils.isNotEmpty(filename)) {
+        env.getConfigurationFiles().add(filename);
+      }
     }
+  }
+
+  /**
+   * SWT's {@code ModifyEvent} no longer carries the cell coordinates, so look at every row. A
+   * description edit leaves the resolved path alone and is picked up on the next hover.
+   */
+  private void onConfigFileCellChanged(ModifyEvent event) {
+    if (wConfigFiles == null || wConfigFiles.table.isDisposed()) {
+      return;
+    }
+    for (TableItem item : wConfigFiles.table.getItems()) {
+      if (item.isDisposed()) {
+        continue;
+      }
+      String filename = item.getText(COL_FILENAME);
+      String resolved = StringUtils.isEmpty(filename) ? "" : variables.resolve(filename);
+      String previous = Const.NVL((String) item.getData(DATA_RESOLVED_FILENAME), "");
+      if (!resolved.equals(previous)) {
+        loadConfigFileIntoRow(item);
+      }
+    }
+  }
+
+  private void onConfigFileHover(Event event) {
+    if (wConfigFiles == null || wConfigFiles.table.isDisposed()) {
+      return;
+    }
+    TableItem item = wConfigFiles.table.getItem(new Point(event.x, event.y));
+    String tip = "";
+    if (item != null && !item.isDisposed() && StringUtils.isNotEmpty(item.getText(COL_FILENAME))) {
+      String resolved = variables.resolve(item.getText(COL_FILENAME));
+      EnvironmentConfigFileSummary summary = configFileSummaries.get(resolved);
+      if (summary == null) {
+        summary = EnvironmentConfigFileSummary.read(resolved);
+        configFileSummaries.put(resolved, summary);
+        item.setData(DATA_RESOLVED_FILENAME, resolved);
+      }
+      tip = summary.tooltip(item.getText(COL_DESCRIPTION));
+    }
+    wConfigFiles.table.setToolTipText("");
+    wConfigFiles.table.setToolTipText(tip);
+  }
+
+  /** Read the file named on the row and show its description. */
+  private void loadConfigFileIntoRow(TableItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+    String filename = item.getText(COL_FILENAME);
+    if (StringUtils.isEmpty(filename)) {
+      item.setData(DATA_RESOLVED_FILENAME, "");
+      return;
+    }
+    String resolved = variables.resolve(filename);
+    EnvironmentConfigFileSummary summary = EnvironmentConfigFileSummary.read(resolved);
+    configFileSummaries.put(resolved, summary);
+    item.setData(DATA_RESOLVED_FILENAME, resolved);
+    item.setText(COL_DESCRIPTION, Const.NVL(summary.getDescription(), ""));
+  }
+
+  /** Re-read the file after its variables changed, keeping the description typed in the cell. */
+  private void rereadConfigFileSummary(TableItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+    String filename = item.getText(COL_FILENAME);
+    if (StringUtils.isEmpty(filename)) {
+      item.setData(DATA_RESOLVED_FILENAME, "");
+      return;
+    }
+    String resolved = variables.resolve(filename);
+    configFileSummaries.remove(resolved);
+    EnvironmentConfigFileSummary summary = EnvironmentConfigFileSummary.read(resolved);
+    configFileSummaries.put(resolved, summary);
+    item.setData(DATA_RESOLVED_FILENAME, resolved);
+  }
+
+  /**
+   * Write description edits back into the configuration files. A file whose description did not
+   * change is not rewritten.
+   */
+  private void saveConfigFileDescriptions() throws HopException {
+    for (TableItem item : wConfigFiles.getNonEmptyItems()) {
+      String filename = item.getText(COL_FILENAME);
+      if (StringUtils.isEmpty(filename)) {
+        continue;
+      }
+      String resolved = variables.resolve(filename);
+      try {
+        EnvironmentConfigFileSummary.saveDescriptionIfChanged(
+            resolved, item.getText(COL_DESCRIPTION));
+      } catch (HopException e) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "LifecycleEnvironmentDialog.ConfigFile.SaveDescription.Error", resolved),
+            e);
+      }
+    }
+  }
+
+  private static boolean sameDescription(String stored, String cell) {
+    return StringUtils.equals(StringUtils.trimToEmpty(stored), StringUtils.trimToEmpty(cell));
   }
 
   /**
