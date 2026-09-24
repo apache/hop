@@ -162,6 +162,110 @@ class HopGuiKeyHandlerTest {
     }
   }
 
+  /** Stands in for HopGui align / distribute shortcuts, which share chords with word movement. */
+  public static class AlignGraph {
+    public int alignLeft;
+    public int distributeRight;
+    public int previousFile;
+    public int copies;
+
+    @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
+    @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
+    public void alignLeft() {
+      alignLeft++;
+    }
+
+    @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+    @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+    public void distributeRight() {
+      distributeRight++;
+    }
+
+    @GuiKeyboardShortcut(control = true, alt = true, key = SWT.ARROW_LEFT)
+    @GuiOsxKeyboardShortcut(command = true, alt = true, key = SWT.ARROW_LEFT)
+    public void previousFile() {
+      previousFile++;
+    }
+
+    @GuiKeyboardShortcut(control = true, key = 'c')
+    @GuiOsxKeyboardShortcut(command = true, key = 'c')
+    public void copySelected() {
+      copies++;
+    }
+  }
+
+  @Test
+  void horizontalWordKeysStayInTextWidgets() {
+    AlignGraph graph = new AlignGraph();
+    registerShortcutsLikeHopGuiEnvironment(AlignGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      KeyEvent inText = keyEvent(mock(Text.class), SWT.ARROW_LEFT, SWT.CONTROL);
+      keyHandler.keyPressed(inText);
+      assertEquals(0, graph.alignLeft, "Ctrl+Left in a text field must not align");
+      assertTrue(inText.doit, "Ctrl+Left must stay with the text widget");
+
+      KeyEvent shiftInText = keyEvent(mock(Text.class), SWT.ARROW_RIGHT, SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shiftInText);
+      assertTrue(shiftInText.doit, "Shift+Ctrl+Right selects by word and must not be consumed");
+
+      KeyEvent commandInText = keyEvent(mock(Text.class), SWT.ARROW_LEFT, SWT.COMMAND);
+      keyHandler.keyPressed(commandInText);
+      assertEquals(0, graph.alignLeft);
+      assertTrue(commandInText.doit, "Command+Left stays in the text field (line edge on macOS)");
+
+      KeyEvent altInText = keyEvent(mock(Text.class), SWT.ARROW_RIGHT, SWT.ALT);
+      keyHandler.keyPressed(altInText);
+      assertEquals(0, graph.distributeRight, "Alt+Right in a text field must not distribute");
+      assertTrue(altInText.doit);
+
+      KeyEvent onCanvas = canvasKey(SWT.ARROW_LEFT, SWT.CONTROL);
+      keyHandler.keyPressed(onCanvas);
+      assertEquals(1, graph.alignLeft, "Ctrl+Left on the canvas still aligns");
+      assertFalse(onCanvas.doit);
+
+      KeyEvent fileNav = keyEvent(mock(Text.class), SWT.ARROW_LEFT, SWT.CONTROL | SWT.ALT);
+      keyHandler.keyPressed(fileNav);
+      assertEquals(1, graph.previousFile, "Ctrl+Alt+Left is file navigation, not word movement");
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  @Test
+  void emptySelectionCopyDoesNotCopyTheGraph() {
+    AlignGraph graph = new AlignGraph();
+    registerShortcutsLikeHopGuiEnvironment(AlignGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      Text text = mock(Text.class);
+      when(text.getSelectionCount()).thenReturn(3);
+      KeyEvent selected = keyEvent(text, 'c', SWT.CONTROL);
+      keyHandler.keyPressed(selected);
+      assertEquals(0, graph.copies, "Ctrl+C in a text field must not copy the graph");
+      assertTrue(selected.doit, "A selection is copied by the widget itself");
+      verify(text, never()).copy();
+
+      Text empty = mock(Text.class);
+      when(empty.getText()).thenReturn("ab\ncd");
+      when(empty.getCaretPosition()).thenReturn(0);
+      when(empty.getEditable()).thenReturn(true);
+      KeyEvent line = keyEvent(empty, 'c', SWT.CONTROL);
+      keyHandler.keyPressed(line);
+      assertEquals(0, graph.copies);
+      assertFalse(line.doit, "Copying the current line consumes the key");
+      verify(empty).setSelection(0, 3);
+      verify(empty).copy();
+      verify(empty).setSelection(0);
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
   @Test
   void arrowKeysAreLeftToTablesAndTrees() {
     NavigationGraph graph = new NavigationGraph();

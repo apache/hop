@@ -277,15 +277,15 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
       return;
     }
     boolean editable = isEditable();
-    boolean hasSelection = getSelectionCount() > 0;
+    // Copy and cut stay available with an empty selection: they then use the current line.
     // This runs on every Modify/Selection event: never consult the clipboard here. On desktop
     // that is a system IPC per keystroke, on Hop Web a blocking browser round trip (see #8498).
     boolean canPaste = editable;
 
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_UNDO, canUndo());
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_REDO, canRedo());
-    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT, editable && hasSelection);
-    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY, hasSelection);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT, editable);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY, true);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_PASTE, canPaste);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL, getCharCount() > 0);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FIND, true);
@@ -747,13 +747,9 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     addMenuDetectListener(
         event -> {
           pasteItem.setEnabled(checkPaste());
-          if (getSelectionCount() > 0) {
-            cutItem.setEnabled(true);
-            copyItem.setEnabled(true);
-          } else {
-            cutItem.setEnabled(false);
-            copyItem.setEnabled(false);
-          }
+          // An empty selection copies or cuts the current line, so copy stays enabled.
+          copyItem.setEnabled(true);
+          cutItem.setEnabled(isEditable());
           findReplaceItem.setEnabled(isEditable());
           updateToolbar();
         });

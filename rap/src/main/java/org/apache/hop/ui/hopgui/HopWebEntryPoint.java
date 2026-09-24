@@ -72,9 +72,12 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
    * Navigation keys used for caret movement and selection in text fields (and tree widgets), both
    * bare and with SHIFT held down to extend the selection. They may stay in {@code ACTIVE_KEYS} so
    * the canvas navigation shortcuts still reach the server when focus is on the graph, but must not
-   * be in {@code CANCEL_KEYS} or the browser never moves the caret (see issue #7833). Modifier
-   * combinations with CTRL or ALT are separate RAP keys and remain cancelled when registered as
-   * application shortcuts.
+   * be in {@code CANCEL_KEYS} or the browser never moves the caret (see issue #7833).
+   *
+   * <p>Horizontal Ctrl/Alt+Left/Right are the same kind of key (issue #8362): the browser moves by
+   * word (Ctrl on Windows and Linux, Alt/Option on macOS) or extends that selection with Shift.
+   * They stay active so the canvas can still align or distribute when focus is not a text field.
+   * Vertical modifier arrows (align top/bottom, distribute vertically) stay cancelled.
    */
   private static final Set<String> NATIVE_TEXT_NAVIGATION_KEYS =
       Set.of(
@@ -93,7 +96,15 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
           "SHIFT+HOME",
           "SHIFT+END",
           "SHIFT+PAGE_UP",
-          "SHIFT+PAGE_DOWN");
+          "SHIFT+PAGE_DOWN",
+          "CTRL+ARROW_LEFT",
+          "CTRL+ARROW_RIGHT",
+          "CTRL+SHIFT+ARROW_LEFT",
+          "CTRL+SHIFT+ARROW_RIGHT",
+          "ALT+ARROW_LEFT",
+          "ALT+ARROW_RIGHT",
+          "ALT+SHIFT+ARROW_LEFT",
+          "ALT+SHIFT+ARROW_RIGHT");
 
   /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
   public static final String AUDIT_GROUP_HOP_WEB = "hop-web";
@@ -206,6 +217,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
     String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
     jsLoader.require(macKeysLocation);
+    // Empty Ctrl/Cmd+C/X copies or cuts the current line. Must run in the key gesture.
+    jsLoader.require(resourceManager.getLocation("js/text-line-clipboard.js"));
 
     // Configure keyboard shortcuts for RAP dynamically from annotations
     // ACTIVE_KEYS tells RAP to send these key combinations to the server
