@@ -118,6 +118,7 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMetaLayout;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.TransformCopyCompletion;
 import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -4645,6 +4646,30 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return enabled;
   }
 
+  /**
+   * When a transform runs in more than one copy, say how many of those copies have finished. A
+   * single copy keeps the icon tooltip unchanged.
+   */
+  private void appendCopyCompletionTip(StringBuilder tip, TransformMeta transformMeta) {
+    if (pipeline == null || transformMeta == null) {
+      return;
+    }
+    TransformCopyCompletion.Summary summary =
+        TransformCopyCompletion.of(pipeline.getComponentCopies(transformMeta.getName()));
+    if (summary.total() <= 1) {
+      return;
+    }
+    if (!tip.isEmpty()) {
+      tip.append(Const.CR);
+    }
+    tip.append(
+        BaseMessages.getString(
+            PKG,
+            "HopGuiPipelineGraph.TransformCopiesFinished.Tooltip",
+            Integer.toString(summary.finished()),
+            Integer.toString(summary.total())));
+  }
+
   private void setToolTip(int x, int y, int screenX, int screenY) {
     AreaOwner subject = null;
 
@@ -4835,6 +4860,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             tip.append(
                 BaseMessages.getString(PKG, "HopGuiPipelineGraph.PipelineSource.TooltipSuffix"));
           }
+          appendCopyCompletionTip(tip, iconTransformMeta);
           break;
         case TRANSFORM_OUTPUT_DATA:
           RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();

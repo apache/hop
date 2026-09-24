@@ -45,6 +45,17 @@ When your pipeline starts, Apache Hop will create the specified number of copies
 
 image::hop-gui/pipeline/specify-copies-expanded.png[Specify copies expanded, width="50%", align="left"]
 
+[[finished-copies]]
+== Finished copies
+
+Copies of the same transform do not finish at the same time. A check mark in the upper right corner means every copy of that transform is done. While any copy is still working, that corner shows how many copies have already finished.
+
+In the pipeline below, `5 rows` is finished. `random-wait.hpl` runs in five copies (`x5` in the upper left). Three of those copies have finished, so the icon shows `3`. The other two are still running.
+
+image::hop-gui/pipeline/specify-copies-running.png[Three of five copies finished, width="65%", align="left"]
+
+Hover the transform icon to see the same count, for example `Copies finished: 3 of 5`. The check mark replaces the number only after the last copy finishes. The transform metrics tab still lists one row per copy.
+
 == Use cases
 
 Increasing the number of copies for a limited number of transforms in your pipelines can help to improve your pipeline's performance, but the option should be used with great care.

@@ -47,7 +47,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
@@ -67,6 +66,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public static final String STRING_TRANSFORM_ERROR_LOG = "TransformErrorLog";
   public static final String STRING_HOP_TYPE_COPY = "HopTypeCopy";
   public static final String STRING_ROW_DISTRIBUTION = "RowDistribution";
+
+  /** Same fill as {@code ui/images/success.svg}. Used for the partial-copy count disc. */
+  private static final int COPY_BADGE_RED = 92;
+
+  private static final int COPY_BADGE_GREEN = 192;
+  private static final int COPY_BADGE_BLUE = 196;
 
   private PipelineMeta pipelineMeta;
 
@@ -667,42 +672,71 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   private void drawTransformStatusIndicator(TransformMeta transformMeta) throws HopException {
 
-    if (transformMeta == null) {
+    if (transformMeta == null || pipeline == null) {
       return;
     }
 
-    // draw status indicator
-    if (pipeline != null) {
+    Point pt = transformMeta.getLocation();
+    if (pt == null) {
+      pt = new Point(50, 50);
+    }
 
-      Point pt = transformMeta.getLocation();
-      if (pt == null) {
-        pt = new Point(50, 50);
-      }
+    Point screen = real2screen(pt.x, pt.y);
+    int x = screen.x;
+    int y = screen.y;
 
-      Point screen = real2screen(pt.x, pt.y);
-      int x = screen.x;
-      int y = screen.y;
-
-      if (pipeline != null) {
-        List<IEngineComponent> transforms = pipeline.getComponentCopies(transformMeta.getName());
-
-        for (IEngineComponent transform : transforms) {
-          if (transform.getStatus() == ComponentExecutionStatus.STATUS_PAUSED) {
-            gc.drawImage(
-                EImage.WAITING,
-                (x + iconSize) - (miniIconSize / 2) + 1,
-                y - (miniIconSize / 2) - 1,
-                magnification);
-          } else if (transform.getStatus() == ComponentExecutionStatus.STATUS_FINISHED) {
-            gc.drawImage(
-                EImage.SUCCESS,
-                (x + iconSize) - (miniIconSize / 2) + 1,
-                y - (miniIconSize / 2) - 1,
-                magnification);
-          }
+    TransformCopyCompletion.Summary summary =
+        TransformCopyCompletion.of(pipeline.getComponentCopies(transformMeta.getName()));
+    switch (summary.badge()) {
+      case PAUSED ->
+          gc.drawImage(
+              EImage.WAITING,
+              (x + iconSize) - (miniIconSize / 2) + 1,
+              y - (miniIconSize / 2) - 1,
+              magnification);
+      case FINISHED -> {
+        // The failure icon already occupies this corner.
+        if (!hasTransformFailureIcon(transformMeta)) {
+          gc.drawImage(
+              EImage.SUCCESS,
+              (x + iconSize) - (miniIconSize / 2) + 1,
+              y - (miniIconSize / 2) - 1,
+              magnification);
         }
       }
+      case PARTIAL -> drawPartialCopyBadge(x, y, summary.finished());
+      case NONE -> {
+        // Still starting, still running, or stopped before any copy finished.
+      }
     }
+  }
+
+  private boolean hasTransformFailureIcon(TransformMeta transformMeta) {
+    if (Utils.isEmpty(transformLogMap)) {
+      return false;
+    }
+    return !Utils.isEmpty(transformLogMap.get(transformMeta.getName()));
+  }
+
+  /** Azure disc with the number of finished copies, anchored on the icon's top-right corner. */
+  private void drawPartialCopyBadge(int x, int y, int finished) {
+    String label = Integer.toString(finished);
+    gc.setFont(EFont.TINY);
+    Point extent = gc.textExtent(label);
+    int badgeHeight = miniIconSize;
+    int badgeWidth = Math.max(miniIconSize, extent.x + 4);
+    int centerX = (x + iconSize) + 1;
+    int centerY = y - 1;
+    int badgeX = centerX - badgeWidth / 2;
+    int badgeY = centerY - badgeHeight / 2;
+
+    gc.setBackground(COPY_BADGE_RED, COPY_BADGE_GREEN, COPY_BADGE_BLUE);
+    gc.fillRoundRectangle(badgeX, badgeY, badgeWidth, badgeHeight, badgeHeight, badgeHeight);
+
+    gc.setForeground(EColor.WHITE);
+    int textX = badgeX + Math.max(0, (badgeWidth - extent.x) / 2);
+    int textY = badgeY + Math.max(0, (badgeHeight - extent.y) / 2);
+    gc.drawText(label, textX, textY, true);
   }
 
   private void drawTransformOutputIndicator(TransformMeta transformMeta) throws HopException {
