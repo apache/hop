@@ -76,6 +76,7 @@ This applies wherever Hop turns a Boolean into text: Write to log, the preview g
 
 A Boolean Format is the text for true, a slash, and the text for false, for example `true/false`, `Y/N`, `1/0` or `yes/no`.
 The mask must contain exactly one slash, so neither text can contain a slash itself.
+Spaces around the slash are ignored, and the two texts must differ in more than upper and lower case.
 The Format column offers the common masks for Boolean fields, and you can type any other pair, for example `Ja/Nein` to write German words.
 See xref:pipeline/formatting-values.adoc#boolean-own-format[Your own true and false text].
 

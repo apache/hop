@@ -246,7 +246,9 @@ Keep these rules in mind when you define your own format:
 * Use exactly one slash: the text before it means true, the text after it means false.
 Neither word can contain a slash, and a mask with more than one slash (such as the date mask `yyyy/MM/dd`) is not treated as a Boolean format.
 * Both words must be non-empty.
-* Pick two different words, or a file written with the format cannot be read back.
+* Spaces around the slash are not part of the words: `Ja / Nein` writes `Ja` and `Nein`.
+* Pick two words that differ in more than upper and lower case.
+Reading ignores case, so a format like `Yes/yes` could never tell true from false and is not treated as a Boolean format.
 * Text File Output ignores all formats when *Fast data dump (no formatting)* is enabled, and then writes `true` or `false`.
 
 == Rounding
