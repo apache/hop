@@ -173,7 +173,8 @@ public class HopWeb implements ApplicationConfiguration {
             "org/apache/hop/ui/hopgui/gc-pending-images.js",
             "org/apache/hop/ui/hopgui/dnd-cursor-passthrough.js",
             "org/apache/hop/ui/hopgui/monaco-editor.js",
-            "org/apache/hop/ui/hopgui/mac-command-keys.js")
+            "org/apache/hop/ui/hopgui/mac-command-keys.js",
+            "org/apache/hop/ui/hopgui/text-line-clipboard.js")
         .forEach(
             str ->
                 application.addResource(

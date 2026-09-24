@@ -31,7 +31,9 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.security.ActionPermissionMapper;
+import org.apache.hop.ui.core.widget.TextLineClipboard;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
@@ -42,6 +44,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -144,9 +147,27 @@ public class HopGuiKeyHandler extends KeyAdapter {
     // Safety net for widgets that are created without PropsUi.setLook(). Hop Web has no use for it:
     // RAP does not fire focus events for a focus change made in the browser.
     //
+    // The key filter covers every shell on this display, including dialogs that never register
+    // here, so word-movement keys are not stolen and an empty Ctrl/Cmd+C/X copies or cuts the
+    // current line (issue #8362).
+    //
     if (display != null && !display.isDisposed() && filteredDisplays.add(display)) {
       display.addFilter(SWT.FocusIn, event -> attachTo(event.widget));
+      display.addFilter(SWT.KeyDown, this::filterTextEditingKey);
       display.addListener(SWT.Dispose, e -> filteredDisplays.remove(display));
+    }
+  }
+
+  /** Display filter: runs before widget listeners, for shells that never got this handler. */
+  private void filterTextEditingKey(Event event) {
+    try {
+      if (applyTextEditingKey(
+              event.widget, event.keyCode, event.stateMask, event.character, event.display)
+          .consume) {
+        event.doit = false;
+      }
+    } catch (SWTException e) {
+      // The widget was disposed while the key was delivered.
     }
   }
 
@@ -230,19 +251,25 @@ public class HopGuiKeyHandler extends KeyAdapter {
       return;
     }
 
-    // Do not steal keys needed for native editing / caret movement inside text-like widgets.
-    // StyledText is not available in RAP, so we check via reflection to avoid NoClassDefFoundError.
-    // Bare ARROW_*/HOME/END would otherwise match canvas pan shortcuts (DragViewZoomBase) and break
-    // caret navigation — especially in Hop Web where RAP CANCEL_KEYS can also block the browser
-    // (see issue #7833). App shortcuts with CTRL/CMD/ALT (e.g. Ctrl+S, Ctrl+Arrow) still run.
-    if (isTextLikeWidget(event.widget) && isNativeTextEditingKey(event)) {
+    try {
+      TextEditing textEditing =
+          applyTextEditingKey(
+              event.widget, event.keyCode, event.stateMask, event.character, event.display);
+      if (textEditing.consume) {
+        event.doit = false;
+      }
+      if (textEditing.stopShortcuts) {
+        return;
+      }
+    } catch (SWTException e) {
       return;
     }
 
     // Same for tables, trees and lists: they use the arrow keys to move through their rows. Those
     // widgets also live inside the pipeline and workflow graph (log, preview and result tabs) where
     // the arrow keys navigate the canvas.
-    if (isRowNavigationWidget(event.widget) && isCaretNavigationKey(event)) {
+    if (isRowNavigationWidget(event.widget)
+        && isCaretNavigationKey(event.keyCode, event.stateMask)) {
       return;
     }
 
@@ -479,61 +506,170 @@ public class HopGuiKeyHandler extends KeyAdapter {
   }
 
   /**
+   * Keeps text editing in the widget that has the caret.
+   *
+   * <p>Horizontal Ctrl/Cmd/Alt+Left/Right stay with the widget (word movement on Windows and Linux,
+   * Option+Left/Right on macOS, line edges for Command+Left/Right). They must not align or
+   * distribute the graph. An empty Ctrl/Cmd+C or Ctrl/Cmd+X copies or cuts the current line on the
+   * desktop; Hop Web does that in the browser, inside the key gesture. Other text keys (bare
+   * arrows, Ctrl+A/V, typing) are not dispatched as shortcuts either. Ctrl+S and the vertical align
+   * shortcuts still run.
+   *
+   * <p>{@code widgets.Event} and {@code events.KeyEvent} are not the same type, so callers pass the
+   * fields. {@link TextEditing#stopShortcuts} means do not run a Hop shortcut. {@link
+   * TextEditing#consume} means set {@code doit} false (the line was copied or cut here).
+   */
+  private TextEditing applyTextEditingKey(
+      Widget widget, int keyCode, int stateMask, char character, Display display) {
+    if (widget == null || widget.isDisposed()) {
+      return TextEditing.PASS;
+    }
+    // The terminal handles every key itself, including word movement and copy.
+    if (widget instanceof Control control && isInTerminalWidget(control)) {
+      return TextEditing.PASS;
+    }
+    boolean textLike = isTextLikeWidget(widget);
+    boolean webEditor = !textLike && isWebTextEditorFocused(display);
+    if (!textLike && !webEditor) {
+      return TextEditing.PASS;
+    }
+    if (isHorizontalWordKey(keyCode, stateMask)) {
+      return TextEditing.STOP;
+    }
+    if (webEditor && isCopyOrCutKey(keyCode, stateMask)) {
+      // Monaco already copied or cut. Do not also copy the graph, and do not cancel the key.
+      return TextEditing.STOP;
+    }
+    if (!textLike || !isNativeTextEditingKey(keyCode, stateMask, character)) {
+      return TextEditing.PASS;
+    }
+    // Hop Web copies the line in text-line-clipboard.js. A server clipboard write is outside the
+    // key gesture and would also cut the line a second time if the script did not stop the event.
+    if (!EnvironmentUtils.getInstance().isWeb()
+        && isCopyOrCutKey(keyCode, stateMask)
+        && TextLineClipboard.copyOrCutCurrentLine(widget, isCutKey(keyCode))) {
+      return TextEditing.CONSUME;
+    }
+    return TextEditing.STOP;
+  }
+
+  /** Whether shortcut dispatch should stop, and whether the key event itself is consumed. */
+  private static final class TextEditing {
+    private static final TextEditing PASS = new TextEditing(false, false);
+    private static final TextEditing STOP = new TextEditing(true, false);
+    private static final TextEditing CONSUME = new TextEditing(true, true);
+
+    private final boolean stopShortcuts;
+    private final boolean consume;
+
+    private TextEditing(boolean stopShortcuts, boolean consume) {
+      this.stopShortcuts = stopShortcuts;
+      this.consume = consume;
+    }
+  }
+
+  private static boolean isWebTextEditorFocused(Display display) {
+    try {
+      if (display == null || display.isDisposed()) {
+        return false;
+      }
+      return display.getData(HopGui.TEXT_EDITOR_FOCUS_DATA) != null;
+    } catch (SWTException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Left/Right with Ctrl, Command or Alt, and optionally Shift. Ctrl+Alt is file navigation, not
+   * word movement, so it is not included.
+   */
+  private static boolean isHorizontalWordKey(int keyCode, int stateMask) {
+    int code = keyCode & SWT.KEY_MASK;
+    if (code != SWT.ARROW_LEFT && code != SWT.ARROW_RIGHT) {
+      return false;
+    }
+    boolean alt = (stateMask & SWT.ALT) != 0;
+    boolean control = (stateMask & SWT.CONTROL) != 0;
+    boolean command = (stateMask & SWT.COMMAND) != 0;
+    if (alt && (control || command)) {
+      return false;
+    }
+    return alt || control || command;
+  }
+
+  /** Ctrl/Cmd+C or Ctrl/Cmd+X with no Alt and no Shift. */
+  private static boolean isCopyOrCutKey(int keyCode, int stateMask) {
+    if ((stateMask & (SWT.ALT | SWT.SHIFT)) != 0) {
+      return false;
+    }
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) == 0) {
+      return false;
+    }
+    char key = Character.toLowerCase((char) keyCode);
+    return key == 'c' || key == 'x';
+  }
+
+  private static boolean isCutKey(int keyCode) {
+    return Character.toLowerCase((char) keyCode) == 'x';
+  }
+
+  /**
    * Keys that text-like widgets must handle themselves: copy/cut/paste/select-all,
    * delete/backspace, caret / selection navigation (arrows, home/end, page up/down) without
    * CTRL/CMD/ALT, and unmodified printable characters (including space).
    *
    * <p>Graph shortcuts such as Space (output fields) and {@code z} (open referenced object) must
    * not steal those keys from filter and search fields. App shortcuts with CTRL/CMD/ALT (e.g.
-   * Ctrl+S) still run.
+   * Ctrl+S) still run, except the horizontal word-movement keys handled above.
    */
-  private static boolean isNativeTextEditingKey(KeyEvent event) {
-    if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
-      char key = Character.toLowerCase((char) event.keyCode);
+  private static boolean isNativeTextEditingKey(int keyCode, int stateMask, char character) {
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
+      char key = Character.toLowerCase((char) keyCode);
       if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
         return true;
       }
     }
-    if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
+    if (keyCode == SWT.DEL || character == SWT.BS) {
       return true;
     }
-    if (isCaretNavigationKey(event)) {
+    if (isCaretNavigationKey(keyCode, stateMask)) {
       return true;
     }
-    return isUnmodifiedPrintableCharacter(event);
+    return isUnmodifiedPrintableCharacter(keyCode, stateMask, character);
   }
 
   /**
    * Space, letters and punctuation with no CTRL/CMD/ALT. Shift may be held for capitals. SWT
    * reports space as {@link SWT#SPACE} and/or {@code character == ' '}.
    */
-  private static boolean isUnmodifiedPrintableCharacter(KeyEvent event) {
-    if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0) {
+  private static boolean isUnmodifiedPrintableCharacter(
+      int keyCode, int stateMask, char character) {
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0) {
       return false;
     }
-    if (event.keyCode == SWT.SPACE || event.character == ' ') {
+    if (keyCode == SWT.SPACE || character == ' ') {
       return true;
     }
-    return event.character >= 32 && event.character != SWT.DEL;
+    return character >= 32 && character != SWT.DEL;
   }
 
   /**
    * Caret and row movement keys: the arrows, home/end and page up/down without CTRL/CMD/ALT. SHIFT
    * alone is allowed so extending a selection stays in the widget as well.
    */
-  private static boolean isCaretNavigationKey(KeyEvent event) {
-    if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0) {
+  private static boolean isCaretNavigationKey(int keyCode, int stateMask) {
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0) {
       return false;
     }
-    int keyCode = event.keyCode & SWT.KEY_MASK;
-    return keyCode == SWT.ARROW_LEFT
-        || keyCode == SWT.ARROW_RIGHT
-        || keyCode == SWT.ARROW_UP
-        || keyCode == SWT.ARROW_DOWN
-        || keyCode == SWT.HOME
-        || keyCode == SWT.END
-        || keyCode == SWT.PAGE_UP
-        || keyCode == SWT.PAGE_DOWN;
+    int code = keyCode & SWT.KEY_MASK;
+    return code == SWT.ARROW_LEFT
+        || code == SWT.ARROW_RIGHT
+        || code == SWT.ARROW_UP
+        || code == SWT.ARROW_DOWN
+        || code == SWT.HOME
+        || code == SWT.END
+        || code == SWT.PAGE_UP
+        || code == SWT.PAGE_DOWN;
   }
 
   /**

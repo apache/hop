@@ -305,12 +305,16 @@ public class StyledTextComp extends TextComposite {
 
   @Override
   public void cut() {
-    textWidget.cut();
+    if (!TextLineClipboard.copyOrCutCurrentLine(textWidget, true)) {
+      textWidget.cut();
+    }
   }
 
   @Override
   public void copy() {
-    textWidget.copy();
+    if (!TextLineClipboard.copyOrCutCurrentLine(textWidget, false)) {
+      textWidget.copy();
+    }
   }
 
   @Override
