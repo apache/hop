@@ -365,8 +365,8 @@ public class HttpPostDialog extends BaseTransformDialog {
     wlQuery.setLayoutData(fdlQuery);
 
     int queryRows = 0;
-    if (input.getLookupFields().get(0).getQueryField() != null) {
-      queryRows = input.getLookupFields().get(0).getQueryField().size();
+    if (input.getFirstLookupField().getQueryField() != null) {
+      queryRows = input.getFirstLookupField().getQueryField().size();
     }
 
     colinfquery =
@@ -474,8 +474,8 @@ public class HttpPostDialog extends BaseTransformDialog {
     wlFields.setLayoutData(fdlFields);
 
     int fieldsRows = 0;
-    if (input.getLookupFields().get(0).getArgumentField() != null) {
-      fieldsRows = input.getLookupFields().get(0).getArgumentField().size();
+    if (input.getFirstLookupField().getArgumentField() != null) {
+      fieldsRows = input.getFirstLookupField().getArgumentField().size();
     }
 
     colinf =
@@ -1278,27 +1278,27 @@ public class HttpPostDialog extends BaseTransformDialog {
       logDebug(BaseMessages.getString(PKG, "HTTPPOSTDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getLookupFields().get(0).getArgumentField() != null) {
-      for (int i = 0; i < input.getLookupFields().get(0).getArgumentField().size(); i++) {
+    HttpPostLookupField lookupField = input.getFirstLookupField();
+    if (lookupField.getArgumentField() != null) {
+      for (int i = 0; i < lookupField.getArgumentField().size(); i++) {
         TableItem item = wFields.table.getItem(i);
-        if (input.getLookupFields().get(0).getArgumentField().get(i).getName() != null) {
-          item.setText(1, input.getLookupFields().get(0).getArgumentField().get(i).getName());
+        if (lookupField.getArgumentField().get(i).getName() != null) {
+          item.setText(1, lookupField.getArgumentField().get(i).getName());
         }
-        if (input.getLookupFields().get(0).getArgumentField().get(i).getParameter() != null) {
-          item.setText(2, input.getLookupFields().get(0).getArgumentField().get(i).getParameter());
+        if (lookupField.getArgumentField().get(i).getParameter() != null) {
+          item.setText(2, lookupField.getArgumentField().get(i).getParameter());
         }
-        item.setText(
-            3, (input.getLookupFields().get(0).getArgumentField().get(i).isHeader()) ? YES : NO);
+        item.setText(3, lookupField.getArgumentField().get(i).isHeader() ? YES : NO);
       }
     }
-    if (input.getLookupFields().get(0).getQueryField() != null) {
-      for (int i = 0; i < input.getLookupFields().get(0).getQueryField().size(); i++) {
+    if (lookupField.getQueryField() != null) {
+      for (int i = 0; i < lookupField.getQueryField().size(); i++) {
         TableItem item = wQuery.table.getItem(i);
-        if (input.getLookupFields().get(0).getQueryField().get(i).getName() != null) {
-          item.setText(1, input.getLookupFields().get(0).getQueryField().get(i).getName());
+        if (lookupField.getQueryField().get(i).getName() != null) {
+          item.setText(1, lookupField.getQueryField().get(i).getName());
         }
-        if (input.getLookupFields().get(0).getQueryField().get(i).getParameter() != null) {
-          item.setText(2, input.getLookupFields().get(0).getQueryField().get(i).getParameter());
+        if (lookupField.getQueryField().get(i).getParameter() != null) {
+          item.setText(2, lookupField.getQueryField().get(i).getParameter());
         }
       }
     }
@@ -1313,14 +1313,15 @@ public class HttpPostDialog extends BaseTransformDialog {
     if (input.getRequestEntity() != null) {
       wRequestEntity.setText(input.getRequestEntity());
     }
-    if (input.getResultFields().get(0).getName() != null) {
-      wResult.setText(input.getResultFields().get(0).getName());
+    HttpPostResultField resultField = input.getFirstResultField();
+    if (resultField.getName() != null) {
+      wResult.setText(resultField.getName());
     }
-    if (input.getResultFields().get(0).getCode() != null) {
-      wResultCode.setText(input.getResultFields().get(0).getCode());
+    if (resultField.getCode() != null) {
+      wResultCode.setText(resultField.getCode());
     }
-    if (input.getResultFields().get(0).getResponseTimeFieldName() != null) {
-      wResponseTime.setText(input.getResultFields().get(0).getResponseTimeFieldName());
+    if (resultField.getResponseTimeFieldName() != null) {
+      wResponseTime.setText(resultField.getResponseTimeFieldName());
     }
     if (input.getEncoding() != null) {
       wEncoding.setText(input.getEncoding());
@@ -1347,8 +1348,8 @@ public class HttpPostDialog extends BaseTransformDialog {
     wProxyUsername.setText(Const.NVL(input.getProxyUsername(), ""));
     wProxyPassword.setText(Const.NVL(input.getProxyPassword(), ""));
     wNonProxyHosts.setText(Const.NVL(input.getNonProxyHosts(), ""));
-    if (input.getResultFields().get(0).getResponseHeaderFieldName() != null) {
-      wResponseHeader.setText(input.getResultFields().get(0).getResponseHeaderFieldName());
+    if (resultField.getResponseHeaderFieldName() != null) {
+      wResponseHeader.setText(resultField.getResponseHeaderFieldName());
     }
 
     wSocketTimeOut.setText(Const.NVL(input.getSocketTimeout(), ""));
@@ -1394,7 +1395,6 @@ public class HttpPostDialog extends BaseTransformDialog {
     }
     for (int i = 0; i < nrqueryparams; i++) {
       TableItem item = wQuery.getNonEmpty(i);
-      input.getLookupFields().get(0).getQueryField().clear();
       HttpPostQuery httpPostQuery = new HttpPostQuery(item.getText(1), item.getText(2));
       loookupField.getQueryField().add(httpPostQuery);
     }

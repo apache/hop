@@ -246,20 +246,21 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         }
 
         int returnFieldsOffset = data.inputRowMeta.size();
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getName())) {
+        HttpPostResultField resultField = meta.getFirstResultField();
+        if (!Utils.isEmpty(resultField.getName())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, body);
           returnFieldsOffset++;
         }
 
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getCode())) {
+        if (!Utils.isEmpty(resultField.getCode())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, (long) statusCode);
           returnFieldsOffset++;
         }
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getResponseTimeFieldName())) {
+        if (!Utils.isEmpty(resultField.getResponseTimeFieldName())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, responseTime);
           returnFieldsOffset++;
         }
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getResponseHeaderFieldName())) {
+        if (!Utils.isEmpty(resultField.getResponseHeaderFieldName())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, headerString);
         }
       } finally {
@@ -384,8 +385,11 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           }
         }
       }
+      HttpPostLookupField lookupField = meta.getFirstLookupField();
+      List<HttpPostArgumentField> argumentFields = lookupField.getArgumentField();
+      List<HttpPostQuery> queryFields = lookupField.getQueryField();
       // set body parameters
-      int nrargs = meta.getLookupFields().get(0).getArgumentField().size();
+      int nrargs = argumentFields.size();
       if (nrargs > 0) {
         data.useBodyParameters = false;
         data.useHeaderParameters = false;
@@ -393,7 +397,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         int nrheader = 0;
         int nrbody = 0;
         for (int i = 0; i < nrargs; i++) { // split into body / header
-          if (meta.getLookupFields().get(0).getArgumentField().get(i).isHeader()) {
+          if (argumentFields.get(i).isHeader()) {
             data.useHeaderParameters = true; // at least one header parameter
             nrheader++;
           } else {
@@ -408,65 +412,57 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         int posHeader = 0;
         int posBody = 0;
         for (int i = 0; i < nrargs; i++) {
-          int fieldIndex =
-              data.inputRowMeta.indexOfValue(
-                  meta.getLookupFields().get(0).getArgumentField().get(i).getName());
+          int fieldIndex = data.inputRowMeta.indexOfValue(argumentFields.get(i).getName());
           if (fieldIndex < 0) {
             logError(
                 BaseMessages.getString(PKG, PKG_ERROR_FINDING_FIELD)
-                    + meta.getLookupFields().get(0).getArgumentField().get(i).getName()
+                    + argumentFields.get(i).getName()
                     + "]");
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG,
-                    "HTTPPOST.Exception.CouldnotFindField",
-                    meta.getLookupFields().get(0).getArgumentField().get(i).getName()));
+                    PKG, "HTTPPOST.Exception.CouldnotFindField", argumentFields.get(i).getName()));
           }
-          if (meta.getLookupFields().get(0).getArgumentField().get(i).isHeader()) {
+          if (argumentFields.get(i).isHeader()) {
             data.header_parameters_nrs[posHeader] = fieldIndex;
             data.headerParameters[posHeader] =
                 new BasicNameValuePair(
-                    resolve(meta.getLookupFields().get(0).getArgumentField().get(i).getParameter()),
+                    resolve(argumentFields.get(i).getParameter()),
                     data.outputRowMeta.getString(r, data.header_parameters_nrs[posHeader]));
             posHeader++;
-            if (CONTENT_TYPE.equalsIgnoreCase(
-                meta.getLookupFields().get(0).getArgumentField().get(i).getParameter())) {
+            if (CONTENT_TYPE.equalsIgnoreCase(argumentFields.get(i).getParameter())) {
               data.contentTypeHeaderOverwrite = true; // Content-type will be overwritten
             }
           } else {
             data.body_parameters_nrs[posBody] = fieldIndex;
             data.bodyParameters[posBody] =
                 new BasicNameValuePair(
-                    resolve(meta.getLookupFields().get(0).getArgumentField().get(i).getParameter()),
+                    resolve(argumentFields.get(i).getParameter()),
                     data.outputRowMeta.getString(r, data.body_parameters_nrs[posBody]));
             posBody++;
           }
         }
       }
       // set query parameters
-      int nrQuery = meta.getLookupFields().get(0).getQueryField().size();
+      int nrQuery = queryFields.size();
       if (nrQuery > 0) {
         data.useQueryParameters = true;
         data.query_parameters_nrs = new int[nrQuery];
         data.queryParameters = new NameValuePair[nrQuery];
         for (int i = 0; i < nrQuery; i++) {
           data.query_parameters_nrs[i] =
-              data.inputRowMeta.indexOfValue(
-                  meta.getLookupFields().get(0).getQueryField().get(i).getName());
+              data.inputRowMeta.indexOfValue(queryFields.get(i).getName());
           if (data.query_parameters_nrs[i] < 0) {
             logError(
                 BaseMessages.getString(PKG, PKG_ERROR_FINDING_FIELD)
-                    + meta.getLookupFields().get(0).getQueryField().get(i).getName()
+                    + queryFields.get(i).getName()
                     + "]");
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG,
-                    "HTTPPOST.Exception.CouldnotFindField",
-                    meta.getLookupFields().get(0).getQueryField().get(i).getName()));
+                    PKG, "HTTPPOST.Exception.CouldnotFindField", queryFields.get(i).getName()));
           }
           data.queryParameters[i] =
               new BasicNameValuePair(
-                  resolve(meta.getLookupFields().get(0).getQueryField().get(i).getParameter()),
+                  resolve(queryFields.get(i).getParameter()),
                   data.outputRowMeta.getString(r, data.query_parameters_nrs[i]));
         }
       }

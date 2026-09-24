@@ -22,18 +22,25 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -44,6 +51,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 /** Integration-style tests for {@link HttpPost#callHttpPOST} using an embedded HTTP server. */
 class HttpPostExecutionTest {
@@ -354,6 +362,39 @@ class HttpPostExecutionTest {
     assertNotNull(lastRequestContentType.get());
     assertTrue(lastRequestContentType.get().contains("application/json"));
     assertTrue(!lastRequestContentType.get().contains("text/xml"));
+  }
+
+  /**
+   * Pipelines saved without a {@code <lookup>} or {@code <result>} element load with empty lists.
+   * The first row must still go through (no IndexOutOfBoundsException), add no result fields, and
+   * leave the shared metadata untouched.
+   */
+  @Test
+  void processRowWithEmptyLookupAndResultListsPassesTheRowThrough() throws Exception {
+    HttpPostMeta meta = new HttpPostMeta();
+    meta.setDefault();
+    meta.setUrl(baseUrl() + "/body");
+    meta.setLookupFields(new ArrayList<>());
+    meta.setResultFields(new ArrayList<>());
+
+    HttpPostData data = new HttpPostData();
+    HttpPost http = spy(newPost(meta, data));
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("city"));
+    doReturn(new Object[] {"Berlin"}).when(http).getRow();
+    doReturn(rowMeta).when(http).getInputRowMeta();
+    doNothing().when(http).putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(http.init());
+    assertTrue(http.processRow());
+
+    ArgumentCaptor<IRowMeta> outputMeta = ArgumentCaptor.forClass(IRowMeta.class);
+    ArgumentCaptor<Object[]> outputRow = ArgumentCaptor.forClass(Object[].class);
+    verify(http).putRow(outputMeta.capture(), outputRow.capture());
+    assertEquals(1, outputMeta.getValue().size());
+    assertEquals("Berlin", outputRow.getValue()[0]);
+    assertTrue(meta.getLookupFields().isEmpty());
+    assertTrue(meta.getResultFields().isEmpty());
   }
 
   // ---- reflection helpers ----

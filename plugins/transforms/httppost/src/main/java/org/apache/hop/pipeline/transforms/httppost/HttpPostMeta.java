@@ -154,6 +154,36 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
     super(); // allocate BaseTransformMeta
   }
 
+  /**
+   * Returns the first lookup-field group, or an empty one when the list is missing or empty.
+   * Pipelines saved without a {@code <lookup>} element leave {@link #lookupFields} empty.
+   *
+   * <p>This is a pure read: the empty group is not added to the list. The metadata is shared by all
+   * copies of the transform and read by dialogs that may be cancelled, so reading it must never
+   * change it. Writers replace the whole list (see the dialog's ok()).
+   */
+  public HttpPostLookupField getFirstLookupField() {
+    if (lookupFields == null || lookupFields.isEmpty()) {
+      return new HttpPostLookupField();
+    }
+    return lookupFields.getFirst();
+  }
+
+  /**
+   * Returns the first result-field group, or an empty one when the list is missing or empty. Like
+   * {@link #getFirstLookupField()}, this never changes the list.
+   *
+   * <p>The empty group names no fields at all. The no-argument constructor is not used for it
+   * because it defaults the status-code field to "result", which would add an output field nobody
+   * configured.
+   */
+  public HttpPostResultField getFirstResultField() {
+    if (resultFields == null || resultFields.isEmpty()) {
+      return new HttpPostResultField(null, null, null, null);
+    }
+    return resultFields.getFirst();
+  }
+
   @Override
   public void setDefault() {
     encoding = Const.UTF_8;
@@ -176,21 +206,22 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (!Utils.isEmpty(resultFields.get(0).getName())) {
-      IValueMeta v = new ValueMetaString(resultFields.get(0).getName());
+    HttpPostResultField resultField = getFirstResultField();
+    if (!Utils.isEmpty(resultField.getName())) {
+      IValueMeta v = new ValueMetaString(resultField.getName());
       inputRowMeta.addValueMeta(v);
     }
 
-    if (!Utils.isEmpty(resultFields.get(0).getCode())) {
-      IValueMeta v = new ValueMetaInteger(resultFields.get(0).getCode());
+    if (!Utils.isEmpty(resultField.getCode())) {
+      IValueMeta v = new ValueMetaInteger(resultField.getCode());
       inputRowMeta.addValueMeta(v);
     }
-    if (!Utils.isEmpty(resultFields.get(0).getResponseTimeFieldName())) {
+    if (!Utils.isEmpty(resultField.getResponseTimeFieldName())) {
       IValueMeta v =
-          new ValueMetaInteger(variables.resolve(resultFields.get(0).getResponseTimeFieldName()));
+          new ValueMetaInteger(variables.resolve(resultField.getResponseTimeFieldName()));
       inputRowMeta.addValueMeta(v);
     }
-    String headerFieldName = variables.resolve(resultFields.get(0).getResponseHeaderFieldName());
+    String headerFieldName = variables.resolve(resultField.getResponseHeaderFieldName());
     if (!Utils.isEmpty(headerFieldName)) {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);
@@ -240,7 +271,7 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
       } else {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "HTTPPOSTMeta.CheckResult.UrlfieldOk"),
                 transformMeta);
       }
