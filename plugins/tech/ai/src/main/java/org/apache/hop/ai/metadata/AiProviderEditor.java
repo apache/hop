@@ -120,10 +120,13 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     wScrolled.setContent(wContent);
 
     widgets = new GuiCompositeWidgets(manager.getVariables());
+    widgets.registerExtraGroup(
+        BaseMessages.getString(PKG, "AiProviderEditor.Models.Label"),
+        "30",
+        null,
+        this::addModelsTable);
     widgets.createCompositeWidgets(
         getMetadata(), null, wContent, AiProvider.GUI_WIDGETS_PARENT_ID, null);
-
-    addModelsTable();
 
     wScrolled.addListener(SWT.Resize, e -> relayoutScrolledContent());
 
@@ -142,25 +145,11 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   }
 
   /**
-   * The per-role model table. It sits below the generated widgets rather than being one of them,
-   * because a list of rows is not something {@code @GuiWidgetElement} can express.
+   * The per-role model table. A list of rows is not something {@code @GuiWidgetElement} can
+   * express, so it is registered as an extra group and built into the box {@link
+   * GuiCompositeWidgets} creates for it, next to the annotated groups.
    */
-  private void addModelsTable() {
-    Control last = widgets.getWidgetsMap().get(AiProvider.WIDGET_TEMPERATURE);
-
-    Label wlModels = new Label(wContent, SWT.LEFT);
-    wlModels.setText(BaseMessages.getString(PKG, "AiProviderEditor.Models.Label"));
-    wlModels.setToolTipText(BaseMessages.getString(PKG, "AiProviderEditor.Models.Tooltip"));
-    PropsUi.setLook(wlModels);
-    FormData fdlModels = new FormData();
-    fdlModels.left = new FormAttachment(0, 0);
-    fdlModels.right = new FormAttachment(100, 0);
-    fdlModels.top =
-        last == null
-            ? new FormAttachment(0, PropsUi.getMargin())
-            : new FormAttachment(last, PropsUi.getMargin() * 3);
-    wlModels.setLayoutData(fdlModels);
-
+  private void addModelsTable(Composite box) {
     ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -177,16 +166,19 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     wModels =
         new TableView(
             manager.getVariables(),
-            wContent,
+            box,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             columns,
             0,
             e -> setChanged(),
             PropsUi.getInstance());
+    wModels
+        .getTable()
+        .setToolTipText(BaseMessages.getString(PKG, "AiProviderEditor.Models.Tooltip"));
     FormData fdModels = new FormData();
     fdModels.left = new FormAttachment(0, 0);
     fdModels.right = new FormAttachment(100, 0);
-    fdModels.top = new FormAttachment(wlModels, PropsUi.getMargin());
+    fdModels.top = new FormAttachment(0, 0);
     fdModels.height = (int) (PropsUi.getInstance().getZoomFactor() * 140);
     wModels.setLayoutData(fdModels);
   }
