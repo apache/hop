@@ -140,7 +140,7 @@ class RestRequestLoggingTest {
     meta.getResultField().setFieldName("result");
 
     RestData data = new RestData();
-    data.mediaType = ContentType.APPLICATION_JSON;
+    data.mediaType = ContentType.create("application/json");
     data.method = method;
     data.realUrl = "http://example.com/api/things";
     data.resultFieldName = "result";

@@ -1656,19 +1656,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       headers.forEach(request::addHeader);
 
       if (RestMeta.isActiveBody(data.method)) {
-        // Issue #8507: ContentType.APPLICATION_JSON renders as
-        // "application/json; charset=UTF-8". HttpClient copies that onto the request
-        // when the row did not set Content-Type. Gateways such as Omie answer that
-        // parameter with HTTP 500 and a SOAP Sender fault, before the API runs.
-        // Hop 2.17 sent the mime type alone. A Content-Type the row set is kept as
-        // written, charset included. The body is still encoded with the charset.
-        Header suppliedContentType = request.getFirstHeader("Content-Type");
-        ContentType parsed = contentTypeForBody(suppliedContentType, contentType);
-        Charset charset = resolveCharset(parsed);
+        ContentType type = contentType != null ? ContentType.parse(contentType) : data.mediaType;
+        Charset charset = resolveCharset(type);
         trackRequestBytes(body, charset);
-        ContentType wireType = suppliedContentType == null ? mimeTypeOnly(parsed) : null;
         byte[] payload = body instanceof byte[] bytes ? bytes : ((String) body).getBytes(charset);
-        request.setEntity(new ByteArrayEntity(payload, wireType));
+        request.setEntity(new ByteArrayEntity(payload, type));
       }
 
       if (isDetailed()) {
@@ -1815,31 +1807,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (responseBytes > 0) {
       dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + responseBytes;
     }
-  }
-
-  /**
-   * The type used to encode the body. A header the row supplied wins, including its charset. A
-   * value that does not parse leaves the encoding at the application type, or UTF-8 when that is
-   * unset.
-   */
-  private ContentType contentTypeForBody(Header supplied, String contentType) {
-    String raw = supplied != null ? supplied.getValue() : contentType;
-    if (!Utils.isEmpty(raw)) {
-      try {
-        return ContentType.parse(raw);
-      } catch (Exception ignored) {
-        // Malformed Content-Type: keep the header as written and encode with the application type.
-      }
-    }
-    return data.mediaType;
-  }
-
-  /** Mime type only. The charset stays on the encoder and off the header (issue #8507). */
-  private static ContentType mimeTypeOnly(ContentType parsed) {
-    if (parsed == null || parsed.getMimeType() == null) {
-      return null;
-    }
-    return ContentType.create(parsed.getMimeType());
   }
 
   private Charset resolveCharset(String mediaTypeValue) {
@@ -2304,7 +2271,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       String applicationType = NVL(meta.getApplicationType(), "");
       switch (applicationType) {
         case RestMeta.APPLICATION_TYPE_XML -> data.mediaType = ContentType.APPLICATION_XML;
-        case RestMeta.APPLICATION_TYPE_JSON -> data.mediaType = ContentType.APPLICATION_JSON;
+          // Issue #8507: ContentType.APPLICATION_JSON has charset=UTF-8, which gateways such as
+          // Omie reject. JSON is defined as UTF-8 (RFC 8259), so omit the charset parameter.
+        case RestMeta.APPLICATION_TYPE_JSON ->
+            data.mediaType = ContentType.create("application/json");
         case RestMeta.APPLICATION_TYPE_OCTET_STREAM ->
             data.mediaType = ContentType.APPLICATION_OCTET_STREAM;
         case RestMeta.APPLICATION_TYPE_XHTML -> data.mediaType = ContentType.APPLICATION_XHTML_XML;

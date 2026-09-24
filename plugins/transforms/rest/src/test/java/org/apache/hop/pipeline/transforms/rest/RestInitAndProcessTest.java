@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -102,7 +103,8 @@ class RestInitAndProcessTest {
     assertEquals(5000, data.realConnectionTimeout);
     assertEquals(10000, data.realReadTimeout);
     assertEquals(RestMeta.HTTP_METHOD_GET, data.method);
-    assertEquals(ContentType.APPLICATION_JSON, data.mediaType);
+    assertEquals("application/json", data.mediaType.toString());
+    assertNull(data.mediaType.getCharset());
   }
 
   @Test
@@ -230,7 +232,8 @@ class RestInitAndProcessTest {
           assertEquals(ContentType.APPLICATION_XML, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_JSON:
-          assertEquals(ContentType.APPLICATION_JSON, data.mediaType);
+          assertEquals("application/json", data.mediaType.toString());
+          assertNull(data.mediaType.getCharset());
           break;
         case RestMeta.APPLICATION_TYPE_OCTET_STREAM:
           assertEquals(ContentType.APPLICATION_OCTET_STREAM, data.mediaType);

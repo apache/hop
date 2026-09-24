@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -257,7 +258,7 @@ class RestCallRestTest {
   }
 
   @Test
-  void testFormUrlEncodedPostOmitsCharsetAndKeepsLatin1Bytes() throws Exception {
+  void testFormUrlEncodedPostRetainsCharsetParameter() throws Exception {
     RestMeta meta = new RestMeta();
     meta.setMethod(RestMeta.HTTP_METHOD_POST);
     meta.setUrl("http://example.com/api");
@@ -279,8 +280,44 @@ class RestCallRestTest {
 
     ClassicHttpRequest request = FakeHttpClient.captured();
     assertNull(request.getFirstHeader("Content-Type"));
-    assertEquals("application/x-www-form-urlencoded", request.getEntity().getContentType());
+    assertEquals(
+        ContentType.APPLICATION_FORM_URLENCODED.toString(), request.getEntity().getContentType());
     assertArrayEquals("a=caf\u00e9".getBytes(StandardCharsets.ISO_8859_1), requestBytes());
+  }
+
+  @Test
+  void testTextPlainPostRetainsCharsetParameter() throws Exception {
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setUrl("http://example.com/api");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+
+    RestData data = new RestData();
+    data.mediaType = ContentType.TEXT_PLAIN;
+    data.method = RestMeta.HTTP_METHOD_POST;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 1;
+    data.inputRowMeta = rowMeta("field1", "body");
+
+    Rest rest = transform(meta, data, json(200, "{}"));
+    rest.callRest(new Object[] {"value1", "caf\u00e9"});
+
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertNull(request.getFirstHeader("Content-Type"));
+    assertEquals(ContentType.TEXT_PLAIN.toString(), request.getEntity().getContentType());
+    assertArrayEquals("caf\u00e9".getBytes(StandardCharsets.UTF_8), requestBytes());
+  }
+
+  @Test
+  void testMalformedRowContentTypeFails() {
+    Rest rest = post("Content-Type", "application/json; charset=utf-99");
+    assertThrows(
+        Exception.class,
+        () -> rest.callRest(new Object[] {"value1", "{}", "application/json; charset=utf-99"}));
   }
 
   @Test
@@ -655,7 +692,7 @@ class RestCallRestTest {
     meta.getResultField().setFieldName("result");
 
     RestData data = new RestData();
-    data.mediaType = ContentType.APPLICATION_JSON;
+    data.mediaType = ContentType.create("application/json");
     data.method = RestMeta.HTTP_METHOD_POST;
     data.realUrl = "http://example.com/api";
     data.resultFieldName = "result";
