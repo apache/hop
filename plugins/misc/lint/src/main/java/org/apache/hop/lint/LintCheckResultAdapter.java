@@ -101,6 +101,7 @@ public final class LintCheckResultAdapter {
 
     String severity = LintSeverity.fromCheckResultType(remark.getType());
     String ruleId = remark.getErrorCode();
+    String aliasRuleId = null;
 
     if (classifier != null && !classifier.isEmpty()) {
       NativeCheckClassifier.Classification classification = classifier.classify(remark);
@@ -110,8 +111,21 @@ public final class LintCheckResultAdapter {
         return null;
       }
       severity = classification.severity();
-      if (!Utils.isEmpty(classification.ruleId())) {
-        ruleId = classification.ruleId();
+      String classifyingRule = classification.ruleId();
+      if (!Utils.isEmpty(classifyingRule)) {
+        if (Utils.isEmpty(ruleId)) {
+          ruleId = classifyingRule;
+        } else if (classification.narrowed()) {
+          // A rule naming the plugin or the check is the more specific id. The code stays an
+          // alias, so a suppression written against it survives the project adding that rule.
+          aliasRuleId = ruleId;
+          ruleId = classifyingRule;
+        } else {
+          // A check with its own error code keeps it, so a project can address that one check.
+          // The blanket rule names every remark, and taking its id would collapse them all into
+          // one. It is kept alongside, so what a project wrote against it still applies.
+          aliasRuleId = classifyingRule;
+        }
       }
     }
 
@@ -130,7 +144,8 @@ public final class LintCheckResultAdapter {
         remark.getText(),
         fileName,
         sourceRef,
-        LintResult.Origin.HOP_NATIVE);
+        LintResult.Origin.HOP_NATIVE,
+        aliasRuleId);
   }
 
   private static String formatCheckText(LintResult lintResult) {

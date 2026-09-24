@@ -38,6 +38,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -396,6 +397,33 @@ class TableInputMetaTest {
                     new Variables(),
                     new MemoryMetadataProvider()));
     Assertions.assertTrue(e.getMessage().contains("${connection_name}"), e.getMessage());
+  }
+
+  /**
+   * A connection that is not in the project is reported once, by the pipeline check, under its
+   * error code. Table input used to add a remark of its own, without a code, saying the same thing.
+   */
+  @Test
+  void aMissingConnectionIsReportedOnceByPipelineVerify() {
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection("doesnotexist");
+    meta.setSql("SELECT 1");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(new TransformMeta("Table input", meta));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    pipelineMeta.checkTransforms(
+        remarks, false, null, new Variables(), new MemoryMetadataProvider());
+
+    List<ICheckResult> aboutTheConnection =
+        remarks.stream()
+            .filter(r -> r.getType() != ICheckResult.TYPE_RESULT_OK)
+            .filter(r -> r.getText().toLowerCase().contains("connection"))
+            .toList();
+    Assertions.assertEquals(1, aboutTheConnection.size(), aboutTheConnection.toString());
+    Assertions.assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_DOES_NOT_EXIST,
+        aboutTheConnection.get(0).getErrorCode());
   }
 
   private static TableInputMeta namedParameterMeta() {

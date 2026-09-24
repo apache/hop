@@ -153,4 +153,46 @@ public class LintBaselineTest {
 
     assertEquals(1, LintBaseline.read(baselineFile).filter(results, ROOT).size());
   }
+
+  /**
+   * A baseline written while every native remark was reported as HOP-CHECK still covers a check
+   * that is now reported under its own error code.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
+   */
+  @Test
+  public void aBaselineRecordedUnderTheClassifyingRuleStillApplies(@TempDir Path dir)
+      throws IOException {
+    Path baselineFile = dir.resolve("baseline.json");
+    LintBaseline.write(baselineFile, List.of(finding("HOP-CHECK", "a.hpl", "Table input")), ROOT);
+    LintBaseline baseline = LintBaseline.read(baselineFile);
+    List<LintResult> now = List.of(missingConnection("a.hpl", "Table input"));
+
+    assertEquals(List.of(), baseline.filter(now, ROOT));
+    assertEquals(0, baseline.countStaleEntries(now, ROOT));
+  }
+
+  /** New baselines record the check under its own code. */
+  @Test
+  public void aNewBaselineRecordsTheChecksOwnCode(@TempDir Path dir) throws IOException {
+    Path baselineFile = dir.resolve("baseline.json");
+    LintBaseline.write(baselineFile, List.of(missingConnection("a.hpl", "Table input")), ROOT);
+
+    assertTrue(
+        Files.readString(baselineFile, StandardCharsets.UTF_8)
+            .contains("\"CONNECTION_DOES_NOT_EXIST|a.hpl|Table input\""));
+  }
+
+  /** Hop's missing-connection check, reported under its own code after HOP-CHECK classified it. */
+  private LintResult missingConnection(String relativePath, String sourceName) {
+    return new LintResult(
+        "CONNECTION_DOES_NOT_EXIST",
+        sourceName,
+        "WARNING",
+        "Database connection 'warehouse' assigned on transform 'Table input' does not exist",
+        ROOT.resolve(relativePath).toString(),
+        LintSourceRef.transform(sourceName),
+        LintResult.Origin.HOP_NATIVE,
+        "HOP-CHECK");
+  }
 }

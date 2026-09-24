@@ -383,14 +383,10 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       } finally {
         db.close();
       }
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              "Please select or create a connection to use",
-              transformMeta);
-      remarks.add(cr);
     }
+    // A connection that is not set, or not in the project, is reported by the pipeline check
+    // (ReferencedDatabaseConnectionChecker) for every transform. Reporting it here too told the
+    // user the same thing twice, once without an error code.
 
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
     IRowMeta parameterFields = parameterRowMeta(new IRowMeta[] {info}, prev);

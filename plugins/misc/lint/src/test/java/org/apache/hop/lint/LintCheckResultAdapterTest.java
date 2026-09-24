@@ -21,7 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Test;
 
 public class LintCheckResultAdapterTest {
@@ -80,5 +84,81 @@ public class LintCheckResultAdapterTest {
 
     org.junit.jupiter.api.Assertions.assertNotNull(check);
     org.junit.jupiter.api.Assertions.assertNull(check.getSourceInfo());
+  }
+
+  /**
+   * A check that sets its own error code is reported under it. The blanket rule names every remark,
+   * so taking its id instead left a project unable to tell one check from another.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
+   */
+  @Test
+  public void aChecksOwnErrorCodeSurvivesTheBlanketRule() {
+    NativeCheckClassifier classifier =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING")));
+
+    LintResult result =
+        LintCheckResultAdapter.fromCheckResult(
+            missingConnectionRemark(), "/tmp/test.hpl", classifier);
+
+    assertEquals("CONNECTION_DOES_NOT_EXIST", result.getRuleId());
+    assertEquals("HOP-CHECK", result.getAliasRuleId());
+    assertEquals("WARNING", result.getSeverity(), "the blanket rule still sets the severity");
+  }
+
+  @Test
+  public void aRemarkWithoutAnErrorCodeIsReportedUnderTheRuleThatClassifiedIt() {
+    NativeCheckClassifier classifier =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING")));
+
+    LintResult result =
+        LintCheckResultAdapter.fromCheckResult(
+            new CheckResult(ICheckResult.TYPE_RESULT_ERROR, "boom", tableInput()),
+            "/tmp/test.hpl",
+            classifier);
+
+    assertEquals("HOP-CHECK", result.getRuleId());
+    assertEquals(List.of("HOP-CHECK"), result.getRuleIds());
+  }
+
+  /** A rule a project wrote for one plugin or one check is more specific than a code. */
+  @Test
+  public void aNarrowedRuleWinsOverTheErrorCode() {
+    CustomLintRule tableInput = nativeRule("HOP-CHECK-TABLEINPUT", "ERROR");
+    tableInput.setAppliesTo(List.of("TableInput"));
+    NativeCheckClassifier classifier =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING"), tableInput));
+
+    LintResult result =
+        LintCheckResultAdapter.fromCheckResult(
+            missingConnectionRemark(), "/tmp/test.hpl", classifier);
+
+    assertEquals("HOP-CHECK-TABLEINPUT", result.getRuleId());
+    assertEquals("ERROR", result.getSeverity());
+    assertEquals(
+        "CONNECTION_DOES_NOT_EXIST",
+        result.getAliasRuleId(),
+        "a suppression naming the code must survive the project adding this rule");
+  }
+
+  private static ICheckResult missingConnectionRemark() {
+    return new CheckResult(
+        ICheckResult.TYPE_RESULT_WARNING,
+        ReferencedDatabaseConnectionChecker.ERROR_DOES_NOT_EXIST,
+        "Database connection 'warehouse' assigned on transform 'Table input' does not exist",
+        tableInput());
+  }
+
+  private static TransformMeta tableInput() {
+    return new TransformMeta("TableInput", "Table input", null);
+  }
+
+  private static CustomLintRule nativeRule(String id, String severity) {
+    CustomLintRule rule = new CustomLintRule();
+    rule.setId(id);
+    rule.setType(CustomLintRule.TYPE_NATIVE);
+    rule.setSeverity(severity);
+    rule.setEnabled(true);
+    return rule;
   }
 }

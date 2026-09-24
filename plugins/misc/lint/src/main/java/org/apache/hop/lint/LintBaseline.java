@@ -126,13 +126,9 @@ public final class LintBaseline {
     Map<String, Integer> remaining = new LinkedHashMap<>(accepted);
     List<LintResult> fresh = new ArrayList<>();
     for (LintResult result : results) {
-      String fingerprint = fingerprint(result, projectRoot);
-      Integer left = remaining.get(fingerprint);
-      if (left != null && left > 0) {
-        remaining.put(fingerprint, left - 1);
-        continue;
+      if (!claim(remaining, result, projectRoot)) {
+        fresh.add(result);
       }
-      fresh.add(result);
     }
     return fresh;
   }
@@ -144,18 +140,36 @@ public final class LintBaseline {
   public int countStaleEntries(List<LintResult> results, Path projectRoot) {
     Map<String, Integer> remaining = new LinkedHashMap<>(accepted);
     for (LintResult result : results) {
-      String fingerprint = fingerprint(result, projectRoot);
-      Integer left = remaining.get(fingerprint);
-      if (left != null && left > 0) {
-        remaining.put(fingerprint, left - 1);
-      }
+      claim(remaining, result, projectRoot);
     }
     return remaining.values().stream().mapToInt(Integer::intValue).sum();
   }
 
+  /**
+   * Take one recorded occurrence of this finding, if one is left.
+   *
+   * <p>Tried under each rule id the finding answers to, its own first: a baseline written before a
+   * check reported its own error code recorded it under the native rule that classified it.
+   */
+  private static boolean claim(Map<String, Integer> remaining, LintResult result, Path root) {
+    for (String ruleId : result.getRuleIds()) {
+      String fingerprint = fingerprint(ruleId, result, root);
+      Integer left = remaining.get(fingerprint);
+      if (left != null && left > 0) {
+        remaining.put(fingerprint, left - 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
   static String fingerprint(LintResult result, Path projectRoot) {
+    return fingerprint(result.getRuleId(), result, projectRoot);
+  }
+
+  private static String fingerprint(String ruleId, LintResult result, Path projectRoot) {
     String file = LintPolicy.relativise(result.getFileName(), projectRoot);
     String source = result.getSource() != null ? result.getSource().getName() : "";
-    return result.getRuleId() + "|" + file + "|" + (source != null ? source : "");
+    return ruleId + "|" + file + "|" + (source != null ? source : "");
   }
 }

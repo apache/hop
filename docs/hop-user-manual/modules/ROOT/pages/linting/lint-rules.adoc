@@ -239,11 +239,11 @@ rules:
     severity: WARNING
 ----
 
-`severity` is what the linter reports the remark as, whatever severity the transform gave it, and `enabled: false` drops it.
+`severity` on a rule that covers every remark is a cap: a remark above it is lowered to it, and one below it keeps the severity the transform gave it, so a comment is never reported as a warning. On a rule narrowed with `appliesTo` or `messageKey`, `severity` is what the linter reports those remarks as, higher or lower than the transform gave them. `enabled: false` drops the remarks the rule covers.
 Two optional keys narrow a rule to less than every remark:
 
 * `appliesTo` — the plugin ids of the transforms or actions it covers, as for any other rule.
-* `messageKey` — one single check, named as `<i18n package>:<key>` for the message it prints, the same form Hop's plugin annotations use. The key is resolved through the plugin's own message bundle, so the rule keeps matching in every language rather than depending on the English wording. A key that no longer resolves matches nothing rather than everything.
+* `messageKey` — one single check, named as `<i18n package>:<key>` for the message it prints, the same form Hop's plugin annotations use. The key is resolved through the plugin's own message bundle, so the rule keeps matching in every language rather than depending on the English wording. For a check that fills values into its message, such as a connection or field name, the rule matches whatever values the check filled in. A key that no longer resolves matches nothing rather than everything.
 
 The most specific rule wins — one naming the check beats one naming only the plugin, which beats the blanket rule — so a pack can hold a general policy and an exception to it, and the order of the file does not decide which applies.
 
@@ -256,7 +256,9 @@ rules:
     severity: ERROR
 ----
 
-Findings from a native rule carry that rule's id, so they suppress by id like any other:
+Findings from a native rule carry that rule's id, so they suppress by id like any other.
+A check that sets an error code of its own, such as `CONNECTION_DOES_NOT_EXIST`, is reported under that code instead, unless a rule naming its plugin or its message matched it.
+A suppression or baseline entry can name either the code or the native rule that classified the finding, and one naming the code keeps working when a rule naming that check is added later:
 
 [source,yaml]
 ----

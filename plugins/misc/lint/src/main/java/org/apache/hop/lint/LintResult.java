@@ -16,6 +16,10 @@
  */
 package org.apache.hop.lint;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /** Data class to hold the result of a single linting violation. */
 public class LintResult {
 
@@ -31,6 +35,7 @@ public class LintResult {
   private final String fileName;
   private final LintSourceRef source;
   private final Origin origin;
+  private final String aliasRuleId;
 
   public LintResult(
       String ruleId, String ruleName, String severity, String message, String fileName) {
@@ -45,6 +50,23 @@ public class LintResult {
       String fileName,
       LintSourceRef source,
       Origin origin) {
+    this(ruleId, ruleName, severity, message, fileName, source, origin, null);
+  }
+
+  /**
+   * @param aliasRuleId the other id a native remark answers to: the rule that classified it when it
+   *     is reported under its own error code, or that error code when a narrowed rule named it;
+   *     null otherwise
+   */
+  public LintResult(
+      String ruleId,
+      String ruleName,
+      String severity,
+      String message,
+      String fileName,
+      LintSourceRef source,
+      Origin origin,
+      String aliasRuleId) {
     this.ruleId = ruleId;
     this.ruleName = ruleName;
     this.severity = severity;
@@ -52,6 +74,7 @@ public class LintResult {
     this.fileName = fileName;
     this.source = source;
     this.origin = origin != null ? origin : Origin.LINT;
+    this.aliasRuleId = aliasRuleId;
   }
 
   public String getRuleId() {
@@ -80,6 +103,26 @@ public class LintResult {
 
   public Origin getOrigin() {
     return origin;
+  }
+
+  /**
+   * The other id this finding answers to, or null.
+   *
+   * <p>A native remark with its own error code is reported under that code, and answers to the rule
+   * that classified it too, so what a project wrote against {@code HOP-CHECK} still applies. When a
+   * rule naming the check wins instead, the finding answers to the error code as well, so a
+   * suppression written against the code keeps working after a project adds such a rule.
+   */
+  public String getAliasRuleId() {
+    return aliasRuleId;
+  }
+
+  /** The rule ids this finding answers to: its own, then its alias, if any. */
+  public List<String> getRuleIds() {
+    if (aliasRuleId == null || aliasRuleId.equalsIgnoreCase(ruleId)) {
+      return Collections.singletonList(ruleId);
+    }
+    return Arrays.asList(ruleId, aliasRuleId);
   }
 
   @Override
