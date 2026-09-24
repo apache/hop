@@ -17,6 +17,7 @@ under the License.
 [[HopGui]]
 
 :description: Hop Gui is Hop's visual development environment where you will mainly design, run and debug workflows and pipelines, but Hop Gui has a lot more to offer: you can configure all of your metadata items like database connections, run configurations etc. You can search, manage files, version control your work and more.
+:imagesdir: ../assets/images
 
 
 = Hop Gui
@@ -40,3 +41,24 @@ Covered here are:
 * xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]: a list of the keyboard shortcuts that are available in Hop Gui.
 * xref:hop-gui/hop-web.adoc[Hop Web]: a web version of Hop Gui that provides the exact same functionality and user experience as the desktop version.
 For Docker volume mounts and upgrades, see xref:hop-web-docker.adoc[Hop Web in Docker].
+
+== Bottom panel
+
+The button at the bottom left of the window shows or hides the bottom panel.
+Above it are buttons for the terminal, search, the database workbench, and the xref:hop-gui/vfs-file-explorer.adoc[VFS file explorer].
+Each button opens that tool in the panel.
+A button stays highlighted while the panel is visible and that tool's tab is open.
+Click the same button again to hide the panel when that tab is already in front.
+The execution-results button stays above those and is only there in the file explorer, on a pipeline or workflow.
+
+image::hop-gui/bottom-panel.png[The database workbench in the bottom panel. The database button and the panel button stay highlighted while that tab is open.,width="90%"]
+
+`CTRL-J` shows the terminal, and hides the panel when a terminal tab is already selected.
+`CTRL-SHIFT-J` opens another terminal.
+`CTRL-F` still opens Search Everywhere.
+The search button opens the results view in the bottom panel.
+
+In the xref:hop-gui/perspective-configuration.adoc[Configuration perspective], on the General tab, *Enable embedded terminal* turns the built-in terminal off on desktops where it misbehaves.
+Search, the database workbench, and the VFS file explorer stay available.
+Hop Web has no embedded terminal.
+An administrator can also force the terminal off by excluding `40010-menu-tools-terminal` in xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml].

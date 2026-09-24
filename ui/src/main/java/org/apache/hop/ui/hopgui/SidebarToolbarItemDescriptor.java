@@ -82,6 +82,12 @@ public class SidebarToolbarItemDescriptor {
    */
   @Builder.Default BooleanSupplier selectedSupplier = () -> false;
 
-  /** Whether this item is available (e.g. terminal only when not in web). */
+  /** Whether this item is available (e.g. a button that is always shown). */
   @Builder.Default boolean available = true;
+
+  /**
+   * When set, checked on every toolbar refresh instead of {@link #available}. Use this when
+   * availability can change while Hop is running, such as the embedded terminal option.
+   */
+  @Builder.Default BooleanSupplier availableSupplier = null;
 }

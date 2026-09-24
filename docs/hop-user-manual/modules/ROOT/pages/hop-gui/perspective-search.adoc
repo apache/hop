@@ -44,6 +44,7 @@ Open search with `CTRL-F` or *Edit → Find*. Type in the search field to filter
 Results are grouped by *Open files* and *Project files*, then by type (Pipeline, Workflow, metadata type, and so on). Use the arrow keys to move, *Enter* to open the selection, and *Escape* to close the popup.
 
 *Show all results* hands the same query to a search tab in the bottom dock for deeper browsing (details panel, open selected item).
+The search button at the bottom left of the window opens that same results view, focusing the latest search tab when one is already open.
 
 === What is searched
 

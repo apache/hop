@@ -78,6 +78,10 @@ For each element that needs to be disabled, you can add an extra `<exclusion>` l
 * `@GuiKeyboardShortcut` – use the shortcut's `className#methodName`
 * `@HopMetadata` – use the metadata plugin id (from `key` or `name` in the annotation)
 * `@ExtensionPoint` – use the extension point plugin's `id`
-* `@ConfigPlugin` – use the config plugin's `id` 
+* `@ConfigPlugin` – use the config plugin's `id`
+
+Excluding `40010-menu-tools-terminal` forces the embedded terminal off for every user of that installation.
+The bottom panel, search, database workbench, and VFS file explorer stay available.
+Users who only want to turn their own terminal off can clear *Enable embedded terminal* on the General tab of the xref:hop-gui/perspective-configuration.adoc[Configuration perspective]. 
 
 
