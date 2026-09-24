@@ -140,21 +140,17 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
 import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
-import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchViews;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
-import org.apache.hop.ui.hopgui.search.HopGuiSearchResultsPanel;
 import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
 import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
-import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -319,18 +315,6 @@ public class HopGui
 
   /** Id for the bottom-panel show/hide button in the sidebar bottom toolbar. */
   public static final String SIDEBAR_TOOLBAR_ITEM_PANEL = "HopGui-SidebarToolbar-Panel";
-
-  /** Id for the terminal button in the sidebar bottom toolbar. */
-  public static final String SIDEBAR_TOOLBAR_ITEM_TERMINAL = "HopGui-SidebarToolbar-Terminal";
-
-  /** Id for the search button in the sidebar bottom toolbar. */
-  public static final String SIDEBAR_TOOLBAR_ITEM_SEARCH = "HopGui-SidebarToolbar-Search";
-
-  /** Id for the database workbench button in the sidebar bottom toolbar. */
-  public static final String SIDEBAR_TOOLBAR_ITEM_DATABASE = "HopGui-SidebarToolbar-Database";
-
-  /** Id for the VFS file explorer button in the sidebar bottom toolbar. */
-  public static final String SIDEBAR_TOOLBAR_ITEM_VFS = "HopGui-SidebarToolbar-VfsExplorer";
 
   public static final String DEFAULT_HOP_GUI_NAMESPACE = "hop-gui";
 
@@ -2273,7 +2257,8 @@ public class HopGui
 
     // Register built-in sidebar toolbar items. The first item added sits at the bottom because
     // refresh lays the list out in reverse. Execution results stays File Explorer only and is
-    // added last so it sits above the panel tools.
+    // added last so it sits above the panel button. Tools in the bottom panel are added from the
+    // "+" tab, not from here.
     int sidebarIconSize = 24;
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
@@ -2288,46 +2273,6 @@ public class HopGui
                   }
                 })
             .selectedSupplier(() -> terminalPanel != null && terminalPanel.isDockVisible())
-            .available(true)
-            .build());
-    sidebarToolbarDescriptors.add(
-        SidebarToolbarItemDescriptor.builder()
-            .id(SIDEBAR_TOOLBAR_ITEM_TERMINAL)
-            .imagePath("ui/images/terminal.svg")
-            .imageSize(sidebarIconSize)
-            .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.Terminal.Tooltip"))
-            .onSelect(() -> activateBottomPanelTool(HopGuiBottomDock.TOOL_ID_TERMINAL))
-            .selectedSupplier(() -> bottomPanelToolSelected(HopGuiBottomDock.TOOL_ID_TERMINAL))
-            .availableSupplier(HopGuiBottomDock::isTerminalCapabilityEnabled)
-            .build());
-    sidebarToolbarDescriptors.add(
-        SidebarToolbarItemDescriptor.builder()
-            .id(SIDEBAR_TOOLBAR_ITEM_SEARCH)
-            .imagePath("ui/images/search.svg")
-            .imageSize(sidebarIconSize)
-            .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.Search.Tooltip"))
-            .onSelect(() -> activateBottomPanelTool(HopGuiBottomDock.SEARCH_TOOL_ID_PREFIX))
-            .selectedSupplier(() -> bottomPanelToolSelected(HopGuiBottomDock.SEARCH_TOOL_ID_PREFIX))
-            .available(true)
-            .build());
-    sidebarToolbarDescriptors.add(
-        SidebarToolbarItemDescriptor.builder()
-            .id(SIDEBAR_TOOLBAR_ITEM_DATABASE)
-            .imagePath("ui/images/database.svg")
-            .imageSize(sidebarIconSize)
-            .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.Database.Tooltip"))
-            .onSelect(() -> activateBottomPanelTool(DatabaseWorkbenchViews.DOCK_TOOL_ID))
-            .selectedSupplier(() -> bottomPanelToolSelected(DatabaseWorkbenchViews.DOCK_TOOL_ID))
-            .available(true)
-            .build());
-    sidebarToolbarDescriptors.add(
-        SidebarToolbarItemDescriptor.builder()
-            .id(SIDEBAR_TOOLBAR_ITEM_VFS)
-            .imagePath("ui/images/folder.svg")
-            .imageSize(sidebarIconSize)
-            .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.VfsExplorer.Tooltip"))
-            .onSelect(() -> activateBottomPanelTool(VfsFileExplorerViews.DOCK_TOOL_ID))
-            .selectedSupplier(() -> bottomPanelToolSelected(VfsFileExplorerViews.DOCK_TOOL_ID))
             .available(true)
             .build());
     sidebarToolbarDescriptors.add(
@@ -2775,11 +2720,7 @@ public class HopGui
     // Collect visible descriptors, then add in reverse order so extra buttons go on top
     List<SidebarToolbarItemDescriptor> visible = new ArrayList<>();
     for (SidebarToolbarItemDescriptor d : sidebarToolbarDescriptors) {
-      boolean itemAvailable =
-          d.getAvailableSupplier() != null
-              ? d.getAvailableSupplier().getAsBoolean()
-              : d.isAvailable();
-      if (!itemAvailable || disabledGuiElements.contains(d.getId())) {
+      if (!d.isAvailable() || disabledGuiElements.contains(d.getId())) {
         continue;
       }
       boolean show;
@@ -3079,64 +3020,6 @@ public class HopGui
       }
     }
     return null;
-  }
-
-  /** Sidebar highlight: the panel is visible and this tool still has a tab open. */
-  private boolean bottomPanelToolSelected(String toolId) {
-    return terminalPanel != null && !terminalPanel.isDisposed() && terminalPanel.isToolOpen(toolId);
-  }
-
-  /**
-   * Show {@code toolId} in the bottom panel. A second click, while that tool's tab is selected,
-   * hides the panel.
-   */
-  private void activateBottomPanelTool(String toolId) {
-    if (terminalPanel == null || terminalPanel.isDisposed()) {
-      return;
-    }
-    if (terminalPanel.isDockVisible() && terminalPanel.isToolSelected(toolId)) {
-      terminalPanel.hideDock();
-      return;
-    }
-    if (HopGuiBottomDock.TOOL_ID_TERMINAL.equals(toolId)) {
-      terminalPanel.focusTerminal();
-    } else if (HopGuiBottomDock.SEARCH_TOOL_ID_PREFIX.equals(toolId)) {
-      openOrFocusSearchInDock();
-    } else if (DatabaseWorkbenchViews.DOCK_TOOL_ID.equals(toolId)) {
-      DatabaseWorkbenchViews.openDock(this);
-    } else if (VfsFileExplorerViews.DOCK_TOOL_ID.equals(toolId)) {
-      VfsFileExplorerViews.openOrFocusDock(this);
-    }
-  }
-
-  /** Focus the latest search tab in the bottom panel, or open an empty one. */
-  private void openOrFocusSearchInDock() {
-    if (terminalPanel == null || terminalPanel.isDisposed()) {
-      return;
-    }
-    CTabItem existing =
-        terminalPanel.findLastToolTabByPrefix(HopGuiBottomDock.SEARCH_TOOL_ID_PREFIX);
-    if (existing != null) {
-      terminalPanel.selectTab(existing);
-      Control content = terminalPanel.getToolContent(existing);
-      if (content instanceof HopGuiSearchResultsPanel panel) {
-        panel.focusSearchField();
-      }
-      return;
-    }
-    String title =
-        BaseMessages.getString(
-            SearchEverywhereDialog.class, "SearchEverywhereDialog.ShowAll.TabTitle");
-    Control content =
-        terminalPanel.openToolTab(
-            terminalPanel.nextSearchToolId(),
-            title,
-            GuiResource.getInstance().getImageSearch(),
-            true,
-            container -> new HopGuiSearchResultsPanel(container, this));
-    if (content instanceof HopGuiSearchResultsPanel panel) {
-      panel.focusSearchField();
-    }
   }
 
   /** Toggle execution results panel for the currently active pipeline or workflow */
