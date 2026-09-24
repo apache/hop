@@ -6249,6 +6249,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           e);
     }
 
+    stopRedrawTimer();
+    checkErrorVisuals();
     updateGui();
   }
 
@@ -6256,6 +6258,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     log.logBasic(
         BaseMessages.getString(
             PKG, "PipelineLog.Log.ProcessingOfPipelineStopped", pipelineMeta.getName()));
+    stopRedrawTimer();
+    checkErrorVisuals();
     updateGui();
   }
 
@@ -6711,14 +6715,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void checkErrorVisuals() {
-    if (pipeline.getErrors() > 0) {
+    if (pipeline != null) {
       // Get the logging text and filter it out. Store it in the transformLogMap...
       // Use non-empty placeholder when log is null/empty so the transform is still marked red
       // (e.g. invalid copies transform never ran init so has no log output).
       //
       transformLogMap = new HashMap<>();
       for (IEngineComponent component : pipeline.getComponents()) {
-        if (component.getErrors() > 0) {
+        if (component != null && component.getErrors() > 0) {
           String logText = component.getLogText();
           transformLogMap.put(
               component.getName(),
@@ -6728,13 +6732,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   : logText);
         }
       }
-
+      if (transformLogMap.isEmpty()) {
+        transformLogMap = null;
+      }
     } else {
       transformLogMap = null;
     }
     // Redraw the canvas to show the error icons etc.
     //
-    hopDisplay().asyncExec(this::redraw);
+    hopDisplay()
+        .asyncExec(
+            () -> {
+              if (canvas != null && !canvas.isDisposed()) {
+                canvas.redraw();
+              }
+            });
   }
 
   public synchronized void showLastPreviewResults() {

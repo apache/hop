@@ -174,8 +174,48 @@ class PipelineCanvasSvgRendererTest {
                 transformLogMap)
             .getSvg();
 
-    assertFalse(svg.contains("#5cc0c4"), svg);
+    assertTrue(svg.contains("#5cc0c4"), svg);
     assertTrue(svg.contains("#ea102a"), svg);
+  }
+
+  @Test
+  void failureIconWithPartialCopiesDrawsBothBadges() throws Exception {
+    Map<String, String> transformLogMap = new HashMap<>();
+    transformLogMap.put("Load", "transform failed");
+    String svg =
+        renderWithCopies(
+                List.of(
+                    copy(0, ComponentExecutionStatus.STATUS_FINISHED),
+                    copy(1, ComponentExecutionStatus.STATUS_RUNNING)),
+                transformLogMap)
+            .getSvg();
+
+    assertTrue(svg.contains("#ea102a"), svg);
+    assertTrue(svg.contains("rgb(92,192,196)") || svg.contains("rgb(92, 192, 196)"), svg);
+    assertTrue(svg.contains(">1<") || svg.contains(">1</text>"), svg);
+  }
+
+  @Test
+  void failureIconDrawnFromComponentErrorsWithoutTransformLogMap() throws Exception {
+    EngineComponent failedCopy = copy(0, ComponentExecutionStatus.STATUS_STOPPED);
+    failedCopy.setErrors(1);
+    EngineComponent runningCopy = copy(1, ComponentExecutionStatus.STATUS_RUNNING);
+
+    String svg = renderWithCopies(List.of(failedCopy, runningCopy), null).getSvg();
+
+    assertTrue(svg.contains("#ea102a"), "Failure icon should be drawn from copy errors");
+  }
+
+  @Test
+  void finishedWithErrorsDrawsFailureAndSuccessWhenTransformLogMapIsNull() throws Exception {
+    EngineComponent copy0 = copy(0, ComponentExecutionStatus.STATUS_FINISHED);
+    copy0.setErrors(1);
+    EngineComponent copy1 = copy(1, ComponentExecutionStatus.STATUS_FINISHED);
+
+    String svg = renderWithCopies(List.of(copy0, copy1), null).getSvg();
+
+    assertTrue(svg.contains("#ea102a"), "Failure icon should be drawn from copy errors");
+    assertTrue(svg.contains("#5cc0c4"), "Success check should be drawn alongside failure icon");
   }
 
   @Test

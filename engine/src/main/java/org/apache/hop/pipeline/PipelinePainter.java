@@ -685,6 +685,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     int x = screen.x;
     int y = screen.y;
 
+    if (hasTransformFailureIcon(transformMeta)) {
+      x += miniIconSize;
+    }
+
     TransformCopyCompletion.Summary summary =
         TransformCopyCompletion.of(pipeline.getComponentCopies(transformMeta.getName()));
     switch (summary.badge()) {
@@ -694,16 +698,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               (x + iconSize) - (miniIconSize / 2) + 1,
               y - (miniIconSize / 2) - 1,
               magnification);
-      case FINISHED -> {
-        // The failure icon already occupies this corner.
-        if (!hasTransformFailureIcon(transformMeta)) {
+      case FINISHED ->
           gc.drawImage(
               EImage.SUCCESS,
               (x + iconSize) - (miniIconSize / 2) + 1,
               y - (miniIconSize / 2) - 1,
               magnification);
-        }
-      }
       case PARTIAL -> drawPartialCopyBadge(x, y, summary.finished());
       case NONE -> {
         // Still starting, still running, or stopped before any copy finished.
@@ -712,10 +712,24 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   private boolean hasTransformFailureIcon(TransformMeta transformMeta) {
-    if (Utils.isEmpty(transformLogMap)) {
+    if (transformMeta == null) {
       return false;
     }
-    return !Utils.isEmpty(transformLogMap.get(transformMeta.getName()));
+    if (!Utils.isEmpty(transformLogMap)
+        && !Utils.isEmpty(transformLogMap.get(transformMeta.getName()))) {
+      return true;
+    }
+    if (pipeline != null) {
+      List<IEngineComponent> copies = pipeline.getComponentCopies(transformMeta.getName());
+      if (copies != null) {
+        for (IEngineComponent copy : copies) {
+          if (copy != null && copy.getErrors() > 0) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   /** Azure disc with the number of finished copies, anchored on the icon's top-right corner. */
@@ -851,13 +865,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     int x = screen.x;
     int y = screen.y;
 
-    boolean transformError = false;
-    if (!Utils.isEmpty(transformLogMap)) {
-      String log = transformLogMap.get(transformMeta.getName());
-      if (!Utils.isEmpty(log)) {
-        transformError = true;
-      }
-    }
+    boolean transformError = hasTransformFailureIcon(transformMeta);
 
     // PARTITIONING
 
@@ -1027,10 +1035,30 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               transformMeta));
     }
 
-    // If there was an error during the run, the map "transformLogMap" is not empty and not null.
+    // If there was an error during the run, show the failure icon in the upper right corner...
     //
     if (transformError) {
-      String log = transformLogMap.get(transformMeta.getName());
+      String log = null;
+      if (!Utils.isEmpty(transformLogMap)) {
+        log = transformLogMap.get(transformMeta.getName());
+      }
+      if (Utils.isEmpty(log) && pipeline != null) {
+        List<IEngineComponent> copies = pipeline.getComponentCopies(transformMeta.getName());
+        if (copies != null) {
+          for (IEngineComponent copy : copies) {
+            if (copy != null && copy.getErrors() > 0) {
+              String text = copy.getLogText();
+              if (!Utils.isEmpty(text)) {
+                log = text;
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (Utils.isEmpty(log)) {
+        log = STRING_TRANSFORM_ERROR_LOG;
+      }
 
       // Show an error lines icon in the upper right corner of the transform...
       //
