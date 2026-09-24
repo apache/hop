@@ -43,13 +43,18 @@ services:
         until ollama list >/dev/null 2>&1; do sleep 1; done
         ollama pull nomic-embed-text
         ollama pull qwen2.5:0.5b
+        # llama.cpp starts a thread per CPU it sees. On a 16 CPU Docker VM that ran at seconds per
+        # token and timed the test out; four threads answered in about a second.
+        printf 'FROM qwen2.5:0.5b\nPARAMETER num_thread 4\n' > /tmp/Modelfile
+        ollama create qwen2.5-hop-it -f /tmp/Modelfile
         wait
     healthcheck:
       # nomic-embed-text is ~274MB and returns 768 dimensions, which the Embed text test asserts
       # on. qwen2.5:0.5b is ~400MB and is the chat model Structured extract uses: Ollama
       # constrains generation to the JSON schema, so a small model is enough to return the right
-      # shape. Extend this condition when another model is added above.
-      test: ["CMD-SHELL", "ollama list | grep -q nomic-embed-text && ollama list | grep -q qwen2.5"]
+      # shape. It is served as qwen2.5-hop-it, pinned to four threads. Extend this condition when
+      # another model is added above.
+      test: ["CMD-SHELL", "ollama list | grep -q nomic-embed-text && ollama list | grep -q qwen2.5-hop-it"]
       interval: 10s
       timeout: 10s
       retries: 60

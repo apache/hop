@@ -20,8 +20,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
@@ -52,10 +57,43 @@ public final class ExtractionParser {
     Object[] values = new Object[fields.size()];
     for (int i = 0; i < fields.size(); i++) {
       StructuredExtractField field = fields.get(i);
-      JsonNode node = root.get(field.getName());
-      values[i] = node == null || node.isNull() ? null : coerce(node, field);
+      // The schema, the prompt and the output column all use the trimmed name, so the answer is
+      // read back under that name too.
+      JsonNode node = root.get(field.trimmedName());
+      if (node == null || node.isNull()) {
+        continue;
+      }
+      // Checked before coercion, which turns an empty answer into null and would let it through.
+      checkAllowed(node, field);
+      values[i] = coerce(node, field);
     }
     return values;
+  }
+
+  /**
+   * A provider that does not enforce the schema, or a model on the prompt-only path, can still
+   * answer outside the list. That answer is reported rather than passed on as a valid value. An
+   * empty answer counts as outside the list, unless the field is optional, where it means absent.
+   */
+  private static void checkAllowed(JsonNode node, StructuredExtractField field)
+      throws HopException {
+    List<String> allowed = ExtractionSchema.allowedValues(field);
+    if (allowed.isEmpty()) {
+      return;
+    }
+    String text = node.isValueNode() ? node.asText().trim() : node.toString();
+    if (text.isEmpty() && !field.isRequired()) {
+      return;
+    }
+    if (!allowed.contains(text)) {
+      throw new HopException(
+          "Field '"
+              + field.trimmedName()
+              + "' came back as '"
+              + abbreviate(text)
+              + "', which is not one of "
+              + String.join(", ", allowed));
+    }
   }
 
   /**
@@ -105,7 +143,10 @@ public final class ExtractionParser {
         case IValueMeta.TYPE_BIGNUMBER ->
             node.isNumber() ? node.decimalValue() : new BigDecimal(text.trim());
         case IValueMeta.TYPE_BOOLEAN -> toBoolean(text.trim(), field);
-        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> toDate(text.trim(), field);
+        case IValueMeta.TYPE_DATE -> toDate(text.trim(), field);
+          // ValueMetaTimestamp casts its native value to java.sql.Timestamp, so a plain Date fails
+          // the first time anything downstream reads it.
+        case IValueMeta.TYPE_TIMESTAMP -> Timestamp.from(toDate(text.trim(), field).toInstant());
         default -> text;
       };
     } catch (HopException e) {
@@ -113,7 +154,7 @@ public final class ExtractionParser {
     } catch (Exception e) {
       throw new HopException(
           "Field '"
-              + field.getName()
+              + field.trimmedName()
               + "' came back as '"
               + abbreviate(text)
               + "', which is not a valid "
@@ -131,33 +172,45 @@ public final class ExtractionParser {
     }
     throw new HopException(
         "Field '"
-            + field.getName()
+            + field.trimmedName()
             + "' came back as '"
             + abbreviate(text)
             + "', which is not a"
             + " yes or no answer");
   }
 
-  private static java.util.Date toDate(String text, StructuredExtractField field)
-      throws HopException {
-    // The schema asks for yyyy-MM-dd. A model that adds a time is being helpful rather than wrong,
-    // so the longer form is accepted too; anything else is reported.
-    for (String pattern : new String[] {ExtractionSchema.DATE_FORMAT, "yyyy-MM-dd'T'HH:mm:ss"}) {
-      SimpleDateFormat format = new SimpleDateFormat(pattern);
-      format.setLenient(false);
-      try {
-        return format.parse(text.length() > 19 ? text.substring(0, 19) : text);
-      } catch (ParseException e) {
-        // try the next pattern
-      }
+  /**
+   * Reads an ISO date or date-time. The whole text has to match: a date followed by anything that
+   * is not a time is reported, not cut short to its first ten characters. A date-time is tried
+   * before a date, so a time the model returns is kept, and a date alone means midnight.
+   */
+  private static Date toDate(String text, StructuredExtractField field) throws HopException {
+    // Models often write "2026-03-01 10:30:00"; ISO wants a T between the date and the time.
+    String iso =
+        text.length() > 10 && text.charAt(10) == ' '
+            ? text.substring(0, 10) + 'T' + text.substring(11)
+            : text;
+    try {
+      return Date.from(OffsetDateTime.parse(iso).toInstant());
+    } catch (DateTimeParseException e) {
+      // no offset, try a local date-time
     }
-    throw new HopException(
-        "Field '"
-            + field.getName()
-            + "' came back as '"
-            + abbreviate(text)
-            + "', which is not a date formatted as "
-            + ExtractionSchema.DATE_FORMAT);
+    try {
+      return Date.from(LocalDateTime.parse(iso).atZone(ZoneId.systemDefault()).toInstant());
+    } catch (DateTimeParseException e) {
+      // no time, try a date
+    }
+    try {
+      return Date.from(LocalDate.parse(iso).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    } catch (DateTimeParseException e) {
+      throw new HopException(
+          "Field '"
+              + field.trimmedName()
+              + "' came back as '"
+              + abbreviate(text)
+              + "', which is not "
+              + ExtractionSchema.dateFormatDescription(field));
+    }
   }
 
   private static String abbreviate(String text) {

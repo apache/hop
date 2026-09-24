@@ -17,7 +17,9 @@
 package org.apache.hop.ai.transforms.structuredextract;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -29,16 +31,29 @@ import static org.mockito.Mockito.when;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
+import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import org.apache.hop.ai.engine.AiChatModelFactory;
+import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.provider.IAiProvider;
+import org.apache.hop.ai.providers.CustomOpenAiProvider;
+import org.apache.hop.ai.providers.GeminiProvider;
+import org.apache.hop.ai.providers.GrokProvider;
+import org.apache.hop.ai.providers.OllamaProvider;
+import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -168,6 +183,73 @@ class StructuredExtractTest {
 
     String system = requests.get(0).messages().get(0).toString();
     assertTrue(system.contains("written in Dutch"), system);
+  }
+
+  @Test
+  void theRequestCarriesTheSchemaForEveryProviderTheFactoryBuilds() throws Exception {
+    // supportedCapabilities() only reports what the builder was told, so this guards the factory
+    // declaring schema support: without it every row silently takes the prompt-only path.
+    List<StructuredExtractField> fields =
+        List.of(new StructuredExtractField("severity", "String", "how urgent", true));
+    JsonSchema schema = ExtractionSchema.build(fields, "Structured extract");
+
+    for (AiProvider provider :
+        List.of(
+            provider("ollama", new OllamaProvider()), provider("openai", new OpenAiProvider()))) {
+      ChatModel model = AiChatModelFactory.createChatModel(provider, "some-model", new Variables());
+
+      ResponseFormat format = StructuredExtract.responseFormatFor(model, schema);
+      ChatRequest request = StructuredExtract.buildRequest("system", "a ticket", format);
+
+      assertNotNull(request.responseFormat(), provider.getName() + " sends no response format");
+      assertEquals(ResponseFormatType.JSON, request.responseFormat().type());
+      assertSame(schema, request.responseFormat().jsonSchema());
+      assertEquals("Structured_extract", request.responseFormat().jsonSchema().name());
+    }
+  }
+
+  @Test
+  void otherOpenAiCompatibleProvidersGetThePromptOnly() throws Exception {
+    // Gemini, Grok and custom servers differ in which schema keywords they accept, so they are
+    // not sent one until someone has checked.
+    JsonSchema schema =
+        ExtractionSchema.build(
+            List.of(new StructuredExtractField("severity", "String", "how urgent", true)), "x");
+
+    for (AiProvider provider :
+        List.of(
+            provider("gemini", new GeminiProvider()),
+            provider("grok", new GrokProvider()),
+            provider("custom", new CustomOpenAiProvider()))) {
+      ChatModel model = AiChatModelFactory.createChatModel(provider, "some-model", new Variables());
+
+      assertNull(
+          StructuredExtract.responseFormatFor(model, schema),
+          provider.getName() + " should not be sent a schema");
+    }
+  }
+
+  @Test
+  void aModelThatCannotTakeASchemaGetsNoResponseFormat() throws Exception {
+    ChatModel model = mock(ChatModel.class);
+    when(model.supportedCapabilities()).thenReturn(Set.of());
+    JsonSchema schema =
+        ExtractionSchema.build(
+            List.of(new StructuredExtractField("severity", "String", "how urgent", true)), "x");
+
+    assertNull(StructuredExtract.responseFormatFor(model, schema));
+    assertNull(StructuredExtract.buildRequest("system", "a ticket", null).responseFormat());
+  }
+
+  private static AiProvider provider(String name, IAiProvider backend) {
+    backend.setPluginId(name);
+    AiProvider provider = new AiProvider();
+    provider.setName(name);
+    provider.setProvider(backend);
+    provider.setApiKey("test-key");
+    provider.setTimeoutSeconds("");
+    provider.setTemperature("");
+    return provider;
   }
 
   private void run(List<Object[]> rows) throws Exception {

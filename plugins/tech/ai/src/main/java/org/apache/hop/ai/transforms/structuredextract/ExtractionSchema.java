@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -48,13 +50,24 @@ public final class ExtractionSchema {
   /** JSON has no date type, so dates travel as text and this says which text. */
   static final String DATE_FORMAT = "yyyy-MM-dd";
 
-  private static final String DATE_HINT = " Answer with a date formatted as " + DATE_FORMAT + ".";
+  /**
+   * A Timestamp carries a time, so it is asked for as an ISO date-time rather than a date. This is
+   * shown to the model, so it is written the way the answer should look, not as a Java pattern with
+   * a quoted 'T' that a small model might copy.
+   */
+  static final String TIMESTAMP_FORMAT = "yyyy-MM-ddTHH:mm:ss";
+
+  private static final String DEFAULT_SCHEMA_NAME = "extraction";
+
+  /** OpenAI rejects a schema name longer than this. */
+  private static final int MAX_SCHEMA_NAME_LENGTH = 64;
 
   private ExtractionSchema() {}
 
   /**
    * @param fields the grid rows, in order
-   * @param schemaName a name for the schema, shown to some providers
+   * @param schemaName a name for the schema, shown to some providers; it is reduced to the
+   *     characters every provider accepts
    * @return a schema with one property per field
    * @throws HopException when a field is unusable, for example unnamed or of an unknown type
    */
@@ -66,12 +79,14 @@ public final class ExtractionSchema {
 
     Map<String, JsonSchemaElement> properties = new LinkedHashMap<>();
     List<String> required = new ArrayList<>();
+    // Case-insensitive, as the row metadata is: Total and total would end up as one column.
+    Set<String> seen = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     for (StructuredExtractField field : fields) {
       if (field == null || field.trimmedName().isEmpty()) {
         continue;
       }
       String name = field.trimmedName();
-      if (properties.containsKey(name)) {
+      if (!seen.add(name)) {
         throw new HopException("Field '" + name + "' is listed more than once");
       }
       properties.put(name, elementFor(field));
@@ -84,7 +99,7 @@ public final class ExtractionSchema {
     }
 
     return JsonSchema.builder()
-        .name(Utils.isEmpty(schemaName) ? "extraction" : schemaName)
+        .name(schemaName(schemaName))
         .rootElement(
             JsonObjectSchema.builder()
                 .addProperties(properties)
@@ -92,6 +107,20 @@ public final class ExtractionSchema {
                 .additionalProperties(false)
                 .build())
         .build();
+  }
+
+  /**
+   * OpenAI only accepts a-z, A-Z, 0-9, underscores and dashes in a schema name, at most 64 of them,
+   * and answers anything else with HTTP 400. A transform name such as "Structured extract" is not
+   * one, so it is reduced to those characters.
+   */
+  static String schemaName(String name) {
+    String sanitized = name == null ? "" : name.trim().replaceAll("[^A-Za-z0-9_-]+", "_");
+    sanitized = sanitized.replaceAll("^_+|_+$", "");
+    if (sanitized.length() > MAX_SCHEMA_NAME_LENGTH) {
+      sanitized = sanitized.substring(0, MAX_SCHEMA_NAME_LENGTH);
+    }
+    return sanitized.isEmpty() ? DEFAULT_SCHEMA_NAME : sanitized;
   }
 
   private static JsonSchemaElement elementFor(StructuredExtractField field) throws HopException {
@@ -127,10 +156,27 @@ public final class ExtractionSchema {
       case IValueMeta.TYPE_BOOLEAN -> JsonBooleanSchema.builder().description(description).build();
       case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP ->
           JsonStringSchema.builder()
-              .description((description == null ? "" : description) + DATE_HINT)
+              .description(
+                  sentence(description) + "Answer with " + dateFormatDescription(field) + ".")
               .build();
       default -> JsonStringSchema.builder().description(description).build();
     };
+  }
+
+  /** The user's description as a sentence the format hint can follow, or empty without one. */
+  private static String sentence(String description) {
+    if (description == null) {
+      return "";
+    }
+    String trimmed = description.trim();
+    return trimmed.matches(".*[.!?]$") ? trimmed + " " : trimmed + ". ";
+  }
+
+  /** How a Date or Timestamp field is asked for, in the words used in the schema and the prompt. */
+  static String dateFormatDescription(StructuredExtractField field) throws HopException {
+    return typeOf(field) == IValueMeta.TYPE_TIMESTAMP
+        ? "a date and time formatted as " + TIMESTAMP_FORMAT + ", for example 2026-03-01T14:30:00"
+        : "a date formatted as " + DATE_FORMAT + ", for example 2026-03-01";
   }
 
   /** The Hop type id for a field, rejecting anything that cannot survive a JSON round trip. */

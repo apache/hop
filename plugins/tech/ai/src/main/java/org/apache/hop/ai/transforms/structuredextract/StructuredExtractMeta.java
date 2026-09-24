@@ -17,9 +17,9 @@
 package org.apache.hop.ai.transforms.structuredextract;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.ai.metadata.AiProvider;
@@ -211,7 +211,9 @@ public class StructuredExtractMeta
       return;
     }
 
-    Set<String> seen = new HashSet<>();
+    // Case-insensitive, as IRowMeta is: Total and total would otherwise pass here and one of them
+    // be renamed on the stream.
+    Set<String> seen = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     for (StructuredExtractField field : named) {
       String name = field.trimmedName();
       if (!seen.add(name)) {

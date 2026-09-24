@@ -17,11 +17,13 @@
 package org.apache.hop.ai.transforms.structuredextract;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
@@ -143,6 +145,129 @@ class ExtractionParserTest {
             "{\"signed\":\"2026-03-01T10:30:00\"}", List.of(field("signed", "Date")));
 
     assertEquals("2026-03-01", new SimpleDateFormat("yyyy-MM-dd").format(values[0]));
+  }
+
+  @Test
+  void aTimestampIsAnSqlTimestampAndKeepsItsTime() throws Exception {
+    // ValueMetaTimestamp casts its native value to java.sql.Timestamp.
+    Object[] values =
+        ExtractionParser.parse(
+            "{\"opened\":\"2026-03-01T10:30:15\"}", List.of(field("opened", "Timestamp")));
+
+    Timestamp opened = assertInstanceOf(Timestamp.class, values[0]);
+    assertEquals("2026-03-01 10:30:15", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(opened));
+  }
+
+  @Test
+  void acceptsATimeSeparatedByASpaceOrWithAnOffset() throws Exception {
+    Object[] values =
+        ExtractionParser.parse(
+            "{\"a\":\"2026-03-01 10:30:00\",\"b\":\"2026-03-01T10:30:00Z\"}",
+            List.of(field("a", "Timestamp"), field("b", "Timestamp")));
+
+    assertEquals(
+        "2026-03-01 10:30:00", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(values[0]));
+    assertEquals(
+        java.time.Instant.parse("2026-03-01T10:30:00Z"), ((Timestamp) values[1]).toInstant());
+  }
+
+  @Test
+  void aTimestampGivenOnlyADateIsMidnight() throws Exception {
+    Object[] values =
+        ExtractionParser.parse(
+            "{\"opened\":\"2026-03-01\"}", List.of(field("opened", "Timestamp")));
+
+    assertEquals(
+        "2026-03-01 00:00:00", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(values[0]));
+  }
+
+  @Test
+  void rejectsADateWithTrailingText() {
+    // Parsing only the start would make this midnight on the first of March, a valid-looking lie.
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () ->
+                ExtractionParser.parse(
+                    "{\"signed\":\"2026-03-01 oops\"}", List.of(field("signed", "Date"))));
+
+    assertTrue(e.getMessage().contains("2026-03-01 oops"), e.getMessage());
+  }
+
+  @Test
+  void rejectsADateThatDoesNotExist() {
+    assertThrows(
+        HopException.class,
+        () ->
+            ExtractionParser.parse(
+                "{\"signed\":\"2026-02-30\"}", List.of(field("signed", "Date"))));
+  }
+
+  @Test
+  void readsAFieldWhoseNameHasSurroundingSpaces() throws Exception {
+    // The schema asks for "severity", so the answer has to be read back under that name too.
+    Object[] values =
+        ExtractionParser.parse("{\"severity\":\"high\"}", List.of(field(" severity ", "String")));
+
+    assertEquals("high", values[0]);
+  }
+
+  @Test
+  void rejectsAValueOutsideTheAllowedList() {
+    // On the prompt-only path nothing stops the model from answering outside the enum.
+    StructuredExtractField severity = field("severity", "String");
+    severity.setAllowedValues("low, medium, high");
+
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () -> ExtractionParser.parse("{\"severity\":\"critical\"}", List.of(severity)));
+
+    assertTrue(e.getMessage().contains("severity"), e.getMessage());
+    assertTrue(e.getMessage().contains("critical"), e.getMessage());
+    assertTrue(e.getMessage().contains("low, medium, high"), e.getMessage());
+  }
+
+  @Test
+  void rejectsAnEmptyAnswerForARequiredFieldWithAllowedValues() {
+    // Coercion turns an empty string into null, so without this check it would pass silently.
+    StructuredExtractField severity = field("severity", "String");
+    severity.setAllowedValues("low, medium, high");
+
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () -> ExtractionParser.parse("{\"severity\":\"\"}", List.of(severity)));
+
+    assertTrue(e.getMessage().contains("not one of"), e.getMessage());
+  }
+
+  @Test
+  void anEmptyAnswerForAnOptionalFieldWithAllowedValuesIsNull() throws Exception {
+    StructuredExtractField severity =
+        new StructuredExtractField("severity", "String", "how urgent", false);
+    severity.setAllowedValues("low, medium, high");
+
+    assertNull(ExtractionParser.parse("{\"severity\":\"\"}", List.of(severity))[0]);
+  }
+
+  @Test
+  void acceptsAnAllowedValueAndAnOptionalNull() throws Exception {
+    StructuredExtractField severity = field("severity", "String");
+    severity.setAllowedValues("low, medium, high");
+    StructuredExtractField priority = new StructuredExtractField("priority", "Integer", "p", false);
+    priority.setAllowedValues("1,2,3");
+
+    Object[] values =
+        ExtractionParser.parse(
+            "{\"severity\":\"medium\",\"priority\":null}", List.of(severity, priority));
+
+    assertEquals("medium", values[0]);
+    assertNull(values[1]);
+    assertEquals(
+        2L,
+        ExtractionParser.parse(
+            "{\"severity\":\"low\",\"priority\":2}", List.of(severity, priority))[1]);
   }
 
   @Test

@@ -19,6 +19,7 @@ package org.apache.hop.ai.transforms.structuredextract;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.Capability;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.chat.request.ResponseFormatType;
@@ -123,17 +124,21 @@ public class StructuredExtract extends BaseTransform<StructuredExtractMeta, Stru
   }
 
   private String ask(String text) throws HopException {
-    ChatRequest.Builder request =
-        ChatRequest.builder()
-            .messages(SystemMessage.from(data.systemPrompt), UserMessage.from(text));
-    if (data.responseFormat != null) {
-      request.responseFormat(data.responseFormat);
-    }
+    ChatRequest request = buildRequest(data.systemPrompt, text, data.responseFormat);
     try {
-      return data.model.chat(request.build()).aiMessage().text();
+      return data.model.chat(request).aiMessage().text();
     } catch (Exception e) {
       throw new HopException(BaseMessages.getString(PKG, "StructuredExtract.Error.Calling"), e);
     }
+  }
+
+  static ChatRequest buildRequest(String systemPrompt, String text, ResponseFormat responseFormat) {
+    ChatRequest.Builder request =
+        ChatRequest.builder().messages(SystemMessage.from(systemPrompt), UserMessage.from(text));
+    if (responseFormat != null) {
+      request.responseFormat(responseFormat);
+    }
+    return request.build();
   }
 
   /**
@@ -181,24 +186,19 @@ public class StructuredExtract extends BaseTransform<StructuredExtractMeta, Stru
 
     // Constrain the model where it can be constrained. Where it cannot, the schema still goes in
     // the prompt and the answer is checked on the way back, which is the best available.
-    if (supportsJsonSchema()) {
-      data.responseFormat =
-          ResponseFormat.builder().type(ResponseFormatType.JSON).jsonSchema(schema).build();
-    } else {
+    data.responseFormat = responseFormatFor(data.model, schema);
+    if (data.responseFormat == null) {
       logBasic(
           BaseMessages.getString(
               PKG, "StructuredExtract.Log.NoSchemaSupport", String.valueOf(meta.getModelName())));
     }
   }
 
-  private boolean supportsJsonSchema() {
-    try {
-      return data.model.supportedCapabilities().contains(Capability.RESPONSE_FORMAT_JSON_SCHEMA);
-    } catch (Exception e) {
-      // A provider that will not say is treated as not supporting it, which is the safe way round.
-      logDebug("Unable to read the model's capabilities: " + e.getMessage());
-      return false;
-    }
+  /** The schema as a response format, or null when the model does not accept one. */
+  static ResponseFormat responseFormatFor(ChatModel model, JsonSchema schema) {
+    return model.supportedCapabilities().contains(Capability.RESPONSE_FORMAT_JSON_SCHEMA)
+        ? ResponseFormat.builder().type(ResponseFormatType.JSON).jsonSchema(schema).build()
+        : null;
   }
 
   @Override

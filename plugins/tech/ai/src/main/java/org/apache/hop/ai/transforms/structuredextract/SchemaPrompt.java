@@ -61,7 +61,7 @@ public final class SchemaPrompt {
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER -> "a number";
       case IValueMeta.TYPE_BOOLEAN -> "true or false";
       case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP ->
-          "a date formatted as " + ExtractionSchema.DATE_FORMAT;
+          ExtractionSchema.dateFormatDescription(field);
       default -> "text";
     };
   }

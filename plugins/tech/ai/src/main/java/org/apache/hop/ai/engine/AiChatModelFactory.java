@@ -16,11 +16,13 @@
  */
 package org.apache.hop.ai.engine;
 
+import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.apache.hop.ai.metadata.AiModelRole;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -93,9 +95,18 @@ public final class AiChatModelFactory {
     return variables.resolve(provider.resolveModelName(AiModelRole.CHAT));
   }
 
+  /*
+   * supportedCapabilities() is not a probe of the provider: langchain4j reports back only what the
+   * builder was given. Ollama and OpenAI itself declare JSON schema support. Other OpenAI
+   * compatible endpoints (Gemini, Grok, custom servers) differ in which schema keywords they accept,
+   * so they declare nothing and get the fields in the prompt instead.
+   */
   private static ChatModel ollamaModel(AiProviderSettings settings, String model) {
     OllamaChatModel.OllamaChatModelBuilder builder =
-        OllamaChatModel.builder().baseUrl(settings.baseUrl()).modelName(model);
+        OllamaChatModel.builder()
+            .baseUrl(settings.baseUrl())
+            .modelName(model)
+            .supportedCapabilities(Capability.RESPONSE_FORMAT_JSON_SCHEMA);
     if (settings.timeout() != null) {
       builder.timeout(settings.timeout());
     }
@@ -107,6 +118,11 @@ public final class AiChatModelFactory {
 
   private static ChatModel openAiModel(AiProviderSettings settings, String model) {
     OpenAiChatModel.OpenAiChatModelBuilder builder = OpenAiChatModel.builder().modelName(model);
+    if (settings.backend() instanceof OpenAiProvider) {
+      // Without strict, OpenAI drops additionalProperties and does not hold the model to the
+      // schema.
+      builder.supportedCapabilities(Capability.RESPONSE_FORMAT_JSON_SCHEMA).strictJsonSchema(true);
+    }
     if (!Utils.isEmpty(settings.baseUrl())) {
       builder.baseUrl(settings.baseUrl());
     }

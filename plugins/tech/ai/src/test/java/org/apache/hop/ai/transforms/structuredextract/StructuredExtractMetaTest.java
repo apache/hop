@@ -95,6 +95,15 @@ class StructuredExtractMetaTest {
   }
 
   @Test
+  void reportsADuplicateThatDiffersOnlyInCase() {
+    // The row metadata is case-insensitive, so Severity would be renamed on the stream.
+    StructuredExtractMeta meta = completeMeta();
+    meta.getFields().get(1).setName("Severity");
+
+    assertTrue(errorText(check(meta)).contains("more than once"), errorText(check(meta)));
+  }
+
+  @Test
   void reportsATypeAModelCannotReturn() {
     StructuredExtractMeta meta = completeMeta();
     meta.getFields().get(0).setType("Binary");

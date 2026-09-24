@@ -51,20 +51,20 @@ The field grid is the whole configuration. Each row becomes three things at once
 |===
 |Column |Description
 
-|Name|The output field name, and the name the model is asked for.
+|Name|The output field name, and the name the model is asked for. Surrounding spaces are removed, and names that differ only in case count as duplicates.
 |Type|`String`, `Integer`, `Number`, `BigNumber`, `Boolean`, `Date` or `Timestamp`. Types a language model cannot return, such as Binary, are rejected.
 |Description|What this field means, in your own words. It is sent to the model and is the most effective thing you can change to improve what comes back. `the date the contract renews` extracts far better than a field called `renewal_date` on its own.
 |Required|Whether the model must answer for this field. Leave optional anything that may genuinely be absent, so the model can say nothing rather than invent something.
-|Allowed values|Optional comma separated list. The model is then constrained to exactly these values, which is the reliable way to classify: severity as `low, medium, high` rather than whatever adjective the model prefers today.
+|Allowed values|Optional comma separated list. The model is then constrained to exactly these values, which is the reliable way to classify: severity as `low, medium, high` rather than whatever adjective the model prefers today. An answer outside the list is an error, also on providers that do not enforce the schema.
 |===
 
-Dates are asked for as `yyyy-MM-dd`, since JSON has no date type. A date that comes back with a time on the end is accepted.
+JSON has no date type, so a `Date` is asked for as `yyyy-MM-dd` and a `Timestamp` as `yyyy-MM-ddTHH:mm:ss`. A date that comes back with a time is accepted and keeps that time; a date alone means midnight. Anything after the date that is not a time is an error.
 
 == How the model is constrained
 
-Where the provider supports it, the grid is sent as a JSON schema and the model is *constrained* to that shape rather than asked for it politely. Hop checks this per model, so nothing needs configuring.
+With an Ollama or OpenAI provider, the grid is sent as a JSON schema and the model is *constrained* to that shape rather than asked for it politely. OpenAI gets the schema in strict mode. Nothing needs configuring.
 
-Where it is not supported, the same fields are described in the prompt and the answer is checked on the way back. Either way the answer is parsed against the grid, so a wrong shape is caught rather than trusted.
+Other OpenAI compatible providers, such as Gemini, Grok or a custom endpoint, differ in which parts of a JSON schema they accept, so they are not sent one. There, the same fields are described in the prompt and the answer is checked on the way back. Either way the answer is parsed against the grid, so a wrong shape is caught rather than trusted.
 
 == What happens when extraction fails
 

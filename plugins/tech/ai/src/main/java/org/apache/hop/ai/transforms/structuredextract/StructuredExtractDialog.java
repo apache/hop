@@ -236,7 +236,8 @@ public class StructuredExtractDialog extends BaseTransformDialog {
       return fields;
     }
     for (TableItem item : wFields.getNonEmptyItems()) {
-      String name = item.getText(1);
+      // Stored trimmed, so the metadata matches the schema key and the output column.
+      String name = item.getText(1).trim();
       if (Utils.isEmpty(name)) {
         continue;
       }

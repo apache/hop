@@ -73,6 +73,28 @@ class ExtractionSchemaTest {
   }
 
   @Test
+  void theDateHintIsASeparateSentence() throws Exception {
+    JsonObjectSchema root =
+        root(
+            ExtractionSchema.build(
+                List.of(
+                    new StructuredExtractField("a", "Date", "when opened", true),
+                    new StructuredExtractField("b", "Date", "when closed.", true),
+                    new StructuredExtractField("c", "Date", null, true)),
+                "test"));
+
+    assertTrue(
+        root.properties().get("a").description().startsWith("when opened. Answer with"),
+        root.properties().get("a").description());
+    assertTrue(
+        root.properties().get("b").description().startsWith("when closed. Answer with"),
+        root.properties().get("b").description());
+    assertTrue(
+        root.properties().get("c").description().startsWith("Answer with"),
+        root.properties().get("c").description());
+  }
+
+  @Test
   void aListOfAllowedValuesBecomesAnEnum() throws Exception {
     // This is what makes classification reliable: the model is constrained, not asked.
     StructuredExtractField field = field("severity", "String");
@@ -166,6 +188,41 @@ class ExtractionSchemaTest {
                     List.of(field("total", "Number"), field("total", "String")), "test"));
 
     assertTrue(e.getMessage().contains("more than once"), e.getMessage());
+  }
+
+  @Test
+  void rejectsADuplicateThatDiffersOnlyInCase() {
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () ->
+                ExtractionSchema.build(
+                    List.of(field("Total", "Number"), field("total", "String")), "test"));
+
+    assertTrue(e.getMessage().contains("more than once"), e.getMessage());
+  }
+
+  @Test
+  void asksForATimestampWithATime() throws Exception {
+    JsonObjectSchema root =
+        root(ExtractionSchema.build(List.of(field("opened", "Timestamp")), "test"));
+
+    String description = root.properties().get("opened").description();
+    assertTrue(description.contains("yyyy-MM-ddTHH:mm:ss"), description);
+    assertTrue(!description.contains("'"), "no Java pattern quotes for the model to copy");
+  }
+
+  @Test
+  void theSchemaNameIsOneEveryProviderAccepts() throws Exception {
+    // OpenAI answers HTTP 400 to anything outside [A-Za-z0-9_-] or longer than 64 characters,
+    // and the default transform name has a space in it.
+    JsonSchema schema = ExtractionSchema.build(List.of(field("a", "String")), "Structured extract");
+    assertEquals("Structured_extract", schema.name());
+
+    assertEquals("extraction", ExtractionSchema.schemaName(null));
+    assertEquals("extraction", ExtractionSchema.schemaName(" ?! "));
+    assertEquals("extract_tickets", ExtractionSchema.schemaName("extract (tickets)"));
+    assertEquals(64, ExtractionSchema.schemaName("x".repeat(100)).length());
   }
 
   @Test
