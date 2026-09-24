@@ -184,6 +184,7 @@ These rely on waiting for other transforms, full-stream ordering, or multi-strea
 * xref:pipeline/transforms/blockuntiltransformsfinish.adoc[Blocking until transforms finish]
 * xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]
 * xref:pipeline/transforms/identifylastrow.adoc[Identify last row in a stream]
+* xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)] — add the same constant field to both inputs and use xref:pipeline/transforms/mergejoin.adoc[Merge Join] on that field instead
 * xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
 * xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
 * xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge]
