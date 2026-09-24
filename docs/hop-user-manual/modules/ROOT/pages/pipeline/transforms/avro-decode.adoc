@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-tech-avro
 
 = image:transforms/icons/avro_decode.svg[Avro decode Icon, role="image-doc-icon"] Avro decode
@@ -25,6 +25,12 @@ under the License.
 == Description
 
 The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
+
+[WARNING]
+====
+Avro decode does not run on the native Spark engine.
+It decodes an Avro Record field, and the native Spark engine has no Spark data type to carry such a field from one transform to the next, so the pipeline is refused before it starts.
+====
 
 == Options
 

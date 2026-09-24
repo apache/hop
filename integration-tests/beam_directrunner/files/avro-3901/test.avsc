@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "test",
+  "namespace": "org.apache.hop.it",
+  "doc": "Schema read from a project folder through a variable, issue #3901",
+  "fields": [
+    {"name": "id", "type": ["null", "long"], "default": null},
+    {"name": "test", "type": ["null", "string"], "default": null}
+  ]
+}

@@ -19,8 +19,8 @@ package org.apache.hop.avro.transforms.avrooutput;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -387,15 +387,9 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
           logDetailed("Generating Avro schema.");
         }
         writeSchemaFile();
-      } else {
-        if (isDetailed()) {
-          logDetailed("Reading Avro schema from file.");
-        }
-        try {
-          data.avroSchema = new Schema.Parser().parse(new File(meta.getSchemaFileName()));
-        } catch (Exception e) {
-          logError("Error parsing schema file", e);
-        }
+      } else if (data.avroSchema == null) {
+        // Read once: Beam calls this again at the start of every bundle
+        data.avroSchema = readSchemaFile();
       }
       data.datumWriter = new GenericDatumWriter<>(data.avroSchema);
 
@@ -425,6 +419,27 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       }
     } catch (IOException ex) {
       throw new HopException("Could not open Avro writer", ex);
+    }
+  }
+
+  /**
+   * Reads the Avro schema from the (variable-resolved) schema filename. Uses Hop VFS so the schema
+   * can live in a project folder, on a cloud file system, etc.
+   */
+  Schema readSchemaFile() throws HopException {
+    String schemaFileName = resolve(meta.getSchemaFileName());
+    if (Utils.isEmpty(schemaFileName)) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AvroOutput.Exception.SchemaFileNameNotSet"));
+    }
+    if (isDetailed()) {
+      logDetailed("Reading Avro schema from file [" + schemaFileName + "]");
+    }
+    try (InputStream inputStream = HopVfs.getInputStream(schemaFileName, variables)) {
+      return new Schema.Parser().parse(inputStream);
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AvroOutput.Exception.ReadingSchemaFile", schemaFileName), e);
     }
   }
 

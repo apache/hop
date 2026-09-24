@@ -17,7 +17,7 @@
 
 package org.apache.hop.avro.transforms.avrooutput;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -824,7 +825,10 @@ public class AvroOutputDialog extends BaseTransformDialog {
 
     try {
       avroSchema = null;
-      avroSchema = new Schema.Parser().parse(new File(variables.resolve(wSchema.getText())));
+      try (InputStream inputStream =
+          HopVfs.getInputStream(variables.resolve(wSchema.getText()), variables)) {
+        avroSchema = new Schema.Parser().parse(inputStream);
+      }
 
       validSchema = true;
 
