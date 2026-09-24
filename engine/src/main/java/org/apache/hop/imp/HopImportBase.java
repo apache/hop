@@ -514,18 +514,22 @@ public abstract class HopImportBase implements IHopImport {
     this.targetConfigFilename = targetConfigFilename;
   }
 
+  @Override
   public String getDefaultPipelineRunConfiguration() {
     return defaultPipelineRunConfiguration;
   }
 
+  @Override
   public void setDefaultPipelineRunConfiguration(String defaultPipelineRunConfiguration) {
     this.defaultPipelineRunConfiguration = defaultPipelineRunConfiguration;
   }
 
+  @Override
   public String getDefaultWorkflowRunConfiguration() {
     return defaultWorkflowRunConfiguration;
   }
 
+  @Override
   public void setDefaultWorkflowRunConfiguration(String defaultWorkflowRunConfiguration) {
     this.defaultWorkflowRunConfiguration = defaultWorkflowRunConfiguration;
   }

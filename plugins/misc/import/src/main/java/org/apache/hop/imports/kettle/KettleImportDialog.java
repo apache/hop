@@ -27,6 +27,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.SingletonUtil;
 import org.apache.hop.core.util.Utils;
@@ -90,8 +91,10 @@ public class KettleImportDialog extends Dialog {
   public static final String LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION =
       "ImportWorkflowRunConfiguration";
   public static final String LAST_USED_IMPORT_NAMING_SCHEME = "ImportNamingScheme";
+  public static final String LAST_USED_IMPORT_APPLY_NAMING_SCHEMES = "ImportApplyNamingSchemes";
   public static final String NAMING_SCHEME_METADATA_KEY = "naming-scheme";
   public static final String CONST_FALSE = "false";
+  public static final String CONST_TRUE = "true";
   public static final String CONST_ALL_FILES = "All Files (*.*)";
   public static final String CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE =
       "KettleImportDialog.Button.Browse";
@@ -133,6 +136,7 @@ public class KettleImportDialog extends Dialog {
   private Button wSkipExisting;
   private Button wSkipHidden;
   private Button wSkipFolders;
+  private Button wApplyNamingSchemes;
 
   private int margin;
   private int middle;
@@ -150,14 +154,22 @@ public class KettleImportDialog extends Dialog {
     this.dialogMetadataProvider =
         new MultiMetadataProvider(Encr.getEncoder(), List.of(scratchMetadata), variables);
 
+    this.projectNames = listProjectNames();
+  }
+
+  /**
+   * Without the projects plugin there are no projects to import into, but importing into a plain
+   * target folder still works. List nothing rather than refusing to open the dialog.
+   */
+  private static List<String> listProjectNames() {
     try {
-      projectNames =
-          SingletonUtil.getValuesList(
-              "org.apache.hop.projects.gui.ProjectsGuiPlugin",
-              "org.apache.hop.projects.config.ProjectsConfigSingleton",
-              "listProjectNames");
+      return SingletonUtil.getValuesList(
+          "org.apache.hop.projects.gui.ProjectsGuiPlugin",
+          "org.apache.hop.projects.config.ProjectsConfigSingleton",
+          "listProjectNames");
     } catch (HopException e) {
-      throw new HopException("Error getting project names list", e);
+      LogChannel.UI.logDetailed("No projects available to import into: " + e.getMessage());
+      return List.of();
     }
   }
 
@@ -206,8 +218,10 @@ public class KettleImportDialog extends Dialog {
             kettleImport.getInputFolderName(),
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER)));
     wImportInExisting.setSelection(
-        !CONST_FALSE.equalsIgnoreCase(
-            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_INTO_PROJECT)));
+        !projectNames.isEmpty()
+            && !CONST_FALSE.equalsIgnoreCase(
+                AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_INTO_PROJECT)));
+    wImportInExisting.setEnabled(!projectNames.isEmpty());
     wImportProject.setText(
         Const.NVL(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_TARGET_PROJECT), ""));
     wImportPath.setText(
@@ -236,8 +250,9 @@ public class KettleImportDialog extends Dialog {
     wSkipHidden.setSelection(
         !CONST_FALSE.equalsIgnoreCase(
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_HIDDEN)));
+    // Defaults to false, like 'hop-import --skip-folders': a source tree is imported whole.
     wSkipFolders.setSelection(
-        !CONST_FALSE.equalsIgnoreCase(
+        CONST_TRUE.equalsIgnoreCase(
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_FOLDERS)));
 
     showHideProjectFields(null);
@@ -248,10 +263,14 @@ public class KettleImportDialog extends Dialog {
     wWorkflowRunConfiguration.setText(
         Const.NVL(
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION), ""));
+    wApplyNamingSchemes.setSelection(
+        !CONST_FALSE.equalsIgnoreCase(
+            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_APPLY_NAMING_SCHEMES)));
     if (wNamingScheme != null) {
       wNamingScheme.setText(
           Const.NVL(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_NAMING_SCHEME), ""));
     }
+    enableNamingScheme();
 
     wImportFrom.setFocus();
 
@@ -265,7 +284,7 @@ public class KettleImportDialog extends Dialog {
       AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER, sourceFolder);
     }
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_INTO_PROJECT, wImportInExisting.getSelection() ? "true" : CONST_FALSE);
+        LAST_USED_IMPORT_INTO_PROJECT, wImportInExisting.getSelection() ? CONST_TRUE : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_TARGET_PROJECT, wImportProject.getText());
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_TARGET_FOLDER, wImportPath.getText());
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_PROPS_FILE, wKettleProps.getText());
@@ -276,15 +295,18 @@ public class KettleImportDialog extends Dialog {
         LAST_USED_IMPORT_PIPELINE_RUN_CONFIGURATION, wPipelineRunConfiguration.getText());
     AuditManagerGuiUtil.addLastUsedValue(
         LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION, wWorkflowRunConfiguration.getText());
+    AuditManagerGuiUtil.addLastUsedValue(
+        LAST_USED_IMPORT_APPLY_NAMING_SCHEMES,
+        wApplyNamingSchemes.getSelection() ? CONST_TRUE : CONST_FALSE);
     if (wNamingScheme != null) {
       AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_NAMING_SCHEME, wNamingScheme.getText());
     }
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_SKIP_EXISTING, wSkipExisting.getSelection() ? "true" : CONST_FALSE);
+        LAST_USED_IMPORT_SKIP_EXISTING, wSkipExisting.getSelection() ? CONST_TRUE : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_SKIP_HIDDEN, wSkipHidden.getSelection() ? "true" : CONST_FALSE);
+        LAST_USED_IMPORT_SKIP_HIDDEN, wSkipHidden.getSelection() ? CONST_TRUE : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_SKIP_FOLDERS, wSkipFolders.getSelection() ? "true" : CONST_FALSE);
+        LAST_USED_IMPORT_SKIP_FOLDERS, wSkipFolders.getSelection() ? CONST_TRUE : CONST_FALSE);
     shell.dispose();
   }
 
@@ -397,7 +419,7 @@ public class KettleImportDialog extends Dialog {
     wSkipHidden =
         addCheckboxRow(parent, wJdbcProps, "KettleImportDialog.Label.SkipHiddenFiles", true);
     wSkipFolders =
-        addCheckboxRow(parent, wSkipHidden, "KettleImportDialog.Label.SkipFolders", true);
+        addCheckboxRow(parent, wSkipHidden, "KettleImportDialog.Label.SkipFolders", false);
   }
 
   private void addTargetTab(CTabFolder folder) {
@@ -458,6 +480,11 @@ public class KettleImportDialog extends Dialog {
             BaseMessages.getString(PKG, "KettleImportDialog.RunConfiguration.Tooltip"));
     wWorkflowRunConfiguration.addToConnectionLine(parent, wPipelineRunConfiguration, null, null);
 
+    wApplyNamingSchemes =
+        addCheckboxRow(
+            parent, wWorkflowRunConfiguration, "KettleImportDialog.Label.ApplyNamingSchemes", true);
+    wApplyNamingSchemes.addListener(SWT.Selection, event -> enableNamingScheme());
+
     wNamingScheme =
         MetaSelectionLine.forMetadataKey(
             variables,
@@ -468,7 +495,14 @@ public class KettleImportDialog extends Dialog {
             BaseMessages.getString(PKG, "KettleImportDialog.NamingScheme.Label"),
             BaseMessages.getString(PKG, "KettleImportDialog.NamingScheme.Tooltip"));
     if (wNamingScheme != null) {
-      wNamingScheme.addToConnectionLine(parent, wWorkflowRunConfiguration, null, null);
+      wNamingScheme.addToConnectionLine(parent, wApplyNamingSchemes, null, null);
+    }
+  }
+
+  /** The scheme to apply is only a choice while schemes are applied at all. */
+  private void enableNamingScheme() {
+    if (wNamingScheme != null && !wNamingScheme.isDisposed()) {
+      wNamingScheme.setEnabled(wApplyNamingSchemes.getSelection());
     }
   }
 
@@ -562,7 +596,7 @@ public class KettleImportDialog extends Dialog {
           ExtensionPointHandler.callExtensionPoint(
               HopGui.getInstance().getLog(),
               variables,
-              "HopImportCreateProject",
+              HopExtensionPoint.HopImportCreateProject.id,
               wImportPath.getText());
         } catch (HopException e) {
           throw new HopException("Error creating project", e);
@@ -584,7 +618,7 @@ public class KettleImportDialog extends Dialog {
         objects[1] = targetFolder;
         try {
           ExtensionPointHandler.callExtensionPoint(
-              HopGui.getInstance().getLog(), variables, "ProjectHome", objects);
+              HopGui.getInstance().getLog(), variables, HopExtensionPoint.ProjectHome.id, objects);
 
           // Grab it back (or leave unchanged)
           targetFolder = (String) objects[1];
@@ -607,9 +641,10 @@ public class KettleImportDialog extends Dialog {
       kettleImport.setDefaultPipelineRunConfiguration(defaultPRC);
       String defaultWRC = Const.NVL(wWorkflowRunConfiguration.getText(), "");
       kettleImport.setDefaultWorkflowRunConfiguration(defaultWRC);
-      kettleImport.setApplyNamingSchemes(true);
+      kettleImport.setApplyNamingSchemes(wApplyNamingSchemes.getSelection());
       if (wNamingScheme != null) {
-        kettleImport.setNamingSchemeName(Const.NVL(wNamingScheme.getText(), ""));
+        kettleImport.setNamingSchemeName(
+            wApplyNamingSchemes.getSelection() ? Const.NVL(wNamingScheme.getText(), "") : "");
       }
 
       boolean goForImport = true;
@@ -718,7 +753,7 @@ public class KettleImportDialog extends Dialog {
       Object[] objects = new Object[] {projectName, ""};
       try {
         ExtensionPointHandler.callExtensionPoint(
-            HopGui.getInstance().getLog(), variables, "ProjectHome", objects);
+            HopGui.getInstance().getLog(), variables, HopExtensionPoint.ProjectHome.id, objects);
         return (String) objects[1];
       } catch (Exception e) {
         return null;
@@ -770,7 +805,7 @@ public class KettleImportDialog extends Dialog {
         json,
         WorkflowRunConfiguration.class,
         wWorkflowRunConfiguration.getText());
-    if (wNamingScheme != null) {
+    if (wNamingScheme != null && wApplyNamingSchemes.getSelection()) {
       copyNamedByKey(
           dialogMetadataProvider, json, NAMING_SCHEME_METADATA_KEY, wNamingScheme.getText());
     }

@@ -970,10 +970,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         if ((entryType == EntryType.JOB || entryType == EntryType.TRANS)
             && currentNode.getNodeName().equals("run_configuration")) {
-          if (entryType == EntryType.JOB)
-            currentNode.setTextContent(defaultWorkflowRunConfiguration);
-          else if (entryType == EntryType.TRANS)
-            currentNode.setTextContent(defaultPipelineRunConfiguration);
+          String defaultRunConfiguration =
+              entryType == EntryType.JOB
+                  ? defaultWorkflowRunConfiguration
+                  : defaultPipelineRunConfiguration;
+          // Without a default, keep the name the source file carried. Blanking it leaves the
+          // imported workflow or pipeline without a run configuration to execute with.
+          if (StringUtils.isNotEmpty(defaultRunConfiguration)) {
+            currentNode.setTextContent(defaultRunConfiguration);
+          }
         }
 
         // rename Kettle elements to Hop elements
@@ -1009,13 +1014,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         migrateTransformationReference(doc, currentNode);
 
-        // add the default pipeline run configuration.
-        String runConfigElementName =
-            entryType == EntryType.METAINJECT ? "run_configuration" : "runConfiguration";
-        if (getChildElement(currentNode, runConfigElementName) == null) {
-          Element runConfigElement = doc.createElement(runConfigElementName);
-          runConfigElement.appendChild(doc.createTextNode(defaultPipelineRunConfiguration));
-          currentNode.appendChild(runConfigElement);
+        // Add the default pipeline run configuration. Metadata Injection reads a differently
+        // named element than a mapping does. Without a default, keep what the source carried:
+        // an empty element leaves the step without a run configuration to execute with.
+        if (StringUtils.isNotEmpty(defaultPipelineRunConfiguration)) {
+          setChildElement(
+              doc,
+              currentNode,
+              entryType == EntryType.METAINJECT ? "run_configuration" : "runConfiguration",
+              defaultPipelineRunConfiguration);
         }
       }
 

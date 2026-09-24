@@ -136,6 +136,27 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
           "Do not apply a naming scheme; connection names are still aligned to one spelling")
   private boolean noApplyNamingSchemes;
 
+  @Option(
+      names = {"-r", "--pipeline-run-configuration"},
+      description =
+          "The run configuration to set on every imported pipeline. "
+              + "Without it the name found in the source file is kept.")
+  private String defaultPipelineRunConfiguration;
+
+  @Option(
+      names = {"-w", "--workflow-run-configuration"},
+      description =
+          "The run configuration to set on every imported workflow. "
+              + "Without it the name found in the source file is kept.")
+  private String defaultWorkflowRunConfiguration;
+
+  @Option(
+      names = {"-P", "--project"},
+      description =
+          "Import into this project. An existing project's home folder is used as the target "
+              + "folder, an unknown project is registered at the target folder.")
+  private String projectName;
+
   private MultiMetadataProvider metadataProvider;
   private IVariables variables;
   private CommandLine cmd;
@@ -166,8 +187,11 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
 
       if (listPluginTypes != null && listPluginTypes) {
         printPluginTypes();
+        finishedWithoutError = true;
         return;
       }
+
+      resolveTargetProject();
 
       if (!validateOptions()) {
         cmd.usage(System.err);
@@ -209,6 +233,10 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       hopImport.setTargetConfigFilename(targetConfigFilename);
       hopImport.setApplyNamingSchemes(!noApplyNamingSchemes);
       hopImport.setNamingSchemeName(namingSchemeName);
+      hopImport.setDefaultPipelineRunConfiguration(defaultPipelineRunConfiguration);
+      hopImport.setDefaultWorkflowRunConfiguration(defaultWorkflowRunConfiguration);
+      warnAboutMissingRunConfiguration("pipeline", defaultPipelineRunConfiguration);
+      warnAboutMissingRunConfiguration("workflow", defaultWorkflowRunConfiguration);
 
       // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even
       // loaded
@@ -242,6 +270,10 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.HopImportEnd.id, this);
 
+      // main() turns this into the process exit code. Without it every import, successful or not,
+      // exited 1 and no script could tell the difference.
+      finishedWithoutError = true;
+
     } catch (Exception e) {
       throw new ExecutionException(cmd, "There was an error during import", e);
     }
@@ -258,6 +290,78 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
     IHopImport hi = registry.loadClass(plugin, IHopImport.class);
     hi.init(variables, log);
     return hi;
+  }
+
+  /**
+   * A missing run configuration name no longer blanks the one the source file carried, but the
+   * source may not have carried one either. Say so, the way the import dialog does.
+   */
+  private void warnAboutMissingRunConfiguration(String subject, String runConfigurationName) {
+    if (StringUtils.isEmpty(runConfigurationName)) {
+      log.logBasic(
+          "No default "
+              + subject
+              + " run configuration was specified. Imported "
+              + subject
+              + "s keep the run configuration named in the source file, which can be empty.");
+    }
+  }
+
+  /**
+   * Point the import at a project: an existing one contributes its home folder as the target, an
+   * unknown one is registered at the target folder. Both go through the extension points the import
+   * dialog uses, so this is a no-op without the projects plugin.
+   */
+  private void resolveTargetProject() throws HopException {
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+    String projectHome = findProjectHome(projectName);
+    if (StringUtils.isNotEmpty(projectHome)) {
+      if (StringUtils.isNotEmpty(outputFolderName) && !projectHome.equals(outputFolderName)) {
+        log.logBasic(
+            "Ignoring output folder '"
+                + outputFolderName
+                + "': project '"
+                + projectName
+                + "' is imported into its own home folder");
+      }
+      outputFolderName = projectHome;
+      log.logBasic("Importing into project '" + projectName + "' at " + projectHome);
+      return;
+    }
+    if (StringUtils.isEmpty(outputFolderName)) {
+      // validateOptions() reports the missing output folder.
+      return;
+    }
+    ExtensionPointHandler.callExtensionPoint(
+        log,
+        variables,
+        HopExtensionPoint.HopImportCreateProject.id,
+        new Object[] {outputFolderName, projectName});
+    if (StringUtils.isEmpty(findProjectHome(projectName))) {
+      log.logError(
+          "Unable to register project '"
+              + projectName
+              + "'. Is the projects plugin available? The files are imported into "
+              + outputFolderName
+              + " regardless.");
+    } else {
+      log.logBasic("Registered project '" + projectName + "' at " + outputFolderName);
+    }
+  }
+
+  /** The home folder of a registered project, or null when it is unknown. */
+  private String findProjectHome(String name) {
+    Object[] objects = new Object[] {name, ""};
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          log, variables, HopExtensionPoint.ProjectHome.id, objects);
+    } catch (Exception e) {
+      // The projects plugin throws when the project isn't registered yet.
+      return null;
+    }
+    return (String) objects[1];
   }
 
   private void printPluginTypes() {
@@ -284,7 +388,12 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       ok = false;
     }
     if (StringUtils.isEmpty(outputFolderName)) {
-      log.logBasic("Please specify an output folder to write to");
+      log.logBasic(
+          StringUtils.isEmpty(projectName)
+              ? "Please specify an output folder to write to"
+              : "Please specify an output folder to write to: project '"
+                  + projectName
+                  + "' is not registered, so it has no home folder to import into");
       ok = false;
     }
     if (StringUtils.isEmpty(type)) {

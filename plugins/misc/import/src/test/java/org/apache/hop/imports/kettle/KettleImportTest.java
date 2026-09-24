@@ -34,6 +34,7 @@ import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 class KettleImportTest {
 
@@ -128,12 +129,107 @@ class KettleImportTest {
     assertEquals("Database", kettleImport.getConnectionsList().get(0).getName());
   }
 
+  /**
+   * Without a default run configuration the importer used to blank every {@code run_configuration}
+   * element, so imported workflows refused to run (#3814, #8516). Keep what the source carried.
+   */
+  @Test
+  void runConfigurationOfSourceSurvivesWithoutADefault() throws Exception {
+    Document doc =
+        parse(
+            "<job>"
+                + "<entry><type>TRANS</type><run_configuration>Local pipeline</run_configuration></entry>"
+                + "<entry><type>JOB</type><run_configuration>Local workflow</run_configuration></entry>"
+                + "</job>");
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals("Local pipeline", runConfigurationAt(doc, 0));
+    assertEquals("Local workflow", runConfigurationAt(doc, 1));
+  }
+
+  @Test
+  void defaultRunConfigurationsReplaceTheSourceNames() throws Exception {
+    Document doc =
+        parse(
+            "<job>"
+                + "<entry><type>TRANS</type><run_configuration>Local pipeline</run_configuration></entry>"
+                + "<entry><type>JOB</type><run_configuration>Local workflow</run_configuration></entry>"
+                + "</job>");
+
+    KettleImport kettleImport = new KettleImport();
+    kettleImport.setDefaultPipelineRunConfiguration("Target pipeline RC");
+    kettleImport.setDefaultWorkflowRunConfiguration("Target workflow RC");
+    invokeProcessNode(kettleImport, doc);
+
+    assertEquals("Target pipeline RC", runConfigurationAt(doc, 0));
+    assertEquals("Target workflow RC", runConfigurationAt(doc, 1));
+  }
+
+  /**
+   * A Simple Mapping step has no run configuration in PDI, so the importer appends one. With no
+   * default to append it used to add an empty element; leave the transform alone instead.
+   */
+  @Test
+  void simpleMappingGetsNoEmptyRunConfigurationElement() throws Exception {
+    Document doc = parse(simpleMappingTransformation());
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals(0, doc.getElementsByTagName("runConfiguration").getLength());
+  }
+
+  @Test
+  void simpleMappingGetsTheDefaultPipelineRunConfiguration() throws Exception {
+    Document doc = parse(simpleMappingTransformation());
+
+    KettleImport kettleImport = new KettleImport();
+    kettleImport.setDefaultPipelineRunConfiguration("Target pipeline RC");
+    invokeProcessNode(kettleImport, doc);
+
+    assertEquals(1, doc.getElementsByTagName("runConfiguration").getLength());
+    assertEquals(
+        "Target pipeline RC",
+        doc.getElementsByTagName("runConfiguration").item(0).getTextContent());
+  }
+
+  private static String simpleMappingTransformation() {
+    return "<transformation>"
+        + "<step>"
+        + "<name>Sub-pipeline</name>"
+        + "<type>Mapping</type>"
+        + "<trans_name>child</trans_name>"
+        + "<directory_path>/sub</directory_path>"
+        + "<filename/>"
+        + "</step>"
+        + "</transformation>";
+  }
+
   @Test
   void csvFieldQuotesCommasAndDoublesQuotes() {
     assertEquals("plain", KettleImport.csvField("plain"));
     assertEquals("\"a,b\"", KettleImport.csvField("a,b"));
     assertEquals("\"say \"\"hi\"\"\"", KettleImport.csvField("say \"hi\""));
     assertEquals("", KettleImport.csvField(null));
+  }
+
+  private static String runConfigurationAt(Document doc, int entryIndex) {
+    return doc.getElementsByTagName("run_configuration").item(entryIndex).getTextContent();
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static void invokeProcessNode(KettleImport kettleImport, Document doc) throws Exception {
+    Class<?> entryType = Class.forName("org.apache.hop.imports.kettle.KettleImport$EntryType");
+    Method method =
+        KettleImport.class.getDeclaredMethod(
+            "processNode", Document.class, Node.class, entryType, int.class);
+    method.setAccessible(true);
+    method.invoke(
+        kettleImport,
+        doc,
+        doc.getDocumentElement(),
+        Enum.valueOf((Class<Enum>) entryType, "OTHER"),
+        0);
   }
 
   private static Document parse(String xml) throws Exception {
