@@ -19,6 +19,7 @@ package org.apache.hop.vfs.gs.metadatatype;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -38,7 +39,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Getter
 @Setter
 public class GoogleStorageMetadataType extends HopMetadataBase
-    implements Serializable, IHopMetadata {
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   private static final Class<?> PKG = GoogleStorageMetadataType.class;
   @HopMetadataProperty private String description;

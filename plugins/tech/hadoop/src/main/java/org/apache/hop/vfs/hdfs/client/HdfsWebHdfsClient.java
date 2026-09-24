@@ -268,6 +268,8 @@ public class HdfsWebHdfsClient {
     status.setType(node.path("type").asText("FILE"));
     status.setLength(node.path("length").asLong(0));
     status.setModificationTime(node.path("modificationTime").asLong(0));
+    status.setOwner(node.path("owner").asText(""));
+    status.setPermission(node.path("permission").asText(""));
     return status;
   }
 

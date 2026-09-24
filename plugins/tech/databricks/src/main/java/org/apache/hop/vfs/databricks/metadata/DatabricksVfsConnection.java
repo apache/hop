@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -48,7 +49,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     documentationUrl = "/metadata-types/databricks-vfs-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_DATABRICKS_CONNECTION,
     classLoaderGroup = "vfs-databricks")
-public class DatabricksVfsConnection extends HopMetadataBase implements Serializable, IHopMetadata {
+public class DatabricksVfsConnection extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   private static final String PARENT = DatabricksVfsConnectionEditor.GUI_WIDGETS_PARENT_ID;
 

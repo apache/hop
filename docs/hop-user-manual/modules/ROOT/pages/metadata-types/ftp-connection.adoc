@@ -148,7 +148,8 @@ The *Test connection* button connects with what is on screen, logs in and asks t
 
 === In file paths
 
-Everywhere Hop accepts a file name:
+Everywhere Hop accepts a file name.
+**Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.
 
 [source]
 ----

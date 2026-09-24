@@ -119,7 +119,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private static final Class<?> PKG = HopVfsFileDialog.class;
 
-  public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
+  public static final String BOOKMARKS_AUDIT_TYPE =
+      org.apache.hop.ui.hopgui.vfs.explorer.VfsBookmarks.AUDIT_TYPE;
   public static final String DIALOG_STATE_TYPE = "vfs-dialog-state";
   public static final String DIALOG_STATE_NAME = "vfs-dialog-state";
   public static final String DIALOG_STATE_VALUE_SORT_INDEX = "sortIndex";
@@ -250,7 +251,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     try {
       // Get the bookmarks
       //
-      bookmarks = AuditManager.getActive().loadMap(usedNamespace, BOOKMARKS_AUDIT_TYPE);
+      bookmarks = org.apache.hop.ui.hopgui.vfs.explorer.VfsBookmarks.load();
 
       // Save the previous state of the dialog:
       // - sort column index
@@ -1474,7 +1475,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private void saveBookmarks() {
     try {
-      AuditManager.getActive().saveMap(usedNamespace, BOOKMARKS_AUDIT_TYPE, bookmarks);
+      org.apache.hop.ui.hopgui.vfs.explorer.VfsBookmarks.save(bookmarks);
     } catch (Exception e) {
       showError(
           BaseMessages.getString(
@@ -1646,7 +1647,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
    * @return scheme such as {@code zip}, {@code jar}, {@code tar}, {@code tgz}, {@code tbz2}, or
    *     {@code null} if the file is not a drillable archive
    */
-  static String getArchiveScheme(String nameOrPath) {
+  public static String getArchiveScheme(String nameOrPath) {
     if (StringUtils.isEmpty(nameOrPath)) {
       return null;
     }
@@ -1691,7 +1692,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
    * @param archFileUri path or URI of the archive file
    * @return browse URI, or {@code null} if inputs are incomplete
    */
-  static String buildArchiveBrowseUri(String scheme, String archFileUri) {
+  public static String buildArchiveBrowseUri(String scheme, String archFileUri) {
     if (StringUtils.isEmpty(scheme) || StringUtils.isEmpty(archFileUri)) {
       return null;
     }
@@ -1704,7 +1705,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
    * @param file archive file object
    * @return browse URI, or {@code null} if not a supported archive
    */
-  static String buildArchiveBrowseUri(FileObject file) {
+  public static String buildArchiveBrowseUri(FileObject file) {
     if (file == null) {
       return null;
     }
