@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -140,5 +141,10 @@ class HttpMetaTest {
     long errorCount =
         remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
     assertEquals(0, errorCount);
+    String okMessage = BaseMessages.getString(HttpMeta.class, "HTTPMeta.CheckResult.UrlfieldOk");
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r -> r.getType() == ICheckResult.TYPE_RESULT_OK && okMessage.equals(r.getText())));
   }
 }

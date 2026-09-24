@@ -40,6 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -526,6 +527,11 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     long errorCount =
         remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
     assertEquals(0, errorCount);
+    String okMessage = BaseMessages.getString(RestMeta.class, "RestMeta.CheckResult.MethodFieldOk");
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r -> r.getType() == ICheckResult.TYPE_RESULT_OK && okMessage.equals(r.getText())));
   }
 
   @Override

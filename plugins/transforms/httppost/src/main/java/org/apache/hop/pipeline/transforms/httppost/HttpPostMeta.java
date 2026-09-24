@@ -155,28 +155,31 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   }
 
   /**
-   * Returns the first lookup-field group, creating an empty one when the list is missing or empty.
+   * Returns the first lookup-field group, or an empty one when the list is missing or empty.
    * Pipelines saved without a {@code <lookup>} element leave {@link #lookupFields} empty.
+   *
+   * <p>This is a pure read: the empty group is not added to the list. The metadata is shared by all
+   * copies of the transform and read by dialogs that may be cancelled, so reading it must never
+   * change it. Writers replace the whole list (see the dialog's ok()).
    */
   public HttpPostLookupField getFirstLookupField() {
-    if (lookupFields == null) {
-      lookupFields = new ArrayList<>();
-    }
-    if (lookupFields.isEmpty()) {
-      lookupFields.add(new HttpPostLookupField());
+    if (lookupFields == null || lookupFields.isEmpty()) {
+      return new HttpPostLookupField();
     }
     return lookupFields.getFirst();
   }
 
   /**
-   * Returns the first result-field group, creating an empty one when the list is missing or empty.
+   * Returns the first result-field group, or an empty one when the list is missing or empty. Like
+   * {@link #getFirstLookupField()}, this never changes the list.
+   *
+   * <p>The empty group names no fields at all. The no-argument constructor is not used for it
+   * because it defaults the status-code field to "result", which would add an output field nobody
+   * configured.
    */
   public HttpPostResultField getFirstResultField() {
-    if (resultFields == null) {
-      resultFields = new ArrayList<>();
-    }
-    if (resultFields.isEmpty()) {
-      resultFields.add(new HttpPostResultField());
+    if (resultFields == null || resultFields.isEmpty()) {
+      return new HttpPostResultField(null, null, null, null);
     }
     return resultFields.getFirst();
   }
