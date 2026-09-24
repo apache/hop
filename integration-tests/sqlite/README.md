@@ -65,7 +65,8 @@ run: a column declared `NUMERIC` reads as `INTEGER` on a row holding an
 integer and as `NUMERIC` on a row holding `NULL`, where the prepared statement
 said `NUMERIC` for both. `main-0006` joins a hierarchy whose root has a `NULL`
 parent, which is how a Database Join ended up with a `Long` in a `Number` field.
-The dialect now reads a table column as its declared type, whatever the row.
+The dialect now reads a table column declared `NUMERIC`, `DECIMAL` or `NUMBER`
+as an exact BigNumber on both paths, whatever the row holds.
 
 The two expression columns in `main-0004` are the other side of that: the driver
 did see a value in their first row, so they have to keep the type it gave them.

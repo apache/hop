@@ -50,22 +50,14 @@ public final class DatabaseTypeMapper {
       boolean ignoreLength,
       boolean lazyConversion)
       throws HopDatabaseException {
-    List<IDatabaseTypeRule> rules = rulesFor(databaseMeta);
-    DatabaseColumn mapped = column;
-    for (IDatabaseTypeRule rule : rules) {
-      DatabaseColumn corrected = rule.correctColumn(variables, databaseMeta, mapped);
-      if (corrected != null) {
-        mapped = corrected;
-      }
-    }
-    for (IDatabaseTypeRule rule : rules) {
-      IValueMeta valueMeta = rule.getValueMeta(variables, databaseMeta, mapped);
+    for (IDatabaseTypeRule rule : rulesFor(databaseMeta)) {
+      IValueMeta valueMeta = rule.getValueMeta(variables, databaseMeta, column);
       if (valueMeta != null) {
         return valueMeta;
       }
     }
     return StandardJdbcTypeMapper.getValueMeta(
-        variables, databaseMeta, mapped, ignoreLength, lazyConversion);
+        variables, databaseMeta, column, ignoreLength, lazyConversion);
   }
 
   /**
