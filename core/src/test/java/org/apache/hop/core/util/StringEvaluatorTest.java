@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -185,6 +186,96 @@ class StringEvaluatorTest {
     evaluator.evaluateString("1,111,111.111.111");
     assertTrue(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isString());
+  }
+
+  /** #5609: the shortest mask (#.#) used to win and round the amounts to one decimal. */
+  @Test
+  void testNumberKeepsAllDecimals() {
+    for (String string : Arrays.asList("123.58", "90524.10", "9872.52", "130011.63")) {
+      evaluator.evaluateString(string);
+    }
+    IValueMeta advised = evaluator.getAdvicedResult().getConversionMeta();
+    assertTrue(advised.isNumber());
+    assertEquals("#.00", advised.getConversionMask());
+    assertEquals(".", advised.getDecimalSymbol());
+    assertEquals(2, advised.getPrecision());
+  }
+
+  @Test
+  void testNumberPrecisionFollowsTheMostDecimals() {
+    for (String string : Arrays.asList("1.5", "2.125", "3")) {
+      evaluator.evaluateString(string);
+    }
+    IValueMeta advised = evaluator.getAdvicedResult().getConversionMeta();
+    assertTrue(advised.isNumber());
+    assertEquals("#.000", advised.getConversionMask());
+    assertEquals(3, advised.getPrecision());
+  }
+
+  @Test
+  void testNumberWithMoreDecimalsThanAnyMask() {
+    evaluator.evaluateString("1.123456789");
+    evaluator.evaluateString(null);
+    IValueMeta advised = evaluator.getAdvicedResult().getConversionMeta();
+    assertTrue(advised.isNumber());
+    assertEquals("#.000000000", advised.getConversionMask());
+    assertEquals(9, advised.getPrecision());
+  }
+
+  /** Grouped values only parse with a grouped mask, none of which has three decimals. */
+  @Test
+  void testGroupedNumberKeepsAllDecimals() {
+    evaluator.evaluateString("1,234.567");
+    IValueMeta advised = evaluator.getAdvicedResult().getConversionMeta();
+    assertTrue(advised.isNumber());
+    assertEquals("#,##0.000", advised.getConversionMask());
+    assertEquals(3, advised.getPrecision());
+  }
+
+  /** A currency mask keeps the precision of the currency. */
+  @Test
+  void testCurrencyKeepsItsMask() {
+    StringEvaluator usEvaluator = new StringEvaluator();
+    usEvaluator.evaluateString("$1,234.5");
+    usEvaluator.evaluateString("$12.50");
+    IValueMeta advised = usEvaluator.getAdvicedResult().getConversionMeta();
+    assertTrue(advised.isNumber());
+    assertEquals("$#,##0.00", advised.getConversionMask());
+    assertEquals(2, advised.getPrecision());
+  }
+
+  @Test
+  void testWidenMask() {
+    assertEquals("#.000", StringEvaluator.widenMask("#.#", 3));
+    assertEquals("#,##0.000", StringEvaluator.widenMask("#,##0.00", 3));
+    assertEquals(" #.0000", StringEvaluator.widenMask(" #.0#", 4));
+    assertEquals("#,##0.00;-#,##0.00", StringEvaluator.widenMask("#,##0.0;-#,##0.0", 2));
+    assertEquals("#.00", StringEvaluator.widenMask("#", 2));
+    assertEquals("#.00 EUR", StringEvaluator.widenMask("#.0 EUR", 2));
+  }
+
+  /** Masks always use a dot, the locale's decimal separator must not change the precision. */
+  @Test
+  void testNumberPrecisionDoesNotDependOnLocale() {
+    Locale.setDefault(Locale.GERMANY);
+    StringEvaluator germanEvaluator = new StringEvaluator();
+    for (String string : Arrays.asList("123.58", "9872.52")) {
+      germanEvaluator.evaluateString(string);
+    }
+    IValueMeta advised = germanEvaluator.getAdvicedResult().getConversionMeta();
+    assertTrue(advised.isNumber());
+    assertEquals("#.00", advised.getConversionMask());
+    assertEquals(2, advised.getPrecision());
+  }
+
+  @Test
+  void testDeterminePrecision() {
+    assertEquals(2, StringEvaluator.determinePrecision("#.00"));
+    assertEquals(2, StringEvaluator.determinePrecision(" #.0#"));
+    assertEquals(0, StringEvaluator.determinePrecision("#"));
+    assertEquals(0, StringEvaluator.determinePrecision(null));
+    assertEquals(3, StringEvaluator.determinePrecision("1.234,567", ','));
+    assertEquals(0, StringEvaluator.determinePrecision("1.234", ','));
   }
 
   private void testNumber(String mask, String... strings) {

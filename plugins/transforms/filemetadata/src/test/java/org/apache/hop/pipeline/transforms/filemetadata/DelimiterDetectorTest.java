@@ -24,8 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.base.Charsets;
 import java.io.BufferedReader;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetector;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetectorBuilder;
 import org.junit.jupiter.api.Test;
@@ -430,6 +432,108 @@ class DelimiterDetectorTest {
       assertEquals(0, result.getBadHeaders());
       assertEquals(0, result.getBadFooters());
       assertEquals(2, result.getDataLineFrequency());
+    }
+  }
+
+  /**
+   * #5609: a quote inside an enclosed field (BOB "ROBERT" SMITH) is data. Once more than 10 such
+   * lines were scanned, the enclosure was dropped and every value kept its quotes.
+   */
+  @Test
+  void keepsEnclosureWithEnclosuresInsideFields() throws Exception {
+
+    try (BufferedReader f =
+        Files.newBufferedReader(
+            Paths.get(
+                getClass()
+                    .getResource(
+                        '/'
+                            + this.getClass().getPackage().getName().replace('.', '/')
+                            + "/delimited/embedded-enclosure.csv")
+                    .toURI()),
+            Charsets.UTF_8)) {
+      DelimiterDetector detector =
+          new DelimiterDetectorBuilder()
+              .withDelimiterCandidates('\t', ';', ',')
+              .withEnclosureCandidates('"', '\'')
+              .withInput(f)
+              .withRowLimit(10000)
+              .build();
+      DelimiterDetector.DetectionResult result = detector.detectDelimiters();
+      assertNotNull(result);
+      assertEquals(',', (char) result.getDelimiter());
+      assertEquals('"', (char) result.getEnclosure());
+      assertTrue(result.isConsistentEnclosure());
+      assertEquals(21, result.getDataLines());
+      assertEquals(0, result.getBadHeaders());
+      assertEquals(0, result.getBadFooters());
+      assertEquals(10, result.getDataLineFrequency());
+    }
+  }
+
+  /** Every such line used to be a streak of its own, a large file dropped the enclosure early. */
+  @Test
+  void keepsEnclosureWithManyEnclosuresInsideFields() throws Exception {
+    StringBuilder csv = new StringBuilder("\"id\",\"name\",\"amount\"\n");
+    for (int i = 0; i < 1000; i++) {
+      csv.append('"')
+          .append(i)
+          .append("\",\"BOB \"ROBERT\" SMITH\",\"")
+          .append(i)
+          .append(".25\"\n");
+    }
+
+    DelimiterDetector.DetectionResult result = detect(csv.toString(), ',', '"');
+
+    assertNotNull(result);
+    assertEquals('"', (char) result.getEnclosure());
+    assertEquals(1001, result.getDataLines());
+    assertEquals(0, result.getBadFooters());
+    assertEquals(2, result.getDataLineFrequency());
+  }
+
+  @Test
+  void keepsEnclosureWithEscapedEnclosures() throws Exception {
+    String csv =
+        "\"id\",\"name\",\"note\"\n"
+            + "\"1\",\"BOB \"\"ROBERT\"\" SMITH\",\"a, b\"\n"
+            + "\"2\",\"\"\"quoted\"\"\",\"\"\n"
+            + "\"3\",\"ends with \"\"\",\"x\"\n";
+
+    DelimiterDetector.DetectionResult result = detect(csv, ',', '"');
+
+    assertNotNull(result);
+    assertEquals('"', (char) result.getEnclosure());
+    assertTrue(result.isConsistentEnclosure());
+    assertEquals(4, result.getDataLines());
+    assertEquals(2, result.getDataLineFrequency());
+  }
+
+  /** Another delimiter candidate between the enclosures inside a field is data. */
+  @Test
+  void countsOnlyDelimitersOutsideEnclosedFields() throws Exception {
+    String csv = "\"id\",\"name\"\n" + "\"1\",\"a \"b; c\" d\"\n" + "\"2\",\"e\"\n";
+
+    DelimiterDetector.DetectionResult result = detect(csv, ';', ',', '"');
+
+    assertNotNull(result);
+    assertEquals(',', (char) result.getDelimiter());
+    assertEquals('"', (char) result.getEnclosure());
+    assertEquals(3, result.getDataLines());
+    assertEquals(1, result.getDataLineFrequency());
+  }
+
+  private static DelimiterDetector.DetectionResult detect(String csv, char... candidates)
+      throws Exception {
+    // the last candidate is the enclosure
+    char[] delimiters = Arrays.copyOf(candidates, candidates.length - 1);
+    try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
+      return new DelimiterDetectorBuilder()
+          .withDelimiterCandidates(delimiters)
+          .withEnclosureCandidates(candidates[candidates.length - 1])
+          .withInput(reader)
+          .build()
+          .detectDelimiters();
     }
   }
 }
