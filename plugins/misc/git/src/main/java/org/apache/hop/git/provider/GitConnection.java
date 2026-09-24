@@ -33,7 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Getter
 @Setter
 @HopMetadata(
-    key = "gitconnection",
+    key = "git-connection",
+    legacyKeys = {"gitconnection"},
     name = "i18n::GitConnection.name",
     description = "i18n::GitConnection.description",
     image = "git.svg",

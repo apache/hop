@@ -32,7 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Setter
 @GuiPlugin
 @HopMetadata(
-    key = "S3ConnectionDefinition",
+    key = "s3-connection",
+    legacyKeys = {"S3ConnectionDefinition"},
     name = "i18n::S3Meta.name",
     description = "i18n::S3Meta.description",
     image = "s3.svg",

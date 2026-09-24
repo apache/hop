@@ -25,8 +25,10 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 
 public class BaseMetadataProvider {
 
@@ -51,6 +53,12 @@ public class BaseMetadataProvider {
         }
         String className = plugin.getClassMap().get(plugin.getMainType());
         Class<?> pluginClass = registry.getClassLoader(plugin).loadClass(className);
+        // A type can still be disabled with the key it had before it was renamed.
+        HopMetadata annotation = pluginClass.getAnnotation(HopMetadata.class);
+        if (annotation != null
+            && HopMetadataUtil.getAllKeys(annotation).stream().anyMatch(disabledIds::contains)) {
+          continue;
+        }
         classes.add((Class<T>) pluginClass);
       }
       return classes;
@@ -64,6 +72,14 @@ public class BaseMetadataProvider {
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin plugin = registry.findPluginWithId(MetadataPluginType.class, key);
       if (plugin == null) {
+        // The key can be one a metadata type was known under before it was renamed, for example
+        // in a serialized metadata export written by an older version of Hop.
+        //
+        for (Class<T> metadataClass : this.<T>getMetadataClasses()) {
+          if (HopMetadataUtil.matchesKey(metadataClass.getAnnotation(HopMetadata.class), key)) {
+            return metadataClass;
+          }
+        }
         throw new HopException(
             "The metadata plugin for key " + key + " could not be found in the plugin registry");
       }

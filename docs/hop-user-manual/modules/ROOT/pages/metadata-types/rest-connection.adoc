@@ -189,4 +189,4 @@ TIP: For `LINK_HEADER` and `BODY_NEXT_URL`, the path on the REST client transfor
 
 == Samples
 
-link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/restconnection/github-releases.json[github-releases.json] — public GitHub API, `LINK_HEADER` pagination (used by link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] in the REST transform samples project).
+link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/rest-connection/github-releases.json[github-releases.json] — public GitHub API, `LINK_HEADER` pagination (used by link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] in the REST transform samples project).

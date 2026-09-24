@@ -28,7 +28,8 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
-    key = "GoogleStorageConnectionDefinition",
+    key = "google-storage-connection",
+    legacyKeys = {"GoogleStorageConnectionDefinition"},
     name = "i18n::GoogleStorageMetadataType.Name",
     description = "i18n::GoogleStorageMetadataType.Description",
     image = "ui/images/authentication.svg",

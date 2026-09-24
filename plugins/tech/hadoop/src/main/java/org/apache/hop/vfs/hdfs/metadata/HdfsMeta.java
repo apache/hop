@@ -43,7 +43,8 @@ import org.eclipse.swt.widgets.MessageBox;
 @Setter
 @GuiPlugin(classLoaderGroup = "vfs-hdfs")
 @HopMetadata(
-    key = "HdfsConnectionDefinition",
+    key = "hdfs-connection",
+    legacyKeys = {"HdfsConnectionDefinition"},
     name = "i18n::HdfsMeta.Name",
     description = "i18n::HdfsMeta.Description",
     image = "hdfs.svg",

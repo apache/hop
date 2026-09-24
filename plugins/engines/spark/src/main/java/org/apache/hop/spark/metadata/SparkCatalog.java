@@ -45,7 +45,8 @@ import org.eclipse.swt.widgets.Shell;
 @Setter
 @GuiPlugin
 @HopMetadata(
-    key = "SparkCatalog",
+    key = "spark-catalog",
+    legacyKeys = {"SparkCatalog"},
     name = "i18n::SparkCatalog.Name",
     description = "i18n::SparkCatalog.Description",
     image = "spark-catalog.svg",

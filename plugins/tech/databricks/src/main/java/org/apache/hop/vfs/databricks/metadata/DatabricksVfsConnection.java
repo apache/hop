@@ -41,7 +41,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Setter
 @GuiPlugin
 @HopMetadata(
-    key = "DatabricksVfsConnectionDefinition",
+    key = "databricks-vfs-connection",
+    legacyKeys = {"DatabricksVfsConnectionDefinition"},
     name = "i18n::DatabricksVfsConnection.Name",
     description = "i18n::DatabricksVfsConnection.Description",
     image = "databricks-connection.svg",

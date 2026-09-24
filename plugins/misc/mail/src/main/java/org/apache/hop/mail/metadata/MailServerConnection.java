@@ -76,7 +76,8 @@ import org.eclipse.angus.mail.pop3.POP3SSLStore;
 @Getter
 @Setter
 @HopMetadata(
-    key = "MailServerConnection",
+    key = "mail-server-connection",
+    legacyKeys = {"MailServerConnection"},
     name = "i18n::MailServerConnection.name",
     description = "i18n::MailServerConnection.description",
     image = "mail.svg",
