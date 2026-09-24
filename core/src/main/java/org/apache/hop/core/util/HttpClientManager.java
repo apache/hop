@@ -19,6 +19,7 @@ package org.apache.hop.core.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -40,6 +41,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner;
 import org.apache.hc.client5.http.protocol.RedirectStrategy;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
@@ -102,6 +104,8 @@ public class HttpClientManager {
     private int connectionTimeout;
     private int socketTimeout;
     private HttpHost proxy;
+    private String nonProxyHosts;
+    private boolean systemProxy;
     private boolean ignoreSsl;
 
     public HttpClientBuilderFacade setConnectionTimeout(int connectionTimeout) {
@@ -114,14 +118,20 @@ public class HttpClientManager {
       return this;
     }
 
+    /**
+     * Adds credentials for one authentication scope. Call it more than once to serve several scopes
+     * from the same client -- a target server and a proxy, say, each keeping its own credentials
+     * rather than one pair being offered to whichever of them asks first.
+     */
     public HttpClientBuilderFacade setCredentials(
         String user, String password, AuthScope authScope) {
-      BasicCredentialsProvider provider = new BasicCredentialsProvider();
+      if (provider == null) {
+        provider = new BasicCredentialsProvider();
+      }
       char[] passwordChars = password != null ? password.toCharArray() : new char[0];
       UsernamePasswordCredentials credentials =
           new UsernamePasswordCredentials(user, passwordChars);
       provider.setCredentials(authScope, credentials);
-      this.provider = provider;
       return this;
     }
 
@@ -136,6 +146,26 @@ public class HttpClientManager {
 
     public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort, String scheme) {
       this.proxy = new HttpHost(scheme, proxyHost, proxyPort);
+      return this;
+    }
+
+    /**
+     * Target hosts that bypass the proxy, in JDK {@code http.nonProxyHosts} syntax. Only has an
+     * effect together with a proxy.
+     */
+    public HttpClientBuilderFacade setNonProxyHosts(String nonProxyHosts) {
+      this.nonProxyHosts = nonProxyHosts;
+      return this;
+    }
+
+    /**
+     * Without a proxy of its own, route through the JVM's {@link ProxySelector}: the {@code
+     * http.proxyHost} / {@code http.nonProxyHosts} system properties or {@code
+     * java.net.useSystemProxies}, as {@link java.net.URLConnection} does. Off by default, in which
+     * case a client without a proxy connects directly. A proxy set with {@code setProxy} wins.
+     */
+    public HttpClientBuilderFacade useSystemProxy(boolean systemProxy) {
+      this.systemProxy = systemProxy;
       return this;
     }
 
@@ -186,10 +216,16 @@ public class HttpClientManager {
       if (connectionTimeout > 0) {
         requestConfigBuilder.setConnectTimeout(Timeout.ofMilliseconds(connectionTimeout));
       }
-      if (proxy != null) {
-        requestConfigBuilder.setProxy(proxy);
-      }
       httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
+
+      if (proxy != null) {
+        // A route planner rather than RequestConfig.setProxy(): a proxy set on the request config
+        // is returned for every target, so a bypass list could never be honoured.
+        httpClientBuilder.setRoutePlanner(new ProxyRoutePlanner(proxy, nonProxyHosts));
+      } else if (systemProxy) {
+        httpClientBuilder.setRoutePlanner(
+            new SystemDefaultRoutePlanner(ProxySelector.getDefault()));
+      }
 
       if (provider != null) {
         httpClientBuilder.setDefaultCredentialsProvider(provider);
