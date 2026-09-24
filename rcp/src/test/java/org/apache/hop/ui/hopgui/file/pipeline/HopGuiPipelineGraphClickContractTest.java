@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashMap;
@@ -42,6 +43,7 @@ import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.hopgui.file.GraphCanvasTestBase;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
@@ -252,6 +254,93 @@ class HopGuiPipelineGraphClickContractTest extends GraphCanvasTestBase {
               () -> assertDialogs(null, dialogs),
               () -> cell.sideEffect.accept(scene),
               () -> assertNoFailures());
+        });
+  }
+
+  /** One hover: the spot, the option that owns its tooltip and a piece of the text it shows. */
+  private record Hover(Where where, CanvasToolTip toolTip, String text) {
+    @Override
+    public String toString() {
+      return where.label + " - " + toolTip;
+    }
+  }
+
+  static Stream<Hover> hovers() {
+    return Stream.of(
+        new Hover(
+            Where.NAME, CanvasToolTip.EDIT_HINT, msg("HopGuiPipelineGraph.TransformName.Tooltip")),
+        new Hover(Where.INFO_BADGE, CanvasToolTip.DESCRIPTION, "Reads the rows"),
+        new Hover(Where.HOP_LINE, CanvasToolTip.HOP, msg("PipelineGraph.Dialog.HopInfo")),
+        new Hover(Where.HOP_COPY_BADGE, CanvasToolTip.HOP, SOURCE_TRANSFORM));
+  }
+
+  /**
+   * Every tooltip on the canvas has a switch of its own in the Look &amp; Feel options: with the
+   * switch on the hover shows it, with the switch off the same hover shows nothing.
+   */
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("hovers")
+  void hovering(Hover hover) {
+    Cell cell = new Cell(false, hover.where, LEFT, null, scene -> {});
+    onCanvas(
+        cell,
+        scene -> {
+          Point at = scene.aim(hover.where);
+          try {
+            onUi(() -> PropsUi.getInstance().setCanvasToolTipShown(hover.toolTip, true));
+            fire(scene.canvas, SWT.MouseHover, scene.scale, at, 0, SWT.NONE);
+            scene.noteBalloon();
+            String shown = scene.balloon;
+
+            onUi(() -> PropsUi.getInstance().setCanvasToolTipShown(hover.toolTip, false));
+            fire(scene.canvas, SWT.MouseHover, scene.scale, at, 0, SWT.NONE);
+            scene.noteBalloon();
+            String hidden = scene.balloon;
+
+            assertAll(
+                () -> assertNotNull(shown, "the hover should have put up a tooltip"),
+                () -> assertTrue(shown.contains(hover.text), "unexpected tooltip: " + shown),
+                () -> assertNull(hidden, "the tooltip is switched off, yet it shows: " + hidden),
+                () -> assertNoFailures());
+          } finally {
+            onUi(() -> PropsUi.getInstance().setCanvasToolTipShown(hover.toolTip, true));
+          }
+        });
+  }
+
+  /**
+   * The general tooltip option on the General tab switches every canvas tooltip off at once, the
+   * "Selection cleared" notice included, even while its own checkbox is left on.
+   */
+  @Test
+  void generalToolTipOptionSwitchesOffTheSelectionClearedNotice() {
+    Cell cell = new Cell(false, Where.EMPTY_SELECTED, LEFT, null, Scene::nothingSelected);
+    onCanvas(
+        cell,
+        scene -> {
+          Point at = scene.aim(cell.where);
+          try {
+            onUi(
+                () -> {
+                  PropsUi.getInstance().setCanvasToolTipShown(CanvasToolTip.NOTICE, true);
+                  PropsUi.getInstance().setShowToolTips(false);
+                });
+
+            List<String> dialogs =
+                clickAndCatchDialogs(
+                    scene.bot, scene.canvas, scene.scale, at, LEFT, SWT.NONE, scene::noteBalloon);
+
+            assertAll(
+                () -> assertDialogs(null, dialogs),
+                () -> cell.sideEffect.accept(scene),
+                () ->
+                    assertNull(
+                        scene.balloon,
+                        "tooltips are switched off, yet the notice shows: " + scene.balloon),
+                () -> assertNoFailures());
+          } finally {
+            onUi(() -> PropsUi.getInstance().setShowToolTips(true));
+          }
         });
   }
 
