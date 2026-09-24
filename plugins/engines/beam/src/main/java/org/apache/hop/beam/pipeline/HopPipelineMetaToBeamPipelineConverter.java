@@ -66,6 +66,7 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
 import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
@@ -103,7 +104,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
           SortRowsMeta.class,
           "Sort Rows is not supported on Beam.  A Beam pipeline re-shuffles rows across workers to maximize parallelism, so this transform would only order the rows a single worker happens to hold, not the data set as a whole.",
           UniqueRowsByHashSetMeta.class,
-          "Unique Rows By Hashset is not supported on Beam.  Every worker keeps its own hash set, so duplicates spread over different workers would survive.  Use a Memory Group By to get distinct rows.");
+          "Unique Rows By Hashset is not supported on Beam.  Every worker keeps its own hash set, so duplicates spread over different workers would survive.  Use a Memory Group By to get distinct rows.",
+          JoinRowsMeta.class,
+          "Join Rows is not supported on Beam.  A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing.  Add the same constant field to both inputs and use a Merge Join on that field instead.");
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;

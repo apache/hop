@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.apache.hop.spark.engines.SparkPipelineEngine;
 import org.apache.hop.spark.util.SparkConst;
@@ -54,6 +55,17 @@ class HopPipelineMetaToSparkConverterTest {
                 HopPipelineMetaToSparkConverter.validateTransformSparkUsage(
                     SparkConst.GROUP_BY_PLUGIN_ID, "g1"));
     assertTrue(group.getMessage().contains("Group By"));
+  }
+
+  @Test
+  void joinRowsIsBanned() {
+    HopException join =
+        assertThrows(
+            HopException.class,
+            () ->
+                HopPipelineMetaToSparkConverter.validateTransformSparkUsage(
+                    SparkConst.JOIN_ROWS_PLUGIN_ID, "j1"));
+    assertTrue(join.getMessage().contains("Merge Join"));
   }
 
   @Test
@@ -166,7 +178,9 @@ class HopPipelineMetaToSparkConverterTest {
             SparkConst.GROUP_BY_PLUGIN_ID,
             GroupByMeta.class,
             SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
-            UniqueRowsByHashSetMeta.class);
+            UniqueRowsByHashSetMeta.class,
+            SparkConst.JOIN_ROWS_PLUGIN_ID,
+            JoinRowsMeta.class);
 
     assertEquals(
         HopPipelineMetaToSparkConverter.HARD_BANNED_PLUGIN_IDS.keySet(),

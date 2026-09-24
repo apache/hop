@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Transform;
@@ -31,7 +33,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -74,32 +75,63 @@ class JoinRowsSingleThreadedTest {
 
   @Test
   void cartesianProductOfTwoInputs() throws Exception {
-    List<RowMetaAndData> rows = assertTimeoutPreemptively(TIMEOUT, () -> runJoin(3, 2, 500, false));
+    List<Input> inputs = List.of(new Input("main", 3), new Input("other", 2));
+    List<RowMetaAndData> rows =
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, false));
 
     assertEquals(6, rows.size());
-    assertProduct(rows, 3, 2);
+    assertProduct(rows, inputs);
   }
 
   @Test
   void cartesianProductWhenInputRowSetsAreFinished() throws Exception {
-    List<RowMetaAndData> rows = assertTimeoutPreemptively(TIMEOUT, () -> runJoin(3, 2, 500, true));
+    List<Input> inputs = List.of(new Input("main", 3), new Input("other", 2));
+    List<RowMetaAndData> rows =
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, true));
 
     assertEquals(6, rows.size());
-    assertProduct(rows, 3, 2);
+    assertProduct(rows, inputs);
   }
 
   @Test
   void cartesianProductSpillingToTemporaryFile() throws Exception {
     // A cache size below the number of rows makes the transform read the rows back from disk.
-    List<RowMetaAndData> rows = assertTimeoutPreemptively(TIMEOUT, () -> runJoin(4, 5, 2, false));
+    List<Input> inputs = List.of(new Input("main", 4), new Input("other", 5));
+    List<RowMetaAndData> rows =
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 2, false));
 
     assertEquals(20, rows.size());
-    assertProduct(rows, 4, 5);
+    assertProduct(rows, inputs);
+  }
+
+  @Test
+  void cartesianProductOfThreeInputsWithMainStreamLast() throws Exception {
+    // The main stream is the last hop into Join Rows: its row set has to move to the front while
+    // the other streams keep their hop order, the order in which JoinRowsMeta.getFields() lists
+    // their fields.
+    List<Input> inputs = List.of(new Input("a", 2), new Input("b", 3), new Input("main", 2));
+    List<RowMetaAndData> rows =
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, false));
+
+    assertEquals(12, rows.size());
+    assertProduct(rows, List.of(inputs.get(2), inputs.get(0), inputs.get(1)));
+  }
+
+  @Test
+  void cartesianProductOfThreeInputsWithMainStreamInTheMiddle() throws Exception {
+    List<Input> inputs = List.of(new Input("a", 2), new Input("main", 3), new Input("b", 2));
+    List<RowMetaAndData> rows =
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 1, false));
+
+    assertEquals(12, rows.size());
+    assertProduct(rows, List.of(inputs.get(1), inputs.get(0), inputs.get(2)));
   }
 
   @Test
   void noOutputWhenOneInputIsEmpty() throws Exception {
-    List<RowMetaAndData> rows = assertTimeoutPreemptively(TIMEOUT, () -> runJoin(3, 0, 500, false));
+    List<Input> inputs = List.of(new Input("main", 3), new Input("other", 0));
+    List<RowMetaAndData> rows =
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, false));
 
     assertTrue(rows.isEmpty());
   }
@@ -108,50 +140,70 @@ class JoinRowsSingleThreadedTest {
   void singleInputPassesRowsThrough() throws Exception {
     // This is how the Beam engine used to feed the transform: all inputs flattened into one row
     // set, one row per iteration. The old batchComplete() hung on the row that was left behind.
+    List<Input> inputs = List.of(new Input("main", 3));
     List<RowMetaAndData> rows =
-        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(3, -1, 500, false));
+        assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, false));
 
     assertEquals(3, rows.size());
+    assertProduct(rows, inputs);
   }
 
-  private static void assertProduct(List<RowMetaAndData> rows, int nrMain, int nrOther)
-      throws Exception {
-    List<String> expected = new ArrayList<>();
-    for (long id = 1; id <= nrMain; id++) {
-      for (int n = 1; n <= nrOther; n++) {
-        expected.add(id + "-name" + n);
+  /**
+   * An input of Join Rows: an injector with a single String field named after the input, holding
+   * the values {@code <name>1 .. <name><nrRows>}.
+   */
+  private record Input(String name, int nrRows) {}
+
+  /**
+   * Asserts the complete cartesian product, with the fields in the given order of the inputs. The
+   * values of the last input vary fastest.
+   */
+  private static void assertProduct(List<RowMetaAndData> rows, List<Input> fieldOrder) {
+    List<String> expectedFields = fieldOrder.stream().map(Input::name).toList();
+    List<String> expected = List.of("");
+    for (Input input : fieldOrder) {
+      List<String> combined = new ArrayList<>();
+      for (String prefix : expected) {
+        for (int n = 1; n <= input.nrRows(); n++) {
+          combined.add(prefix + (prefix.isEmpty() ? "" : "|") + input.name() + n);
+        }
       }
+      expected = combined;
     }
+
     List<String> actual = new ArrayList<>();
     for (RowMetaAndData row : rows) {
-      assertEquals(2, row.getRowMeta().size());
-      actual.add(row.getInteger("id") + "-" + row.getString("name", null));
+      assertEquals(expectedFields, List.of(row.getRowMeta().getFieldNames()));
+      List<String> values = new ArrayList<>();
+      for (int i = 0; i < row.size(); i++) {
+        values.add((String) row.getData()[i]);
+      }
+      actual.add(String.join("|", values));
     }
     assertEquals(expected, actual);
   }
 
   private static List<RowMetaAndData> runJoin(
-      int nrMain, int nrOther, int cacheSize, boolean finishInputs) throws Exception {
+      List<Input> inputs, String mainName, int cacheSize, boolean finishInputs) throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("join-rows-single-threaded");
 
-    TransformMeta main = addTransform(pipelineMeta, "main", new InjectorMeta());
-    // A negative number of rows leaves the second input out of the pipeline
-    TransformMeta other =
-        nrOther < 0 ? null : addTransform(pipelineMeta, "other", new InjectorMeta());
+    List<TransformMeta> inputTransforms = new ArrayList<>();
+    for (Input input : inputs) {
+      inputTransforms.add(addTransform(pipelineMeta, input.name(), new InjectorMeta()));
+    }
 
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
     joinRowsMeta.setDefault();
     joinRowsMeta.setCacheSize(cacheSize);
-    joinRowsMeta.setMainTransformName("main");
+    joinRowsMeta.setMainTransformName(mainName);
     joinRowsMeta.setDirectory(System.getProperty("java.io.tmpdir"));
     TransformMeta join = addTransform(pipelineMeta, "join", joinRowsMeta);
 
     TransformMeta output = addTransform(pipelineMeta, "output", new DummyMeta());
 
-    pipelineMeta.addPipelineHop(new PipelineHopMeta(main, join));
-    if (other != null) {
-      pipelineMeta.addPipelineHop(new PipelineHopMeta(other, join));
+    for (TransformMeta inputTransform : inputTransforms) {
+      pipelineMeta.addPipelineHop(new PipelineHopMeta(inputTransform, join));
     }
     pipelineMeta.addPipelineHop(new PipelineHopMeta(join, output));
 
@@ -163,8 +215,10 @@ class JoinRowsSingleThreadedTest {
     pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     pipeline.prepareExecution();
 
-    RowProducer mainProducer = pipeline.addRowProducer("main", 0);
-    RowProducer otherProducer = other == null ? null : pipeline.addRowProducer("other", 0);
+    Map<String, RowProducer> producers = new HashMap<>();
+    for (Input input : inputs) {
+      producers.put(input.name(), pipeline.addRowProducer(input.name(), 0));
+    }
 
     ITransform joinTransform = pipeline.getTransform("join", 0);
     TransformRowsCollector collector = new TransformRowsCollector();
@@ -172,21 +226,16 @@ class JoinRowsSingleThreadedTest {
 
     pipeline.startThreads();
 
-    IRowMeta mainRowMeta = new RowMeta();
-    mainRowMeta.addValueMeta(new ValueMetaInteger("id"));
-    for (long id = 1; id <= nrMain; id++) {
-      mainProducer.putRow(mainRowMeta, new Object[] {id});
-    }
-    IRowMeta otherRowMeta = new RowMeta();
-    otherRowMeta.addValueMeta(new ValueMetaString("name"));
-    for (int n = 1; n <= nrOther; n++) {
-      otherProducer.putRow(otherRowMeta, new Object[] {"name" + n});
+    for (Input input : inputs) {
+      IRowMeta rowMeta = new RowMeta();
+      rowMeta.addValueMeta(new ValueMetaString(input.name()));
+      RowProducer producer = producers.get(input.name());
+      for (int n = 1; n <= input.nrRows(); n++) {
+        producer.putRow(rowMeta, new Object[] {input.name() + n});
+      }
     }
     if (finishInputs) {
-      mainProducer.finished();
-      if (otherProducer != null) {
-        otherProducer.finished();
-      }
+      producers.values().forEach(RowProducer::finished);
     }
 
     SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(pipeline);

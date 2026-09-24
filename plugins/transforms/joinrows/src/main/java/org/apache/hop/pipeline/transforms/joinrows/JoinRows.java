@@ -73,7 +73,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
 
       // See if a main transform is supplied: in that case move the corresponding rowset to position
       // 0
-      swapFirstInputRowSetIfExists(meta.getMainTransformName());
+      moveInputRowSetToFront(meta.getMainTransformName());
 
       List<IRowSet> inputRowSets = getInputRowSets();
       int rowSetsSize = inputRowSets.size();
@@ -463,6 +463,22 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       outputRowMeta.mergeRowMeta(data.fileRowMeta[i], meta.getName());
     }
     return outputRowMeta;
+  }
+
+  /**
+   * Move the row set of the given transform to position 0, and keep the other row sets in hop
+   * order. That's the order in which {@link JoinRowsMeta#getFields} lists their fields. Swapping it
+   * with position 0 would mix up the fields of the other streams when there are more than two.
+   */
+  private void moveInputRowSetToFront(String transformName) {
+    List<IRowSet> rowSets = getInputRowSets();
+    for (int i = 1; i < rowSets.size(); i++) {
+      if (rowSets.get(i).getOriginTransformName().equalsIgnoreCase(transformName)) {
+        rowSets.add(0, rowSets.remove(i));
+        setInputRowSets(rowSets);
+        return;
+      }
+    }
   }
 
   /**

@@ -39,17 +39,17 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>ids</from>
-      <to>Join rows</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>names</from>
       <to>Join rows</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>codes</from>
+      <to>Join rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ids</from>
       <to>Join rows</to>
       <enabled>Y</enabled>
     </hop>
