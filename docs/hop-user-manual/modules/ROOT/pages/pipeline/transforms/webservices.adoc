@@ -65,9 +65,12 @@ Note: The data of the input fields can be escaped by the Calculator transform an
 
 == WSDL files and imports
 
-When the WSDL is a file, any `<import>` in it with a relative location is looked up next to that file.
+A WSDL can import other WSDL documents (`<import location="...">`) and XML schemas (`<xsd:import schemaLocation="...">`, `<xsd:include>`).
+A relative location is looked up next to the document that names it, on the same file system or web server as that document: a WSDL on S3 finds its imports on S3.
+An imported document can import others in turn.
 
-HTTP authentication is only used to fetch a WSDL over `http://` or `https://`, and to call the service itself.
+HTTP authentication is used to fetch the WSDL over `http://` or `https://`, its imports from the same host, and to call the service itself.
+It is not sent to any other host a WSDL imports from.
 
 == Input and output fields
 

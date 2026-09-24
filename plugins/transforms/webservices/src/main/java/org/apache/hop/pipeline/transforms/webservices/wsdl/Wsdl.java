@@ -21,11 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -371,62 +367,50 @@ public final class Wsdl implements java.io.Serializable {
     }
     String location = wsdlLocation.trim();
     WSDLReader wsdlReader = getReader();
-    if (isHttpLocation(location)) {
-      return readWsdl(wsdlReader, location, openHttpStream(location, username, password));
-    }
 
-    // Anything that isn't served over HTTP is a file: a plain path like the file dialog hands out,
-    // a file: URL or any other location Hop VFS knows about.
+    // Imports are resolved relative to the WSDL's own URI and read through the same locator, so
+    // they come from wherever the WSDL came from: over http(s), or from any file system Hop VFS
+    // knows about. Everything it opens is closed once the WSDL has been read, failure or not.
     //
-    FileObject wsdlFile =
+    try (HopVfsWsdlLocator locator =
+        new HopVfsWsdlLocator(baseUri(location, variables), variables, username, password)) {
+      Document doc;
+      try (InputStream wsdlStream = locator.openBase()) {
+        doc = XmlHandler.loadXmlFile(wsdlStream, locator.getBaseURI(), false, true);
+      } catch (IOException e) {
+        throw new HopException(e);
+      }
+      if (doc == null) {
+        throw new HopException("Unable to get document.");
+      }
+      return wsdlReader.readWSDL(locator, doc.getDocumentElement());
+    } catch (HopRuntimeException e) {
+      // An import the locator could not read. Unwrapped, so the message says which.
+      throw new HopException(e.getMessage(), e.getCause() == null ? e : e.getCause());
+    }
+  }
+
+  /**
+   * The absolute URI of the WSDL: an http(s) URL as it stands, anything else, a plain path like the
+   * file dialog hands out, a file: URL or any other location Hop VFS knows about, as Hop VFS names
+   * it.
+   */
+  private static String baseUri(String location, IVariables variables) throws HopException {
+    if (isHttpLocation(location)) {
+      return location;
+    }
+    try (FileObject wsdlFile =
         variables == null
             ? HopVfs.getFileObject(location)
-            : HopVfs.getFileObject(location, variables);
-    try {
-      if (!wsdlFile.exists()) {
-        throw new HopException("WSDL file " + wsdlLocation + " does not exist");
-      }
-      // Imports in the WSDL are resolved relative to this URI.
-      //
-      String baseUri = wsdlFile.getName().getURI();
-      return readWsdl(wsdlReader, baseUri, HopVfs.getInputStream(wsdlFile));
+            : HopVfs.getFileObject(location, variables)) {
+      return wsdlFile.getName().getURI();
     } catch (FileSystemException e) {
-      throw new HopException("Unable to read WSDL file " + wsdlLocation, e);
+      throw new HopException("Unable to read WSDL file " + location, e);
     }
   }
 
   static boolean isHttpLocation(String wsdlLocation) {
     return Strings.CI.startsWithAny(wsdlLocation, "http://", "https://");
-  }
-
-  private Definition readWsdl(WSDLReader wsdlReader, String baseUri, InputStream inputStream)
-      throws WSDLException, HopException {
-
-    try (InputStream wsdlStream = inputStream) {
-      Document doc = XmlHandler.loadXmlFile(wsdlStream, baseUri, false, true);
-      if (doc != null) {
-        return wsdlReader.readWSDL(baseUri, doc);
-      } else {
-        throw new HopException("Unable to get document.");
-      }
-    } catch (IOException ioe) {
-      throw new HopException(ioe);
-    }
-  }
-
-  private InputStream openHttpStream(String url, String username, String password)
-      throws HopException {
-    try {
-      URLConnection connection = new URL(url).openConnection();
-      if (username != null && !username.isEmpty()) {
-        String raw = username + ":" + (password == null ? "" : password);
-        String encoded = Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
-        connection.setRequestProperty("Authorization", "Basic " + encoded);
-      }
-      return connection.getInputStream();
-    } catch (IOException e) {
-      throw new HopException("Unable to read WSDL from " + url, e);
-    }
   }
 
   /**
