@@ -135,6 +135,61 @@ class DataSetCsvWriterTest {
   }
 
   @Test
+  void numberWithoutFormatKeepsAllDigits() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable(DataSet.VARIABLE_HOP_DATASETS_FOLDER, tempDir.toString());
+
+    DataSet dataSet = new DataSet();
+    dataSet.setName("numbers");
+    dataSet.setBaseFilename("numbers.csv");
+    dataSet.setFields(
+        List.of(
+            new DataSetField("id", IValueMeta.TYPE_INTEGER, -1, 0, "", "0"),
+            new DataSetField("pi", IValueMeta.TYPE_NUMBER, -1, -1, "", "")));
+
+    double[] values = {3.14, -1234.5678, 0.1 + 0.2, 1e-20, 12345678901.25, 7.0};
+    IRowMeta rowMeta = dataSet.getSetRowMeta();
+    try (DataSetCsvWriter writer = new DataSetCsvWriter(variables, dataSet, rowMeta)) {
+      for (int i = 0; i < values.length; i++) {
+        writer.writeRow(new Object[] {(long) i, values[i]});
+      }
+      writer.writeRow(new Object[] {(long) values.length, null});
+    }
+
+    // The caller's row metadata must not be touched
+    assertTrue(rowMeta.getValueMeta(1).getConversionMask().isEmpty());
+
+    String csv = Files.readString(tempDir.resolve("numbers.csv"));
+    assertTrue(csv.contains("0,3.14"), csv);
+
+    List<Object[]> rows = DataSetCsvUtil.getAllRows(variables, dataSet);
+    assertEquals(values.length + 1, rows.size());
+    for (int i = 0; i < values.length; i++) {
+      assertEquals(values[i], (Double) rows.get(i)[1]);
+    }
+    assertNull(rows.get(values.length)[1]);
+  }
+
+  @Test
+  void numberWithFormatUsesThatFormat() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable(DataSet.VARIABLE_HOP_DATASETS_FOLDER, tempDir.toString());
+
+    DataSet dataSet = new DataSet();
+    dataSet.setName("formatted");
+    dataSet.setBaseFilename("formatted.csv");
+    dataSet.setFields(List.of(new DataSetField("pi", IValueMeta.TYPE_NUMBER, -1, -1, "", "0.00")));
+
+    try (DataSetCsvWriter writer =
+        new DataSetCsvWriter(variables, dataSet, dataSet.getSetRowMeta())) {
+      writer.writeRow(new Object[] {3.14159});
+    }
+
+    List<Object[]> rows = DataSetCsvUtil.getAllRows(variables, dataSet);
+    assertEquals(3.14, (Double) rows.get(0)[0]);
+  }
+
+  @Test
   void binaryValuesRoundTripAsLowercaseHex() throws Exception {
     Variables variables = new Variables();
     variables.setVariable(DataSet.VARIABLE_HOP_DATASETS_FOLDER, tempDir.toString());

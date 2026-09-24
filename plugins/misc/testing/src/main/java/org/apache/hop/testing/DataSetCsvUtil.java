@@ -46,6 +46,14 @@ import org.apache.hop.core.vfs.HopVfs;
  * file defined by the tableName in the data set
  */
 public class DataSetCsvUtil {
+  /**
+   * Storage mask for Number fields without a format. DecimalFormat prints the shortest decimal
+   * representation of a double, so 3.14 is written as "3.14" while no digits are ever dropped (340
+   * is the maximum number of fraction digits DecimalFormat honours for a double). Declared
+   * precision is applied when comparing against golden data, not when storing.
+   */
+  static final String NUMBER_STORAGE_MASK = "0." + "#".repeat(340);
+
   public static void setValueFormats(IRowMeta rowMeta) {
     for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
       if (StringUtils.isEmpty(valueMeta.getConversionMask())) {
@@ -54,7 +62,7 @@ public class DataSetCsvUtil {
             valueMeta.setConversionMask("0");
             break;
           case IValueMeta.TYPE_NUMBER:
-            valueMeta.setConversionMask("0.#");
+            valueMeta.setConversionMask(NUMBER_STORAGE_MASK);
             break;
           case IValueMeta.TYPE_DATE:
             valueMeta.setConversionMask("yyyyMMdd-HHmmss.SSS");
