@@ -1548,11 +1548,11 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         countAffectedRows(result, sql, count);
       }
 
-      // See if a cache needs to be cleared...
-      String upperSql = sql.toUpperCase();
-      if (upperSql.startsWith("ALTER TABLE")
-          || upperSql.startsWith("DROP TABLE")
-          || upperSql.startsWith("CREATE TABLE")) {
+      // A statement which changes the layout of a table or a view invalidates anything we cached
+      // for this connection. The classifier also recognises the modifier forms: CREATE OR REPLACE
+      // VIEW, DROP TABLE IF EXISTS, CREATE MATERIALIZED VIEW, ...
+      //
+      if (SqlQueryClassifier.isSchemaChange(sql)) {
         DbCache.getInstance().clear(databaseMeta.getName());
       }
     } catch (SQLException ex) {
