@@ -20,8 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,14 +35,21 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -46,6 +58,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.MockedConstruction;
 
 /** Unit test for {@link DynamicSqlRowMeta} */
 class DynamicSqlRowMetaTest {
@@ -96,7 +109,6 @@ class DynamicSqlRowMetaTest {
     meta.setDefault();
 
     assertNull(meta.getConnection());
-    assertNull(meta.getDatabaseMeta());
     assertEquals(0, meta.getRowLimit());
     assertEquals("", meta.getSql());
     assertFalse(meta.isOuterJoin());
@@ -298,5 +310,114 @@ class DynamicSqlRowMetaTest {
     assertTrue(
         remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
         "Expected error when database connection metadata is missing");
+  }
+
+  @SuppressWarnings("unchecked")
+  private static IHopMetadataProvider providerWith(String name, DatabaseMeta databaseMeta)
+      throws HopException {
+    IHopMetadataSerializer<DatabaseMeta> serializer = mock(IHopMetadataSerializer.class);
+    when(serializer.load(name)).thenReturn(databaseMeta);
+    IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
+    when(metadataProvider.getSerializer(DatabaseMeta.class)).thenReturn(serializer);
+    return metadataProvider;
+  }
+
+  /**
+   * A freshly loaded meta only knows the connection name. The template fields have to be there
+   * without opening the dialog first (#4471).
+   */
+  @Test
+  void getFieldsResolvesConnectionByName() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setConnection("${DB}");
+    meta.setSql("SELECT id, name FROM template");
+
+    IVariables variables = new Variables();
+    variables.setVariable("DB", "db");
+    IHopMetadataProvider metadataProvider = providerWith("db", mock(DatabaseMeta.class));
+
+    RowMeta template = new RowMeta();
+    template.addValueMeta(new ValueMetaInteger("id"));
+    template.addValueMeta(new ValueMetaString("name"));
+
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("sql_field"));
+
+    try (MockedConstruction<Database> ignored =
+        mockConstruction(
+            Database.class,
+            (db, context) ->
+                when(db.getQueryFields(anyString(), anyBoolean())).thenReturn(template))) {
+      meta.getFields(row, "dynamic", null, null, variables, metadataProvider);
+    }
+
+    assertEquals(3, row.size());
+    assertEquals("id", row.getValueMeta(1).getName());
+    assertEquals("name", row.getValueMeta(2).getName());
+    assertEquals("dynamic", row.getValueMeta(1).getOrigin());
+  }
+
+  @Test
+  void getFieldsWithoutConnectionAddsNothing() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setSql("SELECT 1");
+
+    RowMeta row = new RowMeta();
+    meta.getFields(row, "dynamic", null, null, new Variables(), mock(IHopMetadataProvider.class));
+
+    assertEquals(0, row.size());
+  }
+
+  @Test
+  void getFieldsWithUnknownConnectionThrows() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setConnection("missing");
+    meta.setSql("SELECT 1");
+    IHopMetadataProvider metadataProvider = providerWith("missing", null);
+
+    assertThrows(
+        HopTransformException.class,
+        () ->
+            meta.getFields(
+                new RowMeta(), "dynamic", null, null, new Variables(), metadataProvider));
+  }
+
+  @Test
+  void checkResolvesConnectionByName() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setConnection("db");
+    meta.setSqlFieldName("sql_field");
+    meta.setSql("SELECT ${COLUMN} FROM template");
+    meta.setReplaceVariables(true);
+
+    IVariables variables = new Variables();
+    variables.setVariable("COLUMN", "id");
+    IHopMetadataProvider metadataProvider = providerWith("db", mock(DatabaseMeta.class));
+
+    RowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("sql_field"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    try (MockedConstruction<Database> ignored =
+        mockConstruction(
+            Database.class,
+            (db, context) ->
+                when(db.getQueryFields("SELECT id FROM template", true))
+                    .thenReturn(new RowMeta()))) {
+      meta.check(
+          remarks,
+          mock(PipelineMeta.class),
+          mock(TransformMeta.class),
+          prev,
+          new String[] {"in"},
+          new String[0],
+          mock(IRowMeta.class),
+          variables,
+          metadataProvider);
+    }
+
+    assertTrue(
+        remarks.stream().noneMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "Expected no errors when the connection is resolved by name: " + remarks);
   }
 }
