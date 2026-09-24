@@ -212,6 +212,38 @@ class SqlQueryClassifierTest {
     // Teradata
     assertTrue(SqlQueryClassifier.isSchemaChange("CREATE MULTISET TABLE t (id int)"));
     assertTrue(SqlQueryClassifier.isSchemaChange("CREATE VOLATILE TABLE t (id int)"));
+    // Oracle forms outside the DBMS_METADATA default
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE NOFORCE EDITIONABLE VIEW v AS SELECT 1 FROM dual"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE EDITIONING VIEW v AS SELECT a FROM t"));
+  }
+
+  @Test
+  void mysqlViewDefinitionsAreSchemaChanges() {
+    // The text SHOW CREATE VIEW returns and mysqldump writes, verbatim
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v`"
+                + " AS select `t`.`id` AS `id` from `t`"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE ALGORITHM = MERGE DEFINER = 'app'@'%' SQL SECURITY INVOKER VIEW v"
+                + " AS SELECT 1"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE DEFINER=CURRENT_USER() SQL SECURITY INVOKER VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("ALTER ALGORITHM=TEMPTABLE VIEW v AS SELECT 1"));
+    // A modifier with a value still has to be followed by a table or a view
+    assertFalse(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE DEFINER=`root`@`localhost` TRIGGER tr BEFORE INSERT ON t FOR EACH ROW SET"
+                + " @x = 1"));
+    assertFalse(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE DEFINER=`root`@`localhost` PROCEDURE p() SELECT 1"));
   }
 
   @Test

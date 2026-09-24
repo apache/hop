@@ -45,8 +45,9 @@ public final class SqlQueryClassifier {
   /**
    * Keywords which are allowed between the verb and the object type, so that {@code CREATE OR
    * REPLACE VIEW}, {@code CREATE OR ALTER VIEW} and {@code DROP TABLE IF EXISTS} are recognised as
-   * well as the plain forms. Treating a statement as a schema change when it is not only costs a
-   * cache clear, so this list errs on the generous side.
+   * well as the plain forms. A modifier may carry a value ({@code ALGORITHM=MERGE}, {@code
+   * DEFINER=`root`@`localhost`}). Treating a statement as a schema change when it is not only costs
+   * a cache clear, so this list errs on the generous side.
    */
   private static final Set<String> SCHEMA_CHANGE_MODIFIERS =
       Set.of(
@@ -67,9 +68,21 @@ public final class SqlQueryClassifier {
           "EXISTS",
           // Oracle: CREATE OR REPLACE FORCE EDITIONABLE VIEW, CREATE PUBLIC SYNONYM
           "FORCE",
+          "NOFORCE",
           "EDITIONABLE",
           "NONEDITIONABLE",
+          "EDITIONING",
           "PUBLIC",
+          // MySQL / MariaDB, as SHOW CREATE VIEW and mysqldump write it:
+          // CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW
+          "ALGORITHM",
+          "UNDEFINED",
+          "MERGE",
+          "TEMPTABLE",
+          "DEFINER",
+          "SQL",
+          "SECURITY",
+          "INVOKER",
           // PostgreSQL: CREATE RECURSIVE VIEW
           "RECURSIVE",
           // Snowflake: CREATE TRANSIENT TABLE, CREATE SECURE VIEW, CREATE DYNAMIC TABLE, ...
@@ -227,9 +240,45 @@ public final class SqlQueryClassifier {
       if (!SCHEMA_CHANGE_MODIFIERS.contains(keyword)) {
         return false;
       }
-      i = skipKeyword(sql, i);
+      i = skipOptionValue(sql, skipKeyword(sql, i));
     }
     return false;
+  }
+
+  /**
+   * Skips the {@code = value} of a modifier such as {@code ALGORITHM=MERGE} or {@code
+   * DEFINER=`root`@`localhost`}, if there is one. The value is a keyword, a number or a quoted
+   * identifier, optionally followed by {@code @host} (a MySQL account) or {@code ()} ({@code
+   * CURRENT_USER()}).
+   */
+  private static int skipOptionValue(String sql, int i) {
+    int j = skipTrivia(sql, i);
+    if (j >= sql.length() || sql.charAt(j) != '=') {
+      return i;
+    }
+    j = skipValue(sql, skipTrivia(sql, j + 1));
+    int k = skipTrivia(sql, j);
+    if (k < sql.length() && sql.charAt(k) == '@') {
+      j = skipValue(sql, skipTrivia(sql, k + 1));
+      k = skipTrivia(sql, j);
+    }
+    if (k + 1 < sql.length() && sql.charAt(k) == '(' && sql.charAt(k + 1) == ')') {
+      j = k + 2;
+    }
+    return j;
+  }
+
+  private static int skipValue(String sql, int i) {
+    if (i >= sql.length()) {
+      return i;
+    }
+    if (isQuote(sql.charAt(i))) {
+      return skipQuoted(sql, i);
+    }
+    while (i < sql.length() && (isIdentPart(sql.charAt(i)) || sql.charAt(i) == '.')) {
+      i++;
+    }
+    return i;
   }
 
   /**
