@@ -786,7 +786,7 @@ public class ActionHttpDialog extends ActionDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-          "Error getting the list of REST connections",
+          BaseMessages.getString(PKG, "ActionHTTP.Error.ListingConnections"),
           e);
     }
   }

@@ -49,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::HTTPPOST.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::HttpPostMeta.keyword",
-    documentationUrl = "/pipeline/transforms/httppost.html")
+    documentationUrl = "/pipeline/transforms/httppost.html",
+    classLoaderGroup = "rest")
 public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   private static final Class<?> PKG = HttpPostMeta.class;
 

@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -52,6 +53,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.CredentialRedactor;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -59,7 +61,9 @@ import org.apache.hop.lineage.LineageHttpIoEmitter;
 import org.apache.hop.lineage.model.HttpDirection;
 import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.metadata.rest.client.RestClientFactory;
+import org.apache.hop.metadata.rest.client.RestClientSettings;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -159,7 +163,12 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         // calculate the responseTime
         long responseTime = System.currentTimeMillis() - startTime;
         if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "HTTP.Log.ResponseTime", responseTime, uri));
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "HTTP.Log.ResponseTime",
+                  responseTime,
+                  CredentialRedactor.redact(uri.toString())));
         }
         int statusCode = requestStatusCode(httpResponse);
         lineageStatus = statusCode;
@@ -203,7 +212,10 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
           BaseMessages.getString(PKG, "HTTP.Error.UnknownHostException", uhe.getMessage()));
     } catch (Exception e) {
       lineageErr = e.getMessage();
-      throw new HopException(BaseMessages.getString(PKG, "HTTP.Log.UnableGetResult", uri), e);
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "HTTP.Log.UnableGetResult", CredentialRedactor.redact(String.valueOf(uri))),
+          e);
     } finally {
       long respDelta = (dataVolumeIn != null ? dataVolumeIn : 0L) - volumeInBefore;
       if (respDelta <= 0 && data.lastHttpResponseBodyBytes > 0) {
@@ -299,14 +311,15 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
   /**
    * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
-   * a challenge, so the connection writes them onto every request itself.
+   * a challenge, so the connection writes them onto every request itself. They stay scoped to the
+   * connection's base URL: an absolute URL on another host is sent without them.
    */
-  private void addConnectionAuthentication(HttpGet method, URI uri) throws HopException {
-    if (data.restConnection == null) {
+  private void addConnectionAuthentication(HttpGet method, URI uri) {
+    if (data.restAuthenticator == null) {
       return;
     }
     Map<String, String> authHeaders = new LinkedHashMap<>();
-    data.restConnection.applyAuthentication(authHeaders, uri.toString());
+    data.restAuthenticator.applyRequestHeaders(authHeaders, uri.toString());
     for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
       method.setHeader(authHeader.getKey(), authHeader.getValue());
     }
@@ -340,7 +353,9 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
                   PKG,
                   "HTTPDialog.Log.HeaderValue",
                   data.headerParameters[i].getName(),
-                  data.inputRowMeta.getString(rowData, data.headerParametersNrs[i])));
+                  CredentialRedactor.redactValue(
+                      data.headerParameters[i].getName(),
+                      data.inputRowMeta.getString(rowData, data.headerParametersNrs[i]))));
         }
       }
     }
@@ -397,7 +412,8 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       }
 
       if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "HTTP.Log.Connecting", baseUrl));
+        logDetailed(
+            BaseMessages.getString(PKG, "HTTP.Log.Connecting", CredentialRedactor.redact(baseUrl)));
       }
 
       uriBuilder = new URIBuilder(baseUrl); // the base URL with variable substitution
@@ -410,6 +426,15 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
           uriBuilder.addParameter(key, Const.NVL(value, ""));
         }
       }
+    } catch (URISyntaxException e) {
+      // Not the exception itself as the cause: its message is the URL as it stands, credentials
+      // and all, and a HopException repeats the message of its cause.
+      throw new HopException(
+          BaseMessages.getString(PKG, "HTTP.Log.UnableCreateUrl")
+              + " "
+              + CredentialRedactor.redact(e.getInput())
+              + ": "
+              + e.getReason());
     } catch (Exception e) {
       throw new HopException(BaseMessages.getString(PKG, "HTTP.Log.UnableCreateUrl"), e);
     }
@@ -448,10 +473,14 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     } catch (HopException e) {
       String errorMessage;
 
+      // Whatever went wrong may quote the URL, or a header or body it was sent with. The error
+      // row travels on to wherever the error hop leads, so it gets the same treatment as the log.
       if (getTransformMeta().isDoingErrorHandling()) {
-        errorMessage = e.toString();
+        errorMessage = CredentialRedactor.redact(e.toString());
       } else {
-        logError(BaseMessages.getString(PKG, "HTTP.ErrorInTransformRunning") + e.getMessage());
+        logError(
+            BaseMessages.getString(PKG, "HTTP.ErrorInTransformRunning")
+                + CredentialRedactor.redact(e.getMessage()));
         setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
@@ -574,8 +603,9 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         return false;
       }
       data.restConnection.setVariables(this);
-      data.restConnectionClient =
-          RestClientFactory.createClient(data.restConnection.createClientSettings());
+      RestClientSettings settings = data.restConnection.createClientSettings();
+      data.restConnectionClient = RestClientFactory.createClient(settings);
+      data.restAuthenticator = new RestAuthenticator(settings);
       return true;
     } catch (Exception e) {
       // Keep the cause: a class loader split between the metadata plugin and this transform

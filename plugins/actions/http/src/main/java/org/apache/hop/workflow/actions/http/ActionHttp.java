@@ -22,8 +22,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -61,6 +63,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.CredentialRedactor;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -74,7 +77,9 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.metadata.rest.client.RestClientFactory;
+import org.apache.hop.metadata.rest.client.RestClientSettings;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -278,8 +283,12 @@ public class ActionHttp extends ActionBase {
     }
 
     RestConnection restConnection;
+    RestClientSettings restSettings;
+    RestAuthenticator restAuthenticator;
     try {
       restConnection = loadRestConnection();
+      restSettings = restConnection == null ? null : restConnection.createClientSettings();
+      restAuthenticator = restSettings == null ? null : new RestAuthenticator(restSettings);
     } catch (HopException e) {
       result.setNrErrors(1);
       logError(e.getMessage());
@@ -309,7 +318,9 @@ public class ActionHttp extends ActionBase {
         String realTargetFile = resolve(row.getString(destinationFieldnameToUse, ""));
 
         if (isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.ConnectingURL", urlToUse));
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionHTTP.Log.ConnectingURL", CredentialRedactor.redact(urlToUse)));
         }
 
         if (dateTimeAdded) {
@@ -335,16 +346,16 @@ public class ActionHttp extends ActionBase {
         ClassicHttpRequest request =
             Utils.isEmpty(realUploadFile) ? new HttpGet(uri) : new HttpPost(uri);
         addRequestHeaders(request);
-        addConnectionAuthentication(request, restConnection, urlToUse);
+        addConnectionAuthentication(request, restAuthenticator, uri.toString());
 
         CountingInputStream uploadStream = null;
 
         // A client per request: the target host decides which credentials apply, and with a URL
         // taken from a result row that host changes from row to row.
         try (CloseableHttpClient httpClient =
-            restConnection == null
+            restSettings == null
                 ? createHttpClient(target)
-                : RestClientFactory.createClient(restConnection.createClientSettings())) {
+                : RestClientFactory.createClient(restSettings)) {
 
           // See if we need to send a file over?
           if (!Utils.isEmpty(realUploadFile)) {
@@ -466,18 +477,30 @@ public class ActionHttp extends ActionBase {
         }
       } catch (URISyntaxException e) {
         result.setNrErrors(1);
-        logError(BaseMessages.getString(PKG, "ActionHTTP.Error.NotValidURL", url, e.getMessage()));
-        logError(Const.getStackTracker(e));
+        // Not getMessage() or the stack trace: both repeat the URL as it stands, credentials and
+        // all.
+        logError(
+            BaseMessages.getString(
+                PKG,
+                "ActionHTTP.Error.NotValidURL",
+                CredentialRedactor.redact(e.getInput()),
+                e.getReason()));
       } catch (IOException e) {
         result.setNrErrors(1);
         logError(
-            BaseMessages.getString(PKG, "ActionHTTP.Error.CanNotSaveHTTPResult", e.getMessage()));
-        logError(Const.getStackTracker(e));
+            BaseMessages.getString(
+                PKG,
+                "ActionHTTP.Error.CanNotSaveHTTPResult",
+                CredentialRedactor.redact(e.getMessage())));
+        logError(CredentialRedactor.redact(Const.getStackTracker(e)));
       } catch (Exception e) {
         result.setNrErrors(1);
         logError(
-            BaseMessages.getString(PKG, "ActionHTTP.Error.ErrorGettingFromHTTP", e.getMessage()));
-        logError(Const.getStackTracker(e));
+            BaseMessages.getString(
+                PKG,
+                "ActionHTTP.Error.ErrorGettingFromHTTP",
+                CredentialRedactor.redact(e.getMessage())));
+        logError(CredentialRedactor.redact(Const.getStackTracker(e)));
       } finally {
         // Close it all
         try {
@@ -504,13 +527,64 @@ public class ActionHttp extends ActionBase {
   /**
    * The URL to call, as a URI HttpClient can route. Anything without a scheme and a host is
    * rejected here rather than further down, where it would surface as a less obvious error.
+   *
+   * <p>{@link java.net.URLConnection}, which this action used before, accepted URLs with characters
+   * a URI does not allow, such as a space in the path or query: those are escaped rather than
+   * refused. It never sent a user name and password written in the URL either, and HttpClient
+   * refuses such a URL outright, so they are dropped and the log says so.
    */
-  private static URI toUri(String urlToUse) throws URISyntaxException {
-    URI uri = new URI(Const.NVL(urlToUse, "").trim());
-    if (uri.getScheme() == null || uri.getAuthority() == null) {
-      throw new URISyntaxException(String.valueOf(urlToUse), "No protocol or host in the URL");
+  URI toUri(String urlToUse) throws URISyntaxException {
+    String value = Const.NVL(urlToUse, "").trim();
+    URI uri;
+    try {
+      uri = new URI(value);
+    } catch (URISyntaxException e) {
+      uri = escapeIllegalCharacters(value, e);
+    }
+    if (uri.getScheme() == null || uri.getHost() == null) {
+      throw new URISyntaxException(value, "No protocol or host in the URL");
+    }
+    if (uri.getRawUserInfo() != null) {
+      logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.UserInfoIgnored", uri.getHost()));
+      StringBuilder withoutUserInfo =
+          new StringBuilder(uri.getScheme()).append("://").append(uri.getHost());
+      if (uri.getPort() != -1) {
+        withoutUserInfo.append(':').append(uri.getPort());
+      }
+      withoutUserInfo.append(Const.NVL(uri.getRawPath(), ""));
+      if (uri.getRawQuery() != null) {
+        withoutUserInfo.append('?').append(uri.getRawQuery());
+      }
+      if (uri.getRawFragment() != null) {
+        withoutUserInfo.append('#').append(uri.getRawFragment());
+      }
+      uri = new URI(withoutUserInfo.toString());
     }
     return uri;
+  }
+
+  /**
+   * Parses a URL that is not a valid URI as it stands, escaping the characters a URI does not
+   * allow. Only used when the plain parse fails, so a URL that is already escaped is never escaped
+   * twice.
+   */
+  @SuppressWarnings(
+      "deprecation") // URL is the lenient parser URLConnection used; that is the point
+  private static URI escapeIllegalCharacters(String value, URISyntaxException parseError)
+      throws URISyntaxException {
+    try {
+      URL url = new URL(value);
+      return new URI(
+          url.getProtocol(),
+          url.getUserInfo(),
+          url.getHost(),
+          url.getPort(),
+          url.getPath(),
+          url.getQuery(),
+          url.getRef());
+    } catch (MalformedURLException e) {
+      throw parseError;
+    }
   }
 
   /**
@@ -536,6 +610,9 @@ public class ActionHttp extends ActionBase {
             Encr.decryptPasswordOptionallyEncrypted(resolve(proxyPassword)),
             new AuthScope(proxy));
       }
+    } else {
+      // No proxy of its own: honour the JVM proxy settings, as URLConnection did before.
+      builder.useSystemProxy(true);
     }
 
     if (!Utils.isEmpty(resolve(username))) {
@@ -585,16 +662,17 @@ public class ActionHttp extends ActionBase {
 
   /**
    * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
-   * a challenge, so the connection writes them onto every request itself.
+   * a challenge, so the connection writes them onto every request itself. They stay scoped to the
+   * connection's base URL: an absolute URL on another host, typed in or taken from a result row, is
+   * sent without them.
    */
   private void addConnectionAuthentication(
-      ClassicHttpRequest request, RestConnection restConnection, String urlToUse)
-      throws HopException {
-    if (restConnection == null) {
+      ClassicHttpRequest request, RestAuthenticator restAuthenticator, String urlToUse) {
+    if (restAuthenticator == null) {
       return;
     }
     Map<String, String> authHeaders = new LinkedHashMap<>();
-    restConnection.applyAuthentication(authHeaders, urlToUse);
+    restAuthenticator.applyRequestHeaders(authHeaders, urlToUse);
     for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
       request.setHeader(authHeader.getKey(), authHeader.getValue());
     }
@@ -614,7 +692,12 @@ public class ActionHttp extends ActionBase {
         String value = resolve(header.getHeaderValue());
         request.setHeader(name, value);
         if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeaderSet", name, value));
+          logDebug(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionHTTP.Log.HeaderSet",
+                  name,
+                  CredentialRedactor.redactValue(name, value)));
         }
       }
     }
@@ -629,7 +712,8 @@ public class ActionHttp extends ActionBase {
       return BaseMessages.getString(
           PKG, "ActionHTTP.Error.ProxyAuthenticationRequired", resolve(proxyHostname));
     }
-    return BaseMessages.getString(PKG, "ActionHTTP.Error.HttpStatus", statusCode, urlToUse);
+    return BaseMessages.getString(
+        PKG, "ActionHTTP.Error.HttpStatus", statusCode, CredentialRedactor.redact(urlToUse));
   }
 
   @Override

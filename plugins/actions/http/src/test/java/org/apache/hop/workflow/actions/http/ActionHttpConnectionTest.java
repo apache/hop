@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.http;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.net.httpserver.HttpServer;
@@ -49,6 +50,9 @@ class ActionHttpConnectionTest {
   private static final String USER = "restuser";
   private static final String PASSWORD = "restpassword";
   private static final String PAYLOAD = "{\"reached\":\"origin\"}";
+
+  /** A base URL on a host the tests never reach: the connection's credentials belong to it. */
+  private static final String OTHER_ORIGIN = "http://api.example.invalid";
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
@@ -121,6 +125,23 @@ class ActionHttpConnectionTest {
   }
 
   @Test
+  void anAbsoluteUrlOnAnotherHostGetsNoConnectionCredentials() throws Exception {
+    // The credentials belong to the connection's base URL host. An absolute URL naming another
+    // host, typed in or taken from a result row, is still called, but without them.
+    File target = File.createTempFile("otherhost", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = action(connectionProvider(USER, PASSWORD, OTHER_ORIGIN), target);
+    action.setUrl("http://localhost:" + server.getAddress().getPort() + "/elsewhere");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.getResult());
+    assertEquals("/elsewhere", requestPath.get());
+    assertNull(authorization.get(), "the connection credentials went to another host");
+  }
+
+  @Test
   void aMissingConnectionIsAnError() throws Exception {
     File target = File.createTempFile("noconnection", ".tmp");
     target.deleteOnExit();
@@ -140,10 +161,15 @@ class ActionHttpConnectionTest {
   }
 
   private MemoryMetadataProvider connectionProvider(String user, String password) throws Exception {
+    return connectionProvider(user, password, "http://localhost:" + server.getAddress().getPort());
+  }
+
+  private MemoryMetadataProvider connectionProvider(String user, String password, String baseUrl)
+      throws Exception {
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
     RestConnection connection = new RestConnection();
     connection.setName("test-connection");
-    connection.setBaseUrl("http://localhost:" + server.getAddress().getPort());
+    connection.setBaseUrl(baseUrl);
     if (user != null) {
       connection.setAuthType(RestConnection.BASIC);
       connection.setUsername(user);

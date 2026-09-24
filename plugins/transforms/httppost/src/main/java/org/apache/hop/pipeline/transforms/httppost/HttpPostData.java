@@ -21,6 +21,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -60,6 +61,12 @@ public class HttpPostData extends BaseTransformData implements ITransformData {
    * connection pool, so building one per row would create and discard a pool per row.
    */
   public CloseableHttpClient restConnectionClient;
+
+  /**
+   * Writes the connection's credentials onto requests, but only for requests to the connection's
+   * base URL host: a row or field URL naming another host gets none.
+   */
+  public RestAuthenticator restAuthenticator;
 
   public int realSocketTimeout;
   public int realConnectionTimeout;

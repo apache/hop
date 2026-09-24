@@ -1106,7 +1106,7 @@ public class HttpPostDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-          "Error getting the list of REST connections",
+          BaseMessages.getString(PKG, "HTTPPOSTDialog.Error.ListingConnections"),
           e);
     }
   }

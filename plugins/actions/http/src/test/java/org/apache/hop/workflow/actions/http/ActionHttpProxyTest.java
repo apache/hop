@@ -28,6 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.AfterEach;
@@ -71,6 +76,7 @@ class ActionHttpProxyTest {
   private final AtomicReference<String> proxyAuthorization = new AtomicReference<>();
   private final AtomicReference<String> serverAuthorization = new AtomicReference<>();
   private final AtomicBoolean originWasCalled = new AtomicBoolean();
+  private final AtomicBoolean proxyWasCalled = new AtomicBoolean();
 
   @BeforeAll
   static void setupBeforeClass() throws Exception {
@@ -83,6 +89,7 @@ class ActionHttpProxyTest {
     proxy.createContext(
         "/",
         exchange -> {
+          proxyWasCalled.set(true);
           List<String> proxyAuth = exchange.getRequestHeaders().get("Proxy-Authorization");
           List<String> serverAuth = exchange.getRequestHeaders().get("Authorization");
           proxyAuthorization.set(proxyAuth == null ? null : proxyAuth.get(0));
@@ -127,6 +134,7 @@ class ActionHttpProxyTest {
     proxyAuthorization.set(null);
     serverAuthorization.set(null);
     originWasCalled.set(false);
+    proxyWasCalled.set(false);
   }
 
   @Test
@@ -228,6 +236,69 @@ class ActionHttpProxyTest {
     assertTrue(result.getResult());
     assertEquals(PROXIED_PAYLOAD, FileUtils.readFileToString(target, UTF_8));
     assertEquals(basic(PROXY_USER, PROXY_PASSWORD), proxyAuthorization.get());
+  }
+
+  @Test
+  void withoutAProxyOfItsOwnTheJvmProxySettingsApply() throws Exception {
+    // A workflow that leaves the proxy blank and relies on -Dhttp.proxyHost or
+    // java.net.useSystemProxies kept using that proxy under URLConnection; it still has to.
+    File target = File.createTempFile("systemproxy", ".tmp");
+    target.deleteOnExit();
+
+    InetSocketAddress proxyAddress = proxy.getAddress();
+    ProxySelector previous = ProxySelector.getDefault();
+    ProxySelector.setDefault(
+        new ProxySelector() {
+          @Override
+          public List<Proxy> select(URI uri) {
+            return List.of(new Proxy(Proxy.Type.HTTP, proxyAddress));
+          }
+
+          @Override
+          public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+            // Nothing to do in a test.
+          }
+        });
+    try {
+      ActionHttp action = new ActionHttp();
+      action.setParentWorkflow(new LocalWorkflowEngine());
+      action.setAddFilenameToResult(false);
+      action.setUrl(UNRESOLVABLE_TARGET);
+      action.setTargetFilename(target.getCanonicalPath());
+
+      action.execute(new Result(), 0);
+
+      assertTrue(proxyWasCalled.get(), "the JVM proxy settings were ignored");
+    } finally {
+      ProxySelector.setDefault(previous);
+    }
+  }
+
+  @Test
+  void credentialsInTheUrlNeverReachTheLog() throws Exception {
+    File target = File.createTempFile("urlcredentials", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = new ActionHttp();
+    action.setParentWorkflow(new LocalWorkflowEngine());
+    action.setAddFilenameToResult(false);
+    action.setUrl(
+        "http://urluser:topsecret@localhost:"
+            + origin.getAddress().getPort()
+            + "/data?api_key=k3y&q=1");
+    action.setTargetFilename(target.getCanonicalPath());
+
+    Result result = action.execute(new Result(), 0);
+    String log =
+        HopLogStore.getAppender()
+            .getBuffer(action.getLogChannel().getLogChannelId(), false)
+            .toString();
+
+    assertTrue(result.getResult());
+    assertTrue(originWasCalled.get());
+    assertTrue(log.contains("localhost"), "the URL should still be logged: " + log);
+    assertFalse(log.contains("topsecret"), "the password in the URL was logged: " + log);
+    assertFalse(log.contains("k3y"), "the API key in the URL was logged: " + log);
   }
 
   private ActionHttp action(File target) throws IOException {

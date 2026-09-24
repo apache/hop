@@ -53,6 +53,9 @@ class HttpConnectionTest {
   private static final String PASSWORD = "restpassword";
   private static final String PAYLOAD = "from the origin";
 
+  /** A base URL on a host the tests never reach: the connection's credentials belong to it. */
+  private static final String OTHER_ORIGIN = "http://api.example.invalid";
+
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -120,6 +123,21 @@ class HttpConnectionTest {
   }
 
   @Test
+  void anAbsoluteUrlOnAnotherHostGetsNoConnectionCredentials() throws Exception {
+    // The credentials belong to the connection's base URL host. An absolute URL naming another
+    // host is still called, but without them.
+    HttpMeta meta = meta("http://localhost:" + server.getAddress().getPort() + "/elsewhere");
+    Http http = transform(meta, provider(USER, PASSWORD, OTHER_ORIGIN));
+
+    assertTrue(http.init());
+    http.callHttpService(new RowMeta(), new Object[0]);
+
+    assertEquals("/elsewhere", requestPath.get());
+    assertNull(authorization.get(), "the connection credentials went to another host");
+    http.dispose();
+  }
+
+  @Test
   void withoutAConnectionTheTransformUsesItsOwnFields() throws Exception {
     HttpMeta meta = new HttpMeta();
     meta.setUrl("http://localhost:" + server.getAddress().getPort() + "/direct");
@@ -151,10 +169,15 @@ class HttpConnectionTest {
   }
 
   private MemoryMetadataProvider provider(String user, String password) throws Exception {
+    return provider(user, password, "http://localhost:" + server.getAddress().getPort());
+  }
+
+  private MemoryMetadataProvider provider(String user, String password, String baseUrl)
+      throws Exception {
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
     RestConnection connection = new RestConnection();
     connection.setName(CONNECTION);
-    connection.setBaseUrl("http://localhost:" + server.getAddress().getPort());
+    connection.setBaseUrl(baseUrl);
     if (user != null) {
       connection.setAuthType(RestConnection.BASIC);
       connection.setUsername(user);

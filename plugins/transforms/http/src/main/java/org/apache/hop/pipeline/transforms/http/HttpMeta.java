@@ -46,7 +46,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::HTTP.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::HttpMeta.keyword",
-    documentationUrl = "/pipeline/transforms/http.html")
+    documentationUrl = "/pipeline/transforms/http.html",
+    classLoaderGroup = "rest")
 @Getter
 @Setter
 public class HttpMeta extends BaseTransformMeta<Http, HttpData> {

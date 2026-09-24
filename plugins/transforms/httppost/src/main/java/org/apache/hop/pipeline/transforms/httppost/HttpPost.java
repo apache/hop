@@ -61,6 +61,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.CredentialRedactor;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -70,7 +71,9 @@ import org.apache.hop.lineage.LineageHttpIoEmitter;
 import org.apache.hop.lineage.model.HttpDirection;
 import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.metadata.rest.client.RestClientFactory;
+import org.apache.hop.metadata.rest.client.RestClientSettings;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -119,7 +122,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     // Prepare HTTP POST
     try {
       if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "HTTPPOST.Log.ConnectingToURL", data.realUrl));
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "HTTPPOST.Log.ConnectingToURL", CredentialRedactor.redact(data.realUrl)));
       }
       URIBuilder uriBuilder = new URIBuilder(data.realUrl);
       uri = uriBuilder.build();
@@ -181,7 +186,11 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
         if (isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "HTTPPOST.Log.ResponseTime", responseTime, data.realUrl));
+              BaseMessages.getString(
+                  PKG,
+                  "HTTPPOST.Log.ResponseTime",
+                  responseTime,
+                  CredentialRedactor.redact(data.realUrl)));
         }
 
         // Display status code
@@ -231,7 +240,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         }
 
         if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "HTTPPOST.Log.ResponseBody", body));
+          logDebug(
+              BaseMessages.getString(
+                  PKG, "HTTPPOST.Log.ResponseBody", CredentialRedactor.redact(body)));
         }
 
         int returnFieldsOffset = data.inputRowMeta.size();
@@ -265,7 +276,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     } catch (Exception e) {
       lineageErr = e.getMessage();
       throw new HopException(
-          BaseMessages.getString(PKG, "HTTPPOST.Error.CanNotReadURL", data.realUrl), e);
+          BaseMessages.getString(
+              PKG, "HTTPPOST.Error.CanNotReadURL", CredentialRedactor.redact(data.realUrl)),
+          e);
     } finally {
       long reqDelta = (dataVolumeOut != null ? dataVolumeOut : 0L) - volOut0;
       long respDelta = (dataVolumeIn != null ? dataVolumeIn : 0L) - volIn0;
@@ -484,12 +497,16 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     } catch (HopException e) {
       String errorMessage;
 
+      // Whatever went wrong may quote the URL, or a header or body it was sent with. The error
+      // row travels on to wherever the error hop leads, so it gets the same treatment as the log.
       if (getTransformMeta().isDoingErrorHandling()) {
-        errorMessage = e.toString();
+        errorMessage = CredentialRedactor.redact(e.toString());
       } else {
-        logError(BaseMessages.getString(PKG, "HTTPPOST.ErrorInTransformRunning") + e.getMessage());
+        logError(
+            BaseMessages.getString(PKG, "HTTPPOST.ErrorInTransformRunning")
+                + CredentialRedactor.redact(e.getMessage()));
         setErrors(1);
-        logError(Const.getStackTracker(e));
+        logError(CredentialRedactor.redact(Const.getStackTracker(e)));
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
@@ -565,8 +582,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         return false;
       }
       data.restConnection.setVariables(this);
-      data.restConnectionClient =
-          RestClientFactory.createClient(data.restConnection.createClientSettings());
+      RestClientSettings settings = data.restConnection.createClientSettings();
+      data.restConnectionClient = RestClientFactory.createClient(settings);
+      data.restAuthenticator = new RestAuthenticator(settings);
       return true;
     } catch (Exception e) {
       // Keep the cause: a class loader split between the metadata plugin and this transform
@@ -633,15 +651,16 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
   /**
    * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
-   * a challenge, so the connection writes them onto every request itself.
+   * a challenge, so the connection writes them onto every request itself. They stay scoped to the
+   * connection's base URL: an absolute URL on another host is sent without them.
    */
   private void addConnectionAuthentication(
-      org.apache.hc.client5.http.classic.methods.HttpPost post, URI uri) throws HopException {
-    if (data.restConnection == null) {
+      org.apache.hc.client5.http.classic.methods.HttpPost post, URI uri) {
+    if (data.restAuthenticator == null) {
       return;
     }
     Map<String, String> authHeaders = new LinkedHashMap<>();
-    data.restConnection.applyAuthentication(authHeaders, uri.toString());
+    data.restAuthenticator.applyRequestHeaders(authHeaders, uri.toString());
     for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
       post.setHeader(authHeader.getKey(), authHeader.getValue());
     }
@@ -672,7 +691,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
                   PKG,
                   PKG_HEADER_VALUE,
                   data.headerParameters[i].getName(),
-                  data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i])));
+                  CredentialRedactor.redactValue(
+                      data.headerParameters[i].getName(),
+                      data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i]))));
         }
       }
     }
@@ -722,7 +743,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       data.queryParameters[i] = new BasicNameValuePair(name, value);
 
       if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "HTTPPOST.Log.QueryValue", name, value));
+        logDebug(
+            BaseMessages.getString(
+                PKG, "HTTPPOST.Log.QueryValue", name, CredentialRedactor.redactValue(name, value)));
       }
     }
 
@@ -760,7 +783,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       }
 
       if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "HTTPPOST.Log.BodyValue", name, value));
+        logDebug(
+            BaseMessages.getString(
+                PKG, "HTTPPOST.Log.BodyValue", name, CredentialRedactor.redactValue(name, value)));
       }
     }
 
