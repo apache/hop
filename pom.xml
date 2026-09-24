@@ -107,6 +107,12 @@
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <gib.buildUpstream>always</gib.buildUpstream>
+        <!-- Build the upstreams of every impacted module, not only of the directly changed
+             ones. With the default (changed), a REST change selects hop-tech-opensearch as
+             downstream but not its hop-transform-datagrid dependency, which then has to come
+             from ~/.m2. Hop snapshots are not resolved remotely and the CI Maven cache does
+             not reliably hold them (#8569, #8558, #8542). Extra upstreams skip tests. -->
+        <gib.buildUpstreamMode>impacted</gib.buildUpstreamMode>
         <gib.disable>true</gib.disable>
         <!-- Paths that never affect the Maven build result. GIB maps a changed file to the
              nearest enclosing module; files outside every module land on the ROOT module,
@@ -119,10 +125,10 @@
         <gib.fetchReferenceBranch>true</gib.fetchReferenceBranch>
         <!-- lib-p2 wrappers are never published (maven.deploy.skip, and they are
              excluded from the snapshot wagon deploy). Incremental PR builds must
-             still produce them locally: GIB's default buildUpstreamMode=changed
-             only rebuilds upstreams of *directly changed* modules, so a hop-ui
-             change selects hop-ui-rcp as downstream and then cannot resolve
-             org.eclipse.tm4e.core:jar:${project.version} from any repository. -->
+             still produce them locally, or a hop-ui change selects hop-ui-rcp as
+             downstream and then cannot resolve org.eclipse.tm4e.core:jar:${project.version}
+             from any repository. buildUpstreamMode=impacted covers this too; the
+             forced build keeps it independent of that setting. -->
         <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
