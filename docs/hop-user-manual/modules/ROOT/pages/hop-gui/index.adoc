@@ -17,6 +17,7 @@ under the License.
 [[HopGui]]
 
 :description: Hop Gui is Hop's visual development environment where you will mainly design, run and debug workflows and pipelines, but Hop Gui has a lot more to offer: you can configure all of your metadata items like database connections, run configurations etc. You can search, manage files, version control your work and more.
+:imagesdir: ../assets/images
 
 
 = Hop Gui
@@ -44,10 +45,16 @@ For Docker volume mounts and upgrades, see xref:hop-web-docker.adoc[Hop Web in D
 == Bottom panel
 
 The button at the bottom left of the window shows or hides the bottom panel.
-The panel holds the terminal, search results, the database workbench, and the xref:hop-gui/vfs-file-explorer.adoc[VFS file explorer].
-Click *+* on the panel tab bar and choose which one to open.
+With the panel open and nothing in it, the tab bar shows only *+*.
+
+image::hop-gui/bottom-panel-empty.png[The bottom panel open and empty, with the + tab.,width="45%"]
+
+Click *+* and choose a tool: Terminal, Search, Database, or VFS File Explorer.
 Terminal and search add another tab each time.
-Database and the VFS file explorer open their tab, or focus it when it is already there.
+Database and the xref:hop-gui/vfs-file-explorer.adoc[VFS file explorer] open their tab, or focus it when it is already there.
+
+image::hop-gui/bottom-panel-tabs.png[Database, VFS File Explorer, and Search open together in the bottom panel.,width="90%"]
+
 The execution-results button stays above the panel button and is only there in the file explorer, on a pipeline or workflow.
 
 `CTRL-J` shows the terminal, and hides the panel when a terminal tab is already selected.
