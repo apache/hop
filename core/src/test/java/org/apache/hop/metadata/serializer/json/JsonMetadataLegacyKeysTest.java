@@ -347,6 +347,24 @@ class JsonMetadataLegacyKeysTest {
     assertFalse(Files.exists(currentFolder));
   }
 
+  /**
+   * A delete that fails on a legacy copy must leave the current file in place: the legacy copies go
+   * first, so the stale one can never end up being the object.
+   */
+  @Test
+  void testFailedDeleteOfALegacyCopyKeepsTheCurrentFile() throws Exception {
+    writeCurrentObject("stuck", "current copy");
+    // A folder with something in it, where the legacy copy would be: it can't be deleted.
+    Path undeletable = legacyFolder.resolve("stuck.json");
+    Files.createDirectories(undeletable);
+    Files.writeString(undeletable.resolve("keep"), "x");
+
+    assertThrows(HopException.class, () -> serializer.delete("stuck"));
+
+    assertTrue(inCurrent("stuck"));
+    assertEquals("current copy", serializer.load("stuck").getDescription());
+  }
+
   @Test
   void testDeleteUnknownObjectFails() {
     assertThrows(HopException.class, () -> serializer.delete("nowhere"));

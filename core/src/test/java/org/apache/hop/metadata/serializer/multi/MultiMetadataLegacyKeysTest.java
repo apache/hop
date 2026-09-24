@@ -30,11 +30,13 @@ import java.util.List;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.MetadataGuiFlows;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.json.renamed.RenamedType;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -49,6 +51,7 @@ class MultiMetadataLegacyKeysTest {
   @TempDir Path parentFolder;
   @TempDir Path childFolder;
 
+  private MultiMetadataProvider multi;
   private IHopMetadataSerializer<RenamedType> serializer;
 
   @BeforeEach
@@ -61,7 +64,7 @@ class MultiMetadataLegacyKeysTest {
         new JsonMetadataProvider(
             encoder, childFolder.toString(), Variables.getADefaultVariableSpace());
     // Like a project with a parent project: the last provider is the child, which wins.
-    MultiMetadataProvider multi =
+    multi =
         new MultiMetadataProvider(
             encoder,
             new ArrayList<IHopMetadataProvider>(List.of(parent, child)),
@@ -107,6 +110,41 @@ class MultiMetadataLegacyKeysTest {
     assertTrue(
         serializer.loadAll().stream().allMatch(t -> "child".equals(t.getDescription())),
         "loadAll gives the child's objects, like load");
+  }
+
+  /**
+   * The file of an object is the one load() reads: the child project before the parent, the current
+   * folder before the legacy one. That is what the metadata perspective opens and what a search
+   * result points at.
+   */
+  @Test
+  void testFilenameIsTheFileLoadReads() throws Exception {
+    // Parent migrated, child didn't.
+    write(parentFolder, CURRENT, "a", "parent");
+    write(childFolder, LEGACY, "a", "child");
+    // Parent didn't migrate, child did.
+    write(parentFolder, LEGACY, "b", "parent");
+    write(childFolder, CURRENT, "b", "child");
+    // Only the parent has it, not migrated.
+    write(parentFolder, LEGACY, "c", "parent");
+    // The child has an outdated legacy copy next to the current one.
+    write(childFolder, LEGACY, "d", "outdated");
+    write(childFolder, CURRENT, "d", "child");
+
+    assertFilename(childFolder, LEGACY, "a");
+    assertFilename(childFolder, CURRENT, "b");
+    assertFilename(parentFolder, LEGACY, "c");
+    assertFilename(childFolder, CURRENT, "d");
+    assertEquals("child", serializer.load("d").getDescription());
+    assertEquals(null, HopMetadataUtil.findFilename(multi, RenamedType.class, "nowhere"));
+  }
+
+  private void assertFilename(Path metadataFolder, String key, String name) throws Exception {
+    String filename = HopMetadataUtil.findFilename(multi, RenamedType.class, name);
+    assertEquals(
+        metadataFolder.resolve(key).resolve(name + ".json").toRealPath(),
+        Path.of(HopVfs.getFileObject(filename).getURL().toURI()).toRealPath(),
+        name);
   }
 
   @Test

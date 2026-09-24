@@ -23,6 +23,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataSerializer;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 
@@ -61,16 +62,18 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
 
   @Override
   public String getFilename() {
-    if (serializer instanceof JsonMetadataSerializer jsonMetadataSerializer) {
-      // Objects of a renamed metadata type can still live in a legacy folder.
-      try {
-        String filename = jsonMetadataSerializer.findFilename(getName());
-        if (filename != null) {
-          return filename;
-        }
-      } catch (Exception e) {
-        // Fall back to where the object would be saved.
+    // The serializer is usually a multi-provider's, which knows no files. Ask the file based
+    // provider which holds the object: the child project before its parent, and a legacy folder of
+    // a renamed metadata type if that is where the object still lives.
+    try {
+      String filename = HopMetadataUtil.findFilename(metadataProvider, managedClass, getName());
+      if (filename != null) {
+        return filename;
       }
+    } catch (Exception e) {
+      // Fall back to where the object would be saved.
+    }
+    if (serializer instanceof JsonMetadataSerializer jsonMetadataSerializer) {
       return jsonMetadataSerializer.calculateFilename(getName());
     }
     return null;

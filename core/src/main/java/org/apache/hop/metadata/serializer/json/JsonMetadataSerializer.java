@@ -346,24 +346,25 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     T t = load(name);
 
     // The object can have been saved in the base folder while an older copy is still sitting in a
-    // legacy folder: remove them all or the old copy would come back.
+    // legacy folder: remove them all or the old copy would come back. The legacy copies go first
+    // and the base folder file last: if a delete fails halfway, the file that is left is the one
+    // load() reads, never a stale legacy copy in its place.
     //
-    List<String> folders = new ArrayList<>();
+    List<String> folders = new ArrayList<>(legacyFolders);
     folders.add(baseFolder);
-    folders.addAll(legacyFolders);
     for (String folder : folders) {
       String filename = calculateFilename(folder, name);
       if (!HopVfs.fileExists(filename)) {
         continue;
       }
-      try {
-        boolean deleted = HopVfs.getFileObject(filename).delete();
-        if (!deleted) {
+      try (FileObject file = HopVfs.getFileObject(filename)) {
+        if (!file.delete()) {
           throw new HopException(
               "Error: Object '" + name + "' could not be deleted, filename : " + filename);
         }
       } catch (FileSystemException e) {
-        throw new HopException("Error deleting Object '" + name + "' with filename : " + filename);
+        throw new HopException(
+            "Error deleting Object '" + name + "' with filename : " + filename, e);
       }
     }
     return t;

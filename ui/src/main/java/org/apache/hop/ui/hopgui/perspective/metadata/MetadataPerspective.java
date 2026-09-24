@@ -63,7 +63,6 @@ import org.apache.hop.metadata.refactor.MetadataObjectReference;
 import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
 import org.apache.hop.metadata.refactor.MetadataReferenceResult;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -2534,7 +2533,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       IHopMetadataProvider metadataProvider,
       Set<String> knownKeys,
       Map<String, UnknownTypeModel> unknownByKey) {
-    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider)) {
+    // Child provider first, the way load() looks for an element.
+    //
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider).reversed()) {
       try {
         FileObject baseFolder = HopVfs.getFileObject(jsonProvider.getBaseFolder());
         if (!baseFolder.exists()) {
@@ -2555,8 +2556,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
               unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
           for (FileObject jsonFile : jsonFiles) {
             String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
-            // The same element can live in a parent project as well: like anywhere else the first
-            // provider which has it wins, so we don't list it twice.
+            // The same element can live in a parent project as well: like anywhere else the child
+            // project's copy wins, so we don't list it twice.
             if (unknownType.items.stream().noneMatch(item -> item.name.equals(name))) {
               unknownType.items.add(
                   new UnknownItemModel(name, HopVfs.getFilename(jsonFile), reason));
@@ -2570,49 +2571,49 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
   }
 
-  /** The JSON (file based) providers behind the given provider, which can be a multi-provider. */
+  /**
+   * The JSON (file based) providers behind the given provider, which can be a multi-provider: the
+   * parent project first, the child project last.
+   */
   private static List<JsonMetadataProvider> getJsonProviders(IHopMetadataProvider provider) {
     List<JsonMetadataProvider> jsonProviders = new ArrayList<>();
-    if (provider instanceof MultiMetadataProvider multiProvider) {
-      for (IHopMetadataProvider childProvider : multiProvider.getProviders()) {
-        jsonProviders.addAll(getJsonProviders(childProvider));
+    for (IHopMetadataProvider leaf : HopMetadataUtil.getProviders(provider)) {
+      if (leaf instanceof JsonMetadataProvider jsonProvider) {
+        jsonProviders.add(jsonProvider);
       }
-    } else if (provider instanceof JsonMetadataProvider jsonProvider) {
-      jsonProviders.add(jsonProvider);
     }
     return jsonProviders;
   }
 
   /**
-   * The file behind a metadata element: {@code <base folder>/<type key>/<name>.json} in the first
-   * provider which has it. Returns null if no file was found (or the metadata isn't file based).
+   * The file behind a metadata element, the one {@code load()} reads: in the last (child) provider
+   * which has it, in the folder of the current key before a legacy one. Returns null if no file was
+   * found (or the metadata isn't file based).
    */
   private String findMetadataFilename(String typeKey, String name) {
-    // An object which wasn't saved since its type was renamed still lives in a legacy key folder.
-    //
-    List<String> typeKeys = List.of(typeKey);
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    Class<IHopMetadata> metadataClass = null;
     try {
-      HopMetadata annotation =
-          hopGui
-              .getMetadataProvider()
-              .getMetadataClassForKey(typeKey)
-              .getAnnotation(HopMetadata.class);
-      if (annotation != null) {
-        typeKeys = HopMetadataUtil.getAllKeys(annotation);
-      }
+      metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
     } catch (Exception e) {
-      // An unknown type: only look in the folder named after the key.
+      // An unknown type: only look in the folder named after the key, below.
     }
-    for (JsonMetadataProvider jsonProvider : getJsonProviders(hopGui.getMetadataProvider())) {
-      for (String key : typeKeys) {
-        String filename = jsonProvider.getBaseFolder() + "/" + key + "/" + name + ".json";
-        try {
-          if (HopVfs.fileExists(filename)) {
-            return filename;
-          }
-        } catch (Exception e) {
-          LogChannel.UI.logError("Error checking metadata file " + filename, e);
+    if (metadataClass != null) {
+      try {
+        return HopMetadataUtil.findFilename(metadataProvider, metadataClass, name);
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error looking for the file of metadata element " + name, e);
+        return null;
+      }
+    }
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider).reversed()) {
+      String filename = jsonProvider.getBaseFolder() + "/" + typeKey + "/" + name + ".json";
+      try {
+        if (HopVfs.fileExists(filename)) {
+          return filename;
         }
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error checking metadata file " + filename, e);
       }
     }
     return null;
