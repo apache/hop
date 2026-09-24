@@ -352,12 +352,16 @@ public class StyledTextVar extends TextComposite {
 
   @Override
   public void cut() {
-    wText.cut();
+    if (!TextLineClipboard.copyOrCutCurrentLine(wText, true)) {
+      wText.cut();
+    }
   }
 
   @Override
   public void copy() {
-    wText.copy();
+    if (!TextLineClipboard.copyOrCutCurrentLine(wText, false)) {
+      wText.copy();
+    }
   }
 
   @Override

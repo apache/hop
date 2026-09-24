@@ -20,18 +20,25 @@ package org.apache.hop.execution.database;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.databases.h2.H2DatabaseMeta;
@@ -250,6 +257,115 @@ class CachingDatabaseExecutionInfoLocationTest {
     List<String> ids = location.getExecutionIds(false, 10);
     assertTrue(ids.size() >= 2);
     assertEquals(newId, ids.get(0));
+  }
+
+  @Test
+  void persistReopensAClosedJdbcConnection() throws Exception {
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(sampleEntry(id, "Before", ExecutionType.Workflow, false, "Running"));
+
+    Connection closed = location.getDatabase().getConnection();
+    closed.close();
+    assertTrue(closed.isClosed());
+
+    location.persistCacheEntry(sampleEntry(id, "Before", ExecutionType.Workflow, true, "Finished"));
+
+    Connection reopened = location.getDatabase().getConnection();
+    assertNotSame(closed, reopened);
+    assertFalse(reopened.isClosed());
+    assertNull(location.getDatabase().getConnectionGroup());
+    assertTrue(reopened.getAutoCommit());
+
+    CacheEntry loaded = location.loadCacheEntry(id);
+    assertNotNull(loaded);
+    assertTrue(loaded.getExecutionState().isFailed());
+    assertTrue(loaded.getExecutionState().getStatusDescription().startsWith("Finished"));
+  }
+
+  @Test
+  void initializeCancelsThePreviousTimerAndDropsTheClosedConnection() throws Exception {
+    Timer firstTimer = location.getCacheTimer();
+    assertNotNull(firstTimer);
+    Connection firstConnection = location.getDatabase().getConnection();
+    firstConnection.close();
+
+    location.initialize(variables, metadataProvider);
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            firstTimer.schedule(
+                new TimerTask() {
+                  @Override
+                  public void run() {
+                    // Cancelled timers reject new tasks.
+                  }
+                },
+                10_000L));
+    assertNotSame(firstTimer, location.getCacheTimer());
+    assertFalse(location.getDatabase().getConnection().isClosed());
+    assertNull(location.getDatabase().getConnectionGroup());
+
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(
+        sampleEntry(id, "AfterReinit", ExecutionType.Workflow, false, "Finished"));
+    assertNotNull(location.loadCacheEntry(id));
+  }
+
+  @Test
+  void closeIsIdempotentAndStopsTheCacheTimer() throws Exception {
+    Timer timer = location.getCacheTimer();
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(
+        sampleEntry(id, "ToClose", ExecutionType.Pipeline, false, "Finished"));
+
+    location.close();
+    location.close();
+
+    assertNull(location.getDatabase());
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            timer.schedule(
+                new TimerTask() {
+                  @Override
+                  public void run() {
+                    // Cancelled timers reject new tasks.
+                  }
+                },
+                10_000L));
+
+    HopException exception =
+        assertThrows(
+            HopException.class,
+            () ->
+                location.persistCacheEntry(
+                    sampleEntry(
+                        UUID.randomUUID().toString(),
+                        "AfterClose",
+                        ExecutionType.Workflow,
+                        false,
+                        "Running")));
+    assertTrue(
+        exception.getMessage().toLowerCase().contains("closed")
+            || (exception.getCause() != null
+                && exception.getCause().getMessage() != null
+                && exception.getCause().getMessage().toLowerCase().contains("closed")));
+  }
+
+  @Test
+  void recognizesClosedConnectionFailures() {
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
+            new SQLException("This connection has been closed.", "08003")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
+            new SQLException("syntax error", "42000")));
+    SQLException nested = new SQLException("An error occurred executing SQL");
+    nested.initCause(new SQLException("This connection has been closed."));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
+            new HopException("wrapper", nested)));
   }
 
   @Test

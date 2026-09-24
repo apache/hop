@@ -238,6 +238,8 @@ public class DelimiterDetector {
     boolean[] enclosureOpen = new boolean[potentialResults.size()];
     boolean[] enclosureSeen = new boolean[potentialResults.size()];
     boolean[] enclosureConsistent = new boolean[potentialResults.size()];
+    boolean[] fieldStart = new boolean[potentialResults.size()];
+    boolean[] skipNext = new boolean[potentialResults.size()];
 
     String s = "";
     try {
@@ -247,11 +249,14 @@ public class DelimiterDetector {
 
         int remainingResults = potentialResults.size();
 
-        // clear occurrences for each char
+        // clear the per-line state for each result
         for (int j = 0; j < remainingResults; j++) {
           frequencies[j] = 0;
           enclosureOpen[j] = false;
+          enclosureSeen[j] = false;
           enclosureConsistent[j] = true;
+          fieldStart[j] = true;
+          skipNext[j] = false;
         }
 
         // find occurrences for each char
@@ -262,37 +267,41 @@ public class DelimiterDetector {
 
             char c = detectionResult.getDelimiter();
             Character enc = detectionResult.getEnclosure();
-            boolean hasEnclosure = enc != null;
 
-            // if enclosure is involved, ignore enclosed delimiters
-            if (hasEnclosure) {
-
-              if (!enclosureOpen[j] && sc == c) {
-                frequencies[j] += 1;
-              }
-
-              if (sc == enc) {
-                enclosureSeen[j] = true;
-                enclosureConsistent[j] =
-                    enclosureConsistent[j]
-                        && (i == 0 && !enclosureOpen[j]
-                            || i == s.length() - 1 && enclosureOpen[j]
-                            || i > 0 && s.charAt(i - 1) == c && !enclosureOpen[j]
-                            || i > 0 && s.charAt(i - 1) == enc && !enclosureOpen[j]
-                            || s.length() > i + 1 && s.charAt(i + 1) == c && enclosureOpen[j]
-                            || s.length() > i + 1 && s.charAt(i + 1) == enc && enclosureOpen[j]);
-
-                enclosureOpen[j] = !enclosureOpen[j];
-              }
-
-            }
-            // no enclosure logic, just delimiters
-            else {
-
+            if (enc == null) {
+              // no enclosure logic, just delimiters
               if (sc == c) {
                 frequencies[j] += 1;
               }
+            } else if (skipNext[j]) {
+              // the second enclosure of an escaped pair
+              skipNext[j] = false;
+            } else if (enclosureOpen[j]) {
+              // enclosed delimiters are data. The enclosure only closes the field when followed
+              // by a delimiter or the end of the line, a doubled one is escaped. Any other
+              // enclosure in the field (BOB "ROBERT" SMITH) is data too.
+              if (sc == enc) {
+                boolean lastChar = i == s.length() - 1;
+                if (lastChar || s.charAt(i + 1) == c) {
+                  enclosureOpen[j] = false;
+                } else if (s.charAt(i + 1) == enc) {
+                  skipNext[j] = true;
+                }
+              }
+            } else if (sc == c) {
+              frequencies[j] += 1;
+              fieldStart[j] = true;
+              continue;
+            } else if (sc == enc) {
+              // an enclosure opens a field, anywhere else in an unenclosed field it is suspect
+              enclosureSeen[j] = true;
+              if (fieldStart[j]) {
+                enclosureOpen[j] = true;
+              } else {
+                enclosureConsistent[j] = false;
+              }
             }
+            fieldStart[j] = false;
           }
         }
 

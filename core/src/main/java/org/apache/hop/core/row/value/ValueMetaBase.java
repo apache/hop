@@ -1698,10 +1698,44 @@ public class ValueMetaBase implements IValueMeta {
 
   // BOOLEAN + STRING
 
+  /**
+   * A Boolean format mask holds the text for true and the text for false, separated by a single
+   * slash, for example {@code true/false}, {@code Y/N} or {@code 1/0}. Spaces around either text
+   * are not part of it: {@code Ja / Nein} is {@code Ja} and {@code Nein}.
+   *
+   * <p>A mask with no slash, or with more than one (a date mask like {@code yyyy/MM/dd}), is not a
+   * Boolean mask. Neither is one with an empty side, or with the same text on both sides ignoring
+   * case: reading ignores case, so {@code Yes/yes} could not tell the two apart.
+   *
+   * @param mask the conversion mask
+   * @return the text for true and the text for false, or null when the mask is not a Boolean mask
+   */
+  static String[] getBooleanMaskTexts(String mask) {
+    if (mask == null) {
+      return null;
+    }
+    int slash = mask.indexOf('/');
+    if (slash < 0 || mask.indexOf('/', slash + 1) >= 0) {
+      return null;
+    }
+    String trueText = mask.substring(0, slash).trim();
+    String falseText = mask.substring(slash + 1).trim();
+    if (trueText.isEmpty() || falseText.isEmpty() || trueText.equalsIgnoreCase(falseText)) {
+      return null;
+    }
+    return new String[] {trueText, falseText};
+  }
+
   protected String convertBooleanToString(Boolean bool) {
     if (bool == null) {
       return null;
     }
+    String[] texts = getBooleanMaskTexts(conversionMask);
+    if (texts != null) {
+      return bool ? texts[0] : texts[1];
+    }
+    // Without a mask the length decides, a legacy rule kept for compatibility
+    //
     if (length >= 3) {
       return bool ? "true" : CONST_FALSE;
     } else {
@@ -1718,6 +1752,38 @@ public class ValueMetaBase implements IValueMeta {
         || "TRUE".equalsIgnoreCase(string)
         || "YES".equalsIgnoreCase(string)
         || "1".equals(string);
+  }
+
+  /**
+   * Converts a String to a Boolean, first matching the true and false text of a Boolean conversion
+   * mask (ignoring case and surrounding spaces). Text that matches neither falls back to {@link
+   * #convertStringToBoolean(String)}.
+   *
+   * <p>The mask is this value's own or, when that is not a Boolean mask, the one of its conversion
+   * metadata: converting typed text to a Boolean value goes through a String value whose conversion
+   * metadata is the Boolean, the way a date pattern is found for dates.
+   *
+   * @param string the string to convert
+   * @return the Boolean, or null for an empty string
+   */
+  protected Boolean convertMaskedStringToBoolean(String string) {
+    if (Utils.isEmpty(string)) {
+      return null;
+    }
+    String[] texts = getBooleanMaskTexts(conversionMask);
+    if (texts == null && conversionMetadata != null) {
+      texts = getBooleanMaskTexts(conversionMetadata.getConversionMask());
+    }
+    if (texts != null) {
+      String text = string.trim();
+      if (text.equalsIgnoreCase(texts[0])) {
+        return true;
+      }
+      if (text.equalsIgnoreCase(texts[1])) {
+        return false;
+      }
+    }
+    return convertStringToBoolean(string);
   }
 
   // BOOLEAN + NUMBER
@@ -2703,12 +2769,12 @@ public class ValueMetaBase implements IValueMeta {
         };
       case TYPE_STRING:
         return switch (storageType) {
-          case STORAGE_TYPE_NORMAL -> convertStringToBoolean(trim((String) object));
+          case STORAGE_TYPE_NORMAL -> convertMaskedStringToBoolean(trim((String) object));
           case STORAGE_TYPE_BINARY_STRING ->
-              convertStringToBoolean(
+              convertMaskedStringToBoolean(
                   trim((String) convertBinaryStringToNativeType((byte[]) object)));
           case STORAGE_TYPE_INDEXED ->
-              convertStringToBoolean(trim((String) index[(Integer) object]));
+              convertMaskedStringToBoolean(trim((String) index[(Integer) object]));
           default ->
               throw new HopValueException(
                   this
@@ -4730,6 +4796,17 @@ public class ValueMetaBase implements IValueMeta {
                 (getConversionMask() != null
                         && getConversionMask().equals(storageMetadata.getConversionMask()))
                     || (getConversionMask() == null && storageMetadata.getConversionMask() == null);
+          } else if (isBoolean()) {
+            // The Boolean mask decides the text, and without one the length does (Y/N or
+            // true/false). The stored bytes can only be written as they are if both agree.
+            //
+            String[] texts = getBooleanMaskTexts(getConversionMask());
+            String[] storageTexts = getBooleanMaskTexts(storageMetadata.getConversionMask());
+            if (texts == null && storageTexts == null) {
+              identicalFormat = getLength() == storageMetadata.getLength();
+            } else {
+              identicalFormat = Arrays.equals(texts, storageTexts);
+            }
           } else if (isNumeric()) {
             // Check the lengths first
             //

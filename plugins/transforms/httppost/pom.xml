@@ -28,4 +28,12 @@
     <artifactId>hop-transform-httppost</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms HTTP Post</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

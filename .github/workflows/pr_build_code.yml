@@ -84,12 +84,15 @@ jobs:
             ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
             ${{ runner.os }}-m2-
             ${{ runner.os }}-
+      # Source checks resolve no dependencies, so they skip GIB's upstream modules. Without
+      # this, buildUpstreamMode=impacted would pull in every plugin as an upstream of the
+      # assemblies (these steps do not pass -Dassemblies=false).
       - name: RAT Check
-        run: mvn clean apache-rat:check -Dgib.disable=$GIB_DISABLE
+        run: mvn clean apache-rat:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Checkstyle
-        run: mvn clean checkstyle:check -Dgib.disable=$GIB_DISABLE
+        run: mvn clean checkstyle:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Spotless check
-        run: mvn spotless:check -Dgib.disable=$GIB_DISABLE
+        run: mvn spotless:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Build with Maven
         run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true -Dgib.disable=$GIB_DISABLE --file pom.xml
 
@@ -110,8 +113,12 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Cache Maven packages
-        uses: actions/cache@v6
+      # Restore only: this job runs `package` and installs nothing, and it finishes before
+      # the build job. Saving here took the shared key first, so the build job's installed
+      # repository was never cached ("Unable to reserve cache"). Keep path and keys in sync
+      # with the build job, or the restore misses.
+      - name: Restore Maven packages
+        uses: actions/cache/restore@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}

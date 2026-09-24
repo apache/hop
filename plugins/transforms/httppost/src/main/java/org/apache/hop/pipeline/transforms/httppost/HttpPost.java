@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -27,9 +28,12 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -57,6 +61,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.CredentialRedactor;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -65,6 +70,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageHttpIoEmitter;
 import org.apache.hop.lineage.model.HttpDirection;
 import org.apache.hop.lineage.model.HttpLineagePayload;
+import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
+import org.apache.hop.metadata.rest.client.RestClientSettings;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -93,30 +102,14 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
   @VisibleForTesting
   Object[] callHttpPOST(Object[] rowData) throws HopException {
-    HttpClientManager.HttpClientBuilderFacade clientBuilder =
-        HttpClientManager.getInstance().createBuilder();
-
-    if (data.realConnectionTimeout > -1) {
-      clientBuilder.setConnectionTimeout(data.realConnectionTimeout);
-    }
-    if (data.realSocketTimeout > -1) {
-      clientBuilder.setSocketTimeout(data.realSocketTimeout);
-    }
-    if (StringUtils.isNotBlank(data.realHttpLogin)) {
-      clientBuilder.setCredentials(data.realHttpLogin, data.realHttpPassword);
-    }
-    if (StringUtils.isNotBlank(data.realProxyHost)) {
-      clientBuilder.setProxy(data.realProxyHost, data.realProxyPort);
-    }
-    if (meta.isIgnoreSsl()) {
-      clientBuilder.ignoreSsl(true);
-    }
-
-    CloseableHttpClient httpClient = clientBuilder.build();
-
     // get dynamic url ?
     if (meta.isUrlInField()) {
       data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
+      if (data.restConnection != null) {
+        data.realUrl =
+            RestConnection.resolveAgainstBase(
+                resolve(data.restConnection.getBaseUrl()), data.realUrl);
+      }
     }
     long lineageStart = System.currentTimeMillis();
     long volIn0 = dataVolumeIn != null ? dataVolumeIn : 0L;
@@ -129,13 +122,17 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     // Prepare HTTP POST
     try {
       if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "HTTPPOST.Log.ConnectingToURL", data.realUrl));
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "HTTPPOST.Log.ConnectingToURL", CredentialRedactor.redact(data.realUrl)));
       }
       URIBuilder uriBuilder = new URIBuilder(data.realUrl);
       uri = uriBuilder.build();
       urlLineage = uri.toString();
       org.apache.hc.client5.http.classic.methods.HttpPost post =
           new org.apache.hc.client5.http.classic.methods.HttpPost(uri);
+
+      addConnectionAuthentication(post, uri);
 
       MultipartEntityBuilder multipart = null;
       boolean useMultipart = meta.isPostAFile() || meta.isMultipartupload();
@@ -166,9 +163,10 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
         // Origin host for routing + preemptive Basic auth cache (proxy is on the client, not here).
         HttpHost target = HttpClientManager.createHttpHost(uri);
+        CloseableHttpClient httpClient = httpClient(target);
 
         HttpClientContext localContext = HttpClientContext.create();
-        if (StringUtils.isNotBlank(data.realHttpLogin)) {
+        if (data.restConnection == null && StringUtils.isNotBlank(data.realHttpLogin)) {
           AuthCache authCache = new BasicAuthCache();
           BasicScheme basicAuth = new BasicScheme();
           char[] passwordChars =
@@ -188,7 +186,11 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
         if (isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "HTTPPOST.Log.ResponseTime", responseTime, data.realUrl));
+              BaseMessages.getString(
+                  PKG,
+                  "HTTPPOST.Log.ResponseTime",
+                  responseTime,
+                  CredentialRedactor.redact(data.realUrl)));
         }
 
         // Display status code
@@ -238,24 +240,27 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         }
 
         if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "HTTPPOST.Log.ResponseBody", body));
+          logDebug(
+              BaseMessages.getString(
+                  PKG, "HTTPPOST.Log.ResponseBody", CredentialRedactor.redact(body)));
         }
 
         int returnFieldsOffset = data.inputRowMeta.size();
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getName())) {
+        HttpPostResultField resultField = meta.getFirstResultField();
+        if (!Utils.isEmpty(resultField.getName())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, body);
           returnFieldsOffset++;
         }
 
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getCode())) {
+        if (!Utils.isEmpty(resultField.getCode())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, (long) statusCode);
           returnFieldsOffset++;
         }
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getResponseTimeFieldName())) {
+        if (!Utils.isEmpty(resultField.getResponseTimeFieldName())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, responseTime);
           returnFieldsOffset++;
         }
-        if (!Utils.isEmpty(meta.getResultFields().get(0).getResponseHeaderFieldName())) {
+        if (!Utils.isEmpty(resultField.getResponseHeaderFieldName())) {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, headerString);
         }
       } finally {
@@ -272,7 +277,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     } catch (Exception e) {
       lineageErr = e.getMessage();
       throw new HopException(
-          BaseMessages.getString(PKG, "HTTPPOST.Error.CanNotReadURL", data.realUrl), e);
+          BaseMessages.getString(
+              PKG, "HTTPPOST.Error.CanNotReadURL", CredentialRedactor.redact(data.realUrl)),
+          e);
     } finally {
       long reqDelta = (dataVolumeOut != null ? dataVolumeOut : 0L) - volOut0;
       long respDelta = (dataVolumeIn != null ? dataVolumeIn : 0L) - volIn0;
@@ -377,11 +384,12 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
                     PKG, "HTTPPOST.Exception.ErrorFindingField", realUrlfieldName));
           }
         }
-      } else {
-        data.realUrl = resolve(meta.getUrl());
       }
+      HttpPostLookupField lookupField = meta.getFirstLookupField();
+      List<HttpPostArgumentField> argumentFields = lookupField.getArgumentField();
+      List<HttpPostQuery> queryFields = lookupField.getQueryField();
       // set body parameters
-      int nrargs = meta.getLookupFields().get(0).getArgumentField().size();
+      int nrargs = argumentFields.size();
       if (nrargs > 0) {
         data.useBodyParameters = false;
         data.useHeaderParameters = false;
@@ -389,7 +397,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         int nrheader = 0;
         int nrbody = 0;
         for (int i = 0; i < nrargs; i++) { // split into body / header
-          if (meta.getLookupFields().get(0).getArgumentField().get(i).isHeader()) {
+          if (argumentFields.get(i).isHeader()) {
             data.useHeaderParameters = true; // at least one header parameter
             nrheader++;
           } else {
@@ -404,65 +412,57 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         int posHeader = 0;
         int posBody = 0;
         for (int i = 0; i < nrargs; i++) {
-          int fieldIndex =
-              data.inputRowMeta.indexOfValue(
-                  meta.getLookupFields().get(0).getArgumentField().get(i).getName());
+          int fieldIndex = data.inputRowMeta.indexOfValue(argumentFields.get(i).getName());
           if (fieldIndex < 0) {
             logError(
                 BaseMessages.getString(PKG, PKG_ERROR_FINDING_FIELD)
-                    + meta.getLookupFields().get(0).getArgumentField().get(i).getName()
+                    + argumentFields.get(i).getName()
                     + "]");
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG,
-                    "HTTPPOST.Exception.CouldnotFindField",
-                    meta.getLookupFields().get(0).getArgumentField().get(i).getName()));
+                    PKG, "HTTPPOST.Exception.CouldnotFindField", argumentFields.get(i).getName()));
           }
-          if (meta.getLookupFields().get(0).getArgumentField().get(i).isHeader()) {
+          if (argumentFields.get(i).isHeader()) {
             data.header_parameters_nrs[posHeader] = fieldIndex;
             data.headerParameters[posHeader] =
                 new BasicNameValuePair(
-                    resolve(meta.getLookupFields().get(0).getArgumentField().get(i).getParameter()),
+                    resolve(argumentFields.get(i).getParameter()),
                     data.outputRowMeta.getString(r, data.header_parameters_nrs[posHeader]));
             posHeader++;
-            if (CONTENT_TYPE.equalsIgnoreCase(
-                meta.getLookupFields().get(0).getArgumentField().get(i).getParameter())) {
+            if (CONTENT_TYPE.equalsIgnoreCase(argumentFields.get(i).getParameter())) {
               data.contentTypeHeaderOverwrite = true; // Content-type will be overwritten
             }
           } else {
             data.body_parameters_nrs[posBody] = fieldIndex;
             data.bodyParameters[posBody] =
                 new BasicNameValuePair(
-                    resolve(meta.getLookupFields().get(0).getArgumentField().get(i).getParameter()),
+                    resolve(argumentFields.get(i).getParameter()),
                     data.outputRowMeta.getString(r, data.body_parameters_nrs[posBody]));
             posBody++;
           }
         }
       }
       // set query parameters
-      int nrQuery = meta.getLookupFields().get(0).getQueryField().size();
+      int nrQuery = queryFields.size();
       if (nrQuery > 0) {
         data.useQueryParameters = true;
         data.query_parameters_nrs = new int[nrQuery];
         data.queryParameters = new NameValuePair[nrQuery];
         for (int i = 0; i < nrQuery; i++) {
           data.query_parameters_nrs[i] =
-              data.inputRowMeta.indexOfValue(
-                  meta.getLookupFields().get(0).getQueryField().get(i).getName());
+              data.inputRowMeta.indexOfValue(queryFields.get(i).getName());
           if (data.query_parameters_nrs[i] < 0) {
             logError(
                 BaseMessages.getString(PKG, PKG_ERROR_FINDING_FIELD)
-                    + meta.getLookupFields().get(0).getQueryField().get(i).getName()
+                    + queryFields.get(i).getName()
                     + "]");
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG,
-                    "HTTPPOST.Exception.CouldnotFindField",
-                    meta.getLookupFields().get(0).getQueryField().get(i).getName()));
+                    PKG, "HTTPPOST.Exception.CouldnotFindField", queryFields.get(i).getName()));
           }
           data.queryParameters[i] =
               new BasicNameValuePair(
-                  resolve(meta.getLookupFields().get(0).getQueryField().get(i).getParameter()),
+                  resolve(queryFields.get(i).getParameter()),
                   data.outputRowMeta.getString(r, data.query_parameters_nrs[i]));
         }
       }
@@ -493,12 +493,16 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     } catch (HopException e) {
       String errorMessage;
 
+      // Whatever went wrong may quote the URL, or a header or body it was sent with. The error
+      // row travels on to wherever the error hop leads, so it gets the same treatment as the log.
       if (getTransformMeta().isDoingErrorHandling()) {
-        errorMessage = e.toString();
+        errorMessage = CredentialRedactor.redact(e.toString());
       } else {
-        logError(BaseMessages.getString(PKG, "HTTPPOST.ErrorInTransformRunning") + e.getMessage());
+        logError(
+            BaseMessages.getString(PKG, "HTTPPOST.ErrorInTransformRunning")
+                + CredentialRedactor.redact(e.getMessage()));
         setErrors(1);
-        logError(Const.getStackTracker(e));
+        logError(CredentialRedactor.redact(Const.getStackTracker(e)));
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
@@ -527,6 +531,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       // get authentication settings once
       data.realProxyHost = resolve(meta.getProxyHost());
       data.realProxyPort = Const.toInt(resolve(meta.getProxyPort()), 8080);
+      data.realProxyUsername = resolve(meta.getProxyUsername());
+      data.realProxyPassword = Utils.resolvePassword(variables, meta.getProxyPassword());
+      data.realNonProxyHosts = resolve(meta.getNonProxyHosts());
       data.realHttpLogin = resolve(meta.getHttpLogin());
       data.realHttpPassword = Utils.resolvePassword(variables, meta.getHttpPassword());
 
@@ -535,9 +542,124 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       data.realcloseIdleConnectionsTime =
           Const.toInt(resolve(meta.getCloseIdleConnectionsTime()), -1);
 
+      if (!loadRestConnection()) {
+        return false;
+      }
+
+      // Resolved here rather than on the first row: the base URL it may hang off belongs to the
+      // connection just loaded, and every request needs it, including the first.
+      data.realUrl =
+          data.restConnection == null
+              ? resolve(meta.getUrl())
+              : RestConnection.resolveAgainstBase(
+                  resolve(data.restConnection.getBaseUrl()), resolve(meta.getUrl()));
+
       return true;
     }
     return false;
+  }
+
+  /**
+   * Loads the selected REST connection and the client that goes with it. Returns false when a
+   * connection is named but cannot be loaded, which has to stop the transform: falling back to the
+   * transform's own fields would send the request somewhere else, unauthenticated.
+   */
+  private boolean loadRestConnection() {
+    String realConnectionName = resolve(meta.getConnectionName());
+    if (Utils.isEmpty(realConnectionName)) {
+      return true;
+    }
+    try {
+      data.restConnection =
+          metadataProvider.getSerializer(RestConnection.class).load(realConnectionName);
+      if (data.restConnection == null) {
+        logError(
+            BaseMessages.getString(PKG, "HTTPPOST.Error.ConnectionNotFound", realConnectionName));
+        return false;
+      }
+      data.restConnection.setVariables(this);
+      RestClientSettings settings = data.restConnection.createClientSettings();
+      data.restConnectionClient = RestClientFactory.createClient(settings);
+      data.restAuthenticator = new RestAuthenticator(settings);
+      return true;
+    } catch (Exception e) {
+      // Keep the cause: a class loader split between the metadata plugin and this transform
+      // surfaces here as a ClassCastException, which is not a missing connection at all.
+      logError(
+          BaseMessages.getString(PKG, "HTTPPOST.Error.ConnectionNotLoaded", realConnectionName), e);
+      return false;
+    }
+  }
+
+  @Override
+  public void dispose() {
+    if (data.restConnectionClient != null) {
+      try {
+        data.restConnectionClient.close();
+      } catch (IOException e) {
+        logError(BaseMessages.getString(PKG, "HTTPPOST.Error.ClosingClient"), e);
+      }
+      data.restConnectionClient = null;
+    }
+    super.dispose();
+  }
+
+  /**
+   * The client to execute with: the one built from the selected REST connection, or a client
+   * configured from this transform's own fields.
+   *
+   * <p>Credentials are registered for the host they belong to rather than for any host at all: a
+   * proxy asking for authentication of its own used to be answered with the web server's user name
+   * and password, because a single wildcard {@link org.apache.hc.client5.http.auth.AuthScope}
+   * matched both challenges (issue #3440).
+   */
+  private CloseableHttpClient httpClient(HttpHost target) {
+    if (data.restConnectionClient != null) {
+      return data.restConnectionClient;
+    }
+    HttpClientManager.HttpClientBuilderFacade clientBuilder =
+        HttpClientManager.getInstance().createBuilder();
+
+    if (data.realConnectionTimeout > -1) {
+      clientBuilder.setConnectionTimeout(data.realConnectionTimeout);
+    }
+    if (data.realSocketTimeout > -1) {
+      clientBuilder.setSocketTimeout(data.realSocketTimeout);
+    }
+    if (StringUtils.isNotBlank(data.realHttpLogin)) {
+      clientBuilder.setCredentials(
+          data.realHttpLogin, data.realHttpPassword, new AuthScope(target));
+    }
+    if (StringUtils.isNotBlank(data.realProxyHost)) {
+      HttpHost proxy = new HttpHost("http", data.realProxyHost, data.realProxyPort);
+      clientBuilder.setProxy(proxy.getHostName(), proxy.getPort(), proxy.getSchemeName());
+      clientBuilder.setNonProxyHosts(data.realNonProxyHosts);
+      if (StringUtils.isNotBlank(data.realProxyUsername)) {
+        clientBuilder.setCredentials(
+            data.realProxyUsername, data.realProxyPassword, new AuthScope(proxy));
+      }
+    }
+    if (meta.isIgnoreSsl()) {
+      clientBuilder.ignoreSsl(true);
+    }
+    return clientBuilder.build();
+  }
+
+  /**
+   * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
+   * a challenge, so the connection writes them onto every request itself. They stay scoped to the
+   * connection's base URL: an absolute URL on another host is sent without them.
+   */
+  private void addConnectionAuthentication(
+      org.apache.hc.client5.http.classic.methods.HttpPost post, URI uri) {
+    if (data.restAuthenticator == null) {
+      return;
+    }
+    Map<String, String> authHeaders = new LinkedHashMap<>();
+    data.restAuthenticator.applyRequestHeaders(authHeaders, uri.toString());
+    for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
+      post.setHeader(authHeader.getKey(), authHeader.getValue());
+    }
   }
 
   /**
@@ -565,7 +687,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
                   PKG,
                   PKG_HEADER_VALUE,
                   data.headerParameters[i].getName(),
-                  data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i])));
+                  CredentialRedactor.redactValue(
+                      data.headerParameters[i].getName(),
+                      data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i]))));
         }
       }
     }
@@ -615,7 +739,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       data.queryParameters[i] = new BasicNameValuePair(name, value);
 
       if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "HTTPPOST.Log.QueryValue", name, value));
+        logDebug(
+            BaseMessages.getString(
+                PKG, "HTTPPOST.Log.QueryValue", name, CredentialRedactor.redactValue(name, value)));
       }
     }
 
@@ -653,7 +779,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       }
 
       if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "HTTPPOST.Log.BodyValue", name, value));
+        logDebug(
+            BaseMessages.getString(
+                PKG, "HTTPPOST.Log.BodyValue", name, CredentialRedactor.redactValue(name, value)));
       }
     }
 

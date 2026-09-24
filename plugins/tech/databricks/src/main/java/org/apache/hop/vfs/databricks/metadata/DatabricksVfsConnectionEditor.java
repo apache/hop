@@ -19,7 +19,9 @@ package org.apache.hop.vfs.databricks.metadata;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
 import org.apache.hop.databricks.client.RestDatabricksJobsClient;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
@@ -35,6 +37,7 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -190,5 +193,16 @@ public class DatabricksVfsConnectionEditor extends MetadataEditor<DatabricksVfsC
       return false;
     }
     return wName.setFocus();
+  }
+
+  @Override
+  public void save() throws HopException {
+    super.save();
+    HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

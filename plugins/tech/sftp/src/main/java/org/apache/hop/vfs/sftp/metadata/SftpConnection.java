@@ -19,6 +19,7 @@ package org.apache.hop.vfs.sftp.metadata;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -46,7 +47,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_SFTP_CONNECTION,
     supportsGlobalReplace = true,
     classLoaderGroup = "sftp")
-public class SftpConnection extends HopMetadataBase implements Serializable, IHopMetadata {
+public class SftpConnection extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   public static final int DEFAULT_PORT = 22;
 

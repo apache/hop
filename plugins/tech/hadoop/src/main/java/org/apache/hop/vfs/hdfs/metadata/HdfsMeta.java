@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -42,7 +43,8 @@ import org.eclipse.swt.widgets.MessageBox;
 @Setter
 @GuiPlugin(classLoaderGroup = "vfs-hdfs")
 @HopMetadata(
-    key = "HdfsConnectionDefinition",
+    key = "hdfs-connection",
+    legacyKeys = {"HdfsConnectionDefinition"},
     name = "i18n::HdfsMeta.Name",
     description = "i18n::HdfsMeta.Description",
     image = "hdfs.svg",
@@ -50,7 +52,8 @@ import org.eclipse.swt.widgets.MessageBox;
     documentationUrl = "/metadata-types/hdfs-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_HDFS_CONNECTION,
     classLoaderGroup = "vfs-hdfs")
-public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetadata {
+public class HdfsMeta extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   private static final Class<?> PKG = HdfsMeta.class;
 
@@ -400,6 +403,20 @@ public class HdfsMeta extends HopMetadataBase implements Serializable, IHopMetad
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), title, BaseMessages.getString(PKG, errorMessage), e);
     }
+  }
+
+  /**
+   * Explore opens {@code name://}. The HDFS provider reads that as {@code /} and then applies the
+   * configured default root. A third slash is the same folder after parsing; the button uses the
+   * two-slash form.
+   */
+  @Override
+  public String getBrowseRoot(IVariables variables) {
+    String root = IVfsBrowseLocation.super.getBrowseRoot(variables);
+    if (root != null && root.endsWith(":///")) {
+      return root.substring(0, root.length() - 1);
+    }
+    return root;
   }
 
   public HdfsMeta() {

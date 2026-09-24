@@ -356,6 +356,9 @@ public class Const {
   /** An array of number conversion formats */
   private static String[] numberFormats;
 
+  /** The Boolean conversion formats: the text for true and for false, separated by a slash */
+  private static final String[] BOOLEAN_FORMATS = {"true/false", "Y/N", "1/0", "yes/no"};
+
   /**
    * Generalized date/time format: Wherever dates are used, date and time values are organized from
    * the most to the least significant. see also method StringUtil.getFormattedDateTime()
@@ -2992,6 +2995,14 @@ public class Const {
    */
   public static String[] getConversionFormats() {
     return (String[]) ArrayUtils.addAll(Const.getDateFormats(), Const.getNumberFormats());
+  }
+
+  /**
+   * @return The Boolean conversion formats, each holding the text for true and for false separated
+   *     by a slash (for example {@code Y/N})
+   */
+  public static String[] getBooleanFormats() {
+    return BOOLEAN_FORMATS.clone();
   }
 
   /**

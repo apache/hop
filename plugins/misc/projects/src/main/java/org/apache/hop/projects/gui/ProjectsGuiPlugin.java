@@ -94,6 +94,7 @@ import org.apache.hop.ui.core.widget.FileTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerLocation;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -995,13 +996,6 @@ public class ProjectsGuiPlugin {
     HopGui hopGui = HopGui.getInstance();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    if (config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)) {
-      // list all environments and select the first one if we don't have a project selected
-      List<String> allEnvironments = config.listEnvironmentNames();
-      updateEnvironmentToolItem(allEnvironments.getFirst());
-      return;
-    }
-
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       return;
@@ -1680,16 +1674,6 @@ public class ProjectsGuiPlugin {
     return names;
   }
 
-  /**
-   * Called by the environment menu in the toolbar
-   *
-   * @param log
-   * @param metadataProvider
-   */
-  public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    return ProjectsConfigSingleton.getConfig().listEnvironmentNames();
-  }
-
   // Add a "Navigate to project home" button to the file dialog browser toolbar
   //
   @GuiToolbarElement(
@@ -1712,6 +1696,26 @@ public class ProjectsGuiPlugin {
       if (instance != null) {
         instance.navigateTo(homeFolder, true);
       }
+    }
+  }
+
+  @GuiToolbarElement(
+      root = VfsFileExplorerLocation.NAVIGATE_TOOLBAR_PARENT_ID,
+      id = "VfsFileExplorer-Navigate-0005-ProjectHome",
+      toolTip = "i18n::FileDialog.Browse.Project.Home",
+      image = "project.svg")
+  public static void vfsExplorerProjectHome(VfsFileExplorerLocation location) {
+    if (location == null) {
+      return;
+    }
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(HopNamespace.getNamespace());
+    if (projectConfig == null) {
+      return;
+    }
+    String homeFolder = projectConfig.getProjectHome();
+    if (StringUtils.isNotEmpty(homeFolder)) {
+      location.navigateTo(homeFolder, true);
     }
   }
 

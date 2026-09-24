@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -83,6 +84,22 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected Map<String, CacheEntry> cache;
 
   protected Timer cacheTimer;
+
+  /**
+   * Set when {@link #close()} has cancelled the timer. A timer task that already passed {@code
+   * schedule} must not persist after that, and {@link #initialize} starts a fresh timer.
+   */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private volatile boolean cacheClosed = true;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private boolean loggedManageCacheError;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private String lastManageCacheError;
 
   protected final AtomicBoolean locked;
 
@@ -142,17 +159,27 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     //
     maxAge = Const.toInt(variables.resolve(maxCacheAge), 86400000);
 
-    // Let's start a timer to manage the cache every second or so
+    // Let's start a timer to manage the cache every second or so.
+    // Cancel any previous timer first: a second initialize() used to leave the old one running
+    // after close() disconnected the only connection that timer still wrote through.
     //
-    cacheTimer = new Timer("Caching execution location timer");
-    TimerTask cacheManageTask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            manageCache();
-          }
-        };
-    cacheTimer.schedule(cacheManageTask, 1000L, 1000L);
+    synchronized (this) {
+      cacheClosed = false;
+      loggedManageCacheError = false;
+      lastManageCacheError = null;
+      Timer previousTimer = cacheTimer;
+      cacheTimer = null;
+      ExecutorUtil.cleanup(previousTimer);
+      cacheTimer = new Timer("Caching execution location timer", true);
+      TimerTask cacheManageTask =
+          new TimerTask() {
+            @Override
+            public void run() {
+              manageCache();
+            }
+          };
+      cacheTimer.schedule(cacheManageTask, 1000L, 1000L);
+    }
   }
 
   @Override
@@ -161,6 +188,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   }
 
   protected synchronized void manageCache() {
+    if (cacheClosed) {
+      return;
+    }
     try {
       // Let's make sure we never run this method in parallel
       //
@@ -188,8 +218,16 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // Remove these entries.
       //
       tooOld.forEach(id -> cache.remove(id));
+      loggedManageCacheError = false;
+      lastManageCacheError = null;
     } catch (Exception e) {
-      LogChannel.GENERAL.logError("Error managing file execution information location cache", e);
+      // A dead JDBC connection used to log a full stack trace from this timer once a second.
+      String message = e.getMessage();
+      if (!loggedManageCacheError || !StringUtils.equals(message, lastManageCacheError)) {
+        LogChannel.GENERAL.logError("Error managing execution information location cache", e);
+        loggedManageCacheError = true;
+        lastManageCacheError = message;
+      }
     } finally {
       locked.set(false);
     }
@@ -197,8 +235,13 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   @Override
   public synchronized void close() throws HopException {
+    // Stop the timer before the final flush. Tasks that are already inside manageCache hold this
+    // lock and finish first; tasks still queued see cacheClosed and return.
+    cacheClosed = true;
+    Timer timer = cacheTimer;
+    cacheTimer = null;
+    ExecutorUtil.cleanup(timer);
     try {
-      ExecutorUtil.cleanup(cacheTimer);
       for (CacheEntry cacheEntry : cache.values()) {
         if (cacheEntry.isDirty()) {
           persistCacheEntry(cacheEntry);

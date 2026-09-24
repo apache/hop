@@ -229,6 +229,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-joinrows</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Stream Lookup for info-stream unit tests (mapPartitions + broadcast) -->
         <dependency>
             <groupId>org.apache.hop</groupId>

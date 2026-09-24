@@ -67,6 +67,7 @@ Leave this empty for Amazon S3, where the endpoint is derived from the region.
 This option is only applied when an endpoint URL is set.
 
 The name of the connection is registered as a VFS scheme of its own, so a connection named `storage` gives you paths like `storage://bucketName/path/to/file.csv`.
+**Explore** on the S3 connection editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.
 
 This works with Amazon S3 and with S3-compatible services such as Backblaze B2, Cloudflare R2 and MinIO.
 Check the documentation of your service for the endpoint to use and for whether path-style access is required.

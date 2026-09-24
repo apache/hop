@@ -142,6 +142,31 @@ class TextFileCsvImportScanTest {
     }
   }
 
+  /** #5609: the amounts were suggested with the mask #.# and a precision of 1. */
+  @Test
+  void suggestsAMaskKeepingAllDecimals() throws Exception {
+    Path file = Files.createTempFile("amounts", ".csv");
+    Files.writeString(file, "id;amount\n1;123.58\n2;90524.10\n3;9872.52\n", StandardCharsets.UTF_8);
+    TextFileInputMeta meta = newMeta("mixed", List.of("id", "amount"));
+    InputFile inputFile = new InputFile();
+    inputFile.setFileName(file.toAbsolutePath().toString());
+    inputFile.setFileRequired(true);
+    meta.getFileInput().getInputFiles().add(inputFile);
+    Variables variables = new Variables();
+    variables.initializeFrom(null);
+    try (InputStreamReader reader =
+        new InputStreamReader(Files.newInputStream(file), StandardCharsets.UTF_8)) {
+      new CountingDialog(variables, meta, reader, 100)
+          .doScan(new ProgressNullMonitorListener(), false);
+    }
+
+    TextFileInputField amount = field(meta, "amount");
+    assertEquals(IValueMeta.TYPE_NUMBER, amount.getType());
+    assertEquals("#.00", amount.getFormat());
+    assertEquals(2, amount.getPrecision());
+    assertEquals(".", amount.getDecimalSymbol());
+  }
+
   @Test
   void missingFileFailsOnceInsteadOfPerLine() throws Exception {
     TextFileInputMeta meta = newMeta("mixed");
@@ -176,6 +201,10 @@ class TextFileCsvImportScanTest {
   }
 
   private static TextFileInputMeta newMeta(String format) {
+    return newMeta(format, FIELD_NAMES);
+  }
+
+  private static TextFileInputMeta newMeta(String format, List<String> fieldNames) {
     TextFileInputMeta meta = new TextFileInputMeta();
     meta.getContent().setFileType("CSV");
     meta.getContent().setFileFormat(format);
@@ -185,7 +214,7 @@ class TextFileCsvImportScanTest {
     meta.getContent().setHeader(true);
     meta.getContent().setNrHeaderLines(1);
     meta.getContent().setNoEmptyLines(true);
-    for (String name : FIELD_NAMES) {
+    for (String name : fieldNames) {
       TextFileInputField field = new TextFileInputField();
       field.setName(name);
       meta.getInputFields().add(field);

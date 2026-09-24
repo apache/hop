@@ -164,4 +164,101 @@ class SqlQueryClassifierTest {
     assertNull(SqlQueryClassifier.statementVerb("   "));
     assertNull(SqlQueryClassifier.statementVerb("(SELECT 1)"));
   }
+
+  @Test
+  void schemaChangesOnTablesAndViewsAreDetected() {
+    assertTrue(SqlQueryClassifier.isSchemaChange("ALTER TABLE t ADD COLUMN c INT"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("create table t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP TABLE t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("RENAME TABLE a TO b"));
+  }
+
+  @Test
+  void schemaChangesAreDetectedPastModifiersAndTrivia() {
+    // The old check was a startsWith() on the upper-cased statement, so all of these were missed.
+    assertTrue(SqlQueryClassifier.isSchemaChange("\n\t ALTER TABLE t ADD COLUMN c INT"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("-- fix the layout\nALTER TABLE t DROP COLUMN c"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("/* ticket 42 */ DROP TABLE IF EXISTS t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE TABLE IF NOT EXISTS t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE VIEW v AS SELECT * FROM t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR ALTER VIEW v AS SELECT * FROM t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("ALTER VIEW v AS SELECT * FROM t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP VIEW v"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE MATERIALIZED VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE GLOBAL TEMPORARY TABLE t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP SYNONYM s"));
+  }
+
+  @Test
+  void dialectSpecificModifiersAreSchemaChanges() {
+    // Oracle, DBMS_METADATA emits the FORCE EDITIONABLE form verbatim
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE FORCE VIEW v AS SELECT 1"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE FORCE EDITIONABLE VIEW v AS SELECT 1 FROM dual"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE EDITIONABLE VIEW v AS SELECT 1"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE NONEDITIONABLE VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE PUBLIC SYNONYM s FOR t"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("DROP PUBLIC SYNONYM s"));
+    // PostgreSQL
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE RECURSIVE VIEW v (a) AS SELECT 1"));
+    // Snowflake
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE TRANSIENT TABLE t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE SECURE VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE OR REPLACE DYNAMIC TABLE t AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE HYBRID TABLE t (id int PRIMARY KEY)"));
+    // Teradata
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE MULTISET TABLE t (id int)"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("CREATE VOLATILE TABLE t (id int)"));
+    // Oracle forms outside the DBMS_METADATA default
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE NOFORCE EDITIONABLE VIEW v AS SELECT 1 FROM dual"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE EDITIONING VIEW v AS SELECT a FROM t"));
+  }
+
+  @Test
+  void mysqlViewDefinitionsAreSchemaChanges() {
+    // The text SHOW CREATE VIEW returns and mysqldump writes, verbatim
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v`"
+                + " AS select `t`.`id` AS `id` from `t`"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE OR REPLACE ALGORITHM = MERGE DEFINER = 'app'@'%' SQL SECURITY INVOKER VIEW v"
+                + " AS SELECT 1"));
+    assertTrue(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE DEFINER=CURRENT_USER() SQL SECURITY INVOKER VIEW v AS SELECT 1"));
+    assertTrue(SqlQueryClassifier.isSchemaChange("ALTER ALGORITHM=TEMPTABLE VIEW v AS SELECT 1"));
+    // A modifier with a value still has to be followed by a table or a view
+    assertFalse(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE DEFINER=`root`@`localhost` TRIGGER tr BEFORE INSERT ON t FOR EACH ROW SET"
+                + " @x = 1"));
+    assertFalse(
+        SqlQueryClassifier.isSchemaChange(
+            "CREATE DEFINER=`root`@`localhost` PROCEDURE p() SELECT 1"));
+  }
+
+  @Test
+  void otherStatementsAreNotSchemaChanges() {
+    assertFalse(SqlQueryClassifier.isSchemaChange(null));
+    assertFalse(SqlQueryClassifier.isSchemaChange("   "));
+    assertFalse(SqlQueryClassifier.isSchemaChange("SELECT * FROM t"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("INSERT INTO t VALUES (1)"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("DELETE FROM t"));
+    // TRUNCATE removes rows, it does not change the layout
+    assertFalse(SqlQueryClassifier.isSchemaChange("TRUNCATE t"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("TRUNCATE TABLE t"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("CREATE INDEX i ON t (a)"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("CREATE SEQUENCE s"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("ALTER SESSION SET x = 1"));
+    assertFalse(SqlQueryClassifier.isSchemaChange("DROP INDEX i"));
+  }
 }

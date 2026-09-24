@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
@@ -41,6 +43,7 @@ import org.apache.commons.vfs2.util.MonitorInputStream;
 import org.apache.commons.vfs2.util.MonitorOutputStream;
 import org.apache.commons.vfs2.util.PosixPermissions;
 import org.apache.commons.vfs2.util.RandomAccessMode;
+import org.apache.hop.core.vfs.VfsFileAttributes;
 
 /** An SFTP file. */
 public class SftpFileObject extends AbstractFileObject<SftpFileSystem> {
@@ -204,6 +207,31 @@ public class SftpFileObject extends AbstractFileObject<SftpFileSystem> {
       }
       return new SftpInputStream(channel, inputStream, bufferSize);
     }
+  }
+
+  /**
+   * Owner and permissions from the attrs already cached by a listing. Does not stat the path when
+   * those attrs are missing.
+   */
+  @Override
+  protected Map<String, Object> doGetAttributes() {
+    synchronized (getFileSystem()) {
+      return cachedAttributes(attrs);
+    }
+  }
+
+  static Map<String, Object> cachedAttributes(SftpATTRS attrs) {
+    if (attrs == null) {
+      return Map.of();
+    }
+    Map<String, Object> attributes = new HashMap<>();
+    if ((attrs.getFlags() & SftpATTRS.SSH_FILEXFER_ATTR_UIDGID) != 0) {
+      attributes.put(VfsFileAttributes.OWNER, Integer.toString(attrs.getUId()));
+    }
+    if ((attrs.getFlags() & SftpATTRS.SSH_FILEXFER_ATTR_PERMISSIONS) != 0) {
+      attributes.put(VfsFileAttributes.PERMISSIONS, attrs.getPermissionsString());
+    }
+    return attributes;
   }
 
   @Override

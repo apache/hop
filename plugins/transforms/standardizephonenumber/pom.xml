@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms Standardize Phone Number</name>
 
     <properties>
-        <libphonenumber.version>8.13.40</libphonenumber.version>
+        <libphonenumber.version>9.0.40</libphonenumber.version>
     </properties>
 
     <dependencies>

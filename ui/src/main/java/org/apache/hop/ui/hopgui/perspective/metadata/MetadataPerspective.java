@@ -63,7 +63,6 @@ import org.apache.hop.metadata.refactor.MetadataObjectReference;
 import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
 import org.apache.hop.metadata.refactor.MetadataReferenceResult;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -2461,7 +2460,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 annotation.image(),
                 metadataClass);
 
-        knownKeys.add(annotation.key());
+        // A folder named after a legacy key holds objects of this type which weren't saved since
+        // the type was renamed: they are not unknown.
+        //
+        knownKeys.addAll(HopMetadataUtil.getAllKeys(annotation));
 
         IHopMetadataSerializer<IHopMetadata> serializer =
             metadataProvider.getSerializer(metadataClass);
@@ -2531,7 +2533,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       IHopMetadataProvider metadataProvider,
       Set<String> knownKeys,
       Map<String, UnknownTypeModel> unknownByKey) {
-    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider)) {
+    // Child provider first, the way load() looks for an element.
+    //
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider).reversed()) {
       try {
         FileObject baseFolder = HopVfs.getFileObject(jsonProvider.getBaseFolder());
         if (!baseFolder.exists()) {
@@ -2552,8 +2556,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
               unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
           for (FileObject jsonFile : jsonFiles) {
             String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
-            // The same element can live in a parent project as well: like anywhere else the first
-            // provider which has it wins, so we don't list it twice.
+            // The same element can live in a parent project as well: like anywhere else the child
+            // project's copy wins, so we don't list it twice.
             if (unknownType.items.stream().noneMatch(item -> item.name.equals(name))) {
               unknownType.items.add(
                   new UnknownItemModel(name, HopVfs.getFilename(jsonFile), reason));
@@ -2567,25 +2571,42 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
   }
 
-  /** The JSON (file based) providers behind the given provider, which can be a multi-provider. */
+  /**
+   * The JSON (file based) providers behind the given provider, which can be a multi-provider: the
+   * parent project first, the child project last.
+   */
   private static List<JsonMetadataProvider> getJsonProviders(IHopMetadataProvider provider) {
     List<JsonMetadataProvider> jsonProviders = new ArrayList<>();
-    if (provider instanceof MultiMetadataProvider multiProvider) {
-      for (IHopMetadataProvider childProvider : multiProvider.getProviders()) {
-        jsonProviders.addAll(getJsonProviders(childProvider));
+    for (IHopMetadataProvider leaf : HopMetadataUtil.getProviders(provider)) {
+      if (leaf instanceof JsonMetadataProvider jsonProvider) {
+        jsonProviders.add(jsonProvider);
       }
-    } else if (provider instanceof JsonMetadataProvider jsonProvider) {
-      jsonProviders.add(jsonProvider);
     }
     return jsonProviders;
   }
 
   /**
-   * The file behind a metadata element: {@code <base folder>/<type key>/<name>.json} in the first
-   * provider which has it. Returns null if no file was found (or the metadata isn't file based).
+   * The file behind a metadata element, the one {@code load()} reads: in the last (child) provider
+   * which has it, in the folder of the current key before a legacy one. Returns null if no file was
+   * found (or the metadata isn't file based).
    */
   private String findMetadataFilename(String typeKey, String name) {
-    for (JsonMetadataProvider jsonProvider : getJsonProviders(hopGui.getMetadataProvider())) {
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    Class<IHopMetadata> metadataClass = null;
+    try {
+      metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
+    } catch (Exception e) {
+      // An unknown type: only look in the folder named after the key, below.
+    }
+    if (metadataClass != null) {
+      try {
+        return HopMetadataUtil.findFilename(metadataProvider, metadataClass, name);
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error looking for the file of metadata element " + name, e);
+        return null;
+      }
+    }
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider).reversed()) {
       String filename = jsonProvider.getBaseFolder() + "/" + typeKey + "/" + name + ".json";
       try {
         if (HopVfs.fileExists(filename)) {
@@ -2603,28 +2624,45 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * its metadata type model, so explicitly-created (and possibly empty) folders are rendered.
    */
   private void loadPersistedFolders() {
+    // Folders can have been stored under a key the metadata type had before it was renamed.
+    //
     Map<String, MetadataTypeModel> byKey = new LinkedHashMap<>();
     for (MetadataTypeModel typeModel : typeModels) {
-      byKey.put(typeModel.key, typeModel);
+      HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(typeModel.metadataClass);
+      for (String key : HopMetadataUtil.getAllKeys(annotation)) {
+        byKey.putIfAbsent(key, typeModel);
+      }
     }
     try {
-      AuditList list =
-          AuditManager.getActive().retrieveList(getAuditNamespace(), FOLDER_AUDIT_TYPE);
+      IAuditManager auditManager = AuditManager.getActive();
+      String namespace = getAuditNamespace();
+      AuditList list = auditManager.retrieveList(namespace, FOLDER_AUDIT_TYPE);
       if (list == null || list.getNames() == null) {
         return;
       }
-      for (String entry : list.getNames()) {
+      boolean migrated = false;
+      for (int i = 0; i < list.getNames().size(); i++) {
+        String entry = list.getNames().get(i);
         int sep = entry.indexOf(FOLDER_AUDIT_SEPARATOR);
         if (sep < 0) {
           continue;
         }
-        MetadataTypeModel typeModel = byKey.get(entry.substring(0, sep));
+        String key = entry.substring(0, sep);
+        MetadataTypeModel typeModel = byKey.get(key);
         String path = entry.substring(sep + FOLDER_AUDIT_SEPARATOR.length());
+        if (typeModel != null && !typeModel.key.equals(key)) {
+          // Store it under the current key so removing the folder later on works.
+          list.getNames().set(i, typeModel.key + FOLDER_AUDIT_SEPARATOR + path);
+          migrated = true;
+        }
         if (typeModel != null
             && !Utils.isEmpty(path)
             && !typeModel.folderVirtualPaths.contains(path)) {
           typeModel.folderVirtualPaths.add(path);
         }
+      }
+      if (migrated) {
+        auditManager.storeList(namespace, FOLDER_AUDIT_TYPE, list);
       }
     } catch (Exception e) {
       LogChannel.UI.logError("Error reading metadata virtual folders from the audit trail", e);

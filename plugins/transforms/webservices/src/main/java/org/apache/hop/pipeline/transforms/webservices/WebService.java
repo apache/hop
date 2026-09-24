@@ -497,7 +497,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     try {
       cachedWsdl =
           new Wsdl(
-              new java.net.URI(data.realUrl),
+              data.realUrl,
+              this,
               null,
               null,
               resolve(meta.getHttpLogin()),
@@ -624,7 +625,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     }
   }
 
-  private void processRows(
+  void processRows(
       InputStream anXml,
       Object[] rowData,
       IRowMeta rowMeta,
@@ -709,15 +710,9 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
         if (meta.isReturningReplyAsString()) {
 
-          // Just return the body node as an XML string...
+          // Just return the complete reply as an XML string...
           //
-          StringWriter nodeXML = new StringWriter();
-          transformer.transform(new DOMSource(bodyNode), new StreamResult(nodeXML));
-          String xml = response;
-          Object[] outputRowData = createNewRow(rowData);
-          int index = rowData == null ? 0 : getInputRowMeta().size();
-          outputRowData[index++] = xml;
-          putRow(data.outputRowMeta, outputRowData);
+          putWholeReplyRow(rowData, response);
 
         } else {
 
@@ -743,12 +738,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
               //
               StringWriter nodeXML = new StringWriter();
               transformer.transform(new DOMSource(responseNode), new StreamResult(nodeXML));
-              String xml = nodeXML.toString();
-
-              Object[] outputRowData = createNewRow(rowData);
-              int index = rowData == null ? 0 : getInputRowMeta().size();
-              outputRowData[index++] = xml;
-              putRow(data.outputRowMeta, outputRowData);
+              putWholeReplyRow(rowData, nodeXML.toString());
 
             } else {
               if (responseNode != null) {
@@ -781,83 +771,68 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       for (int i = 0; i < nodeList.getLength(); i++) {
         Node node = nodeList.item(i);
 
-        if (meta.isReturningReplyAsString()) {
-
-          // Just return the body node as an XML string...
-          //
-          StringWriter nodeXML = new StringWriter();
-          transformer.transform(new DOMSource(bodyNode), new StreamResult(nodeXML));
-          String xml = nodeXML.toString();
-          outputRowData = createNewRow(rowData);
-          int index = rowData == null ? 0 : getInputRowMeta().size();
-          outputRowData[index++] = xml;
-          putRow(data.outputRowMeta, outputRowData);
-
-        } else {
-
-          // This node either contains the data for a single row or it contains the first element of
-          // a single result
-          // response
-          // If we find the node name in out output result fields list, we are going to consider it
-          // a single row result.
-          //
-          WebServiceField field =
-              meta.getFieldOutFromWsName(node.getNodeName(), ignoreNamespacePrefix);
-          if (field != null) {
-            if (getNodeValue(outputRowData, node, field, transformer, true)) {
-              // We found a match.
-              // This means that we are dealing with a single row
-              // It also means that we need to update the output index pointer
-              //
-              singleRow = true;
-              fieldsFound++;
-            }
-          } else {
-            // If we didn't already get data in the previous block we'll assume multiple rows coming
-            // back.
+        // This node either contains the data for a single row or it contains the first element of
+        // a single result
+        // response
+        // If we find the node name in out output result fields list, we are going to consider it
+        // a single row result.
+        //
+        WebServiceField field =
+            meta.getFieldOutFromWsName(node.getNodeName(), ignoreNamespacePrefix);
+        if (field != null) {
+          if (getNodeValue(outputRowData, node, field, transformer, true)) {
+            // We found a match.
+            // This means that we are dealing with a single row
+            // It also means that we need to update the output index pointer
             //
-            if (!singleRow) {
-              // Sticking with the multiple-results scenario...
-              //
+            singleRow = true;
+            fieldsFound++;
+          }
+        } else {
+          // If we didn't already get data in the previous block we'll assume multiple rows coming
+          // back.
+          //
+          if (!singleRow) {
+            // Sticking with the multiple-results scenario...
+            //
 
-              // TODO: remove next 2 lines, added for debug reasons.
-              //
-              if (isDetailed()) {
-                StringWriter nodeXML = new StringWriter();
-                transformer.transform(new DOMSource(node), new StreamResult(nodeXML));
-                logDetailed(
-                    BaseMessages.getString(
-                        PKG, "WebServices.Log.ResultRowDataFound", nodeXML.toString()));
-              }
+            // TODO: remove next 2 lines, added for debug reasons.
+            //
+            if (isDetailed()) {
+              StringWriter nodeXML = new StringWriter();
+              transformer.transform(new DOMSource(node), new StreamResult(nodeXML));
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG, "WebServices.Log.ResultRowDataFound", nodeXML.toString()));
+            }
 
-              // Allocate a new row...
-              //
-              outputRowData = createNewRow(rowData);
+            // Allocate a new row...
+            //
+            outputRowData = createNewRow(rowData);
 
-              // Let's see what's in there...
-              //
-              NodeList childNodes = node.getChildNodes();
-              for (int j = 0; j < childNodes.getLength(); j++) {
-                Node childNode = childNodes.item(j);
+            // Let's see what's in there...
+            //
+            NodeList childNodes = node.getChildNodes();
+            for (int j = 0; j < childNodes.getLength(); j++) {
+              Node childNode = childNodes.item(j);
 
-                field = meta.getFieldOutFromWsName(childNode.getNodeName(), ignoreNamespacePrefix);
-                if (field != null
-                    && getNodeValue(outputRowData, childNode, field, transformer, false)) {
-                  // We found a match.
-                  // This means that we are dealing with a single row
-                  // It also means that we need to update the output index pointer
-                  //
-                  fieldsFound++;
-                }
-              }
-
-              // Prevent empty rows from being sent out.
-              //
-              if (fieldsFound > 0) {
-                // Send a row in a series of rows on its way.
+              field = meta.getFieldOutFromWsName(childNode.getNodeName(), ignoreNamespacePrefix);
+              if (field != null
+                  && getNodeValue(outputRowData, childNode, field, transformer, false)) {
+                // We found a match.
+                // This means that we are dealing with a single row
+                // It also means that we need to update the output index pointer
                 //
-                putRow(data.outputRowMeta, outputRowData);
+                fieldsFound++;
               }
+            }
+
+            // Prevent empty rows from being sent out.
+            //
+            if (fieldsFound > 0) {
+              // Send a row in a series of rows on its way.
+              //
+              putRow(data.outputRowMeta, outputRowData);
             }
           }
         }
@@ -874,10 +849,27 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     }
   }
 
+  /**
+   * Allocate an output row. It starts with the input fields only when we pass those along:
+   * otherwise the input values would end up in the output fields the reply doesn't fill.
+   */
   private Object[] createNewRow(Object[] inputRowData) {
-    return inputRowData == null
+    return inputRowData == null || !meta.isPassingInputData()
         ? RowDataUtil.allocateRowData(data.outputRowMeta.size())
         : RowDataUtil.createResizedCopy(inputRowData, data.outputRowMeta.size());
+  }
+
+  /**
+   * Send a row with a complete piece of the reply, as XML, in the first output field. The output
+   * fields come after the input fields when those are passed along, and first otherwise.
+   */
+  private void putWholeReplyRow(Object[] rowData, String xml) throws HopTransformException {
+    Object[] outputRowData = createNewRow(rowData);
+    int index = data.outputRowMeta.size() - meta.getFieldsOut().size();
+    if (index < data.outputRowMeta.size()) {
+      outputRowData[index] = xml;
+    }
+    putRow(data.outputRowMeta, outputRowData);
   }
 
   private void compatibleProcessRows(

@@ -70,7 +70,8 @@ public class MetadataInput extends BaseTransform<MetadataInputMeta, MetadataInpu
       //
       boolean include = typeKeyFilters.isEmpty();
       for (String typeKeyFilter : typeKeyFilters) {
-        if (typeKeyFilter.equals(annotation.key())) {
+        // A filter can still use the key the type had before it was renamed.
+        if (HopMetadataUtil.matchesKey(annotation, typeKeyFilter)) {
           include = true;
         }
       }

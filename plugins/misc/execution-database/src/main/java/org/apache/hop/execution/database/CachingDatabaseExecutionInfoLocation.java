@@ -18,7 +18,9 @@
 package org.apache.hop.execution.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -140,6 +143,16 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
   protected transient Database database;
 
+  /** Guards the live {@link #database}. Not the connection itself: that object is replaced. */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final Object dbLock = new Object();
+
+  /** True after {@link #close()} so a late timer tick cannot open another connection. */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private volatile boolean databaseClosed = true;
+
   protected String actualConnectionName;
   protected String actualSchemaName;
   protected String actualTableName;
@@ -168,7 +181,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   }
 
   @Override
-  public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
+  public synchronized void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
       throws HopException {
     this.variables = variables;
     this.metadataProvider = metadataProvider;
@@ -206,20 +219,25 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       }
     }
 
-    try {
-      database =
-          new Database(
-              new LoggingObject("CachingDatabaseExecutionInfoLocation"), variables, databaseMeta);
-      database.connect();
-    } catch (Exception e) {
-      throw new HopException(
-          "Error connecting to database for execution information location using connection '"
-              + Const.NVL(actualConnectionName, databaseMeta.getName())
-              + "'",
-          e);
+    synchronized (dbLock) {
+      databaseClosed = false;
+      discardDatabase();
+      connectDatabase();
     }
 
-    super.initialize(variables, metadataProvider);
+    try {
+      super.initialize(variables, metadataProvider);
+    } catch (Exception e) {
+      synchronized (dbLock) {
+        databaseClosed = true;
+        discardDatabase();
+      }
+      if (e instanceof HopException hopException) {
+        throw hopException;
+      }
+      throw new HopException(
+          "Error starting the caching database execution information location", e);
+    }
     detectProjectIdColumn();
     LogChannel.GENERAL.logBasic(
         "Caching database execution info location ready: connection="
@@ -230,23 +248,168 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
   @Override
   public synchronized void close() throws HopException {
+    if (databaseClosed) {
+      return;
+    }
     try {
       super.close();
     } finally {
-      if (database != null) {
-        try {
-          database.disconnect();
-        } catch (Exception e) {
-          LogChannel.GENERAL.logError(
-              "Error disconnecting database for execution information location", e);
-        }
-        database = null;
+      synchronized (dbLock) {
+        databaseClosed = true;
+        discardDatabase();
       }
+    }
+  }
+
+  /**
+   * Open an independent auto-commit connection. A workflow transaction connection is closed when
+   * the workflow stops, which left the cache timer writing through that closed connection.
+   */
+  private void connectDatabase() throws HopException {
+    Database db =
+        new Database(
+            new LoggingObject("CachingDatabaseExecutionInfoLocation"), variables, databaseMeta);
+    db.setConnectionGroup(null);
+    try {
+      db.connect();
+      db.setConnectionGroup(null);
+      enableAutoCommit(db);
+    } catch (Exception e) {
+      try {
+        db.setConnectionGroup(null);
+        db.disconnect();
+      } catch (Exception disconnectError) {
+        // The original connect error is the one that matters.
+      }
+      throw new HopException(
+          "Error connecting to database for execution information location using connection '"
+              + Const.NVL(actualConnectionName, databaseMeta.getName())
+              + "'",
+          e);
+    }
+    database = db;
+  }
+
+  /**
+   * Keep writes out of a workflow transaction. Drivers that reject the change keep the connection;
+   * the connection group was already cleared, which is what stops the workflow from closing it.
+   */
+  private static void enableAutoCommit(Database db) {
+    try {
+      Connection connection = db.getConnection();
+      if (connection != null && !connection.getAutoCommit()) {
+        db.setAutoCommit(true);
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logBasic(
+          "Execution information connection stays with the driver's commit mode: "
+              + e.getMessage());
+    }
+  }
+
+  /** Drop the current connection. A grouped connection is left for the workflow to close. */
+  private void discardDatabase() {
+    Database current = database;
+    database = null;
+    if (current == null || StringUtils.isNotEmpty(current.getConnectionGroup())) {
+      return;
+    }
+    try {
+      current.disconnect();
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Error disconnecting database for execution information location", e);
+    }
+  }
+
+  private void ensureConnected() throws HopException {
+    if (isConnectionUsable(database) && !databaseClosed) {
+      return;
+    }
+    synchronized (dbLock) {
+      if (databaseClosed) {
+        throw new HopException("Caching database execution information location is closed");
+      }
+      if (isConnectionUsable(database)) {
+        return;
+      }
+      discardDatabase();
+      connectDatabase();
+    }
+  }
+
+  private static boolean isConnectionUsable(Database db) {
+    if (db == null) {
+      return false;
+    }
+    try {
+      Connection connection = db.getConnection();
+      return connection != null && !connection.isClosed();
+    } catch (SQLException e) {
+      return false;
+    }
+  }
+
+  /**
+   * PostgreSQL reports a client-side close as {@code 08003} / "This connection has been closed."
+   */
+  static boolean isClosedConnectionFailure(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof SQLException sqlException) {
+        String state = sqlException.getSQLState();
+        if ("08003".equals(state) || "08006".equals(state) || "57P01".equals(state)) {
+          return true;
+        }
+      }
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase();
+        if (lower.contains("connection")
+            && (lower.contains("closed") || lower.contains("broken"))) {
+          return true;
+        }
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  @FunctionalInterface
+  private interface DatabaseWork<T> {
+    T run() throws Exception;
+  }
+
+  private <T> T callWithDatabase(DatabaseWork<T> work) throws HopException {
+    return callWithDatabase(work, true);
+  }
+
+  private <T> T callWithDatabase(DatabaseWork<T> work, boolean allowRetry) throws HopException {
+    try {
+      ensureConnected();
+      synchronized (dbLock) {
+        ensureConnected();
+        return work.run();
+      }
+    } catch (Exception e) {
+      if (allowRetry && !databaseClosed && isClosedConnectionFailure(e)) {
+        synchronized (dbLock) {
+          discardDatabase();
+        }
+        return callWithDatabase(work, false);
+      }
+      if (e instanceof HopException hopException) {
+        throw hopException;
+      }
+      throw new HopException("Error accessing the execution information database", e);
     }
   }
 
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
+    if (databaseClosed) {
+      throw new HopException("Caching database execution information location is closed");
+    }
     try {
       mergeChildrenFromDatabase(cacheEntry);
       cacheEntry.prepareForPersist();
@@ -258,9 +421,11 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       IRowMeta rowMeta = createDataRowMeta(projectIdColumnPresent);
       Object[] data = buildRowData(cacheEntry, json, projectIdColumnPresent);
 
-      synchronized (database) {
-        upsertCacheEntry(rowMeta, data);
-      }
+      callWithDatabase(
+          () -> {
+            upsertCacheEntry(rowMeta, data);
+            return null;
+          });
 
       cacheEntry.setDirty(false);
       cacheEntry.setLastWritten(new Date());
@@ -384,19 +549,20 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       IRowMeta paramMeta = new RowMeta();
       paramMeta.addValueMeta(new ValueMetaString(COL_ID, 100, -1));
 
-      synchronized (database) {
-        RowMetaAndData row = database.getOneRow(sql, paramMeta, new Object[] {executionId});
-        if (row == null || row.getData() == null) {
-          return null;
-        }
-        Object jsonObj = row.getData()[0];
-        if (jsonObj == null) {
-          return null;
-        }
-        String json = jsonObj.toString();
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, CacheEntry.class);
-      }
+      return callWithDatabase(
+          () -> {
+            RowMetaAndData row = database.getOneRow(sql, paramMeta, new Object[] {executionId});
+            if (row == null || row.getData() == null) {
+              return null;
+            }
+            Object jsonObj = row.getData()[0];
+            if (jsonObj == null) {
+              return null;
+            }
+            String json = jsonObj.toString();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, CacheEntry.class);
+          });
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information from database for executionId '" + executionId + "'",
@@ -418,9 +584,11 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
               + " = ?";
       IRowMeta paramMeta = new RowMeta();
       paramMeta.addValueMeta(new ValueMetaString(COL_ID, 100, -1));
-      synchronized (database) {
-        database.execStatement(sql, paramMeta, new Object[] {cacheEntry.getId()});
-      }
+      callWithDatabase(
+          () -> {
+            database.execStatement(sql, paramMeta, new Object[] {cacheEntry.getId()});
+            return null;
+          });
     } catch (Exception e) {
       throw new HopException(
           "Error deleting execution information from database for id '" + cacheEntry.getId() + "'",
@@ -461,34 +629,36 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
         sql.append(databaseMeta.getLimitClause(limit));
       }
 
-      synchronized (database) {
-        ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
-        try {
-          Object[] row = database.getRow(rs);
-          while (row != null) {
-            String id = row[0] != null ? row[0].toString() : null;
-            Date startDate = null;
-            if (row[1] instanceof Date date) {
-              startDate = date;
-            } else if (row[1] != null) {
-              // Timestamp / other
-              startDate = (Date) row[1];
-            }
-            if (id != null) {
-              ids.add(new DatedId(id, startDate != null ? startDate : new Date(0L)));
-              if (includeChildren && !activeSelector.isSelectingParents()) {
-                CacheEntry entry = loadCacheEntry(id);
-                if (entry != null) {
-                  addChildIds(entry, ids, activeSelector);
+      callWithDatabase(
+          () -> {
+            ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
+            try {
+              Object[] row = database.getRow(rs);
+              while (row != null) {
+                String id = row[0] != null ? row[0].toString() : null;
+                Date startDate = null;
+                if (row[1] instanceof Date date) {
+                  startDate = date;
+                } else if (row[1] != null) {
+                  // Timestamp / other
+                  startDate = (Date) row[1];
                 }
+                if (id != null) {
+                  ids.add(new DatedId(id, startDate != null ? startDate : new Date(0L)));
+                  if (includeChildren && !activeSelector.isSelectingParents()) {
+                    CacheEntry entry = loadCacheEntry(id);
+                    if (entry != null) {
+                      addChildIds(entry, ids, activeSelector);
+                    }
+                  }
+                }
+                row = database.getRow(rs);
               }
+            } finally {
+              database.closeQuery(rs);
             }
-            row = database.getRow(rs);
-          }
-        } finally {
-          database.closeQuery(rs);
-        }
-      }
+            return null;
+          });
     } catch (Exception e) {
       throw new HopException(
           "Error finding execution ids from database table " + getQuotedSchemaTable(), e);

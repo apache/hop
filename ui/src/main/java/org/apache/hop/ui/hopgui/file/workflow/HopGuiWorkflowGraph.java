@@ -137,6 +137,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
@@ -1420,9 +1421,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Show a short tooltip
       //
       toolTip.setVisible(false);
-      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-      showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
-      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      if (isToolTipShown(CanvasToolTip.NOTICE)) {
+        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+        showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+        toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      }
 
       return;
     }
@@ -3934,7 +3937,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     StringBuilder tip = new StringBuilder();
     AreaOwner areaOwner = getVisibleAreaOwner(x, y);
-    if (areaOwner != null && areaOwner.getAreaType() != null) {
+    if (isAreaToolTipShown(areaOwner)) {
       ActionMeta actionCopy;
       switch (areaOwner.getAreaType()) {
         case NOTE_LINK:
@@ -3987,10 +3990,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           break;
 
         case CUSTOM:
-          String message = (String) areaOwner.getOwner();
-          tip.append(message);
-          tipImage = null;
-          GuiResource.getInstance().getImagePipeline();
+          // A plain message is shown as is; anything else, such as the debug level bee, is
+          // described by the plugin that drew it.
+          //
+          if (areaOwner.getOwner() instanceof String message) {
+            tip.append(message);
+          }
+          tipImage = callAreaHoverExtension(x, y, screenX, screenY, areaOwner, tip);
           break;
 
         case ACTION_RESULT_FAILURE, ACTION_RESULT_SUCCESS:
@@ -4063,7 +4069,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           ActionMeta actionMetaInfo = (ActionMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
-          if (actionMetaInfo.isDeprecated()) { // only need tooltip if action is deprecated
+          if (actionMetaInfo.isDeprecated() && isToolTipShown(CanvasToolTip.DEPRECATION)) {
             tip.append(BaseMessages.getString(PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Title"))
                 .append(Const.CR);
             String tipNext =
@@ -4089,7 +4095,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                       actionMetaInfo.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-          } else if (!Utils.isEmpty(actionMetaInfo.getDescription())) {
+          } else if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && !Utils.isEmpty(actionMetaInfo.getDescription())) {
             tip.append(actionMetaInfo.getDescription());
           }
           break;
@@ -4100,28 +4107,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         default:
           // For plugins...
           //
-          try {
-            HopGuiTooltipExtension tooltipExt =
-                new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
-            ExtensionPointHandler.callExtensionPoint(
-                hopGui.getLog(),
-                variables,
-                HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
-                tooltipExt);
-            tipImage = tooltipExt.tooltipImage;
-          } catch (Exception ex) {
-            hopGui
-                .getLog()
-                .logError(
-                    "Error calling extension point "
-                        + HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
-                    ex);
-          }
+          tipImage = callAreaHoverExtension(x, y, screenX, screenY, areaOwner, tip);
           break;
       }
     }
 
-    if (hi != null && tip.isEmpty()) {
+    if (hi != null && tip.isEmpty() && isToolTipShown(CanvasToolTip.HOP)) {
       // Set the tooltip for the hop:
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo")).append(Const.CR);
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry"))
@@ -4156,6 +4147,34 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         toolTip.setVisible(false);
         showToolTip(new org.eclipse.swt.graphics.Point(screenX, screenY));
       }
+    }
+  }
+
+  /**
+   * Lets plugins describe an area they drew on the canvas: they append to the tip and may set an
+   * image.
+   *
+   * @return the image the plugins set for the tooltip, or null
+   */
+  private Image callAreaHoverExtension(
+      int x, int y, int screenX, int screenY, AreaOwner areaOwner, StringBuilder tip) {
+    try {
+      HopGuiTooltipExtension tooltipExt =
+          new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          variables,
+          HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
+          tooltipExt);
+      return tooltipExt.tooltipImage;
+    } catch (Exception ex) {
+      hopGui
+          .getLog()
+          .logError(
+              "Error calling extension point "
+                  + HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
+              ex);
+      return null;
     }
   }
 

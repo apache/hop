@@ -1,0 +1,94 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Pull named, typed fields out of text using an AI provider.
+
+= image:transforms/icons/structuredextract.svg[Structured extract transform Icon, role="image-doc-icon"] Structured extract
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Structured extract transform reads named, typed fields out of a text field using the model of an xref:metadata-types/ai-provider.adoc[AI provider]. A contract becomes a renewal date and a value; a support ticket becomes a severity and a product; an invoice becomes a supplier and a total.
+
+One row in, one row out, with the extracted fields added to it.
+
+This is the step that turns text a pipeline could only carry into columns it can filter, join and aggregate. It is not retrieval: nothing is searched and no vector store is involved.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Fields to extract
+
+The field grid is the whole configuration. Each row becomes three things at once: a property in the schema the model is constrained by, a column added to the stream, and the type the answer is read back into.
+
+|===
+|Column |Description
+
+|Name|The output field name, and the name the model is asked for. Surrounding spaces are removed, and names that differ only in case count as duplicates.
+|Type|`String`, `Integer`, `Number`, `BigNumber`, `Boolean`, `Date` or `Timestamp`. Types a language model cannot return, such as Binary, are rejected.
+|Description|What this field means, in your own words. It is sent to the model and is the most effective thing you can change to improve what comes back. `the date the contract renews` extracts far better than a field called `renewal_date` on its own.
+|Required|Whether the model must answer for this field. Leave optional anything that may genuinely be absent, so the model can say nothing rather than invent something.
+|Allowed values|Optional comma separated list. The model is then constrained to exactly these values, which is the reliable way to classify: severity as `low, medium, high` rather than whatever adjective the model prefers today. An answer outside the list is an error, also on providers that do not enforce the schema.
+|===
+
+JSON has no date type, so a `Date` is asked for as `yyyy-MM-dd` and a `Timestamp` as `yyyy-MM-ddTHH:mm:ss`. A date that comes back with a time is accepted and keeps that time; a date alone means midnight. Anything after the date that is not a time is an error.
+
+== How the model is constrained
+
+With an Ollama or OpenAI provider, the grid is sent as a JSON schema and the model is *constrained* to that shape rather than asked for it politely. OpenAI gets the schema in strict mode. Nothing needs configuring.
+
+Other OpenAI compatible providers, such as Gemini, Grok or a custom endpoint, differ in which parts of a JSON schema they accept, so they are not sent one. There, the same fields are described in the prompt and the answer is checked on the way back. Either way the answer is parsed against the grid, so a wrong shape is caught rather than trusted.
+
+== What happens when extraction fails
+
+A value that will not convert, say `next March` for a Date, is an error naming the field and showing what came back. It is never written as a silent null, because downstream a missing value and a misread value would look identical and only one of them is the model's honest answer.
+
+With an error hop attached, that row is diverted and the rest of the stream continues. Without one, the pipeline stops.
+
+A row whose input text is empty is passed on with the new fields left empty, and no call is made.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|AI provider|The AI provider serving the model.
+|Model|Optional. Overrides the provider's model for this transform only. Accepts variables.
+|Input field|Field holding the text to read fields out of.
+|Extra instructions|Optional. Added to the instruction sent with every row, for anything the field descriptions cannot say: which language the text is in, how to treat ambiguity, what to do with multiple candidates.
+|===
+
+== Notes
+
+One request is made per row, so this transform is as slow and as expensive as the provider is. Filter the stream before it rather than after.
+
+Extraction quality is mostly in the Description column, not in the Extra instructions. Describing each field well is worth more than any general instruction, and a field with no description at all is reported when you check the pipeline.

@@ -99,6 +99,7 @@ To use Unicode specify UTF-8 or UTF-16.
 Note: Only one file is placed in a single compressed archive.
 |Right pad fields|Add spaces to the end of the fields (or remove characters at the end) until they have the length specific on the Fields tab.
 |Fast data dump (no formatting)|Improves the performance when dumping large amounts of data to a text file by not including any formatting information.
+Field formats are ignored, so a Boolean is written as `true` or `false`.
 |Split every ... rows|Specify a number of rows to split the file into chunks of that many rows. 
 |Add Ending line of file|Specify an alternate ending row to the output file.
 |===
@@ -114,7 +115,9 @@ The table below describes each of the options for configuring the field properti
 |Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|The name of the field.
 |Type|Data type of the field. This can be either String, Date or Number.
-|Format|Select a format to apply to the field value. Only applies to numbers and dates.
+|Format|Select a format to apply to the field value. Applies to numbers, dates and Booleans.
+For a Boolean, the format is the text for true, a slash and the text for false, so `Ja/Nein` writes German words instead of `Y` / `N`.
+You can type your own pair, see xref:pipeline/formatting-values.adoc#boolean-own-format[Your own true and false text].
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length a| The length option depends on the field type:
 

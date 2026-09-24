@@ -20,6 +20,7 @@ package org.apache.hop.core.svg;
 import static org.apache.batik.svggen.DOMGroupManager.DRAW;
 import static org.apache.batik.svggen.DOMGroupManager.FILL;
 
+import java.awt.Font;
 import java.awt.font.TextLayout;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -142,10 +143,41 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
   }
 
   /**
+   * The font to measure {@code text} with so that the measurement reflects what a browser draws.
+   *
+   * <p>Java 2D only substitutes glyphs a font lacks for the logical fonts, never for a physical one
+   * like the canvas font: a CJK name measured with 'DejaVu Sans' on a JVM without a CJK font is a
+   * row of missing-glyph boxes, each roughly half the width of the ideograph the browser draws from
+   * its own fallback font (#8528). For such text the logical SansSerif font, which falls back
+   * through the platform font configuration the way the browser does, gives a usable width.
+   *
+   * @param font the font the text is drawn with
+   * @param text the text to measure
+   * @return {@code font} when it has every glyph of {@code text}, otherwise a logical font of the
+   *     same style and size that does, or {@code null} when this JVM has no font for the text at
+   *     all
+   */
+  public static Font measuringFont(Font font, String text) {
+    if (font == null || text == null || text.isEmpty() || font.canDisplayUpTo(text) == -1) {
+      return font;
+    }
+    Font logical = new Font(Font.SANS_SERIF, font.getStyle(), font.getSize());
+    if (font.getSize2D() != font.getSize()) {
+      logical = logical.deriveFont(font.getSize2D());
+    }
+    return logical.canDisplayUpTo(text) == -1 ? logical : null;
+  }
+
+  /**
    * Draw the string like Batik does, but pin the run to the width this JVM measured for it. The
    * browser may not have the font the text was laid out with; with {@code textLength} it stretches
    * or squeezes the letter spacing so that the text still starts and ends where the painter put it,
    * under the borders, hover areas and hop labels that were sized for it.
+   *
+   * <p>The width comes from {@link #measuringFont(Font, String)}: text this JVM has no glyphs for
+   * is not pinned at all, since the only width known for it, that of missing-glyph boxes, would
+   * squeeze the browser's glyphs into an unreadable run. The browser's natural layout is then the
+   * best width there is.
    */
   @Override
   public void drawString(String s, float x, float y) {
@@ -153,7 +185,12 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
       super.drawString(s, x, y);
       return;
     }
-    double width = getFont().getStringBounds(s, getFontRenderContext()).getWidth();
+    Font measuringFont = measuringFont(getFont(), s);
+    if (measuringFont == null) {
+      super.drawString(s, x, y);
+      return;
+    }
+    double width = measuringFont.getStringBounds(s, getFontRenderContext()).getWidth();
     if (width <= 0) {
       super.drawString(s, x, y);
       return;

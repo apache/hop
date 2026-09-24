@@ -68,7 +68,12 @@ ENV CATALINA_OPTS='${HOP_OPTIONS} \
   -DHOP_GUI_ZOOM_FACTOR="${HOP_GUI_ZOOM_FACTOR}"'
 
 # Create Hop user
-RUN groupadd -r hop -g ${HOP_GID} \
+# fonts-noto-cjk: the canvas is painted server-side; without a CJK font the JVM measures
+# Chinese/Japanese/Korean names as missing-glyph boxes and lays them out too narrow (#8528)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \

@@ -47,7 +47,10 @@ Please note that complex data types like Map and Record are converted into JSON 
 Note: The "Avro type" column is informational only.
 It's not used at runtime.
 
-|Get fields button
-|You can use the "Get fields" button to retrieve the fields from the schema present in the metadata of the specified Avro Record source field.  If there's no metadata in this field, in case of sourcing from a Kafka consumer for example, you can opt to read from an Avro file.
+|Get fields from file
+|Retrieves fields from the schema on the selected Avro Record source field, when that field already has one (for example after Avro Encode). If there is no schema, pick an Avro file. The fields are taken from the first record. Rows are added to the table.
+
+|Get fields from JSON
+|Paste JSON instead of reading a file. Three forms are accepted: a Hop Avro value with `schema` and `data`, an Avro record schema, or one sample record (the JSON shown when previewing an Avro value, including from Kafka). A sample record's types are a best effort: JSON null becomes String, and only the top-level fields are added. Rows are added to the table.
 
 |===

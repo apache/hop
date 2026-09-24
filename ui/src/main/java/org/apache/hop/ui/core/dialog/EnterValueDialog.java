@@ -311,6 +311,15 @@ public class EnterValueDialog extends Dialog {
       case IValueMeta.TYPE_BIGNUMBER:
         wFormat.setItems(new String[] {});
         break;
+      case IValueMeta.TYPE_BOOLEAN:
+        wFormat.setItems(Const.getBooleanFormats());
+        if (!Utils.isEmpty(formatString)) {
+          if (wFormat.indexOf(formatString) < 0) {
+            wFormat.add(formatString);
+          }
+          wFormat.select(wFormat.indexOf(formatString));
+        }
+        break;
       default:
         wFormat.setItems(new String[] {});
         break;

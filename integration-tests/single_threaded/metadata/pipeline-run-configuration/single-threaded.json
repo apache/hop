@@ -1,0 +1,11 @@
+{
+  "engineRunConfiguration": {
+    "LocalSingle": {
+      "sample_type_in_gui": "Last",
+      "sample_size": "100"
+    }
+  },
+  "configurationVariables": [],
+  "name": "single-threaded",
+  "description": "Runs your pipelines locally with the single threaded pipeline engine"
+}

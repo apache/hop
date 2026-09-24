@@ -207,7 +207,7 @@ plugins:
     modulePath: plugins/tech/avro
   - artifactId: hop-tech-google
     name: Google
-    category: Google
+    category: Technology
     description: Google technology
     installPath: plugins/tech/google
     modulePath: plugins/tech/google

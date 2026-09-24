@@ -163,6 +163,8 @@ class HdfsWebHdfsClientTest {
     assertEquals(1, children.size());
     assertEquals("hello.txt", children.get(0).getPathSuffix());
     assertFalse(children.get(0).isDirectory());
+    assertEquals("hop", children.get(0).getOwner());
+    assertEquals("644", children.get(0).getPermission());
 
     httpfs.delete("/it/hello.txt", false);
   }

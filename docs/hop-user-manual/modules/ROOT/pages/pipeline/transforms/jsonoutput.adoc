@@ -47,11 +47,15 @@ Currently available 3 types of operation:
 3. Output value and write to file - dump to file and pass generated json as a transform output file
 
 |Json block name|This value will be used as a name for json block.
-|Nr. rows in a block|Number of rows that are combined as one JSON Array  +
+|Nr. rows in a block|Number of rows that are combined as one JSON Array. Use 0 to combine all rows in a single block.  +
+
+When the number of input rows is not a multiple of this value, the remaining rows are written as a last, smaller block.
 
 NOTE: A new file will be generated for each block
 
-|Output value|Output field name
+|Output value|Name of the field that will hold the generated JSON. +
+
+When the operation writes an output value, the transform emits one row per block: the input fields of the last row of that block, followed by the JSON of the block. The other rows of the block are not passed on. When the operation only writes to a file, all input rows are passed on unchanged.
 |Compatibility mode|Mode to be backwards compatible, more information <<compat-mode,here>>
 |===
 

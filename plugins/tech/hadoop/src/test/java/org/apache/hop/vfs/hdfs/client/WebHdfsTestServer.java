@@ -299,7 +299,7 @@ public class WebHdfsTestServer {
         + (dir ? "DIRECTORY" : "FILE")
         + "\",\"length\":"
         + length
-        + ",\"modificationTime\":1}";
+        + ",\"modificationTime\":1,\"owner\":\"hop\",\"permission\":\"644\"}";
   }
 
   private static String notFound(String path) {

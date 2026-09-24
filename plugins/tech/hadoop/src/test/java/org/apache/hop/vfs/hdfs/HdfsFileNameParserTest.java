@@ -59,6 +59,14 @@ class HdfsFileNameParserTest {
   }
 
   @Test
+  void parsesTwoSlashRoot() throws Exception {
+    HdfsFileName name =
+        (HdfsFileName) HdfsFileNameParser.getInstance().parseUri(null, null, "cluster://");
+    assertEquals("/", name.getPath());
+    assertEquals(FileType.FOLDER, name.getType());
+  }
+
+  @Test
   void uriRoundTripUsesTwoSlashesAfterScheme() throws Exception {
     HdfsFileName name =
         (HdfsFileName)

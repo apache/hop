@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
@@ -32,12 +35,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -46,7 +51,13 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
@@ -62,6 +73,8 @@ import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class JsonOutputTest {
 
@@ -294,7 +307,8 @@ class JsonOutputTest {
     assertTrue(jsonEquals(EXPECTED_JSON, jsonStructure));
   }
 
-  public void testNpeIsNotThrownOnNullInput() throws Exception {
+  @Test
+  void testNpeIsNotThrownOnNullInput() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
         new TransformMockHelper<>("jsonOutput", JsonOutputMeta.class, JsonOutputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -314,10 +328,15 @@ class JsonOutputTest {
 
     doReturn(null).when(transform).getRow();
 
-    transform.processRow();
+    try {
+      transform.processRow();
+    } finally {
+      mockHelper.cleanUp();
+    }
   }
 
-  public void testEmptyDoesntWriteToFile() throws Exception {
+  @Test
+  void testEmptyDoesntWriteToFile() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
         new TransformMockHelper<>("jsonOutput", JsonOutputMeta.class, JsonOutputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -341,12 +360,17 @@ class JsonOutputTest {
     doReturn(true).when(transform).openNewFile();
     doReturn(true).when(transform).closeFile();
 
-    transform.processRow();
-    verify(transform, times(0)).openNewFile();
-    verify(transform, times(0)).closeFile();
+    try {
+      transform.processRow();
+      verify(transform, times(0)).openNewFile();
+      verify(transform, times(0)).closeFile();
+    } finally {
+      mockHelper.cleanUp();
+    }
   }
 
-  public void testWriteToFile() throws Exception {
+  @Test
+  void testWriteToFile() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
         new TransformMockHelper<>("jsonOutput", JsonOutputMeta.class, JsonOutputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -376,9 +400,214 @@ class JsonOutputTest {
     doReturn(true).when(transform).closeFile();
     doNothing().when(transformData.writer).write(anyString());
 
-    transform.processRow();
-    verify(transform).openNewFile();
-    verify(transform).closeFile();
+    try {
+      transform.processRow();
+      verify(transform).openNewFile();
+      verify(transform).closeFile();
+    } finally {
+      mockHelper.cleanUp();
+    }
+  }
+
+  /**
+   * Reproduces #2958: when the number of input rows is not a multiple of "Nr. rows in a block", the
+   * last (partial) block used to be emitted on a row where every input field was null. Each output
+   * row must carry the input field values of the row that closed its block.
+   */
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE,
+        JsonOutputMeta.OPERATION_TYPE_BOTH,
+      })
+  void testPartialLastBlockKeepsInputFields(String operationType) throws Exception {
+    HopEnvironment.init();
+
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("testJsonOutputPartialBlock");
+    PluginRegistry registry = PluginRegistry.getInstance();
+
+    // 10 rows, blocks of 3: 3 full blocks + 1 partial block of a single row
+    //
+    TransformMeta rowGeneratorTransform = createRowGeneratorTransform("generate rows", registry);
+    pipelineMeta.addTransform(rowGeneratorTransform);
+
+    String jsonFileName = TestUtilities.createEmptyTempFile("testJsonOutputPartialBlock_");
+    TransformMeta jsonOutputTransform =
+        createJsonOutputTransform("json output transform", jsonFileName, registry);
+    JsonOutputMeta jsonOutputMeta = (JsonOutputMeta) jsonOutputTransform.getTransform();
+    jsonOutputMeta.setOperationType(operationType);
+    jsonOutputMeta.setOutputValue("json");
+    jsonOutputMeta.setNrRowsInBloc("3");
+    pipelineMeta.addTransform(jsonOutputTransform);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(rowGeneratorTransform, jsonOutputTransform));
+
+    String dummyTransformName = "dummy transform";
+    TransformMeta dummyTransform = createDummyTransform(dummyTransformName, registry);
+    pipelineMeta.addTransform(dummyTransform);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(jsonOutputTransform, dummyTransform));
+
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.prepareExecution();
+    IEngineComponent dummyITransform = pipeline.findComponent(dummyTransformName, 0);
+    TransformRowsCollector dummyRowCollector = new TransformRowsCollector();
+    dummyITransform.addRowListener(dummyRowCollector);
+    pipeline.startThreads();
+    pipeline.waitUntilFinished();
+
+    assertEquals(0, pipeline.getErrors(), "pipeline should run without errors");
+
+    List<RowMetaAndData> rows = dummyRowCollector.getRowsWritten();
+    assertEquals(4, rows.size(), "one output row per block, including the partial last block");
+
+    int[] expectedBlockSizes = {3, 3, 3, 1};
+    for (int i = 0; i < rows.size(); i++) {
+      RowMetaAndData row = rows.get(i);
+      IRowMeta rowMeta = row.getRowMeta();
+      assertEquals(4, rowMeta.size());
+
+      // The input fields of the row that closed the block must be present on the output row
+      //
+      assertEquals(1L, row.getInteger("Id", -1L), "row " + i + ": Id");
+      assertEquals("Florida", row.getString("State", null), "row " + i + ": State");
+      assertEquals("Orlando", row.getString("City", null), "row " + i + ": City");
+
+      String json = row.getString("json", null);
+      assertNotNull(json, "row " + i + ": json");
+      JsonNode block = HopJson.newMapper().readTree(json).get("data");
+      assertNotNull(block, "row " + i + ": json block 'data'");
+      assertEquals(expectedBlockSizes[i], block.size(), "row " + i + ": block size");
+    }
+  }
+
+  /**
+   * Write-to-file mode with "Nr. rows in a block": every block goes to its own numbered file, the
+   * parent folder is created on demand, the files are added to the result and all field types are
+   * rendered in the JSON.
+   */
+  @Test
+  void testWriteToFileOneFilePerBlock() throws Exception {
+    HopEnvironment.init();
+
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("testJsonOutputFilePerBlock");
+    PluginRegistry registry = PluginRegistry.getInstance();
+
+    // Other tests in this module register only a subset of the value meta plugins; make sure the
+    // types used below are known regardless of the test order.
+    //
+    for (Class<?> valueMetaClass :
+        new Class<?>[] {
+          ValueMetaBoolean.class,
+          ValueMetaNumber.class,
+          ValueMetaBigNumber.class,
+          ValueMetaDate.class
+        }) {
+      registry.registerPluginClass(
+          valueMetaClass.getName(), ValueMetaPluginType.class, ValueMetaPlugin.class);
+    }
+
+    RowGeneratorMeta rowGeneratorMeta = new RowGeneratorMeta();
+    rowGeneratorMeta
+        .getFields()
+        .addAll(
+            Arrays.asList(
+                new GeneratorField("Id", "Integer", "", -1, -1, "", "", "", "1", false),
+                new GeneratorField("State", "String", "", -1, -1, "", "", "", "Florida", false),
+                new GeneratorField("Flag", "Boolean", "", -1, -1, "", "", "", "true", false),
+                new GeneratorField("Ratio", "Number", "#.#", -1, -1, "", ".", "", "1.5", false),
+                new GeneratorField(
+                    "Amount", "BigNumber", "#.#", -1, -1, "", ".", "", "12345.6", false),
+                new GeneratorField(
+                    "Day", "Date", "yyyy-MM-dd", -1, -1, "", "", "", "2023-05-23", false)));
+    rowGeneratorMeta.setRowLimit("7");
+    TransformMeta rowGeneratorTransform =
+        new TransformMeta(
+            registry.getPluginId(TransformPluginType.class, rowGeneratorMeta),
+            "generate rows",
+            rowGeneratorMeta);
+    pipelineMeta.addTransform(rowGeneratorTransform);
+
+    // Write into a folder that does not exist yet
+    //
+    File baseFolder = new File(TestUtilities.createEmptyTempFile("testJsonOutputFilePerBlock_"));
+    assertTrue(baseFolder.delete());
+    String jsonFileName = new File(baseFolder, "out/blocks").getPath();
+
+    JsonOutputMeta jsonOutputMeta = new JsonOutputMeta();
+    List<JsonOutputField> fields = new ArrayList<>();
+    for (String name : new String[] {"Id", "State", "Flag", "Ratio", "Amount", "Day"}) {
+      JsonOutputField field = new JsonOutputField();
+      field.setFieldName(name);
+      field.setElementName(name.toLowerCase());
+      fields.add(field);
+    }
+    jsonOutputMeta.setOutputFields(fields);
+    jsonOutputMeta.setOperationType(JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE);
+    jsonOutputMeta.setFileName(jsonFileName);
+    jsonOutputMeta.setExtension("json");
+    jsonOutputMeta.setJsonBloc("data");
+    jsonOutputMeta.setNrRowsInBloc("3");
+    jsonOutputMeta.setEncoding("UTF-8");
+    jsonOutputMeta.setCreateParentFolder(true);
+    jsonOutputMeta.setAddToResult(true);
+    TransformMeta jsonOutputTransform =
+        new TransformMeta(
+            registry.getPluginId(TransformPluginType.class, jsonOutputMeta),
+            "json output transform",
+            jsonOutputMeta);
+    pipelineMeta.addTransform(jsonOutputTransform);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(rowGeneratorTransform, jsonOutputTransform));
+
+    String dummyTransformName = "dummy transform";
+    TransformMeta dummyTransform = createDummyTransform(dummyTransformName, registry);
+    pipelineMeta.addTransform(dummyTransform);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(jsonOutputTransform, dummyTransform));
+
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.prepareExecution();
+    IEngineComponent dummyITransform = pipeline.findComponent(dummyTransformName, 0);
+    TransformRowsCollector dummyRowCollector = new TransformRowsCollector();
+    dummyITransform.addRowListener(dummyRowCollector);
+    pipeline.startThreads();
+    pipeline.waitUntilFinished();
+
+    assertEquals(0, pipeline.getErrors(), "pipeline should run without errors");
+
+    // In write-to-file mode the input rows are passed through unchanged
+    //
+    assertEquals(7, dummyRowCollector.getRowsWritten().size());
+    assertEquals(6, dummyRowCollector.getRowsWritten().get(0).getRowMeta().size());
+
+    // 7 rows in blocks of 3: files _0, _1 and _2 with 3, 3 and 1 rows
+    //
+    int[] expectedBlockSizes = {3, 3, 1};
+    ObjectMapper mapper = HopJson.newMapper();
+    for (int i = 0; i < expectedBlockSizes.length; i++) {
+      File outputFile = new File(jsonFileName + "_" + i + ".json");
+      assertTrue(outputFile.exists(), "file " + outputFile + " should exist");
+      JsonNode block = mapper.readTree(FileUtils.readFileToString(outputFile, "UTF-8")).get("data");
+      assertNotNull(block, "file " + i + ": json block 'data'");
+      assertEquals(expectedBlockSizes[i], block.size(), "file " + i + ": block size");
+      JsonNode first = block.get(0);
+      assertEquals(1L, first.get("id").asLong());
+      assertEquals("Florida", first.get("state").asText());
+      assertTrue(first.get("flag").asBoolean());
+      assertEquals(1.5d, first.get("ratio").asDouble(), 0.0001);
+      assertEquals(new BigDecimal("12345.6"), first.get("amount").decimalValue());
+      assertEquals("2023-05-23", first.get("day").asText().substring(0, 10));
+    }
+    assertFalse(new File(jsonFileName + "_3.json").exists(), "no fourth (empty) file");
+
+    // The written files are registered in the result
+    //
+    List<String> resultFileNames = new ArrayList<>();
+    for (ResultFile resultFile : pipeline.getResult().getResultFiles().values()) {
+      resultFileNames.add(resultFile.getFile().getName().getBaseName());
+    }
+    assertEquals(3, resultFileNames.size(), "result files: " + resultFileNames);
+    assertTrue(resultFileNames.contains("blocks_0.json"));
+    assertTrue(resultFileNames.contains("blocks_2.json"));
   }
 
   /** compare json (deep equals ignoring order) */
