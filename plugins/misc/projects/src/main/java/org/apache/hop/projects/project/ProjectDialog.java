@@ -861,15 +861,25 @@ public class ProjectDialog extends Dialog {
       }
 
       HopGui hopGui = HopGui.getInstance();
+      if (!Utils.isEmpty(wParentProject.getText())
+          && !ProjectsUtil.projectExists(wParentProject.getText())) {
+        // The parent project was deleted or renamed: offer to drop the reference
+        //
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
+        box.setText(
+            BaseMessages.getString(PKG, "ProjectDialog.MissingParentProject.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "ProjectDialog.MissingParentProject.Dialog.Message",
+                wParentProject.getText()));
+        if ((box.open() & SWT.YES) == 0) {
+          return;
+        }
+        wParentProject.setText("");
+      }
+
       if (!Utils.isEmpty(wParentProject.getText())) {
-
-        boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
-        if (!parentPrjExists)
-          throw new HopException(
-              CONST_PROJECT
-                  + wParentProject.getText()
-                  + "' cannot be set as parent project because it does not exists!");
-
         ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
         Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
         if (parentPrj.getParentProjectName() != null
@@ -894,15 +904,15 @@ public class ProjectDialog extends Dialog {
         int anwser = box.open();
         if ((anwser & SWT.NO) != 0) {
           wName.setText(oriProjectName);
+          projectName = oriProjectName;
         }
       }
 
-      if (!oriProjectName.equals(projectName)) {
-        List<String> refs = ProjectsUtil.getParentProjectReferences(oriProjectName);
-
-        if (!refs.isEmpty()) {
-          ProjectsUtil.changeParentProjectReferences(oriProjectName, projectName);
-        }
+      if (this.editMode
+          && StringUtils.isNotEmpty(oriProjectName)
+          && !oriProjectName.equals(projectName)) {
+        ProjectsUtil.changeParentProjectReferences(oriProjectName, projectName);
+        prjsCfg.renameProjectReferences(oriProjectName, projectName);
       }
 
       getInfo(project, projectConfig);

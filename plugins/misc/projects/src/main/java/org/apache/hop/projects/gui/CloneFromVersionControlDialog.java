@@ -319,7 +319,7 @@ public class CloneFromVersionControlDialog extends Dialog {
       String defaultConfigFile = variables.resolve(config.getDefaultProjectConfigFile());
       ProjectConfig projectConfig = new ProjectConfig(projectName, clonePath, defaultConfigFile);
       Project project = new Project();
-      project.setParentProjectName(config.getStandardParentProject());
+      project.setParentProjectName(config.findRegisteredStandardParentProject());
 
       String configFilename = projectConfig.getActualProjectConfigFilename(variables);
       FileObject configFile = HopVfs.getFileObject(configFilename);

@@ -18,7 +18,6 @@
 package org.apache.hop.projects.util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -338,79 +337,108 @@ public class ProjectsUtil {
    * @return
    */
   public static boolean projectExists(String projectName) {
-
-    boolean prjFound = false;
-
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    List<String> prjs = config.listProjectConfigNames();
-    Iterator<String> iPrj = prjs.iterator();
-
-    while (!prjFound && iPrj.hasNext()) {
-      String p = iPrj.next();
-      prjFound = p.equals(projectName);
-    }
-
-    return prjFound;
+    return ProjectsConfigSingleton.getConfig().findProjectConfig(projectName) != null;
   }
 
+  /**
+   * Find the registered projects which have the given project as their parent project.
+   *
+   * @param projectName the name of the parent project
+   * @return the names of the child projects
+   */
   public static List<String> getParentProjectReferences(String projectName) throws HopException {
-
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    List<String> prjs = config.listProjectConfigNames();
-
     HopGui hopGui = HopGui.getInstance();
-    List<String> parentProjectReferences = new ArrayList<>();
-    ProjectConfig currentProjectConfig = config.findProjectConfig(projectName);
+    return getParentProjectReferences(projectName, hopGui.getVariables(), hopGui.getLog());
+  }
 
-    if (currentProjectConfig == null) {
-      parentProjectReferences = List.of();
-    } else {
-      for (String prj : prjs) {
-        if (!prj.equals(projectName)) {
-          ProjectConfig prjCfg = config.findProjectConfig(prj);
-          Project thePrj = prjCfg.loadProject(hopGui.getVariables());
-          if (thePrj != null) {
-            if (thePrj.getParentProjectName() != null
-                && thePrj.getParentProjectName().equals(projectName)) {
-              parentProjectReferences.add(prj);
-            }
-          } else {
-            hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
-          }
-        }
+  /**
+   * Find the registered projects which have the given project as their parent project. Projects
+   * which can't be loaded are logged and skipped.
+   *
+   * @param projectName the name of the parent project
+   * @param variables the variables to resolve the project locations with
+   * @param log the log channel to report projects which can't be loaded
+   * @return the names of the child projects
+   */
+  public static List<String> getParentProjectReferences(
+      String projectName, IVariables variables, ILogChannel log) {
+    List<String> references = new ArrayList<>();
+    if (StringUtils.isEmpty(projectName)) {
+      return references;
+    }
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    for (String name : config.listProjectConfigNames()) {
+      if (name.equalsIgnoreCase(projectName)) {
+        continue;
+      }
+      Project project = loadProject(config.findProjectConfig(name), variables, log);
+      if (project != null && projectName.equalsIgnoreCase(project.getParentProjectName())) {
+        references.add(name);
       }
     }
-    return parentProjectReferences;
+    return references;
   }
 
+  /**
+   * Point the child projects of a renamed project to its new name and save their configuration.
+   * Read-only projects are left alone.
+   *
+   * @param currentName the previous name of the parent project
+   * @param newName the new name of the parent project
+   * @return the names of the child projects which were updated
+   */
   public static List<String> changeParentProjectReferences(String currentName, String newName)
       throws HopException {
-
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    List<String> prjs = config.listProjectConfigNames();
-
     HopGui hopGui = HopGui.getInstance();
-    List<String> parentProjectReferences = new ArrayList<>();
-    ProjectConfig currentProjectConfig = config.findProjectConfig(currentName);
+    return changeParentProjectReferences(
+        currentName, newName, hopGui.getVariables(), hopGui.getLog());
+  }
 
-    if (currentProjectConfig == null) {
-      parentProjectReferences = List.of();
-    } else {
-      for (String prj : prjs) {
-        if (!prj.equals(currentName)) {
-          ProjectConfig prjCfg = config.findProjectConfig(prj);
-          Project thePrj = prjCfg.loadProject(hopGui.getVariables());
-          if (thePrj != null) {
-            if (thePrj.getParentProjectName() != null
-                && thePrj.getParentProjectName().equals(currentName)) {
-              thePrj.setParentProjectName(newName);
-            }
-          } else {
-            hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
-          }
-        }
+  /**
+   * Point the child projects of a renamed project to its new name and save their configuration.
+   * Read-only projects are left alone.
+   *
+   * @param currentName the previous name of the parent project
+   * @param newName the new name of the parent project
+   * @param variables the variables to resolve the project locations with
+   * @param log the log channel to report projects which can't be loaded or changed
+   * @return the names of the child projects which were updated
+   */
+  public static List<String> changeParentProjectReferences(
+      String currentName, String newName, IVariables variables, ILogChannel log)
+      throws HopException {
+    List<String> changed = new ArrayList<>();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    for (String name : getParentProjectReferences(currentName, variables, log)) {
+      ProjectConfig projectConfig = config.findProjectConfig(name);
+      if (projectConfig.isReadOnly()) {
+        log.logError(
+            "Project '"
+                + name
+                + "' is read-only, its parent project '"
+                + currentName
+                + "' can't be changed to '"
+                + newName
+                + "'");
+        continue;
       }
+      Project project = projectConfig.loadProject(variables);
+      project.setParentProjectName(newName);
+      project.saveToFile();
+      changed.add(name);
     }
-    return parentProjectReferences;
+    return changed;
+  }
+
+  private static Project loadProject(
+      ProjectConfig projectConfig, IVariables variables, ILogChannel log) {
+    try {
+      return projectConfig.loadProject(variables);
+    } catch (Exception e) {
+      log.logError(
+          "Unable to load project '" + projectConfig.getProjectName() + "' from its configuration",
+          e);
+      return null;
+    }
   }
 }

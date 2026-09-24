@@ -1168,7 +1168,7 @@ public class ProjectsGuiPlugin {
           new ProjectConfig("", standardProjectsFolder, defaultProjectConfigFilename);
 
       Project project = new Project();
-      project.setParentProjectName(config.getStandardParentProject());
+      project.setParentProjectName(config.findRegisteredStandardParentProject());
 
       ProjectDialog projectDialog =
           new ProjectDialog(hopGui.getActiveShell(), project, projectConfig, variables, false);

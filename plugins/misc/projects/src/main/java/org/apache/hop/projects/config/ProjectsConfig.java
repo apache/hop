@@ -133,6 +133,7 @@ public class ProjectsConfig {
       addProjectConfig(projectConfig);
       return;
     }
+    renameProjectReferences(originalName, projectConfig.getProjectName());
     ProjectConfig existing = findProjectConfig(originalName);
     if (existing == null) {
       addProjectConfig(projectConfig);
@@ -168,13 +169,48 @@ public class ProjectsConfig {
         new ProjectConfig(projectName, null, null)); // Only considers the name
   }
 
+  /**
+   * Remove a project registration. The default project and standard parent project settings are
+   * cleared when they point to the removed project, so they never name a project that doesn't
+   * exist.
+   *
+   * @param projectName the name of the project to remove
+   * @return the removed project registration or null if it wasn't found
+   */
   public ProjectConfig removeProjectConfig(String projectName) {
     int index = indexOfProjectConfig(projectName);
     if (index >= 0) {
+      renameProjectReferences(projectName, null);
       return projectConfigurations.remove(index);
     } else {
       return null;
     }
+  }
+
+  /**
+   * Point the default project and standard parent project settings to a renamed project.
+   *
+   * @param oldName the previous name of the project
+   * @param newName the new name of the project, null to clear the settings
+   */
+  public void renameProjectReferences(String oldName, String newName) {
+    if (StringUtils.isEmpty(oldName)) {
+      return;
+    }
+    if (oldName.equalsIgnoreCase(defaultProject)) {
+      defaultProject = newName;
+    }
+    if (oldName.equalsIgnoreCase(standardParentProject)) {
+      standardParentProject = newName;
+    }
+  }
+
+  /**
+   * @return the standard parent project for new projects or null if no project with that name is
+   *     registered
+   */
+  public String findRegisteredStandardParentProject() {
+    return findProjectConfig(standardParentProject) == null ? null : standardParentProject;
   }
 
   public List<String> listProjectConfigNames() {
