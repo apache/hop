@@ -52,7 +52,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     description = "i18n::BaseTransform.TypeTooltipDesc.JoinRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::JoinRowsMeta.keyword",
-    documentationUrl = "/pipeline/transforms/joinrows.html")
+    documentationUrl = "/pipeline/transforms/joinrows.html",
+    excludedEngines = {"Beam*", "SparkPipelineEngine"})
 @Getter
 @Setter
 public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {

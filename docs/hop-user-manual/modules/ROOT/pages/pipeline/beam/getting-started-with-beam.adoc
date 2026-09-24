@@ -191,6 +191,7 @@ Each of these transforms would therefore only ever see the slice of the data one
 * xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/groupby.adoc[Group By] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/sort.adoc[Sort Rows]
+* xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)] : Add the same constant field to both inputs and use a `Merge Join` on that field instead
 
 The Hop GUI knows about this list: when you set the canvas palette filter to a Beam engine these transforms are hidden, and running a pipeline that still contains one is blocked with the reason shown above.
 
