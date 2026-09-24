@@ -859,7 +859,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.GOOGLE_SHEETS_INPUT;
               }
               if (childNode.getNodeName().equals("type")
-                  && childNode.getChildNodes().item(0).getNodeValue().equals("Mapping")) {
+                  && KettleConst.mappingTypes.contains(
+                      childNode.getChildNodes().item(0).getNodeValue())) {
                 entryType = EntryType.SIMPLE_MAPPING;
               }
               if (childNode.getNodeName().equals("type")
@@ -981,36 +982,16 @@ public class KettleImport extends HopImportBase implements IHopImport {
       if ((entryType == EntryType.SIMPLE_MAPPING || entryType == EntryType.METAINJECT)
           && currentNode.getNodeName().equals("transform")) {
 
-        Node filenameNode = null;
-        String transName = "";
-        String directoryPath = "";
-        // get trans name, file name, path, set correct filename when needed.
-        for (int j = 0; j < currentNode.getChildNodes().getLength(); j++) {
-          if (currentNode.getChildNodes().item(j).getNodeName().equals("directory_path")) {
-            directoryPath = currentNode.getChildNodes().item(j).getTextContent();
-            currentNode.removeChild(currentNode.getChildNodes().item(j));
-          }
-          if (currentNode.getChildNodes().item(j).getNodeName().equals("trans_name")) {
-            transName = currentNode.getChildNodes().item(j).getTextContent();
-            currentNode.removeChild(currentNode.getChildNodes().item(j));
-          }
-          if (currentNode.getChildNodes().item(j).getNodeName().equals("filename")) {
-            filenameNode = currentNode.getChildNodes().item(j);
-          }
-        }
-
-        // if we have a trans name and directory path, use it to update the mapping or injectable
-        // pipeline
-        // filename.
-        if (!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)) {
-          filenameNode.setTextContent(
-              Const.VAR_PROJECT_HOME + directoryPath + '/' + transName + ".hpl");
-        }
+        migrateTransformationReference(doc, currentNode);
 
         // add the default pipeline run configuration.
-        Element runConfigElement = doc.createElement("runConfiguration");
-        runConfigElement.appendChild(doc.createTextNode(defaultPipelineRunConfiguration));
-        currentNode.appendChild(runConfigElement);
+        String runConfigElementName =
+            entryType == EntryType.METAINJECT ? "run_configuration" : "runConfiguration";
+        if (getChildElement(currentNode, runConfigElementName) == null) {
+          Element runConfigElement = doc.createElement(runConfigElementName);
+          runConfigElement.appendChild(doc.createTextNode(defaultPipelineRunConfiguration));
+          currentNode.appendChild(runConfigElement);
+        }
       }
 
       if (entryType == EntryType.GOOGLE_SHEETS_INPUT
@@ -1089,6 +1070,46 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
       }
     }
+  }
+
+  /**
+   * A Kettle mapping or metadata injection step refers to its sub-transformation either by filename
+   * or, when it was saved in a repository, by name and repository folder. Hop only knows filenames,
+   * so a repository reference becomes a path below the project home. The repository elements are
+   * removed either way.
+   */
+  private void migrateTransformationReference(Document doc, Node transformNode) {
+    String specificationMethod = getChildText(transformNode, "specification_method");
+    String transName = getChildText(transformNode, "trans_name");
+    String directoryPath = getChildText(transformNode, "directory_path");
+    for (String name :
+        new String[] {"specification_method", "trans_object_id", "trans_name", "directory_path"}) {
+      removeChildElement(transformNode, name);
+    }
+
+    Element filenameElement = getChildElement(transformNode, "filename");
+    String filename = filenameElement == null ? "" : filenameElement.getTextContent();
+
+    // Kettle keeps the repository name when you switch a step to a filename, so a filename wins
+    // unless the step explicitly refers to the repository.
+    if (StringUtils.isEmpty(transName)
+        || (StringUtils.isNotEmpty(filename)
+            && !StringUtils.startsWith(specificationMethod, "REPOSITORY"))) {
+      return;
+    }
+
+    String folder = directoryPath == null ? "" : StringUtils.strip(directoryPath, "/");
+    if (filenameElement == null) {
+      filenameElement = doc.createElement("filename");
+      transformNode.appendChild(filenameElement);
+    }
+    filenameElement.setTextContent(
+        Const.VAR_PROJECT_HOME + (folder.isEmpty() ? "" : "/" + folder) + "/" + transName + ".hpl");
+  }
+
+  private String getChildText(Node parent, String name) {
+    Element child = getChildElement(parent, name);
+    return child == null ? null : child.getTextContent();
   }
 
   private Node processRepositoryNode(Node repositoryNode) {
