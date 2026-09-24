@@ -198,9 +198,33 @@ class AvroOutputSchemaFileTest {
     assertTrue(transform.processRow());
     Schema first = data.avroSchema;
     Files.delete(schemaFile);
+    transform.finishBundle();
     transform.startBundle();
 
     assertEquals(first, data.avroSchema);
+  }
+
+  /** A generated schema file is written once, not rewritten at the start of every bundle. */
+  @Test
+  void generatedSchemaFileIsWrittenOnceAcrossBundles() throws Exception {
+    Path schemaFile = tempDir.resolve("generated.avsc");
+    AvroOutputMeta meta = binaryFileMeta("${OUT}/generated.avsc", "${OUT}/customers.avro");
+    meta.setOutputType(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD]);
+    meta.setOutputFieldName("avro");
+    meta.setCreateSchemaFile(true);
+    meta.setWriteSchemaFile(true);
+    AvroOutput transform = spyWithRows(meta, new Object[] {1L, "Alice"});
+    transform.setVariable("OUT", tempDir.toString());
+
+    assertTrue(transform.processRow());
+    Schema first = data.avroSchema;
+    assertTrue(Files.exists(schemaFile));
+    Files.delete(schemaFile);
+    transform.finishBundle();
+    transform.startBundle();
+
+    assertEquals(first, data.avroSchema);
+    assertFalse(Files.exists(schemaFile));
   }
 
   private AvroOutputMeta binaryFileMeta(String schemaFileName, String fileName) {

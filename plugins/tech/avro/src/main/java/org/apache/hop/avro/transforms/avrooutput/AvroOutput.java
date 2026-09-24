@@ -382,13 +382,15 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
   private void createFileAndSchema() throws HopException {
     try {
+      // Build the schema once: Beam calls this again at the start of every bundle
       if (meta.isCreateSchemaFile()) {
-        if (isDetailed()) {
-          logDetailed("Generating Avro schema.");
+        if (data.avroSchema == null) {
+          if (isDetailed()) {
+            logDetailed("Generating Avro schema.");
+          }
+          writeSchemaFile();
         }
-        writeSchemaFile();
       } else if (data.avroSchema == null) {
-        // Read once: Beam calls this again at the start of every bundle
         data.avroSchema = readSchemaFile();
       }
       data.datumWriter = new GenericDatumWriter<>(data.avroSchema);
@@ -461,7 +463,6 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       closeFile();
     }
     data.datumWriter = null;
-    data.avroSchema = null;
   }
 
   public Object getValue(
@@ -615,7 +616,6 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         }
       }
       data.datumWriter = null;
-      data.avroSchema = null;
 
       retval = true;
     } catch (Exception e) {
