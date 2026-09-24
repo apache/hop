@@ -162,9 +162,9 @@ public class ProjectsConfigOptionPlugin
   private String defaultProjectConfigFile;
 
   /**
-   * No longer has any effect: since 2.17 the environment menu in the status bar always lists only
-   * the environments of the active project. The option is still accepted so that existing hop-conf
-   * scripts keep working.
+   * No longer has any effect: since 2.17 the environment menu in the status bar always lists the
+   * environments of the active project, plus the environments that are not linked to any project.
+   * The option is still accepted so that existing hop-conf scripts keep working.
    */
   @CommandLine.Option(
       names = {"-eap", "--environments-for-active-project"},
@@ -283,10 +283,16 @@ public class ProjectsConfigOptionPlugin
                 + "'");
         changed = true;
       }
+      // Handled, so a script passing only this option does not get the usage printed, but
+      // nothing to save: there is no setting behind it any more.
+      //
+      boolean handled = false;
       if (environmentsForActiveProject != null) {
         log.logBasic(
             "Option --environments-for-active-project is deprecated and has no effect: the"
-                + " environment list is always restricted to the active project");
+                + " environment menu always lists the environments of the active project, plus"
+                + " the environments that are not linked to any project");
+        handled = true;
       }
       if (clearingDbCacheWhenSwitching != null) {
         config.setClearingDbCacheWhenSwitching(clearingDbCacheWhenSwitching);
@@ -304,7 +310,7 @@ public class ProjectsConfigOptionPlugin
       if (changed) {
         ProjectsConfigSingleton.saveConfig();
       }
-      return changed;
+      return changed || handled;
     } catch (Exception e) {
       throw new HopException("Error handling projects plugin configuration options", e);
     }
