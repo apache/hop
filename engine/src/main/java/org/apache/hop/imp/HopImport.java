@@ -353,15 +353,12 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
 
   /** The home folder of a registered project, or null when it is unknown. */
   private String findProjectHome(String name) {
-    Object[] objects = new Object[] {name, ""};
     try {
-      ExtensionPointHandler.callExtensionPoint(
-          log, variables, HopExtensionPoint.ProjectHome.id, objects);
+      return HopImportBase.projectHome(log, variables, name, null);
     } catch (Exception e) {
       // The projects plugin throws when the project isn't registered yet.
       return null;
     }
-    return (String) objects[1];
   }
 
   private void printPluginTypes() {

@@ -613,15 +613,12 @@ public class KettleImportDialog extends Dialog {
       // See if we can pick up the target folder from a project reference...
       //
       if (wImportInExisting.getSelection()) {
-        Object[] objects = new Object[2];
-        objects[0] = projectName;
-        objects[1] = targetFolder;
         try {
-          ExtensionPointHandler.callExtensionPoint(
-              HopGui.getInstance().getLog(), variables, HopExtensionPoint.ProjectHome.id, objects);
-
-          // Grab it back (or leave unchanged)
-          targetFolder = (String) objects[1];
+          // The project's own home folder wins, but leave the folder unchanged when nothing
+          // resolves it.
+          targetFolder =
+              HopImportBase.projectHome(
+                  HopGui.getInstance().getLog(), variables, projectName, targetFolder);
         } catch (HopException e) {
           throw new HopException("Error getting home folder of project " + projectName, e);
         }
@@ -750,11 +747,9 @@ public class KettleImportDialog extends Dialog {
       if (Utils.isEmpty(projectName)) {
         return null;
       }
-      Object[] objects = new Object[] {projectName, ""};
       try {
-        ExtensionPointHandler.callExtensionPoint(
-            HopGui.getInstance().getLog(), variables, HopExtensionPoint.ProjectHome.id, objects);
-        return (String) objects[1];
+        return HopImportBase.projectHome(
+            HopGui.getInstance().getLog(), variables, projectName, null);
       } catch (Exception e) {
         return null;
       }
