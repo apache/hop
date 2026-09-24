@@ -22,15 +22,12 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
@@ -64,8 +61,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class DynamicSqlRowDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DynamicSqlRowMeta.class;
-
-  private boolean gotPreviousFields = false;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -438,26 +433,6 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      gotPreviousFields = true;
-      try {
-        String sqlfield = wSqlFieldName.getText();
-        wSqlFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wSqlFieldName.removeAll();
-          wSqlFieldName.setItems(r.getFieldNames());
-        }
-        if (sqlfield != null) {
-          wSqlFieldName.setText(sqlfield);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "DynamicSQLRowDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "DynamicSQLRowDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
+    previousFields().fillCombos(wSqlFieldName);
   }
 }

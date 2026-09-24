@@ -24,7 +24,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -100,7 +99,6 @@ public class TikaDialog extends BaseTransformDialog {
   private CCombo wEncoding;
   private CCombo wOutputFormat;
   private boolean gotEncodings = false;
-  private boolean gotPreviousFields = false;
   private TextVar wContentFieldName;
   private TextVar wFileSizeFieldName;
   private TextVar wShortFileFieldName;
@@ -706,27 +704,9 @@ public class TikaDialog extends BaseTransformDialog {
     return this.transformName;
   }
 
+  /** Offers the incoming fields in the filename field drop-down, keeping the configured value. */
   private void setDynamicFilenameField() {
-    if (!gotPreviousFields) {
-      try {
-        String field = wFilenameField.getText();
-        wFilenameField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFilenameField.setItems(r.getFieldNames());
-        }
-        if (field != null) {
-          wFilenameField.setText(field);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "TikaDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "TikaDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wFilenameField);
   }
 
   private void enableFields() {

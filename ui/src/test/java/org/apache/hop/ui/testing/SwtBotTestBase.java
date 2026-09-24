@@ -21,6 +21,10 @@ import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,7 +40,9 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit5.SWTBotJunit5Extension;
 import org.eclipse.swtbot.swt.finder.utils.SWTUtils;
@@ -72,6 +78,9 @@ public abstract class SwtBotTestBase {
 
   /** How often the {@link Pump} wakes the display on its own. */
   private static final int PUMP_INTERVAL_MILLIS = 50;
+
+  /** More extra windows than this in one {@link #closeOtherShells} call means a reopen loop. */
+  private static final int MAX_OTHER_SHELLS = 5;
 
   protected static Display display;
 
@@ -265,10 +274,13 @@ public abstract class SwtBotTestBase {
         pump.close();
       }
 
-      if (pump.timedOut()) {
-        rethrow(pump.timeoutFailure());
+      // When the dialog's open() threw, the worker usually fails too (it never finds the shell).
+      // Report both: the open() error is the cause worth reading.
+      Throwable failure = pump.timedOut() ? pump.timeoutFailure() : error.get();
+      if (failure != null && openError != null && failure != openError) {
+        failure.addSuppressed(openError);
       }
-      rethrow(error.get() != null ? error.get() : openError);
+      rethrow(failure != null ? failure : openError);
     } finally {
       if (!parent.isDisposed()) {
         parent.dispose();
@@ -282,6 +294,87 @@ public abstract class SwtBotTestBase {
     // SWTBot's mnemonic matcher strips '&' from the widget text but does not trim, so we mirror
     // exactly what the button shows (leading/trailing spaces kept, '&' removed).
     return BaseMessages.getString(ITransform.class, key).replace("&", "");
+  }
+
+  /**
+   * Sends an event such as {@code SWT.FocusIn} to a widget from the worker thread without waiting
+   * for its listeners. Use it when a listener may open a modal box (an error dialog): a synchronous
+   * SWTBot call would block the worker until somebody closes that box, and nobody else can. Follow
+   * up with {@link #closeOtherShells(String, long)} to deal with whatever opened.
+   */
+  protected static void postEvent(Widget widget, int eventType) {
+    display.asyncExec(
+        () -> {
+          if (!widget.isDisposed()) {
+            widget.notifyListeners(eventType, new Event());
+          }
+        });
+  }
+
+  /**
+   * Closes every visible shell except the one titled {@code keepTitle}, typically the error dialogs
+   * the dialog under test opened. Waits up to {@code waitMillis} for such a shell to show up, and a
+   * little longer after each one it closes in case another follows. Fails when windows keep
+   * reappearing, which is how a dialog that reopens an error on every focus shows up.
+   *
+   * @return the number of shells closed
+   */
+  protected static int closeOtherShells(String keepTitle, long waitMillis) {
+    Set<Shell> closed = new HashSet<>();
+    long deadline = System.currentTimeMillis() + waitMillis;
+    boolean closedAny = false;
+    while (System.currentTimeMillis() < deadline) {
+      List<Shell> others = new ArrayList<>();
+      display.syncExec(
+          () -> {
+            for (Shell shell : display.getShells()) {
+              if (!shell.isDisposed()
+                  && shell.isVisible()
+                  && !keepTitle.equals(shell.getText())
+                  && !closed.contains(shell)) {
+                others.add(shell);
+              }
+            }
+          });
+      for (Shell other : others) {
+        closed.add(other);
+        if (closed.size() > MAX_OTHER_SHELLS) {
+          throw new AssertionError(
+              "More than "
+                  + MAX_OTHER_SHELLS
+                  + " windows opened on top of '"
+                  + keepTitle
+                  + "', last one '"
+                  + describe(other)
+                  + "': the dialog keeps reopening them, probably an error dialog in a focus"
+                  + " listener that fires again when the error closes");
+        }
+        display.asyncExec(
+            () -> {
+              if (!other.isDisposed()) {
+                other.close();
+              }
+            });
+        closedAny = true;
+      }
+      if (closedAny && !others.isEmpty()) {
+        // Found what we were waiting for: only linger briefly in case another one follows.
+        deadline = System.currentTimeMillis() + 750;
+      }
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      }
+    }
+    return closed.size();
+  }
+
+  private static String describe(Shell shell) {
+    String[] text = new String[1];
+    display.syncExec(() -> text[0] = shell.isDisposed() ? "<disposed>" : shell.getText());
+    return text[0];
   }
 
   private static void hold() throws InterruptedException {

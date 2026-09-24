@@ -27,7 +27,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -170,8 +169,6 @@ public class MailInputDialog extends BaseTransformDialog {
   private TableView wFields;
 
   private MailConnection mailConn = null;
-
-  private boolean gotPreviousfields = false;
 
   private Button wUseBatch;
   private Text wBatchSize;
@@ -1507,27 +1504,7 @@ public class MailInputDialog extends BaseTransformDialog {
   }
 
   private void setFolderField() {
-    if (!gotPreviousfields) {
-      try {
-        String field = wFolderField.getText();
-        wFolderField.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFolderField.setItems(r.getFieldNames());
-        }
-        if (field != null) {
-          wFolderField.setText(field);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "MailInput.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "MailInput.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousfields = true;
-    }
+    previousFields().fillCombos(wFolderField);
   }
 
   private void closeMailConnection() {

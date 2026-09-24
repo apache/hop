@@ -49,6 +49,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -1057,16 +1058,9 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
       SalesforceConnection connection = null;
 
       try {
-        String selectedField = wModule.getText();
-        wModule.removeAll();
-
         connection = getConnection();
         // return
-        wModule.setItems(connection.getAllAvailableObjects(false));
-
-        if (!Utils.isEmpty(selectedField)) {
-          wModule.setText(selectedField);
-        }
+        ComboItems.setItemsKeepingText(wModule, connection.getAllAvailableObjects(false));
 
         gotModule = true;
         getModulesListError = false;

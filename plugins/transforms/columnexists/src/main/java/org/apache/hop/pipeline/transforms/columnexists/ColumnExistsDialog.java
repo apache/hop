@@ -21,8 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -394,30 +392,7 @@ public class ColumnExistsDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    try {
-      String columnName = wColumnName.getText();
-      String tableName = wTableName.getText();
-
-      wColumnName.removeAll();
-      wTableName.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wTableName.add(r.getFieldNames()[i]);
-          wColumnName.add(r.getFieldNames()[i]);
-        }
-      }
-      wColumnName.setText(columnName);
-      wTableName.setText(tableName);
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "ColumnExistsDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "ColumnExistsDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wColumnName, wTableName);
   }
 
   private void getTableName() {

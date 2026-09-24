@@ -853,7 +853,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               variables.resolve(meta.getProxyHost()), variables.resolve(meta.getProxyPort()));
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
-      wFields.table.removeAll();
 
       HttpRequestInitializer credential =
           GoogleSheetsCredentials.getCredentialsJson(
@@ -880,11 +879,14 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               .get(variables.resolve(meta.getSpreadsheetKey()), range)
               .execute();
       List<List<Object>> values = result.getValues();
-      if (values != null || !values.isEmpty()) {
+      // Collect the fields first: the grid is only replaced once they were all fetched.
+      List<String[]> fetchedFields = new ArrayList<>();
+      if (values != null && !values.isEmpty()) {
         for (List row : values) {
           for (int j = 0; j < row.size(); j++) {
-            TableItem item = new TableItem(wFields.table, SWT.NONE);
-            item.setText(1, Const.trim(row.get(j).toString()));
+            String[] item = new String[wFields.table.getColumnCount()];
+            fetchedFields.add(item);
+            item[1] = Const.trim(row.get(j).toString());
             // Fill in sample in order to guess types ___ GoogleSheetsInputFields( String
             // fieldname, int position, int length )
             GoogleSheetsInputField sampleInputFields = new GoogleSheetsInputField();
@@ -929,36 +931,47 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               sampleInputFields.setSamples(sampleColumnValues);
               sampleInputFields.guess();
               if (!StringUtils.isEmpty(sampleInputFields.getTypeDesc())) {
-                item.setText(2, sampleInputFields.getTypeDesc());
+                item[2] = sampleInputFields.getTypeDesc();
               }
               if (!StringUtils.isEmpty(sampleInputFields.getFormat())) {
-                item.setText(3, sampleInputFields.getFormat());
+                item[3] = sampleInputFields.getFormat();
               }
               if (!StringUtils.isEmpty(Integer.toString(sampleInputFields.getPrecision()))) {
-                item.setText(5, Integer.toString(sampleInputFields.getPrecision()));
+                item[5] = Integer.toString(sampleInputFields.getPrecision());
               }
               if (!StringUtils.isEmpty(sampleInputFields.getCurrencySymbol())) {
-                item.setText(6, sampleInputFields.getCurrencySymbol());
+                item[6] = sampleInputFields.getCurrencySymbol();
               }
               if (!StringUtils.isEmpty(sampleInputFields.getDecimalSymbol())) {
-                item.setText(7, sampleInputFields.getDecimalSymbol());
+                item[7] = sampleInputFields.getDecimalSymbol();
               }
               if (!StringUtils.isEmpty(sampleInputFields.getGroupSymbol())) {
-                item.setText(8, sampleInputFields.getGroupSymbol());
+                item[8] = sampleInputFields.getGroupSymbol();
               }
               if (!StringUtils.isEmpty(sampleInputFields.getTrimTypeDesc())) {
-                item.setText(9, sampleInputFields.getTrimTypeDesc());
+                item[9] = sampleInputFields.getTrimTypeDesc();
               }
             } else {
-              item.setText(2, "String");
+              item[2] = "String";
             }
           }
         }
       }
 
-      wFields.removeEmptyRows();
-      wFields.setRowNums();
-      wFields.optWidth(true);
+      if (!fetchedFields.isEmpty()) {
+        wFields.table.removeAll();
+        for (String[] fetchedField : fetchedFields) {
+          TableItem item = new TableItem(wFields.table, SWT.NONE);
+          for (int column = 1; column < fetchedField.length; column++) {
+            if (fetchedField[column] != null) {
+              item.setText(column, fetchedField[column]);
+            }
+          }
+        }
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           shell, BaseMessages.getString(PKG, C_DIALOG_ERROR_TITLE), "Error getting Fields", e);

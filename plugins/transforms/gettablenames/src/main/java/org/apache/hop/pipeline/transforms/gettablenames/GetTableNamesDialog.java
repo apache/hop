@@ -19,8 +19,6 @@ package org.apache.hop.pipeline.transforms.gettablenames;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -89,8 +87,6 @@ public class GetTableNamesDialog extends BaseTransformDialog {
   private CCombo wSchemaField;
 
   private final GetTableNamesMeta input;
-
-  private boolean gotPreviousFields = false;
 
   public GetTableNamesDialog(
       Shell parent,
@@ -575,27 +571,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
   }
 
   private void setSchemaField() {
-    if (!gotPreviousFields) {
-      try {
-        String value = wSchemaField.getText();
-        wSchemaField.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wSchemaField.setItems(r.getFieldNames());
-        }
-        if (value != null) {
-          wSchemaField.setText(value);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "GetTableNamesDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "GetTableNamesDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wSchemaField);
   }
 
   private void ok() {

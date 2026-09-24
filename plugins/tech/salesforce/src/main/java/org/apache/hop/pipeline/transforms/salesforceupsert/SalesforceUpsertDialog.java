@@ -47,6 +47,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -700,13 +701,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     }
 
     try {
-      String selectedField = wUpsertField.getText();
-      wUpsertField.removeAll();
-      wUpsertField.setItems(getModuleFields());
-
-      if (!Utils.isEmpty(selectedField)) {
-        wUpsertField.setText(selectedField);
-      }
+      ComboItems.setItemsKeepingText(wUpsertField, getModuleFields());
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -1094,9 +1089,6 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
         SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
         getInfo(meta);
 
-        String selectedField = wModule.getText();
-        wModule.removeAll();
-
         // Check if a Salesforce Connection metadata is selected
         String connectionName = variables.resolve(meta.getSalesforceConnection());
         if (!Utils.isEmpty(connectionName)) {
@@ -1126,11 +1118,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
         // connect to Salesforce
         connection.connect();
         // return
-        wModule.setItems(connection.getAllAvailableObjects(false));
-
-        if (!Utils.isEmpty(selectedField)) {
-          wModule.setText(selectedField);
-        }
+        ComboItems.setItemsKeepingText(wModule, connection.getAllAvailableObjects(false));
 
         gotModule = true;
         getModulesListError = false;

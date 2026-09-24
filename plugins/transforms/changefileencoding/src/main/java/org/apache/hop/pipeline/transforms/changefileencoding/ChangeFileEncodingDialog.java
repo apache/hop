@@ -18,8 +18,6 @@
 package org.apache.hop.pipeline.transforms.changefileencoding;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -27,7 +25,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -62,8 +59,6 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
   private Button wCreateParentFolder;
 
   private final ChangeFileEncodingMeta input;
-
-  private boolean gotPreviousFields = false;
 
   public ChangeFileEncodingDialog(
       Shell parent,
@@ -341,32 +336,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String filefield = wFileName.getText();
-        String targetfilefield = wTargetFileName.getText();
-        wFileName.removeAll();
-        wTargetFileName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFileName.setItems(r.getFieldNames());
-          wTargetFileName.setItems(r.getFieldNames());
-        }
-        if (filefield != null) {
-          wFileName.setText(filefield);
-        }
-        if (targetfilefield != null) {
-          wTargetFileName.setText(targetfilefield);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "ChangeFileEncodingDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "ChangeFileEncodingDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wFileName, wTargetFileName);
   }
 
   private void setEncodings(ComboVar cVar) {

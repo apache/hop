@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -534,9 +535,6 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
         SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
         getInfo(meta);
 
-        String selectedField = wModule.getText();
-        wModule.removeAll();
-
         int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
 
         // Check if a Salesforce Connection metadata is selected
@@ -569,11 +567,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
         // connect to Salesforce
         connection.connect();
         // return
-        wModule.setItems(connection.getAllAvailableObjects(false));
-
-        if (!Utils.isEmpty(selectedField)) {
-          wModule.setText(selectedField);
-        }
+        ComboItems.setItemsKeepingText(wModule, connection.getAllAvailableObjects(false));
 
         gotModule = true;
         getModulesListError = false;

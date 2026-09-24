@@ -17,15 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.fileexists;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -49,7 +46,6 @@ import org.eclipse.swt.widgets.Shell;
 public class FileExistsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FileExistsMeta.class;
 
-  private boolean gotPreviousFields = false;
   private CCombo wFileName;
 
   private Label wlFileType;
@@ -274,25 +270,6 @@ public class FileExistsDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String fieldvalue = wFileName.getText();
-        wFileName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFileName.setItems(r.getFieldNames());
-        }
-        if (fieldvalue != null) {
-          wFileName.setText(fieldvalue);
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "FileExistsDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "FileExistsDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
+    previousFields().fillCombos(wFileName);
   }
 }

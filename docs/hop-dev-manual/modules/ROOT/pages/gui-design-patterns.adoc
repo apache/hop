@@ -1,0 +1,232 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Patterns for building Hop GUI dialogs that behave well: build forms from annotated metadata, fill field drop-downs without losing configured values, report errors once, and test all of it with SWTBot.
+[[GuiDesignPatterns-GuiDesignPatterns]]
+= GUI design patterns
+
+This page collects the patterns Hop dialogs should follow, and the helpers that make them easy.
+Most of them come from bugs users actually hit.
+
+The short version:
+
+* Every feature a user can configure has a GUI element. Nothing lives only in a file.
+* Build transform, action and metadata dialogs from annotated metadata, grouped, instead of laying out widgets by hand.
+* A dialog never loses a value the user configured. Not when the incoming fields can't be loaded, not when a lookup fails, not when the value isn't in a drop-down list.
+* A problem is reported once, and it never stops the user from pressing OK.
+* The patterns are covered by SWTBot tests.
+
+Related reading: xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars], xref:testing/ui-testing.adoc[UI tests with SWTBot], xref:hopweb/hopweb-antipatterns.adoc[Hop Web antipatterns].
+
+== Build dialogs from annotated metadata
+
+Don't lay out `FormAttachment` rows on the shell by hand.
+Annotate the fields of the metadata class with `@HopMetadataProperty` and `@GuiWidgetElement`, put every field in a group, and let `GuiCompositeWidgets` build the form.
+
+Groups matter.
+A flat form can't be resizable, keep OK and Cancel pinned to the bottom, and keep those buttons below the last widget, all at the same time: the fields and the button bar compete for the same space.
+With a group, `GuiCompositeWidgets` builds a container between the transform name and the button bar with a scrolled composite inside, so the dialog resizes, the buttons stay put and long forms scroll.
+
+The recipe:
+
+. Annotate the metadata class with `@GuiPlugin` and Lombok `@Getter` / `@Setter`.
+. Give it a `GUI_PLUGIN_ELEMENT_PARENT_ID` constant.
+. Annotate every user-visible field with `@HopMetadataProperty` *and* `@GuiWidgetElement`, with a `GuiElementType` that matches the value (`METADATA`, `FILENAME`, `TEXT`, `CHECKBOX`, `COMBO`, ...).
+. Put every field in a group: `groupType = GuiWidgetGroupType.BOXES` with a single `group` for one options panel, or `GuiWidgetGroupType.TABS` with distinct `group` names and a `groupOrder` for several sections.
+. In the dialog's `open()`: `createShell(...)`, `buildButtonBar().ok(...).cancel(...).build()`, then `GuiCompositeWidgets.addScrolledComposite(shell, variables, wTransformName, wOk, PARENT_ID, input)`.
+. On OK, call `widgets.getWidgetsContents(input, PARENT_ID)` instead of copying fields by hand.
+
+`DataSetOutputMeta` and `DataSetOutputDialog` in the `testing` plugin are a compact example.
+A `TableView` or other extra composite joins the same layout through `GuiCompositeWidgets.registerExtraGroup(...)`.
+Use `IGuiPluginCompositeWidgetsListener` for enabling, disabling and `setChanged()`, not for creating fields.
+
+To offer the incoming fields in an annotated combo, fill it with `widgets.setComboValues(widgetId, previousFields().getFieldNames())`.
+`setComboValues` keeps the value the combo shows, see below.
+
+== Field drop-downs keep the configured value
+
+Many dialogs offer the incoming fields in a drop-down: the field holding the JSON, the file name field, the field to validate.
+Filling that drop-down is where values used to get lost.
+
+=== What goes wrong
+
+The pattern below is what most older dialogs did:
+
+[source,java]
+----
+// Don't do this
+String value = wField.getText();
+wField.removeAll();                                       // also clears the text
+IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);  // may throw
+wField.setItems(r.getFieldNames());
+wField.setText(value);                                    // never reached when it throws
+----
+
+The upstream transform can fail to describe its fields, for example a Table Input whose SQL points at a table that doesn't exist.
+The fetch throws, the saved value is never put back, and pressing OK stores an empty field name.
+Issue https://github.com/apache/hop/issues/5953[#5953] is one example; a sweep found the same mistake in about forty dialogs.
+
+SWT makes this easy to get wrong, because clearing the list also clears the text more often than you'd expect:
+
+[cols="2,1,1",options="header"]
+|===
+|Widget |`removeAll()` |`setItems(...)`
+|`Combo` (every platform) |clears the text |clears the text
+|`CCombo` |clears the text |clears the text when not editable
+|`ComboVar`, `LabelCombo`, `LabelComboVar` (wrap a `CCombo`) |clears the text |clears the text when not editable
+|===
+
+Two more traps:
+
+* A read-only `Combo` ignores `setText(value)` unless `value` is one of its items.
+* `select(indexOf(value))` clears a `CCombo` when the value isn't in the list: a renamed field, a `${VARIABLE}`, or no incoming fields at all.
+
+=== Use `PreviousFields` and `ComboItems`
+
+Two helpers in `hop-ui` handle all of this:
+
+`org.apache.hop.ui.pipeline.transform.PreviousFields`::
+The fields flowing into a transform.
+Fetched once and cached for the life of the dialog.
+When they can't be determined you get an empty row, the user sees the error once, and nothing throws.
+
+`org.apache.hop.ui.core.widget.ComboItems`::
+`setItemsKeepingText(combo, items)` replaces the items of a `Combo`, `CCombo`, `ComboVar`, `LabelCombo` or `LabelComboVar` and keeps the current text.
+For a read-only `Combo` it adds the current value to the items so it stays visible.
+
+In a dialog that extends `BaseTransformDialog`, `previousFields()` gives you the instance for this dialog:
+
+[source,java]
+----
+// In getData(), a focus listener or wherever the drop-down is refreshed
+previousFields().fillCombos(wFieldValue);
+
+// Several combos at once
+previousFields().fillCombos(wSourceField, wTargetField);
+----
+
+That one line replaces the save / clear / fetch / restore code, the `gotPreviousFields` flag and the error dialog.
+Call it after the shell has been created, from the UI thread.
+
+When you need more than the plain list, work from the row metadata and hand the result to `ComboItems`:
+
+[source,java]
+----
+// Only numeric fields, sorted
+List<String> numeric = new ArrayList<>();
+for (IValueMeta valueMeta : previousFields().getRowMeta().getValueMetaList()) {
+  if (valueMeta.isNumeric()) {
+    numeric.add(valueMeta.getName());
+  }
+}
+Collections.sort(numeric);
+ComboItems.setItemsKeepingText(wTimeoutField, numeric.toArray(new String[0]));
+----
+
+A class that isn't a `BaseTransformDialog`, such as a composite embedded in a dialog, creates its own instance and keeps it in a field:
+
+[source,java]
+----
+previousFields = new PreviousFields(shell, variables, pipelineMeta, transformName);
+----
+
+The same rule applies to drop-downs filled from anything else that can fail: tables from a database, collections from MongoDB, objects from Salesforce, sheets from an API.
+Do the lookup first, then call `ComboItems.setItemsKeepingText(...)`.
+Never call `removeAll()` before a call that can throw.
+
+The same holds for grids.
+A "Get fields" button replaces the rows of a `TableView` only after the new fields were fetched successfully, and asks whether to add, replace or cancel when rows already exist, as `BaseTransformDialog.getFieldsFromPrevious(...)` does.
+
+=== Rules of thumb
+
+* Put a stored value into a combo with `setText(...)`, never `select(indexOf(...))`.
+* Don't treat "not in the drop-down list" as "not valid". The list is a suggestion: the field may be renamed later, come from a variable, or the upstream may be broken right now.
+* When the incoming fields are unknown, OK still works and stores what the user entered. Only validate against the incoming fields when `previousFields().isAvailable()`.
+* Don't decide what a value *means* from the drop-down list when the list may be empty. A dialog that treats a value as a field name only if it is in the list will silently turn a field into a literal the moment the upstream fails.
+* Don't fill in a value the user didn't choose, for example by selecting the first field when a combo gets focus.
+* Validate before you write to the metadata. An OK handler that stops half-way must leave the metadata as it was.
+
+== Report errors once, and never block
+
+A focus listener runs every time the user clicks into a combo.
+If it opens an error dialog on every failure, the user gets the same message over and over, and on some platforms closing the message hands focus back to the combo and triggers it again.
+
+`PreviousFields` shows the error the first time and stays quiet afterwards.
+If you write your own lookup, remember the failure the same way.
+An error about the environment (a broken upstream, a database that is down) is information, not a reason to stop the user from editing and saving the transform.
+
+== Testing it
+
+The `hop-ui` test jar has what you need to reproduce these problems in a xref:testing/ui-testing.adoc[SWTBot test]:
+
+`UpstreamFixture`::
+Builds a pipeline around the transform under test with one upstream transform that either fails to describe its fields (`failingUpstream`) or delivers fixed String fields (`upstreamWithFields`), or leaves the transform without input (`withoutUpstream`).
+
+`postEvent(widget, SWT.FocusIn)`::
+Fires an event without waiting for the listeners.
+Use it for anything that may open a modal error dialog; a synchronous SWTBot call would block until someone closes that dialog.
+
+`closeOtherShells(title, waitMillis)`::
+Closes every window except the dialog under test, typically the error dialogs, and returns how many it closed.
+
+A test for a combo that is filled on focus:
+
+[source,java]
+----
+@Tag("uitest")
+class CloneRowDialogKeepsValuesTest extends SwtBotTestBase {
+
+  private static final String TITLE =
+      BaseMessages.getString(CloneRowMeta.class, "CloneRowDialog.Shell.Title");
+
+  @Test
+  void cloneFieldSurvivesFailingUpstream() {
+    CloneRowMeta meta = new CloneRowMeta();
+    meta.setDefault();
+    meta.setNrCloneInField(true);
+    meta.setNrCloneField("nr_clones");
+    PipelineMeta pipelineMeta = UpstreamFixture.failingUpstream("clone row", meta);
+    AtomicReference<CloneRowDialog> dialog = new AtomicReference<>();
+
+    withDialog(
+        parent -> {
+          dialog.set(new CloneRowDialog(parent, new Variables(), meta, pipelineMeta));
+          dialog.get().open();
+        },
+        bot -> {
+          bot.shell(TITLE);
+          CCombo combo = (CCombo) readField(dialog.get(), "wNrCloneField");
+          postEvent(combo, SWT.FocusIn);                  // what a click into the combo does
+          assertEquals(1, closeOtherShells(TITLE, 3000)); // the "can't get fields" error, once
+          bot.shell(TITLE).activate().bot().button(buttonLabel("System.Button.OK")).click();
+        });
+
+    assertEquals("nr_clones", meta.getNrCloneField());
+  }
+
+  private static Object readField(Object dialog, String name) {
+    try {
+      return FieldUtils.readField(dialog, name, true); // commons-lang3
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+}
+----
+
+Write the test before the fix and watch it fail: with the old code the assertion reports `expected: <nr_clones> but was: <>`.
+A dialog that re-opens the error on every focus fails in `closeOtherShells` instead, which gives up once windows keep reappearing.
+The `*KeepsValuesTest` classes next to the fixed dialogs are complete examples, and `ComboItemsTest` and `PreviousFieldsTest` in `rcp` cover the helpers themselves.
