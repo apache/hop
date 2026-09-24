@@ -29,13 +29,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
  * Kettle mapping and metadata injection steps saved in a repository refer to their
- * sub-transformation by name and folder instead of by filename (issue #4119).
+ * sub-transformation by name and folder instead of by filename (issue #4119). Their parameters must
+ * survive the import (issue #4501).
  */
 class KettleImportMappingTest {
 
@@ -115,6 +117,68 @@ class KettleImportMappingTest {
 
     Node transform = XmlHandler.getSubNode(XmlHandler.getSubNode(doc, "pipeline"), "transform");
     assertEquals("${PROJECT_HOME}/sub/child.hpl", XmlHandler.getTagValue(transform, "filename"));
+  }
+
+  /** The parameters of a mapping step keep their Kettle layout in Hop (issue #4501). */
+  @ParameterizedTest
+  @ValueSource(strings = {"Mapping", "SimpleMapping"})
+  void testMappingParametersAreKept(String type) throws Exception {
+    Document doc =
+        parse(
+            "<transformation><step><name>map</name><type>"
+                + type
+                + "</type><filename>child.ktr</filename><mappings>"
+                + PARAMETERS
+                + "</mappings></step></transformation>");
+    processNode(doc);
+
+    Node transform = XmlHandler.getSubNode(XmlHandler.getSubNode(doc, "pipeline"), "transform");
+    assertParameters(XmlHandler.getSubNode(transform, "mappings", "parameters"), "variablemapping");
+  }
+
+  /** Only the pipeline executor reads its parameters from a differently named element. */
+  @ParameterizedTest
+  @CsvSource({
+    "TransExecutor, PipelineExecutor, variable_mapping",
+    "JobExecutor, WorkflowExecutor, variablemapping"
+  })
+  void testExecutorParameters(String kettleType, String hopType, String variableTag)
+      throws Exception {
+    Document doc =
+        parse(
+            "<transformation><step><name>exec</name><type>"
+                + kettleType
+                + "</type>"
+                + PARAMETERS
+                + "</step></transformation>");
+    processNode(doc);
+
+    Node transform = XmlHandler.getSubNode(XmlHandler.getSubNode(doc, "pipeline"), "transform");
+    assertEquals(hopType, XmlHandler.getTagValue(transform, "type"));
+    assertParameters(XmlHandler.getSubNode(transform, "parameters"), variableTag);
+  }
+
+  private static final String PARAMETERS =
+      "<parameters>"
+          + "<variablemapping><variable>A</variable><input>${PARENT_A}</input></variablemapping>"
+          + "<variablemapping><variable>B</variable><input>${PARENT_B}</input></variablemapping>"
+          + "<inherit_all_vars>N</inherit_all_vars>"
+          + "</parameters>";
+
+  private static void assertParameters(Node parameters, String variableTag) {
+    assertEquals(2, XmlHandler.countNodes(parameters, variableTag));
+    assertEquals(
+        0,
+        XmlHandler.countNodes(
+            parameters,
+            "variable_mapping".equals(variableTag) ? "variablemapping" : "variable_mapping"));
+    assertEquals(
+        "A",
+        XmlHandler.getTagValue(XmlHandler.getSubNodeByNr(parameters, variableTag, 0), "variable"));
+    assertEquals(
+        "${PARENT_B}",
+        XmlHandler.getTagValue(XmlHandler.getSubNodeByNr(parameters, variableTag, 1), "input"));
+    assertEquals("N", XmlHandler.getTagValue(parameters, "inherit_all_vars"));
   }
 
   private static void assertRepositoryElementsRemoved(Node transform) {

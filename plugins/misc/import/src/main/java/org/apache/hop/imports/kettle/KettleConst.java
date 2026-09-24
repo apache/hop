@@ -45,7 +45,6 @@ public class KettleConst {
                 {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
                 {"transformationPath", "pipelinePath"},
                 {"SUB_STEP", "subTransform"},
-                {"variablemapping", "variable_mapping"},
                 // jobs
                 {"job", "workflow"},
                 {"job_version", "workflow_version"},

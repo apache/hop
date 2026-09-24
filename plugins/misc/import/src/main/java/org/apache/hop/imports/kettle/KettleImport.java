@@ -84,6 +84,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
   public static final String CONST_SERVERNAME = "servername";
   public static final String CONST_PASSWORD = "password";
   private static final String SFTP_PUT_TYPE = "SFTPPut";
+  private static final String TRANS_EXECUTOR_TYPE = "TransExecutor";
   private static final String SFTP_CONNECTION_METADATA_KEY = "sftp-connection";
 
   /** The elements of a Kettle SFTPPut step which describe the server, not the upload itself. */
@@ -629,6 +630,22 @@ public class KettleImport extends HopImportBase implements IHopImport {
   }
 
   /**
+   * Kettle writes the parameters of a mapping, a job executor and a transformation executor step as
+   * {@code <parameters><variablemapping>}. Hop reads them the same way, except for the pipeline
+   * executor, which reads {@code <variable_mapping>}.
+   */
+  private void migrateTransExecutorParameters(Document doc, Node stepNode) {
+    Element parametersElement = getChildElement(stepNode, "parameters");
+    if (parametersElement == null) {
+      return;
+    }
+    Element variableMapping;
+    while ((variableMapping = getChildElement(parametersElement, "variablemapping")) != null) {
+      renameNode(doc, variableMapping, "variable_mapping");
+    }
+  }
+
+  /**
    * Create an SFTP connection in the metadata for the given step settings, or return the name of
    * the one created earlier for the very same settings: a transformation with five steps talking to
    * the same server ends up with one connection, not five.
@@ -838,6 +855,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
         if (currentNode.getNodeName().equals("step")) {
           entryType = EntryType.OTHER;
           boolean sftpPutStep = false;
+          boolean transExecutorStep = false;
           NodeList currentNodeChildNodes = currentNode.getChildNodes();
           for (int i1 = 0; i1 < currentNodeChildNodes.getLength(); i1++) {
             Node childNode = currentNodeChildNodes.item(i1);
@@ -845,6 +863,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
               if (childNode.getNodeName().equals("type")
                   && childNode.getChildNodes().item(0).getNodeValue().equals(SFTP_PUT_TYPE)) {
                 sftpPutStep = true;
+              }
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals(TRANS_EXECUTOR_TYPE)) {
+                transExecutorStep = true;
               }
               if (childNode.getNodeName().equals("type")
                   && childNode.getChildNodes().item(0).getNodeValue().equals("Formula")) {
@@ -871,6 +893,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
           if (sftpPutStep) {
             migrateSftpPutStep(doc, currentNode);
+          }
+          if (transExecutorStep) {
+            migrateTransExecutorParameters(doc, currentNode);
           }
         }
 
