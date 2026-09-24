@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +26,7 @@ import java.util.Properties;
 import javax.xml.namespace.QName;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -156,7 +155,14 @@ public class WebServiceDialog extends BaseTransformDialog {
         systemProperties.setProperty("http.proxyHost", variables.resolve(wProxyHost.getText()));
         systemProperties.setProperty("http.proxyPort", variables.resolve(wProxyPort.getText()));
       }
-      wsdl = new Wsdl(new URI(anURI), null, null, wHttpLogin.getText(), wHttpPassword.getText());
+      wsdl =
+          new Wsdl(
+              anURI,
+              variables,
+              null,
+              null,
+              variables.resolve(wHttpLogin.getText()),
+              Encr.decryptPasswordOptionallyEncrypted(variables.resolve(wHttpPassword.getText())));
     } catch (Exception e) {
       wsdl = null;
       new ErrorDialog(
@@ -494,7 +500,7 @@ public class WebServiceDialog extends BaseTransformDialog {
 
     if (tabItemFieldOut == null) {
       tabItemFieldOut = new CTabItem(wTabFolder, SWT.NONE);
-      tabItemFieldIn.setFont(GuiResource.getInstance().getFontDefault());
+      tabItemFieldOut.setFont(GuiResource.getInstance().getFontDefault());
     }
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -883,6 +889,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     Button wbFile = new Button(compositeTabWebService, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFile);
     wbFile.setText(BaseMessages.getString(PKG, "WebServiceDialog.File.Load"));
+    wbFile.setToolTipText(BaseMessages.getString(PKG, "WebServiceDialog.File.Tooltip"));
     FormData fdbFile = new FormData();
     fdbFile.right = new FormAttachment(wbURL, 0);
     fdbFile.top = new FormAttachment(0, 0);
@@ -891,21 +898,27 @@ public class WebServiceDialog extends BaseTransformDialog {
     wbFile.addListener(
         SWT.Selection,
         e -> {
+          // The file dialog can hand back a name relative to a variable like ${PROJECT_HOME}.
+          // Keep it that way in the URL field so the transform stays portable: loading resolves it.
+          //
           String filename =
               BaseDialog.presentFileDialog(
+                  false,
                   shell,
+                  null,
+                  variables,
+                  null,
                   new String[] {"*.wsdl;*.WSDL", "*.*"},
                   new String[] {
                     BaseMessages.getString(PKG, "WebServiceDialog.FileType.WsdlFiles"),
-                    BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
-                    BaseMessages.getString(PKG, "System.FileType.TextFiles"),
                     BaseMessages.getString(PKG, "System.FileType.AllFiles")
                   },
-                  true);
+                  false);
 
           if (filename != null) {
+            wURL.setText(filename);
             try {
-              initTreeTabWebService(new File(filename).toURI().toASCIIString());
+              initTreeTabWebService(filename);
             } catch (Throwable throwable) {
               new ErrorDialog(
                   shell,
@@ -919,6 +932,7 @@ public class WebServiceDialog extends BaseTransformDialog {
         });
 
     wURL = new TextVar(variables, compositeTabWebService, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wURL.setToolTipText(BaseMessages.getString(PKG, "WebServiceDialog.URL.Tooltip"));
     wURL.addModifyListener(lsMod);
     PropsUi.setLook(wURL);
     FormData fdURL = new FormData();

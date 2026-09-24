@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<!--
+  The BookService WSDL that the castlemock container serves (see
+  docker/integration-tests/resource/http/CastleMockProject.xml), kept as a project file so
+  0013-webservice-local-wsdl.hpl can load it from ${PROJECT_HOME} (issue #4813). The service
+  address points to that castlemock mock.
+-->
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.cleverbuilder.com/BookService/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="BookService" targetNamespace="http://www.cleverbuilder.com/BookService/">
+    <wsdl:documentation>Definition for a web service called BookService,
+    which can be used to add or retrieve books from a collection.
+  </wsdl:documentation>
+    <!--
+      The `types` element defines the data types (XML elements)
+      that are used by the web service.
+   -->
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://www.cleverbuilder.com/BookService/">
+            <xsd:element name="Book">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="0" name="ID" type="xsd:string"/>
+                        <xsd:element name="Title" type="xsd:string"/>
+                        <xsd:element name="Author" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="Books">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" ref="tns:Book"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="GetBook">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ID" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="GetBookResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="0" ref="tns:Book"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="AddBook">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" ref="tns:Book"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="AddBookResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="0" ref="tns:Book"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="GetAllBooks">
+                <xsd:complexType/>
+            </xsd:element>
+            <xsd:element name="GetAllBooksResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" ref="tns:Book"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </wsdl:types>
+    <!--
+      A wsdl `message` element is used to define a message
+      exchanged between a web service, consisting of zero
+      or more `part`s.
+   -->
+    <wsdl:message name="GetBookRequest">
+        <wsdl:part element="tns:GetBook" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="GetBookResponse">
+        <wsdl:part element="tns:GetBookResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="AddBookRequest">
+        <wsdl:part element="tns:AddBook" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="AddBookResponse">
+        <wsdl:part element="tns:AddBookResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="GetAllBooksRequest">
+        <wsdl:part element="tns:GetAllBooks" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="GetAllBooksResponse">
+        <wsdl:part element="tns:GetAllBooksResponse" name="parameters"/>
+    </wsdl:message>
+    <!--
+      A WSDL `portType` is used to combine multiple `message`s
+      (e.g. input, output) into a single operation.
+      Here we define three synchronous (input/output) operations
+      and the `message`s that must be used for each.
+   -->
+    <wsdl:portType name="BookService">
+        <wsdl:operation name="GetBook">
+            <wsdl:input message="tns:GetBookRequest"/>
+            <wsdl:output message="tns:GetBookResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="AddBook">
+            <wsdl:input message="tns:AddBookRequest"/>
+            <wsdl:output message="tns:AddBookResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetAllBooks">
+            <wsdl:input message="tns:GetAllBooksRequest"/>
+            <wsdl:output message="tns:GetAllBooksResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <!--
+      The `binding` element defines exactly how each
+      `operation` will take place over the network.
+      In this case, we are using SOAP.
+   -->
+    <wsdl:binding name="BookServiceSOAP" type="tns:BookService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetBook">
+            <soap:operation soapAction="http://www.cleverbuilder.com/BookService/GetBook"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="AddBook">
+            <soap:operation soapAction="http://www.cleverbuilder.com/BookService/AddBook"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetAllBooks">
+            <soap:operation soapAction="http://www.cleverbuilder.com/BookService/GetAllBooks"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <!--
+      The `service` element finally says where the service
+      can be accessed from - in other words, its endpoint.
+   -->
+    <wsdl:service name="BookService">
+        <wsdl:port binding="tns:BookServiceSOAP" name="BookServiceSOAP">
+            <soap:address location="http://castlemock:8080/castlemock/mock/soap/project/17hLFE/BookServiceSOAP"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
