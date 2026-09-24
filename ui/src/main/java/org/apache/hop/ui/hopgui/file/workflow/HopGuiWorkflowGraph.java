@@ -3990,10 +3990,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           break;
 
         case CUSTOM:
-          String message = (String) areaOwner.getOwner();
-          tip.append(message);
-          tipImage = null;
-          GuiResource.getInstance().getImagePipeline();
+          // A plain message is shown as is; anything else, such as the debug level bee, is
+          // described by the plugin that drew it.
+          //
+          if (areaOwner.getOwner() instanceof String message) {
+            tip.append(message);
+          }
+          tipImage = callAreaHoverExtension(x, y, screenX, screenY, areaOwner, tip);
           break;
 
         case ACTION_RESULT_FAILURE, ACTION_RESULT_SUCCESS:
@@ -4104,23 +4107,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         default:
           // For plugins...
           //
-          try {
-            HopGuiTooltipExtension tooltipExt =
-                new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
-            ExtensionPointHandler.callExtensionPoint(
-                hopGui.getLog(),
-                variables,
-                HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
-                tooltipExt);
-            tipImage = tooltipExt.tooltipImage;
-          } catch (Exception ex) {
-            hopGui
-                .getLog()
-                .logError(
-                    "Error calling extension point "
-                        + HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
-                    ex);
-          }
+          tipImage = callAreaHoverExtension(x, y, screenX, screenY, areaOwner, tip);
           break;
       }
     }
@@ -4160,6 +4147,34 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         toolTip.setVisible(false);
         showToolTip(new org.eclipse.swt.graphics.Point(screenX, screenY));
       }
+    }
+  }
+
+  /**
+   * Lets plugins describe an area they drew on the canvas: they append to the tip and may set an
+   * image.
+   *
+   * @return the image the plugins set for the tooltip, or null
+   */
+  private Image callAreaHoverExtension(
+      int x, int y, int screenX, int screenY, AreaOwner areaOwner, StringBuilder tip) {
+    try {
+      HopGuiTooltipExtension tooltipExt =
+          new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          variables,
+          HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
+          tooltipExt);
+      return tooltipExt.tooltipImage;
+    } catch (Exception ex) {
+      hopGui
+          .getLog()
+          .logError(
+              "Error calling extension point "
+                  + HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
+              ex);
+      return null;
     }
   }
 

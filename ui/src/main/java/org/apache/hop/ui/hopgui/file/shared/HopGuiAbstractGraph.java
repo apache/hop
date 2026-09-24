@@ -172,9 +172,15 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     return !emptyCanvas || GraphPalette.isVisible();
   }
 
-  /** Whether the user left this kind of canvas tooltip on in the Look &amp; Feel options. */
+  /**
+   * Whether this kind of canvas tooltip is shown: the general tooltip option on the General tab
+   * must be on, and so must the kind's own checkbox in the Look &amp; Feel options. The general
+   * option is checked here rather than in {@link PropsUi#isCanvasToolTipShown(CanvasToolTip)},
+   * since the Look &amp; Feel checkboxes read that one and would otherwise save every kind as off.
+   */
   protected boolean isToolTipShown(CanvasToolTip toolTip) {
-    return hopGui.getProps().isCanvasToolTipShown(toolTip);
+    PropsUi props = hopGui.getProps();
+    return props.showToolTips() && props.isCanvasToolTipShown(toolTip);
   }
 
   /**

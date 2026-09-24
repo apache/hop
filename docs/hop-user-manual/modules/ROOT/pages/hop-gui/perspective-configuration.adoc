@@ -104,7 +104,7 @@ See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in bot
 |no
 
 |Tooltips
-a|A group of its own in the *Pipeline and Workflow canvas* section: one checkbox per kind of tooltip the canvas shows when the mouse rests on something. Untick a kind to stop only that one; *Show tool tips?* on the General tab still switches all of them off at once.
+a|A group of its own in the *Pipeline and Workflow canvas* section: one checkbox per kind of tooltip the canvas shows when the mouse rests on something. Untick a kind to stop only that one; *Show tooltip when hovering over a hop or Action/Transform* in the *Tooltips* section of the General tab still switches all of them off at once.
 
 * *Edit hint on transform and action names*: the "Click to edit" hint on a name.
 * *Transform and action descriptions*: the description on an icon and its info badge, along with the transform partitioning and whether a transform can start a pipeline.

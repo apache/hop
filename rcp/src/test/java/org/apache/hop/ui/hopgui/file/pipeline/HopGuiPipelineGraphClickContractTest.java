@@ -308,6 +308,42 @@ class HopGuiPipelineGraphClickContractTest extends GraphCanvasTestBase {
         });
   }
 
+  /**
+   * The general tooltip option on the General tab switches every canvas tooltip off at once, the
+   * "Selection cleared" notice included, even while its own checkbox is left on.
+   */
+  @Test
+  void generalToolTipOptionSwitchesOffTheSelectionClearedNotice() {
+    Cell cell = new Cell(false, Where.EMPTY_SELECTED, LEFT, null, Scene::nothingSelected);
+    onCanvas(
+        cell,
+        scene -> {
+          Point at = scene.aim(cell.where);
+          try {
+            onUi(
+                () -> {
+                  PropsUi.getInstance().setCanvasToolTipShown(CanvasToolTip.NOTICE, true);
+                  PropsUi.getInstance().setShowToolTips(false);
+                });
+
+            List<String> dialogs =
+                clickAndCatchDialogs(
+                    scene.bot, scene.canvas, scene.scale, at, LEFT, SWT.NONE, scene::noteBalloon);
+
+            assertAll(
+                () -> assertDialogs(null, dialogs),
+                () -> cell.sideEffect.accept(scene),
+                () ->
+                    assertNull(
+                        scene.balloon,
+                        "tooltips are switched off, yet the notice shows: " + scene.balloon),
+                () -> assertNoFailures());
+          } finally {
+            onUi(() -> PropsUi.getInstance().setShowToolTips(true));
+          }
+        });
+  }
+
   // ------------------------------------------------------------------ assertions
 
   private static void assertDialogs(String expected, List<String> actual) {
