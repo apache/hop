@@ -123,3 +123,11 @@ Values defined in resource bundles (resource files in `messages/messages\*.prope
 
 Apache Hop and related projects should use Lombok for all classes to avoid cluttering classes with boilerplate getter/setter methods.
 
+# Metadata type keys
+
+The `key` of `@HopMetadata` is the metadata plugin ID and the name of the folder its objects are stored in (`metadata/<key>/<name>.json`). It is also written into serialized metadata exports and matched against `disabledGuiElements`. Treat it as a public, persisted identifier.
+
+- **New metadata types:** the key is lower-case and dash-separated (kebab-case) and names what the type is, for example `mail-server-connection` or `pipeline-run-configuration`. Never use PascalCase or the Java class name. Check this on every new or changed `@HopMetadata` annotation, including in reviews.
+- **Renaming a key:** never change an existing key without moving the old one to `legacyKeys`, for example `key = "mail-server-connection", legacyKeys = {"MailServerConnection"}`. Objects in the old folder keep loading, and each one moves to the new folder the next time it is saved. Without `legacyKeys`, existing projects silently lose those objects.
+- **Code that works with type keys or metadata files** must go through `HopMetadataUtil.getAllKeys()` / `matchesKey()` or `JsonMetadataSerializer.findFilename()`, not `annotation.key()` alone. Otherwise objects still in a legacy folder are missed.
+- `rdbms` predates this convention and stays as it is.

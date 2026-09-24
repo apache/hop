@@ -53,6 +53,8 @@ class ActionHttpLoadSaveTest {
     assertEquals("username", meta.getUsername());
     assertEquals("proxy", meta.getProxyHostname());
     assertEquals("8080", meta.getProxyPort());
+    assertEquals("proxyuser", meta.getProxyUsername());
+    assertEquals("localhost|127.*", meta.getNonProxyHosts());
     assertEquals(2, meta.getHeaders().size());
     assertTrue(meta.isIgnoreSsl());
     assertFalse(meta.isRunForEveryRow());
@@ -72,6 +74,9 @@ class ActionHttpLoadSaveTest {
     assertEquals(clone.getUsername(), meta.getUsername());
     assertEquals(clone.getProxyHostname(), meta.getProxyHostname());
     assertEquals(clone.getProxyPort(), meta.getProxyPort());
+    assertEquals(clone.getProxyUsername(), meta.getProxyUsername());
+    assertEquals(clone.getProxyPassword(), meta.getProxyPassword());
+    assertEquals(clone.getNonProxyHosts(), meta.getNonProxyHosts());
     assertEquals(clone.getHeaders().size(), meta.getHeaders().size());
     assertEquals(clone.isIgnoreSsl(), meta.isIgnoreSsl());
     assertEquals(clone.isRunForEveryRow(), meta.isRunForEveryRow());

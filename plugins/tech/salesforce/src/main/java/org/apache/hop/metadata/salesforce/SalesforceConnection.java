@@ -29,7 +29,8 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
-    key = "salesforceconnection",
+    key = "salesforce-connection",
+    legacyKeys = {"salesforceconnection"},
     name = "i18n::SalesforceConnection.name",
     description = "i18n::SalesforceConnection.description",
     image = "salesforce.svg",

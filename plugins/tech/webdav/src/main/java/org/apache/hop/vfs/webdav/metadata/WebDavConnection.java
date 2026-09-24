@@ -36,7 +36,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Getter
 @Setter
 @HopMetadata(
-    key = "WebDavConnectionDefinition",
+    key = "webdav-connection",
+    legacyKeys = {"WebDavConnectionDefinition"},
     name = "i18n::WebDavConnection.Name",
     description = "i18n::WebDavConnection.Description",
     image = "ui/images/authentication.svg",

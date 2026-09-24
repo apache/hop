@@ -32,14 +32,27 @@ services:
       - ./resource/http/mtls/test-certs:/opt/hop/tests/mtls/certs:ro
       - ./resource/http/mtls/nginx-configs:/opt/hop/tests/mtls/nginx:ro
     depends_on:
-      - http
-      - httpecho
-      - tomcat
-      - castlemock
-      - mtls_test
-      - proxy
-      - paging
-      - httpsse
+      http:
+        condition: service_started
+      httpecho:
+        condition: service_started
+      tomcat:
+        condition: service_started
+      castlemock:
+        condition: service_started
+      mtls_test:
+        condition: service_started
+      proxy:
+        condition: service_started
+      paging:
+        condition: service_started
+      httpsse:
+        condition: service_started
+      # Waited for rather than just started: it is the only service a test cannot reach on its
+      # own, so a request arriving before nginx is up comes back as a 503 from the proxy, which
+      # reads exactly like a broken proxy configuration.
+      proxied-origin:
+        condition: service_healthy
     environment:
       HOP_MTLS_CERTS_DIR: /opt/hop/tests/mtls/certs
       HOP_MTLS_BASE_URL: https://mtls_test:443
@@ -124,6 +137,14 @@ services:
       - ./resource/http/proxy/origin.conf:/etc/nginx/nginx.conf:ro
     networks:
       - proxy_only
+    # 127.0.0.1 rather than localhost: busybox wget resolves localhost to ::1 first, and this
+    # server listens on IPv4 only, so the check would fail with "Connection refused".
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
   mtls_test:
     image: nginx:alpine

@@ -76,7 +76,14 @@ final class LintMetadataSelection {
     if (annotation == null || Utils.isEmpty(annotation.key())) {
       return null;
     }
-    return resolveMetadataPath(annotation.key(), metadata.getName());
+    // An object which wasn't saved since its type was renamed still lives in a legacy key folder.
+    for (String key : HopMetadataUtil.getAllKeys(annotation)) {
+      String path = resolveMetadataPath(key, metadata.getName());
+      if (path != null) {
+        return path;
+      }
+    }
+    return null;
   }
 
   private static String resolveMetadataPath(String key, String name) {
