@@ -22,12 +22,13 @@ They do *not* change the value stored in a database.
 [options="header"]
 |===
 |Column|Description
-|Format / Conversion mask|Number or date pattern used to parse and print the value.
+|Format / Conversion mask|Number, date or Boolean pattern used to parse and print the value.
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|String: maximum characters.
 Number / BigNumber: significant digits.
 Integer: display width (leading zeros when writing).
 Date: length of the printed string (for example `4` prints only the year).
+Boolean without a Format: `3` or more prints `true` / `false`, anything else prints `Y` / `N`.
 Use `-1` when unset.
 |Precision|Decimal digits after the radix for Number and BigNumber.
 Not used for String, Date or Boolean.

@@ -3574,6 +3574,7 @@ public class TableView extends Composite {
         case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER ->
             Const.getNumberFormats();
         case IValueMeta.TYPE_STRING -> Const.getConversionFormats();
+        case IValueMeta.TYPE_BOOLEAN -> Const.getBooleanFormats();
         default -> new String[0];
       };
     }
