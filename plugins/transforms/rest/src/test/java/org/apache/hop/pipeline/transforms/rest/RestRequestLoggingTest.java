@@ -64,10 +64,12 @@ class RestRequestLoggingTest {
     assertTrue(
         log.contains("/api/things?q=hop"), "the request line carries the query string:\n" + log);
     assertTrue(log.contains("X-Trace: abc123"), "a configured header:\n" + log);
-    // Neither of these is a header on the request object: the client derives Host from the route
-    // and Content-Type from the entity. Without them the block would misrepresent the request.
+    // Host is not on the request object yet: the client derives it from the route at send time.
+    // Content-Type is on the entity until then, and the log prints the value that will be sent.
+    // Issue #8507: that value is the mime type, without a charset parameter.
     assertTrue(log.contains("Host: example.com"), "the host:\n" + log);
     assertTrue(log.contains("Content-Type: application/json"), "the content type:\n" + log);
+    assertFalse(log.toLowerCase().contains("charset"), "no charset parameter:\n" + log);
     assertTrue(log.contains("{\"name\":\"hop\"}"), "the body:\n" + log);
   }
 

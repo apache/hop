@@ -68,7 +68,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -1657,12 +1656,19 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       headers.forEach(request::addHeader);
 
       if (RestMeta.isActiveBody(data.method)) {
-        ContentType type = contentType != null ? ContentType.parse(contentType) : data.mediaType;
-        trackRequestBytes(body, resolveCharset(type));
-        request.setEntity(
-            body instanceof byte[] bytes
-                ? new ByteArrayEntity(bytes, type)
-                : new StringEntity((String) body, type));
+        // Issue #8507: ContentType.APPLICATION_JSON renders as
+        // "application/json; charset=UTF-8". HttpClient copies that onto the request
+        // when the row did not set Content-Type. Gateways such as Omie answer that
+        // parameter with HTTP 500 and a SOAP Sender fault, before the API runs.
+        // Hop 2.17 sent the mime type alone. A Content-Type the row set is kept as
+        // written, charset included. The body is still encoded with the charset.
+        Header suppliedContentType = request.getFirstHeader("Content-Type");
+        ContentType parsed = contentTypeForBody(suppliedContentType, contentType);
+        Charset charset = resolveCharset(parsed);
+        trackRequestBytes(body, charset);
+        ContentType wireType = suppliedContentType == null ? mimeTypeOnly(parsed) : null;
+        byte[] payload = body instanceof byte[] bytes ? bytes : ((String) body).getBytes(charset);
+        request.setEntity(new ByteArrayEntity(payload, wireType));
       }
 
       if (isDetailed()) {
@@ -1712,14 +1718,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     text.append(BaseMessages.getString(PKG, "Rest.Log.FullRequest")).append(Const.CR);
     text.append(request.getMethod()).append(' ').append(request.getRequestUri()).append(Const.CR);
 
-    // Host and Content-Type never appear in getHeaders(): the client derives the first from the
-    // route and the second from the entity, both at send time. Leaving them out would make this a
-    // misleading picture of the request rather than a faithful one.
+    // Host is filled in from the route at send time, so it is not in getHeaders() yet.
+    // Content-Type is already on the request when the row set it. Otherwise it lives on
+    // the entity and is copied at send time. Print the one that will go out, once.
     if (request.getAuthority() != null) {
       text.append("Host: ").append(request.getAuthority().toString()).append(Const.CR);
     }
     HttpEntity requestEntity = request.getEntity();
-    if (requestEntity != null && requestEntity.getContentType() != null) {
+    if (!request.containsHeader("Content-Type")
+        && requestEntity != null
+        && requestEntity.getContentType() != null) {
       text.append("Content-Type: ").append(requestEntity.getContentType()).append(Const.CR);
     }
 
@@ -1807,6 +1815,31 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (responseBytes > 0) {
       dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + responseBytes;
     }
+  }
+
+  /**
+   * The type used to encode the body. A header the row supplied wins, including its charset. A
+   * value that does not parse leaves the encoding at the application type, or UTF-8 when that is
+   * unset.
+   */
+  private ContentType contentTypeForBody(Header supplied, String contentType) {
+    String raw = supplied != null ? supplied.getValue() : contentType;
+    if (!Utils.isEmpty(raw)) {
+      try {
+        return ContentType.parse(raw);
+      } catch (Exception ignored) {
+        // Malformed Content-Type: keep the header as written and encode with the application type.
+      }
+    }
+    return data.mediaType;
+  }
+
+  /** Mime type only. The charset stays on the encoder and off the header (issue #8507). */
+  private static ContentType mimeTypeOnly(ContentType parsed) {
+    if (parsed == null || parsed.getMimeType() == null) {
+      return null;
+    }
+    return ContentType.create(parsed.getMimeType());
   }
 
   private Charset resolveCharset(String mediaTypeValue) {
