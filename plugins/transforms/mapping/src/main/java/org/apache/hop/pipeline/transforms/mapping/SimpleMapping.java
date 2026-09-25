@@ -161,6 +161,16 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
     if (isSingleThreaded()) {
       simpleMappingData.mappingPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+      // This child is driven again on every parent iteration and does not finish between them.
+      // A location here would register a second caching session (metadata document, sampler rows,
+      // and a timer) for the whole parent run.
+      if (suppressExecutionInformation(simpleMappingData.mappingPipeline)) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "SimpleMapping.Log.IgnoringExecutionInformationLocation",
+                simpleMappingData.mappingPipeline.getPipelineRunConfiguration().getName()));
+      }
     }
 
     // Copy the parameters over...
@@ -247,6 +257,24 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
             && getPipeline().getPipelineType() == PipelineMeta.PipelineType.SingleThreaded);
   }
 
+  /**
+   * Drops the execution-information location from a copy of the child's run configuration. The
+   * metadata object itself is left unchanged.
+   *
+   * @return true when a location was removed
+   */
+  static boolean suppressExecutionInformation(LocalPipelineEngine engine) {
+    PipelineRunConfiguration runConfig = engine.getPipelineRunConfiguration();
+    if (runConfig == null || StringUtils.isEmpty(runConfig.getExecutionInfoLocationName())) {
+      return false;
+    }
+    PipelineRunConfiguration copy = new PipelineRunConfiguration(runConfig);
+    copy.setExecutionInfoLocationName(null);
+    copy.setExecutionDataProfileName(null);
+    engine.setPipelineRunConfiguration(copy);
+    return true;
+  }
+
   public static List<MappingInput> findMappingInputs(Pipeline mappingPipeline) {
     return MappingTransforms.findMappingInputs(mappingPipeline);
   }
@@ -312,6 +340,10 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     try {
       if (data.executor != null) {
         try {
+          // A single-threaded child has no transform threads, so it does not finish on its own.
+          if (data.mappingPipeline != null && !data.mappingPipeline.isFinished()) {
+            data.mappingPipeline.stopAll();
+          }
           data.executor.dispose();
         } catch (Exception e) {
           logError("Error calling dispose() on single threaded Simple Mapping executor", e);
