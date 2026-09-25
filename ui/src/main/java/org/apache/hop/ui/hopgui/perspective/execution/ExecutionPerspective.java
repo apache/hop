@@ -510,12 +510,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       return;
     }
 
-    // Create tab item. Data is set before any call that can throw: a tab left without data makes
-    // the next double-click crash in setActiveViewer (issue #8601).
+    // Data is set before any call that can throw. A tab left without data makes the next
+    // double-click crash in setActiveViewer (issue #8601).
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setData(viewer);
+    boolean ok = false;
     try {
+      tabItem.setData(viewer);
       tabItem.setFont(GuiResource.getInstance().getFontDefault());
       tabItem.setText(Const.NVL(viewer.getName(), ""));
       tabItem.setImage(viewer.getTitleImage());
@@ -524,9 +525,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       if (control != null && !control.isDisposed()) {
         tabItem.setControl(control);
       }
-    } catch (RuntimeException e) {
-      discardViewerTab(tabItem, viewer);
-      throw e;
+      ok = true;
+    } finally {
+      if (!ok) {
+        discardViewerTab(tabItem, viewer);
+      }
     }
 
     viewers.add(viewer);
@@ -591,77 +594,21 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void setActiveViewer(IExecutionViewer viewer) {
-    activateViewer(viewer);
-  }
-
-  /**
-   * Selects the tab that shows {@code viewer}.
-   *
-   * <p>Tabs with no data are skipped. Calling {@code getData().equals(viewer)} threw when a tab had
-   * never received its viewer, which is what double-clicking a workflow in the execution tree hit
-   * (issue #8601). A tab whose control is the viewer but whose data was lost is repaired.
-   *
-   * @return {@code true} when a tab for this viewer was selected
-   */
-  boolean activateViewer(IExecutionViewer viewer) {
     if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
-      return false;
+      return;
     }
     for (CTabItem item : tabFolder.getItems()) {
       if (item == null || item.isDisposed()) {
         continue;
       }
-      // Skip a tab whose data was never set. equals() on that null is the double-click crash
-      // (issue #8601).
+      // Compare from the viewer. A tab with no data must not throw (issue #8601).
       //
       if (viewer.equals(item.getData())) {
-        return selectViewerTab(item, viewer);
+        tabFolder.setSelection(item);
+        tabFolder.showItem(item);
+        viewer.setFocus();
       }
     }
-    for (CTabItem item : tabFolder.getItems()) {
-      if (item == null || item.isDisposed()) {
-        continue;
-      }
-      if (tabShowsViewer(item, viewer)) {
-        item.setData(viewer);
-        return selectViewerTab(item, viewer);
-      }
-    }
-    return false;
-  }
-
-  /**
-   * @return {@code true} when this execution is already open and its tab was selected. A registered
-   *     viewer that is not on a tab is dropped so the caller can open a new one.
-   */
-  boolean keepExistingViewer(String executionId, String executionName) {
-    IExecutionViewer active = findViewer(executionId, executionName);
-    if (active == null) {
-      return false;
-    }
-    if (activateViewer(active)) {
-      return true;
-    }
-    viewers.remove(active);
-    return false;
-  }
-
-  private boolean selectViewerTab(CTabItem item, IExecutionViewer viewer) {
-    tabFolder.setSelection(item);
-    tabFolder.showItem(item);
-    viewer.setFocus();
-    return true;
-  }
-
-  /** A tab can lose its data and still be showing the viewer composite. */
-  private static boolean tabShowsViewer(CTabItem item, IExecutionViewer viewer) {
-    Control control;
-    try {
-      control = viewer.getControl();
-    } catch (RuntimeException e) {
-      return false;
-    }
-    return control != null && !control.isDisposed() && item.getControl() == control;
   }
 
   public IExecutionViewer getActiveViewer() {
@@ -741,10 +688,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       }
       getShell().setCursor(busyCursor);
 
-      // See if the viewer is already active. A stale registration with no tab must not block a new
-      // one: that is the double-click path for a workflow execution (issue #8601).
+      // See if the viewer is already active...
       //
-      if (keepExistingViewer(execution.getId(), execution.getName())) {
+      IExecutionViewer active = findViewer(execution.getId(), execution.getName());
+      if (active != null) {
+        setActiveViewer(active);
         return;
       }
 

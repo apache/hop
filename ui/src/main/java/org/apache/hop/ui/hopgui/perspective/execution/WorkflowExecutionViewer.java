@@ -337,11 +337,13 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
           // it keeps the workflow info tab on screen instead of failing the whole refresh.
           //
           if (actionData == null) {
+            LogChannel.UI.logDebug("No execution data yet for action id '" + id + "'");
             continue;
           }
 
           ExecutionDataSetMeta dataSetMeta = actionData.getDataSetMeta();
           if (dataSetMeta == null || dataSetMeta.getName() == null) {
+            LogChannel.UI.logDebug("Execution data for action id '" + id + "' has no action name");
             continue;
           }
           String actionName = dataSetMeta.getName();

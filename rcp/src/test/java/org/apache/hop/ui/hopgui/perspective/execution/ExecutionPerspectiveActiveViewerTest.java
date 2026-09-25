@@ -19,37 +19,33 @@ package org.apache.hop.ui.hopgui.perspective.execution;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
-import java.util.List;
+import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Double-clicking a workflow execution selects its viewer tab. A tab that was created without data
- * used to throw from {@code CTabItem.getData().equals} and the workflow never opened (issue #8601).
+ * Double-clicking a workflow execution selects its viewer tab. A tab with no data used to throw
+ * from {@code CTabItem.getData().equals} (issue #8601). Opening a viewer whose setup fails must not
+ * leave that composite parented to the folder.
  */
 @Tag("uitest")
-class ExecutionPerspectiveActiveViewerTest {
+class ExecutionPerspectiveActiveViewerTest extends SwtBotTestBase {
 
-  private Display display;
   private Shell shell;
   private CTabFolder folder;
   private ExecutionPerspective perspective;
@@ -57,14 +53,6 @@ class ExecutionPerspectiveActiveViewerTest {
 
   @BeforeEach
   void openFolder() throws Exception {
-    Assumptions.assumeFalse(
-        GraphicsEnvironment.isHeadless(),
-        "No display available (headless); skipping SWT UI tests.");
-    try {
-      display = Display.getDefault();
-    } catch (SWTException e) {
-      Assumptions.abort("No SWT display: " + e.getMessage());
-    }
     previousInstance = currentInstance();
     perspective = new ExecutionPerspective();
     shell = new Shell(display);
@@ -81,8 +69,8 @@ class ExecutionPerspectiveActiveViewerTest {
   }
 
   @Test
-  void nullDataTabDoesNotBlockTheWorkflowViewer() throws Exception {
-    StubViewer workflow = new StubViewer("lees-van-kafka", "dae9c3e9-a6ee-4ef2-ad7b-a2e645881f4d");
+  void nullDataTabDoesNotHideTheOpenViewer() {
+    StubViewer workflow = new StubViewer("lees-van-kafka", "dae9c3e9");
     CTabItem empty = new CTabItem(folder, SWT.CLOSE);
     CTabItem workflowTab = new CTabItem(folder, SWT.CLOSE);
     workflowTab.setText(workflow.getName());
@@ -90,52 +78,31 @@ class ExecutionPerspectiveActiveViewerTest {
 
     assertDoesNotThrow(() -> perspective.setActiveViewer(workflow));
 
-    assertFalse(empty.isDisposed());
-    assertNull(empty.getData());
     assertSame(workflow, perspective.getActiveViewer());
     assertSame(workflowTab, folder.getSelection());
     assertEquals(1, workflow.focusCount);
+    assertNull(empty.getData());
   }
 
   @Test
-  void lostTabDataIsRestoredFromTheViewerControl() {
-    StubViewer workflow = new StubViewer("lees-van-kafka", "dae9c3e9-a6ee-4ef2-ad7b-a2e645881f4d");
-    Composite body = new Composite(folder, SWT.NONE);
-    workflow.control = body;
-    CTabItem tab = new CTabItem(folder, SWT.CLOSE);
-    tab.setControl(body);
-
-    assertTrue(perspective.activateViewer(workflow));
-
-    assertSame(workflow, tab.getData());
-    assertSame(workflow, perspective.getActiveViewer());
-  }
-
-  @Test
-  void registeredViewerWithoutATabIsDroppedSoItCanBeOpenedAgain() throws Exception {
-    StubViewer workflow = new StubViewer("lees-van-kafka", "dae9c3e9-a6ee-4ef2-ad7b-a2e645881f4d");
-    viewers().add(workflow);
-    CTabItem empty = new CTabItem(folder, SWT.CLOSE);
-
-    assertFalse(perspective.keepExistingViewer(workflow.getLogChannelId(), workflow.getName()));
-
-    assertFalse(empty.isDisposed());
-    assertNull(perspective.findViewer(workflow.getLogChannelId(), workflow.getName()));
-  }
-
-  @Test
-  void missingViewerDoesNothing() {
-    assertFalse(perspective.activateViewer(null));
-    assertFalse(perspective.keepExistingViewer(null, "lees-van-kafka"));
-    assertFalse(perspective.keepExistingViewer("id", null));
+  void nullViewerDoesNothing() {
+    assertDoesNotThrow(() -> perspective.setActiveViewer(null));
     assertNull(perspective.getActiveViewer());
   }
 
-  @SuppressWarnings("unchecked")
-  private List<IExecutionViewer> viewers() throws Exception {
-    Field field = ExecutionPerspective.class.getDeclaredField("viewers");
-    field.setAccessible(true);
-    return (List<IExecutionViewer>) field.get(perspective);
+  @Test
+  void failedOpenLeavesNoTabAndDisposesTheViewer() {
+    Composite body = new Composite(folder, SWT.NONE);
+    StubViewer workflow = new StubViewer("lees-van-kafka", "dae9c3e9");
+    workflow.control = body;
+    workflow.imageFailure = new Error("icon");
+
+    Error failure = assertThrows(Error.class, () -> perspective.addViewer(workflow));
+
+    assertSame(workflow.imageFailure, failure);
+    assertEquals(0, folder.getItemCount());
+    assertNull(perspective.findViewer(workflow.getLogChannelId(), workflow.getName()));
+    assertTrue(body.isDisposed());
   }
 
   private static ExecutionPerspective currentInstance() throws Exception {
@@ -162,6 +129,7 @@ class ExecutionPerspectiveActiveViewerTest {
     private final String id;
     private Control control;
     private int focusCount;
+    private Error imageFailure;
 
     private StubViewer(String name, String id) {
       this.name = name;
@@ -180,6 +148,9 @@ class ExecutionPerspectiveActiveViewerTest {
 
     @Override
     public Image getTitleImage() {
+      if (imageFailure != null) {
+        throw imageFailure;
+      }
       return null;
     }
 
