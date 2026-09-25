@@ -16,7 +16,7 @@
  */
 package org.apache.hop.lint;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class LintResult {
   private final String fileName;
   private final LintSourceRef source;
   private final Origin origin;
-  private final String aliasRuleId;
+  private final List<String> aliasRuleIds;
 
   public LintResult(
       String ruleId, String ruleName, String severity, String message, String fileName) {
@@ -50,7 +50,7 @@ public class LintResult {
       String fileName,
       LintSourceRef source,
       Origin origin) {
-    this(ruleId, ruleName, severity, message, fileName, source, origin, null);
+    this(ruleId, ruleName, severity, message, fileName, source, origin, List.of());
   }
 
   /**
@@ -67,6 +67,18 @@ public class LintResult {
       LintSourceRef source,
       Origin origin,
       String aliasRuleId) {
+    this(ruleId, ruleName, severity, message, fileName, source, origin, aliasList(aliasRuleId));
+  }
+
+  public LintResult(
+      String ruleId,
+      String ruleName,
+      String severity,
+      String message,
+      String fileName,
+      LintSourceRef source,
+      Origin origin,
+      List<String> aliasRuleIds) {
     this.ruleId = ruleId;
     this.ruleName = ruleName;
     this.severity = severity;
@@ -74,7 +86,7 @@ public class LintResult {
     this.fileName = fileName;
     this.source = source;
     this.origin = origin != null ? origin : Origin.LINT;
-    this.aliasRuleId = aliasRuleId;
+    this.aliasRuleIds = aliasRuleIds == null ? Collections.emptyList() : List.copyOf(aliasRuleIds);
   }
 
   public String getRuleId() {
@@ -114,15 +126,26 @@ public class LintResult {
    * suppression written against the code keeps working after a project adds such a rule.
    */
   public String getAliasRuleId() {
-    return aliasRuleId;
+    return aliasRuleIds.isEmpty() ? null : aliasRuleIds.get(0);
   }
 
   /** The rule ids this finding answers to: its own, then its alias, if any. */
   public List<String> getRuleIds() {
-    if (aliasRuleId == null || aliasRuleId.equalsIgnoreCase(ruleId)) {
+    if (aliasRuleIds.isEmpty()) {
       return Collections.singletonList(ruleId);
     }
-    return Arrays.asList(ruleId, aliasRuleId);
+    List<String> ids = new ArrayList<>();
+    ids.add(ruleId);
+    for (String alias : aliasRuleIds) {
+      if (alias != null && !alias.equalsIgnoreCase(ruleId) && !ids.contains(alias)) {
+        ids.add(alias);
+      }
+    }
+    return List.copyOf(ids);
+  }
+
+  private static List<String> aliasList(String aliasRuleId) {
+    return aliasRuleId == null ? List.of() : List.of(aliasRuleId);
   }
 
   @Override

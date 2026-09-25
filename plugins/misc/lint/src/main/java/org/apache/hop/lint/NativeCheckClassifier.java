@@ -50,7 +50,8 @@ public final class NativeCheckClassifier {
    *
    * @param narrowed whether the rule names a plugin or a check, rather than every remark
    */
-  public record Classification(String severity, String ruleId, boolean narrowed) {}
+  public record Classification(
+      String severity, String ruleId, boolean narrowed, String blanketRuleId) {}
 
   /** Where MessageFormat left a value out: {@code {0}}, {@code {1}}, and so on. */
   private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\d+\\}");
@@ -87,7 +88,8 @@ public final class NativeCheckClassifier {
     }
     CustomLintRule match = bestMatch(remark);
     if (match == null) {
-      return new Classification(LintSeverity.fromCheckResultType(remark.getType()), null, false);
+      return new Classification(
+          LintSeverity.fromCheckResultType(remark.getType()), null, false, null);
     }
     if (!match.isEnabled()) {
       return null;
@@ -97,7 +99,11 @@ public final class NativeCheckClassifier {
         narrowed
             ? match.getSeverity()
             : capped(LintSeverity.fromCheckResultType(remark.getType()), match.getSeverity());
-    return new Classification(severity, match.generateRuleId(), narrowed);
+    // A narrowed rule takes the id, so the rule that covers every remark would otherwise stop
+    // naming this finding, and a project's existing suppression of it would quietly lapse the
+    // moment that project named the check. It is carried along as another name.
+    return new Classification(
+        severity, match.generateRuleId(), narrowed, narrowed ? blanketRuleId() : null);
   }
 
   /**
@@ -139,6 +145,21 @@ public final class NativeCheckClassifier {
       }
     }
     return bestScore < 0 ? null : best;
+  }
+
+  /**
+   * The id of the rule that covers every remark, or null when no such rule is in force.
+   *
+   * <p>A rule naming neither a plugin nor a check applies to anything put in front of it, so the
+   * first one is the one a blanket configuration was written against.
+   */
+  private String blanketRuleId() {
+    for (CustomLintRule rule : rules) {
+      if (!isNarrowed(rule)) {
+        return rule.generateRuleId();
+      }
+    }
+    return null;
   }
 
   private static boolean isNarrowed(CustomLintRule rule) {

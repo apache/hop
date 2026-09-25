@@ -141,6 +141,44 @@ public class LintCheckResultAdapterTest {
         "a suppression naming the code must survive the project adding this rule");
   }
 
+  /**
+   * Naming one check must not quietly undo a suppression the project already had.
+   *
+   * <p>The narrowed rule takes the id, so the rule covering every remark stopped naming the finding
+   * and a {@code suppress: HOP-CHECK} written beforehand no longer matched it.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
+   */
+  @Test
+  public void aNarrowedRuleKeepsTheBlanketRuleAsAName() {
+    CustomLintRule tableInput = nativeRule("HOP-CHECK-TABLEINPUT", "ERROR");
+    tableInput.setAppliesTo(List.of("TableInput"));
+    NativeCheckClassifier classifier =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING"), tableInput));
+
+    LintResult result =
+        LintCheckResultAdapter.fromCheckResult(
+            missingConnectionRemark(), "/tmp/test.hpl", classifier);
+
+    assertEquals(
+        List.of("HOP-CHECK-TABLEINPUT", "CONNECTION_DOES_NOT_EXIST", "HOP-CHECK"),
+        result.getRuleIds(),
+        "the finding must still answer to the rule that covers every remark");
+  }
+
+  /** With no narrowed rule in force the blanket rule is the alias, and is not repeated. */
+  @Test
+  public void theBlanketRuleIsNamedOnceWhenNoRuleNarrows() {
+    NativeCheckClassifier classifier =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING")));
+
+    LintResult result =
+        LintCheckResultAdapter.fromCheckResult(
+            missingConnectionRemark(), "/tmp/test.hpl", classifier);
+
+    assertEquals(List.of("CONNECTION_DOES_NOT_EXIST", "HOP-CHECK"), result.getRuleIds());
+  }
+
   private static ICheckResult missingConnectionRemark() {
     return new CheckResult(
         ICheckResult.TYPE_RESULT_WARNING,

@@ -243,6 +243,24 @@ else
   failures=$((failures + 1))
 fi
 
+echo "=== Naming a check does not undo a suppression already in force ==="
+# The narrowed rule takes the rule id, so without the blanket rule kept as another name a
+# suppression written before the project named that check would quietly stop applying.
+REPORT="$REPORT_DIR/lint-8536-alias-with-narrowed-rule.json"
+if run_lint "$UNRESOLVED" "$REPORT" "lint-alias-with-narrowed-rule.yml"; then
+  if grep -q "CONNECTION" "$REPORT" || grep -q "UNRESOLVED-CONNECTION-IS-FATAL" "$REPORT"; then
+    echo "FAIL: naming the check brought back a finding the project had accepted."
+    echo "----- report -----"
+    cat "$REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  else
+    echo "OK: the suppression still holds after the project named the check."
+  fi
+else
+  failures=$((failures + 1))
+fi
+
 if [ $failures -ne 0 ]; then
   echo "$failures lint assertion(s) failed."
   exit 1
@@ -274,13 +292,13 @@ exit 0
   <hops>
     <hop>
       <from>Start</from>
-      <to>Lint the Check DB connections workflows</to>
+      <to>Lint with rule granularity configurations</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Lint the Check DB connections workflows</from>
+      <from>Lint with rule granularity configurations</from>
       <to>Abort workflow</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
