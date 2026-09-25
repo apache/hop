@@ -106,7 +106,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolItem;
 import org.jspecify.annotations.NonNull;
 
 /** Widget to display or modify data, displayed in a Table format. */
@@ -4583,24 +4582,8 @@ public class TableView extends Composite {
                         menu.dispose();
                       }
                     }));
-    menu.setLocation(findMenuLocation());
+    menu.setLocation(getDisplay().getCursorLocation());
     menu.setVisible(true);
-  }
-
-  private Point findMenuLocation() {
-    if (toolbarWidgets != null) {
-      Control anchor = toolbarWidgets.getControlForMenu(ID_TOOLBAR_NAVIGATE_TO_COLUMN);
-      if (anchor != null && !anchor.isDisposed() && anchor.getParent() != null) {
-        Rectangle rect = anchor.getBounds();
-        return anchor.getParent().toDisplay(rect.x, rect.y + rect.height);
-      }
-      ToolItem toolItem = toolbarWidgets.findToolItem(ID_TOOLBAR_NAVIGATE_TO_COLUMN);
-      if (toolItem != null && !toolItem.isDisposed() && toolItem.getParent() != null) {
-        Rectangle rect = toolItem.getBounds();
-        return toolItem.getParent().toDisplay(rect.x, rect.y + rect.height);
-      }
-    }
-    return getDisplay().getCursorLocation();
   }
 
   private boolean isFindShortcut(KeyEvent e) {
