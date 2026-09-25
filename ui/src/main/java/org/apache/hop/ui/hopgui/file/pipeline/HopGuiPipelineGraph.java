@@ -1012,6 +1012,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 avoidContextDialog = false;
               }
             }
+          } else if (event.button == 1
+              && alt
+              && DrillDownGuiPlugin.altClickOpensExecution(
+                  currentTransform.getTransform() != null
+                      && currentTransform.getTransform().supportsDrillDown(),
+                  pipeline != null)) {
+            // Opening the execution is asynchronous, so claim this release. Otherwise mouseUp
+            // also opens the transform context dialog.
+            avoidContextDialog = true;
+            openExecution(currentTransform);
+            return;
           } else if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
             // ALT-Click: edit error handling
             //
@@ -7346,6 +7357,32 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
     }
+  }
+
+  /**
+   * Hover the icon and press {@code x}: open the running child execution. Same action as the "Open
+   * execution" context menu and as Alt-click while a run is active.
+   */
+  @GuiKeyboardShortcut(key = 'x')
+  @GuiOsxKeyboardShortcut(key = 'x')
+  public void openExecution() {
+    if (lastMove == null) {
+      return;
+    }
+    hideToolTips();
+    openExecution(pipelineMeta.getTransform(lastMove.x, lastMove.y, iconSize));
+  }
+
+  private void openExecution(TransformMeta transformMeta) {
+    if (transformMeta == null
+        || transformMeta.getTransform() == null
+        || !transformMeta.getTransform().supportsDrillDown()) {
+      return;
+    }
+    Point click = lastMove != null ? lastMove : new Point(0, 0);
+    new DrillDownGuiPlugin()
+        .openTransformExecution(
+            new HopGuiPipelineTransformContext(pipelineMeta, transformMeta, this, click));
   }
 
   @Override

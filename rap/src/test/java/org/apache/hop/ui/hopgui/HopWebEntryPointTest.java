@@ -128,10 +128,12 @@ class HopWebEntryPointTest {
   void refusesBareLetterShortcuts() {
     // RAP cancels the browser's handling of every key it is told about, so a bare "z" - the
     // pipeline canvas shortcut that opens a referenced object - took the letter z away from every
-    // text field in Hop Web.
+    // text field in Hop Web. Bare "x" (open execution) is the same kind of shortcut.
     KeyboardShortcut shortcut = mock(KeyboardShortcut.class);
     when(shortcut.getKeyCode()).thenReturn((int) 'z');
+    assertNull(new HopWebEntryPoint().convertToRapFormat(shortcut));
 
+    when(shortcut.getKeyCode()).thenReturn((int) 'x');
     assertNull(new HopWebEntryPoint().convertToRapFormat(shortcut));
   }
 

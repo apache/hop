@@ -513,8 +513,9 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // Never register a shortcut that is a printable character with no modifier held. RAP cancels
     // the browser's own handling of every key it is told about, so registering one takes that
     // character away from typing everywhere in Hop Web, whatever has the focus: the bare "z" that
-    // opens a referenced object on the pipeline canvas made it impossible to type the letter z
-    // anywhere, and searching the context dialog for "fuzzy match" arrived as "fuy match".
+    // opens a referenced object, and the bare "x" that opens a running execution, made it
+    // impossible to type that letter anywhere. Searching the context dialog for "fuzzy match"
+    // arrived as "fuy match".
     //
     // Nothing is lost that a browser could have delivered: the key handler already refuses to act
     // on an unmodified printable character while a text widget has the focus, so such a shortcut

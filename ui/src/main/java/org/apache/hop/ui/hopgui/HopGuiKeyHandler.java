@@ -618,9 +618,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
    * delete/backspace, caret / selection navigation (arrows, home/end, page up/down) without
    * CTRL/CMD/ALT, and unmodified printable characters (including space).
    *
-   * <p>Graph shortcuts such as Space (output fields) and {@code z} (open referenced object) must
-   * not steal those keys from filter and search fields. App shortcuts with CTRL/CMD/ALT (e.g.
-   * Ctrl+S) still run, except the horizontal word-movement keys handled above.
+   * <p>Graph shortcuts such as Space (output fields), {@code z} (open referenced object) and {@code
+   * x} (open execution) must not steal those keys from filter and search fields. App shortcuts with
+   * CTRL/CMD/ALT (e.g. Ctrl+S) still run, except the horizontal word-movement keys handled above.
    */
   private static boolean isNativeTextEditingKey(int keyCode, int stateMask, char character) {
     if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
