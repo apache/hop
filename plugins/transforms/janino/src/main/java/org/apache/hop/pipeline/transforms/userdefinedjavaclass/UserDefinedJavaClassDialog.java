@@ -17,11 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +27,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -38,11 +34,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
-import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Category;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Snippet;
@@ -1305,7 +1299,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private boolean test() {
-    PluginRegistry registry = PluginRegistry.getInstance();
     String scriptTransformName = wTransformName.getText();
 
     if (!checkForTransformClass()) {
@@ -1340,8 +1333,10 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         return false;
       }
 
-      // What fields are coming into the transform?
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName).clone();
+      // What fields are coming into the transform over the main input?
+      IRowMeta rowMeta =
+          UserDefinedJavaClassTestPipeline.getMainInputFields(
+              variables, pipelineMeta, transformName, udjcMeta);
       if (rowMeta != null) {
         // Create a new RowGenerator transform to generate rows for the test
         // data...
@@ -1349,101 +1344,21 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         // Otherwise he/she has to key in the same test data all the
         // time
         if (genMeta == null) {
-          genMeta = new RowGeneratorMeta();
-          genMeta.setRowLimit("10");
-          for (int i = 0; i < rowMeta.size(); i++) {
-            IValueMeta valueMeta = rowMeta.getValueMeta(i);
-            if (valueMeta.isStorageBinaryString()) {
-              valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-            }
-            GeneratorField field = new GeneratorField();
-            field.setName(valueMeta.getName());
-            field.setType(valueMeta.getTypeDesc());
-            field.setLength(valueMeta.getLength());
-            field.setPrecision(valueMeta.getPrecision());
-            field.setCurrency(valueMeta.getCurrencySymbol());
-            field.setDecimal(valueMeta.getDecimalSymbol());
-            field.setGroup(valueMeta.getGroupingSymbol());
-
-            String string = null;
-            switch (valueMeta.getType()) {
-              case IValueMeta.TYPE_DATE:
-                field.setFormat("yyyy/MM/dd HH:mm:ss");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(new Date());
-                break;
-              case IValueMeta.TYPE_STRING:
-                string = "test value test value";
-                break;
-              case IValueMeta.TYPE_INTEGER:
-                field.setFormat("#");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(0L);
-                break;
-              case IValueMeta.TYPE_NUMBER:
-                field.setFormat("#.#");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(0.0D);
-                break;
-              case IValueMeta.TYPE_BIGNUMBER:
-                field.setFormat("#.#");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(BigDecimal.ZERO);
-                break;
-              case IValueMeta.TYPE_BOOLEAN:
-                string = valueMeta.getString(Boolean.TRUE);
-                break;
-              case IValueMeta.TYPE_BINARY:
-                string =
-                    valueMeta.getString(
-                        new byte[] {
-                          65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
-                        });
-                break;
-              default:
-                break;
-            }
-
-            field.setValue(string);
-            genMeta.getFields().add(field);
-          }
+          genMeta = UserDefinedJavaClassTestPipeline.createTestDataGenerator(rowMeta);
         }
-        TransformMeta genTransform =
-            new TransformMeta(
-                registry.getPluginId(TransformPluginType.class, genMeta),
-                "## TEST DATA ##",
-                genMeta);
-        genTransform.setLocation(50, 50);
+        scriptTransformName = Const.NVL(scriptTransformName, "## SCRIPT ##");
+        PipelineMeta testPipelineMeta =
+            UserDefinedJavaClassTestPipeline.build(
+                variables, pipelineMeta, scriptTransformName, udjcMeta, genMeta);
+        testPipelineMeta.setName(wTransformName.getText() + " - PREVIEW");
 
-        TransformMeta scriptTransform =
-            new TransformMeta(
-                registry.getPluginId(TransformPluginType.class, udjcMeta),
-                Const.NVL(scriptTransformName, "## SCRIPT ##"),
-                udjcMeta);
-        scriptTransformName = scriptTransform.getName();
-        scriptTransform.setLocation(150, 50);
-
-        // Create a hop between both transforms...
-        //
-        PipelineHopMeta hop = new PipelineHopMeta(genTransform, scriptTransform);
-
-        // Generate a new test pipeline...
-        //
-        PipelineMeta pipelineMeta = new PipelineMeta();
-        pipelineMeta.setName(wTransformName.getText() + " - PREVIEW");
-        pipelineMeta.addTransform(genTransform);
-        pipelineMeta.addTransform(scriptTransform);
-        pipelineMeta.addPipelineHop(hop);
-
-        // OK, now we ask the user to edit this dialog...
-        //
         // Now run this pipeline and grab the results...
         //
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,
                 variables,
-                pipelineMeta,
+                testPipelineMeta,
                 new String[] {
                   scriptTransformName,
                 },
