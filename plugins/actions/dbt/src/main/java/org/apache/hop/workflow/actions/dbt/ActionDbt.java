@@ -26,15 +26,23 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.LineageVariables;
@@ -59,7 +67,26 @@ import org.apache.hop.workflow.action.IAction;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::ActionDbt.keyword",
     documentationUrl = "/workflow/actions/dbt.html")
+@GuiPlugin
+@Getter
+@Setter
 public class ActionDbt extends ActionBase implements IAction {
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DBT_ACTION_DIALOG_OPTIONS";
+
+  public static final String WIDGET_PROJECT = "DBT_PROJECT";
+  public static final String WIDGET_OPERATION = "DBT_OPERATION";
+  public static final String WIDGET_TARGET = "DBT_TARGET";
+  public static final String WIDGET_SELECT = "DBT_SELECT";
+  public static final String WIDGET_EXCLUDE = "DBT_EXCLUDE";
+  public static final String WIDGET_FULL_REFRESH = "DBT_FULL_REFRESH";
+  public static final String WIDGET_THREADS = "DBT_THREADS";
+  public static final String WIDGET_TIMEOUT = "DBT_TIMEOUT";
+  public static final String WIDGET_EMIT_OPENLINEAGE = "DBT_EMIT_OPENLINEAGE";
+
+  public static final String GROUP_PROJECT = "i18n::ActionDbt.Group.Project";
+  public static final String GROUP_SELECTION = "i18n::ActionDbt.Group.Selection";
+  public static final String GROUP_EXECUTION = "i18n::ActionDbt.Group.Execution";
+  public static final String GROUP_VARIABLES = "i18n::ActionDbt.Group.Variables";
 
   /** Hop variables read from the OpenLineage sink configuration when stitching dbt's lineage. */
   private static final String VAR_OPENLINEAGE_URL = "HOP_LINEAGE_OPENLINEAGE_URL";
@@ -82,34 +109,128 @@ public class ActionDbt extends ActionBase implements IAction {
   private static final long KILL_GRACE_MS = 5_000L;
 
   /** Name of the referenced dbt-project metadata object. */
+  @GuiWidgetElement(
+      id = WIDGET_PROJECT,
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadata = DbtProject.class,
+      label = "i18n::ActionDbt.Project.Label",
+      toolTip = "i18n::ActionDbt.Project.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_PROJECT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
   @HopMetadataProperty(key = "dbt_project")
   private String dbtProjectName;
 
+  @GuiWidgetElement(
+      id = WIDGET_OPERATION,
+      order = "0200",
+      type = GuiElementType.COMBO,
+      variables = false,
+      comboValuesMethod = "getOperationCodes",
+      label = "i18n::ActionDbt.Operation.Label",
+      toolTip = "i18n::ActionDbt.Operation.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_PROJECT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
   @HopMetadataProperty(key = "operation")
   private String operation;
 
-  @HopMetadataProperty(key = "select")
-  private String select;
-
-  @HopMetadataProperty(key = "exclude")
-  private String exclude;
-
+  @GuiWidgetElement(
+      id = WIDGET_TARGET,
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::ActionDbt.Target.Label",
+      toolTip = "i18n::ActionDbt.Target.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_PROJECT,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
   @HopMetadataProperty(key = "target")
   private String target;
 
-  @HopMetadataProperty(key = "threads")
-  private String threads;
+  @GuiWidgetElement(
+      id = WIDGET_SELECT,
+      order = "0400",
+      type = GuiElementType.TEXT,
+      label = "i18n::ActionDbt.Select.Label",
+      toolTip = "i18n::ActionDbt.Select.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_SELECTION,
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(key = "select")
+  private String select;
 
+  @GuiWidgetElement(
+      id = WIDGET_EXCLUDE,
+      order = "0500",
+      type = GuiElementType.TEXT,
+      label = "i18n::ActionDbt.Exclude.Label",
+      toolTip = "i18n::ActionDbt.Exclude.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_SELECTION,
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(key = "exclude")
+  private String exclude;
+
+  @GuiWidgetElement(
+      id = WIDGET_FULL_REFRESH,
+      order = "0600",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ActionDbt.FullRefresh.Label",
+      toolTip = "i18n::ActionDbt.FullRefresh.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_SELECTION,
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS)
   @HopMetadataProperty(key = "full_refresh")
   private boolean fullRefresh;
 
-  @HopMetadataProperty(key = "emit_openlineage")
-  private boolean emitOpenLineage;
+  @GuiWidgetElement(
+      id = WIDGET_THREADS,
+      order = "0700",
+      type = GuiElementType.TEXT,
+      label = "i18n::ActionDbt.Threads.Label",
+      toolTip = "i18n::ActionDbt.Threads.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_EXECUTION,
+      groupOrder = "30",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(key = "threads")
+  private String threads;
 
   /** Optional wall-clock limit in seconds; blank or 0 waits for dbt indefinitely. */
+  @GuiWidgetElement(
+      id = WIDGET_TIMEOUT,
+      order = "0800",
+      type = GuiElementType.TEXT,
+      label = "i18n::ActionDbt.Timeout.Label",
+      toolTip = "i18n::ActionDbt.Timeout.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_EXECUTION,
+      groupOrder = "30",
+      groupType = GuiWidgetGroupType.TABS)
   @HopMetadataProperty(key = "timeout")
   private String timeout;
 
+  @GuiWidgetElement(
+      id = WIDGET_EMIT_OPENLINEAGE,
+      order = "0900",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ActionDbt.EmitOpenLineage.Label",
+      toolTip = "i18n::ActionDbt.EmitOpenLineage.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_EXECUTION,
+      groupOrder = "30",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(key = "emit_openlineage")
+  private boolean emitOpenLineage;
+
+  /** Rendered as the two tables on the Variables tab, not as annotated widgets. */
   @HopMetadataProperty(groupKey = "vars", key = "var")
   private List<DbtNameValue> vars;
 
@@ -125,6 +246,14 @@ public class ActionDbt extends ActionBase implements IAction {
     this.operation = DbtOperation.RUN.getCode();
     this.vars = new ArrayList<>();
     this.envVars = new ArrayList<>();
+  }
+
+  /**
+   * The dbt sub-commands the operation combo offers. The signature is the one {@code
+   * GuiCompositeWidgets} looks up for {@code comboValuesMethod}.
+   */
+  public List<String> getOperationCodes(ILogChannel log, IHopMetadataProvider metadataProvider) {
+    return Arrays.stream(DbtOperation.values()).map(DbtOperation::getCode).toList();
   }
 
   private static List<DbtNameValue> copyPairs(List<DbtNameValue> source) {
@@ -632,95 +761,5 @@ public class ActionDbt extends ActionBase implements IAction {
   @Override
   public boolean isUnconditional() {
     return false;
-  }
-
-  // ----- getters / setters -----
-
-  public String getDbtProjectName() {
-    return dbtProjectName;
-  }
-
-  public void setDbtProjectName(String dbtProjectName) {
-    this.dbtProjectName = dbtProjectName;
-  }
-
-  public String getOperation() {
-    return operation;
-  }
-
-  public void setOperation(String operation) {
-    this.operation = operation;
-  }
-
-  public String getSelect() {
-    return select;
-  }
-
-  public void setSelect(String select) {
-    this.select = select;
-  }
-
-  public String getExclude() {
-    return exclude;
-  }
-
-  public void setExclude(String exclude) {
-    this.exclude = exclude;
-  }
-
-  public String getTarget() {
-    return target;
-  }
-
-  public void setTarget(String target) {
-    this.target = target;
-  }
-
-  public String getThreads() {
-    return threads;
-  }
-
-  public void setThreads(String threads) {
-    this.threads = threads;
-  }
-
-  public boolean isFullRefresh() {
-    return fullRefresh;
-  }
-
-  public void setFullRefresh(boolean fullRefresh) {
-    this.fullRefresh = fullRefresh;
-  }
-
-  public boolean isEmitOpenLineage() {
-    return emitOpenLineage;
-  }
-
-  public void setEmitOpenLineage(boolean emitOpenLineage) {
-    this.emitOpenLineage = emitOpenLineage;
-  }
-
-  public String getTimeout() {
-    return timeout;
-  }
-
-  public void setTimeout(String timeout) {
-    this.timeout = timeout;
-  }
-
-  public List<DbtNameValue> getVars() {
-    return vars;
-  }
-
-  public void setVars(List<DbtNameValue> vars) {
-    this.vars = vars;
-  }
-
-  public List<DbtNameValue> getEnvVars() {
-    return envVars;
-  }
-
-  public void setEnvVars(List<DbtNameValue> envVars) {
-    this.envVars = envVars;
   }
 }
