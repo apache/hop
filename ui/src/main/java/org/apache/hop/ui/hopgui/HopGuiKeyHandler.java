@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.security.ActionPermissionMapper;
 import org.apache.hop.ui.core.widget.TextLineClipboard;
+import org.apache.hop.ui.core.widget.TextSelectAll;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -148,8 +149,8 @@ public class HopGuiKeyHandler extends KeyAdapter {
     // RAP does not fire focus events for a focus change made in the browser.
     //
     // The key filter covers every shell on this display, including dialogs that never register
-    // here, so word-movement keys are not stolen and an empty Ctrl/Cmd+C/X copies or cuts the
-    // current line (issue #8362).
+    // here, so word-movement keys are not stolen, Ctrl/Cmd+A selects the text, and an empty
+    // Ctrl/Cmd+C/X copies or cuts the current line (issues #8362 and #8606).
     //
     if (display != null && !display.isDisposed() && filteredDisplays.add(display)) {
       display.addFilter(SWT.FocusIn, event -> attachTo(event.widget));
@@ -511,13 +512,15 @@ public class HopGuiKeyHandler extends KeyAdapter {
    * <p>Horizontal Ctrl/Cmd/Alt+Left/Right stay with the widget (word movement on Windows and Linux,
    * Option+Left/Right on macOS, line edges for Command+Left/Right). They must not align or
    * distribute the graph. An empty Ctrl/Cmd+C or Ctrl/Cmd+X copies or cuts the current line on the
-   * desktop; Hop Web does that in the browser, inside the key gesture. Other text keys (bare
-   * arrows, Ctrl+A/V, typing) are not dispatched as shortcuts either. Ctrl+S and the vertical align
-   * shortcuts still run.
+   * desktop; Hop Web does that in the browser, inside the key gesture. Ctrl/Cmd+A selects all of
+   * the text here: StyledText has no such binding, and Hop Web cancels the browser's own because
+   * the chord also selects the graph (issue #8606). Other text keys (bare arrows, Ctrl+V, typing)
+   * are not dispatched as shortcuts either. Ctrl+S and the vertical align shortcuts still run.
    *
    * <p>{@code widgets.Event} and {@code events.KeyEvent} are not the same type, so callers pass the
    * fields. {@link TextEditing#stopShortcuts} means do not run a Hop shortcut. {@link
-   * TextEditing#consume} means set {@code doit} false (the line was copied or cut here).
+   * TextEditing#consume} means set {@code doit} false (the line was copied or cut, or the text was
+   * selected, here).
    */
   private TextEditing applyTextEditingKey(
       Widget widget, int keyCode, int stateMask, char character, Display display) {
@@ -536,8 +539,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
     if (isHorizontalWordKey(keyCode, stateMask)) {
       return TextEditing.STOP;
     }
-    if (webEditor && isCopyOrCutKey(keyCode, stateMask)) {
-      // Monaco already copied or cut. Do not also copy the graph, and do not cancel the key.
+    if (webEditor && (isCopyOrCutKey(keyCode, stateMask) || isSelectAllKey(keyCode, stateMask))) {
+      // Monaco already copied, cut or selected all. Do not also change the graph, and do not
+      // cancel the key.
       return TextEditing.STOP;
     }
     if (!textLike || !isNativeTextEditingKey(keyCode, stateMask, character)) {
@@ -548,6 +552,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
     if (!EnvironmentUtils.getInstance().isWeb()
         && isCopyOrCutKey(keyCode, stateMask)
         && TextLineClipboard.copyOrCutCurrentLine(widget, isCutKey(keyCode))) {
+      return TextEditing.CONSUME;
+    }
+    // text-select-all.js selects immediately in the browser. Selecting here as well keeps the
+    // server selection in step and covers the desktop, where the widget itself does not.
+    if (isSelectAllKey(keyCode, stateMask) && TextSelectAll.selectAll(widget)) {
       return TextEditing.CONSUME;
     }
     return TextEditing.STOP;
@@ -595,6 +604,17 @@ public class HopGuiKeyHandler extends KeyAdapter {
       return false;
     }
     return alt || control || command;
+  }
+
+  /** Ctrl/Cmd+A with no Alt and no Shift. */
+  private static boolean isSelectAllKey(int keyCode, int stateMask) {
+    if ((stateMask & (SWT.ALT | SWT.SHIFT)) != 0) {
+      return false;
+    }
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) == 0) {
+      return false;
+    }
+    return Character.toLowerCase((char) keyCode) == 'a';
   }
 
   /** Ctrl/Cmd+C or Ctrl/Cmd+X with no Alt and no Shift. */

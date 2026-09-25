@@ -219,6 +219,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     jsLoader.require(macKeysLocation);
     // Empty Ctrl/Cmd+C/X copies or cuts the current line. Must run in the key gesture.
     jsLoader.require(resourceManager.getLocation("js/text-line-clipboard.js"));
+    // Ctrl/Cmd+A selects the field. CANCEL_KEYS would otherwise swallow it (issue #8606).
+    jsLoader.require(resourceManager.getLocation("js/text-select-all.js"));
 
     // Configure keyboard shortcuts for RAP dynamically from annotations
     // ACTIVE_KEYS tells RAP to send these key combinations to the server
