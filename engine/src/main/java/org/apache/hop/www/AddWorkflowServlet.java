@@ -145,8 +145,10 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       //
       workflow.initializeFrom(null);
       workflow.getWorkflowMeta().setInternalHopVariables(workflow);
-      workflow.setVariables(
-          workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap());
+      applyClientVariables(
+          workflow,
+          workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap(),
+          false);
 
       // Also copy the parameters over...
       //

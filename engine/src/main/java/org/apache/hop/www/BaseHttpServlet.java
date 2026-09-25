@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +43,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.Execution;
 import org.owasp.encoder.Encode;
 
 public class BaseHttpServlet extends HttpServlet {
@@ -51,6 +54,29 @@ public class BaseHttpServlet extends HttpServlet {
    * proxy prefix. Anything else in the request URI is not ours to reflect back.
    */
   private static final Pattern SAFE_ROOT_PATH = Pattern.compile("[\\w/.~-]*");
+
+  /**
+   * Set by the projects plugin when it enables a project at startup: "N" when the project or
+   * environment was chosen, "Y" when the configuration's default was used. See {@link
+   * #applyClientVariables(IVariables, Map, boolean)}.
+   */
+  public static final String VARIABLE_HOP_PROJECT_IS_DEFAULT = "HOP_PROJECT_IS_DEFAULT";
+
+  /**
+   * The variables of the projects plugin that say which project and environment this server runs
+   * and where they live. See {@link #applyClientVariables(IVariables, Map, boolean)}.
+   */
+  public static final Set<String> SERVER_PROJECT_VARIABLES =
+      Set.of(
+          "PROJECT_HOME",
+          "PARENT_PROJECT_HOME",
+          "PARENT_PROJECT_NAME",
+          "HOP_PROJECT_NAME",
+          Execution.VARIABLE_HOP_PROJECT_ID,
+          "HOP_ENVIRONMENT_NAME",
+          "HOP_DATASETS_FOLDER",
+          "HOP_UNIT_TESTS_FOLDER",
+          VARIABLE_HOP_PROJECT_IS_DEFAULT);
 
   @Setter @Getter protected PipelineMap pipelineMap;
 
@@ -429,6 +455,51 @@ public class BaseHttpServlet extends HttpServlet {
     IVariables copy = new Variables();
     copy.copyFrom(getServletVariables());
     return copy;
+  }
+
+  /**
+   * Apply the variables a client sent along with a pipeline or workflow. When this server was
+   * started with a chosen project or environment ({@link #VARIABLE_HOP_PROJECT_IS_DEFAULT} is "N"),
+   * its own {@link #SERVER_PROJECT_VARIABLES} win for a pipeline or workflow sent as XML: its file
+   * references are resolved here, in the server's project. A variable the server does not set is
+   * removed, so the client's environment or parent project is not mixed into the server's project.
+   *
+   * <p>The client's values are kept on a server without a project, on a server that only runs the
+   * default project or default environment of its configuration because none was chosen, and for an
+   * exported run: the export rewrote its file references relative to the client's project. A
+   * PROJECT_HOME that was set some other way, for example as a system property, does not make a
+   * project. See issue #8597.
+   *
+   * @param target the variables of the pipeline or workflow that runs on this server
+   * @param clientVariables the variables the client sent along
+   * @param exported true when the pipeline or workflow came in an export archive
+   */
+  protected void applyClientVariables(
+      IVariables target, Map<String, String> clientVariables, boolean exported) {
+    target.setVariables(clientVariables);
+    if (exported) {
+      return;
+    }
+
+    IVariables serverVariables = getServletVariables();
+    if (!"N".equalsIgnoreCase(serverVariables.getVariable(VARIABLE_HOP_PROJECT_IS_DEFAULT))) {
+      return;
+    }
+    for (String name : SERVER_PROJECT_VARIABLES) {
+      String serverValue = serverVariables.getVariable(name);
+      String clientValue = target.getVariable(name);
+      if (clientValue != null && !clientValue.equals(serverValue) && log.isDetailed()) {
+        logDetailed(
+            "Keeping the server's value of variable '"
+                + name
+                + "': '"
+                + Const.NVL(serverValue, "")
+                + "' instead of the client's '"
+                + clientValue
+                + "'");
+      }
+      target.setVariable(name, serverValue);
+    }
   }
 
   private String getContentEncoding(String contentTypeValue) {
