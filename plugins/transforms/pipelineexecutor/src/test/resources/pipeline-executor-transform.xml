@@ -29,8 +29,10 @@
     </partitioning>
     <run_configuration>local</run_configuration>
     <wait_timeout>1500</wait_timeout>
-    <retry_attempts>3</retry_attempts>
-    <retry_delay>250</retry_delay>
+    <retry>
+        <retry_attempts>3</retry_attempts>
+        <retry_delay>250</retry_delay>
+    </retry>
     <filename>${PROJECT_HOME}/loops/child-loops-log-counter.hpl</filename>
     <filenameInField>N</filenameInField>
     <filenameField/>
