@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -449,12 +450,12 @@ class PipelineExecutorTest {
     success.setResult(true);
     success.setNrErrors(0);
 
-    doReturn(failed, success).when(executor).executePipelineAttempt(any());
+    doReturn(failed, success).when(executor).executePipelineAttempt(any(), anyLong());
 
     Result result = executor.executeWithRetries(Collections.emptyList());
 
     assertTrue(result.isResult());
-    verify(executor, times(2)).executePipelineAttempt(any());
+    verify(executor, times(2)).executePipelineAttempt(any(), anyLong());
   }
 
   @Test
@@ -470,11 +471,33 @@ class PipelineExecutorTest {
     failed.setResult(false);
     failed.setNrErrors(1);
 
-    doReturn(failed).when(executor).executePipelineAttempt(any());
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
 
     Result result = executor.executeWithRetries(Collections.emptyList());
 
     assertFalse(result.isResult());
-    verify(executor, times(1)).executePipelineAttempt(any());
+    verify(executor, times(1)).executePipelineAttempt(any(), anyLong());
+  }
+
+  @Test
+  void executeWithRetriesStopsRetryingWhenStopAfterBudgetIsReached() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setWaitTimeout("1");
+    meta.setRetryAttempts("5");
+    meta.setRetryDelay("50");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, times(1)).executePipelineAttempt(any(), anyLong());
   }
 }
