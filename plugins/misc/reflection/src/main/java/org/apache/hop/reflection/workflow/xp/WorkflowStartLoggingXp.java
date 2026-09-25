@@ -20,6 +20,7 @@ package org.apache.hop.reflection.workflow.xp;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -118,7 +119,9 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
 
     if (workflowLog.getWorkflowToLog().isEmpty()) {
       logWorkflow(log, workflowLog, workflow, variables, loggingPipelineFilename);
-    } else {
+    } else if (StringUtils.isNotEmpty(workflow.getFilename())) {
+      // A workflow that is not saved to a file (e.g. sent to a Hop Server as XML) can't match.
+      //
       for (String workflowToLog : workflowLog.getWorkflowToLog()) {
         String workflowUri = HopVfs.getFileObject(workflow.getFilename()).getPublicURIString();
         String workflowToLogUri =

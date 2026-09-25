@@ -513,6 +513,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     if (variableName.equals("LOG_PATH")) {
       return false;
     }
+    // The server computes its own version. See issue #8263.
+    //
+    if (variableName.equals(Const.HOP_VERSION)) {
+      return false;
+    }
 
     return true;
   }

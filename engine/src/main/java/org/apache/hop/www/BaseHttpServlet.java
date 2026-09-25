@@ -27,9 +27,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
@@ -51,6 +54,19 @@ public class BaseHttpServlet extends HttpServlet {
    * proxy prefix. Anything else in the request URI is not ours to reflect back.
    */
   private static final Pattern SAFE_ROOT_PATH = Pattern.compile("[\\w/.~-]*");
+
+  /**
+   * The variables of the projects plugin that say which project and environment this server runs
+   * and where they live. See {@link #applyClientVariables(IVariables, Map, boolean)}.
+   */
+  public static final Set<String> SERVER_PROJECT_VARIABLES =
+      Set.of(
+          "PROJECT_HOME",
+          "PARENT_PROJECT_HOME",
+          "PARENT_PROJECT_NAME",
+          "HOP_PROJECT_NAME",
+          "HOP_ENVIRONMENT_NAME",
+          "HOP_PROJECT_IS_DEFAULT");
 
   @Setter @Getter protected PipelineMap pipelineMap;
 
@@ -429,6 +445,54 @@ public class BaseHttpServlet extends HttpServlet {
     IVariables copy = new Variables();
     copy.copyFrom(getServletVariables());
     return copy;
+  }
+
+  /**
+   * Apply the variables a client sent along with a pipeline or workflow. When this server was
+   * started with a project or environment, its own {@link #SERVER_PROJECT_VARIABLES} win for a
+   * pipeline or workflow sent as XML: its file references are resolved here, in the server's
+   * project. A variable the server does not set is removed, so the client's environment or parent
+   * project is not mixed into the server's project.
+   *
+   * <p>The client's values are kept on a server without a project, on a server that only runs the
+   * default project of its configuration because none was chosen ({@code HOP_PROJECT_IS_DEFAULT}),
+   * and for an exported run: the export rewrote its file references relative to the client's
+   * project. See issue #8597.
+   *
+   * @param target the variables of the pipeline or workflow that runs on this server
+   * @param clientVariables the variables the client sent along
+   * @param exported true when the pipeline or workflow came in an export archive
+   */
+  protected void applyClientVariables(
+      IVariables target, Map<String, String> clientVariables, boolean exported) {
+    target.setVariables(clientVariables);
+    if (exported) {
+      return;
+    }
+
+    IVariables serverVariables = getServletVariables();
+    if (StringUtils.isEmpty(serverVariables.getVariable("PROJECT_HOME"))
+        && StringUtils.isEmpty(serverVariables.getVariable("HOP_PROJECT_NAME"))) {
+      return;
+    }
+    if ("Y".equalsIgnoreCase(serverVariables.getVariable("HOP_PROJECT_IS_DEFAULT"))) {
+      return;
+    }
+    for (String name : SERVER_PROJECT_VARIABLES) {
+      String serverValue = serverVariables.getVariable(name);
+      String clientValue = target.getVariable(name);
+      if (clientValue != null && !clientValue.equals(serverValue) && log.isDetailed()) {
+        logDetailed(
+            "Keeping the server's value of variable '"
+                + name
+                + "': '"
+                + Const.NVL(serverValue, "")
+                + "' instead of the client's '"
+                + clientValue
+                + "'");
+      }
+      target.setVariable(name, serverValue);
+    }
   }
 
   private String getContentEncoding(String contentTypeValue) {

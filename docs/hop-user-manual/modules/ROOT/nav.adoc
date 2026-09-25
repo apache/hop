@@ -580,6 +580,7 @@ under the License.
 *** xref:hop-server/deploy-project-image.adoc[Project in a Docker image]
 *** xref:hop-server/deploy-export-resources.adoc[Remote run with export resources]
 *** xref:hop-server/deploy-git-checkout.adoc[Git checkout on the server]
+*** xref:hop-server/server-metadata-and-variables.adoc[Metadata and variables on the server]
 ** xref:hop-server/rest-api.adoc[REST api]
 ** xref:hop-server/json-api.adoc[JSON API]
 ** xref:hop-server/web-service.adoc[Web Service]

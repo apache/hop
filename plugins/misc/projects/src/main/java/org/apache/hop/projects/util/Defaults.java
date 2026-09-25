@@ -21,6 +21,14 @@ public class Defaults {
   public static final String VARIABLE_HOP_PROJECT_NAME = "HOP_PROJECT_NAME";
   public static final String VARIABLE_HOP_ENVIRONMENT_NAME = "HOP_ENVIRONMENT_NAME";
 
+  /**
+   * Set to "Y" when no project or environment was chosen and the default project of the
+   * configuration was enabled instead. Hop Server then treats the client's project variables as
+   * leading for pipelines and workflows sent to it, just like on a server without a project. See
+   * issue #8597.
+   */
+  public static final String VARIABLE_HOP_PROJECT_IS_DEFAULT = "HOP_PROJECT_IS_DEFAULT";
+
   public static final String EXTENSION_POINT_PROJECT_ACTIVATED = "ProjectActivated";
 
   /**
