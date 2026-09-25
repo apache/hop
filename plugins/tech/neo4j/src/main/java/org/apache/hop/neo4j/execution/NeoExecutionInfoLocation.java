@@ -48,6 +48,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.row.value.ValueMetaJson;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution;
@@ -1373,7 +1374,13 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
           IValueMeta valueMeta = rowMeta.getValueMeta(v);
           Object valueData = null;
           try {
-            valueData = valueMeta.getNativeDataType(row[v]);
+            if (valueMeta.getType() == IValueMeta.TYPE_AVRO) {
+              // A GenericRecord is not a Neo4j property. Store the same length-prefixed bytes the
+              // row codec writes into an execution-data blob.
+              valueData = row[v] == null ? null : ValueMetaAvroRecord.encodeRecord(row[v]);
+            } else {
+              valueData = valueMeta.getNativeDataType(row[v]);
+            }
           } catch (Exception e) {
             if (nrErrors++ < 10) {
               log.logError(
@@ -1639,6 +1646,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
           yield ((ValueMetaJson) valueMeta).convertStringToJson(value.asString());
         } catch (Exception e) {
           yield e.getMessage();
+        }
+      }
+      case IValueMeta.TYPE_AVRO -> {
+        try {
+          yield ValueMetaAvroRecord.decodeRecord(value.asByteArray());
+        } catch (Exception e) {
+          throw new HopRuntimeException(
+              "Unable to read Avro value '" + valueMeta.getName() + "'", e);
         }
       }
       default ->
