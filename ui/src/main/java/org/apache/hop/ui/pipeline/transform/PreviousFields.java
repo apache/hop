@@ -37,7 +37,8 @@ import org.eclipse.swt.widgets.Shell;
  * #fillCombos(Control...)} that means a dialog keeps every value the user configured, whether or
  * not the incoming fields can be loaded.
  *
- * <p>Call it from the UI thread: the first failure opens an error dialog.
+ * <p>Call it from the UI thread. The first failure opens an error dialog: right away when the
+ * dialog is showing, or as soon as it opens when it is still being built.
  */
 public class PreviousFields {
   private static final Class<?> PKG = ITransform.class;
@@ -120,15 +121,35 @@ public class PreviousFields {
       // Also catch runtime exceptions: a buggy upstream getFields() must not break this dialog.
       rowMeta = new RowMeta();
       failure = e;
-      if (shell != null && !shell.isDisposed()) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(
-                PKG, "BaseTransformDialog.FailedToGetFieldsPrevious.DialogTitle"),
-            BaseMessages.getString(
-                PKG, "BaseTransformDialog.FailedToGetFieldsPrevious.DialogMessage"),
-            e);
-      }
+      reportFailure(e);
     }
+  }
+
+  private void reportFailure(Exception e) {
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
+    if (shell.isVisible()) {
+      showError(e);
+    } else {
+      // Called while the dialog is still being built: a modal box over a hidden, half-built shell
+      // can leave the dialog blank (macOS). Show it once the dialog is open and running its loop.
+      shell
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                if (!shell.isDisposed()) {
+                  showError(e);
+                }
+              });
+    }
+  }
+
+  private void showError(Exception e) {
+    new ErrorDialog(
+        shell,
+        BaseMessages.getString(PKG, "BaseTransformDialog.FailedToGetFieldsPrevious.DialogTitle"),
+        BaseMessages.getString(PKG, "BaseTransformDialog.FailedToGetFieldsPrevious.DialogMessage"),
+        e);
   }
 }
