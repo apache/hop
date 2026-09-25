@@ -333,17 +333,24 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       if (childIds != null) {
         for (String id : childIds) {
           ExecutionData actionData = iLocation.getExecutionData(execution.getId(), id);
+          // A child id without sample data is normal while an action is still starting. Skipping
+          // it keeps the workflow info tab on screen instead of failing the whole refresh.
+          //
+          if (actionData == null) {
+            continue;
+          }
 
           ExecutionDataSetMeta dataSetMeta = actionData.getDataSetMeta();
-          if (dataSetMeta != null) {
-            String actionName = dataSetMeta.getName();
-
-            // Add this one under that name
-            //
-            List<ExecutionData> executionDataList =
-                actionExecutions.computeIfAbsent(actionName, k -> new ArrayList<>());
-            executionDataList.add(actionData);
+          if (dataSetMeta == null || dataSetMeta.getName() == null) {
+            continue;
           }
+          String actionName = dataSetMeta.getName();
+
+          // Add this one under that name
+          //
+          List<ExecutionData> executionDataList =
+              actionExecutions.computeIfAbsent(actionName, k -> new ArrayList<>());
+          executionDataList.add(actionData);
         }
       }
     } catch (Exception e) {
@@ -812,7 +819,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   @Override
   public String getActiveId() {
-    if (selectedAction != null) {
+    if (selectedAction != null && selectedExecutionData != null) {
       if (selectedExecutionData.getOwnerId() == null) {
         return selectedExecutionData.getParentId();
       } else {

@@ -113,7 +113,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
 
   @Override
   public boolean setFocus() {
-    if (canvas.isDisposed()) {
+    if (canvas == null || canvas.isDisposed()) {
       return false;
     }
     return canvas.setFocus();

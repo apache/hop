@@ -506,16 +506,28 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void addViewer(IExecutionViewer viewer) {
-    // Create tab item
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
+
+    // Create tab item. Data is set before any call that can throw: a tab left without data makes
+    // the next double-click crash in setActiveViewer (issue #8601).
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setFont(GuiResource.getInstance().getFontDefault());
-    tabItem.setText(viewer.getName());
-    tabItem.setImage(viewer.getTitleImage());
-    tabItem.setToolTipText(viewer.getTitleToolTip());
-
-    tabItem.setControl(viewer.getControl());
     tabItem.setData(viewer);
+    try {
+      tabItem.setFont(GuiResource.getInstance().getFontDefault());
+      tabItem.setText(Const.NVL(viewer.getName(), ""));
+      tabItem.setImage(viewer.getTitleImage());
+      tabItem.setToolTipText(viewer.getTitleToolTip());
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        tabItem.setControl(control);
+      }
+    } catch (RuntimeException e) {
+      discardViewerTab(tabItem, viewer);
+      throw e;
+    }
 
     viewers.add(viewer);
 
@@ -532,6 +544,32 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     viewer.setFocus();
 
     viewer.refresh();
+  }
+
+  /**
+   * Drop a tab that never became a usable viewer. The viewer composite is a child of the folder
+   * even when it was not attached to the tab, so it is disposed too.
+   */
+  private void discardViewerTab(CTabItem tabItem, IExecutionViewer viewer) {
+    if (tabItem != null && !tabItem.isDisposed()) {
+      try {
+        tabItem.setControl(null);
+      } catch (RuntimeException e) {
+        // Detach is best-effort; the tab is about to be disposed.
+      }
+      tabItem.dispose();
+    }
+    if (viewer == null) {
+      return;
+    }
+    try {
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        control.dispose();
+      }
+    } catch (RuntimeException e) {
+      // The viewer is already unusable; the open fails with the original exception.
+    }
   }
 
   /**
@@ -553,22 +591,89 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void setActiveViewer(IExecutionViewer viewer) {
-    for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(viewer)) {
-        tabFolder.setSelection(item);
-        tabFolder.showItem(item);
+    activateViewer(viewer);
+  }
 
-        viewer.setFocus();
+  /**
+   * Selects the tab that shows {@code viewer}.
+   *
+   * <p>Tabs with no data are skipped. Calling {@code getData().equals(viewer)} threw when a tab had
+   * never received its viewer, which is what double-clicking a workflow in the execution tree hit
+   * (issue #8601). A tab whose control is the viewer but whose data was lost is repaired.
+   *
+   * @return {@code true} when a tab for this viewer was selected
+   */
+  boolean activateViewer(IExecutionViewer viewer) {
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return false;
+    }
+    for (CTabItem item : tabFolder.getItems()) {
+      if (item == null || item.isDisposed()) {
+        continue;
+      }
+      // Skip a tab whose data was never set. equals() on that null is the double-click crash
+      // (issue #8601).
+      //
+      if (viewer.equals(item.getData())) {
+        return selectViewerTab(item, viewer);
       }
     }
+    for (CTabItem item : tabFolder.getItems()) {
+      if (item == null || item.isDisposed()) {
+        continue;
+      }
+      if (tabShowsViewer(item, viewer)) {
+        item.setData(viewer);
+        return selectViewerTab(item, viewer);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @return {@code true} when this execution is already open and its tab was selected. A registered
+   *     viewer that is not on a tab is dropped so the caller can open a new one.
+   */
+  boolean keepExistingViewer(String executionId, String executionName) {
+    IExecutionViewer active = findViewer(executionId, executionName);
+    if (active == null) {
+      return false;
+    }
+    if (activateViewer(active)) {
+      return true;
+    }
+    viewers.remove(active);
+    return false;
+  }
+
+  private boolean selectViewerTab(CTabItem item, IExecutionViewer viewer) {
+    tabFolder.setSelection(item);
+    tabFolder.showItem(item);
+    viewer.setFocus();
+    return true;
+  }
+
+  /** A tab can lose its data and still be showing the viewer composite. */
+  private static boolean tabShowsViewer(CTabItem item, IExecutionViewer viewer) {
+    Control control;
+    try {
+      control = viewer.getControl();
+    } catch (RuntimeException e) {
+      return false;
+    }
+    return control != null && !control.isDisposed() && item.getControl() == control;
   }
 
   public IExecutionViewer getActiveViewer() {
-    if (tabFolder.getSelectionIndex() < 0) {
+    if (tabFolder == null || tabFolder.isDisposed() || tabFolder.getSelectionIndex() < 0) {
       return null;
     }
 
-    return (IExecutionViewer) tabFolder.getSelection().getData();
+    Object data = tabFolder.getSelection().getData();
+    if (data instanceof IExecutionViewer viewer) {
+      return viewer;
+    }
+    return null;
   }
 
   protected void onTabClose(CTabFolderEvent event) {
@@ -636,11 +741,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       }
       getShell().setCursor(busyCursor);
 
-      // See if the viewer is already active...
+      // See if the viewer is already active. A stale registration with no tab must not block a new
+      // one: that is the double-click path for a workflow execution (issue #8601).
       //
-      IExecutionViewer active = findViewer(execution.getId(), execution.getName());
-      if (active != null) {
-        setActiveViewer(active);
+      if (keepExistingViewer(execution.getId(), execution.getName())) {
         return;
       }
 
@@ -1554,9 +1658,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    IExecutionViewer viewer = (IExecutionViewer) tabItem.getData();
-
-    boolean isRemoved = viewers.remove(viewer);
+    if (tabItem == null || tabItem.isDisposed()) {
+      return;
+    }
+    Object data = tabItem.getData();
+    boolean isRemoved = data instanceof IExecutionViewer viewer && viewers.remove(viewer);
     tabItem.dispose();
 
     if (isRemoved) {
