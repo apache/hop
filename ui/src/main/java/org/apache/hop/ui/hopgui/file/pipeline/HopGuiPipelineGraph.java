@@ -393,6 +393,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /** True once pointer has moved past {@link #ICON_DRAG_THRESHOLD_PX} and drag has started. */
   private boolean iconDragCommitted;
 
+  /** Screen position of the current press, used to tell a click from a drag on mouse-up. */
+  private Point mouseDownScreen;
+
+  /**
+   * The press landed on a transform or hop output-rows badge. The rows open on release only for
+   * that press, and only when the pointer did not travel into a drag (issue #8595).
+   */
+  private boolean outputDataPressed;
+
+  /**
+   * The output-rows dialog is on screen. It runs its own event loop, which delivers any click made
+   * while it is up; that click must not move transforms or open a second copy of the dialog.
+   */
+  private boolean showingOutputRows;
+
   /**
    * Display filters used while placing a transform dragged from the context dialog (issue #3111).
    * Create happens on mouse-up (drop), not on drag-start.
@@ -772,6 +787,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDoubleClick(MouseEvent event) {
+    if (showingOutputRows) {
+      return;
+    }
 
     if (!PropsUi.getInstance().useDoubleClick()) {
       return;
@@ -837,6 +855,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDown(MouseEvent event) {
+    if (showingOutputRows) {
+      return;
+    }
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
       mouseHover(event);
@@ -854,9 +875,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     Point real = screen2real(event.x, event.y);
     lastClick = new Point(real.x, real.y);
+    mouseDownScreen = new Point(event.x, event.y);
     lastButton = event.button;
     dragSelection = false;
     iconDragStartScreen = null;
+    outputDataPressed = false;
 
     // Hide the tooltip!
     hideToolTips();
@@ -955,10 +978,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
 
         case TRANSFORM_OUTPUT_DATA:
+          // The rows open on mouse-up, and only if this press does not become a drag. The badge
+          // covers the corner of the icon, so a press here also arms a move: otherwise grabbing
+          // that corner cannot drag the transform, and the release still opens the rows.
+          //
+          outputDataPressed = true;
+          if (canEditGraph() && event.button == 1 && !shift && !control) {
+            armIconDrag((TransformMeta) areaOwner.getParent(), event, real);
+          }
+          redraw();
           done = true;
           break;
 
         case HOP_OUTPUT_DATA:
+          // A hop badge is a button, not a drag handle. Drop any transform press so the release
+          // cannot finish a move and open the rows.
+          //
+          outputDataPressed = true;
+          currentTransform = null;
+          selectedTransform = null;
+          iconDragStartScreen = null;
+          iconDragCommitted = false;
+          dragSelection = false;
           done = true;
           break;
 
@@ -1026,29 +1067,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else if (canEditGraph()) {
             // Defer entering drag mode until pointer moves past threshold (avoids drag when
             // clicking on name or making a small movement). Read-only sessions never arm drag.
-            iconDragStartScreen = new Point(event.x, event.y);
-            iconDragCommitted = false;
-            previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
-
-            Point p = currentTransform.getLocation();
-            iconOffset = new Point(real.x - p.x, real.y - p.y);
-
-            // The RAP/web client does not deliver mouse-move events while a button is held, so the
-            // movement threshold in mouseMove() can never fire during a press. Arm the drag right
-            // away on mouse-down so the transform follows the cursor and is dropped on mouse-up;
-            // native SWT keeps the threshold behaviour to distinguish a click from a drag.
-            if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
-              iconDragCommitted = true;
-              markPositionUndoPoint();
-              dragSelection = true;
-              canvas.setData("mode", "drag");
-              selectedTransforms = pipelineMeta.getSelectedTransforms();
-              selectedTransform = currentTransform;
-              pipelineGridDelegate.onPipelineSelectionChanged();
-              for (ITransformSelectionListener listener : currentTransformListeners) {
-                listener.onUpdateSelection(currentTransform);
-              }
-            }
+            armIconDrag(currentTransform, event, real);
           }
           redraw();
           done = true;
@@ -1205,6 +1224,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp(MouseEvent e) {
+    if (showingOutputRows) {
+      return;
+    }
+    // A preview badge opens its rows only for the press that landed on it. Cleared before any
+    // return below, including the ones that finish a drag.
+    boolean previewPress = outputDataPressed && e.button == 1;
+    outputDataPressed = false;
+
     // Track if we just completed a resize operation
     boolean wasResizing = false;
 
@@ -1335,14 +1362,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_OUTPUT_DATA:
-          if (showTransformOutputData(areaOwner)) {
-            lastButton = 0;
-            return;
-          }
-          break;
         case HOP_OUTPUT_DATA:
-          if (showHopOutputData(areaOwner)) {
-            lastButton = 0;
+          // The badge sits on the corner of the icon and part way along the hop, so the release of
+          // a move often lands on it. That release ends the move. A click, the pointer having
+          // stayed within the drag threshold, is what opens the rows (issue #8595).
+          //
+          if (previewPress && opensPreviewRows(e)) {
+            showPreviewRows(areaOwner);
             return;
           }
           break;
@@ -1398,7 +1424,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (selectedTransform != null && startHopTransform == null) {
       if (e.button == 1) {
         Point realClick = screen2real(e.x, e.y);
-        if (lastClick.x == realClick.x && lastClick.y == realClick.y) {
+        // A drag that ends where it started is still a drag. Hop Web arms that flag on mouse-down,
+        // so there the coordinates alone distinguish a click.
+        if (lastClick.x == realClick.x && lastClick.y == realClick.y && !dragWasCommitted()) {
           // Flip selection when control is pressed!
           if (control) {
             selectedTransform.flipSelected();
@@ -1553,6 +1581,115 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     lastButton = 0;
   }
 
+  /**
+   * Arms a transform move from a press on its icon or on its output-rows badge. The drag itself
+   * starts only after the pointer passes {@link #ICON_DRAG_THRESHOLD_PX}, except on Hop Web, which
+   * never delivers mouse-move events while a button is held.
+   */
+  private void armIconDrag(TransformMeta transform, MouseEvent event, Point real) {
+    currentTransform = transform;
+    iconDragStartScreen = new Point(event.x, event.y);
+    iconDragCommitted = false;
+    previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
+
+    Point p = currentTransform.getLocation();
+    iconOffset = new Point(real.x - p.x, real.y - p.y);
+
+    // The RAP/web client does not deliver mouse-move events while a button is held, so the
+    // movement threshold in mouseMove() can never fire during a press. Arm the drag right away on
+    // mouse-down so the transform follows the cursor and is dropped on mouse-up; native SWT keeps
+    // the threshold behaviour to distinguish a click from a drag.
+    boolean shift = (event.stateMask & SWT.SHIFT) != 0;
+    boolean control = (event.stateMask & SWT.MOD1) != 0;
+    if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
+      iconDragCommitted = true;
+      markPositionUndoPoint();
+      dragSelection = true;
+      canvas.setData("mode", "drag");
+      selectedTransforms = pipelineMeta.getSelectedTransforms();
+      selectedTransform = currentTransform;
+      pipelineGridDelegate.onPipelineSelectionChanged();
+      for (ITransformSelectionListener listener : currentTransformListeners) {
+        listener.onUpdateSelection(currentTransform);
+      }
+    }
+  }
+
+  /**
+   * A stationary release on the badge that was pressed. A drag, a hop or a lasso that ends on the
+   * badge does not qualify: releasing the mouse after one of those ends the gesture and nothing
+   * more.
+   */
+  private boolean opensPreviewRows(MouseEvent event) {
+    if (startHopTransform != null || selectionRegion != null || movedPastDragThreshold(event)) {
+      return false;
+    }
+    // On the desktop a committed drag is a move even when the pointer is back where it started.
+    // Hop Web arms the drag on mouse-down, so there the distance above is the whole check.
+    return !dragWasCommitted();
+  }
+
+  /** The press moved far enough to be a drag. Hop Web sets the flag before any movement. */
+  private boolean dragWasCommitted() {
+    return iconDragCommitted && !EnvironmentUtils.getInstance().isWeb();
+  }
+
+  private boolean movedPastDragThreshold(MouseEvent event) {
+    if (mouseDownScreen == null) {
+      return false;
+    }
+    int dx = event.x - mouseDownScreen.x;
+    int dy = event.y - mouseDownScreen.y;
+    return dx * dx + dy * dy > (long) ICON_DRAG_THRESHOLD_PX * ICON_DRAG_THRESHOLD_PX;
+  }
+
+  /**
+   * Opens the rows for the badge under the pointer. The dialog runs its own event loop, so the drag
+   * is dropped first: a click that loop dispatches would otherwise still be the move that just
+   * ended, and would open the rows again.
+   */
+  private void showPreviewRows(AreaOwner areaOwner) {
+    endPreviewPress();
+    if (areaOwner.getAreaType() == AreaType.HOP_OUTPUT_DATA) {
+      showHopOutputData(areaOwner);
+    } else {
+      showTransformOutputData(areaOwner);
+    }
+  }
+
+  /**
+   * Drops the press that opened the output rows, without changing what is selected on the graph.
+   */
+  private void endPreviewPress() {
+    selectedTransform = null;
+    currentTransform = null;
+    selectedNote = null;
+    selectedTransforms = null;
+    selectedNotes = null;
+    dragSelection = false;
+    iconDragStartScreen = null;
+    iconDragCommitted = false;
+    iconOffset = null;
+    splitHop = false;
+    if (lastHopSplit != null) {
+      lastHopSplit.setSplit(false);
+      lastHopSplit = null;
+    }
+    startHopTransform = null;
+    endHopTransform = null;
+    endHopLocation = null;
+    candidate = null;
+    clickedPipelineHop = null;
+    clickedHopBadge = false;
+    selectionRegion = null;
+    lastButton = 0;
+    avoidContextDialog = false;
+    canvas.setData("mode", "null");
+    canvas.setData(START_HOP_NODE, null);
+    canvas.setData("resizeDirection", null);
+    resetPositionUndoMark();
+  }
+
   @GuiContextAction(
       id = "pipeline-graph-transform-1000-view-output",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
@@ -1599,72 +1736,79 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private boolean showOutputDataDialog(String titleName, String messageName, RowBuffer rowBuffer) {
-    if (rowBuffer != null) {
-      synchronized (rowBuffer.getBuffer()) {
-        if (!rowBuffer.isEmpty()) {
-          try {
-            String title =
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
-            String message =
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
-            String prefix = "";
+    if (rowBuffer == null) {
+      return false;
+    }
+    // Already inside this dialog's event loop: the click that got us here is not another preview.
+    if (showingOutputRows) {
+      return true;
+    }
+    synchronized (rowBuffer.getBuffer()) {
+      if (!rowBuffer.isEmpty()) {
+        showingOutputRows = true;
+        try {
+          String title =
+              BaseMessages.getString(
+                  PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
+          String message =
+              BaseMessages.getString(
+                  PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
+          String prefix = "";
 
-            if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
-              PipelineRunConfiguration pipelineRunConfiguration =
-                  pipeline.getPipelineRunConfiguration();
-              if (pipelineRunConfiguration.getEngineRunConfiguration()
-                  instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
-                String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
-                if (StringUtils.isNotEmpty(sampleTypeInGui)) {
-                  try {
-                    SampleType sampleType = SampleType.valueOf(sampleTypeInGui);
-                    switch (sampleType) {
-                      case None:
-                        break;
-                      case First:
-                        prefix =
-                            BaseMessages.getString(
-                                PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
-                        break;
-                      case Last:
-                        prefix =
-                            BaseMessages.getString(
-                                PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
-                        break;
-                      case Random:
-                        prefix +=
-                            BaseMessages.getString(
-                                PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
-                        break;
-                      default:
-                        break;
-                    }
-                  } catch (Exception ex) {
-                    LogChannel.UI.logError("Unknown sample type: " + sampleTypeInGui);
+          if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
+            PipelineRunConfiguration pipelineRunConfiguration =
+                pipeline.getPipelineRunConfiguration();
+            if (pipelineRunConfiguration.getEngineRunConfiguration()
+                instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
+              String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
+              if (StringUtils.isNotEmpty(sampleTypeInGui)) {
+                try {
+                  SampleType sampleType = SampleType.valueOf(sampleTypeInGui);
+                  switch (sampleType) {
+                    case None:
+                      break;
+                    case First:
+                      prefix =
+                          BaseMessages.getString(
+                              PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
+                      break;
+                    case Last:
+                      prefix =
+                          BaseMessages.getString(
+                              PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
+                      break;
+                    case Random:
+                      prefix +=
+                          BaseMessages.getString(
+                              PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
+                      break;
+                    default:
+                      break;
                   }
+                } catch (Exception ex) {
+                  LogChannel.UI.logError("Unknown sample type: " + sampleTypeInGui);
                 }
               }
             }
-
-            new ShowRowsDialog(
-                    hopGui.getActiveShell(),
-                    variables,
-                    title,
-                    prefix + message,
-                    rowBuffer.getRowMeta(),
-                    rowBuffer.getBuffer())
-                .open();
-          } catch (Exception ex) {
-            new ErrorDialog(
-                hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
           }
+
+          new ShowRowsDialog(
+                  hopGui.getActiveShell(),
+                  variables,
+                  title,
+                  prefix + message,
+                  rowBuffer.getRowMeta(),
+                  rowBuffer.getBuffer())
+              .open();
+        } catch (Exception ex) {
+          new ErrorDialog(
+              hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
+        } finally {
+          showingOutputRows = false;
         }
       }
-      return true;
     }
-    return false;
+    return true;
   }
 
   /**
@@ -1797,6 +1941,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private void menuDetect(Event event) {
     // No SWT menu hangs off the canvas, and in Hop Web the browser's own menu is unwanted.
     event.doit = false;
+    if (showingOutputRows) {
+      return;
+    }
     if (!PropsUi.getInstance().useRightClickForContextDialog()) {
       return;
     }
@@ -2459,6 +2606,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseMove(MouseEvent event) {
+    if (showingOutputRows) {
+      return;
+    }
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
     boolean doRedraw = false;
 
@@ -3434,6 +3584,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     dragSelection = false;
     iconDragStartScreen = null;
     iconDragCommitted = false;
+    outputDataPressed = false;
     canvas.setData("mode", "null");
     canvas.setData(START_HOP_NODE, null);
     startHopTransform = null;

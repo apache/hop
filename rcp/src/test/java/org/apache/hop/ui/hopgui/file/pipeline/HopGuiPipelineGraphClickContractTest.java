@@ -369,6 +369,9 @@ class HopGuiPipelineGraphClickContractTest extends GraphCanvasTestBase {
     idle.put("selectionRegion", null);
     idle.put("dragSelection", false);
     idle.put("iconDragStartScreen", null);
+    idle.put("iconDragCommitted", false);
+    idle.put("outputDataPressed", false);
+    idle.put("showingOutputRows", false);
     idle.put("avoidContextDialog", false);
     idle.put("lastButton", 0);
     assertGraphState(graph, idle);
