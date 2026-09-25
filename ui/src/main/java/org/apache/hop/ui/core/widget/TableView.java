@@ -56,6 +56,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.TableViewColumnViewDialog;
+import org.apache.hop.ui.core.dialog.TableViewFindDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
@@ -105,6 +106,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolItem;
 import org.jspecify.annotations.NonNull;
 
 /** Widget to display or modify data, displayed in a Table format. */
@@ -266,6 +268,7 @@ public class TableView extends Composite {
   private final List<String> removeToolItems;
   private final Set<Integer> hiddenDataColumns = new HashSet<>();
   private int[] rememberedWidths;
+  private TableViewFindDialog findDialog;
 
   /**
    * Last width we asked each native column to take during {@link #optWidth}. Win32/DPI often
@@ -885,6 +888,11 @@ public class TableView extends Composite {
     return new KeyAdapter() {
       @Override
       public void keyPressed(KeyEvent e) {
+        if (isFindShortcut(e)) {
+          e.doit = false;
+          findValue();
+          return;
+        }
         if (activeTableItem == null) {
           return;
         }
@@ -1175,6 +1183,11 @@ public class TableView extends Composite {
     return new KeyAdapter() {
       @Override
       public void keyPressed(KeyEvent e) {
+        if (isFindShortcut(e)) {
+          e.doit = false;
+          findValue();
+          return;
+        }
         boolean right = false;
         boolean left = false;
 
@@ -1492,11 +1505,16 @@ public class TableView extends Composite {
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN)) {
-      MenuItem miNavigateToColumn = new MenuItem(mRow, SWT.NONE);
-      miNavigateToColumn.setText(
+      MenuItem miFindValue = new MenuItem(mRow, SWT.NONE);
+      miFindValue.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.FindValue")));
+      miFindValue.addListener(SWT.Selection, e -> findValue());
+
+      MenuItem miFindColumn = new MenuItem(mRow, SWT.NONE);
+      miFindColumn.setText(
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.NavigateToColumn")));
-      miNavigateToColumn.addListener(SWT.Selection, e -> navigateToColumn());
+      miFindColumn.addListener(SWT.Selection, e -> navigateToColumn());
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_TABLE_VIEWS)) {
@@ -1607,6 +1625,11 @@ public class TableView extends Composite {
   }
 
   private void comboKeyPressed(KeyEvent e) {
+    if (isFindShortcut(e)) {
+      e.doit = false;
+      findValue();
+      return;
+    }
 
     // "ENTER": close the text editor and copy the data over
     //
@@ -4528,15 +4551,90 @@ public class TableView extends Composite {
     }
   }
 
-  /**
-   * Open a searchable column picker and scroll the table horizontally so the chosen column is
-   * visible. Useful for wide tables (preview grids, field mapping dialogs, etc.).
-   */
+  /** Popup under the search toolbar button: find a value, or jump to a column. */
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_NAVIGATE_TO_COLUMN,
       image = "ui/images/search.svg",
-      toolTip = "i18n::TableView.ToolBarWidget.NavigateToColumn.ToolTip")
+      toolTip = "i18n::TableView.ToolBarWidget.Find.ToolTip")
+  public void showFindMenu() {
+    if (columns.length == 0 || isDisposed() || findRemoved()) {
+      return;
+    }
+    Menu menu = new Menu(getShell(), SWT.POP_UP);
+    MenuItem findValueItem = new MenuItem(menu, SWT.NONE);
+    findValueItem.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.FindValue")));
+    findValueItem.addListener(SWT.Selection, e -> findValue());
+
+    MenuItem findColumnItem = new MenuItem(menu, SWT.NONE);
+    findColumnItem.setText(
+        OsHelper.customizeMenuitemText(
+            BaseMessages.getString(PKG, "TableView.menu.NavigateToColumn")));
+    findColumnItem.addListener(SWT.Selection, e -> navigateToColumn());
+
+    menu.addListener(
+        SWT.Hide,
+        e ->
+            menu.getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!menu.isDisposed()) {
+                        menu.dispose();
+                      }
+                    }));
+    menu.setLocation(findMenuLocation());
+    menu.setVisible(true);
+  }
+
+  private Point findMenuLocation() {
+    if (toolbarWidgets != null) {
+      Control anchor = toolbarWidgets.getControlForMenu(ID_TOOLBAR_NAVIGATE_TO_COLUMN);
+      if (anchor != null && !anchor.isDisposed() && anchor.getParent() != null) {
+        Rectangle rect = anchor.getBounds();
+        return anchor.getParent().toDisplay(rect.x, rect.y + rect.height);
+      }
+      ToolItem toolItem = toolbarWidgets.findToolItem(ID_TOOLBAR_NAVIGATE_TO_COLUMN);
+      if (toolItem != null && !toolItem.isDisposed() && toolItem.getParent() != null) {
+        Rectangle rect = toolItem.getBounds();
+        return toolItem.getParent().toDisplay(rect.x, rect.y + rect.height);
+      }
+    }
+    return getDisplay().getCursorLocation();
+  }
+
+  private boolean isFindShortcut(KeyEvent e) {
+    return e.keyCode == 'f' && (e.stateMask & SWT.MOD1) != 0;
+  }
+
+  private boolean findRemoved() {
+    return removeToolItems != null && removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN);
+  }
+
+  /** Open the find-value dialog. Ctrl/Cmd-F and the toolbar menu both land here. */
+  public void findValue() {
+    if (columns.length == 0 || isDisposed() || findRemoved()) {
+      return;
+    }
+    if (findDialog != null && findDialog.isOpen()) {
+      findDialog.forceActive();
+      return;
+    }
+    TableViewFindDialog dialog = new TableViewFindDialog(getShell(), this);
+    findDialog = dialog;
+    try {
+      dialog.open();
+    } finally {
+      if (findDialog == dialog) {
+        findDialog = null;
+      }
+    }
+  }
+
+  /**
+   * Open a searchable column picker and scroll the table horizontally so the chosen column is
+   * visible. Useful for wide tables (preview grids, field mapping dialogs, etc.).
+   */
   public void navigateToColumn() {
     if (columns.length == 0) {
       return;
@@ -4572,6 +4670,89 @@ public class TableView extends Composite {
       table.showColumn(tableCol);
       activeTableColumn = index + 1;
     }
+  }
+
+  /**
+   * Full cell text, visual column order, and the active cell. Commits an open editor first so a
+   * value still being typed is part of the scan.
+   */
+  public TableViewFind.Grid captureFindGrid() {
+    if (table == null || table.isDisposed() || columns == null) {
+      return null;
+    }
+    applyAllChanges();
+    if (table.isDisposed()) {
+      return null;
+    }
+    int cols = columns.length;
+    int rowCount = table.getItemCount();
+    String[][] values = new String[rowCount][cols];
+    for (int row = 0; row < rowCount; row++) {
+      TableItem item = table.getItem(row);
+      for (int column = 0; column < cols; column++) {
+        String value = getCellValue(item, column + 1);
+        values[row][column] = value == null ? "" : value;
+      }
+    }
+    String[] names = new String[cols];
+    for (int column = 0; column < cols; column++) {
+      names[column] = Const.NVL(columns[column].getName(), "");
+    }
+    int activeRow = 0;
+    if (activeTableRow >= 0 && activeTableRow < rowCount) {
+      activeRow = activeTableRow;
+    }
+    int activeDataColumn = -1;
+    if (activeTableColumn >= 1 && activeTableColumn <= cols) {
+      activeDataColumn = activeTableColumn - 1;
+    }
+    return new TableViewFind.Grid(
+        values, visualDataColumnIndexes(), names, activeRow, activeDataColumn);
+  }
+
+  /**
+   * Show {@code row} and {@code dataColumn}. An editable cell is opened with its text selected. A
+   * read-only table or column is only scrolled into view and selected.
+   */
+  public void revealFoundCell(int row, int dataColumn) {
+    if (table == null || table.isDisposed() || columns == null) {
+      return;
+    }
+    if (row < 0 || row >= table.getItemCount() || dataColumn < 0 || dataColumn >= columns.length) {
+      return;
+    }
+    if (hiddenDataColumns.contains(dataColumn)) {
+      showDataColumn(dataColumn);
+    }
+    int tableColumnIndex = dataColumn + 1;
+    if (tableColumn != null && tableColumnIndex < tableColumn.length) {
+      TableColumn tableCol = tableColumn[tableColumnIndex];
+      if (tableCol != null && !tableCol.isDisposed()) {
+        table.showColumn(tableCol);
+      }
+    }
+    TableItem item = table.getItem(row);
+    table.showItem(item);
+    table.setSelection(row);
+    setPosition(row, tableColumnIndex);
+    if (!readonly && !isColumnReadOnly(tableColumnIndex)) {
+      edit(row, tableColumnIndex);
+    }
+  }
+
+  private int[] visualDataColumnIndexes() {
+    int[] order = getColumnOrderSafe();
+    int[] data = new int[columns.length];
+    int count = 0;
+    for (int tableIndex : order) {
+      if (tableIndex >= 1 && tableIndex <= columns.length) {
+        data[count++] = tableIndex - 1;
+      }
+    }
+    if (count == data.length) {
+      return data;
+    }
+    return Arrays.copyOf(data, count);
   }
 
   @GuiToolbarElement(
