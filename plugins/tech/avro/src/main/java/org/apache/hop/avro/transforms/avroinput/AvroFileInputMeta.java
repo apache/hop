@@ -36,7 +36,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "avro_input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-file-input.html",
-    keywords = "i18n::AvroFileInputMeta.keyword")
+    keywords = "i18n::AvroFileInputMeta.keyword",
+    excludedEngines = {"SparkPipelineEngine"})
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFileInputData> {
 

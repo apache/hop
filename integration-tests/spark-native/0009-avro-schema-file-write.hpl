@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>0009-avro-schema-file-write</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/09/24 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/09/24 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>source/test-file_0.csv</from>
+      <to>avro/test.avro (schema from project)</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>source/test-file_0.csv</name>
+    <type>TextFileInput2</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <accept_filenames>N</accept_filenames>
+    <files>
+      <file>
+        <name>${PROJECT_HOME}/output/0009-avro-schema-file/source/test-file_0.csv</name>
+        <filemask/>
+        <exclude_filemask/>
+        <file_required>Y</file_required>
+        <include_subfolders>N</include_subfolders>
+      </file>
+    </files>
+    <separator>,</separator>
+    <enclosure>"</enclosure>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
+    <header>Y</header>
+    <nr_headerlines>1</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>80</nr_lines_per_page>
+    <nr_lines_doc_header>0</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
+    <format>Unix</format>
+    <encoding>UTF-8</encoding>
+    <length>Characters</length>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <file_type>CSV</file_type>
+    <compression>None</compression>
+    <filters>
+    </filters>
+    <fields>
+      <field>
+        <name>id</name>
+        <type>Integer</type>
+        <format>#</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>-1</position>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>test</name>
+        <type>String</type>
+        <format></format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>-1</position>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <error_line_skipped>N</error_line_skipped>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>en_US</date_format_locale>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>avro/test.avro (schema from project)</name>
+    <type>AvroOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <output_type>BinaryFile</output_type>
+    <filename>${PROJECT_HOME}/output/0009-avro-schema-file/avro/test.avro</filename>
+    <output_field_name/>
+    <create_schema_file>N</create_schema_file>
+    <write_schema_file>N</write_schema_file>
+    <schemafilename>${PROJECT_HOME}/files/avro-3901/test.avsc</schemafilename>
+    <namespace/>
+    <recordname/>
+    <doc/>
+    <compressiontype>none</compressiontype>
+    <create_parent_folder>Y</create_parent_folder>
+    <split>N</split>
+    <haspartno>N</haspartno>
+    <add_date>N</add_date>
+    <add_time>N</add_time>
+    <SpecifyFormat>N</SpecifyFormat>
+    <date_time_format/>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <fields>
+      <field>
+        <name>id</name>
+        <avroname>$.id</avroname>
+        <avrotype>5</avrotype>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <name>test</name>
+        <avroname>$.test</avroname>
+        <avrotype>6</avrotype>
+        <nullable>Y</nullable>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>528</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling/>
+  <attributes/>
+</pipeline>
