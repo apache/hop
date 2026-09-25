@@ -68,7 +68,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -1644,11 +1643,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       if (RestMeta.isActiveBody(data.method)) {
         ContentType type = contentType != null ? ContentType.parse(contentType) : data.mediaType;
-        trackRequestBytes(body, resolveCharset(type));
-        request.setEntity(
-            body instanceof byte[] bytes
-                ? new ByteArrayEntity(bytes, type)
-                : new StringEntity((String) body, type));
+        Charset charset = resolveCharset(type);
+        trackRequestBytes(body, charset);
+        byte[] payload = body instanceof byte[] bytes ? bytes : ((String) body).getBytes(charset);
+        request.setEntity(new ByteArrayEntity(payload, type));
       }
 
       if (isDetailed()) {
@@ -1701,14 +1699,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         .append(CredentialRedactor.redact(request.getRequestUri()))
         .append(Const.CR);
 
-    // Host and Content-Type never appear in getHeaders(): the client derives the first from the
-    // route and the second from the entity, both at send time. Leaving them out would make this a
-    // misleading picture of the request rather than a faithful one.
+    // Host is filled in from the route at send time, so it is not in getHeaders() yet.
+    // Content-Type is already on the request when the row set it. Otherwise it lives on
+    // the entity and is copied at send time. Print the one that will go out, once.
     if (request.getAuthority() != null) {
       text.append("Host: ").append(request.getAuthority().toString()).append(Const.CR);
     }
     HttpEntity requestEntity = request.getEntity();
-    if (requestEntity != null && requestEntity.getContentType() != null) {
+    if (!request.containsHeader("Content-Type")
+        && requestEntity != null
+        && requestEntity.getContentType() != null) {
       text.append("Content-Type: ").append(requestEntity.getContentType()).append(Const.CR);
     }
 
@@ -2264,7 +2264,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       String applicationType = NVL(meta.getApplicationType(), "");
       switch (applicationType) {
         case RestMeta.APPLICATION_TYPE_XML -> data.mediaType = ContentType.APPLICATION_XML;
-        case RestMeta.APPLICATION_TYPE_JSON -> data.mediaType = ContentType.APPLICATION_JSON;
+          // Issue #8507: ContentType.APPLICATION_JSON has charset=UTF-8, which gateways such as
+          // Omie reject. JSON is defined as UTF-8 (RFC 8259), so omit the charset parameter.
+        case RestMeta.APPLICATION_TYPE_JSON ->
+            data.mediaType = ContentType.create("application/json");
         case RestMeta.APPLICATION_TYPE_OCTET_STREAM ->
             data.mediaType = ContentType.APPLICATION_OCTET_STREAM;
         case RestMeta.APPLICATION_TYPE_XHTML -> data.mediaType = ContentType.APPLICATION_XHTML_XML;
