@@ -381,10 +381,11 @@ public class ParquetExplorerFileTypeHandler extends BaseExplorerFileTypeHandler 
     for (int i = 0; i < rows.size(); i++) {
       TableItem item = i == 0 ? table.table.getItem(0) : new TableItem(table.table, SWT.NONE);
       String[] values = rows.get(i);
+      // Column 0 is the row number. optimizeTableView() writes it.
       for (int c = 0; c < values.length; c++) {
-        item.setText(c, values[c] == null ? "" : values[c]);
+        item.setText(c + 1, values[c] == null ? "" : values[c]);
       }
     }
-    table.optWidth(true);
+    table.optimizeTableView();
   }
 }
