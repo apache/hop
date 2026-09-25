@@ -249,7 +249,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   }
 
   @VisibleForTesting
-  Result executePipelineAttempt(List<String> parameterValues) throws HopException {
+  Result executePipelineAttempt(List<String> parameterValues, long timeoutMs) throws HopException {
     PipelineExecutorData pipelineExecutorData = getData();
 
     if (first) {
@@ -276,7 +276,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       executorPipeline.startThreads();
 
       // Wait a while until we're done with the pipeline
-      long timeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
       boolean finishedInTime = ExecutionWait.waitForPipeline(executorPipeline, timeoutMs);
 
       result = executorPipeline.getResult();
@@ -309,10 +308,27 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   Result executeWithRetries(List<String> parameterValues) throws HopException {
     int retryAttempts = Math.max(0, Const.toInt(resolve(meta.getRetryAttempts()), 0));
     long retryDelayMs = Math.max(0L, Const.toLong(resolve(meta.getRetryDelay()), 0L));
+    long configuredTimeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
+    long retryStartTime = System.currentTimeMillis();
 
     Result result = null;
     for (int attempt = 0; attempt <= retryAttempts; attempt++) {
-      result = executePipelineAttempt(parameterValues);
+      long timeoutForAttemptMs = configuredTimeoutMs;
+      if (configuredTimeoutMs > 0) {
+        long elapsedMs = System.currentTimeMillis() - retryStartTime;
+        long remainingMs = configuredTimeoutMs - elapsedMs;
+        if (remainingMs <= 0) {
+          if (result == null) {
+            result = new Result();
+            result.setResult(false);
+            result.setNrErrors(1);
+          }
+          break;
+        }
+        timeoutForAttemptMs = remainingMs;
+      }
+
+      result = executePipelineAttempt(parameterValues, timeoutForAttemptMs);
       if (!isFailedResult(result) || attempt == retryAttempts) {
         break;
       }
