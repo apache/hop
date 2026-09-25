@@ -47,10 +47,12 @@ import org.apache.hop.core.vfs.HopVfs;
  */
 public class DataSetCsvUtil {
   /**
-   * Storage mask for Number fields without a format. DecimalFormat prints the shortest decimal
-   * representation of a double, so 3.14 is written as "3.14" while no digits are ever dropped (340
-   * is the maximum number of fraction digits DecimalFormat honours for a double). Declared
-   * precision is applied when comparing against golden data, not when storing.
+   * Storage mask for Number and BigNumber fields without a format. DecimalFormat prints the
+   * shortest decimal representation of a double, so 3.14 is written as "3.14" while no digits are
+   * ever dropped (340 is the maximum number of fraction digits DecimalFormat honours for a double).
+   * Without it a BigNumber falls back to the default mask, which keeps 19 fraction digits, or to a
+   * pattern built from its length and precision, which rounds and zero-pads. Declared precision is
+   * applied when comparing against golden data, not when storing.
    */
   static final String NUMBER_STORAGE_MASK = "0." + "#".repeat(340);
 
@@ -61,7 +63,7 @@ public class DataSetCsvUtil {
           case IValueMeta.TYPE_INTEGER:
             valueMeta.setConversionMask("0");
             break;
-          case IValueMeta.TYPE_NUMBER:
+          case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
             valueMeta.setConversionMask(NUMBER_STORAGE_MASK);
             break;
           case IValueMeta.TYPE_DATE:
@@ -243,6 +245,10 @@ public class DataSetCsvUtil {
       throws HopException {
     if (valueMeta.isBinary()) {
       return decodeHex(value, valueMeta.getName());
+    }
+    if (value != null && (valueMeta.isNumber() || valueMeta.isBigNumber())) {
+      // Earlier versions padded a BigNumber with a length to " 00001234.57"
+      value = value.trim();
     }
     return valueMeta.convertData(stringMeta, value);
   }
