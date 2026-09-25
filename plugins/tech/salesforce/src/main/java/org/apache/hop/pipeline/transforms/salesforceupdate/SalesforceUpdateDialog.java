@@ -397,9 +397,15 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            getModulesList();
-            shell.setCursor(null);
-            busy.dispose();
+            try {
+              getModulesList();
+            } finally {
+              // The dialog can be closed while the error dialog of a failed lookup is open
+              if (!shell.isDisposed()) {
+                shell.setCursor(null);
+              }
+              busy.dispose();
+            }
           }
         });
 
