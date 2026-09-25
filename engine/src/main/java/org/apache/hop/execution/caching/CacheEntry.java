@@ -265,10 +265,14 @@ public class CacheEntry {
    * @return true if this entry is too old.
    */
   public boolean isTooOld(int maxAge) {
-    if (lastRead != null && System.currentTimeMillis() - lastRead.getTime() > maxAge) {
-      return true;
+    long lastActivity = creationDate != null ? creationDate.getTime() : 0L;
+    if (lastWritten != null) {
+      lastActivity = Math.max(lastActivity, lastWritten.getTime());
     }
-    return lastWritten != null && System.currentTimeMillis() - lastWritten.getTime() > maxAge;
+    if (lastRead != null) {
+      lastActivity = Math.max(lastActivity, lastRead.getTime());
+    }
+    return (System.currentTimeMillis() - lastActivity) > maxAge;
   }
 
   /**

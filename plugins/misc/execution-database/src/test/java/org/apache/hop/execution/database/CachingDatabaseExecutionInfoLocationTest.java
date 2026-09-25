@@ -382,6 +382,103 @@ class CachingDatabaseExecutionInfoLocationTest {
             || ddl.toLowerCase().contains("character"));
   }
 
+  @Test
+  void lruCacheEvictionEnforcesMaxSize() throws Exception {
+    location.setMaxCacheSize("2");
+    location.initialize(variables, metadataProvider);
+
+    String id1 = UUID.randomUUID().toString();
+    String id2 = UUID.randomUUID().toString();
+    String id3 = UUID.randomUUID().toString();
+
+    Execution exec1 = new Execution();
+    exec1.setId(id1);
+    exec1.setName("Exec1");
+    exec1.setExecutionType(ExecutionType.Pipeline);
+    exec1.setExecutionStartDate(new Date());
+    exec1.setRegistrationDate(new Date());
+
+    Execution exec2 = new Execution();
+    exec2.setId(id2);
+    exec2.setName("Exec2");
+    exec2.setExecutionType(ExecutionType.Pipeline);
+    exec2.setExecutionStartDate(new Date());
+    exec2.setRegistrationDate(new Date());
+
+    Execution exec3 = new Execution();
+    exec3.setId(id3);
+    exec3.setName("Exec3");
+    exec3.setExecutionType(ExecutionType.Pipeline);
+    exec3.setExecutionStartDate(new Date());
+    exec3.setRegistrationDate(new Date());
+
+    location.registerExecution(exec1);
+    location.registerExecution(exec2);
+    assertEquals(2, location.getCache().size());
+    assertTrue(location.getCache().containsKey(id1));
+    assertTrue(location.getCache().containsKey(id2));
+
+    // Registering the 3rd execution should evict the oldest (id1)
+    location.registerExecution(exec3);
+    assertEquals(2, location.getCache().size());
+    assertFalse(location.getCache().containsKey(id1));
+    assertTrue(location.getCache().containsKey(id2));
+    assertTrue(location.getCache().containsKey(id3));
+
+    // Evicted entry was persisted and can still be retrieved
+    Execution loaded1 = location.getExecution(id1);
+    assertNotNull(loaded1);
+    assertEquals("Exec1", loaded1.getName());
+  }
+
+  @Test
+  void closeClearsCacheMap() throws Exception {
+    String id = UUID.randomUUID().toString();
+    Execution exec = new Execution();
+    exec.setId(id);
+    exec.setName("ToClose");
+    exec.setExecutionType(ExecutionType.Pipeline);
+    exec.setExecutionStartDate(new Date());
+    exec.setRegistrationDate(new Date());
+
+    location.registerExecution(exec);
+    assertFalse(location.getCache().isEmpty());
+
+    location.close();
+    assertTrue(location.getCache().isEmpty());
+  }
+
+  @Test
+  void retrieveIdsWithChildrenLoadsChildrenCorrectly() throws Exception {
+    String parentId = UUID.randomUUID().toString();
+    String childId = UUID.randomUUID().toString();
+
+    CacheEntry parent =
+        sampleEntry(parentId, "ParentPipeline", ExecutionType.Pipeline, false, "Finished");
+
+    Execution child = new Execution();
+    child.setId(childId);
+    child.setParentId(parentId);
+    child.setName("ChildPipeline");
+    child.setExecutionType(ExecutionType.Pipeline);
+    child.setExecutionStartDate(new Date());
+    child.setRegistrationDate(new Date());
+
+    parent.addChildExecution(child);
+    location.persistCacheEntry(parent);
+
+    // Clear memory cache so retrieveIds loads from DB
+    location.clearCaches();
+
+    Set<DatedId> ids = new HashSet<>();
+    location.retrieveIds(true, ids, 100, IExecutionSelector.ALL);
+    assertEquals(2, ids.size());
+    Set<String> idStrings = new HashSet<>();
+    ids.forEach(d -> idStrings.add(d.getId()));
+    assertTrue(idStrings.contains(parentId));
+    assertTrue(idStrings.contains(childId));
+  }
+
   private static CacheEntry sampleEntry(
       String id, String name, ExecutionType type, boolean failed, String status) {
     Execution execution = new Execution();

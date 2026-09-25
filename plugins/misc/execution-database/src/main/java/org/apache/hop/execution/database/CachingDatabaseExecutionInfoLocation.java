@@ -40,6 +40,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -83,6 +84,8 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     implements IExecutionInfoLocation {
 
   public static final Class<?> PKG = CachingDatabaseExecutionInfoLocation.class;
+
+  private static final ObjectMapper JSON_MAPPER = HopJson.newMapper();
 
   public static final String PLUGIN_ID = "caching-database-location";
   public static final String DEFAULT_TABLE_NAME = "hop_executions";
@@ -402,8 +405,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       mergeChildrenFromDatabase(cacheEntry);
       cacheEntry.calculateSummary();
 
-      ObjectMapper mapper = new ObjectMapper();
-      String json = mapper.writeValueAsString(cacheEntry);
+      String json = JSON_MAPPER.writeValueAsString(cacheEntry);
 
       IRowMeta rowMeta = createDataRowMeta();
       Object[] data = buildRowData(cacheEntry, json);
@@ -546,8 +548,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
               return null;
             }
             String json = jsonObj.toString();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(json, CacheEntry.class);
+            return JSON_MAPPER.readValue(json, CacheEntry.class);
           });
     } catch (Exception e) {
       throw new HopException(
@@ -617,6 +618,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
       callWithDatabase(
           () -> {
+            List<DatedId> parentIds = new ArrayList<>();
             ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
             try {
               Object[] row = database.getRow(rs);
@@ -630,18 +632,22 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
                   startDate = (Date) row[1];
                 }
                 if (id != null) {
-                  ids.add(new DatedId(id, startDate != null ? startDate : new Date(0L)));
-                  if (includeChildren && !activeSelector.isSelectingParents()) {
-                    CacheEntry entry = loadCacheEntry(id);
-                    if (entry != null) {
-                      addChildIds(entry, ids, activeSelector);
-                    }
-                  }
+                  parentIds.add(new DatedId(id, startDate != null ? startDate : new Date(0L)));
                 }
                 row = database.getRow(rs);
               }
             } finally {
               database.closeQuery(rs);
+            }
+
+            ids.addAll(parentIds);
+            if (includeChildren && !activeSelector.isSelectingParents()) {
+              for (DatedId parentDatedId : parentIds) {
+                CacheEntry entry = loadCacheEntry(parentDatedId.getId());
+                if (entry != null) {
+                  addChildIds(entry, ids, activeSelector);
+                }
+              }
             }
             return null;
           });

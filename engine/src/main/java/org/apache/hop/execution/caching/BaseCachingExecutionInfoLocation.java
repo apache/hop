@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +68,16 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected String persistenceDelay = "5000";
 
   @GuiWidgetElement(
+      id = "maxCacheSize",
+      order = "905",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "i18n::CachingFileExecutionInfoLocation.MaxCacheSize.Tooltip",
+      label = "i18n::CachingFileExecutionInfoLocation.MaxCacheSize.Label")
+  @HopMetadataProperty
+  protected String maxCacheSize = "50";
+
+  @GuiWidgetElement(
       id = "maxCacheAge",
       order = "910",
       parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -75,7 +85,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       toolTip = "i18n::CachingFileExecutionInfoLocation.MaxCacheAge.Tooltip",
       label = "i18n::CachingFileExecutionInfoLocation.MaxCacheAge.Label")
   @HopMetadataProperty
-  protected String maxCacheAge = "86400000";
+  protected String maxCacheAge = "600000";
 
   protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
@@ -105,21 +115,24 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected int delay;
   protected int maxAge;
+  protected int maxSize;
 
   protected BaseCachingExecutionInfoLocation() {
-    cache = new HashMap<>();
+    cache = new LinkedHashMap<>(16, 0.75f, true);
     this.cacheTimer = null;
     this.locked = new AtomicBoolean(false);
   }
 
   protected BaseCachingExecutionInfoLocation(BaseCachingExecutionInfoLocation location) {
     this();
+    this.maxCacheSize = location.maxCacheSize;
     this.maxCacheAge = location.maxCacheAge;
     this.persistenceDelay = location.persistenceDelay;
     this.variables = location.variables;
     this.metadataProvider = location.metadataProvider;
     this.delay = location.delay;
     this.maxAge = location.maxAge;
+    this.maxSize = location.maxSize;
   }
 
   public abstract BaseCachingExecutionInfoLocation clone();
@@ -144,9 +157,16 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     //
     delay = Const.toInt(variables.resolve(persistenceDelay), 60000);
 
-    // The default maximum cache age is 1 day
+    // The default maximum cache size is 50
     //
-    maxAge = Const.toInt(variables.resolve(maxCacheAge), 86400000);
+    maxSize = Const.toInt(variables.resolve(maxCacheSize), 50);
+    if (maxSize <= 0) {
+      maxSize = 50;
+    }
+
+    // The default maximum cache age is 10 minutes (600000 ms)
+    //
+    maxAge = Const.toInt(variables.resolve(maxCacheAge), 600000);
 
     // Let's start a timer to manage the cache every second or so.
     // Cancel any previous timer first: a second initialize() used to leave the old one running
@@ -192,7 +212,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       //
       for (CacheEntry cacheEntry : cache.values()) {
         if (cacheEntry.needsWriting(delay)) {
-          persistCacheEntry(cacheEntry);
+          try {
+            persistCacheEntry(cacheEntry);
+          } catch (Exception e) {
+            LogChannel.GENERAL.logError(
+                "Error persisting cache entry for " + cacheEntry.getId(), e);
+          }
         }
       }
 
@@ -207,6 +232,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // Remove these entries.
       //
       tooOld.forEach(id -> cache.remove(id));
+
+      // Enforce LRU cache max size
+      enforceMaxCacheSize();
+
       loggedManageCacheError = false;
       lastManageCacheError = null;
     } catch (Exception e) {
@@ -219,6 +248,27 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       }
     } finally {
       locked.set(false);
+    }
+  }
+
+  protected synchronized void enforceMaxCacheSize() {
+    int max = maxSize > 0 ? maxSize : 50;
+    if (cache.size() <= max) {
+      return;
+    }
+    var iterator = cache.entrySet().iterator();
+    while (iterator.hasNext() && cache.size() > max) {
+      Map.Entry<String, CacheEntry> entry = iterator.next();
+      CacheEntry cacheEntry = entry.getValue();
+      if (cacheEntry != null && cacheEntry.isDirty()) {
+        try {
+          persistCacheEntry(cacheEntry);
+        } catch (Exception e) {
+          LogChannel.GENERAL.logError(
+              "Error persisting cache entry during eviction: " + cacheEntry.getId(), e);
+        }
+      }
+      iterator.remove();
     }
   }
 
@@ -238,14 +288,14 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       }
     } catch (Exception e) {
       throw new HopException("Error persisting caching execution information location", e);
+    } finally {
+      cache.clear();
     }
   }
 
   @Override
-  public void clearCaches() {
-    synchronized (locked) {
-      cache.clear();
-    }
+  public synchronized void clearCaches() {
+    cache.clear();
   }
 
   @Override
@@ -357,6 +407,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     entry.setLastWritten(null);
 
     cache.put(execution.getId(), entry);
+    enforceMaxCacheSize();
   }
 
   protected synchronized void addChildExecutionToCache(Execution execution) throws HopException {
@@ -406,10 +457,11 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected CacheEntry findCacheEntryWithParent(String parentId) {
+  protected synchronized CacheEntry findCacheEntryWithParent(String parentId) {
     if (StringUtils.isEmpty(parentId)) {
       return null;
     }
+    CacheEntry found = null;
     Collection<CacheEntry> values = cache.values();
     for (CacheEntry cacheEntry : values) {
       if (cacheEntry.getExecution() == null) {
@@ -417,14 +469,20 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       }
       String execParent = cacheEntry.getExecution().getParentId();
       if (parentId.equals(execParent)) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
       if (cacheEntry.getExecutionState() == null) {
         continue;
       }
       if (parentId.equals(cacheEntry.getExecutionState().getId())) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
+    }
+    if (found != null) {
+      cache.get(found.getId());
+      return found;
     }
     return null;
   }
@@ -467,25 +525,35 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected synchronized CacheEntry findCacheEntry(String executionId) throws HopException {
     // Check the cache first...
+    CacheEntry found = null;
     for (CacheEntry cacheEntry : cache.values()) {
       // See if this is a parent in the cache.
       //
       if (cacheEntry.getId().equals(executionId)) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
       // Sometimes the ID of the execution state is different from the execution
       //
       if (cacheEntry.getExecutionState() != null
           && cacheEntry.getExecutionState().getId().equals(executionId)) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
 
       // Is it perhaps one of the children?
       //
       Execution childExecution = cacheEntry.getChildExecution(executionId);
       if (childExecution != null) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
+    }
+
+    if (found != null) {
+      // Touch entry in LinkedHashMap to update LRU access order
+      cache.get(found.getId());
+      return found;
     }
 
     // We still haven't found anything in the cache.
@@ -497,9 +565,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       entry.setLastWritten(new Date());
       entry.setDirty(false);
 
-      // Add this to the cache as well
+      // Add this to the cache as well keyed by entry.getId()
       //
-      cache.put(executionId, entry);
+      cache.put(entry.getId(), entry);
+      enforceMaxCacheSize();
 
       return entry;
     }
@@ -593,7 +662,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected void getExecutionIdsFromCache(Set<DatedId> ids, boolean includeChildren) {
+  protected synchronized void getExecutionIdsFromCache(Set<DatedId> ids, boolean includeChildren) {
     for (CacheEntry cacheEntry : cache.values()) {
       ids.add(new DatedId(cacheEntry.getId(), cacheEntry.getExecution().getRegistrationDate()));
       if (includeChildren) {
@@ -602,7 +671,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected void getExecutionIdsFromCache(Set<DatedId> ids, IExecutionSelector selector) {
+  protected synchronized void getExecutionIdsFromCache(
+      Set<DatedId> ids, IExecutionSelector selector) {
     for (CacheEntry cacheEntry : cache.values()) {
       if (selector.isSelected(cacheEntry.getExecution())
           && selector.isSelected(cacheEntry.getExecutionState())) {

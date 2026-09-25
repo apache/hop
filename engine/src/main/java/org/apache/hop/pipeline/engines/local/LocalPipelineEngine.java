@@ -447,7 +447,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
     // Start execution of the pipeline
     //
-    super.startThreads();
+    try {
+      super.startThreads();
+    } catch (Exception e) {
+      stopTransformExecutionInfoTimer();
+      throw e;
+    }
 
     // Make sure to kill the timer when this pipeline is finished.
     // We do this with an extension point.
@@ -458,10 +463,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     super.waitUntilFinished();
   }
 
-  public void startTransformExecutionInfoTimer() throws HopException {
+  public synchronized void startTransformExecutionInfoTimer() throws HopException {
     if (executionInfoLocation == null) {
       return;
     }
+
+    addExecutionStoppedListener(e -> stopTransformExecutionInfoTimer());
 
     final ExecutionDataProfile dataProfile;
 
@@ -564,61 +571,64 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     super.pipelineCompleted();
   }
 
-  public void stopTransformExecutionInfoTimer() {
+  public synchronized void stopTransformExecutionInfoTimer() {
     try {
       if (transformExecutionInfoTimer != null) {
         if (transformExecutionInfoTimerTask != null) {
           transformExecutionInfoTimerTask.cancel();
+          transformExecutionInfoTimerTask = null;
         }
         ExecutorUtil.cleanup(transformExecutionInfoTimer);
         transformExecutionInfoTimer = null;
       }
 
-      if (executionInfoLocation == null) {
+      ExecutionInfoLocation location = executionInfoLocation;
+      executionInfoLocation = null;
+      if (location == null || location.getExecutionInfoLocation() == null) {
         return;
       }
 
-      IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-      // Register one final last state of the pipeline
-      //
-      IPipelineEngine pipelineEngine = LocalPipelineEngine.this;
-
-      ExecutionStateBuilder stateBuilder = ExecutionStateBuilder.fromExecutor(pipelineEngine, -1);
-      ExecutionState executionState = stateBuilder.build();
-      iLocation.updateExecutionState(executionState);
-
-      // Update the state of all the transforms one final time
-      //
-      for (IEngineComponent component : getComponents()) {
-        ExecutionState transformState =
-            ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component).build();
-        iLocation.updateExecutionState(transformState);
-      }
-
-      String dataProfileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
-      if (StringUtils.isNotEmpty(dataProfileName)) {
-        // Register the collected transform data for the last time
+      try {
+        // Register one final last state of the pipeline
         //
-        ExecutionDataBuilder dataBuilder =
-            ExecutionDataBuilder.fromAllTransformData(
-                LocalPipelineEngine.this, samplerStoresMap, true);
-        iLocation.registerData(dataBuilder.build());
-      }
-    } catch (Throwable e) {
-      log.logError("Error handling writing final pipeline state to location (non-fatal)", e);
-    } finally {
-      // We're now certain all listeners fired. We can close the location.
-      //
-      if (executionInfoLocation != null) {
+        IPipelineEngine pipelineEngine = LocalPipelineEngine.this;
+
+        ExecutionStateBuilder stateBuilder = ExecutionStateBuilder.fromExecutor(pipelineEngine, -1);
+        ExecutionState executionState = stateBuilder.build();
+        iLocation.updateExecutionState(executionState);
+
+        // Update the state of all the transforms one final time
+        //
+        for (IEngineComponent component : getComponents()) {
+          ExecutionState transformState =
+              ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component).build();
+          iLocation.updateExecutionState(transformState);
+        }
+
+        String dataProfileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
+        if (StringUtils.isNotEmpty(dataProfileName)) {
+          // Register the collected transform data for the last time
+          //
+          ExecutionDataBuilder dataBuilder =
+              ExecutionDataBuilder.fromAllTransformData(
+                  LocalPipelineEngine.this, samplerStoresMap, true);
+          iLocation.registerData(dataBuilder.build());
+        }
+      } catch (Throwable e) {
+        log.logError("Error handling writing final pipeline state to location (non-fatal)", e);
+      } finally {
+        // We're now certain all listeners fired. We can close the location.
+        //
         try {
-          executionInfoLocation.getExecutionInfoLocation().close();
+          iLocation.close();
         } catch (Exception e) {
-          log.logError(
-              "Error closing execution information location: " + executionInfoLocation.getName(),
-              e);
+          log.logError("Error closing execution information location: " + location.getName(), e);
         }
       }
+    } catch (Throwable e) {
+      log.logError("Error stopping transform execution info timer (non-fatal)", e);
     }
   }
 
