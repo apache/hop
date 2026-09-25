@@ -3103,12 +3103,17 @@ public class HopGui
       String selectedVariable)
       throws HopException {
     String message = "Editing configuration file: " + configFilename;
+    // Read this before getDescribedVariables(): that call can replace the config map with a nested
+    // "config" object, which would hide a description stored next to the variables.
+    String fileDescription = variablesConfigFile.getDescription();
     HopDescribedVariablesDialog variablesDialog =
         new HopDescribedVariablesDialog(
             shell, message, variablesConfigFile.getDescribedVariables(), selectedVariable);
+    variablesDialog.setFileDescriptionEditing(fileDescription);
     List<DescribedVariable> vars = variablesDialog.open();
     if (vars != null) {
       variablesConfigFile.setDescribedVariables(vars);
+      variablesConfigFile.setDescription(variablesDialog.getFileDescription());
       variablesConfigFile.saveToFile();
       return true;
     }
