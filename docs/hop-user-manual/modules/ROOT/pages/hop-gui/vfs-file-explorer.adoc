@@ -22,7 +22,7 @@ under the License.
 The VFS File Explorer browses a folder on any xref:vfs.adoc[Apache VFS] location: the local disk, a zip file, or a named connection such as S3, FTP or HDFS.
 It is not the xref:hop-gui/perspective-file-explorer.adoc[File Explorer perspective], which stays on the project, and it is not the xref:hop-gui/file-dialog.adoc[file dialog], which is still what Hop uses to open and save a file.
 
-Open it from **Tools → VFS File Explorer**.
+Open it from **Tools → VFS File Explorer**, or from *+* on the bottom panel tab bar.
 The same browser can sit in the bottom panel while you work on a pipeline or workflow.
 Use the dock and undock buttons to move the current location between the window and that panel.
 Each host keeps its own tabs.

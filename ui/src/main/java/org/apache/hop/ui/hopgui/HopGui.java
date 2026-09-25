@@ -145,6 +145,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
+import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -312,8 +313,8 @@ public class HopGui
   public static final String SIDEBAR_TOOLBAR_ITEM_EXECUTION_RESULTS =
       "HopGui-SidebarToolbar-ExecutionResults";
 
-  /** Id for the terminal toggle button in the sidebar bottom toolbar. */
-  public static final String SIDEBAR_TOOLBAR_ITEM_TERMINAL = "HopGui-SidebarToolbar-Terminal";
+  /** Id for the bottom-panel show/hide button in the sidebar bottom toolbar. */
+  public static final String SIDEBAR_TOOLBAR_ITEM_PANEL = "HopGui-SidebarToolbar-Panel";
 
   public static final String DEFAULT_HOP_GUI_NAMESPACE = "hop-gui";
 
@@ -377,6 +378,22 @@ public class HopGui
 
   public org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock getTerminalPanel() {
     return terminalPanel;
+  }
+
+  /**
+   * Apply the embedded-terminal option to the dock, the Tools menu, and the sidebar button. Safe to
+   * call before the dock exists.
+   */
+  public void applyEmbeddedTerminalOption() {
+    boolean enabled = HopGuiBottomDock.isTerminalCapabilityEnabled();
+    if (terminalPanel != null && !terminalPanel.isDisposed()) {
+      terminalPanel.setTerminalsEnabled(enabled);
+    }
+    if (mainMenuWidgets != null) {
+      mainMenuWidgets.enableMenuItem(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL, enabled);
+      mainMenuWidgets.enableMenuItem(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_NEW_TERMINAL, enabled);
+    }
+    refreshBottomToolbarItems();
   }
 
   private static final PrintStream originalSystemOut = System.out;
@@ -2238,24 +2255,25 @@ public class HopGui
     fdBottomToolbar.bottom = new FormAttachment(100, -4);
     bottomToolbar.setLayoutData(fdBottomToolbar);
 
-    // Register built-in sidebar toolbar items (visibility depends on active perspective).
-    // File explorer: both terminal and execution. Other perspectives: terminal only.
-    // List order: terminal then execution; refresh draws in reverse so execution appears above.
+    // Register built-in sidebar toolbar items. The first item added sits at the bottom because
+    // refresh lays the list out in reverse. Execution results stays File Explorer only and is
+    // added last so it sits above the panel button. Tools in the bottom panel are added from the
+    // "+" tab, not from here.
     int sidebarIconSize = 24;
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
-            .id(SIDEBAR_TOOLBAR_ITEM_TERMINAL)
-            .imagePath("ui/images/terminal.svg")
+            .id(SIDEBAR_TOOLBAR_ITEM_PANEL)
+            .imagePath("ui/images/dock-panel.svg")
             .imageSize(sidebarIconSize)
-            .tooltip("Toggle Terminal Panel")
+            .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.BottomPanel.Tooltip"))
             .onSelect(
                 () -> {
                   if (terminalPanel != null) {
-                    terminalPanel.toggleTerminal();
+                    terminalPanel.toggleDock();
                   }
                 })
-            .selectedSupplier(() -> terminalPanel != null && terminalPanel.isTerminalVisible())
-            .available(!EnvironmentUtils.getInstance().isWeb())
+            .selectedSupplier(() -> terminalPanel != null && terminalPanel.isDockVisible())
+            .available(true)
             .build());
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
@@ -2297,22 +2315,15 @@ public class HopGui
    * Add a main composite where the various perspectives can parent on to show stuff... Its area is
    * to just below the main toolbar and to the right of the perspectives toolbar.
    *
-   * <p>Wraps everything in a {@link org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock} which hosts
-   * the perspectives in its top section and a tabbed dock (terminals and other tools such as the
-   * search results) in its bottom section. The integrated terminal is a gated capability: it is
-   * turned off on the web (no AWT/PTY there) and can be disabled in {@code
-   * disabledGuiElements.xml}.
+   * <p>Wraps everything in a {@link HopGuiBottomDock} which hosts the perspectives in its top
+   * section and a tabbed bottom panel (terminal, search, database, VFS file explorer, and other
+   * tools) below that. The integrated terminal is off on Hop Web, when excluded in {@code
+   * disabledGuiElements.xml}, and when the user clears Enable embedded terminal.
    */
   private void addMainPerspectivesComposite() {
-    boolean terminalsEnabled =
-        !EnvironmentUtils.getInstance().isWeb()
-            && !org.apache.hop.core.gui.plugin.GuiRegistry.getDisabledGuiElements()
-                .contains(
-                    org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL);
+    boolean terminalsEnabled = HopGuiBottomDock.isTerminalCapabilityEnabled();
 
-    terminalPanel =
-        new org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock(
-            mainHopGuiComposite, this, terminalsEnabled);
+    terminalPanel = new HopGuiBottomDock(mainHopGuiComposite, this, terminalsEnabled);
     FormData fdTerminalPanel = new FormData();
     fdTerminalPanel.top = new FormAttachment(0, 0);
     fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
@@ -2338,6 +2349,7 @@ public class HopGui
 
     mainPerspectivesComposite = terminalPanel.getPerspectiveComposite();
     mainPerspectivesComposite.setLayout(new StackLayout());
+    applyEmbeddedTerminalOption();
   }
 
   public void setUndoMenu(IUndo undoInterface) {
@@ -2799,7 +2811,7 @@ public class HopGui
             SWT.MouseDown,
             e -> {
               if (d.getOnSelect() != null) d.getOnSelect().run();
-              updateVisual.run();
+              refreshSidebarToolbarButtonStates();
             });
         imgLabel.addListener(
             SWT.MouseEnter,
@@ -2817,7 +2829,7 @@ public class HopGui
             SWT.MouseDown,
             e -> {
               if (d.getOnSelect() != null) d.getOnSelect().run();
-              updateVisual.run();
+              refreshSidebarToolbarButtonStates();
             });
 
         updateVisual.run();
@@ -2874,8 +2886,9 @@ public class HopGui
               if (d.getOnSelect() != null) {
                 d.getOnSelect().run();
               }
-              canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
-              canvas.redraw();
+              // Refresh every button. Updating only the clicked one left the others highlighted
+              // after the panel was hidden and shown again.
+              refreshSidebarToolbarButtonStates();
             });
       }
     }

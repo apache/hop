@@ -21,6 +21,7 @@ package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -30,6 +31,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
+import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -58,6 +61,7 @@ public class ConfigGeneralOptionsTab {
   private Text wDefaultPreview;
   private Button wUseCache;
   private Button wOpenLast;
+  private Button wEmbeddedTerminal;
   private Button wReloadFileOnChange;
   private Button wAutoSave;
   private Button wAutoSplit;
@@ -97,6 +101,11 @@ public class ConfigGeneralOptionsTab {
       wDefaultPreview.setText(Integer.toString(props.getDefaultPreviewSize()));
       wUseCache.setSelection(props.useDBCache());
       wOpenLast.setSelection(props.openLastFile());
+      if (wEmbeddedTerminal != null
+          && !wEmbeddedTerminal.isDisposed()
+          && wEmbeddedTerminal.isEnabled()) {
+        wEmbeddedTerminal.setSelection(props.isEmbeddedTerminalEnabled());
+      }
       wReloadFileOnChange.setSelection(props.isReloadingFilesOnChange());
       wAutoSave.setSelection(!props.getAutoSave()); // Inverted logic
       wCopyDistribute.setSelection(props.showCopyOrDistributeWarning());
@@ -221,6 +230,29 @@ public class ConfigGeneralOptionsTab {
             lastControl,
             margin);
     lastControl = wOpenLast;
+
+    // Embedded terminal. Hop Web has no PTY, so the checkbox is omitted there. An exclusion of the
+    // terminal menu forces it off and must not be overwritten when the other options are saved.
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      boolean forcedOff =
+          GuiRegistry.getDisabledGuiElements()
+              .contains(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL);
+      wEmbeddedTerminal =
+          createCheckbox(
+              wGeneralComp,
+              "EnterOptionsDialog.EmbeddedTerminal.Label",
+              forcedOff
+                  ? "EnterOptionsDialog.EmbeddedTerminal.ForcedOff.ToolTip"
+                  : "EnterOptionsDialog.EmbeddedTerminal.ToolTip",
+              !forcedOff && props.isEmbeddedTerminalEnabled(),
+              lastControl,
+              margin);
+      if (forcedOff) {
+        wEmbeddedTerminal.setEnabled(false);
+        wEmbeddedTerminal.setSelection(false);
+      }
+      lastControl = wEmbeddedTerminal;
+    }
 
     // Reload file if changed on filesystem?
     wReloadFileOnChange =
@@ -703,6 +735,15 @@ public class ConfigGeneralOptionsTab {
         Const.toInt(wDefaultPreview.getText(), props.getDefaultPreviewSize()));
     props.setUseDBCache(wUseCache.getSelection());
     props.setOpenLastFile(wOpenLast.getSelection());
+    if (wEmbeddedTerminal != null
+        && !wEmbeddedTerminal.isDisposed()
+        && wEmbeddedTerminal.isEnabled()) {
+      boolean embeddedTerminal = wEmbeddedTerminal.getSelection();
+      if (embeddedTerminal != props.isEmbeddedTerminalEnabled()) {
+        props.setEmbeddedTerminalEnabled(embeddedTerminal);
+        HopGui.getInstance().applyEmbeddedTerminalOption();
+      }
+    }
     props.setReloadingFilesOnChange(wReloadFileOnChange.getSelection());
     props.setAutoSave(
         !wAutoSave
