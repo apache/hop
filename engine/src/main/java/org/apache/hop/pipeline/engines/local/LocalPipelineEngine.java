@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
@@ -72,6 +73,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   private ExecutionInfoLocation executionInfoLocation;
   private Timer transformExecutionInfoTimer;
   private TimerTask transformExecutionInfoTimerTask;
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
+  private boolean executionInfoStoppedListenerRegistered;
 
   private Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap;
 
@@ -463,12 +466,25 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     super.waitUntilFinished();
   }
 
+  @Override
+  public void stopAll() {
+    super.stopAll();
+    // safeStop() also fires the stopped listener, and that listener only cancels the timer.
+    // A real stop has to close the location here: a single-threaded pipeline never reaches
+    // pipelineCompleted() unless its transforms run to a natural finish.
+    stopTransformExecutionInfoTimer();
+  }
+
   public synchronized void startTransformExecutionInfoTimer() throws HopException {
     if (executionInfoLocation == null) {
       return;
     }
 
-    addExecutionStoppedListener(e -> stopTransformExecutionInfoTimer());
+    if (!executionInfoStoppedListenerRegistered) {
+      addExecutionStoppedListener(e -> cancelTransformExecutionInfoTimer());
+      executionInfoStoppedListenerRegistered = true;
+    }
+    cancelTransformExecutionInfoTimer();
 
     final ExecutionDataProfile dataProfile;
 
@@ -488,46 +504,43 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
-    //
-    TimerTask transformExecutionInfoTimerTask =
+    transformExecutionInfoTimerTask =
         new TimerTask() {
           @Override
           public void run() {
-            // Sample rows and execution state are written independently so a conversion error
-            // on sampled data cannot skip the state update (and hide the real exception).
-            //
-            if (dataProfile != null) {
+            // Hold the engine lock before the location lock. stopTransformExecutionInfoTimer()
+            // takes them in that order, and the reverse deadlocks a tick against shutdown.
+            synchronized (LocalPipelineEngine.this) {
+              if (executionInfoLocation == null) {
+                return;
+              }
+              // Sample rows and execution state are written independently so a conversion error
+              // on sampled data cannot skip the state update (and hide the real exception).
+              //
+              if (dataProfile != null) {
+                try {
+                  ExecutionDataBuilder dataBuilder =
+                      ExecutionDataBuilder.fromAllTransformData(
+                          LocalPipelineEngine.this, samplerStoresMap, false);
+                  iLocation.registerData(dataBuilder.build());
+                } catch (Exception e) {
+                  log.logError(
+                      "Warning: unable to register execution data at location "
+                          + executionInfoLocation.getName()
+                          + " (non-fatal)",
+                      e);
+                }
+              }
+
               try {
-                ExecutionDataBuilder dataBuilder =
-                    ExecutionDataBuilder.fromAllTransformData(
-                        LocalPipelineEngine.this, samplerStoresMap, false);
-                iLocation.registerData(dataBuilder.build());
+                writeExecutionInfoState(iLocation);
               } catch (Exception e) {
                 log.logError(
-                    "Warning: unable to register execution data at location "
+                    "Warning: unable to register execution state at location "
                         + executionInfoLocation.getName()
                         + " (non-fatal)",
                     e);
               }
-            }
-
-            try {
-              ExecutionState pipelineState =
-                  ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, -1).build();
-              iLocation.updateExecutionState(pipelineState);
-
-              for (IEngineComponent component : getComponents()) {
-                ExecutionState transformState =
-                    ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component)
-                        .build();
-                iLocation.updateExecutionState(transformState);
-              }
-            } catch (Exception e) {
-              log.logError(
-                  "Warning: unable to register execution state at location "
-                      + executionInfoLocation.getName()
-                      + " (non-fatal)",
-                  e);
             }
           }
         };
@@ -536,6 +549,35 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     //
     transformExecutionInfoTimer = new Timer();
     transformExecutionInfoTimer.schedule(transformExecutionInfoTimerTask, delay, interval);
+  }
+
+  /**
+   * Asks the location for the lines after the previous tick. The caching location appends that
+   * delta and drops the oldest characters, so this state does not keep the whole log buffer.
+   */
+  private void writeExecutionInfoState(IExecutionInfoLocation iLocation) throws HopException {
+    ExecutionState pipelineState =
+        ExecutionStateBuilder.fromExecutor(this, executionInfoLastLogLineNr.get()).build();
+    if (pipelineState.getLastLogLineNr() != null) {
+      executionInfoLastLogLineNr.set(pipelineState.getLastLogLineNr());
+    }
+    iLocation.updateExecutionState(pipelineState);
+
+    for (IEngineComponent component : getComponents()) {
+      ExecutionState transformState = ExecutionStateBuilder.fromTransform(this, component).build();
+      iLocation.updateExecutionState(transformState);
+    }
+  }
+
+  private synchronized void cancelTransformExecutionInfoTimer() {
+    if (transformExecutionInfoTimerTask != null) {
+      transformExecutionInfoTimerTask.cancel();
+      transformExecutionInfoTimerTask = null;
+    }
+    if (transformExecutionInfoTimer != null) {
+      ExecutorUtil.cleanup(transformExecutionInfoTimer);
+      transformExecutionInfoTimer = null;
+    }
   }
 
   /**
@@ -573,14 +615,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
   public synchronized void stopTransformExecutionInfoTimer() {
     try {
-      if (transformExecutionInfoTimer != null) {
-        if (transformExecutionInfoTimerTask != null) {
-          transformExecutionInfoTimerTask.cancel();
-          transformExecutionInfoTimerTask = null;
-        }
-        ExecutorUtil.cleanup(transformExecutionInfoTimer);
-        transformExecutionInfoTimer = null;
-      }
+      cancelTransformExecutionInfoTimer();
 
       ExecutionInfoLocation location = executionInfoLocation;
       executionInfoLocation = null;
@@ -593,19 +628,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       try {
         // Register one final last state of the pipeline
         //
-        IPipelineEngine pipelineEngine = LocalPipelineEngine.this;
-
-        ExecutionStateBuilder stateBuilder = ExecutionStateBuilder.fromExecutor(pipelineEngine, -1);
-        ExecutionState executionState = stateBuilder.build();
-        iLocation.updateExecutionState(executionState);
-
-        // Update the state of all the transforms one final time
-        //
-        for (IEngineComponent component : getComponents()) {
-          ExecutionState transformState =
-              ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component).build();
-          iLocation.updateExecutionState(transformState);
-        }
+        writeExecutionInfoState(iLocation);
 
         String dataProfileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
         if (StringUtils.isNotEmpty(dataProfileName)) {

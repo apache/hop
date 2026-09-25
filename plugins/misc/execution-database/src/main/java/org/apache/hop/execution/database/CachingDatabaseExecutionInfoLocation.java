@@ -245,11 +245,24 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     try {
       super.close();
     } finally {
-      synchronized (dbLock) {
-        databaseClosed = true;
-        discardDatabase();
+      // A failed flush leaves the dirty entries in the map. Keep the connection so close() can
+      // retry them. Drop it once nothing unsaved remains.
+      if (!hasDirtyCacheEntries()) {
+        synchronized (dbLock) {
+          databaseClosed = true;
+          discardDatabase();
+        }
       }
     }
+  }
+
+  private boolean hasDirtyCacheEntries() {
+    for (CacheEntry entry : getCache().values()) {
+      if (entry != null && entry.isDirty()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

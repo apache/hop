@@ -77,6 +77,21 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   @HopMetadataProperty
   protected String maxCacheSize = "50";
 
+  /**
+   * Locations saved before {@code maxCacheAge} existed omit the property. The metadata loader
+   * leaves this initializer in place, so those locations keep the original one-day age.
+   */
+  public static final String LEGACY_MAX_CACHE_AGE = "86400000";
+
+  /** Age applied when a caching location is created in the GUI, not when an old file is loaded. */
+  public static final String NEW_LOCATION_MAX_CACHE_AGE = "600000";
+
+  /**
+   * Logging text kept on one cache entry. Matches the execution viewer's default display limit and
+   * keeps the newest lines, so a long run cannot retain the whole log buffer here as well.
+   */
+  public static final int MAX_CACHED_LOGGING_TEXT_CHARS = 2_000_000;
+
   @GuiWidgetElement(
       id = "maxCacheAge",
       order = "910",
@@ -85,7 +100,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       toolTip = "i18n::CachingFileExecutionInfoLocation.MaxCacheAge.Tooltip",
       label = "i18n::CachingFileExecutionInfoLocation.MaxCacheAge.Label")
   @HopMetadataProperty
-  protected String maxCacheAge = "600000";
+  protected String maxCacheAge = LEGACY_MAX_CACHE_AGE;
 
   protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
@@ -164,9 +179,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       maxSize = 50;
     }
 
-    // The default maximum cache age is 10 minutes (600000 ms)
+    // A missing age is the pre-existing 1 day. New GUI locations save 10 minutes explicitly.
     //
-    maxAge = Const.toInt(variables.resolve(maxCacheAge), 600000);
+    maxAge = Const.toInt(variables.resolve(maxCacheAge), Integer.parseInt(LEGACY_MAX_CACHE_AGE));
 
     // Let's start a timer to manage the cache every second or so.
     // Cancel any previous timer first: a second initialize() used to leave the old one running
@@ -233,7 +248,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       //
       tooOld.forEach(id -> cache.remove(id));
 
-      // Enforce LRU cache max size
       enforceMaxCacheSize();
 
       loggedManageCacheError = false;
@@ -264,8 +278,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         try {
           persistCacheEntry(cacheEntry);
         } catch (Exception e) {
+          // A failed write must stay in memory. Dropping it here loses the only copy.
           LogChannel.GENERAL.logError(
               "Error persisting cache entry during eviction: " + cacheEntry.getId(), e);
+          continue;
         }
       }
       iterator.remove();
@@ -280,16 +296,25 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     Timer timer = cacheTimer;
     cacheTimer = null;
     ExecutorUtil.cleanup(timer);
-    try {
-      for (CacheEntry cacheEntry : cache.values()) {
-        if (cacheEntry.isDirty()) {
+    HopException failure = null;
+    for (Map.Entry<String, CacheEntry> mapEntry : new ArrayList<>(cache.entrySet())) {
+      CacheEntry cacheEntry = mapEntry.getValue();
+      if (cacheEntry != null && cacheEntry.isDirty()) {
+        try {
           persistCacheEntry(cacheEntry);
+        } catch (Exception e) {
+          // Leave this entry. A later close() can retry it. Clearing it drops unsaved state.
+          if (failure == null) {
+            failure =
+                new HopException("Error persisting caching execution information location", e);
+          }
+          continue;
         }
       }
-    } catch (Exception e) {
-      throw new HopException("Error persisting caching execution information location", e);
-    } finally {
-      cache.clear();
+      cache.remove(mapEntry.getKey());
+    }
+    if (failure != null) {
+      throw failure;
     }
   }
 
@@ -436,6 +461,34 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
+  /**
+   * Pipeline and workflow updates carry only the lines written since {@code lastLogLineNr}. Append
+   * that delta and keep the newest characters. A full snapshot ({@code lastLogLineNr == null}) is
+   * capped the same way so the cache does not keep a second copy of the central log buffer.
+   */
+  static void appendLoggingDelta(ExecutionState previous, ExecutionState update) {
+    if (update == null) {
+      return;
+    }
+    String delta = capLoggingText(update.getLoggingText());
+    if (update.getLastLogLineNr() != null && previous != null) {
+      String oldText = previous.getLoggingText();
+      if (StringUtils.isNotEmpty(oldText) && StringUtils.isNotEmpty(delta)) {
+        delta = capLoggingText(oldText + delta);
+      } else if (StringUtils.isNotEmpty(oldText)) {
+        delta = capLoggingText(oldText);
+      }
+    }
+    update.setLoggingText(delta);
+  }
+
+  private static String capLoggingText(String text) {
+    if (text == null || text.length() <= MAX_CACHED_LOGGING_TEXT_CHARS) {
+      return text;
+    }
+    return text.substring(text.length() - MAX_CACHED_LOGGING_TEXT_CHARS);
+  }
+
   protected synchronized void addStateToCache(ExecutionState executionState) throws HopException {
     CacheEntry entry = cache.get(executionState.getId());
     if (entry == null) {
@@ -448,6 +501,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
     if (entry != null) {
       // setExecutionState flags dirty so close()/timer flush include the state
+      appendLoggingDelta(entry.getExecutionState(), executionState);
       entry.setExecutionState(executionState);
     } else {
       LogChannel.GENERAL.logError(
@@ -551,7 +605,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
 
     if (found != null) {
-      // Touch entry in LinkedHashMap to update LRU access order
+      // Iteration does not update access order. A key lookup moves this entry to the newest end.
       cache.get(found.getId());
       return found;
     }
@@ -565,8 +619,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       entry.setLastWritten(new Date());
       entry.setDirty(false);
 
-      // Add this to the cache as well keyed by entry.getId()
-      //
       cache.put(entry.getId(), entry);
       enforceMaxCacheSize();
 
