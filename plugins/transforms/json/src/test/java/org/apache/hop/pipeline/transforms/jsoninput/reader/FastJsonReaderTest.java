@@ -21,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Option;
 import java.io.ByteArrayInputStream;
@@ -37,6 +39,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputField;
+import org.apache.hop.pipeline.transforms.jsoninput.exception.JsonInputException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -182,5 +185,148 @@ class FastJsonReaderTest {
     Object[] row = rowSet.getRow();
     assertNotNull(row);
     assertNull(row[0]);
+  }
+
+  private static final String ITEMS_JSON =
+      "{\"items\":[{\"name\":\"ab\",\"p\":1,\"tags\":[1,2]},"
+          + "{\"name\":\"abc\",\"p\":2,\"tags\":[1,2,3]},"
+          + "{\"name\":\"abcd\",\"p\":4,\"tags\":[]}],\"empty\":[],\"matrix\":[[1,2],[3]],"
+          + "\"obj\":{\"a\":1,\"b\":2}}";
+
+  private static FastJsonReader reader(boolean ignoreMissingPath, String... paths)
+      throws HopException {
+    JsonInputField[] fields = new JsonInputField[paths.length];
+    for (int i = 0; i < paths.length; i++) {
+      fields[i] = new JsonInputField("value" + i);
+      fields[i].setPath(paths[i]);
+    }
+    FastJsonReader reader = new FastJsonReader(fields, mock(ILogChannel.class));
+    reader.setIgnoreMissingPath(ignoreMissingPath);
+    return reader;
+  }
+
+  private static List<Object[]> rows(IRowSet rowSet) {
+    List<Object[]> rows = new ArrayList<>();
+    Object[] row;
+    while ((row = rowSet.getRow()) != null) {
+      rows.add(row);
+    }
+    return rows;
+  }
+
+  private static List<Object[]> readRows(String json, boolean ignoreMissingPath, String... paths)
+      throws HopException {
+    return rows(
+        reader(ignoreMissingPath, paths)
+            .parseStringValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  private static List<Object[]> readNodeRows(
+      String json, boolean ignoreMissingPath, String... paths) throws Exception {
+    return rows(
+        reader(ignoreMissingPath, paths).parseJsonNodeValue(new ObjectMapper().readTree(json)));
+  }
+
+  @Test
+  void testFunctionBehindWildcardGivesOneValuePerMatch() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, false, "$.items[*].tags.length()");
+    assertEquals(3, rows.size());
+    assertEquals(2, ((Number) rows.get(0)[0]).intValue());
+    assertEquals(3, ((Number) rows.get(1)[0]).intValue());
+    assertEquals(0, ((Number) rows.get(2)[0]).intValue());
+  }
+
+  @Test
+  void testFunctionBehindWildcardOnJsonNodeInput() throws Exception {
+    List<Object[]> rows = readNodeRows(ITEMS_JSON, false, "$.items[*].tags.length()");
+    assertEquals(3, rows.size());
+    assertEquals(0, ((JsonNode) rows.get(2)[0]).intValue());
+  }
+
+  @Test
+  void testFunctionBehindWildcardCombinesWithRegularField() throws Exception {
+    List<Object[]> rows =
+        readRows(ITEMS_JSON, false, "$.items[*].name", "$.items[*].tags.length()");
+    assertEquals(3, rows.size());
+    assertEquals("abc", rows.get(1)[0]);
+    assertEquals(3, ((Number) rows.get(1)[1]).intValue());
+  }
+
+  @Test
+  void testAggregationOverDeepScan() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, false, "$..p.sum()");
+    assertEquals(1, rows.size());
+    assertEquals(7, ((Number) rows.get(0)[0]).intValue());
+  }
+
+  @Test
+  void testAggregationWithPathParameter() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, false, "$.max($.items[*].p)");
+    assertEquals(1, rows.size());
+    assertEquals(4, ((Number) rows.get(0)[0]).intValue());
+  }
+
+  @Test
+  void testFunctionReturningArrayGivesOneRow() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, false, "$.matrix.first()");
+    assertEquals(1, rows.size());
+    assertEquals(List.of(1, 2), rows.get(0)[0]);
+  }
+
+  @Test
+  void testKeysGivesOneRowForStringAndJsonNodeInput() throws Exception {
+    List<Object[]> stringRows = readRows(ITEMS_JSON, false, "$.obj.keys()");
+    List<Object[]> nodeRows = readNodeRows(ITEMS_JSON, false, "$.obj.keys()");
+    assertEquals(1, stringRows.size());
+    assertEquals(1, nodeRows.size());
+  }
+
+  @Test
+  void testFirstOnEmptyArrayIsMissingValueWhenIgnoringMissingPath() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, true, "$.empty.first()");
+    assertEquals(1, rows.size());
+    assertNull(rows.get(0)[0]);
+  }
+
+  @Test
+  void testIndexOutOfRangeIsMissingValueWhenIgnoringMissingPath() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, true, "$.matrix.index(5)");
+    assertEquals(1, rows.size());
+    assertNull(rows.get(0)[0]);
+  }
+
+  @Test
+  void testFailingFunctionReportsCauseWhenNotIgnoringMissingPath() {
+    JsonInputException e =
+        assertThrows(JsonInputException.class, () -> readRows(ITEMS_JSON, false, "$.empty.sum()"));
+    assertTrue(e.getMessage().contains("$.empty.sum()"), e.getMessage());
+    assertTrue(e.getMessage().contains("empty array"), e.getMessage());
+  }
+
+  @Test
+  void testFirstOnEmptyArrayFailsWhenNotIgnoringMissingPath() {
+    assertThrows(JsonInputException.class, () -> readRows(ITEMS_JSON, false, "$.empty.first()"));
+  }
+
+  @Test
+  void testMissingFunctionValueNextToMultiRowField() throws Exception {
+    List<Object[]> rows = readRows(ITEMS_JSON, true, "$.items[*].name", "$.absent.length()");
+    assertEquals(3, rows.size());
+    assertEquals("abcd", rows.get(2)[0]);
+    assertNull(rows.get(2)[1]);
+  }
+
+  @Test
+  void testFunctionPathWithoutDefaultPathLeafToNull() throws Exception {
+    JsonInputField field = new JsonInputField("value");
+    field.setPath("$.items.length()");
+    FastJsonReader reader =
+        new FastJsonReader(new JsonInputField[] {field}, false, mock(ILogChannel.class));
+    List<Object[]> rows =
+        rows(
+            reader.parseStringValue(
+                new ByteArrayInputStream(ITEMS_JSON.getBytes(StandardCharsets.UTF_8))));
+    assertEquals(1, rows.size());
+    assertEquals(3, ((Number) rows.get(0)[0]).intValue());
   }
 }

@@ -21,10 +21,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.ReadContext;
+import com.jayway.jsonpath.internal.path.PathCompiler;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.io.InputStream;
@@ -56,11 +56,29 @@ public class FastJsonReader implements IJsonReader {
   /** used if the incoming value is a JsonNode */
   private final Configuration jsonNodeConfiguration;
 
+  /**
+   * Jayway refuses path functions under ALWAYS_RETURN_LIST, so function paths are read with these
+   * copies of the configurations above that leave the option out.
+   */
+  private Configuration jsonFunctionConfiguration;
+
+  private final Configuration jsonNodeFunctionConfiguration;
+
+  /** The function configuration matching the current read context. */
+  private Configuration functionConfiguration;
+
   private boolean ignoreMissingPath;
   @Getter private boolean defaultPathLeafToNull;
 
   private JsonInputField[] fields;
   private JsonPath[] paths = null;
+
+  /** Per path: it ends in a function such as length(). */
+  private boolean[] functionPaths = new boolean[0];
+
+  /** Per path: it matches at most one element, so a function on it yields one value. */
+  private boolean[] definitePaths = new boolean[0];
+
   private final ILogChannel log;
 
   private static final Option[] DEFAULT_OPTIONS = {
@@ -72,6 +90,8 @@ public class FastJsonReader implements IJsonReader {
     this.defaultPathLeafToNull = true;
     this.jsonConfiguration = Configuration.defaultConfiguration().addOptions(DEFAULT_OPTIONS);
     this.jsonNodeConfiguration = getJacksonNodeJsonPathConfig();
+    this.jsonFunctionConfiguration = withoutAlwaysReturnList(this.jsonConfiguration);
+    this.jsonNodeFunctionConfiguration = withoutAlwaysReturnList(this.jsonNodeConfiguration);
     this.log = log;
   }
 
@@ -92,6 +112,7 @@ public class FastJsonReader implements IJsonReader {
       if (!this.defaultPathLeafToNull) {
         this.jsonConfiguration =
             deleteOptionFromConfiguration(this.jsonConfiguration, Option.DEFAULT_PATH_LEAF_TO_NULL);
+        this.jsonFunctionConfiguration = withoutAlwaysReturnList(this.jsonConfiguration);
       }
     }
   }
@@ -102,6 +123,13 @@ public class FastJsonReader implements IJsonReader {
         .mappingProvider(new JacksonMappingProvider())
         .options(DEFAULT_OPTIONS)
         .build();
+  }
+
+  private static Configuration withoutAlwaysReturnList(Configuration config) {
+    EnumSet<Option> options = EnumSet.noneOf(Option.class);
+    options.addAll(config.getOptions());
+    options.remove(Option.ALWAYS_RETURN_LIST);
+    return config.setOptions(options.toArray(new Option[0]));
   }
 
   @SuppressWarnings("javabugs:S2259") // the configuration is created before it is logged
@@ -163,6 +191,7 @@ public class FastJsonReader implements IJsonReader {
 
   protected void readInput(InputStream is) throws HopException {
     jsonReadContext = getParseContext().parse(is, Const.UTF_8);
+    functionConfiguration = jsonFunctionConfiguration;
     if (jsonReadContext == null) {
       throw new HopException(BaseMessages.getString(PKG, "JsonReader.Error.ReadUrl.Null"));
     }
@@ -170,6 +199,7 @@ public class FastJsonReader implements IJsonReader {
 
   protected void readInput(JsonNode node) throws HopException {
     jsonReadContext = getJsonNodeParseContext().parse(node);
+    functionConfiguration = jsonNodeFunctionConfiguration;
     if (jsonReadContext == null) {
       throw new HopException(BaseMessages.getString(PKG, "JsonReader.Error.ReadUrl.Null"));
     }
@@ -184,6 +214,13 @@ public class FastJsonReader implements IJsonReader {
   public void setFields(JsonInputField[] fields) throws HopException {
     this.fields = fields;
     this.paths = compilePaths(fields);
+    this.functionPaths = new boolean[paths.length];
+    this.definitePaths = new boolean[paths.length];
+    for (int i = 0; i < paths.length; i++) {
+      // JsonPath does not expose whether a path ends in a function; its compiler does.
+      functionPaths[i] = PathCompiler.compile(fields[i].getPath()).isFunctionPath();
+      definitePaths[i] = paths[i].isDefinite();
+    }
   }
 
   @Override
@@ -298,10 +335,11 @@ public class FastJsonReader implements IJsonReader {
     int lastSize = -1;
     String prevPath = null;
     List<List<?>> results = new ArrayList<>(paths.length);
-    int i = 0;
-    for (JsonPath path : paths) {
-      Object raw = getReadContext().read(path);
-      List<Object> result = raw == null ? readFunctionPath(path) : normalizeJsonPathResult(raw);
+    for (int i = 0; i < paths.length; i++) {
+      List<Object> result =
+          functionPaths[i]
+              ? readFunctionPath(i)
+              : normalizeJsonPathResult(getReadContext().read(paths[i]));
       if (result.size() != lastSize && lastSize > 0 && !result.isEmpty()) {
         throw new JsonInputException(
             BaseMessages.getString(
@@ -319,37 +357,44 @@ public class FastJsonReader implements IJsonReader {
       results.add(result);
       lastSize = result.size();
       prevPath = fields[i].getPath();
-      i++;
     }
     return results;
   }
 
-  private List<Object> readFunctionPath(JsonPath path) throws JsonInputException {
-    ReadContext context = getReadContext();
-    EnumSet<Option> options = EnumSet.noneOf(Option.class);
-    options.addAll(context.configuration().getOptions());
-    options.remove(Option.ALWAYS_RETURN_LIST);
-    Configuration functionConfiguration =
-        context.configuration().setOptions(options.toArray(new Option[0]));
-    Object document = context.json();
+  /**
+   * Evaluate a path that ends in a function. A definite path gives one value, even when that value
+   * is itself an array (keys(), first() of a nested array). A function behind a wildcard, such as
+   * {@code $.items[*].name.length()}, is applied to each match and gives one value per match. A
+   * missing value is an empty result, like a regular path that matches nothing.
+   */
+  private List<Object> readFunctionPath(int index) throws JsonInputException {
+    Object document = getReadContext().json();
     Object value;
     try {
-      value = path.read(document, functionConfiguration);
-    } catch (JsonPathException e) {
-      // A function may still throw where SUPPRESS_EXCEPTIONS cannot help, e.g. an aggregation over
-      // an empty array. Honour the option and let the missing path handling decide what to do.
-      if (!options.contains(Option.SUPPRESS_EXCEPTIONS)) {
-        throw e;
+      value = paths[index].read(document, functionConfiguration);
+    } catch (RuntimeException e) {
+      // SUPPRESS_EXCEPTIONS does not cover errors raised by the function itself, such as sum() or
+      // first() on an empty array. Treat them as a missing value, or report the actual cause.
+      if (!isIgnoreMissingPath()) {
+        throw new JsonInputException(
+            BaseMessages.getString(
+                PKG, "JsonReader.Error.PathFunction", fields[index].getPath(), e.getMessage()),
+            e);
       }
       if (log.isDebug()) {
-        log.logDebug(e.getMessage());
+        log.logDebug(
+            BaseMessages.getString(
+                PKG, "JsonReader.Error.PathFunction", fields[index].getPath(), e.getMessage()));
       }
-      value = null;
+      return Collections.emptyList();
     }
-    if (value instanceof List<?> || value instanceof ArrayNode) {
-      return normalizeJsonPathResult(value);
+    if (value == null) {
+      return Collections.emptyList();
     }
-    return Collections.singletonList(value);
+    if (definitePaths[index]) {
+      return Collections.singletonList(value);
+    }
+    return normalizeJsonPathResult(value);
   }
 
   public static boolean isAllNull(Iterable<?> list) {

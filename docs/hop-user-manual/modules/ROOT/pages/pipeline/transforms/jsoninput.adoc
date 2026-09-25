@@ -175,7 +175,13 @@ The aggregation functions provided by JayWay can be used at the end of a Path ex
 
 *Example Path to retrieve the number of elements of an array:* $.someArray.length()
 
-A function always produces a single value, and therefore a single output row. Combining a function field with a field whose Path matches several elements is not supported: the transform reports a structure error because the two Paths do not yield the same number of rows. Read such a value in a dedicated JSON Input transform when the other fields return multiple rows.
+A function is applied to the value the Path points to. When the Path points to a single value, the function produces a single value and therefore a single output row, even when that value is itself a list, as with `keys()`.
+
+When the Path contains a wildcard before the function, the function is applied to every match and produces one row per match. For example, `$.orders[*].lines.length()` returns the number of lines of each order. To aggregate over all matches instead, use a deep scan or pass the Path as a parameter to the function: `$..price.sum()` or `$.sum($.orders[*].price)`. Note that `$.orders[*].price.sum()` does not work: the sum is applied to each single price.
+
+Combining a single-value function field with a field whose Path matches several elements is not supported: the transform reports a structure error because the two Paths do not yield the same number of rows. Read such a value in a dedicated JSON Input transform when the other fields return multiple rows.
+
+When a function cannot be evaluated, for example `sum()` or `first()` on an empty array, the value is treated as missing: it is empty when *Ignore missing path* is enabled, otherwise the transform fails with the reason.
 
 
 === Additional output fields tab
