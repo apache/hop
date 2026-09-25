@@ -38,6 +38,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -45,6 +46,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -383,10 +385,25 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       } finally {
         db.close();
       }
+    } else if (!Utils.isEmpty(connection)
+        && StringUtil.containsVariableToken(variables.resolve(connection))) {
+      // A connection that is not set, or not in the project, is reported by the pipeline check
+      // (ReferencedDatabaseConnectionChecker) for every transform, so reporting it here too would
+      // tell the user the same thing twice. The one case that check leaves alone is a name that
+      // still holds a variable after resolving: it cannot decide such a name at design time. This
+      // transform can, because it tried to load the connection with the variables this check ran
+      // with and got nothing back.
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              ReferencedDatabaseConnectionChecker.ERROR_NOT_RESOLVED,
+              BaseMessages.getString(
+                  PKG,
+                  "TableInputMeta.CheckResult.ConnectionNotResolved",
+                  variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
     }
-    // A connection that is not set, or not in the project, is reported by the pipeline check
-    // (ReferencedDatabaseConnectionChecker) for every transform. Reporting it here too told the
-    // user the same thing twice, once without an error code.
 
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
     IRowMeta parameterFields = parameterRowMeta(new IRowMeta[] {info}, prev);

@@ -426,6 +426,69 @@ class TableInputMetaTest {
         aboutTheConnection.get(0).getErrorCode());
   }
 
+  /**
+   * The pipeline check stays silent when a connection name still holds a variable after resolving:
+   * at design time that name cannot be decided. Table input can decide it - it tried to load the
+   * connection with these variables and got nothing - so it reports, and the file is not left with
+   * no remark at all.
+   */
+  @Test
+  void anUnresolvedConnectionVariableIsStillReported() {
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection("${DB_CONN}");
+    meta.setSql("SELECT 1");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(new TransformMeta("Table input", meta));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    pipelineMeta.checkTransforms(
+        remarks, false, null, new Variables(), new MemoryMetadataProvider());
+
+    List<ICheckResult> aboutTheConnection =
+        remarks.stream()
+            .filter(r -> r.getType() != ICheckResult.TYPE_RESULT_OK)
+            .filter(r -> r.getText().toLowerCase().contains("connection"))
+            .toList();
+    Assertions.assertEquals(1, aboutTheConnection.size(), aboutTheConnection.toString());
+    Assertions.assertEquals(
+        ICheckResult.TYPE_RESULT_ERROR, aboutTheConnection.get(0).getType(), "must stay an error");
+    Assertions.assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_NOT_RESOLVED,
+        aboutTheConnection.get(0).getErrorCode());
+    Assertions.assertTrue(
+        aboutTheConnection.get(0).getText().contains("${DB_CONN}"),
+        aboutTheConnection.get(0).getText());
+  }
+
+  /** A connection that resolves and exists is not reported by either check. */
+  @Test
+  void aResolvedConnectionVariableIsNotReported() {
+    MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
+    Variables variables = new Variables();
+    variables.setVariable("DB_CONN", "doesnotexist");
+
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection("${DB_CONN}");
+    meta.setSql("SELECT 1");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(new TransformMeta("Table input", meta));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    pipelineMeta.checkTransforms(remarks, false, null, variables, metadataProvider);
+
+    // The variable resolves, so the name can be decided: the pipeline check owns it again, under
+    // its own code, and table input adds nothing.
+    List<ICheckResult> aboutTheConnection =
+        remarks.stream()
+            .filter(r -> r.getType() != ICheckResult.TYPE_RESULT_OK)
+            .filter(r -> r.getText().toLowerCase().contains("connection"))
+            .toList();
+    Assertions.assertEquals(1, aboutTheConnection.size(), aboutTheConnection.toString());
+    Assertions.assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_DOES_NOT_EXIST,
+        aboutTheConnection.get(0).getErrorCode());
+  }
+
   private static TableInputMeta namedParameterMeta() {
     TableInputMeta meta = new TableInputMeta();
     meta.setConnection("h2");
