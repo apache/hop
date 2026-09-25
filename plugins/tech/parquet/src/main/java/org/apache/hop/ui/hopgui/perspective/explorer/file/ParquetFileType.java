@@ -13,110 +13,80 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
 
 @HopFileTypePlugin(
     id = "ParquetFileType",
     name = "Parquet File Type",
     description = "Apache Parquet file handling in the explorer perspective",
     image = "parquet.svg")
-public class ParquetFileType implements IHopFileType {
+public class ParquetFileType extends BaseExplorerFileType<ParquetExplorerFileTypeHandler> {
 
-  private static final String[] EXTENSIONS = new String[] {"*.parquet"};
-  private static final String[] FILTER_EXTENSIONS = new String[] {"*.parquet"};
-  private static final String[] FILTER_NAMES = new String[] {"Parquet files"};
+  public ParquetFileType() {
+    super(
+        "Parquet file",
+        ".parquet",
+        new String[] {"*.parquet;*.parq"},
+        new String[] {"Parquet files"},
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
+  }
 
+  /**
+   * Opens the file without the large-file confirmation of {@link BaseExplorerFileType#openFile}.
+   * That confirmation exists because text handlers read the whole file. A Parquet tab reads the
+   * footer and at most 1000 rows.
+   */
   @Override
-  public String getName() {
-    return "Parquet";
+  public ParquetExplorerFileTypeHandler openFile(
+      HopGui hopGui, String filename, IVariables variables) throws HopException {
+    try {
+      FileObject fileObject = HopVfs.getFileObject(filename, variables);
+      String name = fileObject.getName().getBaseName();
+      filename = HopVfs.getFilename(fileObject);
+
+      ExplorerFile explorerFile = new ExplorerFile();
+      explorerFile.setName(Const.NVL(name, ""));
+      explorerFile.setFilename(filename);
+      explorerFile.setFileType(this);
+
+      ExplorerPerspective perspective = ExplorerPerspective.getInstance();
+      ParquetExplorerFileTypeHandler fileTypeHandler =
+          createFileTypeHandler(hopGui, perspective, explorerFile);
+      perspective.addFile(fileTypeHandler);
+      return fileTypeHandler;
+    } catch (Exception e) {
+      throw new HopException(
+          "Error opening file '" + filename + "' in a new tab in the Explorer perspective", e);
+    }
   }
 
   @Override
-  public String getDefaultFileExtension() {
-    return "parquet";
+  public ParquetExplorerFileTypeHandler createFileTypeHandler(
+      HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
+    return new ParquetExplorerFileTypeHandler(hopGui, perspective, file);
   }
 
   @Override
-  public String[] getFilterExtensions() {
-    return FILTER_EXTENSIONS;
-  }
-
-  @Override
-  public String[] getFilterNames() {
-    return FILTER_NAMES;
-  }
-
-  @Override
-  public Properties getCapabilities() {
-    return new Properties();
-  }
-
-  @Override
-  public boolean hasCapability(String capability) {
-    return false;
-  }
-
-  @Override
-  public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
+  public IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace)
       throws HopException {
     return new EmptyHopFileTypeHandler();
-  }
-
-  @Override
-  public IHopFileTypeHandler newFile(HopGui hopGui, IVariables variables) throws HopException {
-    return new EmptyHopFileTypeHandler();
-  }
-
-  @Override
-  public boolean isHandledBy(String filename, boolean checkContent) throws HopException {
-    String fileExtension = HopFileTypeBase.extractExtension(filename);
-    if (Utils.isEmpty(fileExtension)) {
-      return false;
-    }
-    for (String typeExtension : EXTENSIONS) {
-      if (typeExtension.toLowerCase(Locale.ROOT).endsWith(fileExtension)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean supportsFile(IHasFilename metaObject) {
-    return false;
-  }
-
-  @Override
-  public List<IGuiContextHandler> getContextHandlers() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public String getFileTypeImage() {
-    return getClass().getAnnotation(HopFileTypePlugin.class).image();
-  }
-
-  @Override
-  public boolean supportsOpening() {
-    return false;
   }
 }
