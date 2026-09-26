@@ -135,6 +135,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
     try {
+      cacheEntry.prepareForPersist();
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
 
@@ -352,22 +353,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       URI uri = URI.create(actualUrl);
       URI postUri = uri.resolve(actualIndexName + "/_search");
 
-      String body =
-          """
-            {
-              __LIMIT_CLAUSE__
-              "from": 0,
-              "query" : { "match_all" : {} },
-              "fields": [ "id", "execution.executionStartDate" ],
-              "sort" : [ { "execution.executionStartDate" : {"order" : "desc" }} ],
-              "_source": false
-            }
-          """;
-      String limitClause = "";
-      if (limit > 0) {
-        limitClause = "\"size\": " + limit + ",";
-      }
-      body = body.replace("__LIMIT_CLAUSE__", limitClause);
+      String body = listQuery(getActiveProjectId(), limit);
 
       HttpRequest request =
           HttpRequest.newBuilder()
@@ -456,31 +442,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
 
       // We add a bunch of settings when we create the index
       //
-      String createBody =
-          """
-            {
-              "mappings" : {
-                "properties": {
-                  "id": { "type" : "text"},
-                  "name": { "type" : "text"},
-                  "execution.id": { "type" : "text"},
-                  "execution.name": { "type" : "text"},
-                  "execution.filename": { "type" : "text"},
-                  "execution.executionType": { "type" : "text"},
-                  "execution.parentId": { "type" : "text"},
-                  "execution.registrationDate": { "type": "date" },
-                  "execution.executionStartDate": { "type": "date" },
-                  "executionState.updateTime": { "type": "date" },
-                  "executionState.executionEndDate": { "type": "date" },
-                  "childExecutions": { "type": "object", "enabled" : false },
-                  "childExecutionStates": { "type": "object", "enabled" : false },
-                  "childExecutionData": { "type": "object", "enabled" : false }
-                }
-              }, "settings": {
-                "index.mapping.total_fields.limit": 500
-              }
-            }
-          """;
+      String createBody = createIndexBody();
 
       HttpRequest createRequest =
           HttpRequest.newBuilder()
@@ -491,15 +453,32 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
               .PUT(HttpRequest.BodyPublishers.ofString(createBody))
               .build();
 
-      // Send to Elastic and we don't care about the response.
-      // A 400 usually means that the index already exists.
-      //
       HttpResponse<String> createResponse =
           client.send(createRequest, HttpResponse.BodyHandlers.ofString());
 
-      // Verify the 200 from Elastic
+      // A 400 with resource_already_exists_exception means the index is already there.
+      // Add the projectId keyword if it is missing. Do not recreate the index.
       //
-      if (createResponse.statusCode() != 200) {
+      if (isIndexAlreadyExists(createResponse.statusCode(), createResponse.body())) {
+        URI mappingUri = uri.resolve(location.actualIndexName + "/_mapping");
+        HttpRequest mappingRequest =
+            HttpRequest.newBuilder()
+                .uri(mappingUri)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "ApiKey " + location.actualApiKey)
+                .PUT(HttpRequest.BodyPublishers.ofString(projectIdMappingBody()))
+                .build();
+        HttpResponse<String> mappingResponse =
+            client.send(mappingRequest, HttpResponse.BodyHandlers.ofString());
+        if (mappingResponse.statusCode() != 200) {
+          throw new HopException(
+              "Status code "
+                  + mappingResponse.statusCode()
+                  + " received from Elastic while adding the projectId mapping, response: "
+                  + mappingResponse.body());
+        }
+      } else if (createResponse.statusCode() != 200) {
         throw new HopException(
             "Status code "
                 + createResponse.statusCode()
@@ -522,6 +501,84 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       new ErrorDialog(
           hopGui.getShell(), "Error", "Error creating Elastic index " + location.indexName, e);
     }
+  }
+
+  /** List query. An empty project id keeps {@code match_all}, the 2.19.0 query. */
+  static String listQuery(String activeProjectId, int limit) {
+    String limitClause = "";
+    if (limit > 0) {
+      limitClause = "\"size\": " + limit + ",";
+    }
+    return """
+        {
+          %s
+          "from": 0,
+          "query" : %s,
+          "fields": [ "id", "execution.executionStartDate" ],
+          "sort" : [ { "execution.executionStartDate" : {"order" : "desc" }} ],
+          "_source": false
+        }
+        """
+        .formatted(limitClause, listQueryClause(activeProjectId));
+  }
+
+  static String listQueryClause(String activeProjectId) {
+    if (StringUtils.isEmpty(activeProjectId)) {
+      return "{ \"match_all\" : {} }";
+    }
+    return """
+        { "bool": {
+            "minimum_should_match": 1,
+            "should": [
+              { "term": { "projectId": "@@PROJECT_ID@@" } },
+              { "bool": { "must_not": { "exists": { "field": "projectId" } } } }
+            ]
+          }
+        }
+        """
+        .replace("@@PROJECT_ID@@", jsonEscape(activeProjectId));
+  }
+
+  static String createIndexBody() {
+    return """
+        {
+          "mappings" : {
+            "properties": {
+              "id": { "type" : "text"},
+              "name": { "type" : "text"},
+              "projectId": { "type": "keyword" },
+              "execution.id": { "type" : "text"},
+              "execution.name": { "type" : "text"},
+              "execution.filename": { "type" : "text"},
+              "execution.executionType": { "type" : "text"},
+              "execution.parentId": { "type" : "text"},
+              "execution.registrationDate": { "type": "date" },
+              "execution.executionStartDate": { "type": "date" },
+              "executionState.updateTime": { "type": "date" },
+              "executionState.executionEndDate": { "type": "date" },
+              "childExecutions": { "type": "object", "enabled" : false },
+              "childExecutionStates": { "type": "object", "enabled" : false },
+              "childExecutionData": { "type": "object", "enabled" : false }
+            }
+          }, "settings": {
+            "index.mapping.total_fields.limit": 500
+          }
+        }
+        """;
+  }
+
+  static String projectIdMappingBody() {
+    return """
+        { "properties": { "projectId": { "type": "keyword" } } }
+        """;
+  }
+
+  static boolean isIndexAlreadyExists(int statusCode, String body) {
+    return statusCode == 400 && body != null && body.contains("resource_already_exists_exception");
+  }
+
+  static String jsonEscape(String value) {
+    return value.replace("\\", "\\\\").replace("\"", "\\\"");
   }
 
   @Override

@@ -40,6 +40,7 @@ public class ProjectsVariablesControlSpaceSortOrderPrefix
     prefixMap.put(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME, "311_");
     prefixMap.put(ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME, "312_");
     prefixMap.put(Defaults.VARIABLE_HOP_PROJECT_NAME, "450_");
+    prefixMap.put(Defaults.VARIABLE_HOP_PROJECT_ID, "451_");
     prefixMap.put(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME, "450_");
     prefixMap.put(ProjectsUtil.VARIABLE_HOP_DATASETS_FOLDER, "450_");
     prefixMap.put(ProjectsUtil.VARIABLE_HOP_UNIT_TESTS_FOLDER, "460_");

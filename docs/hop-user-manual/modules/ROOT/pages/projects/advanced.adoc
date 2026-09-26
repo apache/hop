@@ -106,6 +106,8 @@ Let's take a look at it:
 }
 ----
 
+`projectId` is optional. When it is absent, Hop does not filter execution information by project. A new project suggests the project name; an existing 2.19 configuration file is left unchanged.
+
 =====
 
 &nbsp; +
@@ -123,6 +125,7 @@ Hop also sets a few built-in project variables when a project is activated:
 |Variable|Description
 |`PROJECT_HOME`|Home folder of the active project
 |`HOP_PROJECT_NAME`|Name of the active project
+|`HOP_PROJECT_ID`|Project id from `project-config.json`. Empty when the project has no id, which leaves execution information unfiltered
 |`PARENT_PROJECT_HOME`|Home folder of the immediate parent project (empty if none)
 |`PARENT_PROJECT_NAME`|Name of the immediate parent project (empty if none)
 |===

@@ -97,7 +97,15 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   public static final String COL_FAILED = "failed";
   public static final String COL_STATUS_DESCRIPTION = "status_description";
   public static final String COL_DURATION_MS = "duration_ms";
+  public static final String COL_PROJECT_ID = "project_id";
   public static final String COL_JSON = "json";
+
+  /**
+   * Separates CREATE TABLE (new installs, includes {@code project_id}) from the ALTER statements
+   * for a table created by 2.19.0. Run one block, not both.
+   */
+  public static final String DDL_EXISTING_TABLE_MARKER =
+      "-- Existing table: run the statements below instead of CREATE TABLE.";
 
   @GuiWidgetElement(
       id = "connectionName",
@@ -148,6 +156,9 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   protected String actualConnectionName;
   protected String actualSchemaName;
   protected String actualTableName;
+
+  /** False when the table is missing or still has the 2.19.0 column list. */
+  protected boolean projectIdColumnPresent;
 
   public CachingDatabaseExecutionInfoLocation() {
     super();
@@ -227,6 +238,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       throw new HopException(
           "Error starting the caching database execution information location", e);
     }
+    detectProjectIdColumn();
     LogChannel.GENERAL.logBasic(
         "Caching database execution info location ready: connection="
             + Const.NVL(actualConnectionName, databaseMeta.getName())
@@ -400,13 +412,14 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     }
     try {
       mergeChildrenFromDatabase(cacheEntry);
+      cacheEntry.prepareForPersist();
       cacheEntry.calculateSummary();
 
       ObjectMapper mapper = new ObjectMapper();
       String json = mapper.writeValueAsString(cacheEntry);
 
-      IRowMeta rowMeta = createDataRowMeta();
-      Object[] data = buildRowData(cacheEntry, json);
+      IRowMeta rowMeta = createDataRowMeta(projectIdColumnPresent);
+      Object[] data = buildRowData(cacheEntry, json, projectIdColumnPresent);
 
       callWithDatabase(
           () -> {
@@ -438,6 +451,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       mergeMap(existing.getChildExecutions(), cacheEntry.getChildExecutions());
       mergeMap(existing.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
       mergeMap(existing.getChildExecutionData(), cacheEntry.getChildExecutionData());
+      cacheEntry.keepStoredProjectId(existing);
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
           "Unable to merge on-database cache entry before persist (non-fatal): " + e.getMessage());
@@ -468,21 +482,30 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
   /** Upsert: if a row with the same id exists UPDATE, otherwise INSERT. */
   private void upsertCacheEntry(IRowMeta rowMeta, Object[] data) throws HopException {
-    String id = (String) data[0];
+    int idIndex = rowMeta.indexOfValue(COL_ID);
+    String id = data[idIndex] == null ? null : data[idIndex].toString();
     if (rowExists(id)) {
-      String[] setFields =
-          new String[] {
-            COL_NAME,
-            COL_EXECUTION_TYPE,
-            COL_PARENT_ID,
-            COL_REGISTRATION_DATE,
-            COL_EXECUTION_START_DATE,
-            COL_EXECUTION_END_DATE,
-            COL_FAILED,
-            COL_STATUS_DESCRIPTION,
-            COL_DURATION_MS,
-            COL_JSON
-          };
+      List<String> setFieldList =
+          new ArrayList<>(
+              List.of(
+                  COL_NAME,
+                  COL_EXECUTION_TYPE,
+                  COL_PARENT_ID,
+                  COL_REGISTRATION_DATE,
+                  COL_EXECUTION_START_DATE,
+                  COL_EXECUTION_END_DATE,
+                  COL_FAILED,
+                  COL_STATUS_DESCRIPTION,
+                  COL_DURATION_MS,
+                  COL_JSON));
+      // An empty project id must not wipe a value written earlier.
+      int projectIndex = rowMeta.indexOfValue(COL_PROJECT_ID);
+      if (projectIndex >= 0
+          && data[projectIndex] != null
+          && StringUtils.isNotEmpty(data[projectIndex].toString())) {
+        setFieldList.add(COL_PROJECT_ID);
+      }
+      String[] setFields = setFieldList.toArray(new String[0]);
       String[] codes = new String[] {COL_ID};
       String[] conditions = new String[] {"="};
 
@@ -493,22 +516,13 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       try {
         // prepareUpdate binds SET fields first, then WHERE values
         Object[] updateData = new Object[setFields.length + 1];
-        updateData[0] = data[1];
-        updateData[1] = data[2];
-        updateData[2] = data[3];
-        updateData[3] = data[4];
-        updateData[4] = data[5];
-        updateData[5] = data[6];
-        updateData[6] = data[7];
-        updateData[7] = data[8];
-        updateData[8] = data[9];
-        updateData[9] = data[10];
-        updateData[10] = data[0];
-
         IRowMeta updateMeta = new RowMeta();
-        for (String setField : setFields) {
-          updateMeta.addValueMeta(rowMeta.searchValueMeta(setField));
+        for (int i = 0; i < setFields.length; i++) {
+          int index = rowMeta.indexOfValue(setFields[i]);
+          updateData[i] = data[index];
+          updateMeta.addValueMeta(rowMeta.searchValueMeta(setFields[i]));
         }
+        updateData[setFields.length] = data[idIndex];
         updateMeta.addValueMeta(rowMeta.searchValueMeta(COL_ID));
 
         database.setValuesUpdate(updateMeta, updateData);
@@ -653,6 +667,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
   private void appendSelectorFilters(
       IExecutionSelector selector, List<String> where, IRowMeta paramMeta, List<Object> params) {
+    appendProjectIdFilter(where, paramMeta, params);
     if (selector == IExecutionSelector.ALL) {
       return;
     }
@@ -723,7 +738,31 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     }
   }
 
+  /**
+   * When the column exists and this Hop process has a project id, keep rows for that id and rows
+   * that have none (2.19.0 and projects that have not set an id).
+   */
+  private void appendProjectIdFilter(List<String> where, IRowMeta paramMeta, List<Object> params) {
+    if (!projectIdColumnPresent || StringUtils.isEmpty(getActiveProjectId())) {
+      return;
+    }
+    where.add(
+        "("
+            + databaseMeta.quoteField(COL_PROJECT_ID)
+            + " = ? OR "
+            + databaseMeta.quoteField(COL_PROJECT_ID)
+            + " IS NULL OR "
+            + databaseMeta.quoteField(COL_PROJECT_ID)
+            + " = '')");
+    paramMeta.addValueMeta(new ValueMetaString(COL_PROJECT_ID, 256, -1));
+    params.add(getActiveProjectId());
+  }
+
   protected IRowMeta createDataRowMeta() {
+    return createDataRowMeta(true);
+  }
+
+  protected IRowMeta createDataRowMeta(boolean includeProjectId) {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString(COL_ID, 100, -1));
     rowMeta.addValueMeta(new ValueMetaString(COL_NAME, 1024, -1));
@@ -736,12 +775,15 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     rowMeta.addValueMeta(new ValueMetaString(COL_STATUS_DESCRIPTION, 128, -1));
     // length 15 → BIGINT on most dialects (default Integer length maps to tinyint on H2)
     rowMeta.addValueMeta(new ValueMetaInteger(COL_DURATION_MS, 15, 0));
+    if (includeProjectId) {
+      rowMeta.addValueMeta(new ValueMetaString(COL_PROJECT_ID, 256, -1));
+    }
     // CLOB for full CacheEntry JSON
     rowMeta.addValueMeta(new ValueMetaString(COL_JSON, DatabaseMeta.CLOB_LENGTH, -1));
     return rowMeta;
   }
 
-  private Object[] buildRowData(CacheEntry cacheEntry, String json) {
+  private Object[] buildRowData(CacheEntry cacheEntry, String json, boolean includeProjectId) {
     Execution execution = cacheEntry.getExecution();
     ExecutionState state = cacheEntry.getExecutionState();
 
@@ -761,7 +803,26 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     String status = state != null ? state.getStatusDescription() : null;
     Long durationMs =
         cacheEntry.getSummary() != null ? cacheEntry.getSummary().getDurationMs() : null;
+    String projectId = cacheEntry.getProjectId();
+    if (StringUtils.isEmpty(projectId) && execution != null) {
+      projectId = execution.getProjectId();
+    }
 
+    if (!includeProjectId) {
+      return new Object[] {
+        cacheEntry.getId(),
+        name,
+        executionType,
+        parentId,
+        registrationDate,
+        startDate,
+        endDate,
+        failed,
+        status,
+        durationMs,
+        json
+      };
+    }
     return new Object[] {
       cacheEntry.getId(),
       name,
@@ -773,8 +834,37 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       failed,
       status,
       durationMs,
+      StringUtils.trimToNull(projectId),
       json
     };
+  }
+
+  /**
+   * The 2.19.0 table has no {@code project_id} column. Writes and filters keep the old column list
+   * until the user runs the ALTER from {@link #buildDdl}.
+   */
+  private void detectProjectIdColumn() {
+    projectIdColumnPresent = false;
+    try {
+      if (!database.checkTableExists(actualSchemaName, actualTableName)) {
+        return;
+      }
+      projectIdColumnPresent =
+          database.checkColumnExists(actualSchemaName, actualTableName, COL_PROJECT_ID);
+      if (!projectIdColumnPresent && StringUtils.isNotEmpty(getActiveProjectId())) {
+        LogChannel.GENERAL.logBasic(
+            "Execution table "
+                + getQuotedSchemaTable()
+                + " has no "
+                + COL_PROJECT_ID
+                + " column. Project filtering is inactive until that column is added.");
+      }
+    } catch (Exception e) {
+      projectIdColumnPresent = false;
+      LogChannel.GENERAL.logError(
+          "Unable to check for column " + COL_PROJECT_ID + " on table " + getQuotedSchemaTable(),
+          e);
+    }
   }
 
   protected String getQuotedSchemaTable() {
@@ -834,6 +924,15 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     addIndexDdl(ddl, db, schemaTable, "idx_hop_exec_failed", COL_FAILED);
     addIndexDdl(ddl, db, schemaTable, "idx_hop_exec_parent", COL_PARENT_ID);
     addIndexDdl(ddl, db, schemaTable, "idx_hop_exec_status", COL_STATUS_DESCRIPTION);
+    addIndexDdl(ddl, db, schemaTable, "idx_hop_exec_project", COL_PROJECT_ID);
+
+    ddl.append(Const.CR);
+    ddl.append(DDL_EXISTING_TABLE_MARKER);
+    ddl.append(Const.CR);
+    ddl.append(
+        meta.getAddColumnStatement(
+            schemaTable, new ValueMetaString(COL_PROJECT_ID, 256, -1), null, false, null, true));
+    addIndexDdl(ddl, db, schemaTable, "idx_hop_exec_project", COL_PROJECT_ID);
 
     return ddl.toString();
   }

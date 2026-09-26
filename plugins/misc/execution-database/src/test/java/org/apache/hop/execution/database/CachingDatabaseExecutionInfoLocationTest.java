@@ -107,7 +107,7 @@ class CachingDatabaseExecutionInfoLocationTest {
             new LoggingObject("CachingDatabaseExecutionInfoLocationTest"), variables, databaseMeta);
     db.connect();
     try {
-      db.execStatements(ddl);
+      db.execStatements(createTableDdl(ddl));
     } finally {
       db.disconnect();
     }
@@ -373,6 +373,10 @@ class CachingDatabaseExecutionInfoLocationTest {
     String ddl = location.buildDdl(variables);
     assertTrue(ddl.toLowerCase().contains("create"));
     assertTrue(ddl.contains("idx_hop_exec_start") || ddl.toLowerCase().contains("index"));
+    assertTrue(ddl.contains(CachingDatabaseExecutionInfoLocation.COL_PROJECT_ID));
+    assertTrue(ddl.contains("idx_hop_exec_project"));
+    assertTrue(ddl.contains(CachingDatabaseExecutionInfoLocation.DDL_EXISTING_TABLE_MARKER));
+    assertTrue(ddl.toLowerCase().contains("alter table"));
     assertTrue(
         ddl.contains(CachingDatabaseExecutionInfoLocation.COL_JSON)
             || ddl.toLowerCase().contains("json")
@@ -380,6 +384,98 @@ class CachingDatabaseExecutionInfoLocationTest {
             || ddl.toLowerCase().contains("varchar")
             || ddl.toLowerCase().contains("text")
             || ddl.toLowerCase().contains("character"));
+  }
+
+  @Test
+  void legacyTableWithoutProjectIdColumnStillWorks() throws Exception {
+    location.close();
+    String table =
+        databaseMeta.getQuotedSchemaTableCombination(
+            variables, "", CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    Database db =
+        new Database(
+            new LoggingObject("CachingDatabaseExecutionInfoLocationTest"), variables, databaseMeta);
+    db.connect();
+    try {
+      db.execStatement(
+          "ALTER TABLE "
+              + table
+              + " DROP COLUMN "
+              + databaseMeta.quoteField(CachingDatabaseExecutionInfoLocation.COL_PROJECT_ID));
+    } finally {
+      db.disconnect();
+    }
+
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+    location.initialize(variables, metadataProvider);
+    assertFalse(location.isProjectIdColumnPresent());
+
+    String id = UUID.randomUUID().toString();
+    CacheEntry entry = sampleEntry(id, "Legacy", ExecutionType.Pipeline, false, "Finished");
+    entry.setProjectId("sales");
+    entry.getExecution().setProjectId("sales");
+    location.persistCacheEntry(entry);
+
+    CacheEntry loaded = location.loadCacheEntry(id);
+    assertNotNull(loaded);
+    assertEquals("sales", loaded.getProjectId());
+
+    Set<DatedId> ids = new HashSet<>();
+    location.retrieveIds(false, ids, 100, IExecutionSelector.ALL);
+    assertEquals(1, ids.size());
+  }
+
+  @Test
+  void retrieveIdsFiltersByProjectIdAndKeepsLegacyRows() throws Exception {
+    String salesId = UUID.randomUUID().toString();
+    String otherId = UUID.randomUUID().toString();
+    String legacyId = UUID.randomUUID().toString();
+
+    CacheEntry sales = sampleEntry(salesId, "SalesPipe", ExecutionType.Pipeline, false, "Finished");
+    sales.setProjectId("sales");
+    sales.getExecution().setProjectId("sales");
+    CacheEntry other =
+        sampleEntry(otherId, "FinancePipe", ExecutionType.Pipeline, false, "Finished");
+    other.setProjectId("finance");
+    other.getExecution().setProjectId("finance");
+    CacheEntry legacy = sampleEntry(legacyId, "OldPipe", ExecutionType.Pipeline, false, "Finished");
+
+    location.persistCacheEntry(sales);
+    location.persistCacheEntry(other);
+    location.persistCacheEntry(legacy);
+
+    location.clearCaches();
+    Set<DatedId> all = new HashSet<>();
+    location.retrieveIds(false, all, 100, IExecutionSelector.ALL);
+    assertEquals(3, all.size());
+
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+    location.close();
+    location.initialize(variables, metadataProvider);
+    assertTrue(location.isProjectIdColumnPresent());
+
+    location.clearCaches();
+    Set<DatedId> filtered = new HashSet<>();
+    location.retrieveIds(false, filtered, 100, IExecutionSelector.ALL);
+    assertEquals(2, filtered.size());
+    assertTrue(filtered.stream().anyMatch(dated -> salesId.equals(dated.getId())));
+    assertTrue(filtered.stream().anyMatch(dated -> legacyId.equals(dated.getId())));
+    assertTrue(filtered.stream().noneMatch(dated -> otherId.equals(dated.getId())));
+
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "");
+    location.close();
+    location.initialize(variables, metadataProvider);
+    CacheEntry again = sampleEntry(salesId, "SalesPipe", ExecutionType.Pipeline, true, "Finished");
+    location.persistCacheEntry(again);
+    CacheEntry loaded = location.loadCacheEntry(salesId);
+    assertNotNull(loaded);
+    assertEquals("sales", loaded.getProjectId());
+    assertEquals("sales", loaded.getExecution().getProjectId());
+  }
+
+  private static String createTableDdl(String ddl) {
+    int marker = ddl.indexOf(CachingDatabaseExecutionInfoLocation.DDL_EXISTING_TABLE_MARKER);
+    return marker < 0 ? ddl : ddl.substring(0, marker);
   }
 
   private static CacheEntry sampleEntry(
