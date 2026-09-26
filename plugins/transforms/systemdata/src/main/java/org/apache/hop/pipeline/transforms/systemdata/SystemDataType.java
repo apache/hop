@@ -46,6 +46,8 @@ public enum SystemDataType implements IEnumHasCodeAndDescription {
   COPYNR("copy of transform", "CopyOfTransform"),
   PIPELINE_NAME(" pipeline name", "PipelineName"),
   FILENAME(" pipeline file name", "PipelineFileName"),
+  CREATED_USER("User created", "UserCreated"),
+  CREATED_DATE("Date created", "DateCreated"),
   MODIFIED_USER("User modified", "UserModified"),
   MODIFIED_DATE("Date modified", "DateModified"),
   HOSTNAME("Hostname", "HostnameNetworkSetup"),

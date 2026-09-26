@@ -111,6 +111,15 @@ public class WorkflowMeta extends AbstractMeta
   @HopMetadataProperty(inline = true)
   protected WorkflowMetaInfo info;
 
+  /**
+   * The version string for the workflow.
+   *
+   * @deprecated since 2.20, for removal. The label has to be set and updated by hand and says
+   *     nothing that the version control system holding the file does not already say more
+   *     reliably. It is still read from and written to the file, so no existing value is lost
+   *     before it is removed.
+   */
+  @Deprecated(since = "2.20", forRemoval = true)
   @HopMetadataProperty(key = "workflow_version")
   protected String workflowVersion;
 

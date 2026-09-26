@@ -144,12 +144,13 @@ The Workflow tab allows you to specify general properties about the workflow inc
 |Workflow filename| The filename of the workflow
 |Description|Short description of the workflow
 |Extended description| Long extended description of the workflow
-|Status| Draft or production status
-|Version|Description of the version
-|Created by| Displays the original creator of the workflow
+|Version|Description of the version. Deprecated: this label has to be maintained by hand and will be removed in a future release, use the version control system that holds the file instead.
+|Created by| The user that created the workflow. Only recorded when Hop knows who that is, such as an authenticated Hop web session, and shows `-` otherwise.
 |Created at|Displays the date and time when the workflow was created.
-|Last modified by| Displays the last user that modified the workflow
-|Last modified at|Displays the date and time when the workflow was last modified.
+|Last modified by| The user that last modified the workflow, recorded under the same conditions as `Created by`.
+|Last modified at|Displays the date and time of the last save that changed the workflow. A save that does not change anything leaves this untouched.
+|Created with|The version of Hop that created the workflow. Empty for workflows created before Hop started recording this.
+|Last modified with|The version of Hop that last saved a change to the workflow.
 |===
 
 The parameters tab allows you to specify parameters specific for the workflow.

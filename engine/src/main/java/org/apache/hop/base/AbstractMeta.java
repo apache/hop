@@ -20,6 +20,7 @@ package org.apache.hop.base;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -987,6 +989,51 @@ public abstract class AbstractMeta
     } else {
       clearChanged();
     }
+  }
+
+  /**
+   * Whether a save that is about to be written has to refresh the elements recording who last
+   * changed this file and when.
+   *
+   * <p>An edited file gets a fresh stamp, and so does a file that is being written for the first
+   * time. A save that writes the same content over a file that is already there does not: the
+   * elements would then change every time an untouched file is saved and show up as a difference in
+   * version control.
+   *
+   * @param fileExists whether the file about to be written is already there
+   * @return true if the file has to be stamped before it is written
+   */
+  public boolean needsModificationStamp(boolean fileExists) {
+    return hasChanged() || !fileExists;
+  }
+
+  /**
+   * Record the current time and user as the last modification of this file. Called by the save path
+   * right before the file is written, when {@link #needsModificationStamp(boolean)} says so.
+   *
+   * <p>The user is only recorded when a real one is known, see {@link
+   * HopSecurity#getAuditUsername()}. The desktop has no authenticated user, so there the modified
+   * date is maintained and the user is left at whatever the file already holds.
+   */
+  public void stampModified() {
+    setModifiedDate(new Date());
+    HopSecurity.getAuditUsername().ifPresent(this::setModifiedUser);
+  }
+
+  /**
+   * Record the current user as the creator of this file. Called when a new file is created, never
+   * on save: the creator of an existing file is not whoever happens to save it next.
+   *
+   * <p>The creation date is set by the constructor. Only a known user is recorded, see {@link
+   * HopSecurity#getAuditUsername()}.
+   */
+  public void stampCreated() {
+    HopSecurity.getAuditUsername()
+        .ifPresent(
+            username -> {
+              setCreatedUser(username);
+              setModifiedUser(username);
+            });
   }
 
   public void addObserver(IHopObserver o) {

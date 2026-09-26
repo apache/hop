@@ -2969,7 +2969,9 @@ public class PipelineMeta extends AbstractMeta
    * Gets the version of the pipeline.
    *
    * @return The version of the pipeline
+   * @deprecated since 2.20, for removal. See {@link PipelineMetaInfo#pipelineVersion}.
    */
+  @Deprecated(since = "2.20", forRemoval = true)
   public String getPipelineVersion() {
     return info.getPipelineVersion();
   }
@@ -2978,7 +2980,9 @@ public class PipelineMeta extends AbstractMeta
    * Sets the version of the pipeline.
    *
    * @param pipelineVersion The new version description of the pipeline
+   * @deprecated since 2.20, for removal. See {@link PipelineMetaInfo#pipelineVersion}.
    */
+  @Deprecated(since = "2.20", forRemoval = true)
   public void setPipelineVersion(String pipelineVersion) {
     info.setPipelineVersion(pipelineVersion);
   }
