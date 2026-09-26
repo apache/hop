@@ -17,10 +17,12 @@
 
 package org.apache.hop.imp;
 
+import java.io.File;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileName;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
@@ -37,6 +39,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
@@ -191,7 +194,7 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
         return;
       }
 
-      resolveTargetProject();
+      resolveExistingProject();
 
       if (!validateOptions()) {
         cmd.usage(System.err);
@@ -209,6 +212,13 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       //
       hopImport.setValidateInputFolder(inputFolderName);
       hopImport.setValidateOutputFolder(outputFolderName);
+
+      // Only now that both folders are known to be good is a new project registered. Registering
+      // it any earlier left a project behind that pointed at a folder nothing was imported into.
+      if (!registerTargetProject(hopImport.getOutputFolderName())) {
+        return;
+      }
+
       hopImport.setKettlePropertiesFilename(kettlePropertiesFilename);
       hopImport.setJdbcPropertiesFilename(jdbcPropertiesFilename);
       hopImport.setSharedXmlFilename(sharedXmlFilename);
@@ -308,47 +318,86 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
   }
 
   /**
-   * Point the import at a project: an existing one contributes its home folder as the target, an
-   * unknown one is registered at the target folder. Both go through the extension points the import
-   * dialog uses, so this is a no-op without the projects plugin.
+   * An existing project contributes its home folder as the target, so this runs before the options
+   * are validated: the project is where the output folder comes from. An unknown project is left to
+   * {@link #registerTargetProject(String)}. A no-op without the projects plugin.
    */
-  private void resolveTargetProject() throws HopException {
+  private void resolveExistingProject() {
     if (StringUtils.isEmpty(projectName)) {
       return;
     }
     String projectHome = findProjectHome(projectName);
-    if (StringUtils.isNotEmpty(projectHome)) {
-      if (StringUtils.isNotEmpty(outputFolderName) && !projectHome.equals(outputFolderName)) {
-        log.logBasic(
-            "Ignoring output folder '"
-                + outputFolderName
-                + "': project '"
-                + projectName
-                + "' is imported into its own home folder");
-      }
-      outputFolderName = projectHome;
-      log.logBasic("Importing into project '" + projectName + "' at " + projectHome);
+    if (StringUtils.isEmpty(projectHome)) {
       return;
     }
-    if (StringUtils.isEmpty(outputFolderName)) {
-      // validateOptions() reports the missing output folder.
-      return;
+    if (StringUtils.isNotEmpty(outputFolderName) && !projectHome.equals(outputFolderName)) {
+      log.logBasic(
+          "Ignoring output folder '"
+              + outputFolderName
+              + "': project '"
+              + projectName
+              + "' is imported into its own home folder");
     }
+    outputFolderName = projectHome;
+    log.logBasic("Importing into project '" + projectName + "' at " + projectHome);
+  }
+
+  /**
+   * Register the target folder as a new project, through the same extension point the import dialog
+   * uses. Called once the import plugin has validated both folders, so a failing import never
+   * leaves a project behind, and before anything is imported, so a project that cannot be
+   * registered fails the run before files are written.
+   *
+   * @param validatedOutputFolder the output folder as the import plugin normalized it
+   * @return false when {@code --project} was asked for and could not be honoured
+   */
+  private boolean registerTargetProject(String validatedOutputFolder) throws HopException {
+    if (StringUtils.isEmpty(projectName) || StringUtils.isNotEmpty(findProjectHome(projectName))) {
+      // No project asked for, or resolveExistingProject() already found it.
+      return true;
+    }
+    String projectHome = projectHomeToStore(validatedOutputFolder);
     ExtensionPointHandler.callExtensionPoint(
         log,
         variables,
         HopExtensionPoint.HopImportCreateProject.id,
-        new Object[] {outputFolderName, projectName});
+        new Object[] {projectHome, projectName});
     if (StringUtils.isEmpty(findProjectHome(projectName))) {
       log.logError(
           "Unable to register project '"
               + projectName
-              + "'. Is the projects plugin available? The files are imported into "
-              + outputFolderName
-              + " regardless.");
-    } else {
-      log.logBasic("Registered project '" + projectName + "' at " + outputFolderName);
+              + "' at "
+              + projectHome
+              + ". Is the projects plugin available? Nothing was imported.");
+      return false;
     }
+    log.logBasic("Registered project '" + projectName + "' at " + projectHome);
+    return true;
+  }
+
+  /**
+   * The folder to store as the new project's home. A folder that resolves to an absolute path is
+   * stored as it was given, so that a home written as '${SOME_VARIABLE}/folder' stays portable -
+   * the ProjectHome extension point resolves it on every read. A relative folder has to be pinned
+   * down now: the next 'hop-import --project' can run from any working directory.
+   */
+  private String projectHomeToStore(String validatedOutputFolder) throws HopException {
+    if (isAbsolute(variables.resolve(outputFolderName))) {
+      return outputFolderName;
+    }
+    try {
+      FileName folder = HopVfs.getFileObject(validatedOutputFolder).getName();
+      // Keep a plain path plain, the way a project home typed in the GUI looks, but never drop the
+      // scheme of a folder that has one: s3://bucket/folder is not /bucket/folder.
+      return "file".equals(folder.getScheme()) ? folder.getPathDecoded() : folder.getURI();
+    } catch (Exception e) {
+      throw new HopException("Error resolving the home folder of project " + projectName, e);
+    }
+  }
+
+  /** Whether a folder name stands on its own, rather than depending on the working directory. */
+  private boolean isAbsolute(String folderName) {
+    return folderName.contains("://") || new File(folderName).isAbsolute();
   }
 
   /** The home folder of a registered project, or null when it is unknown. */

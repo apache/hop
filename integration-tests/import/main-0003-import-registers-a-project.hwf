@@ -83,7 +83,22 @@ grep -q "$OUT" "$CONF/hop-config.json"
 # Importing again into the same project resolves its home folder, so no target folder is needed.
 rm -rf "$OUT"
 HOP_CONFIG_FOLDER="$CONF" sh hop-import.sh -i "$SRC" --project 'Imported PDI Project'
-test -f "$OUT/parent.hwf"</script>
+test -f "$OUT/parent.hwf"
+
+# An import that never runs must not leave a project behind, pointing at a folder nothing was
+# imported into. This one has no input folder, so it fails on its options.
+FAILED_CONF="${PROJECT_HOME}/output/0003-failed-config"
+rm -rf "$FAILED_CONF"
+mkdir -p "$FAILED_CONF"
+if HOP_CONFIG_FOLDER="$FAILED_CONF" sh hop-import.sh -o "$OUT" --project 'Never Imported'; then
+  echo "hop-import without an input folder should have failed"
+  exit 1
+fi
+if test -f "$FAILED_CONF/hop-config.json" \
+    &amp;&amp; grep -q 'Never Imported' "$FAILED_CONF/hop-config.json"; then
+  echo "a failed hop-import registered project 'Never Imported'"
+  exit 1
+fi</script>
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>
       <xloc>288</xloc>
