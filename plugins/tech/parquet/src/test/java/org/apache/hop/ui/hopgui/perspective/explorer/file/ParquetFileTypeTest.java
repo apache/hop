@@ -22,12 +22,28 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class ParquetFileTypeTest {
 
   private final ParquetFileType fileType = new ParquetFileType();
+
+  @TempDir private Path tempDir;
+
+  @BeforeAll
+  static void init() throws Exception {
+    HopEnvironment.init();
+  }
 
   @Test
   void opensParquetAndParqExtensions() throws Exception {
@@ -47,6 +63,17 @@ class ParquetFileTypeTest {
     assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_SAVE));
     assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS));
     assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_NEW));
+  }
+
+  @Test
+  void keepsTheLargeFileConfirmationForRemoteFiles() throws Exception {
+    Path local = tempDir.resolve("sample.parquet");
+    try (FileObject file = HopVfs.getFileObject(local.toString())) {
+      assertFalse(ParquetFileType.keepsLargeFileConfirmation(file));
+    }
+    try (FileObject remote = HopVfs.getFileObject("ram:///parquet-preview/sample.parquet")) {
+      assertTrue(ParquetFileType.keepsLargeFileConfirmation(remote));
+    }
   }
 
   @Test

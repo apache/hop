@@ -50,15 +50,19 @@ public class ParquetFileType extends BaseExplorerFileType<ParquetExplorerFileTyp
   }
 
   /**
-   * Opens the file without the large-file confirmation of {@link BaseExplorerFileType#openFile}.
-   * That confirmation exists because text handlers read the whole file. A Parquet tab reads the
-   * footer and at most 1000 rows.
+   * Opens a local file without the large-file confirmation. The preview seeks to the footer and
+   * reads at most 1000 rows. Any other VFS scheme keeps {@link BaseExplorerFileType#openFile}'s
+   * confirmation: a seek there re-reads the file from the start.
    */
   @Override
   public ParquetExplorerFileTypeHandler openFile(
       HopGui hopGui, String filename, IVariables variables) throws HopException {
     try {
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
+      if (keepsLargeFileConfirmation(fileObject)) {
+        fileObject.close();
+        return super.openFile(hopGui, filename, variables);
+      }
       String name = fileObject.getName().getBaseName();
       filename = HopVfs.getFilename(fileObject);
 
@@ -76,6 +80,14 @@ public class ParquetFileType extends BaseExplorerFileType<ParquetExplorerFileTyp
       throw new HopException(
           "Error opening file '" + filename + "' in a new tab in the Explorer perspective", e);
     }
+  }
+
+  /**
+   * Remote and non-file locations re-stream the object on every seek, so a large open still asks. A
+   * plain {@code file} location can seek and skips the confirmation.
+   */
+  static boolean keepsLargeFileConfirmation(FileObject fileObject) {
+    return fileObject.getName() == null || !"file".equals(fileObject.getName().getScheme());
   }
 
   @Override
