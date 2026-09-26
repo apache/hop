@@ -96,7 +96,10 @@ class HopImportCreateProjectIfNotExistsTest {
 
     ProjectConfig created =
         HopImportCreateProjectIfNotExists.createImportProject(
-            variables, importHome.toString(), false);
+            variables,
+            importHome.toString(),
+            HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME,
+            false);
 
     assertEquals(
         originalHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
@@ -114,6 +117,59 @@ class HopImportCreateProjectIfNotExistsTest {
             .findProjectConfig(HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME));
   }
 
+  /** {@code hop-import --project <name>} registers the target folder under that name (#8516). */
+  @Test
+  void anExplicitProjectNameIsUsedInsteadOfTheDefault() throws Exception {
+    Path importHome = tempRoot.resolve("named");
+    Files.createDirectories(importHome);
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    try {
+      ProjectConfig created =
+          HopImportCreateProjectIfNotExists.createImportProject(
+              new Variables(), importHome.toString(), "Migrated PDI", false);
+
+      assertNotNull(created);
+      assertEquals("Migrated PDI", created.getProjectName());
+      assertNotNull(config.findProjectConfig("Migrated PDI"));
+      assertNull(config.findProjectConfig(HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME));
+    } finally {
+      config.removeProjectConfig("Migrated PDI");
+    }
+  }
+
+  /**
+   * The extension point takes the folder alone from the import dialog, and {folder, project name}
+   * from {@code hop-import --project}. Both shapes have to keep working.
+   */
+  @Test
+  void theExtensionPointAcceptsAFolderOnItsOwnAndAFolderWithAName() throws Exception {
+    Path fromDialog = tempRoot.resolve("from-dialog");
+    Path fromCli = tempRoot.resolve("from-cli");
+    Files.createDirectories(fromDialog);
+    Files.createDirectories(fromCli);
+    HopImportCreateProjectIfNotExists extensionPoint = new HopImportCreateProjectIfNotExists();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    try {
+      extensionPoint.callExtensionPoint(
+          HopLogStore.getLogChannelFactory().create("test"),
+          new Variables(),
+          fromDialog.toString());
+      assertEquals(
+          fromDialog.toString(),
+          config
+              .findProjectConfig(HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME)
+              .getProjectHome());
+
+      extensionPoint.callExtensionPoint(
+          HopLogStore.getLogChannelFactory().create("test"),
+          new Variables(),
+          new Object[] {fromCli.toString(), "Migrated PDI"});
+      assertEquals(fromCli.toString(), config.findProjectConfig("Migrated PDI").getProjectHome());
+    } finally {
+      config.removeProjectConfig("Migrated PDI");
+    }
+  }
+
   @Test
   void emptyDefaultProjectConfigFileFallsBackToProjectConfigJson() throws Exception {
     Path importHome = tempRoot.resolve("empty-config-name");
@@ -122,7 +178,10 @@ class HopImportCreateProjectIfNotExistsTest {
 
     ProjectConfig created =
         HopImportCreateProjectIfNotExists.createImportProject(
-            new Variables(), importHome.toString(), false);
+            new Variables(),
+            importHome.toString(),
+            HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME,
+            false);
 
     assertNotNull(created);
     assertEquals(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME, created.getConfigFilename());
@@ -135,8 +194,12 @@ class HopImportCreateProjectIfNotExistsTest {
     IVariables variables = new Variables();
     variables.setVariable(ProjectsUtil.VARIABLE_PROJECT_HOME, "/original-home");
 
-    assertNull(HopImportCreateProjectIfNotExists.createImportProject(variables, "", false));
-    assertNull(HopImportCreateProjectIfNotExists.createImportProject(variables, null, false));
+    assertNull(
+        HopImportCreateProjectIfNotExists.createImportProject(
+            variables, "", HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME, false));
+    assertNull(
+        HopImportCreateProjectIfNotExists.createImportProject(
+            variables, null, HopImportCreateProjectIfNotExists.IMPORT_PROJECT_NAME, false));
     assertEquals("/original-home", variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
   }
 
