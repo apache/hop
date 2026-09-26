@@ -82,6 +82,15 @@ public class CacheEntry {
   // Was content modified and not yet written to disk?
   @JsonIgnore private boolean dirty;
 
+  /**
+   * Local engine is the only writer of this row. Later saves update the small columns and leave the
+   * stored document alone.
+   */
+  @JsonIgnore private boolean singleWriter;
+
+  /** The document with metadata and pipeline XML has been inserted. */
+  @JsonIgnore private boolean heavyDocumentStored;
+
   public CacheEntry() {
     childExecutions = new HashMap<>();
     childExecutionStates = new HashMap<>();
@@ -194,6 +203,11 @@ public class CacheEntry {
     return executionState;
   }
 
+  /** Read the state without counting as a cache hit. Lookup scans must not keep an entry warm. */
+  ExecutionState peekExecutionState() {
+    return executionState;
+  }
+
   public void addChildExecution(Execution childExecution) {
     childExecutions.put(childExecution.getId(), childExecution);
     flagDirty();
@@ -216,12 +230,24 @@ public class CacheEntry {
     }
   }
 
+  void markRead() {
+    flagRead();
+  }
+
   private void flagRead() {
     lastRead = new Date();
   }
 
   public Execution getChildExecution(String id) {
     flagRead();
+    return childExecutions.get(id);
+  }
+
+  /** Read a child without counting as a cache hit. */
+  Execution peekChildExecution(String id) {
+    if (childExecutions == null) {
+      return null;
+    }
     return childExecutions.get(id);
   }
 

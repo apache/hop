@@ -44,6 +44,8 @@ import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
+import org.apache.hop.execution.caching.CacheEntry;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
@@ -71,6 +73,11 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   private PipelineEngineCapabilities engineCapabilities = new LocalPipelineEngineCapabilities();
 
   private ExecutionInfoLocation executionInfoLocation;
+
+  void setExecutionInfoLocation(ExecutionInfoLocation executionInfoLocation) {
+    this.executionInfoLocation = executionInfoLocation;
+  }
+
   private Timer transformExecutionInfoTimer;
   private TimerTask transformExecutionInfoTimerTask;
   private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
@@ -363,13 +370,16 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       executionInfoLocation
           .getExecutionInfoLocation()
           .registerExecution(ExecutionBuilder.fromExecutor(this).build());
+      markSingleWriter(executionInfoLocation.getExecutionInfoLocation(), getLogChannelId());
 
       // Also register an execution node for every transform
       //
-      for (TransformMetaDataCombi c : getTransforms()) {
-        executionInfoLocation
-            .getExecutionInfoLocation()
-            .registerExecution(ExecutionBuilder.fromTransform(this, c.transform).build());
+      if (getTransforms() != null) {
+        for (TransformMetaDataCombi c : getTransforms()) {
+          executionInfoLocation
+              .getExecutionInfoLocation()
+              .registerExecution(ExecutionBuilder.fromTransform(this, c.transform).build());
+        }
       }
     }
   }
@@ -534,6 +544,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
               try {
                 writeExecutionInfoState(iLocation);
+                releasePublishedSamples();
               } catch (Exception e) {
                 log.logError(
                     "Warning: unable to register execution state at location "
@@ -549,6 +560,33 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     //
     transformExecutionInfoTimer = new Timer();
     transformExecutionInfoTimer.schedule(transformExecutionInfoTimerTask, delay, interval);
+  }
+
+  /** This local engine is the only writer, so later saves can leave the stored document alone. */
+  private void markSingleWriter(IExecutionInfoLocation location, String executionId) {
+    if (location instanceof BaseCachingExecutionInfoLocation caching) {
+      synchronized (caching) {
+        CacheEntry entry = caching.getCache().get(executionId);
+        if (entry != null) {
+          entry.setSingleWriter(true);
+        }
+      }
+    }
+  }
+
+  /**
+   * Sample rows live on the engine for the whole run. Drop the row buffers after they have been
+   * copied onto the execution. The copy stays in the cache so the next save can publish it.
+   */
+  private void releasePublishedSamples() {
+    if (samplerStoresMap == null) {
+      return;
+    }
+    for (List<IExecutionDataSamplerStore> stores : samplerStoresMap.values()) {
+      for (IExecutionDataSamplerStore store : stores) {
+        store.clearSamples();
+      }
+    }
   }
 
   /**
@@ -638,6 +676,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
               ExecutionDataBuilder.fromAllTransformData(
                   LocalPipelineEngine.this, samplerStoresMap, true);
           iLocation.registerData(dataBuilder.build());
+          releasePublishedSamples();
         }
       } catch (Throwable e) {
         log.logError("Error handling writing final pipeline state to location (non-fatal)", e);

@@ -51,6 +51,13 @@ public abstract class ExecutionDataSamplerStoreBase<Store extends IExecutionData
   }
 
   @Override
+  public void clearSamples() {
+    if (rows != null) {
+      rows.clear();
+    }
+  }
+
+  @Override
   public IRowListener createRowListener(IExecutionDataSampler sampler) {
     return new IRowListener() {
       @Override

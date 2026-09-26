@@ -35,11 +35,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.databases.h2.H2DatabaseMeta;
 import org.apache.hop.execution.DefaultExecutionSelector;
@@ -477,6 +481,120 @@ class CachingDatabaseExecutionInfoLocationTest {
     ids.forEach(d -> idStrings.add(d.getId()));
     assertTrue(idStrings.contains(parentId));
     assertTrue(idStrings.contains(childId));
+  }
+
+  @Test
+  void singleWriterUpdateDoesNotReloadOrRewriteTheDocument() throws Exception {
+    CountingLocation counting = new CountingLocation();
+    counting.setConnectionName("h2-exec");
+    counting.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    counting.setPersistenceDelay("60000");
+    counting.setMaxCacheAge("86400000");
+    counting.setDatabaseMeta(databaseMeta);
+    counting.initialize(variables, metadataProvider);
+    try {
+      String id = UUID.randomUUID().toString();
+      CacheEntry entry = sampleEntry(id, "Live", ExecutionType.Pipeline, false, "Running");
+      entry.getExecution().setMetadataJson("{\"project\":true}");
+      entry.getExecution().setExecutorXml("<pipeline/>");
+      entry.setSingleWriter(true);
+
+      counting.persistCacheEntry(entry);
+      assertNull(entry.getExecution().getMetadataJson());
+      assertNull(entry.getExecution().getExecutorXml());
+      assertTrue(entry.isHeavyDocumentStored());
+      assertEquals(0, counting.loads);
+
+      entry.getExecutionState().setStatusDescription("StillRunning");
+      entry.getExecution().setMetadataJson("SHOULD-NOT-BE-WRITTEN");
+      counting.persistCacheEntry(entry);
+      assertEquals(0, counting.loads);
+      assertEquals(
+          "StillRunning",
+          readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATUS_DESCRIPTION));
+
+      String storedDocument = readColumn(id, CachingDatabaseExecutionInfoLocation.COL_JSON);
+      String storedState = readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATE_JSON);
+      assertFalse(storedDocument.contains("SHOULD-NOT-BE-WRITTEN"));
+      assertFalse(storedDocument.contains("StillRunning"));
+      assertTrue(storedState.contains("StillRunning"));
+      assertFalse(storedState.contains("SHOULD-NOT-BE-WRITTEN"));
+      assertFalse(storedState.contains("<pipeline/>"));
+
+      CacheEntry loaded = counting.loadCacheEntry(id);
+      assertEquals("{\"project\":true}", loaded.getExecution().getMetadataJson());
+      assertEquals("<pipeline/>", loaded.getExecution().getExecutorXml());
+      assertEquals("StillRunning", loaded.getExecutionState().getStatusDescription());
+    } finally {
+      counting.close();
+    }
+  }
+
+  @Test
+  void addsStateColumnWhenTheTablePredatesIt() throws Exception {
+    String table =
+        databaseMeta.getQuotedSchemaTableCombination(
+            variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    try (Database db = new Database(new LoggingObject("drop-state"), variables, databaseMeta)) {
+      db.connect();
+      String sql =
+          databaseMeta.getDropColumnStatement(
+              table,
+              new ValueMetaString(CachingDatabaseExecutionInfoLocation.COL_STATE_JSON),
+              "",
+              false,
+              "",
+              false);
+      db.execStatement(sql);
+    }
+
+    CachingDatabaseExecutionInfoLocation migrated = new CachingDatabaseExecutionInfoLocation();
+    migrated.setConnectionName("h2-exec");
+    migrated.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    migrated.setPersistenceDelay("60000");
+    migrated.setMaxCacheAge("86400000");
+    migrated.setDatabaseMeta(databaseMeta);
+    migrated.initialize(variables, metadataProvider);
+    try {
+      assertTrue(
+          migrated.database.checkColumnExists(
+              null,
+              CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME,
+              CachingDatabaseExecutionInfoLocation.COL_STATE_JSON));
+    } finally {
+      migrated.close();
+    }
+  }
+
+  private static final class CountingLocation extends CachingDatabaseExecutionInfoLocation {
+    private int loads;
+
+    @Override
+    protected CacheEntry loadCacheEntry(String executionId) throws HopException {
+      loads++;
+      return super.loadCacheEntry(executionId);
+    }
+  }
+
+  private String readColumn(String id, String column) throws Exception {
+    try (Database db = new Database(new LoggingObject("status-check"), variables, databaseMeta)) {
+      db.connect();
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+      String sql =
+          "SELECT "
+              + databaseMeta.quoteField(column)
+              + " FROM "
+              + table
+              + " WHERE "
+              + databaseMeta.quoteField(CachingDatabaseExecutionInfoLocation.COL_ID)
+              + " = ?";
+      IRowMeta params = new RowMeta();
+      params.addValueMeta(new ValueMetaString("id"));
+      RowMetaAndData row = db.getOneRow(sql, params, new Object[] {id});
+      return row.getString(0, null);
+    }
   }
 
   private static CacheEntry sampleEntry(

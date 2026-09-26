@@ -526,16 +526,15 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         found = cacheEntry;
         break;
       }
-      if (cacheEntry.getExecutionState() == null) {
-        continue;
-      }
-      if (parentId.equals(cacheEntry.getExecutionState().getId())) {
+      ExecutionState state = cacheEntry.peekExecutionState();
+      if (state != null && parentId.equals(state.getId())) {
         found = cacheEntry;
         break;
       }
     }
     if (found != null) {
       cache.get(found.getId());
+      found.markRead();
       return found;
     }
     return null;
@@ -587,17 +586,18 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         found = cacheEntry;
         break;
       }
-      // Sometimes the ID of the execution state is different from the execution
+      // Sometimes the ID of the execution state is different from the execution.
+      // Peek: a scan must not refresh lastRead on the entries that did not match.
       //
-      if (cacheEntry.getExecutionState() != null
-          && cacheEntry.getExecutionState().getId().equals(executionId)) {
+      ExecutionState state = cacheEntry.peekExecutionState();
+      if (state != null && executionId.equals(state.getId())) {
         found = cacheEntry;
         break;
       }
 
       // Is it perhaps one of the children?
       //
-      Execution childExecution = cacheEntry.getChildExecution(executionId);
+      Execution childExecution = cacheEntry.peekChildExecution(executionId);
       if (childExecution != null) {
         found = cacheEntry;
         break;
@@ -607,6 +607,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     if (found != null) {
       // Iteration does not update access order. A key lookup moves this entry to the newest end.
       cache.get(found.getId());
+      found.markRead();
       return found;
     }
 
@@ -666,8 +667,11 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     CacheEntry entry = findCacheEntry(data.getParentId());
     if (entry != null) {
       entry.addExecutionData(data);
-      // Flush promptly so other processes can merge samples when they persist parent state
-      persistCacheEntry(entry);
+      // A local single-writer flushes from the cache timer. Another process (Spark/Beam) still
+      // needs the samples on disk before it merges its own write.
+      if (!entry.isSingleWriter()) {
+        persistCacheEntry(entry);
+      }
     } else {
       LogChannel.GENERAL.logError(
           "Unable to register execution data for owner '"
@@ -737,12 +741,32 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   }
 
   @Override
-  public Execution getExecution(String executionId) throws HopException {
+  public synchronized Execution getExecution(String executionId) throws HopException {
     CacheEntry entry = findCacheEntry(executionId);
     if (entry == null) {
       return null;
     }
-    return entry.getExecution();
+    Execution execution = entry.getExecution();
+    if (execution != null
+        && entry.isHeavyDocumentStored()
+        && execution.getMetadataJson() == null
+        && execution.getExecutorXml() == null) {
+      restoreHeavyDocument(entry);
+    }
+    return execution;
+  }
+
+  /**
+   * The running entry drops the project metadata and pipeline XML after the first insert. A viewer
+   * asking for the execution gets those fields back from the stored row, once.
+   */
+  private void restoreHeavyDocument(CacheEntry entry) throws HopException {
+    CacheEntry stored = loadCacheEntry(entry.getId());
+    if (stored == null || stored.getExecution() == null || entry.getExecution() == null) {
+      return;
+    }
+    entry.getExecution().setMetadataJson(stored.getExecution().getMetadataJson());
+    entry.getExecution().setExecutorXml(stored.getExecution().getExecutorXml());
   }
 
   @Override

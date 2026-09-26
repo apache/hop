@@ -18,6 +18,8 @@
 package org.apache.hop.execution.caching;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -90,6 +92,21 @@ class BaseCachingExecutionInfoLocationTest {
                 .repeat(
                     BaseCachingExecutionInfoLocation.MAX_CACHED_LOGGING_TEXT_CHARS
                         - tail.length())));
+  }
+
+  @Test
+  void lookupMissDoesNotRefreshLastRead() throws Exception {
+    FakeLocation location = new FakeLocation();
+    String id = UUID.randomUUID().toString();
+    location.registerExecution(pipeline(id, "Kept"));
+    Date readAt = new Date(1_000L);
+    location.getCache().get(id).setLastRead(readAt);
+
+    assertNull(location.findCacheEntry("missing"));
+    assertEquals(readAt, location.getCache().get(id).getLastRead());
+
+    assertNotNull(location.findCacheEntry(id));
+    assertTrue(location.getCache().get(id).getLastRead().after(readAt));
   }
 
   @Test
