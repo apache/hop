@@ -21,6 +21,7 @@ package org.apache.hop.execution.sampler.plugins.dataprof;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -346,17 +347,18 @@ public class BasicDataProfilingDataSampler
       String name,
       ProfilingType profilingType,
       IRowMeta rowMeta,
-      Object[] row) {
+      Object[] row)
+      throws HopValueException {
     synchronized (store.getProfileSamples()) {
       Map<ProfilingType, RowBuffer> typeBufferMap =
           store.getProfileSamples().computeIfAbsent(name, k -> new HashMap<>());
       RowBuffer rowBuffer =
           typeBufferMap.computeIfAbsent(profilingType, k -> new RowBuffer(rowMeta));
 
-      // Keep the memory consumption sane
+      // Keep the memory consumption sane. Copy the row: the transform may reuse the array.
       //
       if (rowBuffer.size() < store.getMaxRows()) {
-        rowBuffer.addRow(row);
+        rowBuffer.addRow(rowMeta.cloneRow(row));
       }
     }
   }

@@ -17,11 +17,14 @@
 
 package org.apache.hop.core.row.value;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
@@ -55,6 +58,11 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
   private static final String CONST_SCHEMA = "schema";
   private static final String CONST_SPECIFIED = " specified.";
   private static final String CONST_UNKNOWN_STORAGE_TYPE = " : Unknown storage type ";
+  private static final String CONST_SCHEMA_NEEDED =
+      "An Avro schema is needed to read a GenericRecord from an input stream";
+
+  /** Reject a corrupt length instead of allocating it. Sample rows are far smaller than this. */
+  private static final int MAX_AVRO_BYTES = 32 * 1024 * 1024;
 
   public ValueMetaAvroRecord() {
     super(null, IValueMeta.TYPE_AVRO);
@@ -415,12 +423,9 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
       outputStream.writeBoolean(object == null);
 
       if (object != null) {
-        GenericRecord genericRecord = (GenericRecord) object;
-
-        BinaryEncoder binaryEncoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
-        GenericDatumWriter<GenericRecord> datumWriter =
-            new GenericDatumWriter<>(genericRecord.getSchema());
-        datumWriter.write(genericRecord, binaryEncoder);
+        // Schema and datum are length-prefixed so the rest of the row stays aligned, and so a
+        // field with no schema on its metadata (Avro File Input, Kafka Consumer) can be read back.
+        outputStream.write(encodeRecord(object));
       }
     } catch (IOException e) {
       throw new HopFileException(this + " : Unable to write value data to output stream", e);
@@ -436,20 +441,14 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
         return null; // done
       }
 
-      // De-serialize a GenericRow object
-      //
-      if (schema == null) {
-        throw new HopFileException(
-            "An Avro schema is needed to read a GenericRecord from an input stream");
-      }
-
-      BinaryDecoder binaryDecoder = DecoderFactory.get().directBinaryDecoder(inputStream, null);
-      GenericDatumReader<GenericRecord> datumReader = new GenericDatumReader<>(schema);
-
-      return datumReader.read(null, binaryDecoder);
+      return decodeRecord(inputStream);
+    } catch (HopEofException e) {
+      throw e;
+    } catch (SocketTimeoutException e) {
+      throw e;
     } catch (EOFException e) {
       throw new HopEofException(e);
-    } catch (SocketTimeoutException e) {
+    } catch (HopFileException e) {
       throw e;
     } catch (IOException e) {
       throw new HopFileException(this + " : Unable to read value data from input stream", e);
@@ -483,5 +482,116 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
   public Long getInteger(Object object) throws HopValueException {
 
     return super.getInteger(object);
+  }
+
+  /**
+   * Minimum and maximum profiling, and row-buffer equality, call this. Avro has no single ordering,
+   * so the record text already shown in the execution grid is used.
+   */
+  @Override
+  protected int typeCompare(Object data1, Object data2) throws HopValueException {
+    String one = getString(data1);
+    String two = getString(data2);
+    if (one == null && two == null) {
+      return 0;
+    }
+    if (one == null) {
+      return -1;
+    }
+    if (two == null) {
+      return 1;
+    }
+    return one.compareTo(two);
+  }
+
+  @Override
+  public boolean requiresRealClone() {
+    return true;
+  }
+
+  /**
+   * Encode a record so it can be stored without a schema on the value metadata. The bytes are the
+   * schema JSON (4-byte length, UTF-8) followed by the Avro binary datum (4-byte length).
+   */
+  public static byte[] encodeRecord(Object object) throws HopFileException {
+    GenericRecord genericRecord = toGenericRecord(object);
+    Schema recordSchema = genericRecord.getSchema();
+    if (recordSchema == null) {
+      throw new HopFileException(CONST_SCHEMA_NEEDED);
+    }
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      DataOutputStream dos = new DataOutputStream(baos);
+      byte[] schemaBytes = recordSchema.toString(false).getBytes(StandardCharsets.UTF_8);
+      dos.writeInt(schemaBytes.length);
+      dos.write(schemaBytes);
+
+      ByteArrayOutputStream avroBytes = new ByteArrayOutputStream();
+      BinaryEncoder binaryEncoder = EncoderFactory.get().directBinaryEncoder(avroBytes, null);
+      new GenericDatumWriter<GenericRecord>(recordSchema).write(genericRecord, binaryEncoder);
+      binaryEncoder.flush();
+      byte[] data = avroBytes.toByteArray();
+      dos.writeInt(data.length);
+      dos.write(data);
+      dos.flush();
+      return baos.toByteArray();
+    } catch (Exception e) {
+      throw new HopFileException("Unable to encode an Avro record", e);
+    }
+  }
+
+  /** Decode a payload produced by {@link #encodeRecord(Object)}. */
+  public static GenericRecord decodeRecord(byte[] payload) throws HopFileException {
+    if (payload == null) {
+      return null;
+    }
+    try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(payload))) {
+      return decodeRecord(dis);
+    } catch (HopFileException e) {
+      throw e;
+    } catch (IOException e) {
+      throw new HopFileException("Unable to decode an Avro record", e);
+    }
+  }
+
+  private static GenericRecord toGenericRecord(Object object) throws HopFileException {
+    if (object instanceof GenericRecord genericRecord) {
+      return genericRecord;
+    }
+    throw new HopFileException(
+        "Expected an Avro GenericRecord and got "
+            + (object == null ? "null" : object.getClass().getName()));
+  }
+
+  private static GenericRecord decodeRecord(DataInputStream inputStream) throws HopFileException {
+    try {
+      byte[] schemaBytes = readBounded(inputStream);
+      String schemaJson = new String(schemaBytes, StandardCharsets.UTF_8);
+      if (StringUtils.isEmpty(schemaJson)) {
+        throw new HopFileException(CONST_SCHEMA_NEEDED);
+      }
+      Schema recordSchema = new Schema.Parser().parse(schemaJson);
+      byte[] data = readBounded(inputStream);
+      BinaryDecoder binaryDecoder =
+          DecoderFactory.get().binaryDecoder(new ByteArrayInputStream(data), null);
+      return new GenericDatumReader<GenericRecord>(recordSchema).read(null, binaryDecoder);
+    } catch (HopFileException e) {
+      throw e;
+    } catch (EOFException e) {
+      throw new HopEofException(e);
+    } catch (Exception e) {
+      throw new HopFileException("Unable to decode an Avro record", e);
+    }
+  }
+
+  private static byte[] readBounded(DataInputStream inputStream)
+      throws IOException, HopFileException {
+    int length = inputStream.readInt();
+    if (length < 0 || length > MAX_AVRO_BYTES) {
+      throw new HopFileException("Avro value length " + length + " is not valid");
+    }
+    byte[] bytes = new byte[length];
+    inputStream.readFully(bytes);
+    return bytes;
   }
 }
