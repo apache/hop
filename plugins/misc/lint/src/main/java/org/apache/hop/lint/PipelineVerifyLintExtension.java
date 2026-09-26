@@ -81,10 +81,9 @@ public class PipelineVerifyLintExtension implements IExtensionPoint<CheckTransfo
           LintCheckResultAdapter.toCheckResults(policyResults, pipelineMeta);
       extension.getRemarks().addAll(policyRemarks);
 
-      // Through the same conversion as before. This view has always reported a policy finding as
-      // Hop's own verify output renders it, and reporting it differently here would leave the
-      // Problems bar disagreeing with the background lint about the same file.
-      results.addAll(LintCheckResultAdapter.fromCheckResults(policyRemarks, fileName));
+      // As they are, not read back from the remarks: those carry Hop's origin, the source's name
+      // and a message prefixed with the rule id, which is not how the command line reports them.
+      results.addAll(policyResults);
       List<LintResult> verifyViewResults = LintResultDeduplicator.deduplicate(results);
       LintResultsManager.getInstance().updateResultsForFile(fileName, verifyViewResults);
       LintProblemsBarManager.getInstance().updateProblemsBar(fileName);

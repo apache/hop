@@ -52,6 +52,13 @@ public final class ReferencedDatabaseConnectionChecker {
   public static final String ERROR_DOES_NOT_EXIST = "CONNECTION_DOES_NOT_EXIST";
 
   /**
+   * The name still holds a variable after resolving, so nothing can be looked up. This checker
+   * never reports it: at design time such a name cannot be decided. A transform that went on to
+   * load the connection anyway, and got nothing, knows more and may report it under this code.
+   */
+  public static final String ERROR_NOT_RESOLVED = "CONNECTION_NOT_RESOLVED";
+
+  /**
    * The connection could not be looked up at all, so nothing is known about it. Reported at INFO:
    * it says something about the metadata being unreadable, not about the file being linted.
    */
@@ -146,9 +153,12 @@ public final class ReferencedDatabaseConnectionChecker {
       return remarks;
     }
 
+    // Ask for the unset fields too. A connection that was never assigned is null, not empty - that
+    // is the field default on a new transform or action - and it is exactly what ERROR_NOT_ASSIGNED
+    // is about, so it has to be seen here rather than left to each transform's own check.
     for (StringProperty property :
         HopMetadataPropertyWalker.collectStrings(
-            metadataObject, HopMetadataPropertyType.RDBMS_CONNECTION)) {
+            metadataObject, HopMetadataPropertyType.RDBMS_CONNECTION, true)) {
       ICheckResult remark =
           checkConnectionName(
               property.value(), ownerKind, ownerName, source, variables, serializer);

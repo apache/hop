@@ -511,11 +511,10 @@ public class HopLinter {
     List<LintResult> results = new ArrayList<>(fromNativeRemarks(remarks, fileName));
 
     if (shouldIncludeLintInPipelineVerify()) {
-      results.addAll(
-          LintCheckResultAdapter.fromCheckResults(
-              LintCheckResultAdapter.toCheckResults(
-                  runPolicyRules(pipelineMeta, fileName), pipelineMeta),
-              fileName));
+      // As they are, the way the command line reports them. Round tripping them through Hop's own
+      // remarks would report each one as Hop's, under the source's name and with the rule id
+      // prefixed to the message, and keep deduplication from telling the two apart.
+      results.addAll(runPolicyRules(pipelineMeta, fileName));
     }
 
     return applyPolicy(results, fileName);
@@ -540,11 +539,8 @@ public class HopLinter {
     List<LintResult> results = new ArrayList<>(fromNativeRemarks(remarks, fileName));
 
     if (shouldIncludeLintInWorkflowVerify()) {
-      results.addAll(
-          LintCheckResultAdapter.fromCheckResults(
-              WorkflowCheckResultAdapter.toCheckResults(
-                  runPolicyRules(workflowMeta, fileName), workflowMeta),
-              fileName));
+      // As they are, for the same reason as the pipeline path above.
+      results.addAll(runPolicyRules(workflowMeta, fileName));
     }
 
     return applyPolicy(results, fileName);

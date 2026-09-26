@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -123,18 +124,7 @@ public final class LintBaseline {
     if (accepted.isEmpty()) {
       return results;
     }
-    Map<String, Integer> remaining = new LinkedHashMap<>(accepted);
-    List<LintResult> fresh = new ArrayList<>();
-    for (LintResult result : results) {
-      String fingerprint = fingerprint(result, projectRoot);
-      Integer left = remaining.get(fingerprint);
-      if (left != null && left > 0) {
-        remaining.put(fingerprint, left - 1);
-        continue;
-      }
-      fresh.add(result);
-    }
-    return fresh;
+    return unclaimed(new LinkedHashMap<>(accepted), results, projectRoot);
   }
 
   /**
@@ -143,19 +133,66 @@ public final class LintBaseline {
    */
   public int countStaleEntries(List<LintResult> results, Path projectRoot) {
     Map<String, Integer> remaining = new LinkedHashMap<>(accepted);
-    for (LintResult result : results) {
-      String fingerprint = fingerprint(result, projectRoot);
-      Integer left = remaining.get(fingerprint);
-      if (left != null && left > 0) {
-        remaining.put(fingerprint, left - 1);
-      }
-    }
+    unclaimed(remaining, results, projectRoot);
     return remaining.values().stream().mapToInt(Integer::intValue).sum();
   }
 
+  /**
+   * The findings with no recorded occurrence left, taking the entries they claim out of {@code
+   * remaining}.
+   *
+   * <p>In two passes, because a finding answers to more than one rule id. A coded finding also
+   * answers to the rule that classified it, and claiming under that alias in the same pass would
+   * let it take an entry recorded for a different, codeless remark on the same transform - which
+   * would then be reported as new. Every finding gets its own id first, and only what is left over
+   * falls back to an alias.
+   */
+  private static List<LintResult> unclaimed(
+      Map<String, Integer> remaining, List<LintResult> results, Path projectRoot) {
+    List<LintResult> fresh = new ArrayList<>();
+    for (LintResult result : results) {
+      if (!claim(remaining, result, projectRoot, true)) {
+        fresh.add(result);
+      }
+    }
+    List<LintResult> unmatched = new ArrayList<>();
+    for (LintResult result : fresh) {
+      if (!claim(remaining, result, projectRoot, false)) {
+        unmatched.add(result);
+      }
+    }
+    return unmatched;
+  }
+
+  /**
+   * Take one recorded occurrence of this finding, if one is left.
+   *
+   * <p>A baseline written before a check reported its own error code recorded the finding under the
+   * native rule that classified it, so a finding answers to that alias as well as to its own id.
+   * {@code ownIdOnly} is what keeps the two apart across the passes above.
+   */
+  private static boolean claim(
+      Map<String, Integer> remaining, LintResult result, Path root, boolean ownIdOnly) {
+    List<String> ruleIds =
+        ownIdOnly ? Collections.singletonList(result.getRuleId()) : result.getRuleIds();
+    for (String ruleId : ruleIds) {
+      String fingerprint = fingerprint(ruleId, result, root);
+      Integer left = remaining.get(fingerprint);
+      if (left != null && left > 0) {
+        remaining.put(fingerprint, left - 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
   static String fingerprint(LintResult result, Path projectRoot) {
+    return fingerprint(result.getRuleId(), result, projectRoot);
+  }
+
+  private static String fingerprint(String ruleId, LintResult result, Path projectRoot) {
     String file = LintPolicy.relativise(result.getFileName(), projectRoot);
     String source = result.getSource() != null ? result.getSource().getName() : "";
-    return result.getRuleId() + "|" + file + "|" + (source != null ? source : "");
+    return ruleId + "|" + file + "|" + (source != null ? source : "");
   }
 }
