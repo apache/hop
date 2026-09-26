@@ -40,8 +40,10 @@ The same pattern applies to every other secret in the project: never hard-code i
 See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information].
 
 The xref:pipeline/transforms/languagemodelchat.adoc[Language model chat] transform can optionally select a named AI Provider.
-Connection fields from the provider overlay the transform's inline values; empty provider fields keep the inline values.
+The provider's type, base URL, API key, chat model, timeout and temperature then take precedence over the transform's inline values; an inline value is only used when the provider leaves that field empty.
+In particular, a temperature set on the provider overrides the temperature on every transform that uses it, so leave *Temperature* empty here if transforms need their own.
 Input/output mapping, mock mode, proxy and retries stay on the transform.
+See xref:pipeline/transforms/languagemodelchat.adoc#ai-provider-precedence[AI Provider and inline settings] for the details.
 
 == Provider types
 
@@ -116,7 +118,7 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 |HTTP timeout for completions.
 
 |Temperature
-|Sampling temperature, when the provider supports it.
+|Sampling temperature, when the provider supports it. When set, it overrides the temperature configured on a Language Model Chat transform that uses this provider.
 |===
 
 When Language Model Chat points at an AI Provider, extra transform options (proxy, retries, mock, I/O fields) are not taken from the provider.
@@ -148,7 +150,7 @@ Each row pairs a role with a model name:
 
 A transform never asks which role to use: it needs one kind of model and looks up that role. Point a chat transform and an embedding transform at the same provider and each finds its own model.
 
-Use at most one row per role, since that is what makes the lookup unambiguous. A transform that needs a different model than the provider's default for its role can override it on the transform itself.
+Use at most one row per role, since that is what makes the lookup unambiguous. An embedding transform that needs a different model than the provider's default for its role can override it on the transform itself. Language Model Chat works the other way round: the provider's `CHAT` model wins, and the model name on the transform is only used when the provider has none.
 
 === Relationship to Model name
 

@@ -16,8 +16,10 @@
  */
 package org.apache.hop.pgvector.transforms.search;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -119,8 +121,11 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
 
     int matches = 0;
     try {
-      bindSearchParameters(row, embedding);
-      try (ResultSet resultSet = data.searchStatement.executeQuery()) {
+      String[] filterValues = readFilterValues(row);
+      BitSet activeFilters = activeFilters(filterValues);
+      PreparedStatement statement = searchStatement(activeFilters);
+      bindSearchParameters(statement, embedding, filterValues, activeFilters);
+      try (ResultSet resultSet = statement.executeQuery()) {
         while (resultSet.next()) {
           double score = resultSet.getDouble("similarity");
           // The minimum score is applied after the top-k limit, so a run can legitimately
@@ -181,17 +186,70 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
     data.resultScoreFieldIndex = data.outputRowMeta.indexOfValue(meta.getResultScoreField());
   }
 
-  private void bindSearchParameters(Object[] row, Object embedding) throws Exception {
+  private String[] readFilterValues(Object[] row) throws HopException {
+    String[] values = new String[data.filterBindings.size()];
+    for (int i = 0; i < values.length; i++) {
+      values[i] = data.inputRowMeta.getString(row, data.filterBindings.get(i).streamFieldIndex);
+    }
+    return values;
+  }
+
+  /**
+   * Works out which filters go into the WHERE clause for this row. A filter always applies unless
+   * it is set to be skipped when its stream value is empty and that value is null or empty.
+   */
+  private BitSet activeFilters(String[] filterValues) {
+    BitSet active = new BitSet(filterValues.length);
+    for (int i = 0; i < filterValues.length; i++) {
+      PgVectorSearchFilter filter = data.filterBindings.get(i).filter;
+      if (filter.isSkipIfEmpty() && Utils.isEmpty(filterValues[i])) {
+        if (isRowLevel()) {
+          logRowlevel(
+              BaseMessages.getString(
+                  PKG,
+                  "PgVectorSearch.Log.SkippedEmptyFilter",
+                  filter.getColumnName(),
+                  filter.getStreamField()));
+        }
+        continue;
+      }
+      active.set(i);
+    }
+    return active;
+  }
+
+  /**
+   * Returns the statement for this combination of filters, preparing it on first use. Leaving a
+   * skipped filter out of the SQL altogether, rather than binding {@code (? IS NULL OR column =
+   * ?)}, gives the planner a plain predicate to plan the vector index scan around.
+   */
+  private PreparedStatement searchStatement(BitSet activeFilters) throws Exception {
+    PreparedStatement statement = data.searchStatements.get(activeFilters);
+    if (statement == null) {
+      List<PgVectorSearchFilter> filters =
+          activeFilters.stream().mapToObj(i -> data.filterBindings.get(i).filter).toList();
+      statement =
+          data.database
+              .getConnection()
+              .prepareStatement(
+                  PgVectorSqlBuilder.searchSql(data.qualifiedTable, data.metric, filters));
+      data.searchStatements.put(activeFilters, statement);
+    }
+    return statement;
+  }
+
+  private void bindSearchParameters(
+      PreparedStatement statement, Object embedding, String[] filterValues, BitSet activeFilters)
+      throws Exception {
     String vectorLiteral = EmbeddingJsonParser.toPgVectorLiteral(embedding);
     int parameterIndex = 1;
     // Placeholder order must match searchSql(): score expression, filters, ORDER BY, LIMIT.
-    data.searchStatement.setString(parameterIndex++, vectorLiteral);
-    for (PgVectorSearchData.FilterBinding binding : data.filterBindings) {
-      String filterValue = data.inputRowMeta.getString(row, binding.streamFieldIndex);
-      data.searchStatement.setString(parameterIndex++, filterValue);
+    statement.setString(parameterIndex++, vectorLiteral);
+    for (int i = activeFilters.nextSetBit(0); i >= 0; i = activeFilters.nextSetBit(i + 1)) {
+      statement.setString(parameterIndex++, filterValues[i]);
     }
-    data.searchStatement.setString(parameterIndex++, vectorLiteral);
-    data.searchStatement.setInt(parameterIndex, data.topK);
+    statement.setString(parameterIndex++, vectorLiteral);
+    statement.setInt(parameterIndex, data.topK);
   }
 
   private void resolveFilterBindings() throws HopException {
@@ -219,18 +277,16 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
     try {
       data.database =
           PgVectorDatabase.connect(this, this, getMetadataProvider(), meta.getConnection());
-      VectorDistanceMetric metric =
+      data.metric =
           meta.getDistanceMetric() != null ? meta.getDistanceMetric() : VectorDistanceMetric.COSINE;
-      String qualifiedTable =
+      data.qualifiedTable =
           PgVectorSqlBuilder.qualifiedTable(
               resolve(meta.getSchemaName()), resolve(meta.getTableName()));
-      List<PgVectorSearchFilter> activeFilters =
-          data.filterBindings.stream().map(b -> b.filter).toList();
-      data.searchStatement =
-          data.database
-              .getConnection()
-              .prepareStatement(
-                  PgVectorSqlBuilder.searchSql(qualifiedTable, metric, activeFilters));
+      // Prepare the statement holding every filter up front, so a bad table or column name fails
+      // on the first row as before. Statements that leave out skipped filters follow on demand.
+      BitSet allFilters = new BitSet();
+      allFilters.set(0, data.filterBindings.size());
+      searchStatement(allFilters);
     } catch (Exception e) {
       closeDatabase();
       throw new HopException(BaseMessages.getString(PKG, "PgVectorSearch.Error.Initializing"), e);
@@ -244,14 +300,14 @@ public class PgVectorSearch extends BaseTransform<PgVectorSearchMeta, PgVectorSe
   }
 
   private void closeDatabase() {
-    if (data.searchStatement != null) {
+    for (PreparedStatement statement : data.searchStatements.values()) {
       try {
-        data.searchStatement.close();
+        statement.close();
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "PgVectorSearch.Error.ClosingStatement"), e);
       }
-      data.searchStatement = null;
     }
+    data.searchStatements.clear();
     if (data.database != null) {
       data.database.disconnect();
       data.database = null;

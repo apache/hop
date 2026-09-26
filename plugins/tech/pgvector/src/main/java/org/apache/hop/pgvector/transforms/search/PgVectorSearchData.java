@@ -18,9 +18,13 @@ package org.apache.hop.pgvector.transforms.search;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pgvector.util.PgVectorSearchFilter;
+import org.apache.hop.pgvector.util.VectorDistanceMetric;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -29,7 +33,16 @@ public class PgVectorSearchData extends BaseTransformData implements ITransformD
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
   public org.apache.hop.core.database.Database database;
-  public PreparedStatement searchStatement;
+
+  /**
+   * Prepared search statements keyed by the filters they contain: bit {@code i} is set when {@code
+   * filterBindings.get(i)} is part of the WHERE clause. Without "skip if empty" filters there is
+   * only ever the one statement holding every filter.
+   */
+  public Map<BitSet, PreparedStatement> searchStatements = new HashMap<>();
+
+  public String qualifiedTable;
+  public VectorDistanceMetric metric;
 
   /** Resolved once in init, so variables are not re-resolved per row. */
   public int topK;

@@ -17,25 +17,35 @@
 package org.apache.hop.pgvector.transforms.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pgvector.util.PgVectorSearchFilter;
+import org.apache.hop.pgvector.util.VectorDistanceMetric;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,6 +57,9 @@ class PgVectorSearchTest {
   private TransformMockHelper<PgVectorSearchMeta, PgVectorSearchData> helper;
   private List<Object[]> output;
   private IRowMeta outputRowMeta;
+
+  /** SQL prepared on the stubbed connection, in order, with the statement handed out for it. */
+  private Map<String, PreparedStatement> prepared;
 
   @BeforeAll
   static void setUpClass() throws Exception {
@@ -61,6 +74,7 @@ class PgVectorSearchTest {
     when(helper.logChannelFactory.create(any(), any())).thenReturn(helper.iLogChannel);
     when(helper.pipeline.isRunning()).thenReturn(true);
     output = new ArrayList<>();
+    prepared = new LinkedHashMap<>();
   }
 
   @AfterEach
@@ -138,6 +152,75 @@ class PgVectorSearchTest {
     assertNull(output.get(0)[outputRowMeta.indexOfValue("match_id")]);
   }
 
+  /** Without "skip if empty" an empty filter value is still bound, as it always has been. */
+  @Test
+  void bindsAnEmptyFilterValueWhenSkippingIsOff() throws Exception {
+    runFiltered(false, new Object[] {"[0.1,0.2]", "q1", "acme", null});
+
+    assertEquals(1, prepared.size());
+    String sql = prepared.keySet().iterator().next();
+    assertTrue(sql.contains("WHERE \"tenant\" = ? AND \"category\" = ?"), sql);
+    PreparedStatement statement = prepared.get(sql);
+    verify(statement).setString(2, "acme");
+    verify(statement).setString(3, null);
+    verify(statement).setInt(5, 5);
+  }
+
+  @Test
+  void leavesAnEmptySkippableFilterOutOfTheQuery() throws Exception {
+    runFiltered(true, new Object[] {"[0.1,0.2]", "q1", "acme", ""});
+
+    String sql = lastPreparedSql();
+    assertTrue(sql.contains("WHERE \"tenant\" = ? ORDER BY"), sql);
+    assertFalse(sql.contains("\"category\""), sql);
+    PreparedStatement statement = prepared.get(sql);
+    verify(statement).setString(2, "acme");
+    verify(statement).setString(3, "[0.1,0.2]");
+    verify(statement).setInt(4, 5);
+    assertEquals(1, output.size());
+    assertEquals("doc-0", output.get(0)[outputRowMeta.indexOfValue("match_document_id")]);
+  }
+
+  @Test
+  void appliesASkippableFilterWhenItHasAValue() throws Exception {
+    runFiltered(true, new Object[] {"[0.1,0.2]", "q1", "acme", "manuals"});
+
+    assertEquals(1, prepared.size(), "only the statement with every filter is needed");
+    String sql = lastPreparedSql();
+    assertTrue(sql.contains("WHERE \"tenant\" = ? AND \"category\" = ?"), sql);
+    PreparedStatement statement = prepared.get(sql);
+    verify(statement).setString(2, "acme");
+    verify(statement).setString(3, "manuals");
+  }
+
+  /** Skipping only applies to filters that ask for it: an empty required filter still binds. */
+  @Test
+  void neverSkipsAFilterThatIsNotMarkedSkippable() throws Exception {
+    runFiltered(true, new Object[] {"[0.1,0.2]", "q1", null, null});
+
+    String sql = lastPreparedSql();
+    assertTrue(sql.contains("WHERE \"tenant\" = ? ORDER BY"), sql);
+    verify(prepared.get(sql)).setString(2, null);
+  }
+
+  /** Each combination of filters is prepared once and reused by later rows. */
+  @Test
+  void preparesEachFilterCombinationOnce() throws Exception {
+    runFiltered(
+        true,
+        new Object[] {"[0.1,0.2]", "q1", "acme", "manuals"},
+        new Object[] {"[0.1,0.2]", "q2", "acme", null},
+        new Object[] {"[0.1,0.2]", "q3", "acme", "faq"},
+        new Object[] {"[0.1,0.2]", "q4", "acme", ""});
+
+    assertEquals(2, prepared.size());
+    assertEquals(4, output.size());
+  }
+
+  private String lastPreparedSql() {
+    return new ArrayList<>(prepared.keySet()).get(prepared.size() - 1);
+  }
+
   private static PgVectorSearchMeta newMeta() {
     PgVectorSearchMeta meta = new PgVectorSearchMeta();
     meta.setDefault();
@@ -147,9 +230,51 @@ class PgVectorSearchTest {
   }
 
   private void run(PgVectorSearchMeta meta, String embedding, int matchCount) throws Exception {
+    PgVectorSearchData data = newData(meta, new String[0]);
+    data.searchStatements.put(new BitSet(), stubStatement(matchCount));
+    process(meta, data, List.<Object[]>of(new Object[] {embedding, "q1"}));
+  }
+
+  /**
+   * Runs rows of {@code embedding, marker, tenant, category} through a transform filtering on
+   * tenant (always applied) and category (skipped when empty, if {@code skipEmptyCategory}), with
+   * statements prepared on a stubbed connection.
+   */
+  private void runFiltered(boolean skipEmptyCategory, Object[]... rows) throws Exception {
+    PgVectorSearchMeta meta = newMeta();
+    meta.setFilters(
+        List.of(
+            new PgVectorSearchFilter("tenant", "tenant"),
+            new PgVectorSearchFilter("category", "category", skipEmptyCategory)));
+    PgVectorSearchData data = newData(meta, new String[] {"tenant", "category"});
+    for (int i = 0; i < meta.getFilters().size(); i++) {
+      data.filterBindings.add(
+          new PgVectorSearchData.FilterBinding(2 + i, meta.getFilters().get(i)));
+    }
+    data.metric = VectorDistanceMetric.COSINE;
+    data.qualifiedTable = "\"public\".\"chunks\"";
+    Connection connection = mock(Connection.class);
+    when(connection.prepareStatement(anyString()))
+        .thenAnswer(
+            invocation -> {
+              PreparedStatement statement = stubStatement(1);
+              prepared.put(invocation.getArgument(0), statement);
+              return statement;
+            });
+    data.database = mock(Database.class);
+    when(data.database.getConnection()).thenReturn(connection);
+
+    process(meta, data, List.of(rows));
+  }
+
+  private PgVectorSearchData newData(PgVectorSearchMeta meta, String[] extraFields)
+      throws Exception {
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta(new ValueMetaString("embedding"));
     inputRowMeta.addValueMeta(new ValueMetaString("marker"));
+    for (String field : extraFields) {
+      inputRowMeta.addValueMeta(new ValueMetaString(field));
+    }
 
     PgVectorSearchData data = new PgVectorSearchData();
     data.inputRowMeta = inputRowMeta;
@@ -162,18 +287,21 @@ class PgVectorSearchTest {
     data.resultContentFieldIndex = data.outputRowMeta.indexOfValue("match_content");
     data.resultScoreFieldIndex = data.outputRowMeta.indexOfValue("match_score");
     data.filterBindings = new ArrayList<>();
-    data.searchStatement = stubStatement(matchCount);
+    return data;
+  }
 
+  private void process(PgVectorSearchMeta meta, PgVectorSearchData data, List<Object[]> input)
+      throws Exception {
     PgVectorSearch transform =
         spy(
             new PgVectorSearch(
                 helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline));
     transform.init();
-    transform.setInputRowMeta(inputRowMeta);
+    transform.setInputRowMeta(data.inputRowMeta);
     // The database is already stubbed, so skip the one-time setup branch in processRow().
     transform.first = false;
 
-    Iterator<Object[]> rows = List.<Object[]>of(new Object[] {embedding, "q1"}).iterator();
+    Iterator<Object[]> rows = input.iterator();
     doAnswer(invocation -> rows.hasNext() ? rows.next() : null).when(transform).getRow();
     doAnswer(
             invocation -> {
