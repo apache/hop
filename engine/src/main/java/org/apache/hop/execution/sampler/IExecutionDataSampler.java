@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.sampler;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -59,6 +60,21 @@ public interface IExecutionDataSampler<Store extends IExecutionDataSamplerStore>
    */
   void sampleRow(Store samplerStore, IStream.StreamType streamType, IRowMeta rowMeta, Object[] row)
       throws HopException;
+
+  /**
+   * Limits resolved from the execution data profile before sampling starts. Not metadata: Beam and
+   * Spark must not write this into the sampler JSON.
+   */
+  @JsonIgnore
+  default void setSampledValueLimits(SampledValueLimits limits) {}
+
+  /**
+   * @return The limits for this sampler, or no limits when the profile did not set any.
+   */
+  @JsonIgnore
+  default SampledValueLimits getSampledValueLimits() {
+    return SampledValueLimits.unlimited();
+  }
 
   /**
    * This object factory is needed to instantiate the correct plugin class based on the value of the
