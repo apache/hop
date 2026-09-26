@@ -30,6 +30,18 @@ public class PipelineMetaInfo extends AbstractMetaInfo {
   @HopMetadataProperty(key = "pipeline_version")
   protected String pipelineVersion;
 
+  /** The pipeline type (e.g. Normal, SingleThreaded). */
+  @HopMetadataProperty(key = "pipeline_type")
+  protected String pipelineType = "Normal";
+
+  /** Key for session key (legacy encryption property). */
+  @HopMetadataProperty(key = "key_for_session_key")
+  protected String keyForSessionKey;
+
+  /** Whether the session key is private (legacy encryption property). */
+  @HopMetadataProperty(key = "is_key_private")
+  protected boolean keyPrivate;
+
   /** Whether the pipeline is capturing transform performance snapshots. */
   @HopMetadataProperty(key = "capture_transform_performance")
   protected boolean capturingTransformPerformanceSnapShots;

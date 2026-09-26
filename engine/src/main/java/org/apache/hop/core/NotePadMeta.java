@@ -273,6 +273,17 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
     this.height = height;
   }
 
+  /** Legacy misspelled getter for XML serialization compatibility. */
+  @HopMetadataProperty(key = "heigth")
+  public int getHeigth() {
+    return height;
+  }
+
+  /** Legacy misspelled setter for XML deserialization compatibility. */
+  public void setHeigth(int height) {
+    setHeight(height);
+  }
+
   /**
    * @param width the width to set
    */
