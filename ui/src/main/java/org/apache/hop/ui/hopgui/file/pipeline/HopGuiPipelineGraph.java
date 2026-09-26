@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -200,6 +199,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExten
 import org.apache.hop.ui.hopgui.file.pipeline.extension.PipelineRenamedExtension;
 import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
+import org.apache.hop.ui.hopgui.file.shared.ExecutionGuiSession;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
@@ -513,6 +513,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private StreamType candidateHopType;
 
   Timer redrawTimer;
+
+  /** Ties redraw and metrics timers to the engine currently shown. */
+  private final ExecutionGuiSession executionGuiSession = new ExecutionGuiSession();
 
   @Setter private HopPipelineFileType<PipelineMeta> fileType;
   private boolean doubleClick;
@@ -6258,6 +6261,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (handlePipelineMetaChanges(pipelineMeta)) {
 
       // If the pipeline is not running, start the pipeline...
+      // Stopped counts as not running. Beam leaves a successful run unfinished, and a failed
+      // preparation only stops the engine, so "not finished" would block the next Run.
       //
       if (!isRunning()) {
         try {
@@ -6292,12 +6297,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           //
           pipelineMeta.clearCaches();
 
-          pipeline =
+          setDisplayedPipeline(
               PipelineEngineFactory.createPipelineEngine(
                   variables,
                   variables.resolve(pipelineRunConfigurationName),
                   hopGui.getMetadataProvider(),
-                  pipelineMeta);
+                  pipelineMeta));
           DrillDownGuiPlugin.bindToHopGui(pipeline, hopGui.getId());
 
           // Set the variables from the execution configuration
@@ -6339,7 +6344,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
 
         } catch (HopException e) {
-          pipeline = null;
+          setDisplayedPipeline(null);
           new ErrorDialog(
               hopShell(),
               BaseMessages.getString(PKG, "PipelineLog.Dialog.ErrorOpeningPipeline.Title"),
@@ -6371,10 +6376,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           updateGui();
 
-          // Update the GUI at the end of the pipeline
+          // Update the GUI at the end of the pipeline. Ignore the event when this engine is no
+          // longer the one on screen (a restart overlapped its shutdown). The work stays outside
+          // the session lock: it can take the graph lock or open a dialog.
           //
-          pipeline.addExecutionFinishedListener(e -> pipelineFinished());
-          pipeline.addExecutionStoppedListener(e -> pipelineStopped());
+          final IPipelineEngine<PipelineMeta> engine = pipeline;
+          engine.addExecutionFinishedListener(this::runPipelineFinished);
+          engine.addExecutionStoppedListener(this::runPipelineStopped);
         }
       } else {
         modalMessageDialog(
@@ -6492,7 +6500,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Create a new pipeline to execution
         //
         pipelineMeta.clearCaches();
-        pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
+        setDisplayedPipeline(
+            new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject()));
         DrillDownGuiPlugin.bindToHopGui(pipeline, hopGui.getId());
         pipeline.setPreview(true);
         pipeline.setVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "Y");
@@ -6697,16 +6706,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private synchronized void startThreads() {
+    final IPipelineEngine<PipelineMeta> engine = pipeline;
+    if (engine == null) {
+      return;
+    }
     try {
       // Add a listener to the pipeline.
       // If the pipeline is done, we want to do the end processing, etc.
+      // A listener from an engine that is no longer on screen must not stop the new run's timers.
       //
-      pipeline.addExecutionFinishedListener(
-          p -> {
-            checkPipelineEnded();
-            checkErrorVisuals();
-            stopRedrawTimer();
-          });
+      engine.addExecutionFinishedListener(this::runPipelineMetricsFinished);
 
       hopGui
           .getDisplay()
@@ -6715,14 +6724,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   new Thread(
                           () -> {
                             try {
-                              pipeline.startThreads();
-                              pipeline.waitUntilFinished();
+                              engine.startThreads();
+                              engine.waitUntilFinished();
                             } catch (Exception e) {
-                              pipeline
+                              engine
                                   .getLogChannel()
                                   .logError("Error starting transform threads", e);
-                              checkErrorVisuals();
-                              stopRedrawTimer();
+                              stopPipelineTimersIfCurrent(engine);
                             }
                           })
                       .start());
@@ -6731,13 +6739,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       updateGui();
     } catch (Exception e) {
-      if (pipeline != null) {
-        pipeline.getLogChannel().logError("Error starting transform threads", e);
-      } else {
-        log.logError("Error starting transform threads", e);
-      }
-      checkErrorVisuals();
-      stopRedrawTimer();
+      engine.getLogChannel().logError("Error starting transform threads", e);
+      stopPipelineTimersIfCurrent(engine);
     }
   }
 
@@ -6752,8 +6755,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return;
     }
 
-    // Set the pipeline instance
-    this.pipeline = runningPipeline;
+    // Set the pipeline instance. Adopt it before timers and listeners so a previous engine's
+    // finished event cannot own the refresh anymore.
+    //
+    setDisplayedPipeline(runningPipeline);
 
     // Add all the execution result tabs (logging, metrics, etc.)
     addAllTabs();
@@ -6783,14 +6788,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (isRunning) {
       // Add listeners for when the pipeline finishes (only if still running)
-      pipeline.addExecutionFinishedListener(
-          p -> {
-            checkPipelineEnded();
-            checkErrorVisuals();
-            stopRedrawTimer();
-          });
+      pipeline.addExecutionFinishedListener(this::runPipelineMetricsFinished);
 
-      pipeline.addExecutionStoppedListener(e -> pipelineStopped());
+      pipeline.addExecutionStoppedListener(this::runPipelineStopped);
 
       // Start the redraw timer to continuously update the GUI
       startRedrawTimer();
@@ -6806,28 +6806,79 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void startRedrawTimer() {
-
-    redrawTimer = new Timer("HopGuiPipelineGraph: redraw timer");
-    TimerTask timtask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (!hopDisplay().isDisposed()) {
-              hopDisplay()
-                  .asyncExec(
-                      () -> {
-                        if (!HopGuiPipelineGraph.this.canvas.isDisposed()
-                            && perspective.isActive()
-                            && HopGuiPipelineGraph.this.isVisible()) {
-                          HopGuiPipelineGraph.this.canvas.redraw();
-                          HopGuiPipelineGraph.this.updateGui();
-                        }
-                      });
-            }
+    ExecutionGuiSession.Snapshot snapshot = executionGuiSession.current();
+    if (!(snapshot.engine() instanceof IPipelineEngine<?> engine)) {
+      return;
+    }
+    executionGuiSession.scheduleWhileCurrent(
+        snapshot,
+        "HopGuiPipelineGraph: redraw timer",
+        ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH,
+        () -> !engine.isFinished(),
+        timer -> {
+          ExecutorUtil.cleanup(redrawTimer);
+          redrawTimer = timer;
+        },
+        () -> {
+          if (hopDisplay().isDisposed()) {
+            return;
           }
-        };
+          hopDisplay()
+              .asyncExec(
+                  () -> {
+                    if (!executionGuiSession.isCurrent(engine, snapshot.generation())) {
+                      return;
+                    }
+                    if (!HopGuiPipelineGraph.this.canvas.isDisposed()
+                        && perspective.isActive()
+                        && HopGuiPipelineGraph.this.isVisible()) {
+                      HopGuiPipelineGraph.this.canvas.redraw();
+                      HopGuiPipelineGraph.this.updateGui();
+                    }
+                  });
+        });
+  }
 
-    redrawTimer.schedule(timtask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH);
+  /**
+   * Publish {@code engine} as the pipeline on screen, together with the session the timers check.
+   */
+  private void setDisplayedPipeline(IPipelineEngine<PipelineMeta> engine) {
+    executionGuiSession.adopt(engine, () -> this.pipeline = engine);
+  }
+
+  public ExecutionGuiSession getExecutionGuiSession() {
+    return executionGuiSession;
+  }
+
+  /** Extension-point finish hook. Runs outside the session lock because it may open a dialog. */
+  private void runPipelineFinished(IPipelineEngine<PipelineMeta> finished) {
+    if (executionGuiSession.isCurrentEngine(finished)) {
+      pipelineFinished();
+    }
+  }
+
+  private void runPipelineStopped(IPipelineEngine<PipelineMeta> stopped) {
+    if (executionGuiSession.isCurrentEngine(stopped)) {
+      pipelineStopped();
+    }
+  }
+
+  /** Metrics refresh for a pipeline that just finished. The timer stop is the only locked part. */
+  private void runPipelineMetricsFinished(IPipelineEngine<PipelineMeta> finished) {
+    if (!executionGuiSession.isCurrentEngine(finished)) {
+      return;
+    }
+    checkPipelineEnded();
+    checkErrorVisuals();
+    executionGuiSession.stopIfCurrent(finished, this::stopRedrawTimer);
+  }
+
+  private void stopPipelineTimersIfCurrent(IPipelineEngine<PipelineMeta> engine) {
+    if (!executionGuiSession.isCurrentEngine(engine)) {
+      return;
+    }
+    checkErrorVisuals();
+    executionGuiSession.stopIfCurrent(engine, this::stopRedrawTimer);
   }
 
   protected void stopRedrawTimer() {

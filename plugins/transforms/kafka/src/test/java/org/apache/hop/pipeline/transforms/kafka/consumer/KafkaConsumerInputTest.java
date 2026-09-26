@@ -47,6 +47,15 @@ class KafkaConsumerInputTest {
   }
 
   @Test
+  void batchLogReportsBatchSizeAndCumulativeInput() {
+    String message = KafkaConsumerInput.batchLogMessage(12, 40L);
+    assertTrue(message.contains("12"));
+    assertTrue(message.contains("40"));
+    assertFalse(message.toLowerCase().contains("finished processing"));
+    assertFalse(message.toLowerCase().contains("rows read"));
+  }
+
+  @Test
   void pollTimeoutIsCappedToRemainingConsumeDuration() {
     // A deadline uses a short poll so empty topics re-check the clock instead of blocking in
     // poll() for batchDuration (or forever when batchDuration is 0).

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.kafka.consumer;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -207,8 +208,6 @@ public class KafkaConsumerInput
         // If the conditions for error handling are not met init SingleThreadedExecutor normally
         data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
       }
-      data.executor.setClearingMetricsPerIteration(
-          StringUtils.isEmpty(meta.getExecutionInformationLocation()));
 
       // Initialize the sub-pipeline
       //
@@ -348,6 +347,9 @@ public class KafkaConsumerInput
         } else {
           // Grab the records...
           //
+          if (getFirstRowReadDate() == null) {
+            setFirstRowReadDate(new Date());
+          }
           for (ConsumerRecord<Object, Object> record : records) {
             Object[] outputRow = processMessageAsRow(record);
             data.rowProducer.putRow(data.outputRowMeta, outputRow);
@@ -358,7 +360,7 @@ public class KafkaConsumerInput
           }
           data.lastRecordTime = System.currentTimeMillis();
           if (isBasic()) {
-            logBasic("Number of rows read: " + data.rowProducer.getRowSet().size());
+            logBasic(batchLogMessage(records.count(), getLinesInput()));
           }
           // Pass them to the single threaded transformation and do an iteration...
           //
@@ -399,7 +401,6 @@ public class KafkaConsumerInput
           // "removing" failing items from the kafka queue
           //
           data.consumer.commitAsync();
-          data.executor.buildExecutionSummary();
           if (errorHandlingConditionIsSatisfied()) {
             data.incomingRowsBuffer.clear();
           }
@@ -449,6 +450,14 @@ public class KafkaConsumerInput
       }
     }
     return true;
+  }
+
+  /**
+   * One batch in the parent log. This is not the single-threaded executor's "Finished processing"
+   * line, and it is not the injector buffer size.
+   */
+  static String batchLogMessage(int batchRecords, long totalInput) {
+    return "Kafka consumer batch of " + batchRecords + " record(s), cumulative input " + totalInput;
   }
 
   /**
