@@ -383,6 +383,7 @@ public class WorkflowMeta extends AbstractMeta
    */
   @Override
   public String getXml(IVariables variables) throws HopException {
+    persistSynchronizedName();
     return XmlHandler.getLicenseHeader(variables)
         + XmlFormatter.format(
             XmlHandler.aroundTag(XML_TAG, XmlMetadataUtil.serializeObjectToXml(this)));

@@ -488,6 +488,31 @@ class PipelineMetaTest {
   }
 
   @Test
+  void testGetXmlPersistsNameSynchronizedWithFilename() throws Exception {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setName("New pipeline");
+    meta.setNameSynchronizedWithFilename(true);
+    meta.setFilename("/tmp/parameters_and_variables/Test Pipeline.hpl");
+
+    String xml = meta.getXml(new Variables());
+
+    assertTrue(xml.contains("<name>Test Pipeline</name>"));
+    assertFalse(xml.contains("<name>New pipeline</name>"));
+  }
+
+  @Test
+  void testGetXmlKeepsExplicitNameWhenNotSynchronized() throws Exception {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setName("Custom name");
+    meta.setNameSynchronizedWithFilename(false);
+    meta.setFilename("/tmp/Test Pipeline.hpl");
+
+    String xml = meta.getXml(new Variables());
+
+    assertTrue(xml.contains("<name>Custom name</name>"));
+  }
+
+  @Test
   void testSetInternalHopVariablesWithoutFilename() {
     PipelineMeta meta = new PipelineMeta();
     meta.setNameSynchronizedWithFilename(false);
@@ -839,20 +864,22 @@ class PipelineMetaTest {
   @Test
   void testIssue7338() throws Exception {
     String xml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<pipeline>\n"
-            + "  <transform>\n"
-            + "    <type>RowGenerator</type>\n"
-            + "    <name>100</name>\n"
-            + "  </transform>\n"
-            + "  <transform_error_handling>\n"
-            + "    <error>\n"
-            + "      <source_transform>100</source_transform>\n"
-            + "      <target_transform>NonExistentTransform</target_transform>\n"
-            + "      <is_enabled>Y</is_enabled>\n"
-            + "    </error>\n"
-            + "  </transform_error_handling>\n"
-            + "</pipeline>";
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <pipeline>
+          <transform>
+            <type>RowGenerator</type>
+            <name>100</name>
+          </transform>
+          <transform_error_handling>
+            <error>
+              <source_transform>100</source_transform>
+              <target_transform>NonExistentTransform</target_transform>
+              <is_enabled>Y</is_enabled>
+            </error>
+          </transform_error_handling>
+        </pipeline>
+        """;
     Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
     PipelineMeta copy =
         XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
@@ -898,15 +925,17 @@ class PipelineMetaTest {
   @Test
   void loadingDropsAHopThatNamesATransformNotInTheFile() throws Exception {
     String xml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<pipeline>\n"
-            + "  <transform><type>Dummy</type><name>Gen</name></transform>\n"
-            + "  <transform><type>Dummy</type><name>Keep</name></transform>\n"
-            + "  <order>\n"
-            + "    <hop><from>Gen</from><to>Keep</to><enabled>Y</enabled></hop>\n"
-            + "    <hop><from>Gen</from><to>Renamed away</to><enabled>Y</enabled></hop>\n"
-            + "  </order>\n"
-            + "</pipeline>";
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <pipeline>
+          <transform><type>Dummy</type><name>Gen</name></transform>
+          <transform><type>Dummy</type><name>Keep</name></transform>
+          <order>
+            <hop><from>Gen</from><to>Keep</to><enabled>Y</enabled></hop>
+            <hop><from>Gen</from><to>Renamed away</to><enabled>Y</enabled></hop>
+          </order>
+        </pipeline>
+        """;
 
     PipelineMeta loaded = new PipelineMeta();
     loaded.loadXml(
@@ -927,17 +956,19 @@ class PipelineMetaTest {
   @Test
   void loadingDropsErrorHandlingThatNamesATransformNotInTheFile() throws Exception {
     String xml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<pipeline>\n"
-            + "  <transform><type>Dummy</type><name>REST client</name></transform>\n"
-            + "  <transform_error_handling>\n"
-            + "    <error>\n"
-            + "      <source_transform>REST client</source_transform>\n"
-            + "      <target_transform>Dummy (do nothing)</target_transform>\n"
-            + "      <is_enabled>Y</is_enabled>\n"
-            + "    </error>\n"
-            + "  </transform_error_handling>\n"
-            + "</pipeline>";
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <pipeline>
+          <transform><type>Dummy</type><name>REST client</name></transform>
+          <transform_error_handling>
+            <error>
+              <source_transform>REST client</source_transform>
+              <target_transform>Dummy (do nothing)</target_transform>
+              <is_enabled>Y</is_enabled>
+            </error>
+          </transform_error_handling>
+        </pipeline>
+        """;
 
     PipelineMeta loaded = new PipelineMeta();
     loaded.loadXml(
@@ -960,23 +991,25 @@ class PipelineMetaTest {
   @Test
   void loadingKeepsDisabledHopsAndTheirErrorHandling() throws Exception {
     String xml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<pipeline>\n"
-            + "  <transform><type>Dummy</type><name>Gen</name></transform>\n"
-            + "  <transform><type>Dummy</type><name>Good</name></transform>\n"
-            + "  <transform><type>Dummy</type><name>Errors</name></transform>\n"
-            + "  <order>\n"
-            + "    <hop><from>Gen</from><to>Good</to><enabled>N</enabled></hop>\n"
-            + "    <hop><from>Gen</from><to>Errors</to><enabled>N</enabled></hop>\n"
-            + "  </order>\n"
-            + "  <transform_error_handling>\n"
-            + "    <error>\n"
-            + "      <source_transform>Gen</source_transform>\n"
-            + "      <target_transform>Errors</target_transform>\n"
-            + "      <is_enabled>Y</is_enabled>\n"
-            + "    </error>\n"
-            + "  </transform_error_handling>\n"
-            + "</pipeline>";
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <pipeline>
+          <transform><type>Dummy</type><name>Gen</name></transform>
+          <transform><type>Dummy</type><name>Good</name></transform>
+          <transform><type>Dummy</type><name>Errors</name></transform>
+          <order>
+            <hop><from>Gen</from><to>Good</to><enabled>N</enabled></hop>
+            <hop><from>Gen</from><to>Errors</to><enabled>N</enabled></hop>
+          </order>
+          <transform_error_handling>
+            <error>
+              <source_transform>Gen</source_transform>
+              <target_transform>Errors</target_transform>
+              <is_enabled>Y</is_enabled>
+            </error>
+          </transform_error_handling>
+        </pipeline>
+        """;
 
     PipelineMeta loaded = new PipelineMeta();
     loaded.loadXml(
