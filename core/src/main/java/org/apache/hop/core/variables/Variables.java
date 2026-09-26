@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
@@ -112,6 +113,15 @@ public class Variables implements IVariables {
   public void initializeFrom(IVariables parent) {
     this.parent = parent;
 
+    // The operating system environment, only when explicitly enabled. It is seeded before
+    // everything else so that it has the lowest precedence: a name that is also set with -D, in
+    // hop-config.json, by a parent or by injection keeps the value it resolves to today, and the
+    // environment only supplies names nothing else defines.
+    //
+    if (isEnvironmentImported()) {
+      getProperties().putAll(System.getenv());
+    }
+
     // Clone the system properties to avoid ConcurrentModificationException while iterating
     // and then add all of them to properties variable.
     //
@@ -133,6 +143,18 @@ public class Variables implements IVariables {
       injection = null;
     }
     initialized = true;
+  }
+
+  /**
+   * Whether the operating system environment should be made available as Hop variables.
+   *
+   * <p>Resolved through {@link HopResolvedSettings} so the flag itself can be turned on from the
+   * environment, which is what a container deployment has to hand.
+   */
+  private static boolean isEnvironmentImported() {
+    return "Y"
+        .equalsIgnoreCase(
+            HopResolvedSettings.resolveString(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES, "N"));
   }
 
   @Override
