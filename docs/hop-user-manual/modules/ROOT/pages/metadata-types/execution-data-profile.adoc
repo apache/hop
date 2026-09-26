@@ -26,13 +26,21 @@ An Apache Hop Execution Data Profile builds data profiles as data flow through p
 
 == Options
 
+image::metadata-types/execution-data-profile.png[Execution data profile editor, with the large value limits,width="90%"]
+
 [options="header"]
 |===
 |Option |Description
 |Name|The name to be used for this Execution Data Profile
 |Description|A description to be used for this Execution Data Profile
+|Maximum string length|Maximum number of characters to keep for a String field. A JSON document kept in a String field uses this limit. Empty means no limit. `0` stores none. A longer value is replaced with `<not stored, N characters>`.
+|Maximum JSON length|Maximum number of characters of the compact JSON text to keep for a JSON field. Empty means no limit. `0` stores none. A longer value is replaced with a JSON text `<not stored, N characters>`.
+|Maximum binary size|Maximum number of bytes to keep for a Binary field. Empty means no limit. `0` stores none. A larger value is left empty in the sample.
+|Maximum Avro size|Maximum number of bytes of schema JSON plus Avro datum to keep for an Avro Record field. Empty means no limit. `0` stores none. A larger value is left empty in the sample.
 |Data Samplers to use|One or more data samplers to use with this Execution Data Profile. See details below.
 |===
+
+The four size limits apply to every sampler in the profile. Leave a field empty to keep today's behavior for that type. Minimum and maximum values are calculated only from values that were stored. Null counts and string lengths are still recorded for values that are left out. Minimum and maximum length example rows keep the other columns and replace the large value.
 
 == Data Samplers
 

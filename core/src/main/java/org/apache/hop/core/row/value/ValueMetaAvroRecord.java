@@ -21,7 +21,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
@@ -456,6 +458,33 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
     }
   }
 
+  /**
+   * Bytes of the compact schema JSON plus the binary datum. Sample storage uses this as the size of
+   * an Avro value: the schema is part of the payload and {@link #writeData} writes the datum.
+   *
+   * @param object An Avro {@link GenericRecord}
+   * @return The schema and datum size in bytes
+   * @throws HopValueException When the value is not a record or cannot be encoded
+   */
+  public static int storedPayloadBytes(Object object) throws HopValueException {
+    if (!(object instanceof GenericRecord genericRecord) || genericRecord.getSchema() == null) {
+      throw new HopValueException(
+          "An Avro GenericRecord with a schema is needed to measure its size");
+    }
+    Schema recordSchema = genericRecord.getSchema();
+    int schemaBytes = recordSchema.toString(false).getBytes(StandardCharsets.UTF_8).length;
+    CountingOutputStream counting = new CountingOutputStream();
+    try {
+      BinaryEncoder encoder = EncoderFactory.get().directBinaryEncoder(counting, null);
+      new GenericDatumWriter<GenericRecord>(recordSchema).write(genericRecord, encoder);
+      encoder.flush();
+    } catch (IOException e) {
+      throw new HopValueException("Unable to measure the size of an Avro record", e);
+    }
+    long total = (long) schemaBytes + counting.count;
+    return total > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) total;
+  }
+
   public Schema getSchema() {
     return schema;
   }
@@ -483,5 +512,22 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
   public Long getInteger(Object object) throws HopValueException {
 
     return super.getInteger(object);
+  }
+
+  /** Counts bytes written by an Avro encoder without keeping them. */
+  private static final class CountingOutputStream extends OutputStream {
+    private long count;
+
+    @Override
+    public void write(int b) {
+      count++;
+    }
+
+    @Override
+    public void write(byte[] bytes, int offset, int length) {
+      if (length > 0) {
+        count += length;
+      }
+    }
   }
 }

@@ -18,9 +18,11 @@
 
 package org.apache.hop.execution.sampler.plugins.dataprof;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -31,6 +33,7 @@ import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPlugin;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.SampledValueLimits;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -71,6 +74,9 @@ public class BasicDataProfilingDataSampler
 
   private String pluginId;
   private String pluginName;
+
+  /** Resolved from the profile at runtime. Not part of the sampler metadata. */
+  @JsonIgnore private SampledValueLimits sampledValueLimits;
 
   // The metadata fields
   //
@@ -163,6 +169,7 @@ public class BasicDataProfilingDataSampler
     this.profilingNrNonNull = sampler.profilingNrNonNull;
     this.profilingMinLength = sampler.profilingMinLength;
     this.profilingMaxLength = sampler.profilingMaxLength;
+    this.sampledValueLimits = sampler.sampledValueLimits;
   }
 
   public BasicDataProfilingDataSampler clone() {
@@ -216,19 +223,24 @@ public class BasicDataProfilingDataSampler
           }
         }
 
+        // A value over its type limit is still counted above. It is not kept as a minimum or
+        // maximum, because that would retain the large value.
+        //
+        boolean storeValue = !getSampledValueLimits().omit(valueMeta, valueData);
+
         // Minimum
         //
-        if (profilingMinimum) {
+        if (profilingMinimum && storeValue) {
           Object oldMin = store.getMinValues().get(name);
           if (oldMin == null) {
-            store.getMinValues().put(name, valueData);
+            store.getMinValues().put(name, valueMeta.cloneValueData(valueData));
             store.getMinMeta().put(name, valueMeta);
           } else {
             int compare = valueMeta.compare(valueData, oldMin);
             if (compare < 0) {
               // We have a new minimum
               //
-              store.getMinValues().put(name, valueData);
+              store.getMinValues().put(name, valueMeta.cloneValueData(valueData));
               store.getMinMeta().put(name, valueMeta);
 
               clearSampleRows(store, name, ProfilingType.MinValue);
@@ -245,17 +257,17 @@ public class BasicDataProfilingDataSampler
 
         // Maximum
         //
-        if (profilingMaximum) {
+        if (profilingMaximum && storeValue) {
           Object oldMax = store.getMaxValues().get(name);
           if (oldMax == null) {
-            store.getMaxValues().put(name, valueData);
+            store.getMaxValues().put(name, valueMeta.cloneValueData(valueData));
             store.getMaxMeta().put(name, valueMeta);
           } else {
             int compare = valueMeta.compare(valueData, oldMax);
             if (compare > 0) {
               // We have a new maximum
               //
-              store.getMaxValues().put(name, valueData);
+              store.getMaxValues().put(name, valueMeta.cloneValueData(valueData));
               store.getMaxMeta().put(name, valueMeta);
 
               clearSampleRows(store, name, ProfilingType.MaxValue);
@@ -346,7 +358,8 @@ public class BasicDataProfilingDataSampler
       String name,
       ProfilingType profilingType,
       IRowMeta rowMeta,
-      Object[] row) {
+      Object[] row)
+      throws HopValueException {
     synchronized (store.getProfileSamples()) {
       Map<ProfilingType, RowBuffer> typeBufferMap =
           store.getProfileSamples().computeIfAbsent(name, k -> new HashMap<>());
@@ -356,7 +369,7 @@ public class BasicDataProfilingDataSampler
       // Keep the memory consumption sane
       //
       if (rowBuffer.size() < store.getMaxRows()) {
-        rowBuffer.addRow(row);
+        rowBuffer.addRow(getSampledValueLimits().copyRow(rowMeta, row));
       }
     }
   }
@@ -543,5 +556,17 @@ public class BasicDataProfilingDataSampler
    */
   public void setProfilingMaxLength(boolean profilingMaxLength) {
     this.profilingMaxLength = profilingMaxLength;
+  }
+
+  @Override
+  @JsonIgnore
+  public void setSampledValueLimits(SampledValueLimits sampledValueLimits) {
+    this.sampledValueLimits = sampledValueLimits;
+  }
+
+  @Override
+  @JsonIgnore
+  public SampledValueLimits getSampledValueLimits() {
+    return sampledValueLimits == null ? SampledValueLimits.unlimited() : sampledValueLimits;
   }
 }
