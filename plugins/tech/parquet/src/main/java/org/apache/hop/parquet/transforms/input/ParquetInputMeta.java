@@ -169,7 +169,8 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
    * @see <a href="https://parquet.apache.org/docs/file-format/types/logicaltypes/">Parquet logical
    *     types</a>
    */
-  static IValueMeta hopValueMeta(String name, PrimitiveType primitiveType) throws HopException {
+  public static IValueMeta hopValueMeta(String name, PrimitiveType primitiveType)
+      throws HopException {
     LogicalTypeAnnotation logicalType = primitiveType.getLogicalTypeAnnotation();
     int length = -1;
     int precision = -1;
