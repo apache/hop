@@ -130,6 +130,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
    */
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {
+    boolean enabledBefore = isLinterEnabled();
     for (String widgetId : compositeWidgets.getWidgetsMap().keySet()) {
       Control control = compositeWidgets.getWidgetsMap().get(widgetId);
       switch (widgetId) {
@@ -158,6 +159,9 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       }
     }
     saveToHopConfig();
+    if (enabledBefore != isLinterEnabled()) {
+      applyEnabledState();
+    }
   }
 
   /**
@@ -186,6 +190,34 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       HopConfig.saveOptions(options);
     }
     return options;
+  }
+
+  /**
+   * Drop marks the Explorer and open editors are still showing, or lint the project again.
+   *
+   * <p>Called after the new value has been saved. Reading the option back has to see it: the
+   * Explorer painter and the background service load a fresh instance rather than this one.
+   */
+  void applyEnabledState() {
+    if (!isLinterEnabled()) {
+      LintResultsManager.getInstance().clearResults();
+      try {
+        LintProblemsBarManager.getInstance().refreshAllOpenEditors();
+      } catch (Exception | LinkageError e) {
+        log.logDetailed("No open editor to clear lint marks from: " + e.getMessage());
+      }
+      return;
+    }
+    try {
+      HopGui hopGui = HopGui.peekInstance();
+      if (hopGui == null) {
+        return;
+      }
+      BackgroundLintService.getInstance()
+          .lintProjectAsync(getProjectPath(), hopGui.getMetadataProvider(), hopGui.getVariables());
+    } catch (Exception | LinkageError e) {
+      log.logDetailed("Could not lint the project after enabling the linter: " + e.getMessage());
+    }
   }
 
   private static void putIfSet(Map<String, Object> options, String key, Object value) {
