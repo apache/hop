@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -64,6 +63,7 @@ import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.PipelineMetricDisplayUtil;
+import org.apache.hop.ui.hopgui.file.shared.ExecutionGuiSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabItem;
@@ -331,50 +331,37 @@ public class HopGuiPipelineGridDelegate {
     // A new run replaces any timer left by the previous one. Returning early when a timer already
     // existed dropped the new run on the floor if the previous finish then cancelled that timer.
     //
-    IPipelineEngine<PipelineMeta> engine = pipelineGraph.getPipeline();
-    int generation = engine == null ? -1 : pipelineGraph.currentExecutionGeneration();
-    Timer timer = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
-    TimerTask refreshMetricsTimerTask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (engine != null && !pipelineGraph.isCurrentExecution(engine, generation)) {
-              return;
-            }
-            if (!hopGui.getDisplay().isDisposed()) {
-              hopGui
-                  .getDisplay()
-                  .asyncExec(
-                      () -> {
-                        if (engine != null
-                            && !pipelineGraph.isCurrentExecution(engine, generation)) {
-                          return;
-                        }
-                        refreshView();
-                      });
-              if (engine != null
-                  && (engine.isFinished() || engine.isStopped())
-                  && !engine.isReadyToStart()) {
-                pipelineGraph.runIfCurrentExecution(
-                    engine, generation, HopGuiPipelineGridDelegate.this::stopRefreshMetricsTimer);
-              }
-            }
-          }
-        };
-
-    Runnable install =
-        () -> {
-          ExecutorUtil.cleanup(refreshMetricsTimer);
-          refreshMetricsTimer = timer;
-          timer.schedule(refreshMetricsTimerTask, 0L, UPDATE_TIME_VIEW);
-        };
-    if (engine == null) {
-      install.run();
+    ExecutionGuiSession session = pipelineGraph.getExecutionGuiSession();
+    ExecutionGuiSession.Snapshot snapshot = session.current();
+    if (!(snapshot.engine() instanceof IPipelineEngine<?> engine)) {
       return;
     }
-    if (!pipelineGraph.runIfCurrentExecution(engine, generation, install)) {
-      timer.cancel();
-    }
+    session.scheduleWhileCurrent(
+        snapshot,
+        "HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName(),
+        UPDATE_TIME_VIEW,
+        null,
+        timer -> {
+          ExecutorUtil.cleanup(refreshMetricsTimer);
+          refreshMetricsTimer = timer;
+        },
+        () -> {
+          if (hopGui.getDisplay().isDisposed()) {
+            return;
+          }
+          hopGui
+              .getDisplay()
+              .asyncExec(
+                  () -> {
+                    if (!session.isCurrent(engine, snapshot.generation())) {
+                      return;
+                    }
+                    refreshView();
+                  });
+          if ((engine.isFinished() || engine.isStopped()) && !engine.isReadyToStart()) {
+            session.stopIfCurrent(engine, this::stopRefreshMetricsTimer);
+          }
+        });
   }
 
   public void stopRefreshMetricsTimer() {

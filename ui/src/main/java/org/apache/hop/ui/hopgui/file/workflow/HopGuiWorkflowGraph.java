@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -5458,6 +5457,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
 
           log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.StartingWorkflow"));
+
+          // Listeners before the thread and the timer. A workflow that finishes in between would
+          // otherwise leave the redraw timer running.
+          //
+          workflow.addExecutionFinishedListener(this::onWorkflowFinished);
+          workflow.addExecutionStoppedListener(this::onWorkflowStopped);
+
           workflowThread = new Thread(() -> workflow.startExecution());
           workflowThread.start();
 
@@ -5467,13 +5473,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           startRedrawTimer();
 
           updateGui();
-
-          // Attach a listener to notify us that the workflow has finished.
-          //
-          workflow.addExecutionFinishedListener(
-              engine -> executionGuiSession.stopIfCurrent(engine, this::workflowFinished));
-          workflow.addExecutionStoppedListener(
-              engine -> executionGuiSession.stopIfCurrent(engine, this::workflowStopped));
           // Show the execution results views
           //
           addAllTabs();
@@ -5526,27 +5525,36 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** This gets called at the very end, when everything is done. */
   protected void workflowFinished() {
-    // Do a final check to see if it all ended...
-    //
-    if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {
+    onWorkflowFinished(workflow);
+  }
+
+  private void onWorkflowFinished(IWorkflowEngine<WorkflowMeta> finished) {
+    if (!executionGuiSession.isCurrentEngine(finished)) {
+      return;
+    }
+    if (finished.isInitialized() && finished.isFinished()) {
       log.logBasic(
           BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded", workflowMeta.getName()));
     }
-
-    stopRedrawTimer();
-
     updateGui();
+    executionGuiSession.stopIfCurrent(finished, this::stopRedrawTimer);
   }
 
   protected void workflowStopped() {
-    if (workflow != null && workflow.isInitialized() && workflow.isStopped()) {
+    onWorkflowStopped(workflow);
+  }
+
+  private void onWorkflowStopped(IWorkflowEngine<WorkflowMeta> stopped) {
+    if (!executionGuiSession.isCurrentEngine(stopped)) {
+      return;
+    }
+    if (stopped.isInitialized() && stopped.isStopped()) {
       log.logBasic(
           BaseMessages.getString(
               PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped", workflowMeta.getName()));
     }
-
-    stopRedrawTimer();
     updateGui();
+    executionGuiSession.stopIfCurrent(stopped, this::stopRedrawTimer);
   }
 
   @Override
@@ -6017,11 +6025,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     if (isRunning) {
       // Add listeners for when the workflow finishes (only if still running)
-      workflow.addExecutionFinishedListener(
-          engine -> executionGuiSession.stopIfCurrent(engine, this::workflowFinished));
+      workflow.addExecutionFinishedListener(this::onWorkflowFinished);
 
-      workflow.addExecutionStoppedListener(
-          engine -> executionGuiSession.stopIfCurrent(engine, this::workflowStopped));
+      workflow.addExecutionStoppedListener(this::onWorkflowStopped);
 
       // Start the redraw timer to continuously update the GUI
       startRedrawTimer();
@@ -6036,53 +6042,36 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private void startRedrawTimer() {
-    final IWorkflowEngine<WorkflowMeta> engine = workflow;
-    if (engine == null) {
+    ExecutionGuiSession.Snapshot snapshot = executionGuiSession.current();
+    if (!(snapshot.engine() instanceof IWorkflowEngine<?> engine)) {
       return;
     }
-    final int generation = executionGuiSession.generation();
-    Timer timer = new Timer("WorkflowGraph auto refresh: " + engine.getWorkflowName());
-    TimerTask timerTask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (!executionGuiSession.isCurrent(engine, generation)) {
-              return;
-            }
-            if (!hopDisplay().isDisposed()) {
-              hopDisplay()
-                  .asyncExec(
-                      () -> {
-                        if (!executionGuiSession.isCurrent(engine, generation)) {
-                          return;
-                        }
-                        if (!HopGuiWorkflowGraph.this.canvas.isDisposed()
-                            && perspective.isActive()
-                            && HopGuiWorkflowGraph.this.isVisible()) {
-                          updateGui();
-                        }
-                      });
-            }
+    executionGuiSession.scheduleWhileCurrent(
+        snapshot,
+        "WorkflowGraph auto refresh: " + engine.getWorkflowName(),
+        ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH,
+        () -> !engine.isFinished(),
+        timer -> {
+          ExecutorUtil.cleanup(redrawTimer);
+          redrawTimer = timer;
+        },
+        () -> {
+          if (hopDisplay().isDisposed()) {
+            return;
           }
-        };
-
-    boolean[] started = {false};
-    boolean current =
-        executionGuiSession.runIfCurrent(
-            engine,
-            generation,
-            () -> {
-              if (engine.isFinished()) {
-                return;
-              }
-              ExecutorUtil.cleanup(redrawTimer);
-              redrawTimer = timer;
-              timer.schedule(timerTask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH);
-              started[0] = true;
-            });
-    if (!current || !started[0]) {
-      timer.cancel();
-    }
+          hopDisplay()
+              .asyncExec(
+                  () -> {
+                    if (!executionGuiSession.isCurrent(engine, snapshot.generation())) {
+                      return;
+                    }
+                    if (!HopGuiWorkflowGraph.this.canvas.isDisposed()
+                        && perspective.isActive()
+                        && HopGuiWorkflowGraph.this.isVisible()) {
+                      updateGui();
+                    }
+                  });
+        });
   }
 
   protected void stopRedrawTimer() {

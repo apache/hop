@@ -25,8 +25,6 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
@@ -45,11 +43,8 @@ public class SingleThreadedPipelineExecutor {
   private List<List<IStream>> transformInfoStreams;
   private List<List<IRowSet>> transformInfoRowSets;
   private ILogChannel log;
-  private static final Class<?> PKG = SingleThreadedPipelineExecutor.class;
   private static final String CONST_SEPARATOR =
       "-------------------------------------------------------";
-
-  @Getter @Setter private boolean clearingMetricsPerIteration = true;
 
   public SingleThreadedPipelineExecutor(Pipeline pipeline) {
     initializeObject(pipeline, false);
@@ -403,55 +398,6 @@ public class SingleThreadedPipelineExecutor {
         throw new HopException("Error performing an iteration in a single threaded pipeline", e);
     }
     return nrDone < transforms.size() && !pipeline.isStopped();
-  }
-
-  public void buildExecutionSummary() {
-
-    for (TransformMetaDataCombi combi : transforms) {
-      // Summarize execution results
-      long li = combi.transform.getLinesInput();
-      long lo = combi.transform.getLinesOutput();
-      long lr = combi.transform.getLinesRead();
-      long lw = combi.transform.getLinesWritten();
-      long lu = combi.transform.getLinesUpdated();
-      long lj = combi.transform.getLinesRejected();
-      long e = combi.transform.getErrors();
-
-      ILogChannel tLog = combi.transform.getLogChannel();
-
-      if (li > 0 || lo > 0 || lr > 0 || lw > 0 || lu > 0 || lj > 0 || e > 0) {
-        tLog.logBasic(
-            BaseMessages.getString(
-                PKG,
-                "SingleThreadedPipeline.Log.SummaryInfo",
-                String.valueOf(li),
-                String.valueOf(lo),
-                String.valueOf(lr),
-                String.valueOf(lw),
-                String.valueOf(lu),
-                String.valueOf(e + lj)));
-      } else {
-        tLog.logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "SingleThreadedPipeline.Log.SummaryInfo",
-                String.valueOf(li),
-                String.valueOf(lo),
-                String.valueOf(lr),
-                String.valueOf(lw),
-                String.valueOf(lu),
-                String.valueOf(e + lj)));
-      }
-      if (clearingMetricsPerIteration) {
-        ((BaseTransform<?, ?>) combi.transform).setLinesInput(0);
-        ((BaseTransform<?, ?>) combi.transform).setLinesOutput(0);
-        ((BaseTransform<?, ?>) combi.transform).setLinesWritten(0);
-        ((BaseTransform<?, ?>) combi.transform).setLinesRead(0);
-        ((BaseTransform<?, ?>) combi.transform).setLinesSkipped(0);
-        ((BaseTransform<?, ?>) combi.transform).setLinesUpdated(0);
-        combi.transform.setLinesRejected(0);
-      }
-    }
   }
 
   protected int getTotalRows(List<IRowSet> rowSets) {

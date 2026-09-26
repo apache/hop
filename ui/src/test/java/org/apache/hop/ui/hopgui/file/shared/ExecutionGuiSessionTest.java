@@ -32,12 +32,13 @@ class ExecutionGuiSessionTest {
   void stopIfCurrentRunsForTheEngineOnScreen() {
     ExecutionGuiSession session = new ExecutionGuiSession();
     Object engine = new Object();
-    int generation = session.adopt(engine);
+    ExecutionGuiSession.Snapshot snapshot = session.adopt(engine);
     AtomicBoolean stopped = new AtomicBoolean(false);
 
     assertTrue(session.stopIfCurrent(engine, () -> stopped.set(true)));
     assertTrue(stopped.get());
-    assertTrue(session.isCurrent(engine, generation));
+    assertTrue(session.isCurrent(snapshot.engine(), snapshot.generation()));
+    assertTrue(session.isCurrentEngine(engine));
   }
 
   @Test
@@ -46,7 +47,7 @@ class ExecutionGuiSessionTest {
     Object first = new Object();
     Object second = new Object();
     session.adopt(first);
-    int secondGeneration = session.adopt(second);
+    int secondGeneration = session.adopt(second).generation();
     AtomicBoolean stopped = new AtomicBoolean(false);
 
     assertFalse(session.stopIfCurrent(first, () -> stopped.set(true)));
@@ -75,7 +76,7 @@ class ExecutionGuiSessionTest {
                 session.stopIfCurrent(
                     first,
                     () -> {
-                      secondGeneration.set(session.adopt(second));
+                      secondGeneration.set(session.adopt(second).generation());
                       holding.countDown();
                       try {
                         if (!release.await(5, TimeUnit.SECONDS)) {
@@ -100,7 +101,7 @@ class ExecutionGuiSessionTest {
         new Thread(
             () -> {
               reachedAdopt.countDown();
-              thirdGeneration.set(session.adopt(third));
+              thirdGeneration.set(session.adopt(third).generation());
               adopted.countDown();
             });
     adopter.start();

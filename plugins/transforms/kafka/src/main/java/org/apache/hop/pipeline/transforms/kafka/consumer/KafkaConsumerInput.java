@@ -208,10 +208,6 @@ public class KafkaConsumerInput
         // If the conditions for error handling are not met init SingleThreadedExecutor normally
         data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
       }
-      // A streaming consumer must keep cumulative sub-pipeline metrics. Clearing them after every
-      // batch logged "Finished processing" and then left the grid at 0. Mapping and Beam still
-      // clear per iteration; that default is unchanged.
-      data.executor.setClearingMetricsPerIteration(false);
 
       // Initialize the sub-pipeline
       //
@@ -351,14 +347,14 @@ public class KafkaConsumerInput
         } else {
           // Grab the records...
           //
+          if (getFirstRowReadDate() == null) {
+            setFirstRowReadDate(new Date());
+          }
           for (ConsumerRecord<Object, Object> record : records) {
             Object[] outputRow = processMessageAsRow(record);
             data.rowProducer.putRow(data.outputRowMeta, outputRow);
             if (errorHandlingConditionIsSatisfied()) {
               data.incomingRowsBuffer.add(outputRow);
-            }
-            if (getFirstRowReadDate() == null) {
-              setFirstRowReadDate(new Date());
             }
             incrementLinesInput();
           }
