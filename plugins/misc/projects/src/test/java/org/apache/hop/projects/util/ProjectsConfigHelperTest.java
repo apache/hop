@@ -408,6 +408,77 @@ public class ProjectsConfigHelperTest {
         variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
   }
 
+  /**
+   * hop-server started without a project or environment enables the default project of the
+   * configuration. It marks that, so the server keeps the project variables of the clients that
+   * send it work (issue #8597). The hop-server mixin inherits the project of the root mixin and has
+   * to keep the mark.
+   */
+  @Test
+  public void testDefaultProjectIsMarked() throws Exception {
+    String defaultProjectName = registerProject("marked-default");
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    String previousDefaultProject = config.getDefaultProject();
+    config.setDefaultProject(defaultProjectName);
+    try {
+      IVariables variables = new Variables();
+      new ProjectsOptionPlugin()
+          .handleOption(LogChannel.GENERAL, new TestMetadataHolder(), variables);
+
+      assertEquals(defaultProjectName, variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
+      assertEquals("Y", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_IS_DEFAULT));
+
+      // The hop-server mixin: no -j or -e, the project is inherited from the root mixin.
+      //
+      new ProjectsOptionPlugin()
+          .handleOption(LogChannel.GENERAL, new TestMetadataHolder(), variables);
+
+      assertEquals("Y", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_IS_DEFAULT));
+    } finally {
+      config.setDefaultProject(previousDefaultProject);
+    }
+  }
+
+  /** Choosing the default project with -j is a choice like any other. */
+  @Test
+  public void testExplicitlyChosenDefaultProjectIsNotMarked() throws Exception {
+    String defaultProjectName = registerProject("chosen-default");
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    String previousDefaultProject = config.getDefaultProject();
+    config.setDefaultProject(defaultProjectName);
+    try {
+      IVariables variables = new Variables();
+      ProjectsOptionPlugin plugin = new ProjectsOptionPlugin();
+      plugin.setProjectOption(defaultProjectName);
+      plugin.handleOption(LogChannel.GENERAL, new TestMetadataHolder(), variables);
+
+      assertEquals(defaultProjectName, variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
+      assertNull(variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_IS_DEFAULT));
+
+      new ProjectsOptionPlugin()
+          .handleOption(LogChannel.GENERAL, new TestMetadataHolder(), variables);
+
+      assertNull(variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_IS_DEFAULT));
+    } finally {
+      config.setDefaultProject(previousDefaultProject);
+    }
+  }
+
+  /** Registers a minimal project in the temporary folder and returns its name. */
+  private String registerProject(String name) throws Exception {
+    Path projectDir = tempRoot.resolve(name);
+    Files.createDirectories(projectDir);
+    Files.writeString(
+        projectDir.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME),
+        "{ \"metadataBaseFolder\" : \"${PROJECT_HOME}/metadata\" }\n",
+        StandardCharsets.UTF_8);
+    ProjectsConfigSingleton.getConfig()
+        .addProjectConfig(
+            new ProjectConfig(name, projectDir.toAbsolutePath().toString(), "project-config.json"));
+    registeredProjects.add(name);
+    return name;
+  }
+
   @Test
   public void testDetermineActiveProjectFromSessionRegistration() throws Exception {
     Path projectDir = tempRoot.resolve("session-proj");

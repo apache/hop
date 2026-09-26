@@ -89,8 +89,9 @@ Point this at a mounted volume to keep it across container recreation.
 |```HOP_PROJECT_NAME```
 |
 | Name of the Hop project to create in the container.
-You also need to specify the ```HOP_PROJECT_FOLDER``` variable.
-If you do not set this variable, no project or environment will be created.
+The project is only created when ```HOP_PROJECT_FOLDER``` is set as well.
+A name the image already knows, such as `default` or `samples`, is not created again, so ```HOP_PROJECT_FOLDER``` is ignored for it: give your project its own name.
+Without ```HOP_PROJECT_FOLDER``` the container runs the `default` project of its configuration.
 
 |```HOP_PROJECT_FOLDER```
 
@@ -300,7 +301,7 @@ docker run -it --rm \
   --env HOP_LOG_LEVEL=Basic \
   --env HOP_FILE_PATH='${PROJECT_HOME}/transforms/switch-case-basic.hpl' \
   --env HOP_PROJECT_FOLDER=/files \
-  --env HOP_PROJECT_NAME=samples \
+  --env HOP_PROJECT_NAME=mounted-samples \
   --env HOP_RUN_CONFIG=local \
   --name hop-test-container \
   -v <HOP_SAMPLE_PROJECT_PATH>:/files \

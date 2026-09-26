@@ -1,0 +1,250 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ServerMetadataAndVariables]]
+:imagesdir: ../../assets/images
+:description: Which metadata objects, run configurations, variables and file paths a pipeline or workflow sees on Hop Server, depending on how the server is started and how the work arrives.
+
+= Metadata and variables on Hop Server
+
+A pipeline or workflow that runs on xref:hop-server/index.adoc[Hop Server] can get its metadata objects (connections, run configurations, logging objects, ...) and its variables from two places: the server itself and the client that sent it.
+Which one wins depends on two things:
+
+* how the server is started: with or without a project, with or without a metadata folder
+* how the work reaches the server: sent by a client with or without *Export linked resources to server*, or started on the server itself
+
+This page lays out every combination.
+For the bigger picture of getting a project onto a server, see xref:hop-server/deploying.adoc[Deploying Hop Server].
+
+== How the server is started
+
+[cols="1,2,2",options="header"]
+|===
+|Server started with
+|Its own metadata
+|Its own project variables
+
+|*No project chosen* +
+`hop-server.sh <host> <port>`, or the `apache/hop` image without `HOP_PROJECT_FOLDER`
+|The metadata of the *default project* of its configuration.
+In a standard installation that is project `default` in `config/projects/default`.
+|`PROJECT_HOME`, `HOP_PROJECT_NAME`, ... of that default project, plus `HOP_PROJECT_IS_DEFAULT=Y`.
+Nobody chose this project, so the server does not hold on to these values for work that clients send (see below).
+
+|*A metadata folder* +
+`<metadata_folder>` in the xref:hop-server/index.adoc#_start_hop_server_with_a_configuration_file[server configuration file], or `HOP_SERVER_METADATA_FOLDER` in the image
+|The metadata folder is added on top of the metadata the server already has.
+On a name clash the object in the metadata folder is used.
+|None.
+A metadata folder does not change any variables.
+
+|*A project or environment* +
+`hop-server.sh -e <environment>` (or `-j <project>`), or the image with `HOP_PROJECT_FOLDER`
+|The metadata of the project, after that of its parent projects.
+A metadata folder, when also configured, is added on top.
+|The variables of the project and of the environment's configuration files.
+|===
+
+The server logs which of these it runs with when it starts:
+
+----
+Hop Server variables: HOP_PROJECT_NAME=my-project, HOP_ENVIRONMENT_NAME=production, PROJECT_HOME=/files, HOP_METADATA_FOLDER=/files/metadata, HOP_PROJECT_IS_DEFAULT=N
+----
+
+`HOP_PROJECT_IS_DEFAULT=Y` means the server fell back to the default project because it was started without a project or environment.
+
+[TIP]
+====
+In the `apache/hop` image the project is only registered when `HOP_PROJECT_FOLDER` is set.
+A project name the image already knows, such as `default` or `samples`, is not registered again, so `HOP_PROJECT_FOLDER` is ignored for it.
+Give your project its own name.
+====
+
+== How the work arrives
+
+[cols="1,3",options="header"]
+|===
+|Arrival
+|What the server receives
+
+|*Sent as XML*
+|A client (Hop Gui, xref:hop-run/index.adoc[hop-run], ...) runs with a xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configuration *without* *Export linked resources to server*.
+The server receives the pipeline or workflow itself, all of the client's metadata, and the client's variables and parameters.
+Pipelines and workflows the work refers to are read on the server.
+
+|*Exported*
+|The same, *with* *Export linked resources to server*.
+The server receives a ZIP with the pipeline or workflow, the pipelines and workflows it refers to, all of the client's metadata, and the client's variables and parameters.
+See xref:hop-server/deploy-export-resources.adoc[Remote run with export resources].
+
+|*Started on the server*
+|A pipeline or workflow that is already on the server is started by name or path: xref:hop-server/rest-api.adoc[`/hop/execPipeline` and `/hop/execWorkflow`], xref:hop-server/web-service.adoc[web services] and xref:hop-server/async-web-service.adoc[asynchronous web services].
+No client metadata or variables are involved, only the parameters in the request.
+|===
+
+== The matrix
+
+=== Metadata objects
+
+[cols="1,2,2,2",options="header"]
+|===
+|
+|Sent as XML
+|Exported
+|Started on the server
+
+|Metadata objects
+|The server's metadata *and* the client's.
+On a name clash the client's object is used.
+|The server's metadata *and* the metadata in the ZIP.
+On a name clash the object from the ZIP is used.
+|The server's metadata only.
+
+|Run configuration the server runs with
+|The name set in the remote run configuration, looked up in the client's metadata first.
+|Same as sent as XML.
+|`/hop/execPipeline` and `/hop/execWorkflow`: the `runConfig` request parameter, else the server's default run configuration, else `local`.
+A web service: its own run configuration.
+
+|Run configuration of a pipeline or workflow action on the server
+|Looked up in the client's metadata first.
+|Same as sent as XML.
+|The server's metadata.
+|===
+
+This is the same whether the server has a project, a metadata folder, both or neither: those only change what "the server's metadata" contains, as described in <<_how_the_server_is_started>>.
+
+=== Project variables
+
+`PROJECT_HOME`, `PARENT_PROJECT_HOME`, `PARENT_PROJECT_NAME`, `HOP_PROJECT_NAME` and `HOP_ENVIRONMENT_NAME` say which project and environment are active and where the project lives.
+The client sends its own values along with the work.
+
+[cols="1,2,2,2",options="header"]
+|===
+|Server started with
+|Sent as XML
+|Exported
+|Started on the server
+
+|No project chosen (default project)
+|The client's values.
+|The client's values.
+|The server's values (the default project).
+
+|A metadata folder, no project chosen
+|The client's values.
+|The client's values.
+|The server's values.
+
+|A project or environment
+|*The server's values.*
+A value the server does not have, such as an environment when it was started with `-j` only, is removed.
+|The client's values.
+|The server's values.
+|===
+
+The server's project wins for work sent as XML because the pipelines and workflows that work refers to are read *on the server*, from the server's project.
+An exported run keeps the client's values because the export already rewrote its references relative to the client's project (see <<_file_references>>).
+
+NOTE: Before Hop 2.20 the client's values were used in every case, also on a server with a project of its own.
+
+=== Other variables
+
+[cols="1,2,2,2",options="header"]
+|===
+|
+|Sent as XML
+|Exported
+|Started on the server
+
+|Variables
+|The server's variables, with the client's variables on top: a variable the client also has gets the client's value.
+|Same as sent as XML.
+|The server's variables and the request parameters.
+
+|Parameters
+|The values the client passes.
+|Same as sent as XML.
+|The request parameters.
+|===
+
+The client does not send:
+
+* Java system properties such as `java.*`, `user.*` and `os.*`
+* internal variables such as `+${Internal.Entry.Current.Folder}+`
+* variables that configure Hop itself, such as `HOP_METADATA_FOLDER` and the other system settings listed in xref:variables.adoc[Variables]
+* `LOG_PATH` and `HOP_VERSION`: the server sets its own
+
+Environment variables of the server fill in the names the client does not send.
+For every other name the client's environment wins, including connection details such as a database hostname.
+
+=== File references
+
+[cols="1,2,2,2",options="header"]
+|===
+|
+|Sent as XML
+|Exported
+|Started on the server
+
+|`+${PROJECT_HOME}/...+`
+|Resolved on the server with the project variables above: in the server's project when the server was started with one, otherwise the client's folder, which then has to exist on the server as well.
+|Resolved with the client's `PROJECT_HOME`, for the references the export did not rewrite.
+|Resolved in the server's project.
+
+|`+${Internal.Entry.Current.Folder}/...+`
+|Does not work: the pipeline or workflow has no filename on the server.
+Use `+${PROJECT_HOME}/...+` or an absolute path.
+|Points into the ZIP.
+|The folder of the file on the server.
+
+|Pipelines and workflows it refers to
+|Read on the server.
+|Packed into the ZIP and rewritten to `+${Internal.Entry.Current.Folder}/...+`.
+|Read on the server.
+
+|Data files
+|Read on the server.
+|Rewritten to `+${DATA_PATH_1}+`, `+${DATA_PATH_2}+`, ... by the transforms and actions that support it, such as CSV file input, Text file input and output, Microsoft Excel input and writer, and File exists.
+Every other reference keeps its original path.
+|Read on the server.
+|===
+
+`DATA_PATH_n` is the client's own folder, unless the remote run configuration maps a source folder such as `+${PROJECT_HOME}+` to a target folder on the server.
+See xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline engine].
+
+== Things to watch out for
+
+* *The client's metadata replaces the server's by name.*
+A client that has a run configuration `local`, a database connection `dwh` or a VFS connection `s3` runs with its own definition, not the server's.
+Give objects that must come from the server a name the clients do not use, or start the work on the server.
+* *All of the client's metadata is sent*, including connection passwords.
+Use the AES2 encoder or a secrets resolver rather than the default obfuscation.
+See xref:password/passwords.adoc[Passwords].
+* *Logging objects of both sides run.*
+xref:metadata-types/pipeline-log.adoc[Pipeline Log] and xref:metadata-types/workflow-log.adoc[Workflow Log] objects of the server and of the client all apply to work sent by a client.
+A logging object that only logs specific pipelines or workflows matches them by filename, so it does not match work sent as XML.
+* *Web services only see the server's metadata.*
+A server without the project on disk (for example one that only receives exported work) cannot serve web services from that project.
+
+== Which setup to choose
+
+* The server has the project (xref:hop-server/deploy-project-image.adoc[in an image] or xref:hop-server/deploy-git-checkout.adoc[a git checkout]): start the work on the server, or send it as XML.
+Pipelines and workflows it refers to, `+${PROJECT_HOME}+` and the environment are all the server's.
+* The server has no project: export the work.
+Everything the run needs travels in the ZIP, and the client's environment applies.
+See xref:hop-server/deploy-export-resources.adoc[Remote run with export resources].
+* Avoid sending work as XML to a server without a project unless the client and the server share the same folders at the same paths.

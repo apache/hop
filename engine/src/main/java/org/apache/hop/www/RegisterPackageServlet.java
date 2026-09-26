@@ -109,6 +109,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
           WorkflowConfiguration workflowConfiguration =
               new WorkflowConfiguration(
                   workflowMeta, workflowExecutionConfiguration, metadataProvider);
+          workflowConfiguration.setExported(true);
 
           IWorkflowEngine<WorkflowMeta> workflow =
               createWorkflow(workflowConfiguration, maxConcurrent);
@@ -128,6 +129,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
           PipelineConfiguration pipelineConfiguration =
               new PipelineConfiguration(
                   pipelineMeta, pipelineExecutionConfiguration, metadataProvider);
+          pipelineConfiguration.setExported(true);
 
           IPipelineEngine<PipelineMeta> pipeline =
               createPipeline(pipelineConfiguration, maxConcurrent);
