@@ -720,15 +720,16 @@ public class ProjectsGuiPlugin {
           new ProjectDialog(
               hopGui.getActiveShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
-        config.addProjectConfig(projectConfig);
-
-        if (!projectName.equals(projectConfig.getProjectName())) {
-          // Project got renamed
-          projectName = projectConfig.getProjectName();
-        }
-
-        // Persist project registration (name, home, config path, read-only) in hop-config.json
-        HopConfig.getInstance().saveToFile();
+        // Persist project registration (name, home, config path, read-only) in hop-config.json.
+        // A rename also updates the projects using this one as their parent, all or nothing.
+        //
+        ProjectsUtil.saveProjectConfig(
+            projectName,
+            projectConfig,
+            hopGui.getVariables(),
+            hopGui.getLog(),
+            ProjectsConfigSingleton::saveConfig);
+        projectName = projectConfig.getProjectName();
 
         // Do not write project-config.json for read-only projects (archives, HTTP, ...).
         //
@@ -887,7 +888,7 @@ public class ProjectsGuiPlugin {
       MenuItem item = new MenuItem(menu, SWT.NONE);
       item.setText(name);
       item.addListener(SWT.Selection, e -> selectProject(name));
-      if (currentProjectName.equals(name)) {
+      if (currentProjectName.equalsIgnoreCase(name)) {
         item.setImage(GuiResource.getInstance().getImageCheck());
       }
       if (++count == LAST_USED_PROJECTS_MAX_ENTRIES) break;
@@ -943,7 +944,7 @@ public class ProjectsGuiPlugin {
       LifecycleEnvironment environment = config.findEnvironment(name);
       if (environment != null
           && (Utils.isEmpty(environment.getProjectName())
-              || currentProjectName.equals(environment.getProjectName()))) {
+              || currentProjectName.equalsIgnoreCase(environment.getProjectName()))) {
         // Create a final copy of the name variable for the lambda closure
         // This is critical for RAP/web compatibility - each menu item needs its own copy
         final String environmentName = name;
@@ -1023,7 +1024,7 @@ public class ProjectsGuiPlugin {
           if (environment != null) {
             // See that the project belongs to the environment
             //
-            if (projectName.equals(environment.getProjectName())) {
+            if (projectName.equalsIgnoreCase(environment.getProjectName())) {
               // We found what we've been looking for
               break;
             } else {

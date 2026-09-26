@@ -350,12 +350,12 @@ public class SelectProjectsDialog extends Dialog {
     ProjectConfigDialog editDialog = new ProjectConfigDialog(shell, projectConfig, variables);
     if (editDialog.open()) {
       try {
-        String originalName = editDialog.getOriginalName();
-        if (!originalName.equals(projectConfig.getProjectName())) {
-          ProjectsUtil.changeParentProjectReferences(originalName, projectConfig.getProjectName());
-        }
-        config.updateProjectConfig(originalName, projectConfig);
-        ProjectsConfigSingleton.saveConfig();
+        ProjectsUtil.saveProjectConfig(
+            editDialog.getOriginalName(),
+            projectConfig,
+            variables,
+            LogChannel.UI,
+            ProjectsConfigSingleton::saveConfig);
         refreshTable();
         selectProjectByName(projectConfig.getProjectName());
         updateButtons();

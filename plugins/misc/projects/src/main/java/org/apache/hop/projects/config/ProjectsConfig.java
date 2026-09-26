@@ -100,7 +100,7 @@ public class ProjectsConfig {
     List<LifecycleEnvironment> list = new ArrayList<>();
     lifecycleEnvironments.forEach(
         e -> {
-          if (e.getProjectName().equals(projectName)) {
+          if (projectName != null && projectName.equalsIgnoreCase(e.getProjectName())) {
             list.add(e);
           }
         });
@@ -128,12 +128,16 @@ public class ProjectsConfig {
    * @param projectConfig updated registration (may have a new projectName)
    */
   public void updateProjectConfig(String originalName, ProjectConfig projectConfig) {
-    if (StringUtils.isEmpty(originalName)
-        || originalName.equalsIgnoreCase(projectConfig.getProjectName())) {
+    if (StringUtils.isEmpty(originalName)) {
       addProjectConfig(projectConfig);
       return;
     }
     renameProjectReferences(originalName, projectConfig.getProjectName());
+    if (originalName.equalsIgnoreCase(projectConfig.getProjectName())) {
+      // Same registration, possibly with a different case
+      addProjectConfig(projectConfig);
+      return;
+    }
     ProjectConfig existing = findProjectConfig(originalName);
     if (existing == null) {
       addProjectConfig(projectConfig);
@@ -188,10 +192,13 @@ public class ProjectsConfig {
   }
 
   /**
-   * Point the default project and standard parent project settings to a renamed project.
+   * Point the default project, standard parent project and lifecycle environments to a renamed
+   * project. When the project is removed (newName is null) the default and standard parent project
+   * settings are cleared but the environments are left alone: an environment without a project is
+   * available for every project.
    *
    * @param oldName the previous name of the project
-   * @param newName the new name of the project, null to clear the settings
+   * @param newName the new name of the project, null when the project is removed
    */
   public void renameProjectReferences(String oldName, String newName) {
     if (StringUtils.isEmpty(oldName)) {
@@ -202,6 +209,13 @@ public class ProjectsConfig {
     }
     if (oldName.equalsIgnoreCase(standardParentProject)) {
       standardParentProject = newName;
+    }
+    if (StringUtils.isNotEmpty(newName)) {
+      for (LifecycleEnvironment environment : lifecycleEnvironments) {
+        if (oldName.equalsIgnoreCase(environment.getProjectName())) {
+          environment.setProjectName(newName);
+        }
+      }
     }
   }
 

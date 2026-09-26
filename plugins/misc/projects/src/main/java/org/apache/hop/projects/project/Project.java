@@ -344,7 +344,7 @@ public class Project extends ConfigFile implements IConfigFile {
       return;
     }
 
-    if (parentProjectName.equals(projectName)) {
+    if (parentProjectName.equalsIgnoreCase(projectName)) {
       throw new HopException(
           "Parent project '" + parentProjectName + "' can not be the same as the project itself");
     }
@@ -381,7 +381,7 @@ public class Project extends ConfigFile implements IConfigFile {
             realParentProjectName = variables.resolve(parentProject.parentProjectName);
             // See if we've had this one before...
             if (StringUtils.isNotEmpty(realParentProjectName)
-                && projectsList.contains(realParentProjectName)) {
+                && projectsList.stream().anyMatch(realParentProjectName::equalsIgnoreCase)) {
               throw new HopException(
                   "There is a loop in the parent projects hierarchy: project "
                       + realParentProjectName
