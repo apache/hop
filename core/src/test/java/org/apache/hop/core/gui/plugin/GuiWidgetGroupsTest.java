@@ -60,6 +60,14 @@ class GuiWidgetGroupsTest {
   }
 
   @Test
+  void boxesStayBoxes() {
+    GuiElements first = element("first", "One", "10", GuiWidgetGroupType.BOXES);
+    GuiElements second = element("second", "Two", "20", GuiWidgetGroupType.BOXES);
+    assertFalse(GuiWidgetGroups.hasMixedTypes(List.of(first, second)));
+    assertEquals(GuiWidgetGroupType.BOXES, GuiWidgetGroups.typeOf(List.of(first, second)));
+  }
+
+  @Test
   void mixedTypesFallBackToTabs() {
     GuiElements tabs = element("a", "A", "10", GuiWidgetGroupType.TABS);
     GuiElements list = element("b", "B", "20", GuiWidgetGroupType.LIST);

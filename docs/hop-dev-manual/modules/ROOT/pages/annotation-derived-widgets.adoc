@@ -1,0 +1,372 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How to build a metadata editor, transform dialog, or action dialog from @GuiWidgetElement annotations and GuiCompositeWidgets.
+[[AnnotationDerivedWidgets]]
+= Annotation derived widgets
+
+A metadata editor, a transform dialog, or an action dialog does not have to lay its fields out by hand.
+Put `@GuiWidgetElement` on the fields of the object being edited, and let `GuiCompositeWidgets` build the controls.
+
+The annotated class holds the values.
+The editor or dialog creates the shell, the name line, and the buttons, then asks `GuiCompositeWidgets` to fill the space between the name and the buttons.
+On OK, one call copies the widgets back onto the object.
+Do not copy the fields yourself.
+
+`@GuiWidgetElement` is one of the contribution annotations on a `@GuiPlugin`.
+The xref:plugin-types/gui.adoc[GUI plugin types] page lists the others (menus, toolbars, shortcuts).
+This page is only about the widgets those annotations produce.
+
+== Annotating the class
+
+The class needs `@GuiPlugin`, so the Hop GUI scans it at startup, and getters and setters for every annotated field.
+Lombok `@Getter` and `@Setter` are the usual way to get those.
+A field that is saved also carries `@HopMetadataProperty`.
+The widget annotation does not persist anything.
+
+Give the class a parent-id constant and put that same string on every widget.
+`GuiCompositeWidgets` looks widgets up by the runtime class name and this id, so the object you pass in has to be an instance of the `@GuiPlugin` class.
+Fields declared on a superclass are picked up, but they are registered under the plugin class.
+
+[source,java]
+----
+@Getter
+@Setter
+@GuiPlugin
+public class DataSetOutputMeta extends BaseTransformMeta<DataSetOutput, DataSetOutputData> {
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DATA_SET_OUTPUT_DIALOG_OPTIONS";
+
+  @GuiWidgetElement(
+      id = "dataSetName",
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadata = DataSet.class,
+      label = "i18n::DataSetOutputMeta.DataSetName.Label",
+      toolTip = "i18n::DataSetOutputMeta.DataSetName.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "Data Set")
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_DATA_SET)
+  private String dataSetName;
+}
+----
+
+`id`::
+Stable name of this widget.
+Dialog code uses it to find the control, and a distribution can hide the widget by listing the id in `disabledGuiElements`.
+See xref:manual::hop-gui/disable-ui-elements.adoc[Disabling UI elements].
+
+`order`::
+Sort key among the widgets in this parent, compared as a string.
+`0100`, `0200`, `0300` sort numerically.
+`10` sorts after `100`.
+
+`label` and `toolTip`::
+Shown next to the control.
+Use an `i18n::` key, as described in xref:internationalisation.adoc[Internationalisation].
+In the properties file, quote a variable expression with single quotes: `Folder='${PROJECT_HOME}'`.
+
+`parentId`::
+The form this widget belongs to.
+One class can have several forms by using several parent ids.
+The same parent-id string can be reused on a different class, because lookup is by class and id together.
+Variable resolvers all use `VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID` for that reason.
+
+A `@GuiPlugin` that is also metadata and lives in a plugin classloader group must set `classLoaderGroup` on `@GuiPlugin`.
+Without it the GUI loads a second copy of the class.
+xref:plugin-types/gui.adoc[GUI] describes the failure.
+
+== Widget types
+
+`type` selects the control.
+
+[cols="1,3"]
+|===
+|Type |What is built
+
+|`TEXT`
+|Single-line text.
+`password = true` masks it.
+`variables` defaults to true and wraps the text in a variable-aware field; set it to false for a plain value such as a configuration checkbox's companion number.
+
+|`MULTI_LINE_TEXT`
+|Multi-line text.
+`multiLineTextHeight` is the height in lines, not pixels.
+
+|`FILENAME`
+|Text with a browse button that asks for a file.
+`typeFilename` can supply extensions and filters.
+
+|`FOLDER`
+|Text with a browse button that asks for a folder.
+
+|`COMBO`
+|A combo box.
+If the field type is an enum, the items are the enum constants' `toString()` and the selected item is read back with `Enum.valueOf`.
+Do not give the enum a custom `toString()`: the displayed text would no longer be the constant name, and the previous value would be kept.
+For a list that is not an enum, set `comboValuesMethod` to a method on the object that returns `String[]`.
+A dialog can also fill the combo later with `GuiCompositeWidgets.setComboValues(id, items)`, which is how a transform dialog lists the incoming stream fields.
+
+|`CHECKBOX`
+|A checkbox bound to a `boolean`.
+
+|`METADATA`
+|A metadata selection line.
+`metadata` is the metadata class.
+`metadataKey` is the alternative when the dialog must not compile against that plugin: pass the metadata type key, for example `ai-provider`.
+When that plugin is not installed the widget is left out.
+
+|`BUTTON`
+|A push button, annotated on a method rather than a field: `public void chooseColor(Object object)`.
+The method is called on the object being edited, and that same object is the argument.
+When the method returns, the widgets are filled from the object again, so a change to a field shows up next to the button.
+
+|`LINK`
+|An underlined link, annotated on a method.
+`public void overviewLink(Event event)` receives the SWT selection event; `event.text` is the text of the `<a>` anchor in the label.
+The method is called on a new instance of the class, not on the object being edited.
+
+|`COMPOSITE`
+|A method `public void welcome(Composite parent)` that paints its own controls into the composite it is given.
+Use this when the annotation types above cannot express the control.
+|===
+
+`namingSchemeType` marks a text widget as a name (`file`, `folder`, `hop-variable`, and so on) so the naming-scheme indicator is shown.
+`FILENAME` and `FOLDER` infer `file` and `folder`.
+An empty value on any other type means the widget is not a name.
+
+== Groups
+
+By default the widgets of one `parentId` are a single flat form.
+Set `group` and the widgets are placed in a container instead.
+Repeat `groupType` on every field.
+The first value that is not `NONE` wins.
+If two fields ask for different types, the GUI logs an error and shows tabs.
+
+[cols="1,3"]
+|===
+|`groupType` |Layout
+
+|`NONE`
+|Flat form.
+This is the default, and it only applies when no sibling has a group.
+
+|`TABS`
+|One tab per group, in a tab folder that fills the area between the name line and the buttons.
+Each tab scrolls its own fields.
+`groupImage` is the tab icon.
+Parquet output and the dbt action use tabs.
+
+|`BOXES`
+|One SWT group box per group name.
+The boxes share that same area in equal vertical bands, and each box scrolls its own fields.
+A single group fills the whole area: Data set output is one box titled "Data Set", and the Database perspective options are one box titled "SQL".
+Text chunker uses three boxes (Input, Chunking, Chunk metadata).
+
+|`LIST`
+|Not implemented.
+The GUI logs that and shows tabs.
+|===
+
+`group` is the title.
+An `i18n::` key is translated.
+`groupOrder` sorts the groups, again as a string, the same way `order` sorts fields.
+A field with an empty `group` lands in a group titled "General" when any sibling has a group.
+
+== Transform and action dialogs
+
+Extend `BaseTransformDialog` or `ActionDialog`.
+In `open()`, create the shell, build the button bar, then add the widgets between the name and the OK button.
+
+[source,java]
+----
+@Override
+public String open() {
+  createShell(BaseMessages.getString(PKG, "DataSetOutputDialog.Shell.Title"));
+  buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+  widgets =
+      GuiCompositeWidgets.addScrolledComposite(
+          shell,
+          variables,
+          wTransformName,
+          wOk,
+          DataSetOutputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+          input);
+
+  BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+  return transformName;
+}
+
+private void ok() {
+  if (Utils.isEmpty(wTransformName.getText())) {
+    return;
+  }
+  widgets.getWidgetsContents(input, DataSetOutputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+  transformName = wTransformName.getText();
+  dispose();
+}
+----
+
+`addScrolledComposite` attaches a scrolled composite below the control you pass as the top (`wTransformName` in a transform dialog, `wName` in an action dialog) and above the control you pass as the bottom (`wOk`).
+The annotated widgets are created inside it, and the current values are copied in.
+`getWidgetsContents` on OK copies them back.
+
+That is what keeps the dialog resizable with the buttons pinned under the fields.
+A flat row of `FormAttachment`s on the shell fights the button bar for the same vertical space, and the buttons end up on top of the lower widgets.
+Groups make this reliable: the tab folder or the stack of boxes fills the scrolled area, and overflow scrolls inside the tab or the box.
+
+An action dialog has the same shape.
+`ActionDbtDialog` is the worked example for tabs plus an extra table.
+
+A class annotated with `@ConfigPlugin` is laid out with the label above the control and the control at full width.
+Transform and action metadata keep the label on the left.
+The Database perspective options in the screenshots use the label-above layout because that class is a configuration plugin.
+Data set output uses the label on the left.
+
+== Metadata editors
+
+A metadata editor extends `MetadataEditor`.
+The name field is still created by the editor.
+The rest of the fields come from the metadata class, which is both `@HopMetadata` and `@GuiPlugin`.
+
+`NamingSchemeEditor` is a compact example.
+It builds the name, registers one extra group, then creates the annotated widgets under the name:
+
+[source,java]
+----
+widgets = new GuiCompositeWidgets(hopGui.getVariables());
+widgets.createCompositeWidgets(
+    getMetadata(), null, parent, NamingScheme.GUI_PLUGIN_ELEMENT_PARENT_ID, wName);
+----
+
+`setWidgetsContent()` calls `widgets.setWidgetsContents(metadata, parent, parentId)`.
+`getWidgetsContent(metadata)` calls `widgets.getWidgetsContents(metadata, parentId)`.
+
+Variable resolvers, database connection options, and the other metadata types that contribute fields to a shared editor use the same pair of annotations.
+The editor already owns the composite; the plugin only annotates its fields and sets `parentId` to the constant that editor looks up.
+For a variable resolver that constant is `VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID`.
+
+== Configuration perspective
+
+A `@ConfigPlugin` can expose the same options in the Configuration perspective.
+Annotate the picocli fields with `@GuiPlugin` on the class and `@GuiWidgetElement` on each field, and use `ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID` as the parent id.
+The class needs a static `getInstance()` that returns the object holding the current values.
+The perspective calls it, builds the widgets, and saves through the widget listener.
+
+`DatabasePerspectiveConfigPlugin` is one box, group `"SQL"`, `groupType = BOXES`: the auto-connect checkbox, the select-executed-SQL checkbox, and the query row limit.
+xref:plugin-types/metadata-configuration.adoc[Metadata and configuration] covers the command-line side of a configuration plugin.
+
+== Controls the annotation cannot express
+
+A `TableView`, a preview, or a painter does not fit a `@GuiWidgetElement` field.
+Register it as an extra group *before* the widgets are created, and build it into the composite the callback receives.
+That composite is the same one the annotated fields of that group are on, inside the tab or the box, so a `FormAttachment` to one of those fields is valid.
+A table that should fill the group sets its bottom attachment to 100 percent.
+
+[source,java]
+----
+widgets =
+    GuiCompositeWidgets.addScrolledComposite(
+        shell,
+        variables,
+        wTransformName,
+        wOk,
+        ParquetOutputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+        input,
+        w -> {
+          widgets = w;
+          w.registerExtraGroup(
+              BaseMessages.getString(PKG, "ParquetOutputMeta.Group.Fields"),
+              "0400",
+              null,
+              this::addFieldsTable);
+        });
+----
+
+The `beforeCreate` argument exists because `addScrolledComposite` creates the fields before it returns.
+`registerExtraGroup` after that call is too late.
+The first argument is the group title, the second is the `groupOrder`, and the third is an optional image (tab icon).
+Pass `null` for the image when the group is a box.
+
+`ActionDbtDialog` puts two name/value tables in an extra group.
+`NamingSchemeEditor` puts its preview there.
+`AiProviderEditor` puts the per-role model table there.
+
+== Values, listeners, and hidden rows
+
+`setWidgetsContents(source, parent, parentId)` copies the object into the widgets.
+`getWidgetsContents(source, parentId)` copies the widgets back.
+`getWidgetsMap()` is the control for each id.
+`getLabelsMap()` is the label.
+`getActionWidgetsMap()` is the extra control on the right of a field, today the browse button of a `FILENAME` or `FOLDER`.
+
+Set a listener with `setWidgetsListener`.
+`GuiCompositeWidgetsAdapter` implements the four methods as no-ops, so a dialog overrides only what it needs:
+
+`widgetModified`::
+A field changed.
+Mark the transform, action, or metadata object changed, and enable or disable other fields.
+Compare `widgetId` with the id constants on the meta class.
+
+`widgetsPopulated`::
+Values have been copied in, just before the dialog is shown.
+
+`widgetsCreated`::
+The controls exist.
+Do not create fields here.
+
+`persistContents`::
+The listener wants the extra state written back.
+Tables registered as extra groups are not annotated fields, so the dialog reads them itself, usually from `persistContents` or from the OK handler.
+
+There is one listener slot.
+An editor that needs the callback for its own change tracking, and a plugin object that also implements `IGuiPluginCompositeWidgetsListener`, has to forward the calls.
+`VariableResolverEditor` does this.
+
+`setWidgetsHidden(source, hiddenIds)` hides the named widgets and closes the gap they would leave.
+Call it from `widgetModified` when an option only applies to some settings.
+Hiding a field in one tab or one box does not move the fields in another.
+Vault resolvers use it to show only the credentials of the selected authentication type.
+
+== Where to look
+
+[cols="2,3"]
+|===
+|Example |What it shows
+
+|`DataSetOutputMeta`, `DataSetOutputDialog`
+|One box in a transform dialog, metadata picker, folder, text, checkboxes.
+
+|`TextChunkerMeta`, `TextChunkerDialog`
+|Three boxes, and a listener that enables fields from a combo.
+
+|`ActionDbt`, `ActionDbtDialog`
+|Tabs in an action dialog, plus an extra group that holds two tables.
+
+|`ParquetOutputMeta`, `ParquetOutputDialog`
+|Tabs and extra groups whose tables fill the tab (`bottom` at 100 percent).
+
+|`NamingScheme`, `NamingSchemeEditor`
+|A metadata editor: name field, annotated fields, extra preview group.
+
+|`DatabasePerspectiveConfigPlugin`
+|A configuration-perspective page, one box, label above the control.
+
+|`BaseVaultVariableResolver`
+|Several boxes on a metadata object, and rows hidden from a listener.
+|===
