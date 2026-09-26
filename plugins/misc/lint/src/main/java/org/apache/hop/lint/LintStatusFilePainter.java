@@ -54,6 +54,15 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   private static final String BASE_ICON_KEY = "lintBaseIcon";
   private static final String APPLIED_STATUS_KEY = "lintAppliedStatus";
 
+  /**
+   * The file this item was painted for.
+   *
+   * <p>The Explorer calls this painter when it builds a tree item, not on every redraw. Remembering
+   * the path is what lets a later result change, or switching the linter off, update the item that
+   * is already on screen.
+   */
+  private static final String LINT_PATH_KEY = "lintPath";
+
   /** Size of the status badge, matching the small icons the Explorer tree draws. */
   private static final int BADGE_SIZE = 12;
 
@@ -130,19 +139,60 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
   }
 
   /**
-   * Repaint lint icons in the Explorer. Prefers a lightweight tree redraw (which re-runs this
-   * painter while preserving selection and expansion) and only falls back to a full perspective
-   * refresh when we have not painted a tree yet.
+   * Whether Explorer files should carry a lint mark.
+   *
+   * <p>The canvas overlays already follow this switch. The Explorer used to keep painting from
+   * whatever the last run had stored, so a file stayed red after the linter was switched off.
+   */
+  static boolean decoratesExplorerFiles() {
+    try {
+      return LinterConfigPlugin.getInstance().isLinterEnabled();
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+  /**
+   * Re-apply lint marks on the items already in the Explorer.
+   *
+   * <p>A redraw of the tree does not ask this painter again: the color and icon were set when the
+   * item was created. Walking those items keeps the selection and the expanded folders, and is what
+   * clears a mark when the linter is switched off or a file no longer has findings.
    */
   public void repaintExplorerIcons() {
-    Tree tree = lastPaintedTree;
-    if (tree != null && !tree.isDisposed()) {
-      tree.redraw();
+    // Callers hop to the UI thread first. Doing it again here loops when this thread has no
+    // display to report, which is how a dead Hop Web session answers.
+    try {
+      Tree tree = lastPaintedTree;
+      if (tree != null && !tree.isDisposed()) {
+        reapply(tree);
+        return;
+      }
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      if (perspective != null) {
+        perspective.refresh();
+      }
+    } catch (Exception e) {
+      log.logError("Error repainting explorer lint icons: " + e.getMessage(), e);
+    }
+  }
+
+  private void reapply(Tree tree) {
+    for (TreeItem item : tree.getItems()) {
+      reapply(tree, item);
+    }
+  }
+
+  private void reapply(Tree tree, TreeItem item) {
+    if (item == null || item.isDisposed()) {
       return;
     }
-    ExplorerPerspective perspective = HopGui.getExplorerPerspective();
-    if (perspective != null) {
-      perspective.refresh();
+    String path = (String) item.getData(LINT_PATH_KEY);
+    if (path != null) {
+      applyResolvedStatus(tree, item, item.getText(), path);
+    }
+    for (TreeItem child : item.getItems()) {
+      reapply(tree, child);
     }
   }
 
@@ -156,16 +206,43 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
         return;
       }
 
-      LintStatus status = resolveStatus(absolutePath);
-      if (status == LintStatus.UNKNOWN) {
-        return;
-      }
-
-      applyStatusStyle(tree, treeItem, name, absolutePath, status);
+      treeItem.setData(LINT_PATH_KEY, absolutePath);
+      applyResolvedStatus(tree, treeItem, name, absolutePath);
     } catch (Exception e) {
       log.logError(
           "Error painting lint status for file " + path + "/" + name + ": " + e.getMessage(), e);
     }
+  }
+
+  private void applyResolvedStatus(Tree tree, TreeItem treeItem, String name, String absolutePath) {
+    if (!decoratesExplorerFiles()) {
+      clearStatusStyle(tree, treeItem);
+      return;
+    }
+    LintStatus status = resolveStatus(absolutePath);
+    if (status == LintStatus.UNKNOWN) {
+      clearStatusStyle(tree, treeItem);
+      return;
+    }
+    applyStatusStyle(tree, treeItem, name, absolutePath, status);
+  }
+
+  /** Put the item back the way the Explorer built it, when a lint mark is no longer called for. */
+  private void clearStatusStyle(Tree tree, TreeItem treeItem) {
+    if (treeItem.getData(APPLIED_STATUS_KEY) == null) {
+      return;
+    }
+    org.eclipse.swt.graphics.Color darkGray = tree.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+    org.eclipse.swt.graphics.Color current = treeItem.getForeground();
+    if (current == null || !current.equals(darkGray)) {
+      treeItem.setForeground(null);
+    }
+    Image base = (Image) treeItem.getData(BASE_ICON_KEY);
+    if (base != null && !base.isDisposed()) {
+      treeItem.setImage(base);
+    }
+    treeItem.setData(APPLIED_STATUS_KEY, null);
+    treeItem.setData("lintTooltip", null);
   }
 
   private void applyStatusStyle(
