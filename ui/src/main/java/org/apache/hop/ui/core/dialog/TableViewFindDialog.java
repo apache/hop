@@ -62,20 +62,6 @@ public class TableViewFindDialog {
     this.props = PropsUi.getInstance();
   }
 
-  public boolean isOpen() {
-    return shell != null && !shell.isDisposed();
-  }
-
-  public void forceActive() {
-    if (!isOpen()) {
-      return;
-    }
-    shell.forceActive();
-    if (wFind != null && !wFind.isDisposed()) {
-      wFind.setFocus();
-    }
-  }
-
   public void open() {
     if (parent == null || parent.isDisposed() || tableView == null || tableView.isDisposed()) {
       return;
@@ -224,6 +210,10 @@ public class TableViewFindDialog {
     wFind.setText(lastFind == null ? "" : lastFind);
     wCaseSensitive.setSelection(lastCaseSensitive);
     wRegex.setSelection(lastRegex);
+    // A changed query, case flag, or regex flag must not resume after the previous hit.
+    wFind.addListener(SWT.Modify, e -> lastHit = null);
+    wCaseSensitive.addListener(SWT.Selection, e -> lastHit = null);
+    wRegex.addListener(SWT.Selection, e -> lastHit = null);
     wFind.selectAll();
     wFind.setFocus();
 
@@ -341,7 +331,7 @@ public class TableViewFindDialog {
             "TableViewFindDialog.Status.Found",
             Integer.toString(hit.row() + 1),
             name == null ? "" : name));
-    if (isOpen()) {
+    if (shell != null && !shell.isDisposed()) {
       shell.forceActive();
       wFind.setFocus();
     }

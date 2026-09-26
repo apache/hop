@@ -21,12 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -71,6 +74,85 @@ class TableViewFindRevealTest extends SwtBotTestBase {
           assertEquals("needle", revealed.text());
           assertNotNull(revealed.selection());
           assertEquals(new Point(0, "needle".length()), revealed.selection());
+        });
+  }
+
+  @Test
+  void selectionAdapterColumnIsShownWithoutClickingIt() {
+    AtomicReference<TableView> viewRef = new AtomicReference<>();
+    AtomicInteger clicks = new AtomicInteger();
+    withScene(
+        shell -> {
+          shell.setLayout(new FillLayout());
+          ColumnInfo[] columns = {
+            new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+            new ColumnInfo("Value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          };
+          columns[1].setSelectionAdapter(
+              new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                  clicks.incrementAndGet();
+                }
+              });
+          TableView view =
+              new TableView(
+                  new Variables(),
+                  shell,
+                  SWT.BORDER | SWT.FULL_SELECTION,
+                  columns,
+                  1,
+                  null,
+                  PropsUi.getInstance());
+          view.table.getItem(0).setText(2, "needle");
+          viewRef.set(view);
+        },
+        bot -> {
+          Revealed revealed =
+              onUi(
+                  () -> {
+                    TableView view = viewRef.get();
+                    view.revealFoundCell(0, 1);
+                    return new Revealed(
+                        view.table.getSelectionIndex(),
+                        view.getActiveTableColumn(),
+                        findText(view.table) == null ? null : "open",
+                        null);
+                  });
+          assertEquals(0, clicks.get());
+          assertEquals(0, revealed.row());
+          assertEquals(2, revealed.column());
+          assertNull(revealed.text());
+        });
+  }
+
+  @Test
+  void multilineValueIsShownWithoutThePopOutEditor() {
+    AtomicReference<TableView> viewRef = new AtomicReference<>();
+    withScene(
+        shell -> {
+          shell.setLayout(new FillLayout());
+          TableView view = newTableView(shell, false);
+          view.table.getItem(0).setText(1, "one\ntwo");
+          viewRef.set(view);
+        },
+        bot -> {
+          Revealed revealed =
+              onUi(
+                  () -> {
+                    TableView view = viewRef.get();
+                    int shellsBefore = view.getDisplay().getShells().length;
+                    view.revealFoundCell(0, 0);
+                    int shellsAfter = view.getDisplay().getShells().length;
+                    return new Revealed(
+                        view.table.getSelectionIndex(),
+                        view.getActiveTableColumn(),
+                        findText(view.table) == null && shellsBefore == shellsAfter ? null : "open",
+                        null);
+                  });
+          assertEquals(0, revealed.row());
+          assertEquals(1, revealed.column());
+          assertNull(revealed.text());
         });
   }
 

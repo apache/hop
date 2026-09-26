@@ -267,7 +267,6 @@ public class TableView extends Composite {
   private final List<String> removeToolItems;
   private final Set<Integer> hiddenDataColumns = new HashSet<>();
   private int[] rememberedWidths;
-  private TableViewFindDialog findDialog;
 
   /**
    * Last width we asked each native column to take during {@link #optWidth}. Win32/DPI often
@@ -4599,19 +4598,7 @@ public class TableView extends Composite {
     if (columns.length == 0 || isDisposed() || findRemoved()) {
       return;
     }
-    if (findDialog != null && findDialog.isOpen()) {
-      findDialog.forceActive();
-      return;
-    }
-    TableViewFindDialog dialog = new TableViewFindDialog(getShell(), this);
-    findDialog = dialog;
-    try {
-      dialog.open();
-    } finally {
-      if (findDialog == dialog) {
-        findDialog = null;
-      }
-    }
+    new TableViewFindDialog(getShell(), this).open();
   }
 
   /**
@@ -4694,8 +4681,10 @@ public class TableView extends Composite {
   }
 
   /**
-   * Show {@code row} and {@code dataColumn}. An editable cell is opened with its text selected. A
-   * read-only table or column is only scrolled into view and selected.
+   * Show {@code row} and {@code dataColumn}. An editable text cell is opened with its text
+   * selected. A read-only table or column is only scrolled into view. A column click handler and a
+   * value that contains a line break are not opened either: both go through {@link #edit(int,
+   * int)}, which would pop a dialog or the multi-line editor on top of Find.
    */
   public void revealFoundCell(int row, int dataColumn) {
     if (table == null || table.isDisposed() || columns == null) {
@@ -4718,7 +4707,14 @@ public class TableView extends Composite {
     table.showItem(item);
     table.setSelection(row);
     setPosition(row, tableColumnIndex);
-    if (!readonly && !isColumnReadOnly(tableColumnIndex)) {
+    // setPosition already recorded the cell. edit() is a click: it fires a selection adapter and
+    // opens the multi-line pop-out, so those cells are only shown.
+    ColumnInfo colinfo = columns[dataColumn];
+    if (colinfo != null
+        && !readonly
+        && !colinfo.isReadOnly()
+        && colinfo.getSelectionAdapter() == null
+        && indexOfLineBreak(Const.NVL(getCellValue(item, tableColumnIndex), "")) < 0) {
       edit(row, tableColumnIndex);
     }
   }
