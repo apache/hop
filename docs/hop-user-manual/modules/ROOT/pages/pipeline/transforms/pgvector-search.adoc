@@ -80,6 +80,19 @@ The similarity score is normalised so that higher is better for every metric, bu
 
 The *Filters* tab restricts the search to rows where a table column equals the value of a stream field, which lets one index serve several document sets. The columns come from the mappings configured in pgvector upsert.
 
+[options="header"]
+|===
+|Column |Description
+
+|Table column|Column in the pgvector table to compare.
+|Stream field|Input field whose value the column must equal.
+|Skip if empty|`N` (the default) always applies the filter. An empty stream value is then compared as is and matches nothing, so the row finds no matches. `Y` leaves the filter out of the search for any row whose stream field is null or empty, so that row is searched without it.
+|===
+
+Use *Skip if empty* for optional narrowing, such as a category the user may or may not have picked. Leave it off for filters that must always hold, such as a tenant or access-control column: with it on, a row that arrives without a value would search every tenant's documents.
+
+Each combination of skipped filters gets its own prepared statement, created the first time a row needs it, so the query never carries a placeholder for a filter it does not use.
+
 == Notes
 
 *Top K* and *Minimum score* accept variables, so they can be set per environment rather than per pipeline.

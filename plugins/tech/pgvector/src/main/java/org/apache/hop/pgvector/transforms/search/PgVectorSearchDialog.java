@@ -45,6 +45,8 @@ import org.eclipse.swt.widgets.TableItem;
 public class PgVectorSearchDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = PgVectorSearchMeta.class;
+  private static final String CONST_COMBO_YES = "System.Combo.Yes";
+  private static final String CONST_COMBO_NO = "System.Combo.No";
 
   private final PgVectorSearchMeta input;
   private GuiCompositeWidgets widgets;
@@ -123,8 +125,18 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.Stream"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {},
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.SkipIfEmpty"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {
+                BaseMessages.getString(PKG, CONST_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_COMBO_NO)
+              },
               true)
         };
+    columns[2].setToolTip(
+        BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.SkipIfEmpty.Tooltip"));
 
     int rows = input.getFilters() != null ? input.getFilters().size() : 0;
     wFilters =
@@ -189,6 +201,9 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
       TableItem item = new TableItem(wFilters.table, SWT.NONE);
       item.setText(1, Const.NVL(filter.getColumnName(), ""));
       item.setText(2, Const.NVL(filter.getStreamField(), ""));
+      item.setText(
+          3,
+          BaseMessages.getString(PKG, filter.isSkipIfEmpty() ? CONST_COMBO_YES : CONST_COMBO_NO));
     }
     wFilters.removeEmptyRows();
     wFilters.setRowNums();
@@ -202,8 +217,10 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
     for (TableItem item : wFilters.getNonEmptyItems()) {
       String columnName = item.getText(1);
       String streamField = item.getText(2);
+      boolean skipIfEmpty =
+          BaseMessages.getString(PKG, CONST_COMBO_YES).equalsIgnoreCase(item.getText(3));
       if (!Utils.isEmpty(columnName) && !Utils.isEmpty(streamField)) {
-        filters.add(new PgVectorSearchFilter(columnName, streamField));
+        filters.add(new PgVectorSearchFilter(columnName, streamField, skipIfEmpty));
       }
     }
     return filters;
