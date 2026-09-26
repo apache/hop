@@ -22,13 +22,26 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -147,5 +160,81 @@ class AddSequenceMetaTest {
     assertEquals(meta.isDatabaseUsed(), cloned.isDatabaseUsed());
     assertEquals(meta.getConnection(), cloned.getConnection());
     assertEquals(meta.getStartAt(), cloned.getStartAt());
+  }
+
+  /**
+   * Issue #8561. The default Add Sequence uses a counter and has no connection. That must not be
+   * reported as a missing database connection, and verify must not try to load one.
+   */
+  @Test
+  void counterSequenceDoesNotWarnAboutAMissingConnection() throws Exception {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setDefault();
+    assertFalse(meta.isDatabaseConnectionUsed("connection"));
+
+    IHopMetadataProvider provider = metadataProviderThatCannotLoad();
+    List<ICheckResult> remarks =
+        ReferencedDatabaseConnectionChecker.checkObject(
+            meta, "Transform", "Add sequence", null, new Variables(), provider);
+
+    assertTrue(remarks.isEmpty());
+
+    TransformMeta transformMeta = new TransformMeta("Add sequence", meta);
+    List<ICheckResult> checked = new ArrayList<>();
+    meta.check(
+        checked,
+        null,
+        transformMeta,
+        null,
+        new String[] {"Generate rows"},
+        new String[0],
+        null,
+        new Variables(),
+        provider);
+
+    assertEquals(1, checked.size());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, checked.get(0).getType());
+
+    SqlStatement sql = meta.getSqlStatements(new Variables(), null, transformMeta, null, provider);
+    assertNotNull(sql);
+    assertNull(sql.getSql());
+    assertFalse(sql.hasError());
+  }
+
+  /** Selecting a database sequence with no connection still has to be reported. */
+  @Test
+  void databaseSequenceWithoutAConnectionIsReported() throws Exception {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setDefault();
+    meta.setDatabaseUsed(true);
+    meta.setCounterUsed(false);
+    assertTrue(meta.isDatabaseConnectionUsed("connection"));
+
+    IHopMetadataProvider provider = metadataProviderThatCannotLoad();
+    List<ICheckResult> remarks =
+        ReferencedDatabaseConnectionChecker.checkObject(
+            meta, "Transform", "Add sequence", null, new Variables(), provider);
+
+    assertEquals(1, remarks.size());
+    assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED, remarks.get(0).getErrorCode());
+
+    TransformMeta transformMeta = new TransformMeta("Add sequence", meta);
+    SqlStatement sql = meta.getSqlStatements(new Variables(), null, transformMeta, null, provider);
+    assertTrue(sql.hasError());
+    assertEquals(
+        BaseMessages.getString(
+            AddSequenceMeta.class, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"),
+        sql.getError());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static IHopMetadataProvider metadataProviderThatCannotLoad() throws HopException {
+    IHopMetadataProvider provider = mock(IHopMetadataProvider.class);
+    IHopMetadataSerializer<DatabaseMeta> serializer = mock(IHopMetadataSerializer.class);
+    when(provider.getSerializer(DatabaseMeta.class)).thenReturn(serializer);
+    when(serializer.load(nullable(String.class)))
+        .thenThrow(new HopException("you need to specify the name of the metadata object to load"));
+    return provider;
   }
 }
