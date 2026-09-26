@@ -29,6 +29,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -108,6 +109,12 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
 
         location.setPluginId(plugin.getIds()[0]);
         location.setPluginName(plugin.getName());
+        if (location instanceof BaseCachingExecutionInfoLocation cachingLocation) {
+          // Fresh plugin instances are the new-location path. A loaded location replaces this
+          // object in the map, so an omitted maxCacheAge on disk stays at one day.
+          cachingLocation.setMaxCacheAge(
+              BaseCachingExecutionInfoLocation.NEW_LOCATION_MAX_CACHE_AGE);
+        }
 
         metaMap.put(plugin.getName(), location);
       } catch (Exception e) {

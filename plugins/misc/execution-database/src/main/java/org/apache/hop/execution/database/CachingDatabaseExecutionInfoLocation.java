@@ -40,6 +40,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -68,8 +69,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 
 /**
  * Caches execution information and persists each top-level pipeline/workflow {@link CacheEntry} as
- * one row in a relational table: filter columns for efficient queries, plus a CLOB/TEXT column with
- * the full JSON payload (same shape as Caching File / Elastic / OpenSearch).
+ * one row in a relational table: filter columns for queries, a JSON document written once (project
+ * metadata and pipeline XML), and a state document that a local single-writer updates afterwards.
  */
 @GuiPlugin(description = "Caching Database execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
@@ -83,6 +84,8 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     implements IExecutionInfoLocation {
 
   public static final Class<?> PKG = CachingDatabaseExecutionInfoLocation.class;
+
+  private static final ObjectMapper JSON_MAPPER = HopJson.newMapper();
 
   public static final String PLUGIN_ID = "caching-database-location";
   public static final String DEFAULT_TABLE_NAME = "hop_executions";
@@ -98,6 +101,12 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   public static final String COL_STATUS_DESCRIPTION = "status_description";
   public static final String COL_DURATION_MS = "duration_ms";
   public static final String COL_JSON = "json";
+
+  /**
+   * Live state, child states and samples. {@link #COL_JSON} stays as inserted so a long run does
+   * not bind the project metadata again.
+   */
+  public static final String COL_STATE_JSON = "state_json";
 
   @GuiWidgetElement(
       id = "connectionName",
@@ -148,6 +157,9 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   protected String actualConnectionName;
   protected String actualSchemaName;
   protected String actualTableName;
+
+  /** False only when an existing table could not grow the state column. New DDL includes it. */
+  private boolean stateJsonColumnAvailable = true;
 
   public CachingDatabaseExecutionInfoLocation() {
     super();
@@ -212,6 +224,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       databaseClosed = false;
       discardDatabase();
       connectDatabase();
+      ensureStateJsonColumn();
     }
 
     try {
@@ -242,11 +255,24 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     try {
       super.close();
     } finally {
-      synchronized (dbLock) {
-        databaseClosed = true;
-        discardDatabase();
+      // A failed flush leaves the dirty entries in the map. Keep the connection so close() can
+      // retry them. Drop it once nothing unsaved remains.
+      if (!hasDirtyCacheEntries()) {
+        synchronized (dbLock) {
+          databaseClosed = true;
+          discardDatabase();
+        }
       }
     }
+  }
+
+  private boolean hasDirtyCacheEntries() {
+    for (CacheEntry entry : getCache().values()) {
+      if (entry != null && entry.isDirty()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -399,20 +425,39 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       throw new HopException("Caching database execution information location is closed");
     }
     try {
-      mergeChildrenFromDatabase(cacheEntry);
       cacheEntry.calculateSummary();
-
-      ObjectMapper mapper = new ObjectMapper();
-      String json = mapper.writeValueAsString(cacheEntry);
-
-      IRowMeta rowMeta = createDataRowMeta();
-      Object[] data = buildRowData(cacheEntry, json);
-
-      callWithDatabase(
-          () -> {
-            upsertCacheEntry(rowMeta, data);
-            return null;
-          });
+      boolean lightUpdate = cacheEntry.isSingleWriter() && cacheEntry.isHeavyDocumentStored();
+      if (lightUpdate) {
+        callWithDatabase(
+            () -> {
+              if (rowExists(cacheEntry.getId())) {
+                if (stateJsonColumnAvailable) {
+                  updateLightState(cacheEntry);
+                } else {
+                  updateStatusColumns(cacheEntry);
+                }
+                return null;
+              }
+              // The row was removed. Write the document we still have.
+              writeFullDocument(cacheEntry);
+              return null;
+            });
+      } else {
+        // Another process may have added children. A local single-writer inserts once and then
+        // never reads the CLOB back.
+        if (!cacheEntry.isSingleWriter()) {
+          mergeChildrenFromDatabase(cacheEntry);
+        }
+        callWithDatabase(
+            () -> {
+              writeFullDocument(cacheEntry);
+              return null;
+            });
+        if (cacheEntry.isSingleWriter()) {
+          releaseHeavyDocument(cacheEntry);
+          cacheEntry.setHeavyDocumentStored(true);
+        }
+      }
 
       cacheEntry.setDirty(false);
       cacheEntry.setLastWritten(new Date());
@@ -466,56 +511,131 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     return one != null && one.getData() != null;
   }
 
+  private void writeFullDocument(CacheEntry cacheEntry) throws HopException {
+    String json = serializeCacheEntry(cacheEntry);
+    IRowMeta rowMeta = createDataRowMeta();
+    // A full write is the source of truth, so drop any older state overlay.
+    Object[] data = buildRowData(cacheEntry, json, null);
+    upsertCacheEntry(rowMeta, data);
+  }
+
+  /**
+   * Status columns and the live state document. The inserted JSON, including project metadata and
+   * pipeline XML, is left untouched and is not read back.
+   */
+  private void updateLightState(CacheEntry cacheEntry) throws HopException {
+    String stateJson = serializeWithoutHeavyDocument(cacheEntry);
+    Object[] data = buildRowData(cacheEntry, null, stateJson);
+    executeUpdate(lightUpdateFields(), data);
+  }
+
+  /** Status columns only, when the table has no state column. */
+  private void updateStatusColumns(CacheEntry cacheEntry) throws HopException {
+    Object[] data = buildRowData(cacheEntry, null, null);
+    executeUpdate(statusUpdateFields(), data);
+  }
+
+  private String serializeWithoutHeavyDocument(CacheEntry cacheEntry) throws HopException {
+    Execution execution = cacheEntry.getExecution();
+    String metadata = null;
+    String executorXml = null;
+    if (execution != null) {
+      metadata = execution.getMetadataJson();
+      executorXml = execution.getExecutorXml();
+      execution.setMetadataJson(null);
+      execution.setExecutorXml(null);
+    }
+    try {
+      return serializeCacheEntry(cacheEntry);
+    } finally {
+      if (execution != null) {
+        execution.setMetadataJson(metadata);
+        execution.setExecutorXml(executorXml);
+      }
+    }
+  }
+
+  private static String serializeCacheEntry(CacheEntry cacheEntry) throws HopException {
+    try {
+      return JSON_MAPPER.writeValueAsString(cacheEntry);
+    } catch (Exception e) {
+      throw new HopException("Error serializing cache entry '" + cacheEntry.getId() + "'", e);
+    }
+  }
+
+  private static String[] statusUpdateFields() {
+    return new String[] {
+      COL_NAME,
+      COL_EXECUTION_TYPE,
+      COL_PARENT_ID,
+      COL_REGISTRATION_DATE,
+      COL_EXECUTION_START_DATE,
+      COL_EXECUTION_END_DATE,
+      COL_FAILED,
+      COL_STATUS_DESCRIPTION,
+      COL_DURATION_MS
+    };
+  }
+
+  private String[] lightUpdateFields() {
+    String[] status = statusUpdateFields();
+    String[] fields = new String[status.length + 1];
+    System.arraycopy(status, 0, fields, 0, status.length);
+    fields[status.length] = COL_STATE_JSON;
+    return fields;
+  }
+
+  private String[] fullUpdateFields() {
+    String[] light = stateJsonColumnAvailable ? lightUpdateFields() : statusUpdateFields();
+    String[] fields = new String[light.length + 1];
+    System.arraycopy(light, 0, fields, 0, light.length);
+    fields[light.length] = COL_JSON;
+    return fields;
+  }
+
+  /** prepareUpdate binds SET fields first, then the WHERE value. */
+  private void executeUpdate(String[] setFields, Object[] data) throws HopException {
+    String[] codes = new String[] {COL_ID};
+    String[] conditions = new String[] {"="};
+    if (!database.prepareUpdate(actualSchemaName, actualTableName, codes, conditions, setFields)) {
+      throw new HopException("Unable to prepare update for table " + getQuotedSchemaTable());
+    }
+    try {
+      IRowMeta rowMeta = createDataRowMeta();
+      IRowMeta updateMeta = new RowMeta();
+      Object[] updateData = new Object[setFields.length + 1];
+      for (int i = 0; i < setFields.length; i++) {
+        int index = rowMeta.indexOfValue(setFields[i]);
+        if (index < 0) {
+          throw new HopException("Unknown execution information column '" + setFields[i] + "'");
+        }
+        updateData[i] = data[index];
+        updateMeta.addValueMeta(rowMeta.getValueMeta(index));
+      }
+      int idIndex = rowMeta.indexOfValue(COL_ID);
+      updateData[setFields.length] = data[idIndex];
+      updateMeta.addValueMeta(rowMeta.getValueMeta(idIndex));
+      database.setValuesUpdate(updateMeta, updateData);
+      database.updateRow();
+    } finally {
+      database.closeUpdate();
+    }
+  }
+
+  private static void releaseHeavyDocument(CacheEntry cacheEntry) {
+    Execution execution = cacheEntry.getExecution();
+    if (execution == null) {
+      return;
+    }
+    execution.setMetadataJson(null);
+    execution.setExecutorXml(null);
+  }
+
   /** Upsert: if a row with the same id exists UPDATE, otherwise INSERT. */
   private void upsertCacheEntry(IRowMeta rowMeta, Object[] data) throws HopException {
     String id = (String) data[0];
     if (rowExists(id)) {
-      String[] setFields =
-          new String[] {
-            COL_NAME,
-            COL_EXECUTION_TYPE,
-            COL_PARENT_ID,
-            COL_REGISTRATION_DATE,
-            COL_EXECUTION_START_DATE,
-            COL_EXECUTION_END_DATE,
-            COL_FAILED,
-            COL_STATUS_DESCRIPTION,
-            COL_DURATION_MS,
-            COL_JSON
-          };
-      String[] codes = new String[] {COL_ID};
-      String[] conditions = new String[] {"="};
-
-      if (!database.prepareUpdate(
-          actualSchemaName, actualTableName, codes, conditions, setFields)) {
-        throw new HopException("Unable to prepare update for table " + getQuotedSchemaTable());
-      }
-      try {
-        // prepareUpdate binds SET fields first, then WHERE values
-        Object[] updateData = new Object[setFields.length + 1];
-        updateData[0] = data[1];
-        updateData[1] = data[2];
-        updateData[2] = data[3];
-        updateData[3] = data[4];
-        updateData[4] = data[5];
-        updateData[5] = data[6];
-        updateData[6] = data[7];
-        updateData[7] = data[8];
-        updateData[8] = data[9];
-        updateData[9] = data[10];
-        updateData[10] = data[0];
-
-        IRowMeta updateMeta = new RowMeta();
-        for (String setField : setFields) {
-          updateMeta.addValueMeta(rowMeta.searchValueMeta(setField));
-        }
-        updateMeta.addValueMeta(rowMeta.searchValueMeta(COL_ID));
-
-        database.setValuesUpdate(updateMeta, updateData);
-        database.updateRow();
-      } finally {
-        database.closeUpdate();
-      }
+      executeUpdate(fullUpdateFields(), data);
     } else {
       database.insertRow(actualSchemaName, actualTableName, rowMeta, data);
     }
@@ -524,9 +644,13 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   @Override
   protected CacheEntry loadCacheEntry(String executionId) throws HopException {
     try {
+      String columns = databaseMeta.quoteField(COL_JSON);
+      if (stateJsonColumnAvailable) {
+        columns += ", " + databaseMeta.quoteField(COL_STATE_JSON);
+      }
       String sql =
           "SELECT "
-              + databaseMeta.quoteField(COL_JSON)
+              + columns
               + " FROM "
               + getQuotedSchemaTable()
               + " WHERE "
@@ -538,16 +662,18 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       return callWithDatabase(
           () -> {
             RowMetaAndData row = database.getOneRow(sql, paramMeta, new Object[] {executionId});
-            if (row == null || row.getData() == null) {
+            if (row == null || row.getData() == null || row.getData()[0] == null) {
               return null;
             }
-            Object jsonObj = row.getData()[0];
-            if (jsonObj == null) {
-              return null;
+            CacheEntry entry = JSON_MAPPER.readValue(row.getData()[0].toString(), CacheEntry.class);
+            if (stateJsonColumnAvailable
+                && row.getData().length > 1
+                && row.getData()[1] != null
+                && StringUtils.isNotEmpty(row.getData()[1].toString())) {
+              applyStateOverlay(
+                  entry, JSON_MAPPER.readValue(row.getData()[1].toString(), CacheEntry.class));
             }
-            String json = jsonObj.toString();
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(json, CacheEntry.class);
+            return entry;
           });
     } catch (Exception e) {
       throw new HopException(
@@ -617,6 +743,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
       callWithDatabase(
           () -> {
+            List<DatedId> parentIds = new ArrayList<>();
             ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
             try {
               Object[] row = database.getRow(rs);
@@ -630,18 +757,22 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
                   startDate = (Date) row[1];
                 }
                 if (id != null) {
-                  ids.add(new DatedId(id, startDate != null ? startDate : new Date(0L)));
-                  if (includeChildren && !activeSelector.isSelectingParents()) {
-                    CacheEntry entry = loadCacheEntry(id);
-                    if (entry != null) {
-                      addChildIds(entry, ids, activeSelector);
-                    }
-                  }
+                  parentIds.add(new DatedId(id, startDate != null ? startDate : new Date(0L)));
                 }
                 row = database.getRow(rs);
               }
             } finally {
               database.closeQuery(rs);
+            }
+
+            ids.addAll(parentIds);
+            if (includeChildren && !activeSelector.isSelectingParents()) {
+              for (DatedId parentDatedId : parentIds) {
+                CacheEntry entry = loadCacheEntry(parentDatedId.getId());
+                if (entry != null) {
+                  addChildIds(entry, ids, activeSelector);
+                }
+              }
             }
             return null;
           });
@@ -736,12 +867,15 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     rowMeta.addValueMeta(new ValueMetaString(COL_STATUS_DESCRIPTION, 128, -1));
     // length 15 → BIGINT on most dialects (default Integer length maps to tinyint on H2)
     rowMeta.addValueMeta(new ValueMetaInteger(COL_DURATION_MS, 15, 0));
-    // CLOB for full CacheEntry JSON
+    // CLOB for the CacheEntry JSON written on insert
     rowMeta.addValueMeta(new ValueMetaString(COL_JSON, DatabaseMeta.CLOB_LENGTH, -1));
+    if (stateJsonColumnAvailable) {
+      rowMeta.addValueMeta(new ValueMetaString(COL_STATE_JSON, DatabaseMeta.CLOB_LENGTH, -1));
+    }
     return rowMeta;
   }
 
-  private Object[] buildRowData(CacheEntry cacheEntry, String json) {
+  private Object[] buildRowData(CacheEntry cacheEntry, String json, String stateJson) {
     Execution execution = cacheEntry.getExecution();
     ExecutionState state = cacheEntry.getExecutionState();
 
@@ -762,6 +896,21 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     Long durationMs =
         cacheEntry.getSummary() != null ? cacheEntry.getSummary().getDurationMs() : null;
 
+    if (!stateJsonColumnAvailable) {
+      return new Object[] {
+        cacheEntry.getId(),
+        name,
+        executionType,
+        parentId,
+        registrationDate,
+        startDate,
+        endDate,
+        failed,
+        status,
+        durationMs,
+        json
+      };
+    }
     return new Object[] {
       cacheEntry.getId(),
       name,
@@ -773,8 +922,72 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       failed,
       status,
       durationMs,
-      json
+      json,
+      stateJson
     };
+  }
+
+  /**
+   * The state document is a later snapshot of the same cache entry without project metadata or
+   * pipeline XML. Copy the parts that move onto the inserted document.
+   */
+  private static void applyStateOverlay(CacheEntry target, CacheEntry state) {
+    if (target == null || state == null) {
+      return;
+    }
+    if (state.getExecutionState() != null) {
+      target.setExecutionState(state.getExecutionState());
+    }
+    if (state.getChildExecutionStates() != null) {
+      target.setChildExecutionStates(state.getChildExecutionStates());
+    }
+    if (state.getChildExecutionData() != null) {
+      target.setChildExecutionData(state.getChildExecutionData());
+    }
+    if (state.getSummary() != null) {
+      target.setSummary(state.getSummary());
+    }
+    target.setDirty(false);
+  }
+
+  /** Existing tables predate the state column. Add it so a long run can update state in place. */
+  private void ensureStateJsonColumn() {
+    if (database == null || databaseMeta == null) {
+      return;
+    }
+    try {
+      if (!database.checkTableExists(actualSchemaName, actualTableName)) {
+        return;
+      }
+      if (database.checkColumnExists(actualSchemaName, actualTableName, COL_STATE_JSON)) {
+        stateJsonColumnAvailable = true;
+        return;
+      }
+      String sql =
+          databaseMeta.getAddColumnStatement(
+              getQuotedSchemaTable(),
+              new ValueMetaString(COL_STATE_JSON, DatabaseMeta.CLOB_LENGTH, -1),
+              "",
+              false,
+              "",
+              false);
+      database.execStatement(sql);
+      stateJsonColumnAvailable = true;
+      LogChannel.GENERAL.logBasic(
+          "Added column "
+              + COL_STATE_JSON
+              + " to execution information table "
+              + getQuotedSchemaTable());
+    } catch (Exception e) {
+      stateJsonColumnAvailable = false;
+      LogChannel.GENERAL.logError(
+          "Unable to add column "
+              + COL_STATE_JSON
+              + " to "
+              + getQuotedSchemaTable()
+              + ". Later updates keep the status columns only and leave execution state in the inserted document.",
+          e);
+    }
   }
 
   protected String getQuotedSchemaTable() {

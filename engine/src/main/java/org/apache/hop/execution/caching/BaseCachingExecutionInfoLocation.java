@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +68,31 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected String persistenceDelay = "5000";
 
   @GuiWidgetElement(
+      id = "maxCacheSize",
+      order = "905",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "i18n::CachingFileExecutionInfoLocation.MaxCacheSize.Tooltip",
+      label = "i18n::CachingFileExecutionInfoLocation.MaxCacheSize.Label")
+  @HopMetadataProperty
+  protected String maxCacheSize = "50";
+
+  /**
+   * Locations saved before {@code maxCacheAge} existed omit the property. The metadata loader
+   * leaves this initializer in place, so those locations keep the original one-day age.
+   */
+  public static final String LEGACY_MAX_CACHE_AGE = "86400000";
+
+  /** Age applied when a caching location is created in the GUI, not when an old file is loaded. */
+  public static final String NEW_LOCATION_MAX_CACHE_AGE = "600000";
+
+  /**
+   * Logging text kept on one cache entry. Matches the execution viewer's default display limit and
+   * keeps the newest lines, so a long run cannot retain the whole log buffer here as well.
+   */
+  public static final int MAX_CACHED_LOGGING_TEXT_CHARS = 2_000_000;
+
+  @GuiWidgetElement(
       id = "maxCacheAge",
       order = "910",
       parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -75,7 +100,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       toolTip = "i18n::CachingFileExecutionInfoLocation.MaxCacheAge.Tooltip",
       label = "i18n::CachingFileExecutionInfoLocation.MaxCacheAge.Label")
   @HopMetadataProperty
-  protected String maxCacheAge = "86400000";
+  protected String maxCacheAge = LEGACY_MAX_CACHE_AGE;
 
   protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
@@ -105,21 +130,24 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected int delay;
   protected int maxAge;
+  protected int maxSize;
 
   protected BaseCachingExecutionInfoLocation() {
-    cache = new HashMap<>();
+    cache = new LinkedHashMap<>(16, 0.75f, true);
     this.cacheTimer = null;
     this.locked = new AtomicBoolean(false);
   }
 
   protected BaseCachingExecutionInfoLocation(BaseCachingExecutionInfoLocation location) {
     this();
+    this.maxCacheSize = location.maxCacheSize;
     this.maxCacheAge = location.maxCacheAge;
     this.persistenceDelay = location.persistenceDelay;
     this.variables = location.variables;
     this.metadataProvider = location.metadataProvider;
     this.delay = location.delay;
     this.maxAge = location.maxAge;
+    this.maxSize = location.maxSize;
   }
 
   public abstract BaseCachingExecutionInfoLocation clone();
@@ -144,9 +172,16 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     //
     delay = Const.toInt(variables.resolve(persistenceDelay), 60000);
 
-    // The default maximum cache age is 1 day
+    // The default maximum cache size is 50
     //
-    maxAge = Const.toInt(variables.resolve(maxCacheAge), 86400000);
+    maxSize = Const.toInt(variables.resolve(maxCacheSize), 50);
+    if (maxSize <= 0) {
+      maxSize = 50;
+    }
+
+    // A missing age is the pre-existing 1 day. New GUI locations save 10 minutes explicitly.
+    //
+    maxAge = Const.toInt(variables.resolve(maxCacheAge), Integer.parseInt(LEGACY_MAX_CACHE_AGE));
 
     // Let's start a timer to manage the cache every second or so.
     // Cancel any previous timer first: a second initialize() used to leave the old one running
@@ -192,7 +227,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       //
       for (CacheEntry cacheEntry : cache.values()) {
         if (cacheEntry.needsWriting(delay)) {
-          persistCacheEntry(cacheEntry);
+          try {
+            persistCacheEntry(cacheEntry);
+          } catch (Exception e) {
+            LogChannel.GENERAL.logError(
+                "Error persisting cache entry for " + cacheEntry.getId(), e);
+          }
         }
       }
 
@@ -207,6 +247,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // Remove these entries.
       //
       tooOld.forEach(id -> cache.remove(id));
+
+      enforceMaxCacheSize();
+
       loggedManageCacheError = false;
       lastManageCacheError = null;
     } catch (Exception e) {
@@ -222,6 +265,29 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
+  protected synchronized void enforceMaxCacheSize() {
+    int max = maxSize > 0 ? maxSize : 50;
+    if (cache.size() <= max) {
+      return;
+    }
+    var iterator = cache.entrySet().iterator();
+    while (iterator.hasNext() && cache.size() > max) {
+      Map.Entry<String, CacheEntry> entry = iterator.next();
+      CacheEntry cacheEntry = entry.getValue();
+      if (cacheEntry != null && cacheEntry.isDirty()) {
+        try {
+          persistCacheEntry(cacheEntry);
+        } catch (Exception e) {
+          // A failed write must stay in memory. Dropping it here loses the only copy.
+          LogChannel.GENERAL.logError(
+              "Error persisting cache entry during eviction: " + cacheEntry.getId(), e);
+          continue;
+        }
+      }
+      iterator.remove();
+    }
+  }
+
   @Override
   public synchronized void close() throws HopException {
     // Stop the timer before the final flush. Tasks that are already inside manageCache hold this
@@ -230,22 +296,31 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     Timer timer = cacheTimer;
     cacheTimer = null;
     ExecutorUtil.cleanup(timer);
-    try {
-      for (CacheEntry cacheEntry : cache.values()) {
-        if (cacheEntry.isDirty()) {
+    HopException failure = null;
+    for (Map.Entry<String, CacheEntry> mapEntry : new ArrayList<>(cache.entrySet())) {
+      CacheEntry cacheEntry = mapEntry.getValue();
+      if (cacheEntry != null && cacheEntry.isDirty()) {
+        try {
           persistCacheEntry(cacheEntry);
+        } catch (Exception e) {
+          // Leave this entry. A later close() can retry it. Clearing it drops unsaved state.
+          if (failure == null) {
+            failure =
+                new HopException("Error persisting caching execution information location", e);
+          }
+          continue;
         }
       }
-    } catch (Exception e) {
-      throw new HopException("Error persisting caching execution information location", e);
+      cache.remove(mapEntry.getKey());
+    }
+    if (failure != null) {
+      throw failure;
     }
   }
 
   @Override
-  public void clearCaches() {
-    synchronized (locked) {
-      cache.clear();
-    }
+  public synchronized void clearCaches() {
+    cache.clear();
   }
 
   @Override
@@ -357,6 +432,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     entry.setLastWritten(null);
 
     cache.put(execution.getId(), entry);
+    enforceMaxCacheSize();
   }
 
   protected synchronized void addChildExecutionToCache(Execution execution) throws HopException {
@@ -385,6 +461,34 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
+  /**
+   * Pipeline and workflow updates carry only the lines written since {@code lastLogLineNr}. Append
+   * that delta and keep the newest characters. A full snapshot ({@code lastLogLineNr == null}) is
+   * capped the same way so the cache does not keep a second copy of the central log buffer.
+   */
+  static void appendLoggingDelta(ExecutionState previous, ExecutionState update) {
+    if (update == null) {
+      return;
+    }
+    String delta = capLoggingText(update.getLoggingText());
+    if (update.getLastLogLineNr() != null && previous != null) {
+      String oldText = previous.getLoggingText();
+      if (StringUtils.isNotEmpty(oldText) && StringUtils.isNotEmpty(delta)) {
+        delta = capLoggingText(oldText + delta);
+      } else if (StringUtils.isNotEmpty(oldText)) {
+        delta = capLoggingText(oldText);
+      }
+    }
+    update.setLoggingText(delta);
+  }
+
+  private static String capLoggingText(String text) {
+    if (text == null || text.length() <= MAX_CACHED_LOGGING_TEXT_CHARS) {
+      return text;
+    }
+    return text.substring(text.length() - MAX_CACHED_LOGGING_TEXT_CHARS);
+  }
+
   protected synchronized void addStateToCache(ExecutionState executionState) throws HopException {
     CacheEntry entry = cache.get(executionState.getId());
     if (entry == null) {
@@ -397,6 +501,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
     if (entry != null) {
       // setExecutionState flags dirty so close()/timer flush include the state
+      appendLoggingDelta(entry.getExecutionState(), executionState);
       entry.setExecutionState(executionState);
     } else {
       LogChannel.GENERAL.logError(
@@ -406,10 +511,11 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected CacheEntry findCacheEntryWithParent(String parentId) {
+  protected synchronized CacheEntry findCacheEntryWithParent(String parentId) {
     if (StringUtils.isEmpty(parentId)) {
       return null;
     }
+    CacheEntry found = null;
     Collection<CacheEntry> values = cache.values();
     for (CacheEntry cacheEntry : values) {
       if (cacheEntry.getExecution() == null) {
@@ -417,14 +523,19 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       }
       String execParent = cacheEntry.getExecution().getParentId();
       if (parentId.equals(execParent)) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
-      if (cacheEntry.getExecutionState() == null) {
-        continue;
+      ExecutionState state = cacheEntry.peekExecutionState();
+      if (state != null && parentId.equals(state.getId())) {
+        found = cacheEntry;
+        break;
       }
-      if (parentId.equals(cacheEntry.getExecutionState().getId())) {
-        return cacheEntry;
-      }
+    }
+    if (found != null) {
+      cache.get(found.getId());
+      found.markRead();
+      return found;
     }
     return null;
   }
@@ -467,25 +578,37 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected synchronized CacheEntry findCacheEntry(String executionId) throws HopException {
     // Check the cache first...
+    CacheEntry found = null;
     for (CacheEntry cacheEntry : cache.values()) {
       // See if this is a parent in the cache.
       //
       if (cacheEntry.getId().equals(executionId)) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
-      // Sometimes the ID of the execution state is different from the execution
+      // Sometimes the ID of the execution state is different from the execution.
+      // Peek: a scan must not refresh lastRead on the entries that did not match.
       //
-      if (cacheEntry.getExecutionState() != null
-          && cacheEntry.getExecutionState().getId().equals(executionId)) {
-        return cacheEntry;
+      ExecutionState state = cacheEntry.peekExecutionState();
+      if (state != null && executionId.equals(state.getId())) {
+        found = cacheEntry;
+        break;
       }
 
       // Is it perhaps one of the children?
       //
-      Execution childExecution = cacheEntry.getChildExecution(executionId);
+      Execution childExecution = cacheEntry.peekChildExecution(executionId);
       if (childExecution != null) {
-        return cacheEntry;
+        found = cacheEntry;
+        break;
       }
+    }
+
+    if (found != null) {
+      // Iteration does not update access order. A key lookup moves this entry to the newest end.
+      cache.get(found.getId());
+      found.markRead();
+      return found;
     }
 
     // We still haven't found anything in the cache.
@@ -497,9 +620,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       entry.setLastWritten(new Date());
       entry.setDirty(false);
 
-      // Add this to the cache as well
-      //
-      cache.put(executionId, entry);
+      cache.put(entry.getId(), entry);
+      enforceMaxCacheSize();
 
       return entry;
     }
@@ -545,8 +667,11 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     CacheEntry entry = findCacheEntry(data.getParentId());
     if (entry != null) {
       entry.addExecutionData(data);
-      // Flush promptly so other processes can merge samples when they persist parent state
-      persistCacheEntry(entry);
+      // A local single-writer flushes from the cache timer. Another process (Spark/Beam) still
+      // needs the samples on disk before it merges its own write.
+      if (!entry.isSingleWriter()) {
+        persistCacheEntry(entry);
+      }
     } else {
       LogChannel.GENERAL.logError(
           "Unable to register execution data for owner '"
@@ -593,7 +718,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected void getExecutionIdsFromCache(Set<DatedId> ids, boolean includeChildren) {
+  protected synchronized void getExecutionIdsFromCache(Set<DatedId> ids, boolean includeChildren) {
     for (CacheEntry cacheEntry : cache.values()) {
       ids.add(new DatedId(cacheEntry.getId(), cacheEntry.getExecution().getRegistrationDate()));
       if (includeChildren) {
@@ -602,7 +727,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected void getExecutionIdsFromCache(Set<DatedId> ids, IExecutionSelector selector) {
+  protected synchronized void getExecutionIdsFromCache(
+      Set<DatedId> ids, IExecutionSelector selector) {
     for (CacheEntry cacheEntry : cache.values()) {
       if (selector.isSelected(cacheEntry.getExecution())
           && selector.isSelected(cacheEntry.getExecutionState())) {
@@ -615,12 +741,32 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   }
 
   @Override
-  public Execution getExecution(String executionId) throws HopException {
+  public synchronized Execution getExecution(String executionId) throws HopException {
     CacheEntry entry = findCacheEntry(executionId);
     if (entry == null) {
       return null;
     }
-    return entry.getExecution();
+    Execution execution = entry.getExecution();
+    if (execution != null
+        && entry.isHeavyDocumentStored()
+        && execution.getMetadataJson() == null
+        && execution.getExecutorXml() == null) {
+      restoreHeavyDocument(entry);
+    }
+    return execution;
+  }
+
+  /**
+   * The running entry drops the project metadata and pipeline XML after the first insert. A viewer
+   * asking for the execution gets those fields back from the stored row, once.
+   */
+  private void restoreHeavyDocument(CacheEntry entry) throws HopException {
+    CacheEntry stored = loadCacheEntry(entry.getId());
+    if (stored == null || stored.getExecution() == null || entry.getExecution() == null) {
+      return;
+    }
+    entry.getExecution().setMetadataJson(stored.getExecution().getMetadataJson());
+    entry.getExecution().setExecutorXml(stored.getExecution().getExecutorXml());
   }
 
   @Override
