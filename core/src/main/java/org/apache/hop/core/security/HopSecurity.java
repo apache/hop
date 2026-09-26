@@ -17,6 +17,8 @@
 
 package org.apache.hop.core.security;
 
+import java.util.Optional;
+
 /**
  * Global entry point for authorization checks. Defaults to an unrestricted context (desktop / no
  * auth). Hop Web installs a session-aware {@link ISecurityContextProvider} so concurrent users each
@@ -68,6 +70,22 @@ public final class HopSecurity {
   public static HopSecurityContext getContext() {
     HopSecurityContext context = provider.getContext();
     return context != null ? context : HopSecurityContext.unrestricted();
+  }
+
+  /**
+   * The name to record in the audit fields of a file, such as the user who created or last modified
+   * a pipeline or workflow.
+   *
+   * <p>Only an authenticated context yields a name. The desktop runs unrestricted under the {@link
+   * HopSecurityContext#ANONYMOUS_USERNAME} placeholder, and neither that placeholder nor the
+   * operating system account name says anything about who edited the file, so those cases return an
+   * empty result and leave whatever the file already holds untouched.
+   *
+   * @return the authenticated user name, or empty when no real user is known
+   */
+  public static Optional<String> getAuditUsername() {
+    HopSecurityContext context = getContext();
+    return context.isAuthenticated() ? Optional.of(context.getUsername()) : Optional.empty();
   }
 
   /**

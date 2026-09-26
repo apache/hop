@@ -26,7 +26,15 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Getter
 @Setter
 public class PipelineMetaInfo extends AbstractMetaInfo {
-  /** The version string for the pipeline. */
+  /**
+   * The version string for the pipeline.
+   *
+   * @deprecated since 2.20, for removal. The label has to be set and updated by hand and says
+   *     nothing that the version control system holding the file does not already say more
+   *     reliably. It is still read from and written to the file, so no existing value is lost
+   *     before it is removed.
+   */
+  @Deprecated(since = "2.20", forRemoval = true)
   @HopMetadataProperty(key = "pipeline_version")
   protected String pipelineVersion;
 
@@ -42,7 +50,15 @@ public class PipelineMetaInfo extends AbstractMetaInfo {
   @HopMetadataProperty(key = "transform_performance_capturing_size_limit")
   protected String transformPerformanceCapturingSizeLimit;
 
-  /** The status of the pipeline. */
+  /**
+   * The status of the pipeline: {@code 1} for draft, {@code 2} for production, {@code -1} when
+   * unset.
+   *
+   * @deprecated since 2.20, for removal. Nothing in Hop acts on the value, it has to be maintained
+   *     by hand, and it is left at {@code -1} in practice. It is still read from and written to the
+   *     file, so no existing value is lost before it is removed.
+   */
+  @Deprecated(since = "2.20", forRemoval = true)
   @HopMetadataProperty(key = "pipeline_status")
   protected int pipelineStatus;
 

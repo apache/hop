@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.systemdata;
 import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.AVAILABLE_PROCESSORS;
 import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.COMMITTED_VIRTUAL_MEMORY_SIZE;
 import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.COPYNR;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.CREATED_DATE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.CREATED_USER;
 import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.CURRENT_PID;
 import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.FILENAME;
 import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.FREE_PHYSICAL_MEMORY_SIZE;
@@ -311,6 +313,8 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
     resolvers.put(COPYNR, () -> (long) getCopy());
     resolvers.put(PIPELINE_NAME, () -> getPipelineMeta().getName());
     resolvers.put(FILENAME, () -> getPipelineMeta().getFilename());
+    resolvers.put(CREATED_USER, () -> getPipelineMeta().getCreatedUser());
+    resolvers.put(CREATED_DATE, () -> getPipelineMeta().getCreatedDate());
     resolvers.put(MODIFIED_USER, () -> getPipelineMeta().getModifiedUser());
     resolvers.put(MODIFIED_DATE, () -> getPipelineMeta().getModifiedDate());
     resolvers.put(HOSTNAME_REAL, Const::getHostnameReal);
