@@ -169,6 +169,21 @@ class ReferencedDatabaseConnectionCheckerTest {
         ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED, remarks.get(0).getErrorCode());
   }
 
+  /**
+   * An unassigned connection is null, not empty: that is the field default on a new transform. The
+   * walker used to skip null fields, so this warning was never reported and the transform's own
+   * check was left saying the same thing without a code.
+   */
+  @Test
+  void unassignedConnectionIsAWarning() {
+    List<ICheckResult> remarks = check(new ConnMeta(null), "Read sales");
+
+    assertEquals(1, remarks.size());
+    assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED, remarks.get(0).getErrorCode());
+    assertEquals(ICheckResult.TYPE_RESULT_WARNING, remarks.get(0).getType());
+  }
+
   @Test
   void nestedListConnectionsAreChecked() {
     List<ICheckResult> remarks =

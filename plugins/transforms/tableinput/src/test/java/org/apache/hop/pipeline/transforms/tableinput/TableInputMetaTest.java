@@ -489,6 +489,43 @@ class TableInputMetaTest {
         aboutTheConnection.get(0).getErrorCode());
   }
 
+  /**
+   * A connection that was never assigned is null, not empty: the field default on a new transform.
+   * It is reported once, by the pipeline check, under its own code. Table input used to add an
+   * uncoded error of its own - the load of a null name raised "you need to specify the name..." -
+   * which no suppression of CONNECTION_NOT_ASSIGNED could clear.
+   */
+  @Test
+  void anUnassignedConnectionIsReportedOnceByPipelineVerify() {
+    assertConnectionRemark(null, ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED);
+  }
+
+  /** An empty connection name is the same thing said differently, and reported the same way. */
+  @Test
+  void anEmptyConnectionIsReportedOnceByPipelineVerify() {
+    assertConnectionRemark("", ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED);
+  }
+
+  private static void assertConnectionRemark(String connection, String expectedErrorCode) {
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection(connection);
+    meta.setSql("SELECT 1");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(new TransformMeta("Table input", meta));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    pipelineMeta.checkTransforms(
+        remarks, false, null, new Variables(), new MemoryMetadataProvider());
+
+    List<ICheckResult> aboutTheConnection =
+        remarks.stream()
+            .filter(r -> r.getType() != ICheckResult.TYPE_RESULT_OK)
+            .filter(r -> r.getText().toLowerCase().contains("connection"))
+            .toList();
+    Assertions.assertEquals(1, aboutTheConnection.size(), aboutTheConnection.toString());
+    Assertions.assertEquals(expectedErrorCode, aboutTheConnection.get(0).getErrorCode());
+  }
+
   private static TableInputMeta namedParameterMeta() {
     TableInputMeta meta = new TableInputMeta();
     meta.setConnection("h2");
