@@ -50,6 +50,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -380,6 +381,61 @@ class DynamicSqlRowMetaTest {
         () ->
             meta.getFields(
                 new RowMeta(), "dynamic", null, null, new Variables(), metadataProvider));
+  }
+
+  /** A connection auto-selected in the dialog, with no template SQL typed yet. */
+  @Test
+  void getFieldsWithConnectionAndEmptySqlAddsNothing() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setConnection("db");
+    meta.setSql("");
+    IHopMetadataProvider metadataProvider = providerWith("db", mock(DatabaseMeta.class));
+
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("sql_field"));
+
+    try (MockedConstruction<Database> databases = mockConstruction(Database.class)) {
+      meta.getFields(row, "dynamic", null, null, new Variables(), metadataProvider);
+      assertTrue(databases.constructed().isEmpty());
+    }
+
+    assertEquals(1, row.size());
+  }
+
+  /** A connection variable that is only set at runtime. */
+  @Test
+  void getFieldsWithUnresolvedConnectionVariableAddsNothing() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setConnection("${DB}");
+    meta.setSql("SELECT 1");
+
+    RowMeta row = new RowMeta();
+    meta.getFields(row, "dynamic", null, null, new Variables(), mock(IHopMetadataProvider.class));
+
+    assertEquals(0, row.size());
+  }
+
+  @Test
+  void analyseImpactWithoutConnectionReportsNothing() throws HopException {
+    DynamicSqlRowMeta meta = new DynamicSqlRowMeta();
+    meta.setSql("SELECT 1");
+
+    RowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("sql_field"));
+
+    List<DatabaseImpact> impact = new ArrayList<>();
+    meta.analyseImpact(
+        new Variables(),
+        impact,
+        mock(PipelineMeta.class),
+        mock(TransformMeta.class),
+        prev,
+        new String[] {"in"},
+        new String[0],
+        null,
+        mock(IHopMetadataProvider.class));
+
+    assertTrue(impact.isEmpty());
   }
 
   @Test

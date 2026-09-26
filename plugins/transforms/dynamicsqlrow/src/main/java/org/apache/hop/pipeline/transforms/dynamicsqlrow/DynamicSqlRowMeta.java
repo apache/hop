@@ -138,6 +138,12 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    // An empty template is legal until the transform runs: there are no template fields to add.
+    String realSql = replaceVariables ? variables.resolve(sql) : sql;
+    if (Utils.isEmpty(realSql)) {
+      return;
+    }
+
     DatabaseMeta databaseMeta = loadDatabaseMeta(variables, metadataProvider);
     if (databaseMeta == null) {
       return;
@@ -150,10 +156,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       // First try without connecting to the database... (can be S L O W)
       // See if it's in the cache...
       IRowMeta add = null;
-      String realSql = sql;
-      if (replaceVariables) {
-        realSql = variables.resolve(realSql);
-      }
       try {
         add = db.getQueryFields(realSql, false);
       } catch (HopDatabaseException dbe) {
@@ -314,6 +316,9 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       throws HopTransformException {
 
     DatabaseMeta databaseMeta = loadDatabaseMeta(variables, metadataProvider);
+    if (databaseMeta == null) {
+      return;
+    }
     IRowMeta out = prev.clone();
     getFields(
         out,
@@ -348,6 +353,9 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
    * Looks up the connection by name every time it's needed. The resolved connection isn't kept on
    * the meta: a freshly loaded pipeline would otherwise report no template fields until the dialog
    * was opened.
+   *
+   * @return the connection, or null when no connection is set or its name can't be resolved yet
+   * @throws HopTransformException when a resolved connection name isn't in the metadata store
    */
   private DatabaseMeta loadDatabaseMeta(IVariables variables, IHopMetadataProvider metadataProvider)
       throws HopTransformException {
@@ -355,6 +363,10 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       return null;
     }
     String realConnection = variables.resolve(connection);
+    // A connection variable that is only set at runtime can't be resolved at design time.
+    if (Utils.isEmpty(realConnection) || realConnection.contains("${")) {
+      return null;
+    }
     DatabaseMeta databaseMeta;
     try {
       databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(realConnection);
