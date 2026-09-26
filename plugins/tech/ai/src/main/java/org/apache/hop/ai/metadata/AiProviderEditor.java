@@ -240,9 +240,12 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     Rectangle client = wScrolled.getClientArea();
     int width = Math.max(client.width, 1);
     Point size = wContent.computeSize(width, SWT.DEFAULT);
+    // Boxes split the parent by percentage, which adds nothing to the preferred height. Size to
+    // the viewport when that is taller so the boxes fill the editor instead of collapsing.
+    int height = Math.max(size.y, client.height);
     wScrolled.setMinWidth(width);
-    wScrolled.setMinHeight(size.y);
-    wContent.setSize(width, size.y);
+    wScrolled.setMinHeight(height);
+    wContent.setSize(width, height);
   }
 
   @Override

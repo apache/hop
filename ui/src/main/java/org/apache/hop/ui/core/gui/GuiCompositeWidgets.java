@@ -65,6 +65,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -273,35 +274,54 @@ public class GuiCompositeWidgets {
 
   private void layoutBoxes(
       Object sourceData, Composite parent, List<WidgetGroup> groups, boolean useNewLayout) {
-    Control last = widgetsFirstLastControl;
+    // Bands are percentages of this filler. A control passed in above the groups stays outside
+    // them; percentages on the parent itself would start at the top and cover it.
+    Composite filler = new Composite(parent, SWT.NONE);
+    PropsUi.setLook(filler);
+    filler.setLayout(new FormLayout());
+    FormData fdFiller = new FormData();
+    fdFiller.left = new FormAttachment(0, 0);
+    fdFiller.right = new FormAttachment(100, 0);
+    fdFiller.top =
+        widgetsFirstLastControl == null
+            ? new FormAttachment(0, 0)
+            : new FormAttachment(widgetsFirstLastControl, PropsUi.getMargin());
+    fdFiller.bottom = new FormAttachment(100, 0);
+    filler.setLayoutData(fdFiller);
+
+    int count = groups.size();
     int margin = PropsUi.getMargin();
-    for (WidgetGroup group : groups) {
-      Group box = new Group(parent, SWT.SHADOW_ETCHED_IN);
+    for (int i = 0; i < count; i++) {
+      WidgetGroup group = groups.get(i);
+      Group box = new Group(filler, SWT.SHADOW_ETCHED_IN);
       PropsUi.setLook(box);
       box.setText(Const.NVL(group.label, ""));
-      FormLayout boxLayout = new FormLayout();
-      boxLayout.marginWidth = PropsUi.getFormMargin();
-      boxLayout.marginHeight = PropsUi.getFormMargin();
-      box.setLayout(boxLayout);
+      box.setLayout(new FillLayout());
 
       FormData fdBox = new FormData();
       fdBox.left = new FormAttachment(0, 0);
       fdBox.right = new FormAttachment(100, 0);
-      if (last == null) {
+      if (i == 0) {
         fdBox.top = new FormAttachment(0, 0);
       } else {
-        fdBox.top = new FormAttachment(last, margin);
+        fdBox.top = new FormAttachment(i * 100 / count, margin);
+      }
+      if (i == count - 1) {
+        fdBox.bottom = new FormAttachment(100, 0);
+      } else {
+        fdBox.bottom = new FormAttachment((i + 1) * 100 / count, -margin);
       }
       box.setLayoutData(fdBox);
 
+      Composite content = createScrolledContent(box);
       Control lastInBox = null;
       for (GuiElements child : group.elements) {
-        lastInBox = addCompositeWidgets(sourceData, box, child, lastInBox, useNewLayout);
+        lastInBox = addCompositeWidgets(sourceData, content, child, lastInBox, useNewLayout);
       }
       for (Consumer<Composite> extra : group.extras) {
-        extra.accept(box);
+        extra.accept(content);
       }
-      last = box;
+      updateScrolledMinSize(content);
     }
   }
 
@@ -331,18 +351,8 @@ public class GuiCompositeWidgets {
         item.setImage(image);
       }
 
-      ScrolledComposite scrolled = new ScrolledComposite(folder, SWT.V_SCROLL | SWT.H_SCROLL);
-      scrolled.setLayout(new FillLayout());
-      Composite composite = new Composite(scrolled, SWT.NONE);
-      PropsUi.setLook(composite);
-      FormLayout layout = new FormLayout();
-      layout.marginWidth = PropsUi.getFormMargin();
-      layout.marginHeight = PropsUi.getFormMargin();
-      composite.setLayout(layout);
-      scrolled.setContent(composite);
-      scrolled.setExpandHorizontal(true);
-      scrolled.setExpandVertical(true);
-      item.setControl(scrolled);
+      Composite composite = createScrolledContent(folder);
+      item.setControl(composite.getParent());
 
       Control last = null;
       for (GuiElements child : group.elements) {
@@ -351,15 +361,51 @@ public class GuiCompositeWidgets {
       for (Consumer<Composite> extra : group.extras) {
         extra.accept(composite);
       }
-      composite.pack();
-      Rectangle bounds = composite.getBounds();
-      scrolled.setMinWidth(bounds.width);
-      scrolled.setMinHeight(bounds.height);
+      updateScrolledMinSize(composite);
     }
 
     if (folder.getItemCount() > 0) {
       folder.setSelection(0);
     }
+  }
+
+  /**
+   * Scrollable form inside a tab or a box. The returned composite is the parent for fields and
+   * extra-group contents; its parent is the {@link ScrolledComposite}.
+   */
+  private Composite createScrolledContent(Composite host) {
+    ScrolledComposite scrolled = new ScrolledComposite(host, SWT.V_SCROLL | SWT.H_SCROLL);
+    scrolled.setLayout(new FillLayout());
+    Composite composite = new Composite(scrolled, SWT.NONE);
+    PropsUi.setLook(composite);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    composite.setLayout(layout);
+    scrolled.setContent(composite);
+    scrolled.setExpandHorizontal(true);
+    scrolled.setExpandVertical(true);
+    return composite;
+  }
+
+  /**
+   * Point the scroll range at the content's preferred size. The previous minimum is cleared first:
+   * with expand on, the scrolled composite holds the content at the old minimum, so hiding a row
+   * would not shrink the range.
+   */
+  private void updateScrolledMinSize(Composite content) {
+    if (content == null
+        || content.isDisposed()
+        || !(content.getParent() instanceof ScrolledComposite scrolled)
+        || scrolled.isDisposed()) {
+      return;
+    }
+    scrolled.setMinWidth(0);
+    scrolled.setMinHeight(0);
+    content.layout(true, true);
+    Point preferred = content.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+    scrolled.setMinWidth(preferred.x);
+    scrolled.setMinHeight(preferred.y);
   }
 
   private Image loadGroupImage(Composite parent, String filename) {
@@ -503,6 +549,7 @@ public class GuiCompositeWidgets {
       }
       if (parent != null && !parent.isDisposed()) {
         parent.layout(true, true);
+        updateScrolledMinSize(parent);
       }
     }
 

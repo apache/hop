@@ -19,7 +19,9 @@ package org.apache.hop.core.gui.plugin;
 
 /**
  * How {@link GuiWidgetElement} fields that share a {@link GuiWidgetElement#group()} are laid out
- * inside one {@code parentId} tree. {@link #NONE} keeps the current single-form layout.
+ * inside one {@code parentId} tree. {@link #NONE} keeps the single-form layout. {@link #BOXES}
+ * stacks one box per group so the boxes fill the parent and each box scrolls its own fields. {@link
+ * #LIST} is not implemented and falls back to tabs.
  */
 public enum GuiWidgetGroupType {
   NONE,
