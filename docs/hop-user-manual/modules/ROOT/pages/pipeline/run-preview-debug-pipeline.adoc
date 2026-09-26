@@ -54,7 +54,7 @@ Choose the logging level as described below.
 
 Make sure your configuration is selected and hit 'Launch'.
 
-When a pipeline has run succesfully green check marks are displayed in the right upper corner on the transforms.
+When a pipeline has run successfully, a check mark is displayed in the upper right corner of each transform. With more than one copy, that check is shown only when every copy of the transform has finished. Until then the corner shows how many copies are done. See xref:pipeline/specify-copies.adoc#finished-copies[Specify copies].
 
 image::hop-gui/pipeline/executed-pipeline.png[Executed pipeline,75%,align="left"]
 
