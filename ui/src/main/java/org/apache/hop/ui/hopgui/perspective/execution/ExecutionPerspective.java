@@ -506,16 +506,31 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void addViewer(IExecutionViewer viewer) {
-    // Create tab item
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
+
+    // Data is set before any call that can throw. A tab left without data makes the next
+    // double-click crash in setActiveViewer (issue #8601).
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setFont(GuiResource.getInstance().getFontDefault());
-    tabItem.setText(viewer.getName());
-    tabItem.setImage(viewer.getTitleImage());
-    tabItem.setToolTipText(viewer.getTitleToolTip());
-
-    tabItem.setControl(viewer.getControl());
-    tabItem.setData(viewer);
+    boolean ok = false;
+    try {
+      tabItem.setData(viewer);
+      tabItem.setFont(GuiResource.getInstance().getFontDefault());
+      tabItem.setText(Const.NVL(viewer.getName(), ""));
+      tabItem.setImage(viewer.getTitleImage());
+      tabItem.setToolTipText(viewer.getTitleToolTip());
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        tabItem.setControl(control);
+      }
+      ok = true;
+    } finally {
+      if (!ok) {
+        discardViewerTab(tabItem, viewer);
+      }
+    }
 
     viewers.add(viewer);
 
@@ -532,6 +547,32 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     viewer.setFocus();
 
     viewer.refresh();
+  }
+
+  /**
+   * Drop a tab that never became a usable viewer. The viewer composite is a child of the folder
+   * even when it was not attached to the tab, so it is disposed too.
+   */
+  private void discardViewerTab(CTabItem tabItem, IExecutionViewer viewer) {
+    if (tabItem != null && !tabItem.isDisposed()) {
+      try {
+        tabItem.setControl(null);
+      } catch (RuntimeException e) {
+        // Detach is best-effort; the tab is about to be disposed.
+      }
+      tabItem.dispose();
+    }
+    if (viewer == null) {
+      return;
+    }
+    try {
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        control.dispose();
+      }
+    } catch (RuntimeException e) {
+      // The viewer is already unusable; the open fails with the original exception.
+    }
   }
 
   /**
@@ -553,22 +594,33 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void setActiveViewer(IExecutionViewer viewer) {
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
     for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(viewer)) {
+      if (item == null || item.isDisposed()) {
+        continue;
+      }
+      // Compare from the viewer. A tab with no data must not throw (issue #8601).
+      //
+      if (viewer.equals(item.getData())) {
         tabFolder.setSelection(item);
         tabFolder.showItem(item);
-
         viewer.setFocus();
       }
     }
   }
 
   public IExecutionViewer getActiveViewer() {
-    if (tabFolder.getSelectionIndex() < 0) {
+    if (tabFolder == null || tabFolder.isDisposed() || tabFolder.getSelectionIndex() < 0) {
       return null;
     }
 
-    return (IExecutionViewer) tabFolder.getSelection().getData();
+    Object data = tabFolder.getSelection().getData();
+    if (data instanceof IExecutionViewer viewer) {
+      return viewer;
+    }
+    return null;
   }
 
   protected void onTabClose(CTabFolderEvent event) {
@@ -1554,9 +1606,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    IExecutionViewer viewer = (IExecutionViewer) tabItem.getData();
-
-    boolean isRemoved = viewers.remove(viewer);
+    if (tabItem == null || tabItem.isDisposed()) {
+      return;
+    }
+    Object data = tabItem.getData();
+    boolean isRemoved = data instanceof IExecutionViewer viewer && viewers.remove(viewer);
     tabItem.dispose();
 
     if (isRemoved) {
