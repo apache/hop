@@ -595,6 +595,7 @@ under the License.
 ** xref:hop-run/index.adoc[hop-run]
 ** xref:hop-tools/hop-search.adoc[hop-search]
 ** xref:hop-tools/hop-import.adoc[hop-import]
+** xref:hop-tools/hop-xml-schema.adoc[hop xml-schema]
 ** xref:hop-server/index.adoc[hop-server]
 * xref:best-practices/index.adoc[Best Practices]
 * xref:linting/index.adoc[Linting]
