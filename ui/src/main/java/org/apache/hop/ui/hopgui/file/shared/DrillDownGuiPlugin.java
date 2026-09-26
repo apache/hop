@@ -269,6 +269,14 @@ public class DrillDownGuiPlugin {
     return workflows != null ? workflows : Map.of();
   }
 
+  /**
+   * Alt-click (Option-click on macOS) opens the running execution when the icon supports drill-down
+   * and a run is active. Callers check this before the pipeline error-handling Alt-click.
+   */
+  public static boolean altClickOpensExecution(boolean supportsDrillDown, boolean executionActive) {
+    return supportsDrillDown && executionActive;
+  }
+
   // ==================== TRANSFORM CONTEXT ====================
 
   @GuiContextAction(

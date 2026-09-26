@@ -64,6 +64,10 @@ Action or transform hover + `Z`::
 Hover your mouse pointer over any pipeline action in a workflow, pipeline or workflow executor transform etc and hit the `Z` key to open that item in a new tab.
 The same behavior can be triggered by hovering over an item and hitting the use `CTRL-SHIFT-Click` key combination.
 
+Action or transform hover + `X`::
+While a pipeline or workflow is running, hover over an icon that can drill down (Pipeline Executor, Workflow Executor, Mapping, ETL Metadata Injection, a Pipeline or Workflow action, and so on) and press `X` to open the child execution.
+`Alt`-click (Option-click on macOS) does the same. With no run active, `Alt`-click on a pipeline transform still opens error handling when that transform supports it.
+
 == Projects and Environments
 
 * Projects can inherit metadata items (e.g. database connections) from parent projects.

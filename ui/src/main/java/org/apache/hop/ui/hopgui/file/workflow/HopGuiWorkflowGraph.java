@@ -735,6 +735,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return;
     }
 
+    boolean alt = (event.stateMask & SWT.ALT) != 0;
     boolean control = (event.stateMask & SWT.MOD1) != 0;
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
 
@@ -837,6 +838,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 avoidContextDialog = false;
               }
             }
+          } else if (event.button == 1
+              && alt
+              && DrillDownGuiPlugin.altClickOpensExecution(
+                  currentAction.getAction() != null
+                      && currentAction.getAction().supportsDrillDown(),
+                  workflow != null)) {
+            // Opening the execution is asynchronous, so claim this release. Otherwise mouseUp
+            // also opens the action context dialog.
+            avoidContextDialog = true;
+            openExecution(currentAction);
+            return;
           } else if (canEditGraph() && (event.button == 2 || (event.button == 1 && shift))) {
             // SHIFT CLICK is start of drag to create a new hop
             //
@@ -5734,6 +5746,32 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
       }
     }
+  }
+
+  /**
+   * Hover the icon and press {@code x}: open the running child execution. Same action as the "Open
+   * execution" context menu and as Alt-click while a run is active.
+   */
+  @GuiKeyboardShortcut(key = 'x')
+  @GuiOsxKeyboardShortcut(key = 'x')
+  public void openExecution() {
+    if (lastMove == null) {
+      return;
+    }
+    hideToolTips();
+    openExecution(workflowMeta.getAction(lastMove.x, lastMove.y, iconSize));
+  }
+
+  private void openExecution(ActionMeta actionMeta) {
+    if (actionMeta == null
+        || actionMeta.getAction() == null
+        || !actionMeta.getAction().supportsDrillDown()) {
+      return;
+    }
+    Point click = lastMove != null ? lastMove : new Point(0, 0);
+    new DrillDownGuiPlugin()
+        .openActionExecution(
+            new HopGuiWorkflowActionContext(workflowMeta, actionMeta, this, click));
   }
 
   @Override
