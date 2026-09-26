@@ -47,6 +47,8 @@ public class ExplorerFileServlet extends HttpServlet {
 
   static final long DEFAULT_MAX_BYTES = 16L * 1024L * 1024L;
 
+  // I/O errors writing the response are left to the servlet container
+  @SuppressWarnings("java:S1989")
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {

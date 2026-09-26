@@ -33,6 +33,8 @@ import org.apache.hop.core.row.IRowMeta;
 /** A collection of utilities to manipulate strings. */
 public class StringUtil {
 
+  // Only used to generate test data, never for anything security related
+  @SuppressWarnings("java:S2245")
   private static final Random random = new Random();
 
   public static final String UNIX_OPEN = "${";
@@ -405,7 +407,7 @@ public class StringUtil {
     }
 
     for (int i = 0; i < length; i++) {
-      int c = 'a' + random.nextInt() * 26;
+      int c = 'a' + random.nextInt(26);
       buffer.append((char) c);
     }
     if (!Utils.isEmpty(postfix)) {

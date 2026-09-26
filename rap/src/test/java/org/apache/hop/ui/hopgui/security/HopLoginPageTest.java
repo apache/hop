@@ -17,7 +17,9 @@
 
 package org.apache.hop.ui.hopgui.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,16 @@ class HopLoginPageTest {
     assertTrue(HopLoginPage.escapeHtml("<x>").contains("&lt;"));
     assertTrue(HopLoginPage.sanitizeRedirect("https://evil.example/", "").endsWith("/ui"));
     assertTrue(HopLoginPage.sanitizeRedirect("/ui-dark", "").equals("/ui-dark"));
+    assertEquals("/ui", HopLoginPage.sanitizeRedirect("/\\evil.example", ""));
+    assertEquals("/ui", HopLoginPage.sanitizeRedirect("\\\\evil.example", ""));
+    assertEquals("/ui", HopLoginPage.sanitizeRedirect("/ui\r\nX-Header: y", ""));
+  }
+
+  @Test
+  void sanitizeForLogReplacesControlCharacters() {
+    assertEquals("alice__forged", HopLoginPage.sanitizeForLog("alice\r\nforged"));
+    assertEquals("bob", HopLoginPage.sanitizeForLog("bob"));
+    assertNull(HopLoginPage.sanitizeForLog(null));
   }
 
   @Test

@@ -195,6 +195,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     cmd.setCaseInsensitiveEnumValuesAllowed(true);
   }
 
+  // The stack trace is only printed when the user asks for it with --verbose
+  @SuppressWarnings("java:S4507")
   @Override
   public Integer call() {
     try {

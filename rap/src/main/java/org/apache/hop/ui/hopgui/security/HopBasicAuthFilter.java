@@ -142,6 +142,8 @@ public class HopBasicAuthFilter implements Filter {
     chain.doFilter(new HopAuthenticatedRequest(httpRequest, principal), response);
   }
 
+  // The username is logged through HopLoginPage.sanitizeForLog
+  @SuppressWarnings("javasecurity:S5145")
   private void handleLoginPost(
       HttpServletRequest request, HttpServletResponse response, String contextPath)
       throws IOException {
@@ -157,7 +159,7 @@ public class HopBasicAuthFilter implements Filter {
 
     Optional<HopUser> user = HopUserStore.getInstance().authenticate(username, password);
     if (user.isEmpty()) {
-      LOG.log(Level.INFO, "Login failed for user ''{0}''", username);
+      LOG.log(Level.INFO, "Login failed for user ''{0}''", HopLoginPage.sanitizeForLog(username));
       showLoginPage(request, response, contextPath, "Invalid username or password.", username);
       return;
     }
