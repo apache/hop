@@ -37,6 +37,7 @@ import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.util.Defaults;
+import org.apache.hop.projects.util.ProjectRenameBlockedException;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -842,38 +843,53 @@ public class ProjectDialog extends Dialog {
 
       if (wParentProject.getText() != null
           && !wParentProject.getText().isEmpty()
-          && projectName.equals(wParentProject.getText())) {
+          && projectName.equalsIgnoreCase(wParentProject.getText())) {
         throw new HopException(
             CONST_PROJECT + projectName + "' cannot be set as a parent project of itself");
       }
 
+      // Project names are unique regardless of case, a case-only rename is fine
+      //
       ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
-      List<String> prjs = prjsCfg.listProjectConfigNames();
-
-      if (StringUtils.isEmpty(oriProjectName)
-          || (StringUtils.isNotEmpty(oriProjectName) && !projectName.equals(oriProjectName))) {
-        for (String prj : prjs) {
-          if (projectName.equals(prj)) {
-            throw new HopException(
-                CONST_PROJECT + projectName + "' already exists. Project name must be unique!");
-          }
-        }
+      ProjectConfig sameName = prjsCfg.findProjectConfig(projectName);
+      if (sameName != null
+          && (StringUtils.isEmpty(oriProjectName)
+              || !sameName.getProjectName().equalsIgnoreCase(oriProjectName))) {
+        throw new HopException(
+            CONST_PROJECT
+                + projectName
+                + "' already exists as '"
+                + sameName.getProjectName()
+                + "'. Project names must be unique, regardless of case!");
       }
 
       HopGui hopGui = HopGui.getInstance();
+      if (!Utils.isEmpty(wParentProject.getText())
+          && !ProjectsUtil.projectExists(wParentProject.getText())) {
+        // The parent project was deleted or renamed: offer to drop the reference
+        //
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
+        box.setText(
+            BaseMessages.getString(PKG, "ProjectDialog.MissingParentProject.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "ProjectDialog.MissingParentProject.Dialog.Message",
+                wParentProject.getText()));
+        if (box.open() != SWT.YES) {
+          wParentProject.setFocus();
+          return;
+        }
+        wParentProject.setText("");
+      }
+
       if (!Utils.isEmpty(wParentProject.getText())) {
-
-        boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
-        if (!parentPrjExists)
-          throw new HopException(
-              CONST_PROJECT
-                  + wParentProject.getText()
-                  + "' cannot be set as parent project because it does not exists!");
-
         ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
         Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
-        if (parentPrj.getParentProjectName() != null
-            && parentPrj.getParentProjectName().equals(projectName))
+        String grandParentName = parentPrj.getParentProjectName();
+        if (grandParentName != null
+            && (grandParentName.equalsIgnoreCase(projectName)
+                || grandParentName.equalsIgnoreCase(oriProjectName)))
           throw new HopException(
               CONST_PROJECT
                   + projectName
@@ -894,14 +910,24 @@ public class ProjectDialog extends Dialog {
         int anwser = box.open();
         if ((anwser & SWT.NO) != 0) {
           wName.setText(oriProjectName);
+          projectName = oriProjectName;
         }
       }
 
-      if (!oriProjectName.equals(projectName)) {
-        List<String> refs = ProjectsUtil.getParentProjectReferences(oriProjectName);
-
-        if (!refs.isEmpty()) {
-          ProjectsUtil.changeParentProjectReferences(oriProjectName, projectName);
+      // Verify that the projects using this one as their parent can follow the rename. The
+      // rename itself is saved by the caller, all or nothing, once the dialog is closed.
+      //
+      if (this.editMode
+          && StringUtils.isNotEmpty(oriProjectName)
+          && !oriProjectName.equals(projectName)) {
+        try {
+          ProjectsUtil.checkProjectRename(oriProjectName, projectName, variables, hopGui.getLog());
+        } catch (ProjectRenameBlockedException e) {
+          MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          box.setText(BaseMessages.getString(PKG, "ProjectRename.Blocked.Header"));
+          box.setMessage(e.getUserMessage());
+          box.open();
+          return;
         }
       }
 
