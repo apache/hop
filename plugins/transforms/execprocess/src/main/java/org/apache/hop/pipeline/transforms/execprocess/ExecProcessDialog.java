@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.execprocess;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -28,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -65,7 +63,6 @@ public class ExecProcessDialog extends BaseTransformDialog {
   private LabelTextVar wError;
 
   private final ExecProcessMeta input;
-  private boolean gotPreviousFields = false;
 
   public ExecProcessDialog(
       Shell parent,
@@ -394,25 +391,6 @@ public class ExecProcessDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String fieldValue = wProcess.getText();
-        wProcess.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wProcess.setItems(r.getFieldNames());
-        }
-        if (fieldValue != null) {
-          wProcess.setText(fieldValue);
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "ExecProcessDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "ExecProcessDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
+    previousFields().fillCombos(wProcess);
   }
 }

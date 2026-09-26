@@ -49,6 +49,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -401,9 +402,15 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            getModulesList();
-            shell.setCursor(null);
-            busy.dispose();
+            try {
+              getModulesList();
+            } finally {
+              // The dialog can be closed while the error dialog of a failed lookup is open
+              if (!shell.isDisposed()) {
+                shell.setCursor(null);
+              }
+              busy.dispose();
+            }
           }
         });
 
@@ -1057,16 +1064,9 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
       SalesforceConnection connection = null;
 
       try {
-        String selectedField = wModule.getText();
-        wModule.removeAll();
-
         connection = getConnection();
         // return
-        wModule.setItems(connection.getAllAvailableObjects(false));
-
-        if (!Utils.isEmpty(selectedField)) {
-          wModule.setText(selectedField);
-        }
+        ComboItems.setItemsKeepingText(wModule, connection.getAllAvailableObjects(false));
 
         gotModule = true;
         getModulesListError = false;

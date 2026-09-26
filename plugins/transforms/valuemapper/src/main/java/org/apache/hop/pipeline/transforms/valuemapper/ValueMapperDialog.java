@@ -18,8 +18,6 @@
 package org.apache.hop.pipeline.transforms.valuemapper;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -27,7 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
@@ -251,24 +248,7 @@ public class ValueMapperDialog extends BaseTransformDialog {
   private void getFields() {
     if (!gotPreviousFields) {
       gotPreviousFields = true;
-      try {
-        String fieldname = wFieldName.getText();
-
-        wFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFieldName.setItems(r.getFieldNames());
-          if (fieldname != null) {
-            wFieldName.setText(fieldname);
-          }
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "ValueMapperDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "ValueMapperDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
+      previousFields().fillCombos(wFieldName);
     }
   }
 

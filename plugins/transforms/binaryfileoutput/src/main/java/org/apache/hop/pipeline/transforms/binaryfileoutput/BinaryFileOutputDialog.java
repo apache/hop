@@ -17,15 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.binaryfileoutput;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -52,7 +49,6 @@ public class BinaryFileOutputDialog extends BaseTransformDialog {
   private Button wAddResult;
 
   private final BinaryFileOutputMeta input;
-  private boolean gotPreviousFields;
 
   public BinaryFileOutputDialog(
       Shell parent,
@@ -249,33 +245,6 @@ public class BinaryFileOutputDialog extends BaseTransformDialog {
   }
 
   private void getFields() {
-    if (gotPreviousFields) {
-      return;
-    }
-    try {
-      String binaryValue = wBinaryField.getText();
-      String filenameValue = wFilenameField.getText();
-      wBinaryField.removeAll();
-      wFilenameField.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        String[] fields = r.getFieldNames();
-        wBinaryField.setItems(fields);
-        wFilenameField.setItems(fields);
-      }
-      if (binaryValue != null) {
-        wBinaryField.setText(binaryValue);
-      }
-      if (filenameValue != null) {
-        wFilenameField.setText(filenameValue);
-      }
-      gotPreviousFields = true;
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "BinaryFileOutputDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "BinaryFileOutputDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wBinaryField, wFilenameField);
   }
 }

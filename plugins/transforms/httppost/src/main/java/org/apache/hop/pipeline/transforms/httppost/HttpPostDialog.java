@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -1236,19 +1237,10 @@ public class HttpPostDialog extends BaseTransformDialog {
 
   private void setStreamFields() {
     if (!gotPreviousFields) {
-      String urlfield = wUrlField.getText();
-      wUrlField.removeAll();
-      wUrlField.setItems(fieldNames);
-      if (urlfield != null) {
-        wUrlField.setText(urlfield);
-      }
-
-      String request = wRequestEntity.getText();
-      wRequestEntity.removeAll();
-      wRequestEntity.setItems(fieldNames);
-      if (request != null) {
-        wRequestEntity.setText(request);
-      }
+      // Don't rely on the background fetch: it may have failed or still be running.
+      String[] names = ConstUi.sortFieldNames(previousFields().getFieldNames().clone());
+      ComboItems.setItemsKeepingText(wUrlField, names);
+      ComboItems.setItemsKeepingText(wRequestEntity, names);
 
       gotPreviousFields = true;
     }

@@ -1054,29 +1054,9 @@ public class PropertyInputDialog extends BaseTransformDialog {
     }
   }
 
+  /** Offers the incoming fields in the filename field drop-down, keeping the configured value. */
   private void setFileField() {
-    try {
-      String value = wFilenameField.getText();
-      wFilenameField.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wFilenameField.add(r.getFieldNames()[i]);
-        }
-      }
-      if (value != null) {
-        wFilenameField.setText(value);
-      }
-
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "PropertyInputDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "PropertyInputDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wFilenameField);
   }
 
   private void get() {

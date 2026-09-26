@@ -18,15 +18,12 @@
 package org.apache.hop.pipeline.transforms.pgpdecryptstream;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -328,30 +325,11 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
 
   private void getPreviousFields() {
     if (!gotPreviousFields) {
+      gotPreviousFields = true;
       Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
       try {
         shell.setCursor(busy);
-
-        String fieldValue = wStreamFieldName.getText();
-        String passPhraseFieldValue = wPassPhraseFieldName.getText();
-        wStreamFieldName.removeAll();
-        wPassPhraseFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          String[] fields = r.getFieldNames();
-          wStreamFieldName.setItems(fields);
-          wPassPhraseFieldName.setItems(fields);
-        }
-        wStreamFieldName.setText(Const.NVL(fieldValue, ""));
-        wPassPhraseFieldName.setText(Const.NVL(passPhraseFieldValue, ""));
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        shell.setCursor(null);
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "PGPDecryptStreamDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "PGPDecryptStreamDialog.FailedToGetFields.DialogMessage"),
-            ke);
+        previousFields().fillCombos(wStreamFieldName, wPassPhraseFieldName);
       } finally {
         shell.setCursor(null);
         busy.dispose();

@@ -17,15 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.clonerow;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -61,8 +58,6 @@ public class CloneRowDialog extends BaseTransformDialog {
   private Label wlNrCloneField;
   private CCombo wNrCloneField;
   private Button wIsNrCloneInField;
-
-  private boolean gotPreviousFields = false;
 
   public CloneRowDialog(
       Shell parent, IVariables variables, CloneRowMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -297,26 +292,7 @@ public class CloneRowDialog extends BaseTransformDialog {
   }
 
   private void setisNrCloneInField() {
-    if (!gotPreviousFields) {
-      try {
-        String field = wNrCloneField.getText();
-        wNrCloneField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wNrCloneField.setItems(r.getFieldNames());
-        }
-        if (field != null) {
-          wNrCloneField.setText(field);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "CloneRowDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "CloneRowDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wNrCloneField);
   }
 
   private void activeIsNrCloneInField() {

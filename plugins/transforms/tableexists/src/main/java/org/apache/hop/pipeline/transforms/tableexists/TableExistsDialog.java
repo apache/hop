@@ -20,8 +20,6 @@ package org.apache.hop.pipeline.transforms.tableexists;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -261,25 +259,7 @@ public class TableExistsDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    try {
-
-      wTableName.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wTableName.add(r.getFieldNames()[i]);
-        }
-      }
-
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "TableExistsDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "TableExistsDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wTableName);
   }
 
   private void getSchemaNames() {

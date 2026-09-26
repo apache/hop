@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -33,7 +31,6 @@ import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -461,25 +458,13 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     wTopicField.setEnabled(topicInField);
   }
 
+  /**
+   * @return true when the incoming fields are known and don't contain the field. When they can't be
+   *     loaded nothing can be checked, and the field is not reported as missing.
+   */
   private boolean checkMissingField(String fieldName) {
-    boolean fieldFound = false;
-    try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      String[] fieldNames = r.getFieldNames();
-      for (String name : fieldNames) {
-        if (fieldName.equals(name)) {
-          fieldFound = true;
-          break;
-        }
-      }
-    } catch (HopTransformException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
-    return !fieldFound;
+    return previousFields().isAvailable()
+        && previousFields().getRowMeta().indexOfValue(fieldName) < 0;
   }
 
   private void cancel() {
@@ -488,104 +473,78 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
   }
 
   private void ok() {
-
-    if (Utils.isEmpty(wBootstrapServers.getText())) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "KafkaProducerOutputDialog.BootstrapServerMandatory.Message"));
-      mb.setText(
-          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-      mb.open();
+    // Check everything before touching the metadata: a refused OK must not save half the dialog.
+    if (!isValid()) {
       return;
     }
 
     meta.setDirectBootstrapServers(wBootstrapServers.getText());
     meta.setClientId(wClientId.getText());
     meta.setTopic(wTopic.getText());
-
-    if (wTopicInField.getSelection()) {
-      if (Utils.isEmpty(wTopicField.getText())) {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "KafkaProducerOutputDialog.TopicFieldMandatory.Message"));
-        mb.setText(
-            BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-        mb.open();
-        return;
-      }
-      if (checkMissingField(wTopicField.getText())) {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(
-            BaseMessages.getString(
-                PKG,
-                "KafkaProducerOutputDialog.TopicFieldNotExists.Message",
-                wTopicField.getText()));
-        mb.setText(
-            BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-        mb.open();
-        return;
-      }
-    }
-
     meta.setTopicInField(wTopicInField.getSelection());
     meta.setTopicField(wTopicField.getText());
-
-    if (!Utils.isEmpty(wKeyField.getText()) && checkMissingField(wKeyField.getText())) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "KafkaProducerOutputDialog.KeyFieldNotExists.Message", wKeyField.getText()));
-      mb.setText(
-          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-      mb.open();
-      return;
-    }
-
     meta.setKeyField(wKeyField.getText());
-    if (Utils.isEmpty(wMessageField.getText())) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldMandatory.Message"));
-      mb.setText(
-          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-      mb.open();
-      return;
-    }
-
-    if (checkMissingField(wMessageField.getText())) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG,
-              "KafkaProducerOutputDialog.MessageFieldNotExists.Message",
-              wMessageField.getText()));
-      mb.setText(
-          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-      mb.open();
-      return;
-    }
-
     meta.setMessageField(wMessageField.getText());
-
-    if (!Utils.isEmpty(wHeadersField.getText()) && checkMissingField(wHeadersField.getText())) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG,
-              "KafkaProducerOutputDialog.HeadersFieldNotExists.Message",
-              wHeadersField.getText()));
-      mb.setText(
-          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
-      mb.open();
-      return;
-    }
-
     meta.setHeadersField(wHeadersField.getText());
     meta.setOptions(KafkaDialogHelper.getConfig(optionsTable));
 
     transformName = wTransformName.getText();
 
     dispose();
+  }
+
+  private boolean isValid() {
+    if (Utils.isEmpty(wBootstrapServers.getText())) {
+      return showInvalid(
+          BaseMessages.getString(
+              PKG, "KafkaProducerOutputDialog.BootstrapServerMandatory.Message"));
+    }
+    if (wTopicInField.getSelection()) {
+      if (Utils.isEmpty(wTopicField.getText())) {
+        return showInvalid(
+            BaseMessages.getString(PKG, "KafkaProducerOutputDialog.TopicFieldMandatory.Message"));
+      }
+      if (checkMissingField(wTopicField.getText())) {
+        return showInvalid(
+            BaseMessages.getString(
+                PKG,
+                "KafkaProducerOutputDialog.TopicFieldNotExists.Message",
+                wTopicField.getText()));
+      }
+    }
+    if (!Utils.isEmpty(wKeyField.getText()) && checkMissingField(wKeyField.getText())) {
+      return showInvalid(
+          BaseMessages.getString(
+              PKG, "KafkaProducerOutputDialog.KeyFieldNotExists.Message", wKeyField.getText()));
+    }
+    if (Utils.isEmpty(wMessageField.getText())) {
+      return showInvalid(
+          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldMandatory.Message"));
+    }
+    if (checkMissingField(wMessageField.getText())) {
+      return showInvalid(
+          BaseMessages.getString(
+              PKG,
+              "KafkaProducerOutputDialog.MessageFieldNotExists.Message",
+              wMessageField.getText()));
+    }
+    if (!Utils.isEmpty(wHeadersField.getText()) && checkMissingField(wHeadersField.getText())) {
+      return showInvalid(
+          BaseMessages.getString(
+              PKG,
+              "KafkaProducerOutputDialog.HeadersFieldNotExists.Message",
+              wHeadersField.getText()));
+    }
+    return true;
+  }
+
+  /** Shows why OK is refused. Always returns false. */
+  private boolean showInvalid(String message) {
+    MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+    mb.setMessage(message);
+    mb.setText(
+        BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
+    mb.open();
+    return false;
   }
 }

@@ -36,7 +36,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.fileinput.InputFile;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
@@ -831,7 +830,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     wFieldValue.setLayoutData(fdFieldValue);
 
     // Trigger event when 'Source is from a previous transform' is checked.
-    setSourceStreamField(false);
+    setSourceStreamField();
 
     FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment(0, margin);
@@ -1106,29 +1105,9 @@ public class JsonInputDialog extends BaseTransformDialog {
     // ///////////////////////////////////////////////////////////
   }
 
-  private void setSourceStreamField(boolean isShowErrorDialog) {
-    try {
-      String value = wFieldValue.getText();
-      wFieldValue.removeAll();
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        wFieldValue.setItems(r.getFieldNames());
-      }
-      if (value != null) {
-        wFieldValue.setText(value);
-      }
-    } catch (HopException ke) {
-      if (!isShowErrorDialog) {
-        return;
-      }
-
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+  /** Offers the incoming fields in the source field drop-down, keeping the configured value. */
+  private void setSourceStreamField() {
+    previousFields().fillCombos(wFieldValue);
   }
 
   private void activeStreamField() {
@@ -1268,7 +1247,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     }
 
     // Open the JSON input dialog and try to fetch the fields from the previous component.
-    setSourceStreamField(true);
+    setSourceStreamField();
 
     wFields.optimizeTableView();
 
