@@ -35,6 +35,9 @@ public class LabelCombo extends Composite {
   private Label wLabel;
   private CCombo wCombo;
 
+  /** Set once the combo starts to dispose, see {@link #setFocus()}. */
+  private boolean comboDisposed;
+
   public LabelCombo(Composite composite, String labelText, String toolTipText) {
     this(composite, SWT.NONE, labelText, toolTipText);
   }
@@ -60,6 +63,7 @@ public class LabelCombo extends Composite {
     }
 
     wCombo = new CCombo(this, textFlags);
+    wCombo.addDisposeListener(e -> comboDisposed = true);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(middle, 0);
     fdText.right = new FormAttachment(100, 0);
@@ -129,6 +133,11 @@ public class LabelCombo extends Composite {
 
   @Override
   public boolean setFocus() {
+    // While a dialog is disposed, SWT (GTK) can hand the focus to this composite after the combo
+    // inside it was already torn down. There is nothing left to focus then.
+    if (comboDisposed) {
+      return false;
+    }
     return wCombo.setFocus();
   }
 

@@ -19,10 +19,8 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.fileinput.InputFile;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
@@ -125,8 +123,6 @@ public class LoadFileInputDialog extends BaseTransformDialog {
   private final LoadFileInputMeta input;
 
   private boolean gotEncodings = false;
-
-  private boolean gotPreviousFields = false;
 
   protected static final int[] dateLengths =
       new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
@@ -1019,27 +1015,9 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  /** Offers the incoming fields in the filename field drop-down, keeping the configured value. */
   private void setDynamicFilenameField() {
-    if (!gotPreviousFields) {
-      try {
-        String field = wFilenameField.getText();
-        wFilenameField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFilenameField.setItems(r.getFieldNames());
-        }
-        if (field != null) {
-          wFilenameField.setText(field);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "LoadFileInputDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "LoadFileInputDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wFilenameField);
   }
 
   private void activateXmlStreamField() {

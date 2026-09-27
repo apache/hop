@@ -20,9 +20,7 @@ package org.apache.hop.pipeline.transforms.yamlinput;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -914,25 +912,9 @@ public class YamlInputDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  /** Offers the incoming fields in the YAML field drop-down, keeping the configured value. */
   private void setXMLStreamField() {
-    try {
-      wYAMLLField.removeAll();
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wYAMLLField.add(r.getFieldNames()[i]);
-        }
-      }
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "YamlInputDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "YamlInputDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wYAMLLField);
   }
 
   private void activateStreamField() {

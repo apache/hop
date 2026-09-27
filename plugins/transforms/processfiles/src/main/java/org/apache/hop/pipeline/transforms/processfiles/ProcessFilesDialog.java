@@ -17,15 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.processfiles;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -402,30 +399,7 @@ public class ProcessFilesDialog extends BaseTransformDialog {
   private void get() {
     if (!gotPreviousFields) {
       gotPreviousFields = true;
-      try {
-        String source = wSourceFileNameField.getText();
-        String target = wTargetFileNameField.getText();
-
-        wSourceFileNameField.removeAll();
-        wTargetFileNameField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wSourceFileNameField.setItems(r.getFieldNames());
-          wTargetFileNameField.setItems(r.getFieldNames());
-          if (source != null) {
-            wSourceFileNameField.setText(source);
-          }
-          if (target != null) {
-            wTargetFileNameField.setText(target);
-          }
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "ProcessFilesDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "ProcessFilesDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
+      previousFields().fillCombos(wSourceFileNameField, wTargetFileNameField);
     }
   }
 }

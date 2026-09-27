@@ -180,6 +180,9 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   /** The log channel for this dialog. */
   protected LogChannel log;
 
+  /** The incoming fields of this transform, fetched on first use. See {@link #previousFields()}. */
+  private PreviousFields previousFields;
+
   /** A constant indicating a center button alignment. */
   protected static final int BUTTON_ALIGNMENT_CENTER = 0;
 
@@ -1258,6 +1261,23 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
               PKG, "BaseTransformDialog.FailedToGetFieldsPrevious.DialogMessage"),
           ke);
     }
+  }
+
+  /**
+   * The fields flowing into this transform, for filling field drop-downs. Fetched once per dialog;
+   * when they can't be determined you get an empty row and the user sees the error once.
+   *
+   * <p>Fill a combo with {@code previousFields().fillCombos(wField)}: unlike {@code removeAll()} or
+   * {@code setItems()} it never wipes the value the user configured. Call this after the shell was
+   * created, from the UI thread.
+   *
+   * @return the incoming fields of this transform, never null
+   */
+  protected PreviousFields previousFields() {
+    if (previousFields == null) {
+      previousFields = new PreviousFields(shell, variables, pipelineMeta, transformName);
+    }
+    return previousFields;
   }
 
   /**

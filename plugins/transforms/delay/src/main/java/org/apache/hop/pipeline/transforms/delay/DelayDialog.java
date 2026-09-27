@@ -19,8 +19,6 @@ package org.apache.hop.pipeline.transforms.delay;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -28,17 +26,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -90,13 +84,6 @@ public class DelayDialog extends BaseTransformDialog {
         e -> {
           input.setChanged();
           wTimeout.setToolTipText(variables.resolve(wTimeout.getText()));
-        });
-    wTimeout.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            refreshTimeoutFieldItems();
-          }
         });
     FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment(middle, 0);
@@ -151,13 +138,6 @@ public class DelayDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "DelayDialog.ScaleTimeField.Tooltip"));
     PropsUi.setLook(wScaleTimeField);
     wScaleTimeField.addModifyListener(lsMod);
-    wScaleTimeField.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            refreshScaleTimeFieldItems();
-          }
-        });
     FormData fdScaleTimeField = new FormData();
     fdScaleTimeField.left = new FormAttachment(middle, 0);
     fdScaleTimeField.top = new FormAttachment(wScaleTimeFromField, margin);
@@ -222,10 +202,14 @@ public class DelayDialog extends BaseTransformDialog {
   }
 
   private String determineTimeoutField() {
-    loadAvailableFields();
     String candidate = wTimeout.getText();
     if (Utils.isEmpty(candidate)) {
       return null;
+    }
+    // A timeout field the user left alone stays a field, also when the incoming fields can't be
+    // loaded or don't list it as numeric: saved as a literal timeout it would mean 0 ms.
+    if (candidate.equals(input.getTimeoutField())) {
+      return candidate;
     }
     for (String field : numericFieldNames) {
       if (candidate.equals(field)) {
@@ -242,61 +226,23 @@ public class DelayDialog extends BaseTransformDialog {
     wlScaleTimeField.setEnabled(useField);
   }
 
+  /** Splits the incoming fields in numeric and String ones. Never fails, see PreviousFields. */
   private void loadAvailableFields() {
-    try {
-      IRowMeta prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (prevFields == null) {
-        numericFieldNames = new String[0];
-        stringFieldNames = new String[0];
-        return;
+    List<String> numeric = new ArrayList<>();
+    List<String> strings = new ArrayList<>();
+    for (IValueMeta valueMeta : previousFields().getRowMeta().getValueMetaList()) {
+      switch (valueMeta.getType()) {
+        case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
+          numeric.add(valueMeta.getName());
+          break;
+        case IValueMeta.TYPE_STRING:
+          strings.add(valueMeta.getName());
+          break;
+        default:
+          break;
       }
-
-      List<String> numeric = new ArrayList<>();
-      List<String> strings = new ArrayList<>();
-      for (IValueMeta valueMeta : prevFields.getValueMetaList()) {
-        switch (valueMeta.getType()) {
-          case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
-            numeric.add(valueMeta.getName());
-            break;
-          case IValueMeta.TYPE_STRING:
-            strings.add(valueMeta.getName());
-            break;
-          default:
-            break;
-        }
-      }
-      numericFieldNames = numeric.toArray(new String[0]);
-      stringFieldNames = strings.toArray(new String[0]);
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "DelayDialog.UnableToGetFields.Title"),
-          BaseMessages.getString(PKG, "DelayDialog.UnableToGetFields.Message"),
-          e);
-      numericFieldNames = new String[0];
-      stringFieldNames = new String[0];
     }
-  }
-
-  private void refreshTimeoutFieldItems() {
-    loadAvailableFields();
-    String previous = wTimeout.getText();
-    wTimeout.setItems(numericFieldNames);
-    if (!Utils.isEmpty(previous)) {
-      wTimeout.setText(previous);
-      wTimeout.getCComboWidget().setSelection(new Point(previous.length(), previous.length()));
-    }
-  }
-
-  private void refreshScaleTimeFieldItems() {
-    loadAvailableFields();
-    String previous = wScaleTimeField.getText();
-    wScaleTimeField.setItems(stringFieldNames);
-    if (!Utils.isEmpty(previous)) {
-      wScaleTimeField.setText(previous);
-      wScaleTimeField
-          .getCComboWidget()
-          .setSelection(new Point(previous.length(), previous.length()));
-    }
+    numericFieldNames = numeric.toArray(new String[0]);
+    stringFieldNames = strings.toArray(new String[0]);
   }
 }

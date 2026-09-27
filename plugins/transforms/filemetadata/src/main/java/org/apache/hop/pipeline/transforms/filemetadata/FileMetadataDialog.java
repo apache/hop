@@ -20,15 +20,12 @@ package org.apache.hop.pipeline.transforms.filemetadata;
 import static org.apache.hop.pipeline.transforms.filemetadata.FileMetadataMeta.FMCandidate;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -80,7 +77,6 @@ public class FileMetadataDialog extends BaseTransformDialog {
   private ComboVar wDefaultCharset;
 
   private boolean gotEncodings = false;
-  private boolean getPreviousFields = false;
 
   /**
    * The constructor should simply invoke super() and save the incoming meta object to a local
@@ -392,24 +388,7 @@ public class FileMetadataDialog extends BaseTransformDialog {
   }
 
   private void getFields() {
-    try {
-      if (!getPreviousFields) {
-        getPreviousFields = true;
-
-        wFilenameField.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFilenameField.setItems(r.getFieldNames());
-        }
-      }
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "FileMetadata.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "FileMetadata.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wFilenameField);
   }
 
   /**

@@ -17,15 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.webserviceavailable;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -55,8 +52,6 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
   private TextVar wReadTimeOut;
 
   private final WebServiceAvailableMeta input;
-
-  private boolean gotPreviousFields = false;
 
   public WebServiceAvailableDialog(
       Shell parent,
@@ -253,27 +248,8 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     dispose();
   }
 
+  /** Offers the incoming fields in the URL field drop-down, keeping the configured value. */
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String filefield = wURL.getText();
-        wURL.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wURL.setItems(r.getFieldNames());
-        }
-        if (filefield != null) {
-          wURL.setText(filefield);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "WebServiceAvailableDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(
-                PKG, "WebServiceAvailableDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wURL);
   }
 }

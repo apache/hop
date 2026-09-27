@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -510,9 +511,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
            */
           @Override
           public void focusGained(FocusEvent focusEvent) {
-            String stageNameText = wStageName.getText();
-            wStageName.removeAll();
-
             DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
             if (databaseMeta != null) {
               try (Database db = new Database(loggingObject, variables, databaseMeta)) {
@@ -527,19 +525,18 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
                   IRowMeta rowMeta = db.getReturnRowMeta();
                   Object[] row = db.getRow(resultSet);
                   int nameField = rowMeta.indexOfValue("NAME");
+                  List<String> stageNames = new ArrayList<>();
                   if (nameField >= 0) {
                     while (row != null) {
-                      String stageName = rowMeta.getString(row, nameField);
-                      wStageName.add(stageName);
+                      stageNames.add(rowMeta.getString(row, nameField));
                       row = db.getRow(resultSet);
                     }
                   } else {
                     throw new HopException("Unable to find stage name field in result");
                   }
                   db.closeQuery(resultSet);
-                }
-                if (stageNameText != null) {
-                  wStageName.setText(stageNameText);
+                  // Only replace the items once the stages are known, and keep the typed name.
+                  ComboItems.setItemsKeepingText(wStageName, stageNames.toArray(new String[0]));
                 }
 
               } catch (Exception ex) {

@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -593,10 +594,8 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       }
 
       List<String> tables = kSpace.getTableNamesCQL3();
-      wTable.removeAll();
-      for (String famName : tables) {
-        wTable.add(famName);
-      }
+      // Keep the table name the user typed, even when the keyspace doesn't hold it (yet).
+      ComboItems.setItemsKeepingText(wTable, tables.toArray(new String[0]));
 
     } catch (Exception ex) {
       logError(

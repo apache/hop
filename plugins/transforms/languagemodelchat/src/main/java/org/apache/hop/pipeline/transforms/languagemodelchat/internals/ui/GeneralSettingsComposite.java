@@ -35,13 +35,11 @@ import static org.eclipse.swt.SWT.READ_ONLY;
 import static org.eclipse.swt.SWT.RIGHT;
 import static org.eclipse.swt.SWT.SINGLE;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ModelType;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.FormDataBuilder.Builder;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.pipeline.transform.PreviousFields;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -76,11 +74,17 @@ public class GeneralSettingsComposite implements IDialogComposite {
   private final Control control;
   private final CompositeParameters parameters;
 
-  private boolean gotPreviousFields = false;
+  private final PreviousFields previousFields;
 
   public GeneralSettingsComposite(CompositeParameters parameters) {
     this.parameters = parameters;
     this.meta = (LanguageModelChatMeta) parameters.meta();
+    this.previousFields =
+        new PreviousFields(
+            parameters.shell(),
+            parameters.variables(),
+            parameters.pipelineMeta(),
+            parameters.transformName());
     this.composite = new Composite(parameters.parent(), NONE);
 
     int middle = parameters.middlePct();
@@ -282,33 +286,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String inputField = null;
-        if (inputFieldInput.getText() != null) {
-          inputField = inputFieldInput.getText();
-        }
-        inputFieldInput.removeAll();
-
-        IRowMeta r =
-            parameters
-                .pipelineMeta()
-                .getPrevTransformFields(parameters.variables(), parameters.transformName());
-        if (r != null) {
-          inputFieldInput.setItems(r.getFieldNames());
-        }
-        if (inputField != null) {
-          inputFieldInput.setText(inputField);
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        new ErrorDialog(
-            parameters.shell(),
-            i18n("LanguageModelChatDialog.FailedToGetFields.DialogTitle"),
-            i18n("LanguageModelChatDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
+    previousFields.fillCombos(inputFieldInput);
   }
 
   @Override

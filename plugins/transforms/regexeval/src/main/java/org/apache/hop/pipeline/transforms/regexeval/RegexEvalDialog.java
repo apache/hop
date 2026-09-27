@@ -19,8 +19,6 @@ package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
@@ -30,7 +28,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -49,7 +46,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -624,40 +620,9 @@ public class RegexEvalDialog extends BaseTransformDialog {
   }
 
   private void getPreviousFields() {
-    Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-
-    // Save user-selected value, if applicable
-    String selectedValue = wFieldEvaluate.getText();
-
-    // Clear the existing list, and reload
-    wFieldEvaluate.removeAll();
-    try {
-      shell.setCursor(busy);
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        for (String item : r.getFieldNames()) {
-          wFieldEvaluate.add(item);
-        }
-      }
-
-      // Re-select the user-selected value, if applicable
-      if (!Utils.isEmpty(selectedValue)) {
-        wFieldEvaluate.select(wFieldEvaluate.indexOf(selectedValue));
-      } else {
-        wFieldEvaluate.select(0);
-      }
-    } catch (HopException ke) {
-      shell.setCursor(null);
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "RegexEvalDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "RegexEvalDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    } finally {
-      shell.setCursor(null);
-      busy.dispose();
-    }
+    // Keeps the configured value, also when it is not an incoming field or the fields can't be
+    // loaded. An empty value stays empty: getting focus is no reason to pick a field.
+    previousFields().fillCombos(wFieldEvaluate);
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

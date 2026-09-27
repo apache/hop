@@ -28,15 +28,12 @@ import static org.eclipse.swt.SWT.RIGHT;
 import static org.eclipse.swt.SWT.SINGLE;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -54,7 +51,6 @@ import org.eclipse.swt.widgets.Text;
 public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = StanfordSimpleNlpDialog.class; // For Translator
   private final StanfordSimpleNlpMeta input;
-  private boolean gotPreviousFields = false;
   private CCombo wCorpusFieldName;
   private Button wIncludePartOfSpeech;
   private Button wParallelism;
@@ -220,30 +216,6 @@ public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITra
   }
 
   private void getPreviousFields() {
-    if (!gotPreviousFields) {
-      try {
-        String corpusField = null;
-
-        if (wCorpusFieldName.getText() != null) {
-          corpusField = wCorpusFieldName.getText();
-        }
-        wCorpusFieldName.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wCorpusFieldName.setItems(r.getFieldNames());
-        }
-        if (corpusField != null) {
-          wCorpusFieldName.setText(corpusField);
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            getString(PKG, "StanfordSimpleNlpDialog.FailedToGetFields.DialogTitle"),
-            getString(PKG, "StanfordSimpleNlpDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
+    previousFields().fillCombos(wCorpusFieldName);
   }
 }

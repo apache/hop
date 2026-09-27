@@ -19,15 +19,12 @@ package org.apache.hop.pipeline.transforms.propertyoutput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -84,7 +81,6 @@ public class PropertyOutputDialog extends BaseTransformDialog {
 
   private Button wCreateParentFolder;
 
-  private boolean gotPreviousFields = false;
   private String[] fieldNames;
 
   private Text wComment;
@@ -111,8 +107,8 @@ public class PropertyOutputDialog extends BaseTransformDialog {
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
-    // get previous fields name
-    getFields();
+    // get previous fields name: never null, also when they can't be loaded
+    fieldNames = previousFields().getFieldNames();
 
     // Some buttons
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -607,24 +603,6 @@ public class PropertyOutputDialog extends BaseTransformDialog {
     wlAddTime.setEnabled(!wFileNameInField.getSelection());
     wAddTime.setEnabled(!wFileNameInField.getSelection());
     wbShowFiles.setEnabled(!wFileNameInField.getSelection());
-  }
-
-  private void getFields() {
-    if (!gotPreviousFields) {
-      try {
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          fieldNames = r.getFieldNames();
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "PropertyOutputDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "PropertyOutputDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

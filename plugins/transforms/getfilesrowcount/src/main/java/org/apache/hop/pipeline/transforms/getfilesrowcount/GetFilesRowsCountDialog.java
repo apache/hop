@@ -21,7 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -823,26 +822,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog {
   }
 
   private void setFileField() {
-    try {
-
-      wFilenameField.removeAll();
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wFilenameField.add(r.getFieldNames()[i]);
-        }
-      }
-
-    } catch (HopException ke) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wFilenameField);
   }
 
   /**

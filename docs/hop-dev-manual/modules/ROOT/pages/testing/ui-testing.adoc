@@ -77,6 +77,22 @@ A modal box nobody dismissed would otherwise hold the build until CI kills the j
 `-Dswtbot.test.holdMillis`::
 Keeps the window on screen after the interactions, so you can watch or screenshot it. Zero by default.
 
+== Testing a dialog when its input is broken
+
+Many dialog bugs only show up when the transform's incoming fields can't be determined, for example when an upstream Table Input has broken SQL.
+The harness has three helpers for that:
+
+`UpstreamFixture`::
+Builds a pipeline in which the transform under test is fed by an upstream transform that either throws when asked for its fields (`failingUpstream`) or delivers fixed String fields (`upstreamWithFields`).
+
+`postEvent(widget, SWT.FocusIn)`::
+Fires an event without waiting for the listeners, so a listener that opens a modal error dialog can't block the test.
+
+`closeOtherShells(title, waitMillis)`::
+Closes every window except the dialog under test and returns how many it closed.
+
+See xref:gui-design-patterns.adoc#_testing_it[GUI design patterns] for a complete example.
+
 == What UI tests are good for
 
 They catch the class of bug that unit tests structurally cannot: a widget that is never created, a listener wired to the wrong control, a dialog that NPEs because a field was disabled, a layout that collapses.

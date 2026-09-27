@@ -17,15 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.filelocked;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -50,8 +47,6 @@ public class FileLockedDialog extends BaseTransformDialog {
   private Button wAddResult;
 
   private final FileLockedMeta input;
-
-  private boolean gotPreviousFields = false;
 
   public FileLockedDialog(
       Shell parent, IVariables variables, FileLockedMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -184,25 +179,6 @@ public class FileLockedDialog extends BaseTransformDialog {
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String filefield = wFileName.getText();
-        wFileName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wFileName.setItems(r.getFieldNames());
-        }
-        if (filefield != null) {
-          wFileName.setText(filefield);
-        }
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "FileLockedDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "FileLockedDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wFileName);
   }
 }

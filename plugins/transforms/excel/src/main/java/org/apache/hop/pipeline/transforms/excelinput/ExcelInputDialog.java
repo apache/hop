@@ -376,19 +376,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wlAccField.setLayoutData(fdlAccField);
 
     wAccField = new CCombo(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    IRowMeta previousFields;
-    try {
-      previousFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-    } catch (HopTransformException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "ExcelInputDialog.ErrorDialog.UnableToGetInputFields.Title"),
-          BaseMessages.getString(
-              PKG, "ExcelInputDialog.ErrorDialog.UnableToGetInputFields.Message"),
-          e);
-      previousFields = new RowMeta();
-    }
-    wAccField.setItems(previousFields.getFieldNames());
+    previousFields().fillCombos(wAccField);
     wAccField.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.AcceptField.Tooltip"));
 
     PropsUi.setLook(wAccField);
@@ -1114,7 +1102,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     }
 
     if (meta.getAcceptingField() != null && !meta.getAcceptingField().isEmpty()) {
-      wAccField.select(wAccField.indexOf(meta.getAcceptingField()));
+      wAccField.setText(meta.getAcceptingField());
     }
     if (meta.getAcceptingTransformName() != null && !meta.getAcceptingTransformName().isEmpty()) {
       wAccTransform.select(wAccTransform.indexOf(meta.getAcceptingTransformName()));

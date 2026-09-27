@@ -28,8 +28,6 @@ import static org.eclipse.swt.SWT.RIGHT;
 import static org.eclipse.swt.SWT.SINGLE;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -38,7 +36,6 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -63,7 +60,6 @@ import org.eclipse.swt.widgets.Shell;
 public class Html2TextDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = Html2TextDialog.class; // For Translator
   private final Html2TextMeta input;
-  private boolean gotPreviousFields = false;
   private CCombo wHtmlFieldName;
   private CCombo wSafelistType;
 
@@ -326,29 +322,6 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
   }
 
   private void get() {
-    if (!gotPreviousFields) {
-      try {
-        String htmlField = null;
-        if (wHtmlFieldName.getText() != null) {
-          htmlField = wHtmlFieldName.getText();
-        }
-        wHtmlFieldName.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wHtmlFieldName.setItems(r.getFieldNames());
-        }
-        if (htmlField != null) {
-          wHtmlFieldName.setText(htmlField);
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            getString(PKG, "Html2TextDialog.FailedToGetFields.DialogTitle"),
-            getString(PKG, "Html2TextDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
+    previousFields().fillCombos(wHtmlFieldName);
   }
 }

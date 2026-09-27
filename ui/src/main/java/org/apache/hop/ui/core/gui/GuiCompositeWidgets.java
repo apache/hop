@@ -54,6 +54,7 @@ import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -1841,12 +1842,14 @@ public class GuiCompositeWidgets {
     }
   }
 
+  /**
+   * Replaces the drop-down items of a combo widget. The value the combo shows is kept, see {@link
+   * ComboItems#setItemsKeepingText(Control, String[])}.
+   */
   public void setComboValues(String widgetId, String[] fieldNames) {
     Control control = widgetsMap.get(widgetId);
-    if (control instanceof Combo combo) {
-      combo.setItems(fieldNames);
-    } else if (control instanceof ComboVar comboVar) {
-      comboVar.setItems(fieldNames);
+    if (control instanceof Combo || control instanceof ComboVar) {
+      ComboItems.setItemsKeepingText(control, fieldNames);
     }
   }
 

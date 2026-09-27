@@ -29,7 +29,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -1285,34 +1284,9 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     getFromSnippetDialog.open();
   }
 
+  /** Offers the incoming fields in the XML field drop-down, keeping the configured value. */
   private void setXMLStreamField() {
-    try {
-
-      wXMLField.removeAll();
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        String[] fieldNames = r.getFieldNames();
-        if (fieldNames != null) {
-
-          for (String fieldName : fieldNames) {
-            wXMLField.add(fieldName);
-          }
-        }
-      }
-    } catch (HopException ke) {
-      if (!Const.isOSX()) {
-        shell.setFocus();
-      }
-      final String EMPTY_FIELDS = "<EMPTY>";
-      wXMLField.add(EMPTY_FIELDS);
-      wXMLField.setText(EMPTY_FIELDS);
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),
-          BaseMessages.getString(PKG, "GetXMLDataDialog.FailedToGetFields.DialogMessage"),
-          ke);
-    }
+    previousFields().fillCombos(wXMLField);
   }
 
   private void activateXmlStreamField() {

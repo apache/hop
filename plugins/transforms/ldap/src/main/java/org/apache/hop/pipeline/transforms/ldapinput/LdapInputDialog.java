@@ -19,8 +19,6 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -114,7 +112,6 @@ public class LdapInputDialog extends BaseTransformDialog {
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
   private ColumnInfo[] colinf;
-  private boolean gotPreviousFields = false;
 
   private ComboVar wProtocol;
 
@@ -1515,33 +1512,7 @@ public class LdapInputDialog extends BaseTransformDialog {
   }
 
   private void setSearchBaseField() {
-    if (!gotPreviousFields) {
-      try {
-        String basefield = wSearchBaseField.getText();
-        String filterfield = wFilterField.getText();
-        wSearchBaseField.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wSearchBaseField.setItems(r.getFieldNames());
-          wFilterField.setItems(r.getFieldNames());
-        }
-        if (basefield != null) {
-          wSearchBaseField.setText(basefield);
-        }
-        if (filterfield != null) {
-          wFilterField.setText(basefield);
-        }
-
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "LdapInputDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "LdapInputDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-      gotPreviousFields = true;
-    }
+    previousFields().fillCombos(wSearchBaseField, wFilterField);
   }
 
   private void setProtocol() {

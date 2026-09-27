@@ -51,6 +51,7 @@ under the License.
 *** xref:database/testing.adoc[Testing a database plugin]
 *** xref:database/migrating-from-variants.adoc[Migrating from isXVariant()]
 ** xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars]
+** xref:gui-design-patterns.adoc[GUI design patterns]
 ** xref:engine-compatibility.adoc[Engine compatibility]
 ** xref:lineage.adoc[Lineage observation hub]
 ** xref:internationalisation.adoc[Internationalisation (i18n)]

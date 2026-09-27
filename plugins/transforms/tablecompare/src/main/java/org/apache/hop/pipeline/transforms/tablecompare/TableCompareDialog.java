@@ -21,8 +21,6 @@ import java.util.Arrays;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -33,6 +31,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.LabelCombo;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -55,9 +54,6 @@ public class TableCompareDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TableCompare.class;
 
   private final TableCompareMeta input;
-
-  /** all fields from the previous transforms */
-  private IRowMeta prevFields = null;
 
   private MetaSelectionLine<DatabaseMeta> wReferenceDB;
   private LabelCombo wReferenceSchema;
@@ -531,34 +527,28 @@ public class TableCompareDialog extends BaseTransformDialog {
 
   private void setComboValues() {
     Runnable fieldLoader =
-        new Runnable() {
-          @Override
-          public void run() {
-
-            try {
-              prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
-
-            } catch (HopException e) {
-              String msg =
-                  BaseMessages.getString(PKG, "TableCompareDialog.DoMapping.UnableToFindInput");
-              log.logError(toString(), msg);
-            }
-            String[] prevTransformFieldNames = prevFields.getFieldNames();
-            if (prevTransformFieldNames != null) {
-              Arrays.sort(prevTransformFieldNames);
-
-              wReferenceSchema.setItems(prevTransformFieldNames);
-              wReferenceTable.setItems(prevTransformFieldNames);
-              wReferenceCte.setItems(prevTransformFieldNames);
-              wCompareSchema.setItems(prevTransformFieldNames);
-              wCompareTable.setItems(prevTransformFieldNames);
-              wCompareCte.setItems(prevTransformFieldNames);
-              wKeyFields.setItems(prevTransformFieldNames);
-              wExcludeFields.setItems(prevTransformFieldNames);
-              wKeyDesc.setItems(prevTransformFieldNames);
-              wReferenceValue.setItems(prevTransformFieldNames);
-              wCompareValue.setItems(prevTransformFieldNames);
-            }
+        () -> {
+          if (shell.isDisposed()) {
+            return;
+          }
+          // Never null, also when the incoming fields can't be loaded. Keeps the configured values.
+          String[] prevTransformFieldNames = previousFields().getFieldNames().clone();
+          Arrays.sort(prevTransformFieldNames);
+          for (Control combo :
+              new Control[] {
+                wReferenceSchema,
+                wReferenceTable,
+                wReferenceCte,
+                wCompareSchema,
+                wCompareTable,
+                wCompareCte,
+                wKeyFields,
+                wExcludeFields,
+                wKeyDesc,
+                wReferenceValue,
+                wCompareValue
+              }) {
+            ComboItems.setItemsKeepingText(combo, prevTransformFieldNames);
           }
         };
     shell.getDisplay().asyncExec(fieldLoader);

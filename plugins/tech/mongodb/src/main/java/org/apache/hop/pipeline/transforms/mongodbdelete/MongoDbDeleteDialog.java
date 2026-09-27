@@ -45,6 +45,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
@@ -644,14 +645,13 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
     try {
       String connectionName = variables.resolve(wConnection.getText());
 
-      String current = wCollection.getText();
-      wCollection.removeAll();
-
-      MongoDbConnection connection =
-          metadataProvider.getSerializer(MongoDbConnection.class).load(connectionName);
-      String databaseName = variables.resolve(connection.getDbName());
-
       if (!StringUtils.isEmpty(connectionName)) {
+        MongoDbConnection connection =
+            metadataProvider.getSerializer(MongoDbConnection.class).load(connectionName);
+        if (connection == null) {
+          throw new HopException("MongoDB connection '" + connectionName + "' not found");
+        }
+        String databaseName = variables.resolve(connection.getDbName());
 
         final MongoDbDeleteMeta meta = new MongoDbDeleteMeta();
         getInfo(meta);
@@ -664,9 +664,8 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
             wrapper.dispose();
           }
 
-          for (String c : collections) {
-            wCollection.add(c);
-          }
+          // Keep the configured collection, also when it doesn't exist (yet).
+          ComboItems.setItemsKeepingText(wCollection, collections.toArray(new String[0]));
         } catch (Exception e) {
           logError(
               BaseMessages.getString(
@@ -698,10 +697,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
                     "MongoDbInputDialog.ErrorMessage.MissingConnectionDetails",
                     missingConnDetails));
         smd.open();
-      }
-
-      if (!StringUtils.isEmpty(current)) {
-        wCollection.setText(current);
       }
     } catch (Exception e) {
       new ErrorDialog(shell, CONST_ERROR, "Error getting collections", e);
