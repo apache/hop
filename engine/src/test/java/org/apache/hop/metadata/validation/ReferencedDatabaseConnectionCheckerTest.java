@@ -32,6 +32,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.api.IOptionalDatabaseConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
@@ -323,5 +324,69 @@ class ReferencedDatabaseConnectionCheckerTest {
   static class ConnTransformMeta extends DummyMeta {
     @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
     String connection;
+  }
+
+  /**
+   * Issue #8561. Add Sequence keeps a connection field for the database-sequence option and leaves
+   * it unset when a counter is used. That field must not be reported as a missing connection.
+   */
+  static class OptionalConnMeta implements IOptionalDatabaseConnection {
+    @HopMetadataProperty(
+        key = "connection",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    String connection;
+
+    boolean used;
+
+    OptionalConnMeta(String connection, boolean used) {
+      this.connection = connection;
+      this.used = used;
+    }
+
+    @Override
+    public boolean isDatabaseConnectionUsed(String key) {
+      return used;
+    }
+  }
+
+  @Test
+  void unusedConnectionIsNotReported() {
+    assertTrue(check(new OptionalConnMeta(null, false), "Add sequence").isEmpty());
+    assertTrue(check(new OptionalConnMeta("", false), "Add sequence").isEmpty());
+    assertTrue(check(new OptionalConnMeta("missing-db", false), "Add sequence").isEmpty());
+  }
+
+  @Test
+  void optionalConnectionIsReportedWhenItIsUsed() {
+    List<ICheckResult> remarks = check(new OptionalConnMeta(null, true), "Add sequence");
+
+    assertEquals(1, remarks.size());
+    assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED, remarks.get(0).getErrorCode());
+  }
+
+  @Test
+  void optionalConnectionThatExistsIsSilent() {
+    assertTrue(check(new OptionalConnMeta("sales-db", true), "Add sequence").isEmpty());
+  }
+
+  /** A usage callback that throws must not hide a missing connection. */
+  static class ThrowingOptionalConnMeta implements IOptionalDatabaseConnection {
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    String connection;
+
+    @Override
+    public boolean isDatabaseConnectionUsed(String key) {
+      throw new IllegalStateException("broken");
+    }
+  }
+
+  @Test
+  void aBrokenUsageCallbackStillReportsTheConnection() {
+    List<ICheckResult> remarks = check(new ThrowingOptionalConnMeta(), "Add sequence");
+
+    assertEquals(1, remarks.size());
+    assertEquals(
+        ReferencedDatabaseConnectionChecker.ERROR_NOT_ASSIGNED, remarks.get(0).getErrorCode());
   }
 }
