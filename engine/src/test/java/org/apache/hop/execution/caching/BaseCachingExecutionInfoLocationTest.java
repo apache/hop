@@ -28,14 +28,23 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionSelector;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class BaseCachingExecutionInfoLocationTest {
+
+  @BeforeAll
+  static void initLogging() {
+    if (!HopLogStore.isInitialized()) {
+      HopLogStore.init();
+    }
+  }
 
   @Test
   void missingMaxCacheAgeKeepsTheOneDayDefault() throws Exception {

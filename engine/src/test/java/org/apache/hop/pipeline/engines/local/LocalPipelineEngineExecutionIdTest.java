@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.engines.local;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.logging.HopLogStore;
@@ -25,6 +27,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
@@ -66,8 +69,57 @@ class LocalPipelineEngineExecutionIdTest {
     assertTrue(plugin.getCache().get(channel.getLogChannelId()).isSingleWriter());
   }
 
+  @Test
+  void aNegativeLineRequestIsAFullSnapshot() {
+    ILogChannel channel = new LogChannel("snapshot");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("snapshot");
+    LocalPipelineEngine engine = new LocalPipelineEngine(pipelineMeta);
+    engine.setLogChannel(channel);
+
+    ExecutionState full = ExecutionStateBuilder.fromExecutor(engine, -1).build();
+    assertNull(full.getLastLogLineNr());
+    assertNull(ExecutionStateBuilder.fromExecutor(engine, null).build().getLastLogLineNr());
+
+    ExecutionState delta = ExecutionStateBuilder.fromExecutor(engine, 0).build();
+    assertNotNull(delta.getLastLogLineNr());
+  }
+
+  @Test
+  void stopAllClosesTheLocationOnlyForASingleThreadedEngine() throws Exception {
+    CapturingLocation normalLocation = new CapturingLocation();
+    LocalPipelineEngine normal = engineWith(normalLocation);
+    normal.stopAll();
+    assertEquals(0, normalLocation.closes);
+
+    CapturingLocation singleThreadedLocation = new CapturingLocation();
+    LocalPipelineEngine singleThreaded = engineWith(singleThreadedLocation);
+    singleThreaded.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+    singleThreaded.stopAll();
+    assertEquals(1, singleThreadedLocation.closes);
+  }
+
+  private static LocalPipelineEngine engineWith(CapturingLocation plugin) {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("stop");
+    LocalPipelineEngine engine = new LocalPipelineEngine(pipelineMeta);
+    engine.setMetadataProvider(
+        new org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider());
+    ExecutionInfoLocation location = new ExecutionInfoLocation();
+    location.setExecutionInfoLocation(plugin);
+    engine.setExecutionInfoLocation(location);
+    return engine;
+  }
+
   private static final class CapturingLocation extends BaseCachingExecutionInfoLocation {
     private String registeredId;
+    private int closes;
+
+    @Override
+    public synchronized void close() throws org.apache.hop.core.exception.HopException {
+      closes++;
+      super.close();
+    }
 
     @Override
     public void registerExecution(Execution execution)

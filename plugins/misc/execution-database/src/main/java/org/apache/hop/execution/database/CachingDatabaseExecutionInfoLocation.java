@@ -224,7 +224,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       databaseClosed = false;
       discardDatabase();
       connectDatabase();
-      ensureStateJsonColumn();
+      detectStateJsonColumn();
     }
 
     try {
@@ -255,13 +255,16 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     try {
       super.close();
     } finally {
-      // A failed flush leaves the dirty entries in the map. Keep the connection so close() can
-      // retry them. Drop it once nothing unsaved remains.
-      if (!hasDirtyCacheEntries()) {
-        synchronized (dbLock) {
-          databaseClosed = true;
-          discardDatabase();
-        }
+      // The caller closes once and drops this location. Nothing retries a failed flush, so the
+      // connection has to go either way. Entries still marked dirty were not saved.
+      if (hasDirtyCacheEntries()) {
+        LogChannel.GENERAL.logError(
+            "Closing the caching database execution information location with unsaved entries for "
+                + getQuotedSchemaTable());
+      }
+      synchronized (dbLock) {
+        databaseClosed = true;
+        discardDatabase();
       }
     }
   }
@@ -950,8 +953,12 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     target.setDirty(false);
   }
 
-  /** Existing tables predate the state column. Add it so a long run can update state in place. */
-  private void ensureStateJsonColumn() {
+  /**
+   * The state column is part of the DDL from {@link #buildDdl}. An existing table that predates it
+   * keeps working through {@link #stateJsonColumnAvailable}. This location does not alter the
+   * schema on startup.
+   */
+  private void detectStateJsonColumn() {
     if (database == null || databaseMeta == null) {
       return;
     }
@@ -959,31 +966,22 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       if (!database.checkTableExists(actualSchemaName, actualTableName)) {
         return;
       }
-      if (database.checkColumnExists(actualSchemaName, actualTableName, COL_STATE_JSON)) {
-        stateJsonColumnAvailable = true;
-        return;
+      stateJsonColumnAvailable =
+          database.checkColumnExists(actualSchemaName, actualTableName, COL_STATE_JSON);
+      if (!stateJsonColumnAvailable) {
+        LogChannel.GENERAL.logBasic(
+            "Execution information table "
+                + getQuotedSchemaTable()
+                + " has no "
+                + COL_STATE_JSON
+                + " column. Updates keep the status columns only. Show table DDL and add the column to store execution state separately.");
       }
-      String sql =
-          databaseMeta.getAddColumnStatement(
-              getQuotedSchemaTable(),
-              new ValueMetaString(COL_STATE_JSON, DatabaseMeta.CLOB_LENGTH, -1),
-              "",
-              false,
-              "",
-              false);
-      database.execStatement(sql);
-      stateJsonColumnAvailable = true;
-      LogChannel.GENERAL.logBasic(
-          "Added column "
-              + COL_STATE_JSON
-              + " to execution information table "
-              + getQuotedSchemaTable());
     } catch (Exception e) {
       stateJsonColumnAvailable = false;
       LogChannel.GENERAL.logError(
-          "Unable to add column "
+          "Unable to see whether column "
               + COL_STATE_JSON
-              + " to "
+              + " exists on "
               + getQuotedSchemaTable()
               + ". Later updates keep the status columns only and leave execution state in the inserted document.",
           e);

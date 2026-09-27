@@ -479,10 +479,13 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   @Override
   public void stopAll() {
     super.stopAll();
-    // safeStop() also fires the stopped listener, and that listener only cancels the timer.
-    // A real stop has to close the location here: a single-threaded pipeline never reaches
-    // pipelineCompleted() unless its transforms run to a natural finish.
-    stopTransformExecutionInfoTimer();
+    // safeStop() only cancels the timer. A single-threaded child (a mapping, the Kafka consumer,
+    // a Beam or Spark worker) never reaches pipelineCompleted(), so the location is closed here.
+    // A normal pipeline sets finished and the end date after its transforms stop, and
+    // pipelineCompleted() stores that terminal state. Closing here would drop it.
+    if (getPipelineType() == PipelineMeta.PipelineType.SingleThreaded) {
+      stopTransformExecutionInfoTimer();
+    }
   }
 
   public synchronized void startTransformExecutionInfoTimer() throws HopException {

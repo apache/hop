@@ -463,7 +463,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   /**
    * Pipeline and workflow updates carry only the lines written since {@code lastLogLineNr}. Append
-   * that delta and keep the newest characters. A full snapshot ({@code lastLogLineNr == null}) is
+   * that delta and keep the newest characters. A full snapshot ({@code lastLogLineNr == null},
+   * including a caller that asked for every line with {@code -1}) replaces the stored text. It is
    * capped the same way so the cache does not keep a second copy of the central log buffer.
    */
   static void appendLoggingDelta(ExecutionState previous, ExecutionState update) {

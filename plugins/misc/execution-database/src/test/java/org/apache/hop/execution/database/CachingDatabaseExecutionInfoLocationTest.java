@@ -377,6 +377,7 @@ class CachingDatabaseExecutionInfoLocationTest {
     String ddl = location.buildDdl(variables);
     assertTrue(ddl.toLowerCase().contains("create"));
     assertTrue(ddl.contains("idx_hop_exec_start") || ddl.toLowerCase().contains("index"));
+    assertTrue(ddl.toLowerCase().contains(CachingDatabaseExecutionInfoLocation.COL_STATE_JSON));
     assertTrue(
         ddl.contains(CachingDatabaseExecutionInfoLocation.COL_JSON)
             || ddl.toLowerCase().contains("json")
@@ -531,7 +532,7 @@ class CachingDatabaseExecutionInfoLocationTest {
   }
 
   @Test
-  void addsStateColumnWhenTheTablePredatesIt() throws Exception {
+  void anExistingTableWithoutTheStateColumnIsNotAltered() throws Exception {
     String table =
         databaseMeta.getQuotedSchemaTableCombination(
             variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
@@ -556,13 +557,60 @@ class CachingDatabaseExecutionInfoLocationTest {
     migrated.setDatabaseMeta(databaseMeta);
     migrated.initialize(variables, metadataProvider);
     try {
-      assertTrue(
+      assertFalse(
           migrated.database.checkColumnExists(
               null,
               CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME,
               CachingDatabaseExecutionInfoLocation.COL_STATE_JSON));
+
+      String id = UUID.randomUUID().toString();
+      migrated.persistCacheEntry(
+          sampleEntry(id, "Legacy", ExecutionType.Pipeline, false, "Running"));
+      assertEquals(
+          "Running", readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATUS_DESCRIPTION));
     } finally {
       migrated.close();
+    }
+  }
+
+  @Test
+  void closeDropsTheConnectionWhenTheFinalFlushFails() throws Exception {
+    FailingFlushLocation failing = new FailingFlushLocation();
+    failing.setConnectionName("h2-exec");
+    failing.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    failing.setPersistenceDelay("60000");
+    failing.setMaxCacheAge("86400000");
+    failing.setDatabaseMeta(databaseMeta);
+    failing.initialize(variables, metadataProvider);
+    try {
+      String id = UUID.randomUUID().toString();
+      Execution execution = new Execution();
+      execution.setId(id);
+      execution.setName("Flush");
+      execution.setExecutionType(ExecutionType.Pipeline);
+      execution.setRegistrationDate(new Date());
+      failing.registerExecution(execution);
+      assertNotNull(failing.getCache().get(id));
+      failing.getCache().get(id).setDirty(true);
+      failing.failPersist = true;
+
+      assertThrows(HopException.class, failing::close);
+      assertNull(failing.database);
+    } finally {
+      failing.failPersist = false;
+      failing.close();
+    }
+  }
+
+  private static final class FailingFlushLocation extends CachingDatabaseExecutionInfoLocation {
+    private boolean failPersist;
+
+    @Override
+    protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
+      if (failPersist) {
+        throw new HopException("flush failed");
+      }
+      super.persistCacheEntry(cacheEntry);
     }
   }
 
