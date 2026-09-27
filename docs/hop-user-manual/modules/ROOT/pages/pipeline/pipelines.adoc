@@ -16,47 +16,161 @@ under the License.
 ////
 [[Pipelines]]
 :imagesdir: ../assets/images
-:description: Pipelines, together with workflows, are the main building blocks in Hop. Pipelines perform the heavy data lifting: in a pipeline, you read data from one or more sources, perform a number of operations (joins, lookups, filters and lots more) and finally write the processed data to one or more target platforms.
+:description: Pipelines perform the heavy data lifting in Apache Hop: reading, transforming, enriching, cleaning, validating, and writing data across diverse platforms in a streaming, parallel execution model.
 
 = Pipelines
 
-== Pipelines overview
+== What Pipelines Actually Do
 
-Pipelines, together with workflows, are the main building blocks in Hop. Pipelines perform the heavy data lifting: in a pipeline, you read data from one or more sources, perform a number of operations (joins, lookups, filters and lots more) and finally write the processed data to one or more target platforms.
+Pipelines are the **data workers** of Apache Hop.
+Where xref:workflow/workflows.adoc[workflows] orchestrate tasks and make decisions, pipelines do the heavy data processing: they read data from one or more sources, transform, enrich, and validate it in-flight, and write the processed records to one or more destination systems.
 
-Pipelines are a network of xref:pipeline/transforms.adoc[transforms], connected by hops. Just like the xref:workflow/actions.adoc[actions] in a workflow, each transform is a small piece of functionality. The combination of a number of transforms allow Hop developers to build powerful data processing and, in combination with workflows, orchestration solutions.
+Pipelines are designed for high throughput and low latency:
+* **Ingestion**: Read structured and unstructured data from relational databases, cloud object storage (S3, GCS, Azure Blob), local or network files via the xref:vfs.adoc[Virtual File System (VFS)], message queues (Apache Kafka, JMS, AWS SQS), or REST APIs.
+* **Transformation & Cleansing**: Filter invalid rows, calculate values, standardize date and number formats, manipulate strings, parse JSON or XML, handle missing values, and execute business rules.
+* **Lookups & Joins**: Enrich streaming records by joining data streams or performing real-time lookups against database tables, in-memory caches, or static datasets.
+* **Loading**: Insert, update, or bulk load rows into relational databases, cloud data warehouses (Snowflake, BigQuery, Redshift), lakehouse tables (Delta Lake, Apache Iceberg), search indexes, or messaging topics.
 
-Even though there is some visual resemblance, workflows and pipelines operate very differently.
+== Under the Hood: How a Pipeline Executes
 
-The core principles of pipelines are:
+Even though a pipeline diagram looks like a flowchart, it does **not** execute step-by-step.
+A pipeline is an active streaming dataflow network.
 
-* pipelines are networks. Each transform in a pipeline is part of the network.
-* a pipeline runs all of its transforms in parallel. All transforms are started and process data simultaneously. In a simple pipeline where you read data from a large file, do some processing and finally write to a database table, you're typically still reading from the file while you're already loading data to the database.
-* data flows through the various transforms in a pipeline over hops. In contrast to workflow hops, pipeline hops typically don't have an exit status. Pipelines do have some routing capabilities through e.g. xref:pipeline/transforms/filterrows.adoc[Filter Rows] transform and xref:pipeline/errorhandling.adoc[error handling], but the core pipeline principle still applies: the pipeline is a network, and data flow through the network in parallel.
+image::concepts/pipeline-parallel-flow.svg[Pipeline Parallel Streaming and In-Memory Row Buffers,opts=inline]
 
-== Example pipeline walk-through
+=== 1. The Parallel Nature
 
-The example below shows a very basic pipeline. This is what happens when we run this pipeline:
+When you run a pipeline, **all transforms start at the exact same moment**.
+Each transform operates as an independent worker running simultaneously alongside every other transform.
 
-* the pipeline has 7 transforms. All 7 of these transforms become active when we start the pipeline.
-* the "read-25M-records" transform starts reading data from a file, and pushes that data down the stream to "perform-calculations" and the following transforms. Since reading 25 million records takes a while, some data may already have finished processing while we're still reading records from the file.
-* the "lookup-sql-data" matches data we read from the file with data we retrieved from the "read-sql-data" transform. The xref:pipeline/transforms/streamlookup.adoc[Stream Lookup] accepts input from the "read-sql-data", which is shown with the information icon image:icons/info.svg[] on the hop.
-* once the data from the file and sql query are matched, we check a condition with the xref:pipeline/transforms/filterrows.adoc[Filter Rows] transform in "condition?". The output of this data is passed to "write-to-table" or "write-to-file", depending on whether the condition outcome was true or false.
+In a traditional batch script, step 1 must finish reading an entire million-row file before step 2 can start processing.
+In a Hop pipeline:
+* The input transform begins reading the first rows from your file.
+* It immediately pushes those rows down the hop to the next transform.
+* The downstream transforms begin filtering and calculating right away.
+* While the input transform is reading row 50,000, intermediate transforms are processing row 25,000, and the output transform is already writing row 10,000 to the database!
 
-image:hop-gui/pipeline/basic-pipeline.png[Pipelines - basic pipeline, width="65%"]
+=== 2. In-Memory Row Buffers
 
-== Next steps
+Data travels between transforms along **hops**.
+Behind every hop sits an **in-memory row buffer** (a queue with a default capacity of 10,000 rows, configurable in the pipeline properties dialog).
 
-Pipelines are an extensive topic. Check the pages below to learn more about working with pipelines:
+* An upstream transform pushes rows into the buffer.
+* The downstream transform pulls rows out of the buffer to do its work.
+* Data streams directly through memory from transform to transform, avoiding slow intermediate temporary files on disk.
 
-* xref:pipeline/hop-pipeline-editor.adoc[Pipeline Editor]
-* xref:pipeline/create-pipeline.adoc[Create a Pipeline]
-* xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline]
-* xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]
-* xref:pipeline/metadata-injection.adoc[Metadata Injection]
-* xref:pipeline/partitioning.adoc[Partitioning]
-* xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
-* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]
-* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine (Delta / Iceberg)]
-* xref:pipeline/pipeline-sources.adoc[Pipeline sources]
-* xref:pipeline/transforms.adoc[Transforms]
+=== 3. Automatic Back-Pressure
+
+What happens when an output database or web service is slower than a fast file reader?
+Hop handles this automatically with **back-pressure**:
+
+1. If the downstream transform cannot keep up, the row buffer between the two transforms fills up to its maximum capacity (e.g. 10,000 rows).
+2. Once the buffer is full, the upstream transform automatically pauses reading until the downstream transform consumes rows and makes room.
+3. This pause naturally ripples backward through the entire pipeline all the way to the initial source transform.
+4. When the downstream transform catches up, the upstream transform resumes processing automatically.
+
+Thanks to back-pressure, your pipelines automatically adapt to varying speeds without running out of memory, no matter how many millions or billions of rows you process!
+
+=== 4. Scaling and Partitioning
+
+When a single transform becomes a performance bottleneck (such as a complex calculation or slow API call), Hop provides built-in tools to scale:
+
+* **Multiple Copies**: You can tell Hop to run multiple parallel copies of any transform (e.g., 4 or 8 copies). Hop will automatically distribute rows across these copies to saturate available CPU cores (`xref:pipeline/specify-copies.adoc[Specify copies]`).
+* **Data Partitioning**: Partition data streams across distinct worker threads or cluster nodes according to partition rules (`xref:pipeline/partitioning.adoc[Partitioning]`).
+* **Row-Level Error Handling**: Route rejected or malformed rows into an alternate error stream without stopping the pipeline (`xref:pipeline/errorhandling.adoc[Error Handling]`).
+
+== Pipeline Execution Engines
+
+In Apache Hop, your pipeline design (`.hpl`) contains pure metadata and does not hardcode where or how it runs.
+You choose an engine via a xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configuration].
+
+Hop provides several purpose-built pipeline engines:
+
+[options="header", cols="22%,38%,40%"]
+|===
+|Engine |Best For |How It Operates
+|xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native Local]
+|Workstations, local testing, and standard single-server production jobs.
+|Runs locally in the Hop JVM, using multi-threaded in-memory streaming with row buffers.
+|xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Native Remote]
+|Offloading jobs to dedicated servers or cloud instances.
+|Sends pipeline metadata to a remote xref:hop-server/index.adoc[Hop Server] over HTTP, streaming logs and metrics back to the client.
+|xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[Native Load-balancing]
+|Distributing workloads across multiple Hop servers.
+|Dynamically distributes pipeline execution across a cluster of Hop servers for high availability and load balancing.
+|xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink]
+|Massive batch processing and low-latency continuous streaming at enterprise scale.
+|Translates the pipeline into an Apache Flink streaming or batch application running on a Flink cluster.
+|xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark]
+|Distributed batch data processing on existing Apache Spark clusters.
+|Compiles the pipeline into an Apache Beam job executed on an Apache Spark cluster.
+|xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google Dataflow]
+|Serverless, auto-scaling big data pipelines on Google Cloud.
+|Deploys the pipeline to Google Cloud Dataflow, with automatic resource provisioning and horizontal scaling.
+|xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct]
+|Testing Beam pipelines locally before deploying to Flink, Spark, or Dataflow.
+|Executes Apache Beam pipelines locally on your machine for quick verification.
+|xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark]
+|Lakehouse architectures, Delta Lake, and Apache Iceberg tables.
+|Executes natively on Apache Spark using Spark SQL and DataFrames without requiring Beam.
+|xref:pipeline/pipeline-run-configurations/single-threaded-pipeline-engine.adoc[Single Threaded]
+|Micro-batches, low-latency API handling, and deterministic debugging.
+|Executes transforms sequentially on a single thread, passing batches of rows one transform at a time. Ideal for embedded use and sub-pipelines.
+|===
+
+== Popular Real-World Scenarios
+
+Here is how pipelines are commonly used in modern data architectures:
+
+=== 1. High-Throughput Batch Ingestion & Data Warehousing
+Pipelines extract millions of records from operational databases (ERP, CRM) or files (CSV, Parquet, Excel) stored on S3 or Azure Blob storage.
+The pipeline cleanses fields, checks referential integrity with cached lookups, and bulk loads data directly into analytical databases like Snowflake, BigQuery, PostgreSQL, or Redshift.
+
+=== 2. Continuous Real-Time Streaming
+A pipeline listens 24/7 to an Apache Kafka topic using the xref:pipeline/transforms/kafkaconsumer.adoc[Kafka Consumer] transform.
+As events arrive, the pipeline deserializes JSON or Avro payloads, enriches them with static metadata, computes rolling metrics, and streams outputs directly to monitoring dashboards or operational stores.
+
+=== 3. Interactive Workstation Development & Live Preview
+While building data pipelines in the Hop GUI, data engineers do not need to wait for full batch runs to see if their logic works.
+By right-clicking any transform and selecting **Preview & debug output**, you can inspect real data rows flowing through that transform immediately.
+See xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline].
+
+=== 4. Automated CI/CD Regression Testing
+Pipelines can be linked with golden datasets using the xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Testing] framework.
+In continuous integration (CI) environments (e.g. GitHub Actions, GitLab CI), tests run automatically headlessly with `hop-run` to verify that data transformations produce expected results before code is merged or deployed.
+
+=== 5. Embedded in Custom Applications
+Using Hop's runtime libraries, developers can embed pipelines directly inside custom Java applications.
+The host application dynamically configures variables, launches the pipeline, and consumes output data streams without launching the GUI.
+
+=== 6. Python Data Science with PyHop
+Data scientists can use the xref:hop-tools/hop-python/hop-python.adoc[PyHop] library to control Hop from Python scripts.
+Pipelines can be triggered programmatically, and high-volume data streams can be passed directly into pandas or Polars DataFrames using Apache Arrow in-memory IPC without touching disk.
+
+== Example Pipeline Walk-Through
+
+The example below shows a typical real-world pipeline design:
+
+image:hop-gui/pipeline/basic-pipeline.png[Pipelines - basic pipeline, width="75%"]
+
+When this pipeline runs:
+1. All 7 transforms start simultaneously.
+2. The `read-25M-records` transform begins reading from a file and pushes rows downstream.
+3. The `perform-calculations` transform processes those incoming rows concurrently.
+4. The `lookup-sql-data` transform enriches the rows with reference data retrieved from `read-sql-data` using a xref:pipeline/transforms/streamlookup.adoc[Stream Lookup].
+5. The xref:pipeline/transforms/filterrows.adoc[Filter Rows] transform splits rows based on a business condition: matching rows go to `write-to-table`, while non-matching rows go to `write-to-file`.
+6. Rows flow continuously through the buffers until all records are processed.
+
+== Next Steps
+
+To dive deeper into building and managing pipelines, explore:
+
+* xref:pipeline/hop-pipeline-editor.adoc[Pipeline Editor] — Learn your way around the pipeline visual designer.
+* xref:pipeline/create-pipeline.adoc[Create a Pipeline] — Step-by-step instructions for creating and saving pipelines.
+* xref:pipeline/pipeline-sources.adoc[Pipeline Sources] — The transforms that can start a pipeline.
+* xref:pipeline/transforms.adoc[Transforms Catalog] — Browse the complete library of over 100 transforms.
+* xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline] — Techniques for inspecting live rows in-flight.
+* xref:pipeline/pipeline-metrics.adoc[Pipeline Metrics] — Understand row counters, speeds, and buffer metrics.
+* xref:pipeline/metadata-injection.adoc[Metadata Injection] — Generate dynamic, metadata-driven pipelines at runtime.
+* xref:pipeline/beam/getting-started-with-beam.adoc[Getting Started with Apache Beam] — Scale out pipelines on Flink, Spark, and Google Cloud Dataflow.
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting Started with Native Spark] — Run natively on Spark clusters and lakehouse tables.

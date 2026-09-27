@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 280" width="880" height="280">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .card { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 8px; }
+      .card-source { fill: #ffffff; stroke: #00a3a6; stroke-width: 2.5; rx: 8px; }
+      .card-target { fill: #ffffff; stroke: #f59e0b; stroke-width: 2.5; rx: 8px; }
+      
+      .text-title { font-family: system-ui, -apple-system, sans-serif; font-size: 15px; font-weight: 700; fill: #0e3a5a; }
+      .text-subtitle { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #64748b; }
+      .text-tag { font-family: system-ui, -apple-system, sans-serif; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
+      .text-metric { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; font-weight: 700; }
+      .text-buffer-title { font-family: system-ui, -apple-system, sans-serif; font-size: 12.5px; font-weight: 700; fill: #0e3a5a; }
+      
+      .hop-line { stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 6 4; fill: none; }
+      .buffer-box { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; rx: 8px; }
+      .bar-normal { fill: #00a3a6; rx: 2px; }
+      .bar-warn { fill: #f59e0b; rx: 2px; }
+      .bar-empty { fill: #e2e8f0; rx: 2px; }
+      .ribbon { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; rx: 6px; }
+      .ribbon-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; font-weight: 600; fill: #334155; }
+      
+      .pulse-warn { animation: pulseWarning 2s infinite ease-in-out; }
+
+      @keyframes pulseWarning {
+        0%, 100% { filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.4)); }
+        50% { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8)); }
+      }
+
+      /* Animated streaming row tokens */
+      .dot-stream1 { animation: streamAnim1 2s infinite linear; }
+      .dot-stream2 { animation: streamAnim2 2s infinite linear; }
+
+      @keyframes streamAnim1 {
+        0% { transform: translateX(0px); opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateX(160px); opacity: 0; }
+      }
+
+      @keyframes streamAnim2 {
+        0% { transform: translateX(0px); opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateX(160px); opacity: 0; }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .bg { fill: #0f172a; }
+        .card { fill: #1e293b; stroke: #334155; }
+        .card-source { fill: #1e293b; stroke: #00a3a6; }
+        .card-target { fill: #1e293b; stroke: #f59e0b; }
+        .text-title { fill: #f1f5f9; }
+        .text-subtitle { fill: #94a3b8; }
+        .text-buffer-title { fill: #cbd5e1; }
+        .buffer-box { fill: #0f172a; stroke: #334155; }
+        .bar-empty { fill: #334155; }
+        .hop-line { stroke: #475569; }
+        .ribbon { fill: #1e293b; stroke: #334155; }
+        .ribbon-text { fill: #cbd5e1; }
+      }
+    </style>
+    
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#00a3a6" />
+    </marker>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="880" height="280" rx="10" class="bg" />
+
+  <!-- Top Title Banner -->
+  <g transform="translate(25, 16)">
+    <rect width="830" height="36" rx="6" fill="#0e3a5a" />
+    <circle cx="20" cy="18" r="6" fill="#00a3a6" />
+    <text x="36" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="14.5" font-weight="700" fill="#ffffff">
+      Pipeline Streaming Execution Model
+    </text>
+    <text x="300" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" fill="#94a3b8">
+      — All transforms run concurrently; rows stream through in-memory buffers
+    </text>
+  </g>
+
+  <!-- TRANSFORM 1: SOURCE -->
+  <g transform="translate(25, 75)">
+    <rect width="170" height="135" class="card-source" />
+    <rect x="12" y="12" width="64" height="20" rx="4" fill="#e0f2fe" />
+    <text x="44" y="26" text-anchor="middle" class="text-tag" fill="#0284c7">SOURCE</text>
+    <circle cx="152" cy="22" r="5" fill="#10b981" />
+
+    <text x="14" y="60" class="text-title">Table Input</text>
+    <text x="14" y="80" class="text-subtitle">Reads customer rows</text>
+    <line x1="14" y1="96" x2="156" y2="96" stroke="#e2e8f0" stroke-width="1" />
+    <text x="14" y="118" class="text-metric" fill="#00a3a6">~8,000 rows/s</text>
+  </g>
+
+  <!-- HOP 1 (Connects Transform 1 to Transform 2) -->
+  <g transform="translate(195, 142)">
+    <line x1="0" y1="0" x2="160" y2="0" class="hop-line" marker-end="url(#arrow)" />
+    
+    <!-- Animated row tokens -->
+    <g class="dot-stream1">
+      <circle cx="12" cy="0" r="5" fill="#00a3a6" />
+      <circle cx="52" cy="0" r="5" fill="#00a3a6" />
+      <circle cx="92" cy="0" r="5" fill="#00a3a6" />
+      <circle cx="132" cy="0" r="5" fill="#00a3a6" />
+    </g>
+
+    <!-- Row Buffer Container 1 (Centered on hop) -->
+    <g transform="translate(25, -54)">
+      <rect width="110" height="108" class="buffer-box" />
+      <text x="55" y="20" text-anchor="middle" class="text-buffer-title">Row Buffer</text>
+      <text x="55" y="35" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#64748b">Capacity: 10k</text>
+      
+      <!-- Visual buffer level bars -->
+      <g transform="translate(15, 45)">
+        <rect x="0" y="0" width="12" height="26" class="bar-normal" />
+        <rect x="17" y="0" width="12" height="26" class="bar-normal" />
+        <rect x="34" y="0" width="12" height="26" class="bar-normal" />
+        <rect x="51" y="0" width="12" height="26" class="bar-empty" />
+        <rect x="68" y="0" width="12" height="26" class="bar-empty" />
+      </g>
+      <text x="55" y="94" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#00a3a6">Flowing</text>
+    </g>
+  </g>
+
+  <!-- TRANSFORM 2: INTERMEDIATE -->
+  <g transform="translate(355, 75)">
+    <rect width="170" height="135" class="card" />
+    <rect x="12" y="12" width="86" height="20" rx="4" fill="#f3e8ff" />
+    <text x="55" y="26" text-anchor="middle" class="text-tag" fill="#7e22ce">TRANSFORM</text>
+    <circle cx="152" cy="22" r="5" fill="#10b981" />
+
+    <text x="14" y="60" class="text-title">Lookup &amp; Clean</text>
+    <text x="14" y="80" class="text-subtitle">Enriches &amp; validates</text>
+    <line x1="14" y1="96" x2="156" y2="96" stroke="#e2e8f0" stroke-width="1" />
+    <text x="14" y="118" class="text-metric" fill="#7e22ce">Paused (Throttled)</text>
+  </g>
+
+  <!-- HOP 2 (Connects Transform 2 to Transform 3) -->
+  <g transform="translate(525, 142)">
+    <line x1="0" y1="0" x2="160" y2="0" class="hop-line" marker-end="url(#arrow)" />
+    
+    <!-- Animated row tokens (amber/throttled) -->
+    <g class="dot-stream2">
+      <circle cx="15" cy="0" r="5" fill="#f59e0b" />
+      <circle cx="65" cy="0" r="5" fill="#f59e0b" />
+      <circle cx="115" cy="0" r="5" fill="#f59e0b" />
+    </g>
+
+    <!-- Row Buffer Container 2 (Full - Back-pressure) -->
+    <g transform="translate(25, -54)" class="pulse-warn">
+      <rect width="110" height="108" class="buffer-box" stroke="#f59e0b" stroke-width="2.5" />
+      <text x="55" y="20" text-anchor="middle" class="text-buffer-title" fill="#d97706">Buffer Full!</text>
+      <text x="55" y="35" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" font-weight="600" fill="#d97706">10k / 10k</text>
+      
+      <!-- Visual buffer level bars (Full) -->
+      <g transform="translate(15, 45)">
+        <rect x="0" y="0" width="12" height="26" class="bar-warn" />
+        <rect x="17" y="0" width="12" height="26" class="bar-warn" />
+        <rect x="34" y="0" width="12" height="26" class="bar-warn" />
+        <rect x="51" y="0" width="12" height="26" class="bar-warn" />
+        <rect x="68" y="0" width="12" height="26" class="bar-warn" />
+      </g>
+      <text x="55" y="94" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#d97706">Back-Pressure</text>
+    </g>
+  </g>
+
+  <!-- TRANSFORM 3: TARGET SINK -->
+  <g transform="translate(685, 75)">
+    <rect width="170" height="135" class="card-target" />
+    <rect x="12" y="12" width="86" height="20" rx="4" fill="#fef3c7" />
+    <text x="55" y="26" text-anchor="middle" class="text-tag" fill="#b45309">TARGET SINK</text>
+    <circle cx="152" cy="22" r="5" fill="#10b981" />
+
+    <text x="14" y="60" class="text-title">Database Insert</text>
+    <text x="14" y="80" class="text-subtitle">Writes to warehouse</text>
+    <line x1="14" y1="96" x2="156" y2="96" stroke="#e2e8f0" stroke-width="1" />
+    <text x="14" y="118" class="text-metric" fill="#b45309">~2,000 rows/s</text>
+  </g>
+
+  <!-- Bottom Explanatory Ribbon -->
+  <g transform="translate(25, 226)">
+    <rect width="830" height="38" class="ribbon" />
+    <circle cx="20" cy="19" r="4.5" fill="#f59e0b" />
+    <text x="34" y="23" class="ribbon-text">
+      Back-Pressure: When Database Insert is slower than Table Input, the row buffer fills up and automatically pauses Table Input.
+    </text>
+  </g>
+</svg>
