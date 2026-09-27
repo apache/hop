@@ -26,6 +26,7 @@ Workflows are the **orchestrators** of Apache Hop.
 Where xref:pipeline/pipelines.adoc[pipelines] are the streaming workers that process rows of data, workflows are the managers that coordinate jobs: they ensure prerequisites are met, fetch required files, trigger child pipelines and workflows in the proper order, react to errors, and send notifications.
 
 Workflows manage the operational lifecycle of your data platform:
+
 * **Environment Preparation & Health Checks**: Verify that target databases are reachable, ping remote servers, check whether webservices are online, and verify disk space before launching heavy data jobs.
 * **File & Storage Lifecycle**: Download files via SFTP or cloud storage (S3, GCS, Azure Blob), decompress zip archives, verify file existence, decrypt sensitive files with PGP, move processed files to archive folders, and purge temporary data.
 * **Coordinating Child Pipelines & Workflows**: Launch pipelines using the xref:workflow/actions/pipeline.adoc[Pipeline] action, pass parameters and variables down to child tasks, and collect execution status and summary rows.
@@ -42,6 +43,7 @@ image::concepts/workflow-backtracking-flow.svg[Workflow Sequential Execution and
 === 1. The Sequential Nature
 
 Workflows run **one action at a time in sequence** by default:
+
 * Execution begins at a single mandatory starting point: the xref:workflow/actions/start.adoc[Start] action.
 * An action executes its complete task (e.g. checking a file or running a pipeline) and waits until it finishes.
 * Upon completion, the action generates an **exit status** indicating whether it succeeded or failed.
@@ -66,6 +68,7 @@ By combining success and failure hops, you can build self-healing data workflows
 What happens when an action connects to multiple outgoing hops, or when a workflow branches into different paths?
 
 Hop uses a **depth-first backtracking algorithm** to traverse the workflow graph:
+
 1. **Branch Evaluation**: When an action completes, Hop evaluates all outgoing hops that match its exit status.
 2. **Depth-First Traversal**: Hop selects the first valid path and follows it sequentially to its final terminus.
 3. **Backtracking**: When that branch reaches an end point (or encounters a blocked condition), the workflow engine **backtracks** to the last decision fork and begins traversing any other valid branches that have not yet run.
@@ -96,8 +99,8 @@ Hop provides three workflow execution engines:
 |Offloading orchestration to dedicated servers.
 |Dispatches the workflow to execute on a remote xref:hop-server/index.adoc[Hop Server] via HTTP, streaming execution progress and logs back to the caller.
 |xref:workflow/workflow-run-configurations/native-load-balancing-workflow-engine.adoc[Native Load-balancing]
-|Distributing heavy workloads across multiple servers.
-|Distributes child actions and workflows across a cluster of Hop servers for high scalability and failover resilience.
+|Spreading separate workflow runs over a group of servers.
+|Assigns each workflow to one server from a configured group, using an even-load or pack algorithm, and retries on another server when the chosen one is at capacity.
 |===
 
 == Popular Real-World Scenarios
@@ -106,6 +109,7 @@ Here is how workflows are commonly applied across enterprise data platforms:
 
 === 1. Production Nightly Batch Orchestration
 A master workflow executes every night to run your organization's core ELT batch:
+
 1. Connects to database servers and validates connectivity (`Check Db connections`).
 2. Checks whether new source data files have landed in cloud storage (`Checks if files exists`).
 3. Executes a series of ingestion pipelines in order, passing the current processing batch date as a parameter.
@@ -140,6 +144,7 @@ The example below shows a typical real-world workflow design:
 image:hop-gui/workflow/basic-workflow.png[Workflows - basic workflow, width="75%"]
 
 When this workflow executes:
+
 1. Execution starts at the **Start** action, which can never fail, and follows the unconditional hop.
 2. The `first-pipeline` action runs its designated pipeline.
 3. If `first-pipeline` succeeds, the workflow follows the green success hop to `second-pipeline`.

@@ -26,6 +26,7 @@ Pipelines are the **data workers** of Apache Hop.
 Where xref:workflow/workflows.adoc[workflows] orchestrate tasks and make decisions, pipelines do the heavy data processing: they read data from one or more sources, transform, enrich, and validate it in-flight, and write the processed records to one or more destination systems.
 
 Pipelines are designed for high throughput and low latency:
+
 * **Ingestion**: Read structured and unstructured data from relational databases, cloud object storage (S3, GCS, Azure Blob), local or network files via the xref:vfs.adoc[Virtual File System (VFS)], message queues (Apache Kafka, JMS, AWS SQS), or REST APIs.
 * **Transformation & Cleansing**: Filter invalid rows, calculate values, standardize date and number formats, manipulate strings, parse JSON or XML, handle missing values, and execute business rules.
 * **Lookups & Joins**: Enrich streaming records by joining data streams or performing real-time lookups against database tables, in-memory caches, or static datasets.
@@ -45,6 +46,7 @@ Each transform operates as an independent worker running simultaneously alongsid
 
 In a traditional batch script, step 1 must finish reading an entire million-row file before step 2 can start processing.
 In a Hop pipeline:
+
 * The input transform begins reading the first rows from your file.
 * It immediately pushes those rows down the hop to the next transform.
 * The downstream transforms begin filtering and calculating right away.
@@ -69,7 +71,9 @@ Hop handles this automatically with **back-pressure**:
 3. This pause naturally ripples backward through the entire pipeline all the way to the initial source transform.
 4. When the downstream transform catches up, the upstream transform resumes processing automatically.
 
-Thanks to back-pressure, your pipelines automatically adapt to varying speeds without running out of memory, no matter how many millions or billions of rows you process!
+Thanks to back-pressure, your pipelines automatically adapt to varying speeds and the memory held between transforms stays bounded, no matter how many millions or billions of rows you process.
+Note that back-pressure governs the row buffers on the hops only.
+Transforms that have to collect a whole set before they can emit a row -- xref:pipeline/transforms/streamlookup.adoc[Stream Lookup], xref:pipeline/transforms/memgroupby.adoc[Memory Group By] and similar -- hold that set in memory and still need to fit in the heap.
 
 === 4. Scaling and Partitioning
 
@@ -96,8 +100,8 @@ Hop provides several purpose-built pipeline engines:
 |Offloading jobs to dedicated servers or cloud instances.
 |Sends pipeline metadata to a remote xref:hop-server/index.adoc[Hop Server] over HTTP, streaming logs and metrics back to the client.
 |xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[Native Load-balancing]
-|Distributing workloads across multiple Hop servers.
-|Dynamically distributes pipeline execution across a cluster of Hop servers for high availability and load balancing.
+|Spreading separate pipeline runs over a group of servers.
+|Assigns each pipeline to one server from a configured group, using an even-load or pack algorithm, and retries on another server when the chosen one is at capacity.
 |xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink]
 |Massive batch processing and low-latency continuous streaming at enterprise scale.
 |Translates the pipeline into an Apache Flink streaming or batch application running on a Flink cluster.
@@ -154,6 +158,7 @@ The example below shows a typical real-world pipeline design:
 image:hop-gui/pipeline/basic-pipeline.png[Pipelines - basic pipeline, width="75%"]
 
 When this pipeline runs:
+
 1. All 7 transforms start simultaneously.
 2. The `read-25M-records` transform begins reading from a file and pushes rows downstream.
 3. The `perform-calculations` transform processes those incoming rows concurrently.

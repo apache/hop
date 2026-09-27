@@ -31,7 +31,7 @@ Key things to remember before you build:
 
 * **Transforms are the workers**: Each transform on the canvas does one specific job (e.g. generating data, calculating a value, writing to disk).
 * **Parallel streaming**: All transforms in a pipeline start at the same time and run concurrently. Rows stream continuously through in-memory row buffers between transforms.
-* **Automatic back-pressure**: If a downstream transform is slower than an upstream transform, the buffer between them fills up and upstream automatically pauses. Your system never runs out of memory.
+* **Automatic back-pressure**: If a downstream transform is slower than an upstream transform, the buffer between them fills up and upstream automatically pauses. This keeps the memory held between transforms bounded, however large the data set.
 
 TIP: For an architectural deep dive into how pipelines run, row buffers, and execution engines (Local, Remote, Beam, Spark), see the xref:pipeline/pipelines.adoc[Pipelines guide].
 
