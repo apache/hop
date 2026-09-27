@@ -1,0 +1,89 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Adding new command-line sub-commands to the Hop CLI using @HopCommand and picocli.
+[[Sdk-Plugins-Commands]]
+= Hop Commands
+
+A `@HopCommand` plugin contributes an entire sub-command to the Hop command line interface (`hop <command>`).
+All built-in Hop CLI sub-commands—including `hop run`, `hop conf`, `hop server`, `hop encrypt`, `hop search`, and `hop export`—are implemented as `@HopCommand` plugins.
+
+== Implementing a Command
+
+Annotate the class with `@HopCommand` and picocli's `@CommandLine.Command`, and implement `IHopCommand` and `Runnable`:
+
+[source,java]
+----
+import org.apache.hop.command.HopCommand;
+import org.apache.hop.command.IHopCommand;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
+@HopCommand(
+    id = "audit",
+    description = "Scans project metadata and pipelines for policy compliance"
+)
+@Command(
+    name = "audit",
+    description = "Audit Hop project metadata"
+)
+public class HopCommandAudit implements IHopCommand, Runnable {
+
+  @Option(
+      names = {"-p", "--project"},
+      description = "The project name to audit"
+  )
+  private String projectName;
+
+  @Option(
+      names = {"-s", "--strict"},
+      description = "Fail with non-zero exit code if warnings are found"
+  )
+  private boolean strict;
+
+  private CommandLine cmd;
+  private IVariables variables;
+  private MultiMetadataProvider metadataProvider;
+
+  @Override
+  public void initialize(CommandLine cmd, IVariables variables,
+                         MultiMetadataProvider metadataProvider) {
+    this.cmd = cmd;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
+  }
+
+  @Override
+  public void run() {
+    System.out.println("Auditing project: " + projectName);
+    // Perform audit checks across metadataProvider
+  }
+}
+----
+
+== Key Architectural Methods
+
+* `initialize(...)`: Receives the parsed picocli `CommandLine`, current `IVariables`, and the project's `MultiMetadataProvider`.
+* `run()`: Executes the command. Use standard Java exit conventions or throw exceptions caught by the runner.
+
+== Concrete Codebase Examples
+
+* `engine/src/main/java/org/apache/hop/run/HopCommandRun.java`: The `hop run` command implementation.
+* `engine/src/main/java/org/apache/hop/encryption/HopCommandEncrypt.java`: The `hop encrypt` utility.
+* `engine/src/main/java/org/apache/hop/search/HopCommandSearch.java`: The `hop search` command.

@@ -1,0 +1,216 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Loading, dynamically constructing, executing pipelines programmatically with the Hop SDK, injecting rows, and consuming real-time row streams.
+[[Sdk-Pipelines]]
+= Pipelines API
+
+Pipelines are the core data processing units in Hop.
+With the Hop SDK, you can load pipelines from existing `.hpl` definition files, construct pipeline topologies entirely in memory using the Java API, execute pipelines using configurable engines, inject rows from external sources, and stream output rows back into your application.
+
+== Loading Pipeline Metadata
+
+Pipeline metadata describes the structure, transforms, and hops of a pipeline.
+You can load metadata from either a file path or an arbitrary `InputStream`.
+
+=== Loading from a File
+
+[source,java]
+----
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
+
+IVariables variables = Variables.getADefaultVariableSpace();
+
+// Path can be a local path or any HopVFS URI (e.g., s3://bucket/pipeline.hpl)
+String filename = "/path/to/my-pipeline.hpl";
+
+PipelineMeta pipelineMeta = new PipelineMeta(
+    filename,
+    metadataProvider, // IHopMetadataProvider (e.g. JsonMetadataProvider)
+    true,             // set internal variables (such as _PROJECT_NAME_, etc.)
+    variables         // parent variable space
+);
+----
+
+=== Loading from an InputStream
+
+If your application retrieves pipelines from a database, a repository, or a web service, load directly from an `InputStream`:
+
+[source,java]
+----
+try (InputStream inputStream = HopVfs.getInputStream("s3://bucket/my-pipeline.hpl", variables)) {
+  PipelineMeta pipelineMeta = new PipelineMeta(
+      inputStream,
+      metadataProvider,
+      true,
+      variables
+  );
+}
+----
+
+== Constructing Pipelines Programmatically
+
+You can construct an entire pipeline from scratch using Java code without any `.hpl` file:
+
+[source,java]
+----
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
+
+PipelineMeta pipelineMeta = new PipelineMeta();
+pipelineMeta.setName("DynamicPipeline");
+
+// 1. Create a Row Generator transform
+RowGeneratorMeta rowGeneratorMeta = new RowGeneratorMeta();
+rowGeneratorMeta.setRowLimit("100000");
+
+TransformMeta rowGenerator = new TransformMeta("GenerateRows", rowGeneratorMeta);
+rowGenerator.setLocation(100, 100);
+pipelineMeta.addTransform(rowGenerator);
+
+// 2. Create a Dummy transform (placeholder / pass-through)
+DummyMeta dummyMeta = new DummyMeta();
+TransformMeta dummy = new TransformMeta("CollectRows", dummyMeta);
+dummy.setLocation(300, 100);
+pipelineMeta.addTransform(dummy);
+
+// 3. Add a hop connecting both transforms
+PipelineHopMeta hop = new PipelineHopMeta(rowGenerator, dummy);
+pipelineMeta.addPipelineHop(hop);
+----
+
+== Executing Pipelines
+
+Pipelines are executed through the `IPipelineEngine` interface.
+Engines are plugins: the `PipelineEngineFactory` inspects the specified **Pipeline Run Configuration** metadata object to instantiate the appropriate engine (such as `LocalPipelineEngine`, `RemotePipelineEngine`, or `BeamPipelineEngine`).
+
+[source,java]
+----
+import org.apache.hop.core.Result;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+
+// Create the pipeline engine using the "local" run configuration
+IPipelineEngine<PipelineMeta> pipelineEngine = PipelineEngineFactory.createPipelineEngine(
+    variables,
+    "local",            // Name of the Pipeline Run Configuration metadata
+    metadataProvider,   // Metadata provider holding the run configuration
+    pipelineMeta
+);
+
+// Execute the pipeline (starts execution in background threads)
+pipelineEngine.execute();
+
+// Wait for all transforms to finish processing
+pipelineEngine.waitUntilFinished();
+
+// Evaluate the final execution result
+Result result = pipelineEngine.getResult();
+System.out.println("Pipeline completed. Errors: " + result.getNrErrors());
+System.out.println("Lines input: " + result.getNrLinesInput());
+System.out.println("Lines written: " + result.getNrLinesWritten());
+----
+
+== Injecting Data into a Running Pipeline
+
+When embedding Hop, you often want to stream rows generated by your host application directly into a pipeline.
+Data injection is supported on `LocalPipelineEngine` using `RowProducer`:
+
+[source,java]
+----
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+
+LocalPipelineEngine localPipeline = (LocalPipelineEngine) pipelineEngine;
+
+// Prepare execution before attaching row producers
+localPipeline.prepareExecution();
+
+// Attach a RowProducer to the target transform copy (transform name, copy index 0)
+RowProducer rowProducer = localPipeline.addRowProducer("CollectRows", 0);
+
+// Start the transform threads
+localPipeline.startThreads();
+
+// Define row layout
+IRowMeta rowMeta = new RowMeta();
+rowMeta.addValueMeta(new ValueMetaInteger("id"));
+rowMeta.addValueMeta(new ValueMetaString("customer_name"));
+
+// Push rows into the transform input buffer
+rowProducer.putRow(rowMeta, new Object[] {1L, "Alice"});
+rowProducer.putRow(rowMeta, new Object[] {2L, "Bob"});
+
+// Signal that all rows have been fed into the transform
+rowProducer.setFinished();
+
+// Await pipeline termination
+localPipeline.waitUntilFinished();
+----
+
+== Consuming Output Rows from a Pipeline
+
+You can capture rows emitted by any transform during execution by registering an `IRowListener` via `RowAdapter`:
+
+[source,java]
+----
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.RowAdapter;
+
+// Prepare execution
+localPipeline.prepareExecution();
+
+// Obtain reference to the transform instance
+ITransform outputTransform = localPipeline.getTransform("CollectRows", 0);
+
+// Register a row listener to receive emitted rows
+outputTransform.addRowListener(new RowAdapter() {
+  @Override
+  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+    String id = rowMeta.getString(row, 0);
+    String name = rowMeta.getString(row, 1);
+    System.out.println("Captured output row: id=" + id + ", name=" + name);
+  }
+});
+
+// Start threads and await finish
+localPipeline.startThreads();
+localPipeline.waitUntilFinished();
+----
+
+== Stopping Pipelines Programmatically
+
+To stop or abort a running pipeline cleanly from external monitoring or lifecycle triggers:
+
+[source,java]
+----
+if (pipelineEngine.isRunning()) {
+  // Gracefully stop all transforms
+  pipelineEngine.stopAll();
+}
+----

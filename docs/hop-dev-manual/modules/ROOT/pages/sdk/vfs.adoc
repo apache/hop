@@ -1,0 +1,215 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: File handling in Apache Hop using Apache Commons VFS and HopVfs: avoiding java.io.File, closing resources, and streaming across storage systems.
+[[Sdk-Vfs]]
+= File Handling with HopVFS
+
+Apache Hop uses **Apache Commons VFS** as its unified file system abstraction.
+Whether your data resides on a local NVMe drive, in AWS S3, Google Cloud Storage, Azure Blob, an SFTP server, or inside a ZIP archive, Hop treats every path through a single, consistent API: `org.apache.commons.vfs2.FileObject` and the `org.apache.hop.core.vfs.HopVfs` helper class.
+
+== The Golden Rule: Avoid `java.io.File`
+
+[IMPORTANT]
+====
+**Unless there really is no other choice, never use `java.io.File` in Hop code or plugins.**
+The default in Apache Hop is always to use `org.apache.commons.vfs2.FileObject` via `HopVfs`.
+====
+
+Using `java.io.File` is one of the most common causes of bugs when running pipelines outside a local developer workstation:
+
+* **Non-local Schemes:** `java.io.File` only understands the local operating system's filesystem syntax. Passing a cloud path such as `s3://my-bucket/orders.csv` or `gs://my-bucket/orders.csv` to `java.io.File` will either throw a `FileNotFoundException` or corrupt the path into a nonsensical local directory like `./s3:/my-bucket/orders.csv`.
+* **Portability across Runtimes:** Pipelines configured on a local machine frequently execute on a remote Hop Server, in a Docker container, or on a distributed cluster with Apache Beam / Spark / Flink. Using `HopVfs` ensures that paths remain portable across all runtime targets.
+* **Variable Resolution:** `HopVfs` automatically expands variables (such as `${PROJECT_HOME}/data/file.csv` or `${S3_BUCKET}/data.parquet`) before resolving the underlying file system provider.
+
+== Core File Operations with HopVfs
+
+The `HopVfs` utility class provides static convenience methods for interacting with files across all supported schemes.
+
+=== 1. Obtaining a `FileObject`
+
+[source,java]
+----
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.variables.IVariables;
+
+IVariables variables = ...;
+String path = "${PROJECT_HOME}/input/sales_data.csv";
+
+// Resolves variables and obtains the Commons VFS FileObject
+FileObject fileObject = HopVfs.getFileObject(path, variables);
+
+if (fileObject.exists()) {
+  long sizeInBytes = fileObject.getContent().getSize();
+  boolean isFolder = fileObject.isFolder();
+}
+----
+
+=== 2. Reading Streams
+
+Always read file contents through `HopVfs.getInputStream()`:
+
+[source,java]
+----
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
+// Open stream directly from a path:
+try (InputStream inputStream = HopVfs.getInputStream("s3://analytics-bucket/logs/app.log", variables);
+     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+  String line;
+  while ((line = reader.readLine()) != null) {
+    // Process line
+  }
+}
+----
+
+You can also retrieve an `InputStream` directly from an existing `FileObject`:
+
+[source,java]
+----
+try (InputStream inputStream = HopVfs.getInputStream(fileObject)) {
+  // Read bytes
+}
+----
+
+=== 3. Writing Streams
+
+To create or overwrite a file, obtain an `OutputStream` via `HopVfs.getOutputStream()`:
+
+[source,java]
+----
+import java.io.OutputStream;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+
+String targetPath = "azure://data-container/output/results.json";
+boolean append = false;
+
+try (OutputStream outputStream = HopVfs.getOutputStream(targetPath, append, variables);
+     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+  writer.write("{\"status\": \"OK\"}");
+  writer.flush();
+}
+----
+
+=== 4. Directory & File Management
+
+[source,java]
+----
+FileObject folder = HopVfs.getFileObject("s3://bucket/landing-zone/", variables);
+
+// Create directory (and parents if needed)
+if (!folder.exists()) {
+  folder.createFolder();
+}
+
+// List child files
+FileObject[] children = folder.getChildren();
+for (FileObject child : children) {
+  if (child.isFile()) {
+    System.out.println("Found file: " + child.getName().getBaseName());
+  }
+}
+
+// Delete file or folder
+fileObject.delete();
+
+// Delete folder and all recursive contents
+folder.deleteAll();
+----
+
+== Closing Resources: Preventing Descriptor and Connection Leaks
+
+[CAUTION]
+====
+**Always close streams and `FileObject` handles.**
+Failing to close VFS resources leads to severe production issues:
+1. **Network socket exhaustion**: Cloud providers (AWS S3, Azure Blob, Google Cloud Storage) and SFTP pools maintain underlying HTTP client connections and SSH sessions. Leaving streams open drains the connection pool and stalls subsequent requests.
+2. **File descriptor leaks**: On Linux/macOS, open file descriptors eventually exceed the OS process limit (`Too many open files`).
+3. **File locking on Windows**: Windows locks open files, preventing subsequent rename or delete operations in workflows.
+====
+
+=== Best Practices for Resource Management
+
+* **Use try-with-resources for all streams**:
++
+[source,java]
+----
+try (InputStream in = HopVfs.getInputStream(filename, variables)) {
+  // Read stream
+} // Automatically closed on exit
+----
+* **Close `FileObject` instances when finished**:
+`FileObject` implements `AutoCloseable`. When performing extensive file system scans or operations, close the `FileObject` to release cached metadata and network channel handles:
++
+[source,java]
+----
+try (FileObject file = HopVfs.getFileObject(remotePath, variables)) {
+  if (file.exists()) {
+    // perform operations
+  }
+} // file.close() releases underlying VFS resources
+----
+* **Use `file.close()` in transform `dispose()` methods**:
+If a transform opens a `FileObject` in `init()` or `processRow()`, ensure `file.close()` is called in `dispose()`.
+
+== Supported URL Schemes and Related Docs
+
+Hop supports standard VFS schemes out of the box, with additional schemes provided via plugins:
+
+|===
+|Scheme |Storage Provider |Plugin / Documentation
+
+|`file://`
+|Local file system
+|Built into `hop-core`
+
+|`s3://`
+|Amazon Simple Storage Service (S3)
+|xref:{page-component-version}@manual::vfs/aws-s3-vfs.adoc[AWS S3 VFS in User Manual]
+
+|`gs://`
+|Google Cloud Storage (GCS)
+|xref:{page-component-version}@manual::vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage VFS]
+
+|`azure://` / `azfs://`
+|Microsoft Azure Blob & Data Lake
+|xref:{page-component-version}@manual::vfs/azure-blob-storage-vfs.adoc[Azure Storage VFS]
+
+|`ftp://` / `sftp://`
+|FTP and Secure FTP (SSH)
+|`plugins/tech/ftp`, `plugins/tech/sftp`
+
+|`zip:` / `gz:` / `tar:`
+|Compressed archives
+|Apache Commons VFS core
+
+|`hdfs://`
+|Hadoop Distributed File System
+|xref:{page-component-version}@manual::vfs/hdfs-vfs.adoc[HDFS VFS]
+
+|`dbfs://`
+|Databricks Unity Catalog Volumes
+|xref:{page-component-version}@manual::vfs/databricks-vfs.adoc[Databricks VFS]
+|===
+
+* For configuring VFS connections in projects, see xref:{page-component-version}@manual::vfs.adoc[Hop VFS in the User Manual].
+* For creating custom VFS schemes and storage providers, see xref:sdk/plugins/vfs.adoc[VFS Plugins].

@@ -1,0 +1,73 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Hooking into runtime and GUI lifecycles in Apache Hop using @ExtensionPoint plugins.
+[[Sdk-Plugins-ExtensionPoints]]
+= Extension Points
+
+An extension point is an event-driven hook in Apache Hop.
+Hop announces specific lifecycle events (such as `HopGuiStart`, `PipelinePrepareExecution`, `TransformBeforeStart`, or `PipelineCompleted`), and any registered plugin listening for that event is invoked synchronously.
+
+== Implementing an Extension Point
+
+Annotate your class with `@ExtensionPoint` and implement `IExtensionPoint<T>`:
+
+[source,java]
+----
+import org.apache.hop.core.extension.ExtensionPoint;
+import org.apache.hop.core.extension.IExtensionPoint;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+
+@ExtensionPoint(
+    id = "AuditPipelineCompleted",
+    extensionPointId = "PipelineCompleted",
+    description = "Logs auditing information when any pipeline finishes execution"
+)
+public class AuditPipelineCompletedXp implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
+
+  @Override
+  public void callExtensionPoint(ILogChannel log, IVariables variables,
+                                 IPipelineEngine<PipelineMeta> pipeline) throws HopException {
+    log.logBasic("Pipeline completed: " + pipeline.getPipelineMeta().getName() +
+                 " with status: " + pipeline.getStatusDescription());
+  }
+}
+----
+
+== Key Architectural Rules
+
+=== 1. Bind to Interfaces, Not Implementations
+[IMPORTANT]
+====
+**Always bind to the engine interface (`IPipelineEngine` or `IWorkflowEngine`), never concrete classes (`Pipeline` or `Workflow`).**
+Declaring `IExtensionPoint<Pipeline>` will function on the local engine but crash with a `ClassCastException` on remote engines or Apache Beam engines.
+====
+
+=== 2. Inline Synchronous Execution
+Extension points execute on the thread that triggered the event.
+Keep your logic fast and non-blocking. If your extension point needs to perform heavy I/O, network requests, or database writes, offload the workload to a background worker queue.
+
+=== 3. Discovering Available Extension Points
+All core extension point IDs are defined as constants in the `org.apache.hop.core.extension.HopExtensionPoint` enum.
+
+== Concrete Codebase Examples
+
+* `engine/src/main/java/org/apache/hop/lineage/xp/LineageHubPipelineCompletedXp.java`: Emits lineage events upon pipeline completion.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/HopGuiStartExtensionPoint.java`: Initializes components when the Hop GUI finishes starting.
+* `engine/src/main/java/org/apache/hop/pipeline/engine/PipelinePrepareExecutionExtensionPoint.java`: Hooks into pipeline preparation.

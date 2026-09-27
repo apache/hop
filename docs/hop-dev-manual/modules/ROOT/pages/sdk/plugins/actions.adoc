@@ -1,0 +1,157 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Building custom workflow actions in Apache Hop: the two-class pattern, execution lifecycle, Result passing, and GUI dialog integration.
+[[Sdk-Plugins-Actions]]
+= Action Plugins
+
+Actions are the task-level building blocks of Hop workflows.
+Unlike transforms (which continuously process streams of rows in parallel), actions execute sequentially or conditionally as individual tasks: verifying files, executing scripts, checking database connectivity, or sending notifications.
+
+== The Two-Class Pattern
+
+An action plugin requires only two classes:
+1. `ActionFoo`: Extends `ActionBase` and implements `IAction`. Serves as both design-time metadata and runtime execution unit.
+2. `ActionFooDialog`: Extends `ActionBaseDialog` and implements `IActionDialog`. The user interface configuration dialog.
+
+== 1. The Action Class (`ActionFoo`)
+
+Annotate the class with `@Action` and decorate configurable properties with `@HopMetadataProperty`:
+
+[source,java]
+----
+import org.apache.hop.core.Result;
+import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
+import lombok.Getter;
+import lombok.Setter;
+
+@Action(
+    id = "PingServer",
+    name = "i18n::PingServer.Name",
+    description = "i18n::PingServer.Description",
+    image = "ping-server.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    documentationUrl = "/workflow/actions/ping-server.html"
+)
+@GuiPlugin
+@Getter
+@Setter
+public class ActionPingServer extends ActionBase implements IAction {
+
+  @HopMetadataProperty(key = "hostname")
+  private String hostname;
+
+  @HopMetadataProperty(key = "timeout_ms")
+  private int timeoutMs = 3000;
+
+  public ActionPingServer() {
+    this("");
+  }
+
+  public ActionPingServer(String name) {
+    super(name, "");
+  }
+
+  @Override
+  public Result execute(Result prevResult, int nr) {
+    Result result = prevResult;
+    result.setNrErrors(0);
+
+    // Resolve variables in hostname
+    String targetHost = resolve(hostname);
+
+    try {
+      logBasic("Pinging host: " + targetHost);
+      boolean reachable = InetAddress.getByName(targetHost).isReachable(timeoutMs);
+
+      if (reachable) {
+        logBasic("Host " + targetHost + " is reachable.");
+        result.setResult(true);
+      } else {
+        logError("Host " + targetHost + " is unreachable.");
+        result.setResult(false);
+        result.setNrErrors(1);
+      }
+    } catch (Exception e) {
+      logError("Error pinging " + targetHost, e);
+      result.setResult(false);
+      result.setNrErrors(1);
+    }
+
+    return result;
+  }
+}
+----
+
+=== Key Action Methods
+* `execute(Result prevResult, int nr)`: The core execution entry point. Always set `result.setResult(true/false)` and update `result.setNrErrors(...)`.
+* `isEvaluation()`: Return `true` if this action can evaluate to true/false (allowing conditional hops).
+* `isUnconditional()`: Return `true` if hops leaving this action are unconditional (like START).
+
+== 2. The GUI Dialog (`ActionFooDialog`)
+
+The dialog is automatically discovered by convention (`ActionFoo` -> `ActionFooDialog`):
+
+[source,java]
+----
+public class ActionPingServerDialog extends ActionBaseDialog implements IActionDialog {
+  private final ActionPingServer action;
+
+  public ActionPingServerDialog(Shell parent, ActionPingServer action,
+                                WorkflowMeta workflowMeta, IVariables variables) {
+    super(parent, action, workflowMeta, variables);
+    this.action = action;
+  }
+
+  @Override
+  public IAction open() {
+    Shell parent = getParent();
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    PropsUi.setLook(shell);
+    setShellImage(shell, action);
+
+    // Build buttons and metadata widgets
+    Button[] buttons = buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(variables);
+    GuiCompositeWidgets.addScrolledComposite(
+        shell, variables, wActionName, buttons[0],
+        ActionPingServer.GUI_PLUGIN_ELEMENT_PARENT_ID, action
+    );
+
+    getData();
+    BaseDialog.defaultHandleControl(shell, wActionName, e -> ok(), e -> cancel());
+    return action;
+  }
+
+  private void ok() {
+    action.setName(wActionName.getText());
+    compositeWidgets.getWidgetsContents(action, ActionPingServer.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    action.setChanged();
+    dispose();
+  }
+}
+----
+
+== Concrete Codebase Examples
+
+* `plugins/actions/eval`: Evaluates expressions with conditional success/failure.
+* `plugins/actions/deletefile`: File deletion using `HopVfs`.
+* `plugins/actions/mail`: Comprehensive action with email notifications, attachments, and authentication.

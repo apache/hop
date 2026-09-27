@@ -1,0 +1,98 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Building custom HTTP REST and management endpoints on Hop Server using @HopServerServlet plugins.
+[[Sdk-Plugins-Servlets]]
+= Hop Server Servlets
+
+A Hop Server servlet plugin exposes a custom HTTP endpoint on Hop Server.
+All built-in remote execution and monitoring endpoints—such as pipeline execution, status checks, metric querying, and stop/pause operations—are implemented as `@HopServerServlet` plugins.
+
+== Implementing a Server Servlet
+
+Annotate the class with `@HopServerServlet` and extend `BaseHttpServlet` while implementing `IHopServerPlugin`:
+
+[source,java]
+----
+import org.apache.hop.core.annotations.HopServerServlet;
+import org.apache.hop.www.BaseHttpServlet;
+import org.apache.hop.www.IHopServerPlugin;
+import org.apache.hop.www.PipelineMap;
+import org.apache.hop.www.WorkflowMap;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@HopServerServlet(
+    id = "customHealthCheck",
+    name = "Custom Server Health Check Endpoint"
+)
+public class CustomHealthCheckServlet extends BaseHttpServlet implements IHopServerPlugin {
+
+  public static final String CONTEXT_PATH = "/hop/health";
+
+  public CustomHealthCheckServlet() {
+    super();
+  }
+
+  public CustomHealthCheckServlet(PipelineMap pipelineMap, WorkflowMap workflowMap) {
+    super(pipelineMap, workflowMap);
+  }
+
+  @Override
+  public String getContextPath() {
+    return CONTEXT_PATH;
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    if (isJettyMode() && !handleAuthentication(req, resp)) {
+      return;
+    }
+
+    resp.setContentType("application/json");
+    resp.setStatus(HttpServletResponse.SC_OK);
+
+    int runningPipelines = getPipelineMap().getPipelines().size();
+    int runningWorkflows = getWorkflowMap().getWorkflows().size();
+
+    String json = String.format(
+        "{\"status\":\"UP\",\"activePipelines\":%d,\"activeWorkflows\":%d}",
+        runningPipelines, runningWorkflows
+    );
+    resp.getWriter().write(json);
+  }
+}
+----
+
+== Key Architectural Rules
+
+* **`getContextPath()`**: Defines the URL mount point under the server root (e.g. `/hop/health`).
+* **Authentication and Security**:
+[WARNING]
+====
+A servlet plugin adds to the attack surface of Hop Server.
+Always call `handleAuthentication(req, resp)` before processing requests, and validate all input parameters against path traversal and injection vulnerabilities.
+See `SECURITY.md` for Hop's server security model.
+====
+
+== Concrete Codebase Examples
+
+* `engine/src/main/java/org/apache/hop/www/GetPipelineStatusServlet.java`: Status report endpoint for running pipelines.
+* `engine/src/main/java/org/apache/hop/www/GetWorkflowStatusServlet.java`: Workflow status reporting servlet.
+* `engine/src/main/java/org/apache/hop/www/PrepareExecutionPipelineServlet.java`: Pipeline initialization and execution endpoint.

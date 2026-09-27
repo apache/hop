@@ -1,0 +1,131 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Understanding Hop's hierarchical logging registry, capturing log events, and extracting execution logs programmatically.
+[[Sdk-Logging]]
+= Logging Subsystem
+
+Every executable component in Apache Hop—pipelines, workflows, transforms, actions, and engines—registers a unique **Log Channel** in a centralized hierarchical registry.
+When embedding Hop, you can tap into this logging architecture to monitor executions in real time, extract structured execution events, or redirect log streams into your application's logging framework.
+
+== The Logging Registry
+
+The `LoggingRegistry` tracks all active and completed logging channels across the runtime.
+Each log channel has a globally unique identifier (UUID string) and maintains parent-child relationships with other channels.
+
+=== Inspecting the Hierarchy & Execution Lineage
+
+[source,java]
+----
+import org.apache.hop.core.logging.LoggingRegistry;
+
+LoggingRegistry registry = LoggingRegistry.getInstance();
+
+// Retrieve the channel ID of a running pipeline or workflow:
+String parentChannelId = pipelineEngine.getLogChannelId();
+
+// Discover all child log channels (e.g., all individual transform copies):
+List<String> childChannelIds = registry.getLogChannelChildren(parentChannelId);
+
+for (String childId : childChannelIds) {
+  String subject = registry.getLoggingObject(childId).getObjectName();
+  System.out.println("Child component: " + subject + " (channel: " + childId + ")");
+}
+----
+
+Because every transform copy and sub-pipeline registers its parent ID upon creation, traversing child channel IDs yields the exact execution lineage tree of the execution.
+
+== Hop Log Store & In-Memory Buffers
+
+All log statements emitted via `ILogChannel` (such as `logBasic()`, `logError()`, or `logDebug()`) are forwarded to the centralized `HopLogStore`.
+The store maintains log events in an in-memory ring buffer (`LoggingBuffer`).
+
+=== Extracting Flattened Log Text
+
+To retrieve all text output logged by a pipeline, workflow, or specific transform:
+
+[source,java]
+----
+import org.apache.hop.core.logging.HopLogStore;
+
+String channelId = pipelineEngine.getLogChannelId();
+
+// Extract the text buffer for the pipeline and optionally its children
+StringBuffer textBuffer = HopLogStore.getAppender().getBuffer(channelId, true);
+
+System.out.println("=== Execution Log ===");
+System.out.println(textBuffer.toString());
+----
+
+=== Extracting Structured Log Events
+
+For structured monitoring or streaming to external SIEM/observability systems, query `HopLoggingEvent` objects directly:
+
+[source,java]
+----
+import org.apache.hop.core.logging.HopLoggingEvent;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
+
+String channelId = pipelineEngine.getLogChannelId();
+int startLine = 0;
+int lastLine = HopLogStore.getLastBufferLineNr();
+
+// Retrieve structured events for the channel hierarchy:
+List<HopLoggingEvent> events = HopLogStore.getLogBufferFromTo(
+    channelId,
+    true,        // include children
+    startLine,
+    lastLine
+);
+
+for (HopLoggingEvent event : events) {
+  long timestamp = event.getTimeStamp();
+  LogLevel level = event.getLevel();
+  String message = event.getMessage().toString();
+
+  System.out.printf("[%tF %<tT] [%s] %s%n", timestamp, level.getCode(), message);
+}
+----
+
+== Logging from Custom Code
+
+When writing custom transforms, actions, or embedding logic, always log through an `ILogChannel` rather than calling `System.out.println`:
+
+[source,java]
+----
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+
+// Create a named log channel:
+ILogChannel log = new LogChannel("MyApplication");
+
+// Emit messages at appropriate log levels:
+log.logBasic("Starting data ingestion process...");
+log.logDetailed("Connecting to remote endpoint: https://api.example.com");
+log.logDebug("Payload size: 4096 bytes");
+
+try {
+  // perform task
+} catch (Exception e) {
+  log.logError("Failed to ingest records", e);
+}
+----
+
+== Related Topics
+
+* xref:architecture/logging-and-debugging.adoc[Logging and Debugging Architecture] — Deep dive into the Hop logging subsystem internals.
+* xref:sdk/plugins/execution-info.adoc[Execution Information Locations] — Persisting logs, metrics, and state to databases and remote storage.

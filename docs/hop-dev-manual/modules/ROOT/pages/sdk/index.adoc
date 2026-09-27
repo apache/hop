@@ -14,15 +14,149 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Driving Hop from your own Java code: initializing the API, loading metadata, and running pipelines and workflows.
+:description: Driving Hop from your own Java code: initializing the API, configuring plugin folders, managing variables, loading metadata, and running pipelines and workflows.
 [[Sdk-Index]]
-= SDK
+= The Hop Java SDK
 
-Hop is a set of Java libraries before it is a GUI or a command line tool, so a pipeline or workflow can be executed from your own application.
+Apache Hop is a set of Java libraries before it is a GUI or command-line tool.
+The Hop Java Software Development Kit (SDK) allows you to embed Hop's data orchestration engine directly into your own Java applications, execute pipelines and workflows programmatically, manipulate metadata, stream rows dynamically, and build custom plugins.
 
-* xref:sdk/hop-sdk.adoc[The Hop SDK] — initializing the API, plugin folders, metadata providers, variables, and running pipelines and workflows.
+== Maven Dependencies
 
-Related:
+To embed Hop in your Java application, include the core and engine artifacts in your Maven `pom.xml`:
 
-* xref:{page-component-version}@manual::hop-server/json-api.adoc[The Hop Server JSON API] — the same capability over HTTP, when embedding the libraries is not an option.
-* xref:architecture/execution-model.adoc[How a pipeline and a workflow run] — what the SDK is driving underneath.
+[source,xml]
+----
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${hop.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${hop.version}</version>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+<dependencies>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-core</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-engine</artifactId>
+  </dependency>
+</dependencies>
+----
+
+If your application interacts with the Hop GUI or needs to instantiate UI dialogs and widgets, also include `hop-ui-swt`:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.apache.hop</groupId>
+  <artifactId>hop-ui-swt</artifactId>
+  <version>${hop.version}</version>
+</dependency>
+----
+
+== Initializing the Hop Runtime
+
+Before calling any Hop API methods that resolve plugins, load metadata, or execute pipelines, you must initialize the Hop environment.
+Hop provides three initialization tiers depending on your runtime context:
+
+=== 1. HopEnvironment (Standard Engine Runtime)
+
+This is the standard entry point for embedding Hop when you need to load metadata, run pipelines, and execute workflows:
+
+[source,java]
+----
+import org.apache.hop.core.HopEnvironment;
+
+// Initializes logging, registry, metadata providers, and all engine plugins
+HopEnvironment.init();
+----
+
+Calling `HopEnvironment.init()` loads core system configurations, populates the plugin registry, and prepares runtime factories.
+
+=== 2. HopClientEnvironment (Lightweight Core Runtime)
+
+If your application only needs basic Hop utilities (such as variable management, password encryption, basic VFS file handling, or logging) and will not execute pipelines or workflows, use `HopClientEnvironment`:
+
+[source,java]
+----
+import org.apache.hop.core.HopClientEnvironment;
+
+// Initializes core plugins (VFS, password encoders, logging, value types)
+HopClientEnvironment.init();
+----
+
+=== 3. HopGuiEnvironment (GUI & Hop Web Runtime)
+
+When running the Hop GUI or Hop Web, `HopGuiEnvironment` initializes UI-specific plugins (perspectives, dialogs, toolbar elements):
+
+[source,java]
+----
+import org.apache.hop.ui.core.gui.HopGuiEnvironment;
+
+HopGuiEnvironment.init();
+----
+
+== Configuring Plugin Folders
+
+Hop discovers plugins dynamically using Jandex annotation indexes.
+By default, Hop scans jars on the application classpath and looks for external plugins in the relative `plugins` folder.
+
+If your application bundles plugins in a different directory or across multiple directories, set the `HOP_PLUGIN_BASE_FOLDERS` variable or system property before initializing:
+
+[source,java]
+----
+// Configure comma-separated plugin root directories
+System.setProperty("HOP_PLUGIN_BASE_FOLDERS", "/opt/hop/plugins,/custom/hop-plugins");
+
+HopEnvironment.init();
+----
+
+== Working with Variables
+
+Variables parameterize pipelines, workflows, database connections, and file paths.
+When using the SDK, always create a top-level `IVariables` instance to manage variable resolution:
+
+[source,java]
+----
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+
+// Create a default variable space populated with system and hop-config.json properties
+IVariables variables = Variables.getADefaultVariableSpace();
+
+// Set custom runtime variables
+variables.setVariable("INPUT_DIR", "/data/incoming");
+variables.setVariable("BATCH_ID", "2026-09-27");
+
+// Resolve variable expressions
+String resolvedPath = variables.resolve("${INPUT_DIR}/records.csv");
+----
+
+Variable spaces can be chained hierarchically: a child variable space inherits variables from its parent, and local modifications do not overwrite parent values.
+
+== SDK Documentation Sections
+
+Explore the detailed guides below to learn how to work with specific areas of the Hop SDK:
+
+* xref:sdk/pipelines.adoc[Pipelines API] — Loading, constructing, executing pipelines, injecting rows, and listening to output streams.
+* xref:sdk/workflows.adoc[Workflows API] — Loading, constructing, executing workflows, and evaluating task results.
+* xref:sdk/metadata.adoc[Metadata and Providers] — Working with metadata elements, providers (`JsonMetadataProvider`, `MemoryMetadataProvider`, `MultiMetadataProvider`), serializers, and GUI widgets (`MetaSelectionLine`).
+* xref:sdk/vfs.adoc[File Handling with HopVFS] — Accessing files via Apache Commons VFS, avoiding `java.io.File`, closing resources, and streaming.
+* xref:sdk/logging.adoc[Logging Subsystem] — Channel hierarchies, the log store, capturing execution logs, and tracing execution lineage.
+* xref:sdk/plugins/index.adoc[Plugin Development Guide] — Complete reference and tutorials for developing all 15 Hop plugin types with codebase examples.
+
+== Related Topics
+
+* xref:{page-component-version}@manual::hop-server/json-api.adoc[Hop Server JSON API] — Driving Hop pipelines and workflows over HTTP without embedding Java libraries.
+* xref:architecture/execution-model.adoc[Execution Model] — Architectural deep dive into how pipelines and workflows execute underneath the SDK.

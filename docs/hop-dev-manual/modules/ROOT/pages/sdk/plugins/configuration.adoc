@@ -1,0 +1,99 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Adding options to existing CLI tools and configuration tabs to the Hop GUI using @ConfigPlugin.
+[[Sdk-Plugins-Configuration]]
+= Configuration Plugins
+
+A `@ConfigPlugin` adds extra command-line options to an **existing** Hop tool (such as `hop run`, `hop conf`, or `hop search`) via picocli mixins.
+Additionally, when combined with `@GuiPlugin` annotations, the same configuration plugin automatically renders as a settings tab in the Hop GUI Options dialog.
+
+== Implementing a Configuration Plugin
+
+Annotate the class with `@ConfigPlugin` and implement `IConfigOptions`:
+
+[source,java]
+----
+import org.apache.hop.core.config.plugin.ConfigPlugin;
+import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import picocli.CommandLine.Option;
+
+@ConfigPlugin(
+    id = "CustomRunOption",
+    description = "Adds notification webhook flag to hop run",
+    category = ConfigPlugin.CATEGORY_RUN // Tool targeting: CATEGORY_RUN, CATEGORY_CONFIG, etc.
+)
+@GuiPlugin(
+    id = "CustomRunOptionGui",
+    description = "Custom Run Preferences"
+)
+public class CustomRunConfigPlugin implements IConfigOptions {
+
+  private static CustomRunConfigPlugin instance;
+
+  @Option(
+      names = {"-w", "--webhook"},
+      description = "Webhook URL to notify upon execution finish"
+  )
+  @GuiWidgetElement(
+      id = "webhook_url",
+      order = "0100",
+      type = GuiElementType.TEXT,
+      label = "Default Webhook Notification URL",
+      parentId = "CustomRunOptionGui"
+  )
+  private String webhookUrl;
+
+  public static CustomRunConfigPlugin getInstance() {
+    if (instance == null) {
+      instance = new CustomRunConfigPlugin();
+    }
+    return instance;
+  }
+
+  @Override
+  public boolean handleOption(ILogChannel log, IHopMetadataProvider metadataProvider,
+                              IVariables variables) {
+    if (webhookUrl != null) {
+      log.logBasic("Configured execution notification webhook: " + webhookUrl);
+      // Return true if handled completely, or false to proceed with standard tool execution
+    }
+    return false;
+  }
+}
+----
+
+== Key Architectural Attributes
+
+* **`category`**: Determines which command mixes in the plugin:
+  * `CATEGORY_RUN`: `hop run`
+  * `CATEGORY_CONFIG`: `hop conf`
+  * `CATEGORY_SEARCH`: `hop search`
+  * `CATEGORY_SERVER`: `hop server`
+  * `CATEGORY_IMPORT`: `hop import`
+  * `CATEGORY_EXPORT`: `hop export`
+* **Dual CLI and GUI Role**: By adding `@GuiPlugin` and `@GuiWidgetElement` to the same class along with a static `getInstance()` method, Hop GUI automatically creates a tab in the Options dialog.
+
+== Concrete Codebase Examples
+
+* `plugins/misc/projects/src/main/java/org/apache/hop/projects/config/ProjectsConfigPlugin.java`: Adds project and environment switches (`-p`, `-e`) to `hop run` and `hop conf`.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/search/config/SearchConfigPlugin.java`: Adds search configuration options to the CLI and the GUI settings dialog.

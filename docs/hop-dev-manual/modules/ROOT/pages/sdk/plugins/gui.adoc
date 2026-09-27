@@ -1,0 +1,132 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Extending the Hop GUI with toolbar buttons, menus, context actions, settings tabs, and composite widgets using @GuiPlugin.
+[[Sdk-Plugins-Gui]]
+= GUI Plugins (Toolbars, Menus, Panels)
+
+The `@GuiPlugin` annotation allows you to extend the Hop GUI without subclassing existing GUI classes.
+A class marked with `@GuiPlugin` is scanned for contribution annotations that attach buttons, menus, shortcuts, tabs, or custom composite panels to existing GUI elements.
+
+== Common Contribution Annotations
+
+[cols="1,3", options="header"]
+|===
+|Annotation |Functionality
+
+|`@GuiToolbarElement`
+|Adds a button, toggle, or custom composite widget to an existing toolbar.
+
+|`@GuiToolbarElementFilter`
+|Conditionally shows or hides a toolbar element based on context.
+
+|`@GuiMenuElement`
+|Adds a menu entry into the top-level Hop GUI menu bar.
+
+|`@GuiContextAction`
+|Adds an action to canvas right-click context menus.
+
+|`@GuiWidgetElement`
+|Declares a settings widget (text, metadata combo, checkbox, file browser) inside dialogs.
+
+|`@GuiTab`
+|Adds a new tab to an existing tab folder.
+|===
+
+== 1. Adding a Toolbar Button
+
+Toolbar elements bind to a parent container via `parentId` and sort alphabetically by `id` (conventionally using numeric prefixes):
+
+[source,java]
+----
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.ui.hopgui.HopGui;
+
+@GuiPlugin
+public class CustomToolbarItem {
+
+  public static final String TOOLBAR_ITEM_ID = "10500-my-custom-action";
+
+  @GuiToolbarElement(
+      root = HopGui.ID_MAIN_TOOLBAR,
+      id = TOOLBAR_ITEM_ID,
+      type = GuiToolbarElementType.BUTTON,
+      image = "custom-action.svg",
+      toolTip = "Execute Custom Task"
+  )
+  public void executeAction() {
+    HopGui hopGui = HopGui.getInstance();
+    // Perform action
+    hopGui.getLog().logBasic("Custom toolbar action executed!");
+  }
+}
+----
+
+== 2. Adding Custom Panels and Widgets to Toolbars
+
+Toolbars can also host complex composites (such as combo boxes, search bars, or progress meters) by specifying `type = GuiToolbarElementType.CUSTOM`:
+
+[source,java]
+----
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+@GuiPlugin
+public class SearchLocationItem {
+
+  @GuiToolbarElement(
+      root = HopGui.ID_MAIN_TOOLBAR,
+      id = "20000-search-location",
+      type = GuiToolbarElementType.CUSTOM
+  )
+  public Control createSearchControl(Composite parent) {
+    Combo combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+    combo.setItems("All", "Pipelines", "Workflows", "Metadata");
+    combo.select(0);
+    return combo;
+  }
+}
+----
+
+== 3. Declarative Dialog Widgets (`@GuiWidgetElement`)
+
+Rather than hand-crafting SWT controls and attachment layouts, annotate fields on your Meta class:
+
+[source,java]
+----
+@GuiWidgetElement(
+    id = "field_name",
+    order = "0100",
+    type = GuiElementType.TEXT,
+    label = "i18n::MyTransform.Field.Label",
+    toolTip = "i18n::MyTransform.Field.Tooltip",
+    parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+    groupType = GuiWidgetGroupType.BOXES,
+    group = "General Options"
+)
+@HopMetadataProperty
+private String targetField;
+----
+
+== Concrete Codebase Examples
+
+* `ui/src/main/java/org/apache/hop/ui/hopgui/search/HopGuiSearchLocationToolbarItem.java`: Custom combo widget hosted on the main toolbar.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/execution/ExecutionPerspectiveToolbarItem.java`: Execution perspective toolbar buttons.
+* `ui/src/main/java/org/apache/hop/ui/core/gui/GuiCompositeWidgets.java`: The engine that turns `@GuiWidgetElement` annotations into SWT interfaces.
