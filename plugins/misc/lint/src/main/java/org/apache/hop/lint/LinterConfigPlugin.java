@@ -39,7 +39,10 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
@@ -213,10 +216,31 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       if (hopGui == null) {
         return;
       }
+      attachOpenEditors();
       BackgroundLintService.getInstance()
           .lintProjectAsync(getProjectPath(), hopGui.getMetadataProvider(), hopGui.getVariables());
     } catch (Exception | LinkageError e) {
       log.logDetailed("Could not lint the project after enabling the linter: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Editors opened while the linter was off never registered a Problems bar. Re-enabling lints the
+   * project, but the bar only comes back once those graphs are attached.
+   */
+  private static void attachOpenEditors() {
+    try {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      if (perspective == null) {
+        return;
+      }
+      for (TabItemHandler item : perspective.getItems()) {
+        if (item.getTypeHandler() instanceof HopGuiAbstractGraph graph && !graph.isDisposed()) {
+          EditorLintSupport.onNewGraph(graph);
+        }
+      }
+    } catch (Exception | LinkageError e) {
+      log.logDetailed("Could not attach the problems bar to open editors: " + e.getMessage());
     }
   }
 

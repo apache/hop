@@ -61,6 +61,22 @@ class DisabledLinterTest {
   }
 
   @Test
+  void anInFlightUpdateDoesNotPublishAfterTheLinterIsOff() {
+    LinterConfigPlugin config = LinterConfigPlugin.getInstance();
+    config.setLinterEnabled(false);
+    config.saveToHopConfig();
+
+    LintResultsManager manager = LintResultsManager.getInstance();
+    manager.updateResultsForFile(
+        "/tmp/example.hwf",
+        List.of(new LintResult("HOP-CHECK", "SQL", "ERROR", "too late", "/tmp/example.hwf")));
+
+    assertTrue(
+        manager.getAllResults().isEmpty(),
+        "a pass that finishes after the switch must not put findings back");
+  }
+
+  @Test
   void leavingTheLinterOnKeepsStoredFindings() {
     LintResultsManager manager = LintResultsManager.getInstance();
     manager.updateResultsForFile(
