@@ -767,6 +767,16 @@ public class TableView extends Composite {
 
   private MouseListener createTableMouseListener() {
     return new MouseAdapter() {
+      // A single click selects the row in a read-only grid, so double-click is what opens the
+      // view-only editor: the one place a long or multi-line value can be read in full and its
+      // text selected.
+      @Override
+      public void mouseDoubleClick(MouseEvent event) {
+        if (readonly && event.button == 1 && activeTableItem != null && activeTableColumn > 0) {
+          edit(activeTableRow, activeTableColumn);
+        }
+      }
+
       @Override
       public void mouseDown(MouseEvent event) {
         // Commit whatever cell is being edited before the click moves the active cell somewhere
@@ -1480,7 +1490,6 @@ public class TableView extends Composite {
           OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.SelectAll")));
       miSelectAll.setImage(GuiResource.getInstance().getImageSelectAll());
       miSelectAll.addListener(SWT.Selection, e -> selectAll());
-      miSelectAll.setEnabled(!readonly);
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_CLEAR_SELECTION)) {
@@ -1490,7 +1499,6 @@ public class TableView extends Composite {
               BaseMessages.getString(PKG, "TableView.menu.ClearSelection")));
       miUnselectAll.setImage(GuiResource.getInstance().getImageUnselectAll());
       miUnselectAll.addListener(SWT.Selection, e -> unselectAll());
-      miUnselectAll.setEnabled(!readonly);
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_FILTERED_SELECTION)) {
@@ -1499,7 +1507,6 @@ public class TableView extends Composite {
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.FilteredSelection")));
       miFilter.addListener(SWT.Selection, e -> setFilter());
-      miFilter.setEnabled(!readonly);
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN)) {
@@ -1533,7 +1540,13 @@ public class TableView extends Composite {
               BaseMessages.getString(PKG, "TableView.menu.CopyToClipboard")));
       miCopy.setImage(GuiResource.getInstance().getImageCopy());
       miCopy.addListener(SWT.Selection, e -> clipSelected());
-      miCopy.setEnabled(!readonly);
+
+      MenuItem miCopyCell = new MenuItem(mRow, SWT.NONE);
+      miCopyCell.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.CopyCellValue")));
+      miCopyCell.setImage(GuiResource.getInstance().getImageCopy());
+      miCopyCell.addListener(SWT.Selection, e -> clipCell());
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_PASTE_TO_TABLE)) {
@@ -2159,6 +2172,11 @@ public class TableView extends Composite {
 
   private void editSelected() {
     if (activeTableItem == null) {
+      return;
+    }
+
+    if (readonly) {
+      selectRows(activeTableRow, activeTableRow);
       return;
     }
 
@@ -2910,6 +2928,13 @@ public class TableView extends Composite {
     }
 
     clipboard.setContents(new String[] {clip}, new Transfer[] {tran});
+  }
+
+  public void clipCell() {
+    if (activeTableItem == null || activeTableItem.isDisposed() || activeTableColumn < 1) {
+      return;
+    }
+    GuiResource.getInstance().toClipboard(getCellValue(activeTableItem, activeTableColumn));
   }
 
   private String getSelectedText() {
