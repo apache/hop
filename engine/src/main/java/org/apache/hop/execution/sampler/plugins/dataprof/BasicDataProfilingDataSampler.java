@@ -202,6 +202,12 @@ public class BasicDataProfilingDataSampler
 
     try {
 
+      // Measure each field once. Min, max, length and null samples all store a copy of this row.
+      //
+      SampledValueLimits limits = getSampledValueLimits();
+      SampledValueLimits.Decision[] decisions =
+          limits.hasLimits() ? limits.decisionsFor(rowMeta, row) : null;
+
       // Profile all columns
       //
       for (int i = 0; i < rowMeta.size(); i++) {
@@ -213,20 +219,20 @@ public class BasicDataProfilingDataSampler
           if (profilingNrNull) {
             long counter = store.getNullCounters().getOrDefault(name, 0L);
             store.getNullCounters().put(name, ++counter);
-            addSampleRow(store, name, ProfilingType.NrNulls, rowMeta, row);
+            addSampleRow(store, name, ProfilingType.NrNulls, rowMeta, row, decisions);
           }
         } else {
           if (profilingNrNonNull) {
             long counter = store.getNonNullCounters().getOrDefault(name, 0L);
             store.getNonNullCounters().put(name, ++counter);
-            addSampleRow(store, name, ProfilingType.NrNonNulls, rowMeta, row);
+            addSampleRow(store, name, ProfilingType.NrNonNulls, rowMeta, row, decisions);
           }
         }
 
         // A value over its type limit is still counted above. It is not kept as a minimum or
         // maximum, because that would retain the large value.
         //
-        boolean storeValue = !getSampledValueLimits().omit(valueMeta, valueData);
+        boolean storeValue = decisions == null || i >= decisions.length || !decisions[i].omit();
 
         // Minimum
         //
@@ -247,10 +253,10 @@ public class BasicDataProfilingDataSampler
 
               // Also save the row of data as a sample
               //
-              addSampleRow(store, name, ProfilingType.MinValue, rowMeta, row);
+              addSampleRow(store, name, ProfilingType.MinValue, rowMeta, row, decisions);
             } else if (compare == 0) {
               // We found another value at the current minimum
-              addSampleRow(store, name, ProfilingType.MinValue, rowMeta, row);
+              addSampleRow(store, name, ProfilingType.MinValue, rowMeta, row, decisions);
             }
           }
         }
@@ -274,10 +280,10 @@ public class BasicDataProfilingDataSampler
 
               // Also save the row of data as a sample
               //
-              addSampleRow(store, name, ProfilingType.MaxValue, rowMeta, row);
+              addSampleRow(store, name, ProfilingType.MaxValue, rowMeta, row, decisions);
             } else if (compare == 0) {
               // We found another value at the current maximum
-              addSampleRow(store, name, ProfilingType.MaxValue, rowMeta, row);
+              addSampleRow(store, name, ProfilingType.MaxValue, rowMeta, row, decisions);
             }
           }
         }
@@ -304,10 +310,10 @@ public class BasicDataProfilingDataSampler
 
                 // Also save the row of data as a sample
                 //
-                addSampleRow(store, name, ProfilingType.MinLength, rowMeta, row);
+                addSampleRow(store, name, ProfilingType.MinLength, rowMeta, row, decisions);
               } else if (length == oldMin) {
                 // We found another value at the current minimum length
-                addSampleRow(store, name, ProfilingType.MinLength, rowMeta, row);
+                addSampleRow(store, name, ProfilingType.MinLength, rowMeta, row, decisions);
               }
             }
           }
@@ -331,10 +337,10 @@ public class BasicDataProfilingDataSampler
 
                 // Also save the row of data as a sample
                 //
-                addSampleRow(store, name, ProfilingType.MaxLength, rowMeta, row);
+                addSampleRow(store, name, ProfilingType.MaxLength, rowMeta, row, decisions);
               } else if (length == oldMax) {
                 // We found another value at the current maximum length
-                addSampleRow(store, name, ProfilingType.MaxLength, rowMeta, row);
+                addSampleRow(store, name, ProfilingType.MaxLength, rowMeta, row, decisions);
               }
             }
           }
@@ -358,7 +364,8 @@ public class BasicDataProfilingDataSampler
       String name,
       ProfilingType profilingType,
       IRowMeta rowMeta,
-      Object[] row)
+      Object[] row,
+      SampledValueLimits.Decision[] decisions)
       throws HopValueException {
     synchronized (store.getProfileSamples()) {
       Map<ProfilingType, RowBuffer> typeBufferMap =
@@ -369,7 +376,7 @@ public class BasicDataProfilingDataSampler
       // Keep the memory consumption sane
       //
       if (rowBuffer.size() < store.getMaxRows()) {
-        rowBuffer.addRow(getSampledValueLimits().copyRow(rowMeta, row));
+        rowBuffer.addRow(getSampledValueLimits().copyRow(rowMeta, row, decisions));
       }
     }
   }

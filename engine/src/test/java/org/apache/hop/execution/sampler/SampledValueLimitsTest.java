@@ -29,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -39,14 +41,17 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaJson;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.plugins.dataprof.BasicDataProfilingDataSampler;
 import org.apache.hop.execution.sampler.plugins.dataprof.BasicDataProfilingDataSamplerStore;
@@ -152,6 +157,66 @@ class SampledValueLimitsTest {
   }
 
   @Test
+  void binaryStringAndIndexedMarkersMatchTheFieldStorage() throws Exception {
+    String longText = "this is longer than five";
+    SampledValueLimits valueLimits = limits("5", "5", null, null);
+
+    ValueMetaString lazy = new ValueMetaString("body");
+    lazy.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    lazy.setStorageMetadata(new ValueMetaString("body"));
+    IRowMeta lazyMeta = new RowMeta();
+    lazyMeta.addValueMeta(lazy);
+    Object[] lazyCopy =
+        valueLimits.copyRow(lazyMeta, new Object[] {longText.getBytes(StandardCharsets.UTF_8)});
+    assertInstanceOf(byte[].class, lazyCopy[0]);
+    assertEquals(
+        SampledValueLimits.notStored(longText.length(), "characters"),
+        new String((byte[]) lazyCopy[0], StandardCharsets.UTF_8));
+
+    RowBuffer buffer = new RowBuffer(lazyMeta);
+    buffer.addRow(lazyCopy);
+    ExecutionData executionData = new ExecutionData();
+    executionData.getDataSets().put("rows", buffer);
+    assertNotNull(executionData.getRowsBinaryGzipBase64Encoded());
+
+    ValueMetaJson lazyJson = new ValueMetaJson("payload");
+    lazyJson.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    lazyJson.setStorageMetadata(new ValueMetaString("payload"));
+    IRowMeta jsonMeta = new RowMeta();
+    jsonMeta.addValueMeta(lazyJson);
+    byte[] jsonBytes = "{\"a\":\"0123456789\"}".getBytes(StandardCharsets.UTF_8);
+    Object[] jsonCopy = valueLimits.copyRow(jsonMeta, new Object[] {jsonBytes});
+    assertInstanceOf(byte[].class, jsonCopy[0]);
+
+    ValueMetaString indexed = new ValueMetaString("body");
+    indexed.setStorageType(IValueMeta.STORAGE_TYPE_INDEXED);
+    indexed.setIndex(new Object[] {"short", longText});
+    indexed.setStorageMetadata(new ValueMetaString("body"));
+    IRowMeta indexedMeta = new RowMeta();
+    indexedMeta.addValueMeta(indexed);
+    Object[] indexedRow = new Object[] {Integer.valueOf(1)};
+    Object[] indexedCopy = valueLimits.copyRow(indexedMeta, indexedRow);
+    assertNull(indexedCopy[0]);
+    assertEquals(Integer.valueOf(1), indexedRow[0]);
+  }
+
+  @Test
+  void aKeptTimestampIsClonedWhenAnotherCellIsOmitted() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("body"));
+    rowMeta.addValueMeta(new ValueMetaTimestamp("when"));
+    Timestamp when = new Timestamp(1_700_000_000_000L);
+    when.setNanos(123_456);
+    Object[] row = new Object[] {"this is longer than five", when};
+
+    Object[] copy = limits("5", null, null, null).copyRow(rowMeta, row);
+
+    assertNotSame(when, copy[1]);
+    assertEquals(when, copy[1]);
+    assertEquals(when.getNanos(), ((Timestamp) copy[1]).getNanos());
+  }
+
+  @Test
   void nonNumericLimitIsUnlimited() throws Exception {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("body"));
@@ -159,8 +224,10 @@ class SampledValueLimitsTest {
     Object[] row = new Object[] {longText};
 
     Object[] copy = limits("many", null, null, null).copyRow(rowMeta, row);
+    Object[] negative = limits("-3", null, null, null).copyRow(rowMeta, row);
 
     assertEquals(longText, copy[0]);
+    assertEquals(longText, negative[0]);
   }
 
   @Test

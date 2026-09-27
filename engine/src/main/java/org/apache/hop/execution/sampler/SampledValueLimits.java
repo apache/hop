@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
@@ -32,8 +33,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 
 /**
- * Resolved limits for String, JSON, Binary, and Avro values kept by an execution data profile.
- * Empty or non-numeric profile settings mean no limit. Zero stores none of that type.
+ * Resolved limits for String, JSON, Binary, and Avro values kept by an execution data profile. A
+ * blank setting means no limit. A negative or non-numeric setting is logged and then treated as no
+ * limit. Zero stores none of that type.
  */
 @Getter
 public final class SampledValueLimits {
@@ -72,8 +74,9 @@ public final class SampledValueLimits {
   }
 
   /**
-   * Resolve the profile fields with {@code variables}. A blank, negative, or non-numeric value is
-   * unlimited. Zero stores nothing of that type.
+   * Resolve the profile fields with {@code variables}. A blank value is unlimited. A negative or
+   * non-numeric value is unlimited and logged, so a typo does not turn the limit off quietly. Zero
+   * stores nothing of that type.
    */
   public static SampledValueLimits from(ExecutionDataProfile profile, IVariables variables) {
     if (profile == null) {
@@ -98,11 +101,34 @@ public final class SampledValueLimits {
   }
 
   /**
-   * A new row array for storage. Cells over a limit are replaced. Cells that stay are cloned when
-   * the value type needs its own copy. The pipeline row is left unchanged, and a value that is
-   * dropped is not copied first.
+   * Measure every field once. Profiling calls {@link #copyRow(IRowMeta, Object[], Decision[])}
+   * several times for the same row, and measuring JSON or Avro serialises the value.
+   */
+  public Decision[] decisionsFor(IRowMeta rowMeta, Object[] row) throws HopValueException {
+    if (row == null || rowMeta == null) {
+      return new Decision[0];
+    }
+    int fields = Math.min(rowMeta.size(), row.length);
+    Decision[] decisions = new Decision[fields];
+    for (int i = 0; i < fields; i++) {
+      decisions[i] = decide(rowMeta.getValueMeta(i), row[i]);
+    }
+    return decisions;
+  }
+
+  /**
+   * A new row array for storage. Cells over a limit are replaced. Cells that stay are cloned. The
+   * pipeline row is left unchanged, and a value that is dropped is not copied first.
    */
   public Object[] copyRow(IRowMeta rowMeta, Object[] row) throws HopValueException {
+    return copyRow(rowMeta, row, null);
+  }
+
+  /**
+   * Same as {@link #copyRow(IRowMeta, Object[])}, using decisions already computed for this row.
+   */
+  public Object[] copyRow(IRowMeta rowMeta, Object[] row, Decision[] decisions)
+      throws HopValueException {
     if (row == null) {
       return null;
     }
@@ -111,11 +137,14 @@ public final class SampledValueLimits {
     }
 
     int fields = Math.min(rowMeta.size(), row.length);
-    Decision[] decisions = new Decision[fields];
+    if (decisions == null) {
+      decisions = decisionsFor(rowMeta, row);
+    } else {
+      fields = Math.min(fields, decisions.length);
+    }
     boolean anyOmitted = false;
     for (int i = 0; i < fields; i++) {
-      decisions[i] = decide(rowMeta.getValueMeta(i), row[i]);
-      anyOmitted = anyOmitted || decisions[i].omit;
+      anyOmitted = anyOmitted || decisions[i].omit();
     }
     if (!anyOmitted) {
       return rowMeta.cloneRow(row);
@@ -123,8 +152,8 @@ public final class SampledValueLimits {
 
     Object[] copy = row.clone();
     for (int i = 0; i < fields; i++) {
-      if (decisions[i].omit) {
-        copy[i] = decisions[i].replacement;
+      if (decisions[i].omit()) {
+        copy[i] = decisions[i].replacement();
       } else {
         copy[i] = copyKept(rowMeta.getValueMeta(i), row[i]);
       }
@@ -136,19 +165,7 @@ public final class SampledValueLimits {
     if (value == null || valueMeta == null) {
       return value;
     }
-    return switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_STRING,
-              IValueMeta.TYPE_JSON,
-              IValueMeta.TYPE_BINARY,
-              IValueMeta.TYPE_AVRO,
-              IValueMeta.TYPE_DATE,
-              IValueMeta.TYPE_NUMBER,
-              IValueMeta.TYPE_INTEGER,
-              IValueMeta.TYPE_BIGNUMBER,
-              IValueMeta.TYPE_BOOLEAN ->
-          valueMeta.cloneValueData(value);
-      default -> value;
-    };
+    return valueMeta.cloneValueData(value);
   }
 
   private Decision decide(IValueMeta valueMeta, Object value) throws HopValueException {
@@ -169,11 +186,11 @@ public final class SampledValueLimits {
       return Decision.keep();
     }
     if (stringLimit == 0) {
-      return Decision.drop(NOT_STORED);
+      return Decision.drop(marker(valueMeta, NOT_STORED));
     }
     int length = stringLength(valueMeta, value);
     if (length > stringLimit) {
-      return Decision.drop(notStored(length, CHARACTERS));
+      return Decision.drop(marker(valueMeta, notStored(length, CHARACTERS)));
     }
     return Decision.keep();
   }
@@ -183,16 +200,16 @@ public final class SampledValueLimits {
       return Decision.keep();
     }
     if (jsonLimit == 0) {
-      return Decision.drop(TextNode.valueOf(NOT_STORED));
+      return Decision.drop(marker(valueMeta, NOT_STORED));
     }
     int length;
     try {
       length = jsonLength(valueMeta, value);
     } catch (Exception e) {
-      return Decision.drop(TextNode.valueOf(NOT_STORED));
+      return Decision.drop(marker(valueMeta, NOT_STORED));
     }
     if (length > jsonLimit) {
-      return Decision.drop(TextNode.valueOf(notStored(length, CHARACTERS)));
+      return Decision.drop(marker(valueMeta, notStored(length, CHARACTERS)));
     }
     return Decision.keep();
   }
@@ -283,19 +300,48 @@ public final class SampledValueLimits {
     return variables.resolve(value);
   }
 
+  /**
+   * A replacement that {@link org.apache.hop.core.row.value.ValueMetaBase#writeData} can store.
+   * Lazy conversion keeps a {@code byte[]} and an indexed field keeps an index, so a Java String
+   * marker would fail execution-data registration for the whole tick.
+   */
+  private static Object marker(IValueMeta valueMeta, String text) {
+    if (valueMeta == null) {
+      return text;
+    }
+    return switch (valueMeta.getStorageType()) {
+      case IValueMeta.STORAGE_TYPE_BINARY_STRING -> text.getBytes(StandardCharsets.UTF_8);
+      case IValueMeta.STORAGE_TYPE_INDEXED -> null;
+      default -> valueMeta.getType() == IValueMeta.TYPE_JSON ? TextNode.valueOf(text) : text;
+    };
+  }
+
   private static Integer parseLimit(String raw) {
     if (StringUtils.isBlank(raw)) {
       return null;
     }
+    String trimmed = raw.trim();
     try {
-      int parsed = Integer.parseInt(raw.trim());
-      return parsed < 0 ? null : parsed;
+      int parsed = Integer.parseInt(trimmed);
+      if (parsed < 0) {
+        LogChannel.GENERAL.logError(
+            "Execution data profile value limit '"
+                + trimmed
+                + "' is negative and is ignored. The value is stored without a limit.");
+        return null;
+      }
+      return parsed;
     } catch (NumberFormatException e) {
+      LogChannel.GENERAL.logError(
+          "Execution data profile value limit '"
+              + trimmed
+              + "' is not a number and is ignored. The value is stored without a limit.");
       return null;
     }
   }
 
-  private record Decision(boolean omit, Object replacement) {
+  /** Whether one cell is kept, and the storage-typed marker used when it is not. */
+  public record Decision(boolean omit, Object replacement) {
     private static Decision keep() {
       return new Decision(false, null);
     }

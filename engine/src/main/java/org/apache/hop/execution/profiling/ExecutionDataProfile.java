@@ -20,6 +20,8 @@ package org.apache.hop.execution.profiling;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -38,6 +40,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
  * This data profile makes it easy to specify what kind of information you want to capture about the
  * output of a transform during its execution.
  */
+@Getter
+@Setter
 @GuiPlugin(description = "Execution data profile widgets")
 @HopMetadata(
     key = "execution-data-profile",
@@ -157,113 +161,5 @@ public class ExecutionDataProfile extends HopMetadataBase implements IHopMetadat
   @Override
   protected ExecutionDataProfile clone() {
     return new ExecutionDataProfile(this);
-  }
-
-  /**
-   * Gets description
-   *
-   * @return value of description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * Sets description
-   *
-   * @param description value of description
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
-   * Gets stringValueLimit
-   *
-   * @return value of stringValueLimit
-   */
-  public String getStringValueLimit() {
-    return stringValueLimit;
-  }
-
-  /**
-   * Sets stringValueLimit
-   *
-   * @param stringValueLimit value of stringValueLimit
-   */
-  public void setStringValueLimit(String stringValueLimit) {
-    this.stringValueLimit = stringValueLimit;
-  }
-
-  /**
-   * Gets jsonValueLimit
-   *
-   * @return value of jsonValueLimit
-   */
-  public String getJsonValueLimit() {
-    return jsonValueLimit;
-  }
-
-  /**
-   * Sets jsonValueLimit
-   *
-   * @param jsonValueLimit value of jsonValueLimit
-   */
-  public void setJsonValueLimit(String jsonValueLimit) {
-    this.jsonValueLimit = jsonValueLimit;
-  }
-
-  /**
-   * Gets binaryValueLimit
-   *
-   * @return value of binaryValueLimit
-   */
-  public String getBinaryValueLimit() {
-    return binaryValueLimit;
-  }
-
-  /**
-   * Sets binaryValueLimit
-   *
-   * @param binaryValueLimit value of binaryValueLimit
-   */
-  public void setBinaryValueLimit(String binaryValueLimit) {
-    this.binaryValueLimit = binaryValueLimit;
-  }
-
-  /**
-   * Gets avroValueLimit
-   *
-   * @return value of avroValueLimit
-   */
-  public String getAvroValueLimit() {
-    return avroValueLimit;
-  }
-
-  /**
-   * Sets avroValueLimit
-   *
-   * @param avroValueLimit value of avroValueLimit
-   */
-  public void setAvroValueLimit(String avroValueLimit) {
-    this.avroValueLimit = avroValueLimit;
-  }
-
-  /**
-   * Gets samplers
-   *
-   * @return value of samplers
-   */
-  public List<IExecutionDataSampler> getSamplers() {
-    return samplers;
-  }
-
-  /**
-   * Sets samplers
-   *
-   * @param samplers value of samplers
-   */
-  public void setSamplers(List<IExecutionDataSampler> samplers) {
-    this.samplers = samplers;
   }
 }
