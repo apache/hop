@@ -37,7 +37,6 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
@@ -65,6 +64,7 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
   private static final String GROUPED_PARENT = "GuiCompositeWidgetsGroupTest-grouped";
   private static final String BOXES_PARENT = "GuiCompositeWidgetsGroupTest-boxes";
   private static final String SINGLE_BOX_PARENT = "GuiCompositeWidgetsGroupTest-single-box";
+  private static final String UNEVEN_PARENT = "GuiCompositeWidgetsGroupTest-uneven";
 
   @BeforeAll
   static void registerSampleWidgets() {
@@ -72,6 +72,7 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
     register(GroupedSample.class);
     register(BoxesSample.class);
     register(SingleBoxSample.class);
+    register(UnevenBoxesSample.class);
   }
 
   @Test
@@ -302,35 +303,98 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
   }
 
   @Test
-  void boxesSplitTheParentIntoBands() {
+  void boxesKeepTheHeightOfTheirFields() {
     Shell shell = new Shell(display);
     shell.setLayout(new FormLayout());
-    shell.setSize(500, 400);
     try {
-      BoxesSample source = new BoxesSample();
-      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
-      widgets.createCompositeWidgets(source, null, shell, BOXES_PARENT, null);
+      Label header = new Label(shell, SWT.LEFT);
+      header.setText("Header");
+      FormData fdHeader = new FormData();
+      fdHeader.left = new FormAttachment(0, 0);
+      fdHeader.top = new FormAttachment(0, 0);
+      fdHeader.right = new FormAttachment(100, 0);
+      header.setLayoutData(fdHeader);
+
+      Button ok = new Button(shell, SWT.PUSH);
+      ok.setText("OK");
+      FormData fdOk = new FormData();
+      fdOk.right = new FormAttachment(100, 0);
+      fdOk.bottom = new FormAttachment(100, 0);
+      ok.setLayoutData(fdOk);
+
+      GuiCompositeWidgets.addScrolledComposite(
+          shell, new Variables(), header, ok, UNEVEN_PARENT, new UnevenBoxesSample());
+      shell.setSize(900, 650);
       shell.layout(true, true);
 
       List<Group> groups = findGroups(shell);
       assertEquals(2, groups.size());
-      int margin = PropsUi.getMargin();
-      FormData firstData = (FormData) groups.get(0).getLayoutData();
-      FormData secondData = (FormData) groups.get(1).getLayoutData();
-      assertEquals(0, firstData.top.numerator);
-      assertEquals(50, firstData.bottom.numerator);
-      assertEquals(100, firstData.bottom.denominator);
-      assertEquals(-margin, firstData.bottom.offset);
-      assertEquals(50, secondData.top.numerator);
-      assertEquals(margin, secondData.top.offset);
-      assertEquals(100, secondData.bottom.numerator);
-      assertEquals(0, secondData.bottom.offset);
+      Group tall = groups.get(0);
+      Group shortBox = groups.get(1);
+      assertEquals("Tall", tall.getText());
+      assertEquals("Short", shortBox.getText());
 
-      Rectangle first = groups.get(0).getBounds();
-      Rectangle second = groups.get(1).getBounds();
-      assertTrue(first.y + first.height <= second.y);
-      Composite filler = groups.get(0).getParent();
-      assertEquals(filler.getClientArea().height, second.y + second.height);
+      Composite stack = tall.getParent();
+      int width = Math.max(stack.getClientArea().width, 1);
+      int tallPreferred = tall.computeSize(width, SWT.DEFAULT).y;
+      int shortPreferred = shortBox.computeSize(width, SWT.DEFAULT).y;
+      int stackPreferred = stack.computeSize(width, SWT.DEFAULT).y;
+      assertTrue(
+          tallPreferred > shortPreferred, "tall " + tallPreferred + " short " + shortPreferred);
+      assertTrue(
+          stackPreferred < tallPreferred * 2, "stack " + stackPreferred + " tall " + tallPreferred);
+      assertTrue(
+          stackPreferred >= tallPreferred + shortPreferred - 4,
+          "stack " + stackPreferred + " tall " + tallPreferred + " short " + shortPreferred);
+
+      int gap = tall.getBounds().height - shortBox.getBounds().height;
+      int preferredGap = tallPreferred - shortPreferred;
+      assertTrue(Math.abs(gap - preferredGap) <= 2, "gap " + gap + " preferredGap " + preferredGap);
+      assertTrue(tall.getBounds().y + tall.getBounds().height <= shortBox.getBounds().y);
+      assertEquals(
+          stack.getClientArea().height, shortBox.getBounds().y + shortBox.getBounds().height);
+
+      int contentHeight = stack.getParent().getSize().y;
+      assertTrue(
+          contentHeight < tall.getBounds().height * 2,
+          "content " + contentHeight + " tall " + tall.getBounds().height);
+    } finally {
+      shell.dispose();
+    }
+  }
+
+  @Test
+  void squeezedBoxScrollsInsideItself() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FormLayout());
+    shell.setSize(500, 400);
+    try {
+      Composite host = new Composite(shell, SWT.NONE);
+      host.setLayout(new FormLayout());
+      FormData fdHost = new FormData();
+      fdHost.left = new FormAttachment(0, 0);
+      fdHost.top = new FormAttachment(0, 0);
+      fdHost.right = new FormAttachment(100, 0);
+      host.setLayoutData(fdHost);
+
+      new GuiCompositeWidgets(new Variables())
+          .createCompositeWidgets(new UnevenBoxesSample(), null, host, UNEVEN_PARENT, null);
+
+      Group tall = findGroups(host).get(0);
+      Composite stack = tall.getParent();
+      int preferred = stack.computeSize(480, SWT.DEFAULT).y;
+      assertTrue(preferred > 80, "preferred " + preferred);
+      fdHost.height = Math.max(40, preferred / 2);
+      shell.layout(true, true);
+
+      assertTrue(tall.getBounds().height > 0, "box " + tall.getBounds().height);
+      assertTrue(
+          tall.getBounds().height < tall.computeSize(480, SWT.DEFAULT).y,
+          "box " + tall.getBounds().height);
+      ScrolledComposite inner = (ScrolledComposite) tall.getChildren()[0];
+      assertTrue(
+          inner.getClientArea().height < inner.getMinHeight(),
+          "client " + inner.getClientArea().height + " min " + inner.getMinHeight());
     } finally {
       shell.dispose();
     }
@@ -580,5 +644,61 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
         group = "Only",
         groupType = GuiWidgetGroupType.BOXES)
     private String name;
+  }
+
+  /** Four fields in one box and one field in the other. */
+  @GuiPlugin
+  @Getter
+  @Setter
+  public static class UnevenBoxesSample {
+    @GuiWidgetElement(
+        id = "a",
+        parentId = UNEVEN_PARENT,
+        type = GuiElementType.TEXT,
+        label = "A",
+        group = "Tall",
+        groupOrder = "10",
+        groupType = GuiWidgetGroupType.BOXES)
+    private String a;
+
+    @GuiWidgetElement(
+        id = "b",
+        parentId = UNEVEN_PARENT,
+        type = GuiElementType.TEXT,
+        label = "B",
+        group = "Tall",
+        groupOrder = "10",
+        groupType = GuiWidgetGroupType.BOXES)
+    private String b;
+
+    @GuiWidgetElement(
+        id = "c",
+        parentId = UNEVEN_PARENT,
+        type = GuiElementType.TEXT,
+        label = "C",
+        group = "Tall",
+        groupOrder = "10",
+        groupType = GuiWidgetGroupType.BOXES)
+    private String c;
+
+    @GuiWidgetElement(
+        id = "d",
+        parentId = UNEVEN_PARENT,
+        type = GuiElementType.TEXT,
+        label = "D",
+        group = "Tall",
+        groupOrder = "10",
+        groupType = GuiWidgetGroupType.BOXES)
+    private String d;
+
+    @GuiWidgetElement(
+        id = "only",
+        parentId = UNEVEN_PARENT,
+        type = GuiElementType.TEXT,
+        label = "Only",
+        group = "Short",
+        groupOrder = "20",
+        groupType = GuiWidgetGroupType.BOXES)
+    private String only;
   }
 }

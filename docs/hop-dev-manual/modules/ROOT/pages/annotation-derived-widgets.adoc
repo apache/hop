@@ -173,7 +173,9 @@ Parquet output and the dbt action use tabs.
 
 |`BOXES`
 |One SWT group box per group name.
-The boxes share that same area in equal vertical bands, and each box scrolls its own fields.
+The boxes stack in the area between the name line and the buttons.
+Each box starts at the height of its own fields, and extra space in that area is shared between the boxes.
+A box scrolls its own fields when the area is too short for them.
 A single group fills the whole area: Data set output is one box titled "Data Set", and the Database perspective options are one box titled "SQL".
 Text chunker uses three boxes (Input, Chunking, Chunk metadata).
 
@@ -228,14 +230,23 @@ The annotated widgets are created inside it, and the current values are copied i
 
 That is what keeps the dialog resizable with the buttons pinned under the fields.
 A flat row of `FormAttachment`s on the shell fights the button bar for the same vertical space, and the buttons end up on top of the lower widgets.
-Groups make this reliable: the tab folder or the stack of boxes fills the scrolled area, and overflow scrolls inside the tab or the box.
+Groups make this reliable.
+The tab folder fills the scrolled area, and each tab scrolls its own fields.
+The stack of boxes fills that same area.
+Its preferred height is the height of the fields put together, so a scrolled parent shows a scrollbar only when the fields themselves do not fit.
+Extra space is shared between the boxes, and a box scrolls its own fields when the dialog is too short for them.
+
+Pass `createCompositeWidgets` a composite that is stretched to the bottom of the available area, with a bottom attachment at 100 percent.
+`addScrolledComposite` does this, from the name line down to the OK button.
+That stretch gives the boxes the extra space to share, and it squeezes a box until the box scrolls, when the dialog is short.
+A composite that only wraps the preferred height leaves every box at the height of its fields.
 
 An action dialog has the same shape.
 `ActionDbtDialog` is the worked example for tabs plus an extra table.
 
 A class annotated with `@ConfigPlugin` is laid out with the label above the control and the control at full width.
 Transform and action metadata keep the label on the left.
-The Database perspective options in the screenshots use the label-above layout because that class is a configuration plugin.
+The Database perspective options use the label-above layout because that class is a configuration plugin.
 Data set output uses the label on the left.
 
 == Metadata editors

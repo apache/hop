@@ -71,6 +71,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -274,11 +276,17 @@ public class GuiCompositeWidgets {
 
   private void layoutBoxes(
       Object sourceData, Composite parent, List<WidgetGroup> groups, boolean useNewLayout) {
-    // Bands are percentages of this filler. A control passed in above the groups stays outside
-    // them; percentages on the parent itself would start at the top and cover it.
+    // A control passed in above the groups stays outside this filler. Putting the boxes on the
+    // parent itself would start at the top and cover that control. The column's preferred height
+    // is the boxes put together. Extra space in the parent is shared, and a box that is squeezed
+    // scrolls its own fields.
     Composite filler = new Composite(parent, SWT.NONE);
     PropsUi.setLook(filler);
-    filler.setLayout(new FormLayout());
+    GridLayout grid = new GridLayout(1, false);
+    grid.marginWidth = 0;
+    grid.marginHeight = 0;
+    grid.verticalSpacing = PropsUi.getMargin();
+    filler.setLayout(grid);
     FormData fdFiller = new FormData();
     fdFiller.left = new FormAttachment(0, 0);
     fdFiller.right = new FormAttachment(100, 0);
@@ -289,29 +297,12 @@ public class GuiCompositeWidgets {
     fdFiller.bottom = new FormAttachment(100, 0);
     filler.setLayoutData(fdFiller);
 
-    int count = groups.size();
-    int margin = PropsUi.getMargin();
-    for (int i = 0; i < count; i++) {
-      WidgetGroup group = groups.get(i);
+    for (WidgetGroup group : groups) {
       Group box = new Group(filler, SWT.SHADOW_ETCHED_IN);
       PropsUi.setLook(box);
       box.setText(Const.NVL(group.label, ""));
       box.setLayout(new FillLayout());
-
-      FormData fdBox = new FormData();
-      fdBox.left = new FormAttachment(0, 0);
-      fdBox.right = new FormAttachment(100, 0);
-      if (i == 0) {
-        fdBox.top = new FormAttachment(0, 0);
-      } else {
-        fdBox.top = new FormAttachment(i * 100 / count, margin);
-      }
-      if (i == count - 1) {
-        fdBox.bottom = new FormAttachment(100, 0);
-      } else {
-        fdBox.bottom = new FormAttachment((i + 1) * 100 / count, -margin);
-      }
-      box.setLayoutData(fdBox);
+      box.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
       Composite content = createScrolledContent(box);
       Control lastInBox = null;
