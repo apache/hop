@@ -286,7 +286,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     // Add a composite area
     //
     wsPluginSpecificComp = new ScrolledComposite(wMainComp, SWT.V_SCROLL | SWT.H_SCROLL);
-    wsPluginSpecificComp.setLayout(new FormLayout());
+    wsPluginSpecificComp.setLayout(new FillLayout());
     FormData fdsPluginSpecificComp = new FormData();
     fdsPluginSpecificComp.left = new FormAttachment(0, 0);
     fdsPluginSpecificComp.top = new FormAttachment(lastControl, margin);
@@ -296,26 +296,18 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     wPluginSpecificComp = new Composite(wsPluginSpecificComp, SWT.BACKGROUND);
     PropsUi.setLook(wPluginSpecificComp);
-    wPluginSpecificComp.setLayout(new FormLayout());
-    FormData fdPluginSpecificComp = new FormData();
-    fdPluginSpecificComp.left = new FormAttachment(0, 0);
-    fdPluginSpecificComp.right = new FormAttachment(100, 0);
-    fdPluginSpecificComp.top = new FormAttachment(lastControl, margin);
-    fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
-    wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
+    FormLayout pluginSpecificLayout = new FormLayout();
+    pluginSpecificLayout.marginWidth = PropsUi.getFormMargin();
+    pluginSpecificLayout.marginHeight = PropsUi.getFormMargin();
+    wPluginSpecificComp.setLayout(pluginSpecificLayout);
 
     wsPluginSpecificComp.setContent(wPluginSpecificComp);
+    wsPluginSpecificComp.setExpandHorizontal(true);
+    wsPluginSpecificComp.setExpandVertical(true);
 
     // Add the plugin specific widgets
     //
     addGuiCompositeWidgets();
-
-    wPluginSpecificComp.layout();
-    wsPluginSpecificComp.setExpandHorizontal(true);
-    wsPluginSpecificComp.setExpandVertical(true);
-    Rectangle bounds = wPluginSpecificComp.getBounds();
-    wsPluginSpecificComp.setMinWidth(bounds.width);
-    wsPluginSpecificComp.setMinHeight(bounds.height);
 
     FormData fdMainComp = new FormData();
     fdMainComp.left = new FormAttachment(0, 0);
@@ -490,11 +482,17 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                     wPluginSpecificComp,
                     PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
                 wPluginSpecificComp.layout(true, true);
+                updatePluginSpecificMinSize();
               }
               setChanged();
             }
           });
     }
+    updatePluginSpecificMinSize();
+  }
+
+  private void updatePluginSpecificMinSize() {
+    GuiCompositeWidgets.updateScrolledMinSize(wPluginSpecificComp);
   }
 
   private AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
@@ -587,6 +585,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+        updatePluginSpecificMinSize();
       }
       if (loadBalancingWidgets != null
           && workingConfiguration.getEngineRunConfiguration()
