@@ -574,6 +574,60 @@ class CachingDatabaseExecutionInfoLocationTest {
   }
 
   @Test
+  void aTableWithoutTheStateColumnKeepsRewritingTheDocument() throws Exception {
+    String table =
+        databaseMeta.getQuotedSchemaTableCombination(
+            variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    try (Database db =
+        new Database(new LoggingObject("drop-state-rewrite"), variables, databaseMeta)) {
+      db.connect();
+      db.execStatement(
+          databaseMeta.getDropColumnStatement(
+              table,
+              new ValueMetaString(CachingDatabaseExecutionInfoLocation.COL_STATE_JSON),
+              "",
+              false,
+              "",
+              false));
+    }
+
+    CachingDatabaseExecutionInfoLocation legacy = new CachingDatabaseExecutionInfoLocation();
+    legacy.setConnectionName("h2-exec");
+    legacy.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    legacy.setPersistenceDelay("60000");
+    legacy.setMaxCacheAge("86400000");
+    legacy.setDatabaseMeta(databaseMeta);
+    legacy.initialize(variables, metadataProvider);
+    try {
+      String id = UUID.randomUUID().toString();
+      CacheEntry entry = sampleEntry(id, "Legacy", ExecutionType.Pipeline, false, "Running");
+      entry.getExecution().setMetadataJson("{\"project\":true}");
+      entry.getExecution().setExecutorXml("<pipeline/>");
+      entry.setSingleWriter(true);
+      legacy.persistCacheEntry(entry);
+
+      entry.getExecutionState().setStatusDescription("Finished");
+      entry.getExecutionState().setLoggingText("FINAL-LOG-LINE");
+      entry.setDirty(true);
+      legacy.persistCacheEntry(entry);
+
+      // The state has nowhere else to go, so the document has to carry it.
+      CacheEntry reloaded = legacy.loadCacheEntry(id);
+      assertEquals("Finished", reloaded.getExecutionState().getStatusDescription());
+      assertEquals("FINAL-LOG-LINE", reloaded.getExecutionState().getLoggingText());
+
+      // Rewriting the document must not drop what was only stored on the first save.
+      assertEquals("{\"project\":true}", reloaded.getExecution().getMetadataJson());
+      assertEquals("<pipeline/>", reloaded.getExecution().getExecutorXml());
+
+      assertEquals(
+          "Finished", readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATUS_DESCRIPTION));
+    } finally {
+      legacy.close();
+    }
+  }
+
+  @Test
   void closeDropsTheConnectionWhenTheFinalFlushFails() throws Exception {
     FailingFlushLocation failing = new FailingFlushLocation();
     failing.setConnectionName("h2-exec");

@@ -429,16 +429,18 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     }
     try {
       cacheEntry.calculateSummary();
-      boolean lightUpdate = cacheEntry.isSingleWriter() && cacheEntry.isHeavyDocumentStored();
+      // A light update leaves the inserted document alone and writes the state to its own column.
+      // A table that predates that column has nowhere else to keep the state, so it keeps
+      // rewriting the whole document.
+      boolean lightUpdate =
+          cacheEntry.isSingleWriter()
+              && cacheEntry.isHeavyDocumentStored()
+              && stateJsonColumnAvailable;
       if (lightUpdate) {
         callWithDatabase(
             () -> {
               if (rowExists(cacheEntry.getId())) {
-                if (stateJsonColumnAvailable) {
-                  updateLightState(cacheEntry);
-                } else {
-                  updateStatusColumns(cacheEntry);
-                }
+                updateLightState(cacheEntry);
                 return null;
               }
               // The row was removed. Write the document we still have.
@@ -456,7 +458,10 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
               writeFullDocument(cacheEntry);
               return null;
             });
-        if (cacheEntry.isSingleWriter()) {
+        // Dropping the metadata and the XML from memory is only safe once later saves leave the
+        // stored document alone. Without the state column every save rewrites it, so the entry
+        // has to keep them.
+        if (cacheEntry.isSingleWriter() && stateJsonColumnAvailable) {
           releaseHeavyDocument(cacheEntry);
           cacheEntry.setHeavyDocumentStored(true);
         }
@@ -530,12 +535,6 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     String stateJson = serializeWithoutHeavyDocument(cacheEntry);
     Object[] data = buildRowData(cacheEntry, null, stateJson);
     executeUpdate(lightUpdateFields(), data);
-  }
-
-  /** Status columns only, when the table has no state column. */
-  private void updateStatusColumns(CacheEntry cacheEntry) throws HopException {
-    Object[] data = buildRowData(cacheEntry, null, null);
-    executeUpdate(statusUpdateFields(), data);
   }
 
   private String serializeWithoutHeavyDocument(CacheEntry cacheEntry) throws HopException {
@@ -974,7 +973,15 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
                 + getQuotedSchemaTable()
                 + " has no "
                 + COL_STATE_JSON
-                + " column. Updates keep the status columns only. Show table DDL and add the column to store execution state separately.");
+                + " column, so every save rewrites the whole execution document. Run this to store"
+                + " the execution state separately: "
+                + databaseMeta.getAddColumnStatement(
+                    getQuotedSchemaTable(),
+                    new ValueMetaString(COL_STATE_JSON, DatabaseMeta.CLOB_LENGTH, -1),
+                    "",
+                    false,
+                    "",
+                    false));
       }
     } catch (Exception e) {
       stateJsonColumnAvailable = false;
