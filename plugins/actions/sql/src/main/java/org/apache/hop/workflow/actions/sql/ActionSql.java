@@ -24,7 +24,9 @@ import java.io.InputStreamReader;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -48,8 +50,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
 
 /** This defines an SQL action. */
 @Action(
@@ -237,12 +237,24 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    ActionValidatorUtils.andValidator()
-        .validate(
-            this,
-            "SQL",
-            remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    // The statement is either typed in or read from a file. Only the source in use has to be set.
+    if (sqlFromFile) {
+      if (StringUtils.isBlank(sqlFilename)) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "ActionSQL.NoSQLFileSpecified"),
+                this));
+      }
+      return;
+    }
+    if (StringUtils.isBlank(sql)) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ActionSQL.NoSQLSpecified"),
+              this));
+    }
   }
 
   @Override

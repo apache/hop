@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -44,10 +45,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /** This defines a 'Set variables' action. */
@@ -353,22 +350,26 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    boolean res =
-        ActionValidatorUtils.andValidator()
-            .validate(
-                this,
-                "variableName",
-                remarks,
-                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-
-    if (!res) {
-      return;
+    // Variables come from the list, from a properties file, or from both. Either source is enough.
+    if (Utils.isEmpty(filename) && !hasNamedVariable()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ActionSetVariables.NoVariablesSpecified"),
+              this));
     }
+  }
 
-    ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-    AndValidator.putValidators(
-        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
+  private boolean hasNamedVariable() {
+    if (variableDefinitions == null) {
+      return false;
+    }
+    for (VariableDefinition definition : variableDefinitions) {
+      if (definition != null && !Utils.isEmpty(definition.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override

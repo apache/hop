@@ -118,7 +118,9 @@ public class BackgroundLintService {
   }
 
   public void scheduleGraphLint(HopGuiAbstractGraph graph, boolean force) {
-    if (graph == null) {
+    // Opening or editing a file schedules this even when the linter is switched off. Without the
+    // check, that one open file is still linted and stays marked in the Explorer.
+    if (!isEnabled() || graph == null) {
       return;
     }
     String graphId = graph.getId();
@@ -192,6 +194,10 @@ public class BackgroundLintService {
    */
   private void lintGraphInternal(HopGuiAbstractGraph graph, boolean force) {
     String graphId = graph.getId();
+    if (!isEnabled()) {
+      deferredGenerations.remove(graphId);
+      return;
+    }
     String filename = LintEditorGraphHelper.getFilename(graph);
     if (!LintEditorGraphHelper.isLintableFilename(filename)) {
       deferredGenerations.remove(graphId);
@@ -210,6 +216,10 @@ public class BackgroundLintService {
     submit(
         () -> {
           try {
+            // Switched off while this pass was waiting or running: do not publish what it found.
+            if (!isEnabled()) {
+              return;
+            }
             HopGui hopGui = HopGui.peekInstance();
             IHopMetadataProvider metadataProvider =
                 hopGui != null ? hopGui.getMetadataProvider() : null;

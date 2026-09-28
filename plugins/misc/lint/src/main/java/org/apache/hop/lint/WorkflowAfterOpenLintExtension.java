@@ -34,9 +34,10 @@ public class WorkflowAfterOpenLintExtension implements IExtensionPoint<WorkflowM
       org.apache.hop.core.variables.IVariables variables,
       WorkflowMeta workflowMeta)
       throws HopException {
-    if (workflowMeta != null) {
-      LintEditorGraphHelper.scheduleAttachForFilename(workflowMeta.getFilename());
-      BackgroundLintService.getInstance().scheduleFileLint(workflowMeta.getFilename(), true);
+    if (workflowMeta == null || !LinterConfigPlugin.getInstance().isLinterEnabled()) {
+      return;
     }
+    LintEditorGraphHelper.scheduleAttachForFilename(workflowMeta.getFilename());
+    BackgroundLintService.getInstance().scheduleFileLint(workflowMeta.getFilename(), true);
   }
 }
