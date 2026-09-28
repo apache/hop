@@ -14,6 +14,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-An Action is one operation performed in a Workflow.
-Actions are executed sequentially by default, with parallel execution as a configuration option.
-An Action returns a true or false exit code, which can be used (or ignored) in the Workflow’s execution.
+An Action is a single operation performed in a Workflow.
+Actions are executed sequentially one after another by default, with parallel branch execution available as a configuration option.
+When an action finishes, it returns a success or failure status (true or false).
+This status determines which outgoing hops the workflow follows next.
+Actions can also pass variables, lists of files, and summary rows to subsequent actions.
+See the xref:workflow/actions.adoc[Actions catalog] for all available workflow actions.

@@ -14,7 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-A Workflow is a sequence of operations that are performed sequentially by default (with optional parallel execution).
-Workflows usually do not operate on the data directly, but perform orchestration tasks.
-Typical tasks in a Workflow consist of retrieving and archiving data, sending emails, error handling etc.
-)
+A Workflow is the **orchestrator** of your data architecture.
+Workflows execute a series of actions sequentially by default (with optional parallel branches).
+Workflows manage control flow rather than streaming individual rows: they check prerequisites, prepare environments, execute pipelines, manage files, handle errors, and send notifications.
+Hops in a workflow decide which path to follow based on whether an action succeeded or failed.
+See xref:workflow/workflows.adoc[Workflows] for in-depth orchestration concepts, decision backtracking, and scheduling scenarios.
