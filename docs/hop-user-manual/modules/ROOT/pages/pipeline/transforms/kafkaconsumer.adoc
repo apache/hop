@@ -27,6 +27,8 @@ The Kafka consumer transform pulls streaming data from Kafka. It runs a sub-pipe
 
 This sub-pipeline must start with an Injector transform.
 
+The Input metric on the Kafka consumer is the number of records consumed so far in the run. Read and Written stay at 0 unless result fields are returned from the sub-pipeline. Open the running sub-pipeline to see each transform's own metrics. Those totals accumulate until the consumer stops.
+
 You can define the number of messages to accept for processing, as well as the specific data formats to stream activity data and system metrics.
 
 You can set up this transform to collect monitored events, track user consumption of data streams, and monitor alerts.
