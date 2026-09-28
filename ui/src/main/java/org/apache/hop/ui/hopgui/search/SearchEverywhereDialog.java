@@ -742,6 +742,7 @@ public class SearchEverywhereDialog {
     }
     Control content =
         dock.openToolTab(
+            dock.nextSearchToolId(),
             searchTabTitle(searchString),
             GuiResource.getInstance().getImageSearch(),
             true,

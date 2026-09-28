@@ -626,6 +626,8 @@ public class HopWebUserFilePlugin {
     }
   }
 
+  // Files.createTempDirectory creates the folder with owner-only (0700) permissions on POSIX
+  @SuppressWarnings("java:S5443")
   private static Path getSessionTempDirectory() throws IOException {
     UISession session = RWT.getUISession();
     Path directory = (Path) session.getAttribute(SESSION_TEMP_DIRECTORY);

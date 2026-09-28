@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -212,6 +215,109 @@ class RestCallRestTest {
     assertNotNull(FakeHttpClient.captured().getEntity());
     assertEquals(0, FakeHttpClient.captured().getEntity().getContentLength());
     assertEquals("", requestBody());
+  }
+
+  /**
+   * Issue #8507. {@link ContentType#APPLICATION_JSON} is {@code application/json; charset=UTF-8}.
+   * Sending that parameter makes gateways such as Omie answer HTTP 500 with a SOAP Sender fault
+   * before the API runs. The body stays UTF-8. The charset is omitted unless the row sets
+   * Content-Type itself.
+   */
+  @Test
+  void testJsonPostOmitsCharsetParameter() throws Exception {
+    Rest rest = post();
+    rest.callRest(new Object[] {"value1", "{\"n\":\"caf\u00e9\"}"});
+
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertNull(request.getFirstHeader("Content-Type"));
+    assertEquals("application/json", request.getEntity().getContentType());
+    assertArrayEquals("{\"n\":\"caf\u00e9\"}".getBytes(StandardCharsets.UTF_8), requestBytes());
+  }
+
+  @Test
+  void testExplicitContentTypeWithoutCharsetIsKept() throws Exception {
+    Rest rest = post("Content-Type", "application/json");
+    rest.callRest(new Object[] {"value1", "{\"n\":\"caf\u00e9\"}", "application/json"});
+
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertEquals(1, request.getHeaders("Content-Type").length);
+    assertEquals("application/json", request.getFirstHeader("Content-Type").getValue());
+    assertArrayEquals("{\"n\":\"caf\u00e9\"}".getBytes(StandardCharsets.UTF_8), requestBytes());
+  }
+
+  @Test
+  void testExplicitContentTypeCharsetIsHonored() throws Exception {
+    String header = "application/json; charset=ISO-8859-1";
+    Rest rest = post("Content-Type", header);
+    rest.callRest(new Object[] {"value1", "caf\u00e9", header});
+
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertEquals(1, request.getHeaders("Content-Type").length);
+    assertEquals(header, request.getFirstHeader("Content-Type").getValue());
+    assertArrayEquals("caf\u00e9".getBytes(StandardCharsets.ISO_8859_1), requestBytes());
+  }
+
+  @Test
+  void testFormUrlEncodedPostRetainsCharsetParameter() throws Exception {
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setUrl("http://example.com/api");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_FORM_URLENCODED;
+    data.method = RestMeta.HTTP_METHOD_POST;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 1;
+    data.inputRowMeta = rowMeta("field1", "body");
+
+    Rest rest = transform(meta, data, json(200, "{}"));
+    rest.callRest(new Object[] {"value1", "a=caf\u00e9"});
+
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertNull(request.getFirstHeader("Content-Type"));
+    assertEquals(
+        ContentType.APPLICATION_FORM_URLENCODED.toString(), request.getEntity().getContentType());
+    assertArrayEquals("a=caf\u00e9".getBytes(StandardCharsets.ISO_8859_1), requestBytes());
+  }
+
+  @Test
+  void testTextPlainPostRetainsCharsetParameter() throws Exception {
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setUrl("http://example.com/api");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+
+    RestData data = new RestData();
+    data.mediaType = ContentType.TEXT_PLAIN;
+    data.method = RestMeta.HTTP_METHOD_POST;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 1;
+    data.inputRowMeta = rowMeta("field1", "body");
+
+    Rest rest = transform(meta, data, json(200, "{}"));
+    rest.callRest(new Object[] {"value1", "caf\u00e9"});
+
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertNull(request.getFirstHeader("Content-Type"));
+    assertEquals(ContentType.TEXT_PLAIN.toString(), request.getEntity().getContentType());
+    assertArrayEquals("caf\u00e9".getBytes(StandardCharsets.UTF_8), requestBytes());
+  }
+
+  @Test
+  void testMalformedRowContentTypeFails() {
+    Rest rest = post("Content-Type", "application/json; charset=utf-99");
+    assertThrows(
+        Exception.class,
+        () -> rest.callRest(new Object[] {"value1", "{}", "application/json; charset=utf-99"}));
   }
 
   @Test
@@ -576,6 +682,34 @@ class RestCallRestTest {
     return rowMeta;
   }
 
+  /** A JSON POST. When two arguments are given they are a header name and the row value for it. */
+  private static Rest post(String... header) {
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setUrl("http://example.com/api");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+
+    RestData data = new RestData();
+    data.mediaType = ContentType.create("application/json");
+    data.method = RestMeta.HTTP_METHOD_POST;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 1;
+    if (header.length == 2) {
+      data.useHeaders = true;
+      data.nrheader = 1;
+      data.headerNames = new String[] {header[0]};
+      data.indexOfHeaderFields = new int[] {2};
+      data.inputRowMeta = rowMeta("field1", "body", "header");
+    } else {
+      data.inputRowMeta = rowMeta("field1", "body");
+    }
+    return transform(meta, data, json(200, "{}"));
+  }
+
   /** The URL the captured request was actually sent to. */
   private static String uri() {
     try {
@@ -588,6 +722,14 @@ class RestCallRestTest {
   private static String requestBody() {
     try {
       return EntityUtils.toString(FakeHttpClient.captured().getEntity(), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to read the captured request body", e);
+    }
+  }
+
+  private static byte[] requestBytes() {
+    try {
+      return EntityUtils.toByteArray(FakeHttpClient.captured().getEntity());
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read the captured request body", e);
     }

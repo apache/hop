@@ -168,7 +168,48 @@ public class VfsFileExplorerViews {
     if (!isDockOpen(hopGui)) {
       return false;
     }
-    return hopGui.getTerminalPanel().isTerminalVisible();
+    return hopGui.getTerminalPanel().isDockVisible();
+  }
+
+  /**
+   * Show the explorer in the bottom panel. An explorer that is already open keeps its location. The
+   * first open uses the project home, or the user home when that is not set.
+   */
+  public static void openOrFocusDock(HopGui hopGui) {
+    if (hopGui == null) {
+      return;
+    }
+    HopGuiBottomDock dock = hopGui.getTerminalPanel();
+    if (dock == null || dock.isDisposed()) {
+      return;
+    }
+    if (isDockOpen(hopGui)) {
+      CTabItem item = dock.findToolTab(DOCK_TOOL_ID);
+      dock.selectTab(item);
+      Control control = dock.getToolContent(item);
+      if (control instanceof VfsFileExplorer explorer && !explorer.isDisposed()) {
+        explorer.activate();
+      }
+      return;
+    }
+    openDock(hopGui, defaultDockLocation(hopGui));
+  }
+
+  private static String defaultDockLocation(HopGui hopGui) {
+    try {
+      if (hopGui.getVariables() != null) {
+        String projectHome = hopGui.getVariables().getVariable("PROJECT_HOME");
+        if (StringUtils.isNotEmpty(projectHome)) {
+          projectHome = hopGui.getVariables().resolve(projectHome);
+          if (StringUtils.isNotEmpty(projectHome)) {
+            return projectHome;
+          }
+        }
+      }
+    } catch (Exception e) {
+      // Fall back to the user home.
+    }
+    return System.getProperty("user.home");
   }
 
   @GuiMenuElement(

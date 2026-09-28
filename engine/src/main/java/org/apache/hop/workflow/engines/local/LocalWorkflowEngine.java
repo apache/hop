@@ -68,6 +68,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
   private ExecutionInfoLocation executionInfoLocation;
   private Timer executionInfoTimer;
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   public LocalWorkflowEngine() {
     super();
@@ -386,7 +387,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
-    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
 
@@ -402,12 +402,13 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               // Update the workflow execution state regularly
               //
               ExecutionState executionState =
-                  ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, lastLogLineNr.get())
+                  ExecutionStateBuilder.fromExecutor(
+                          LocalWorkflowEngine.this, executionInfoLastLogLineNr.get())
                       .build();
               rebindSparkTransformOwnerParent(executionState);
               iLocation.updateExecutionState(executionState);
               if (executionState.getLastLogLineNr() != null) {
-                lastLogLineNr.set(executionState.getLastLogLineNr());
+                executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
               }
             } catch (Exception e) {
               log.logError(
@@ -530,7 +531,12 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
       // Register one final last state of the workflow
       //
       ExecutionState executionState =
-          ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, -1).build();
+          ExecutionStateBuilder.fromExecutor(
+                  LocalWorkflowEngine.this, executionInfoLastLogLineNr.get())
+              .build();
+      if (executionState.getLastLogLineNr() != null) {
+        executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
+      }
       rebindSparkTransformOwnerParent(executionState);
       iLocation.updateExecutionState(executionState);
     } finally {

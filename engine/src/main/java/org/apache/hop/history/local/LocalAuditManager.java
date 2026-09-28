@@ -20,10 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +28,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -83,64 +79,9 @@ public class LocalAuditManager implements IAuditManager {
     }
   }
 
-  /**
-   * Create {@code dir} (and parents) if missing, and best-effort open POSIX permissions so Docker
-   * bind mounts remain usable when host UID and container hop UID differ (Tomcat often uses umask
-   * 0027 which would otherwise leave 0700/0750 dirs unwritable after a host-side chown).
-   */
-  private void ensureWritableDirectory(File dir) throws IOException {
-    if (dir == null) {
-      return;
-    }
-    Path path = dir.toPath().toAbsolutePath().normalize();
-    Files.createDirectories(path);
-    openPermissionsAlongPath(path);
-  }
-
-  /** World rwx on directories from {@link #rootFolder} down to {@code path} (best effort). */
-  private void openPermissionsAlongPath(Path path) {
-    if (path == null) {
-      return;
-    }
-    Path root;
-    try {
-      root = Paths.get(rootFolder).toAbsolutePath().normalize();
-    } catch (Exception e) {
-      root = null;
-    }
-    Set<PosixFilePermission> dirPerms = PosixFilePermissions.fromString("rwxrwxrwx");
-    Path current = path;
-    while (current != null) {
-      try {
-        if (Files.isDirectory(current)) {
-          try {
-            Files.setPosixFilePermissions(current, dirPerms);
-          } catch (UnsupportedOperationException e) {
-            File f = current.toFile();
-            //noinspection ResultOfMethodCallIgnored
-            f.setReadable(true, false);
-            //noinspection ResultOfMethodCallIgnored
-            f.setWritable(true, false);
-            //noinspection ResultOfMethodCallIgnored
-            f.setExecutable(true, false);
-          }
-        }
-      } catch (IOException | SecurityException e) {
-        // Not owner / read-only FS — caller may still fail on write with a clear error
-        LogChannel.GENERAL.logDebug(
-            "LocalAuditManager: could not open permissions on '"
-                + current
-                + "': "
-                + e.getMessage());
-      }
-      if (root != null && current.equals(root)) {
-        break;
-      }
-      Path parent = current.getParent();
-      if (parent == null || parent.equals(current)) {
-        break;
-      }
-      current = parent;
+  private static void ensureWritableDirectory(File dir) throws IOException {
+    if (dir != null) {
+      Files.createDirectories(dir.toPath());
     }
   }
 

@@ -244,6 +244,8 @@ public final class FtpClientFactory {
     }
   }
 
+  // Plain FTP is an explicit choice of the connection; FTPS is offered next to it
+  @SuppressWarnings("java:S5332")
   private static FTPClient createClient(
       FtpSecurityMode securityMode, IVariables variables, IFtpConnection connection)
       throws HopException {

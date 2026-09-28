@@ -185,6 +185,18 @@ public abstract class AbstractMeta
   }
 
   /**
+   * When the name is synchronized with the filename, copy that name into the field XML
+   * serialization writes. {@link #getName()} already returns the filename-derived value, but the
+   * persisted {@code name} element is a separate field and otherwise keeps the name assigned when
+   * the file was created.
+   */
+  protected void persistSynchronizedName() {
+    if (isNameSynchronizedWithFilename() && !Utils.isEmpty(filename)) {
+      setName(getName());
+    }
+  }
+
+  /**
    * Gets the filename.
    *
    * @return filename

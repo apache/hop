@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Avro encode transform allows you to encode a new Avro field using a selection of Hop fields.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-tech-avro
 
 = image:transforms/icons/avro_encode.svg[Avro encode Icon, role="image-doc-icon"] Avro encode
@@ -25,6 +25,13 @@ under the License.
 == Description
 
 The Avro encode transform allows you to encode a new Avro Record field using a selection of Hop fields.   The Avro schema will be part of the value metadata for this Avro Record field.
+
+[WARNING]
+====
+Avro encode does not run on the native Spark engine.
+The native Spark engine has no Spark data type to carry the Avro Record field this transform produces from one transform to the next, so the pipeline is refused before it starts.
+To write Avro on the native Spark engine, use the xref:pipeline/transforms/avro-file-output.adoc[Avro file output] transform.
+====
 
 
 == Options

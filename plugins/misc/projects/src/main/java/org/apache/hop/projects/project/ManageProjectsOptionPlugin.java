@@ -254,6 +254,14 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     if (projectConfig == null) {
       throw new HopException(CONST_PROJECT + projectName + "' doesn't exist, it can't be deleted");
     }
+    List<String> references = ProjectsUtil.getParentProjectReferences(projectName, variables, log);
+    if (!references.isEmpty()) {
+      throw new HopException(
+          CONST_PROJECT
+              + projectName
+              + "' can't be deleted, it is the parent project of: "
+              + String.join(", ", references));
+    }
     config.removeProjectConfig(projectName);
     ProjectsConfigSingleton.saveConfig();
 
@@ -395,7 +403,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     // --project-parent still wins via modifyProjectSettings below.
     //
     if (StringUtils.isEmpty(project.getParentProjectName())) {
-      project.setParentProjectName(config.getStandardParentProject());
+      project.setParentProjectName(config.findRegisteredStandardParentProject());
     }
     // A brand-new config file starts from the project name. An existing file keeps its id,
     // including none, so a 2.19.0 project is not switched on to execution filtering.

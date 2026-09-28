@@ -1,0 +1,33 @@
+{
+  "base_filename": "golden-json-input-jsonpath-functions-totals.csv",
+  "virtualPath": "",
+  "name": "golden-json-input-jsonpath-functions-totals",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "totalPrice",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "maxPrice",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "orderKeys",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}

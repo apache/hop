@@ -685,7 +685,7 @@ public class Condition implements Cloneable {
       } else {
         retval.append(leftValueName + " " + getFunctionDesc());
         if (function != NULL && function != NOT_NULL) {
-          if (rightValueName != null) {
+          if (StringUtils.isNotEmpty(rightValueName)) {
             retval.append(" ");
             retval.append(rightValueName);
           } else {
@@ -772,7 +772,7 @@ public class Condition implements Cloneable {
       if (getLeftValueName() != null) {
         fields.put(getLeftValueName(), "-");
       }
-      if (getRightValueName() != null) {
+      if (StringUtils.isNotEmpty(getRightValueName())) {
         fields.put(getRightValueName(), "-");
       }
     } else {

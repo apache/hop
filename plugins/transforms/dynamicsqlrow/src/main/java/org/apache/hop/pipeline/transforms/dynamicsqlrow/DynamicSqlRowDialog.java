@@ -119,7 +119,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
 
     // Connection line
     wConnection = addConnectionLine(wContent, null, input.getConnection(), lsMod);
-    if (input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1) {
+    if (Utils.isEmpty(input.getConnection()) && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
     }
     wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
@@ -401,7 +401,6 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
 
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
-      input.setDatabaseMeta(pipelineMeta.findDatabase(input.getConnection(), variables));
     }
   }
 

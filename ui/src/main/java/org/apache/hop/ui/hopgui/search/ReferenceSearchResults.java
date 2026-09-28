@@ -101,6 +101,7 @@ public final class ReferenceSearchResults {
     }
     Control content =
         dock.openToolTab(
+            dock.nextSearchToolId(),
             tabTitle,
             GuiResource.getInstance().getImage("ui/images/search.svg", 16, 16),
             true,

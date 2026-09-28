@@ -77,6 +77,10 @@ public class PropsUi extends Props {
   private static final String HIDE_MENU_BAR = "HideMenuBar";
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
+
+  /** Absent means the embedded terminal stays on. */
+  public static final String STRING_EMBEDDED_TERMINAL_ENABLED = "EmbeddedTerminalEnabled";
+
   private static final String AUTO_LAYOUT_DIRECTION = "AutoLayoutDirection";
   private static final String AUTO_LAYOUT_LAYER_SPACING = "AutoLayoutLayerSpacing";
   private static final String AUTO_LAYOUT_NODE_SPACING = "AutoLayoutNodeSpacing";
@@ -548,6 +552,18 @@ public class PropsUi extends Props {
   public boolean openLastFile() {
     String open = getProperty(STRING_OPEN_LAST_FILE);
     return !NO.equalsIgnoreCase(open);
+  }
+
+  public void setEmbeddedTerminalEnabled(boolean enabled) {
+    setProperty(STRING_EMBEDDED_TERMINAL_ENABLED, enabled ? YES : NO);
+  }
+
+  /**
+   * True unless the user has turned the embedded terminal off. Hop Web and {@code
+   * disabledGuiElements.xml} are applied separately by {@code HopGuiBottomDock}.
+   */
+  public boolean isEmbeddedTerminalEnabled() {
+    return !NO.equalsIgnoreCase(getProperty(STRING_EMBEDDED_TERMINAL_ENABLED));
   }
 
   public void setReloadingFilesOnChange(boolean reload) {

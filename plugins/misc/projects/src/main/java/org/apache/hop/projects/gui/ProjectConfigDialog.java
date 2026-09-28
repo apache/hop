@@ -20,11 +20,15 @@ package org.apache.hop.projects.gui;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.ProjectRenameBlockedException;
+import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -43,6 +47,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -264,10 +269,14 @@ public class ProjectConfigDialog extends Dialog {
 
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       if (!name.equals(originalName)) {
+        // Project names are unique regardless of case, a case-only rename is fine
         ProjectConfig clash = config.findProjectConfig(name);
-        if (clash != null) {
+        if (clash != null && !clash.getProjectName().equalsIgnoreCase(originalName)) {
           throw new IllegalArgumentException(
               BaseMessages.getString(PKG, "ProjectConfigDialog.Error.NameExists", name));
+        }
+        if (StringUtils.isNotEmpty(originalName) && !checkRename(name)) {
+          return;
         }
       }
 
@@ -286,6 +295,24 @@ public class ProjectConfigDialog extends Dialog {
           BaseMessages.getString(PKG, "ProjectConfigDialog.Error.Header"),
           BaseMessages.getString(PKG, "ProjectConfigDialog.Error.Message"),
           e);
+    }
+  }
+
+  /**
+   * Verify that the projects using this one as their parent can follow the rename.
+   *
+   * @return false when the rename is blocked, the reason was shown to the user
+   */
+  private boolean checkRename(String newName) {
+    try {
+      ProjectsUtil.checkProjectRename(originalName, newName, variables, LogChannel.UI);
+      return true;
+    } catch (ProjectRenameBlockedException e) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      box.setText(BaseMessages.getString(Project.class, "ProjectRename.Blocked.Header"));
+      box.setMessage(e.getUserMessage());
+      box.open();
+      return false;
     }
   }
 

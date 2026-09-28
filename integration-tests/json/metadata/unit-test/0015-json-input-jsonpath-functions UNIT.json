@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "moveCount",
+          "data_set_field": "moveCount"
+        },
+        {
+          "transform_field": "totalPower",
+          "data_set_field": "totalPower"
+        },
+        {
+          "transform_field": "maxPower",
+          "data_set_field": "maxPower"
+        }
+      ],
+      "field_order": [
+        "name",
+        "moveCount",
+        "totalPower",
+        "maxPower"
+      ],
+      "data_set_name": "golden-json-input-jsonpath-functions",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0015-json-input-jsonpath-functions UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0015-json-input-jsonpath-functions.hpl"
+}

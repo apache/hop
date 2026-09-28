@@ -86,7 +86,7 @@ jobs:
 
       - name: Install the site generator
         working-directory: hop-website
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # Same pre-build steps as the website's `npm run build:hop`: the shared
       # stylesheets, the navigation partials and the browser halves of the

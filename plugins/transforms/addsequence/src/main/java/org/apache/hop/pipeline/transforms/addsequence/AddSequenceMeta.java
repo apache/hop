@@ -31,11 +31,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IOptionalDatabaseConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -51,7 +53,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::AddSequenceMeta.keyword")
 @Getter
 @Setter
-public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData> {
+public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData>
+    implements IOptionalDatabaseConnection {
 
   private static final Class<?> PKG = AddSequenceMeta.class;
 
@@ -154,6 +157,15 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
     row.addValueMeta(v);
   }
 
+  /**
+   * The connection is only used when a database sequence is selected. A counter leaves it unset,
+   * and that must not be reported as a missing connection.
+   */
+  @Override
+  public boolean isDatabaseConnectionUsed(String key) {
+    return databaseUsed;
+  }
+
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -165,50 +177,14 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    CheckResult cr;
-    Database db = null;
-
-    try {
-      DatabaseMeta databaseMeta =
-          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-
-      if (databaseUsed) {
-        db = new Database(loggingObject, variables, databaseMeta);
-        db.connect();
-        if (db.checkSequenceExists(
-            variables.resolve(schemaName), variables.resolve(sequenceName))) {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK,
-                  BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.SequenceExists.Title"),
-                  transformMeta);
-        } else {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_ERROR,
-                  BaseMessages.getString(
-                      PKG,
-                      "AddSequenceMeta.CheckResult.SequenceCouldNotBeFound.Title",
-                      sequenceName),
-                  transformMeta);
-        }
-        remarks.add(cr);
-      }
-    } catch (HopException e) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title")
-                  + Const.CR
-                  + e.getMessage(),
-              transformMeta);
-      remarks.add(cr);
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    // The counter does not open a connection. Loading an unset name here only raises "you need to
+    // specify the name of the metadata object to load", which the verify dialog shows as a database
+    // error. Issue #8561.
+    if (databaseUsed) {
+      checkDatabaseSequence(remarks, transformMeta, variables, metadataProvider);
     }
 
+    CheckResult cr;
     if (input.length > 0) {
       cr =
           new CheckResult(
@@ -226,6 +202,57 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
     }
   }
 
+  /**
+   * Verify the database sequence. An unset connection is left to {@code
+   * ReferencedDatabaseConnectionChecker}, which reports it with a code the linter can baseline.
+   */
+  private void checkDatabaseSequence(
+      List<ICheckResult> remarks,
+      TransformMeta transformMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    String resolvedConnection = variables.resolve(connection);
+    if (Utils.isEmpty(resolvedConnection)) {
+      return;
+    }
+
+    Database db = null;
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(resolvedConnection);
+      db = new Database(loggingObject, variables, databaseMeta);
+      db.connect();
+      CheckResult cr;
+      if (db.checkSequenceExists(variables.resolve(schemaName), variables.resolve(sequenceName))) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.SequenceExists.Title"),
+                transformMeta);
+      } else {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "AddSequenceMeta.CheckResult.SequenceCouldNotBeFound.Title", sequenceName),
+                transformMeta);
+      }
+      remarks.add(cr);
+    } catch (HopException e) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title")
+                  + Const.CR
+                  + e.getMessage(),
+              transformMeta));
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
   @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
@@ -233,37 +260,38 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       TransformMeta transformMeta,
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
+    SqlStatement retval = new SqlStatement(transformMeta.getName(), null, null);
+    if (!databaseUsed) {
+      return retval;
+    }
+
     Database db = null;
-    SqlStatement retval = null;
     try {
-      DatabaseMeta databaseMeta =
-          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-      retval = new SqlStatement(transformMeta.getName(), databaseMeta, null);
-      // default: nothing to do!
-      if (databaseUsed) {
-        // Otherwise, don't bother!
-        if (databaseMeta != null) {
-          db = new Database(loggingObject, variables, databaseMeta);
-          db.connect();
-          if (!db.checkSequenceExists(schemaName, sequenceName)) {
-            String crTable =
-                db.getCreateSequenceStatement(sequenceName, startAt, incrementBy, maxValue, true);
-            retval.setSql(crTable);
-          } else {
-            retval.setSql(null); // Empty string means: nothing to do: set it to null...
-          }
+      String resolvedConnection = variables.resolve(connection);
+      DatabaseMeta databaseMeta = null;
+      if (!Utils.isEmpty(resolvedConnection)) {
+        databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(resolvedConnection);
+      }
+      retval.setDatabase(databaseMeta);
+      if (databaseMeta != null) {
+        db = new Database(loggingObject, variables, databaseMeta);
+        db.connect();
+        if (!db.checkSequenceExists(schemaName, sequenceName)) {
+          String crTable =
+              db.getCreateSequenceStatement(sequenceName, startAt, incrementBy, maxValue, true);
+          retval.setSql(crTable);
         } else {
-          retval.setError(
-              BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"));
+          retval.setSql(null); // Empty string means: nothing to do: set it to null...
         }
+      } else {
+        retval.setError(
+            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"));
       }
     } catch (HopException e) {
-      if (retval != null) {
-        retval.setError(
-            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
-                + Const.CR
-                + e.getMessage());
-      }
+      retval.setError(
+          BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
+              + Const.CR
+              + e.getMessage());
     } finally {
       if (db != null) {
         db.close();

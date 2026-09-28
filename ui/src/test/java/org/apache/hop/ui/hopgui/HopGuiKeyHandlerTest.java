@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,8 +40,12 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -261,6 +266,74 @@ class HopGuiKeyHandlerTest {
       verify(empty).setSelection(0, 3);
       verify(empty).copy();
       verify(empty).setSelection(0);
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  /** Stands in for the Edit / Select All shortcut on the graph and the main menu. */
+  public static class SelectAllGraph {
+    public int selected;
+
+    @GuiKeyboardShortcut(control = true, key = 'a')
+    @GuiOsxKeyboardShortcut(command = true, key = 'a')
+    public void selectAll() {
+      selected++;
+    }
+  }
+
+  @Test
+  void selectAllStaysInTextWidgets() {
+    SelectAllGraph graph = new SelectAllGraph();
+    registerShortcutsLikeHopGuiEnvironment(SelectAllGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      Text text = mock(Text.class);
+      KeyEvent ctrl = keyEvent(text, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(ctrl);
+      assertEquals(0, graph.selected, "Ctrl+A in a text field must not select the graph");
+      assertFalse(ctrl.doit, "Selecting the text consumes the key");
+      verify(text).selectAll();
+
+      KeyEvent command = keyEvent(text, 'A', SWT.COMMAND);
+      keyHandler.keyPressed(command);
+      assertEquals(0, graph.selected, "Command+A selects the field on macOS");
+      assertFalse(command.doit);
+      verify(text, times(2)).selectAll();
+
+      Combo combo = mock(Combo.class);
+      when(combo.getText()).thenReturn("field");
+      KeyEvent comboKey = keyEvent(combo, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(comboKey);
+      assertEquals(0, graph.selected);
+      assertFalse(comboKey.doit);
+      verify(combo).setSelection(new Point(0, 5));
+
+      CCombo ccombo = mock(CCombo.class);
+      when(ccombo.getText()).thenReturn("ab");
+      KeyEvent ccomboKey = keyEvent(ccombo, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(ccomboKey);
+      assertFalse(ccomboKey.doit);
+      verify(ccombo).setSelection(new Point(0, 2));
+
+      StyledText styled = mock(StyledText.class);
+      KeyEvent styledKey = keyEvent(styled, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(styledKey);
+      assertFalse(styledKey.doit, "StyledText has no Ctrl+A binding of its own");
+      verify(styled).selectAll();
+
+      KeyEvent shifted = keyEvent(text, 'a', SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shifted);
+      assertEquals(0, graph.selected, "Ctrl+Shift+A must not select the graph");
+      assertTrue(shifted.doit, "Ctrl+Shift+A is not select-all");
+      verify(text, times(2)).selectAll();
+
+      KeyEvent onCanvas = canvasKey('a', SWT.CONTROL);
+      keyHandler.keyPressed(onCanvas);
+      assertEquals(1, graph.selected, "Ctrl+A on the canvas still selects the graph");
+      assertFalse(onCanvas.doit);
     } finally {
       keyHandler.removeParentObjectToHandle(graph);
     }

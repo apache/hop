@@ -305,9 +305,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 BaseMessages.getString(
                     PKG,
                     "ActionMoveFiles.Log.IgnoringRow",
-                    vFilesToMove.get(iteration).getSourceFileFolder(),
-                    vFilesToMove.get(iteration).getDestinationFileFolder(),
-                    vFilesToMove.get(iteration).getWildcard()));
+                    vSourceFileFolderPrevious,
+                    vDestinationFileFolderPrevious,
+                    vWildcardPrevious));
           }
         }
       }

@@ -513,6 +513,7 @@
                         <exclude>**/integration-tests/**/*.md</exclude>
                         <exclude>**/integration-tests/**/*.csv</exclude>
                         <exclude>**/integration-tests/**/*.avro</exclude>
+                        <exclude>**/integration-tests/**/*.avsc</exclude>
                         <exclude>**/integration-tests/**/*.xls</exclude>
                         <exclude>**/integration-tests/**/*.xlsx</exclude>
                         <exclude>**/integration-tests/**/*.json</exclude>

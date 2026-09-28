@@ -147,6 +147,10 @@ public class KafkaConsumerInput
       kafkaPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       kafkaPipeline.setParentPipeline(getPipeline());
       kafkaPipeline.setPipelineRunConfiguration(runConfiguration);
+      // Register under the consumer log channel. prepareExecution() captures the id, and the
+      // execution-info timer later reads it again. Swapping the channel afterwards made every tick
+      // miss the entry and keep it warm through a parent-id fallback.
+      kafkaPipeline.setLogChannel(getLogChannel());
       kafkaPipeline.prepareExecution();
       kafkaPipeline.setLogLevel(getPipeline().getLogLevel());
       kafkaPipeline.setPreviousResult(new Result());
@@ -198,7 +202,6 @@ public class KafkaConsumerInput
               }
             });
       }
-      kafkaPipeline.setLogChannel(getLogChannel());
       kafkaPipeline.startThreads();
 
       if (errorHandlingConditionIsSatisfied()) {

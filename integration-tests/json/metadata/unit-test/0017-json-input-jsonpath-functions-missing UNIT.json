@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "tag",
+          "data_set_field": "tag"
+        },
+        {
+          "transform_field": "firstItem",
+          "data_set_field": "firstItem"
+        },
+        {
+          "transform_field": "itemTotal",
+          "data_set_field": "itemTotal"
+        },
+        {
+          "transform_field": "absentCount",
+          "data_set_field": "absentCount"
+        }
+      ],
+      "field_order": [
+        "tag",
+        "firstItem",
+        "itemTotal",
+        "absentCount"
+      ],
+      "data_set_name": "golden-json-input-jsonpath-functions-missing",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0017-json-input-jsonpath-functions-missing UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0017-json-input-jsonpath-functions-missing.hpl"
+}

@@ -60,6 +60,10 @@ INFO: this setting complements the preview option that is used in the xref:pipel
 
 |Open last file at startup|reopen the last used files and select the last used file when Hop GUI starts|yes
 
+|Enable embedded terminal
+a|Show the embedded terminal in the bottom panel. Clear this on desktops where that terminal misbehaves. Search, the database workbench, and the VFS file explorer stay available. Hop Web has no embedded terminal. Excluding `40010-menu-tools-terminal` in xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml] forces it off.
+|yes
+
 |Autosave changed files|Automatically save changed workflow and pipelines files|yes
 
 |Automatically split hops

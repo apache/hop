@@ -179,4 +179,13 @@ class HopGuiBottomDockTest {
     assertNotNull(defaultWorkingDir, "User home should not be null");
     assertFalse(defaultWorkingDir.isEmpty(), "User home should not be empty");
   }
+
+  @Test
+  void terminalCapabilityRequiresTheUserOptionOnTheDesktop() {
+    assertTrue(HopGuiBottomDock.isTerminalCapabilityEnabled(false, false, true));
+    assertFalse(HopGuiBottomDock.isTerminalCapabilityEnabled(false, false, false));
+    assertFalse(HopGuiBottomDock.isTerminalCapabilityEnabled(true, false, true));
+    assertFalse(HopGuiBottomDock.isTerminalCapabilityEnabled(false, true, true));
+    assertFalse(HopGuiBottomDock.isTerminalCapabilityEnabled(true, true, false));
+  }
 }

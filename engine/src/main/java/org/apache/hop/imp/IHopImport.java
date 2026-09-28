@@ -186,4 +186,24 @@ public interface IHopImport {
   default String getNamingSchemeName() {
     return null;
   }
+
+  /**
+   * The run configuration name to set on every imported pipeline. When left empty the name found in
+   * the source file is preserved.
+   */
+  default void setDefaultPipelineRunConfiguration(String defaultPipelineRunConfiguration) {}
+
+  default String getDefaultPipelineRunConfiguration() {
+    return null;
+  }
+
+  /**
+   * The run configuration name to set on every imported workflow. When left empty the name found in
+   * the source file is preserved.
+   */
+  default void setDefaultWorkflowRunConfiguration(String defaultWorkflowRunConfiguration) {}
+
+  default String getDefaultWorkflowRunConfiguration() {
+    return null;
+  }
 }

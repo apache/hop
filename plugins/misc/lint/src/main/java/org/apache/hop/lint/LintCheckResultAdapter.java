@@ -101,6 +101,7 @@ public final class LintCheckResultAdapter {
 
     String severity = LintSeverity.fromCheckResultType(remark.getType());
     String ruleId = remark.getErrorCode();
+    List<String> aliasRuleIds = new ArrayList<>();
 
     if (classifier != null && !classifier.isEmpty()) {
       NativeCheckClassifier.Classification classification = classifier.classify(remark);
@@ -110,8 +111,27 @@ public final class LintCheckResultAdapter {
         return null;
       }
       severity = classification.severity();
-      if (!Utils.isEmpty(classification.ruleId())) {
-        ruleId = classification.ruleId();
+      String classifyingRule = classification.ruleId();
+      if (!Utils.isEmpty(classifyingRule)) {
+        if (Utils.isEmpty(ruleId)) {
+          ruleId = classifyingRule;
+        } else if (classification.narrowed()) {
+          // A rule naming the plugin or the check is the more specific id. The code stays an
+          // alias, so a suppression written against it survives the project adding that rule.
+          aliasRuleIds.add(ruleId);
+          ruleId = classifyingRule;
+        } else {
+          // A check with its own error code keeps it, so a project can address that one check.
+          // The blanket rule names every remark, and taking its id would collapse them all into
+          // one. It is kept alongside, so what a project wrote against it still applies.
+          aliasRuleIds.add(classifyingRule);
+        }
+      }
+      // A narrowed rule took the id above, so the rule covering every remark would stop naming
+      // this finding. It is kept as the last name, after the check's own code, so a suppression
+      // written against either one still applies.
+      if (!Utils.isEmpty(classification.blanketRuleId())) {
+        aliasRuleIds.add(classification.blanketRuleId());
       }
     }
 
@@ -130,7 +150,8 @@ public final class LintCheckResultAdapter {
         remark.getText(),
         fileName,
         sourceRef,
-        LintResult.Origin.HOP_NATIVE);
+        LintResult.Origin.HOP_NATIVE,
+        aliasRuleIds);
   }
 
   private static String formatCheckText(LintResult lintResult) {

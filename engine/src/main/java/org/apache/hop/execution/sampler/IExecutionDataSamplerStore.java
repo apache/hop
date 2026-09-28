@@ -57,4 +57,7 @@ public interface IExecutionDataSamplerStore {
    *     sampled data.
    */
   Map<String, ExecutionDataSetMeta> getSamplesMetadata();
+
+  /** Drop captured rows. The next samples are collected from new rows only. */
+  default void clearSamples() {}
 }

@@ -27,6 +27,9 @@ final class EditorLintSupport {
   private EditorLintSupport() {}
 
   static void onNewGraph(HopGuiAbstractGraph graph) {
+    if (!LinterConfigPlugin.getInstance().isLinterEnabled()) {
+      return;
+    }
     if (graph == null || graph.isDisposed()) {
       return;
     }
@@ -35,6 +38,9 @@ final class EditorLintSupport {
   }
 
   static void onGraphUpdate(HopGuiAbstractGraph graph) {
+    if (!LinterConfigPlugin.getInstance().isLinterEnabled()) {
+      return;
+    }
     if (graph == null || graph.isDisposed()) {
       return;
     }
@@ -53,6 +59,9 @@ final class EditorLintSupport {
   }
 
   static void onFileSaved(String filename) {
+    if (!LinterConfigPlugin.getInstance().isLinterEnabled()) {
+      return;
+    }
     if (!LintEditorGraphHelper.isLintableFilename(filename)) {
       return;
     }

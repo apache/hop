@@ -37,7 +37,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "avro_decode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
-    keywords = "i18n::AvroDecodeMeta.keyword")
+    keywords = "i18n::AvroDecodeMeta.keyword",
+    excludedEngines = {"SparkPipelineEngine"})
 public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData> {
   private static final Class<?> PKG = AvroDecodeMeta.class;
 

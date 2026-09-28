@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 import java.sql.ResultSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -300,17 +301,18 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
 
     if (super.init()) {
 
+      DatabaseMeta databaseMeta = null;
       if (meta.getConnection() != null) {
-        meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
+        databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       }
 
-      if (meta.getDatabaseMeta() == null) {
+      if (databaseMeta == null) {
         logError(
             BaseMessages.getString(
                 PKG, "DynmaicSQLRow.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      data.db = new Database(this, variables, meta.getDatabaseMeta());
+      data.db = new Database(this, variables, databaseMeta);
       try {
         data.db.connect();
 

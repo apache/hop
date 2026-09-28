@@ -63,6 +63,8 @@ Note: This name has to be unique in a single pipeline.
 
 |Schema filename
 |Filepath to write or read the schema from.
+The path can contain variables, for example `${PROJECT_HOME}/schemas/customer.avsc`, and can point to any file system Hop supports (local, `s3://`, `azure://`, `gs://`, ...).
+When *Automatically create schema* is disabled, the transform reads the schema from this file before it writes the first row, and fails if the file can't be read or isn't a valid Avro schema.
 
 |Create parent folder
 |When creating a file, select this if you want to create the parent folder.

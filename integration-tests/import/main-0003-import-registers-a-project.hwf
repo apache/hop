@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>0003-import-registers-a-project</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>hop-import --project registers the target folder as a Hop project</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/24 16:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/24 16:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Import into a new project</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>set -e
+SRC="${PROJECT_HOME}/subject/pdi"
+OUT="${PROJECT_HOME}/output/0003-project"
+CONF="${PROJECT_HOME}/output/0003-project-config"
+
+rm -rf "$OUT" "$CONF"
+mkdir -p "$OUT" "$CONF"
+
+# A throwaway HOP_CONFIG_FOLDER: registering a project writes hop-config.json, which must not be
+# the one this test suite itself runs on.
+HOP_CONFIG_FOLDER="$CONF" sh hop-import.sh -i "$SRC" -o "$OUT" --project 'Imported PDI Project'
+
+test -f "$CONF/hop-config.json"
+grep -q 'Imported PDI Project' "$CONF/hop-config.json"
+grep -q "$OUT" "$CONF/hop-config.json"
+
+# Importing again into the same project resolves its home folder, so no target folder is needed.
+rm -rf "$OUT"
+HOP_CONFIG_FOLDER="$CONF" sh hop-import.sh -i "$SRC" --project 'Imported PDI Project'
+test -f "$OUT/parent.hwf"
+
+# An import that never runs must not leave a project behind, pointing at a folder nothing was
+# imported into. This one has no input folder, so it fails on its options.
+FAILED_CONF="${PROJECT_HOME}/output/0003-failed-config"
+rm -rf "$FAILED_CONF"
+mkdir -p "$FAILED_CONF"
+if HOP_CONFIG_FOLDER="$FAILED_CONF" sh hop-import.sh -o "$OUT" --project 'Never Imported'; then
+  echo "hop-import without an input folder should have failed"
+  exit 1
+fi
+if test -f "$FAILED_CONF/hop-config.json" \
+    &amp;&amp; grep -q 'Never Imported' "$FAILED_CONF/hop-config.json"; then
+  echo "a failed hop-import registered project 'Never Imported'"
+  exit 1
+fi</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Failure: hop-import did not register the target project</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Failure: hop-import did not register the target project</message>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Import into a new project</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Import into a new project</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Import into a new project</from>
+      <to>Failure: hop-import did not register the target project</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorred>15</backgroundcolorred>
+      <bordercolorblue>250</bordercolorblue>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorred>200</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>250</fontcolorblue>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorred>200</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>100</height>
+      <xloc>80</xloc>
+      <yloc>256</yloc>
+      <note>Without --project, hop-import leaves files on disk that belong to no registered project and
+hop-conf has to be run afterwards. The import dialog in Hop GUI has always registered or resolved
+a project; this is the CLI equivalent (issue #8516).
+
+The second run passes no target folder at all: the project's home folder is used.</note>
+      <width>560</width>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

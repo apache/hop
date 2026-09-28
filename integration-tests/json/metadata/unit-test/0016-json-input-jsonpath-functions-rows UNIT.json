@@ -1,0 +1,56 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "orderId",
+          "data_set_field": "orderId"
+        },
+        {
+          "transform_field": "lineCount",
+          "data_set_field": "lineCount"
+        }
+      ],
+      "field_order": [
+        "orderId",
+        "lineCount"
+      ],
+      "data_set_name": "golden-json-input-jsonpath-functions-lines",
+      "transform_name": "Validate lines"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "totalPrice",
+          "data_set_field": "totalPrice"
+        },
+        {
+          "transform_field": "maxPrice",
+          "data_set_field": "maxPrice"
+        },
+        {
+          "transform_field": "orderKeys",
+          "data_set_field": "orderKeys"
+        }
+      ],
+      "field_order": [
+        "totalPrice",
+        "maxPrice",
+        "orderKeys"
+      ],
+      "data_set_name": "golden-json-input-jsonpath-functions-totals",
+      "transform_name": "Validate totals"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0016-json-input-jsonpath-functions-rows UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0016-json-input-jsonpath-functions-rows.hpl"
+}

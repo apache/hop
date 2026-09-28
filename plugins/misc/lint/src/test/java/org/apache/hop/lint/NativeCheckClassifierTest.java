@@ -48,6 +48,8 @@ public class NativeCheckClassifierTest {
   private static final String SELECT_VALUES_PACKAGE =
       "org.apache.hop.pipeline.transforms.selectvalues";
 
+  private static final String VALIDATION_PACKAGE = "org.apache.hop.metadata.validation";
+
   @Test
   public void remarksAreUntouchedWhenNoRuleSpeaksAboutThem() {
     NativeCheckClassifier classifier = new NativeCheckClassifier(List.of());
@@ -72,6 +74,37 @@ public class NativeCheckClassifierTest {
     assertNotNull(classification);
     assertEquals("WARNING", classification.severity());
     assertEquals("HOP-CHECK", classification.ruleId(), "the finding stays suppressible by id");
+  }
+
+  /**
+   * The blanket rule caps; it does not raise. A comment such as "this transform can start without
+   * incoming hops" was reported as a warning on every source transform in a project.
+   */
+  @Test
+  public void theBlanketRuleNeverRaisesARemark() {
+    NativeCheckClassifier warnings =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING", true)));
+    NativeCheckClassifier errors =
+        new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "ERROR", true)));
+
+    assertEquals(
+        "INFO", warnings.classify(remark(ICheckResult.TYPE_RESULT_COMMENT, "a source")).severity());
+    assertEquals(
+        "WARNING",
+        errors.classify(remark(ICheckResult.TYPE_RESULT_WARNING, "a warning")).severity(),
+        "putting the severity back must not turn warnings into errors");
+  }
+
+  /** A rule naming a plugin or a check is a decision about it, so it may raise as well as lower. */
+  @Test
+  public void aNarrowedRuleSetsTheSeverity() {
+    CustomLintRule raised = nativeRule("HOP-CHECK-SV", "ERROR", true);
+    raised.setAppliesTo(List.of("SelectValues"));
+    NativeCheckClassifier classifier = new NativeCheckClassifier(List.of(raised));
+
+    assertEquals(
+        "ERROR",
+        classifier.classify(remark(ICheckResult.TYPE_RESULT_COMMENT, "a comment")).severity());
   }
 
   @Test
@@ -167,8 +200,8 @@ public class NativeCheckClassifierTest {
   }
 
   /**
-   * The message key is resolved through the bundle rather than matched as a pattern, which is what
-   * lets a rule name a check without naming the English words it happens to use.
+   * The message key is resolved through the bundle rather than written out as English text, which
+   * is what lets a rule name a check without naming the words it happens to use.
    */
   @Test
   public void aMessageKeyIsResolvedAgainstThePluginsOwnBundle() {
@@ -186,6 +219,71 @@ public class NativeCheckClassifierTest {
               SELECT_VALUES_PACKAGE + ":" + key,
               SelectValuesMeta.class));
     }
+  }
+
+  /**
+   * A check that fills values into its message can be named by its key.
+   *
+   * <p>It could not: the key resolved with its placeholders still in it, which no printed remark
+   * contains, so the rule matched nothing and said nothing about why.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
+   */
+  @Test
+  public void aMessageKeyMatchesACheckThatFillsInValues() {
+    String doesNotExist =
+        BaseMessages.getString(
+            VALIDATION_PACKAGE,
+            "ReferencedDatabaseConnectionChecker.DoesNotExist",
+            "warehouse",
+            "transform",
+            "Table input");
+    String notVerified =
+        BaseMessages.getString(
+            VALIDATION_PACKAGE,
+            "ReferencedDatabaseConnectionChecker.NotVerified",
+            "warehouse",
+            "transform",
+            "Table input",
+            "no such file" + Const.CR + "\tat somewhere");
+    String key = VALIDATION_PACKAGE + ":ReferencedDatabaseConnectionChecker.DoesNotExist";
+
+    assertTrue(NativeCheckClassifier.printsMessage(doesNotExist, key, null), doesNotExist);
+    assertFalse(
+        NativeCheckClassifier.printsMessage(notVerified, key, null),
+        "the words after the values tell the two checks apart: " + notVerified);
+    assertTrue(
+        NativeCheckClassifier.printsMessage(
+            notVerified,
+            VALIDATION_PACKAGE + ":ReferencedDatabaseConnectionChecker.NotVerified",
+            null),
+        "a value spanning lines still matches: " + notVerified);
+  }
+
+  @Test
+  public void aRuleNamingACheckThatFillsInValuesWinsOverTheBlanketOne() {
+    CustomLintRule missingConnection = nativeRule("HOP-CHECK-MISSING-CONNECTION", "ERROR", true);
+    missingConnection.setMessageKey(
+        VALIDATION_PACKAGE + ":ReferencedDatabaseConnectionChecker.DoesNotExist");
+    NativeCheckClassifier classifier =
+        new NativeCheckClassifier(
+            List.of(nativeRule("HOP-CHECK", "WARNING", true), missingConnection));
+
+    NativeCheckClassifier.Classification classification =
+        classifier.classify(
+            remark(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(
+                    VALIDATION_PACKAGE,
+                    "ReferencedDatabaseConnectionChecker.DoesNotExist",
+                    "warehouse",
+                    "transform",
+                    "Table input"),
+                "TableInput"));
+
+    assertNotNull(classification);
+    assertEquals("HOP-CHECK-MISSING-CONNECTION", classification.ruleId());
+    assertEquals("ERROR", classification.severity());
   }
 
   /**

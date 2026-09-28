@@ -1226,29 +1226,82 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     try {
-      DecimalFormat format = getDecimalFormat(false);
-      Number number;
-      if (lenientStringToNumber) {
-        number = format.parse(string);
-      } else {
-        ParsePosition parsePosition = new ParsePosition(0);
-        number = format.parse(string, parsePosition);
-
-        if (parsePosition.getIndex() < string.length()) {
-          throw new HopValueException(
-              this
-                  + CONST_STRING_TO_NUMBER
-                  + (parsePosition.getIndex() + 1)
-                  + MSG_FOR_VALUE
-                  + string
-                  + "]");
-        }
-      }
-
-      return number.doubleValue();
+      return parseStringAsNumber(string, getDecimalFormat(false)).doubleValue();
     } catch (Exception e) {
       throw new HopValueException(this + " : couldn't convert String to number ", e);
     }
+  }
+
+  /**
+   * Parses {@code string} with {@code format}.
+   *
+   * <p>{@link DecimalFormat} accepts only its locale negative prefix. JSON, data grids and
+   * calculator constants use an ASCII hyphen-minus ({@code '-'}), while some locales use {@code
+   * U+2212} or a bidi mark in front of the sign. When parsing rejects the first character, a
+   * leading ASCII or Unicode minus is rewritten to that prefix and parsing is tried once more.
+   */
+  private Number parseStringAsNumber(String string, DecimalFormat format)
+      throws HopValueException, ParseException {
+    if (lenientStringToNumber) {
+      try {
+        return format.parse(string);
+      } catch (ParseException first) {
+        String adapted = alignLeadingMinus(string, format);
+        if (adapted.equals(string)) {
+          throw first;
+        }
+        return format.parse(adapted);
+      }
+    }
+
+    ParsePosition parsePosition = new ParsePosition(0);
+    Number number = format.parse(string, parsePosition);
+    if (number != null && parsePosition.getIndex() >= string.length()) {
+      return number;
+    }
+    if (parsePosition.getIndex() == 0) {
+      String adapted = alignLeadingMinus(string, format);
+      if (!adapted.equals(string)) {
+        ParsePosition retry = new ParsePosition(0);
+        Number retried = format.parse(adapted, retry);
+        if (retried != null && retry.getIndex() >= adapted.length()) {
+          return retried;
+        }
+      }
+    }
+    throw new HopValueException(
+        this
+            + CONST_STRING_TO_NUMBER
+            + (parsePosition.getIndex() + 1)
+            + MSG_FOR_VALUE
+            + string
+            + "]");
+  }
+
+  /**
+   * Rewrites a leading ASCII hyphen-minus or Unicode minus ({@code U+2212}) to {@code format}'s
+   * negative prefix when they differ. Leading whitespace is left in place.
+   */
+  static String alignLeadingMinus(String string, DecimalFormat format) {
+    if (string == null || string.isEmpty() || format == null) {
+      return string;
+    }
+    String prefix = format.getNegativePrefix();
+    if (prefix == null || prefix.isEmpty()) {
+      return string;
+    }
+    int start = 0;
+    while (start < string.length() && Character.isWhitespace(string.charAt(start))) {
+      start++;
+    }
+    if (start >= string.length() || string.startsWith(prefix, start)) {
+      return string;
+    }
+    char sign = string.charAt(start);
+    if (sign != '-' && sign != '\u2212') {
+      return string;
+    }
+    return string.substring(0, start) + prefix + string.substring(start + 1);
   }
 
   public String convertJsonToString(JsonNode jsonNode) throws HopValueException {
@@ -1588,24 +1641,7 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     try {
-      Number number;
-      if (lenientStringToNumber) {
-        number = getDecimalFormat(false).parse(string).longValue();
-      } else {
-        ParsePosition parsePosition = new ParsePosition(0);
-        number = getDecimalFormat(false).parse(string, parsePosition);
-
-        if (parsePosition.getIndex() < string.length()) {
-          throw new HopValueException(
-              this
-                  + CONST_STRING_TO_NUMBER
-                  + (parsePosition.getIndex() + 1)
-                  + MSG_FOR_VALUE
-                  + string
-                  + "]");
-        }
-      }
-      return number.longValue();
+      return parseStringAsNumber(string, getDecimalFormat(false)).longValue();
     } catch (Exception e) {
       throw new HopValueException(this + " : couldn't convert String to Integer", e);
     }
@@ -1657,24 +1693,7 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     try {
-      DecimalFormat format = getDecimalFormat(bigNumberFormatting);
-      Number number;
-      if (lenientStringToNumber) {
-        number = format.parse(string);
-      } else {
-        ParsePosition parsePosition = new ParsePosition(0);
-        number = format.parse(string, parsePosition);
-
-        if (parsePosition.getIndex() < string.length()) {
-          throw new HopValueException(
-              this
-                  + CONST_STRING_TO_NUMBER
-                  + (parsePosition.getIndex() + 1)
-                  + MSG_FOR_VALUE
-                  + string
-                  + "]");
-        }
-      }
+      Number number = parseStringAsNumber(string, getDecimalFormat(bigNumberFormatting));
 
       // Cannot simply cast a number to a BigDecimal,
       //            If the Number is not a BigDecimal.

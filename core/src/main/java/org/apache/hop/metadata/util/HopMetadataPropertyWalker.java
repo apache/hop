@@ -48,7 +48,8 @@ public final class HopMetadataPropertyWalker {
    *
    * @param type the annotated property type
    * @param key the serialised key, or the field name when no key is set
-   * @param value the raw (unresolved) string value, never null
+   * @param value the raw (unresolved) string value, null only for a field left unset and only when
+   *     unset fields were asked for
    */
   public record StringProperty(HopMetadataPropertyType type, String key, String value) {}
 
@@ -60,6 +61,25 @@ public final class HopMetadataPropertyWalker {
    * @return the matching properties, possibly empty
    */
   public static List<StringProperty> collectStrings(Object root, HopMetadataPropertyType type) {
+    return collectStrings(root, type, false);
+  }
+
+  /**
+   * Collect every string field annotated with {@code type} under {@code root}, optionally including
+   * the fields that are left unset.
+   *
+   * <p>A field that was never given a value is null, not empty: that is the default on a new
+   * transform or action. Callers that only want names to work with can ignore those, but a check
+   * that reports an unset property has to see them, so it asks for them here and gets a {@link
+   * StringProperty} with a null value.
+   *
+   * @param root the object to walk, may be null
+   * @param type the property type to collect
+   * @param includeUnset whether to also report annotated string fields that are null
+   * @return the matching properties, possibly empty
+   */
+  public static List<StringProperty> collectStrings(
+      Object root, HopMetadataPropertyType type, boolean includeUnset) {
     List<StringProperty> collected = new ArrayList<>();
     if (root == null || type == null) {
       return collected;
@@ -70,7 +90,8 @@ public final class HopMetadataPropertyWalker {
         (field, node, property, value) ->
             collected.add(new StringProperty(type, serialisedKey(property, field), value)),
         0,
-        java.util.Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
+        java.util.Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()),
+        includeUnset);
     return collected;
   }
 
@@ -108,12 +129,14 @@ public final class HopMetadataPropertyWalker {
           }
         },
         0,
-        java.util.Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
+        java.util.Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()),
+        false);
     return changed[0];
   }
 
   @FunctionalInterface
   private interface StringFieldHandler {
+    /** Handle one annotated string field. {@code value} is null for a field that is unset. */
     void handle(Field field, Object node, HopMetadataProperty property, String value);
   }
 
@@ -122,7 +145,8 @@ public final class HopMetadataPropertyWalker {
       HopMetadataPropertyType type,
       StringFieldHandler handler,
       int depth,
-      Set<Object> visited) {
+      Set<Object> visited,
+      boolean includeUnset) {
     if (node == null || depth > MAX_DEPTH || !isMetadataObject(node) || !visited.add(node)) {
       return;
     }
@@ -136,12 +160,19 @@ public final class HopMetadataPropertyWalker {
       }
       Object value = readField(field, node);
       if (value == null) {
+        // Nothing to descend into, but the field itself is still of interest when the caller wants
+        // to know about the properties that were left unset.
+        if (includeUnset
+            && property.hopMetadataPropertyType() == type
+            && field.getType() == String.class) {
+          handler.handle(field, node, property, null);
+        }
         continue;
       }
       if (property.hopMetadataPropertyType() == type && value instanceof String stringValue) {
         handler.handle(field, node, property, stringValue);
       }
-      descend(value, type, handler, depth, visited);
+      descend(value, type, handler, depth, visited, includeUnset);
     }
   }
 
@@ -150,27 +181,28 @@ public final class HopMetadataPropertyWalker {
       HopMetadataPropertyType type,
       StringFieldHandler handler,
       int depth,
-      Set<Object> visited) {
+      Set<Object> visited,
+      boolean includeUnset) {
     if (value instanceof Collection<?> collection) {
       for (Object element : collection) {
-        walk(element, type, handler, depth + 1, visited);
+        walk(element, type, handler, depth + 1, visited, includeUnset);
       }
       return;
     }
     if (value instanceof Map<?, ?> map) {
       for (Object element : map.values()) {
-        walk(element, type, handler, depth + 1, visited);
+        walk(element, type, handler, depth + 1, visited, includeUnset);
       }
       return;
     }
     if (value.getClass().isArray()) {
       int length = Array.getLength(value);
       for (int i = 0; i < length; i++) {
-        walk(Array.get(value, i), type, handler, depth + 1, visited);
+        walk(Array.get(value, i), type, handler, depth + 1, visited, includeUnset);
       }
       return;
     }
-    walk(value, type, handler, depth + 1, visited);
+    walk(value, type, handler, depth + 1, visited, includeUnset);
   }
 
   private static String serialisedKey(HopMetadataProperty property, Field field) {

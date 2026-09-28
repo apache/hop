@@ -64,8 +64,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
-  private DatabaseMeta databaseMeta;
-
   /** SQL Statement */
   @HopMetadataProperty(
       key = "sql",
@@ -122,7 +120,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
   @Override
   public void setDefault() {
     this.connection = null;
-    this.databaseMeta = null;
     this.rowLimit = 0;
     this.sql = "";
     this.outerJoin = false;
@@ -141,6 +138,13 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    // An empty template is legal until the transform runs: there are no template fields to add.
+    String realSql = replaceVariables ? variables.resolve(sql) : sql;
+    if (Utils.isEmpty(realSql)) {
+      return;
+    }
+
+    DatabaseMeta databaseMeta = loadDatabaseMeta(variables, metadataProvider);
     if (databaseMeta == null) {
       return;
     }
@@ -152,10 +156,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       // First try without connecting to the database... (can be S L O W)
       // See if it's in the cache...
       IRowMeta add = null;
-      String realSql = sql;
-      if (replaceVariables) {
-        realSql = variables.resolve(realSql);
-      }
       try {
         add = db.getQueryFields(realSql, false);
       } catch (HopDatabaseException dbe) {
@@ -252,6 +252,17 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       remarks.add(cr);
     }
 
+    DatabaseMeta databaseMeta;
+    try {
+      databaseMeta = loadDatabaseMeta(variables, metadataProvider);
+    } catch (HopTransformException e) {
+      errorMessage =
+          BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.ErrorOccurred")
+              + e.getMessage();
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta));
+      return;
+    }
+
     if (databaseMeta != null) {
       try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         // Keep track of this one for cancelQuery
@@ -261,7 +272,8 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
 
           errorMessage = "";
 
-          IRowMeta r = db.getQueryFields(sql, true);
+          String realSql = replaceVariables ? variables.resolve(sql) : sql;
+          IRowMeta r = db.getQueryFields(realSql, true);
           if (r != null) {
             cr =
                 new CheckResult(
@@ -303,6 +315,10 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    DatabaseMeta databaseMeta = loadDatabaseMeta(variables, metadataProvider);
+    if (databaseMeta == null) {
+      return;
+    }
     IRowMeta out = prev.clone();
     getFields(
         out,
@@ -331,6 +347,41 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
         impact.add(di);
       }
     }
+  }
+
+  /**
+   * Looks up the connection by name every time it's needed. The resolved connection isn't kept on
+   * the meta: a freshly loaded pipeline would otherwise report no template fields until the dialog
+   * was opened.
+   *
+   * @return the connection, or null when no connection is set or its name can't be resolved yet
+   * @throws HopTransformException when a resolved connection name isn't in the metadata store
+   */
+  private DatabaseMeta loadDatabaseMeta(IVariables variables, IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    if (Utils.isEmpty(connection)) {
+      return null;
+    }
+    String realConnection = variables.resolve(connection);
+    // A connection variable that is only set at runtime can't be resolved at design time.
+    if (Utils.isEmpty(realConnection) || realConnection.contains("${")) {
+      return null;
+    }
+    DatabaseMeta databaseMeta;
+    try {
+      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(realConnection);
+    } catch (HopException e) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "DynamicSQLRowMeta.Exception.ConnectionNotFound", realConnection),
+          e);
+    }
+    if (databaseMeta == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "DynamicSQLRowMeta.Exception.ConnectionNotFound", realConnection));
+    }
+    return databaseMeta;
   }
 
   @Override

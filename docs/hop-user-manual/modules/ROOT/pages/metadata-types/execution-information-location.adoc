@@ -120,9 +120,12 @@ Table layout (logical):
 
 * Primary key `id` (log channel / execution id)
 * Filter columns: `name`, `execution_type`, `parent_id`, `registration_date`, `execution_start_date`, `execution_end_date`, `failed`, `status_description`, `duration_ms`, `project_id`
-* `json`: full `CacheEntry` JSON (execution, state, children, samples, logging text, …)
+* `json`: `CacheEntry` JSON written on insert (execution, children, samples, logging text, …)
+* `state_json`: later execution state, child states, and samples for a local run
 
-`project_id` is optional and nullable. It is filled from the active project's id (`HOP_PROJECT_ID`, stored as `projectId` in `project-config.json`). When that variable is empty, Hop does not filter this table, which is the same behavior as 2.19. A table created before the column existed keeps working: writes use the old column list and no project filter is applied until you add the column. The **Show table and indexes DDL** button prints `CREATE TABLE` for a new table (the column is included) and, below a comment, `ALTER TABLE` plus an index for an existing table. Run one of those blocks, not both. Hop does not execute the DDL.
+`project_id` is optional and nullable. It is filled from the active project's id (`HOP_PROJECT_ID`, stored as `projectId` in `project-config.json`). When that variable is empty, Hop does not filter this table, which is the same behavior as 2.19. A table created before the column existed keeps working: writes use the old column list and no project filter is applied until you add the column. The **Show table and indexes DDL** button prints `CREATE TABLE` for a new table (`project_id` and `state_json` are included) and, below a comment, `ALTER TABLE` plus an index that adds `project_id` to an older table. Run one of those blocks, not both. Hop does not execute the DDL.
+
+`state_json` lets a long run update execution state without rewriting `json`. A table that does not have that column yet keeps working: every save rewrites `json`, and Hop logs an `ALTER TABLE` statement at startup. Hop does not change the table by itself.
 
 When a project id is set and the column exists, the list shows rows for that id and rows whose `project_id` is null or empty. Those untagged rows are executions from 2.19 or from a project that still has no id. Rows tagged with a different id are hidden, including from "last execution" lookups.
 

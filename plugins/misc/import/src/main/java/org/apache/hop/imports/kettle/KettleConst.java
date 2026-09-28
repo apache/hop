@@ -45,7 +45,6 @@ public class KettleConst {
                 {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
                 {"transformationPath", "pipelinePath"},
                 {"SUB_STEP", "subTransform"},
-                {"variablemapping", "variable_mapping"},
                 // jobs
                 {"job", "workflow"},
                 {"job_version", "workflow_version"},
@@ -248,6 +247,9 @@ public class KettleConst {
   public static final List<String> jobTypes = Arrays.asList("JOB");
 
   public static final List<String> transTypes = Arrays.asList(CONST_TRANS);
+
+  /** Kettle's "Mapping" and "Simple Mapping" steps both become a Hop Simple Mapping transform. */
+  public static final List<String> mappingTypes = Arrays.asList("Mapping", "SimpleMapping");
 
   public KettleConst() {
     // Do nothing
