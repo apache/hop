@@ -147,6 +147,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       // Merge child maps from the on-disk file so samples/children written by other processes
       // are not wiped when this process flushes parent metrics/state.
       mergeChildrenFromDisk(cacheEntry);
+      cacheEntry.prepareForPersist();
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
       cacheEntry.writeToDisk(actualRootFolder, variables);
@@ -174,6 +175,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       mergeMap(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
       mergeMap(onDisk.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
       mergeMap(onDisk.getChildExecutionData(), cacheEntry.getChildExecutionData());
+      cacheEntry.keepStoredProjectId(onDisk);
     } catch (Exception e) {
       // Best-effort: still write our in-memory view if merge fails
       LogChannel.GENERAL.logError(
@@ -250,6 +252,9 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         CacheEntry entry = findCacheEntry(id);
         if (entry == null) {
           // Not much loaded from disk or cache
+          continue;
+        }
+        if (!matchesActiveProject(entry)) {
           continue;
         }
         if (!activeSelector.isSelected(entry.getExecution())) {

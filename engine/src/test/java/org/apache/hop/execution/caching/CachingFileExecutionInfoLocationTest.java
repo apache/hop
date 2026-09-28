@@ -118,6 +118,53 @@ class CachingFileExecutionInfoLocationTest {
   }
 
   @Test
+  void getExecutionIdsFiltersByProjectIdAndKeepsLegacyRows() throws Exception {
+    Path root = tempDir.resolve("project-id");
+    Variables variables = new Variables();
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(variables, null);
+    try {
+      location.registerExecution(execution("sales-run", "sales"));
+      location.registerExecution(execution("finance-run", "finance"));
+      location.registerExecution(execution("legacy-run", null));
+      location.clearCaches();
+
+      List<String> filtered = location.getExecutionIds(false, 20);
+      assertTrue(filtered.contains("sales-run"));
+      assertTrue(filtered.contains("legacy-run"));
+      assertFalse(filtered.contains("finance-run"));
+    } finally {
+      location.close();
+    }
+
+    CachingFileExecutionInfoLocation unfiltered = new CachingFileExecutionInfoLocation();
+    unfiltered.setRootFolder(root.toAbsolutePath().toString());
+    unfiltered.initialize(new Variables(), null);
+    try {
+      List<String> all = unfiltered.getExecutionIds(false, 20);
+      assertTrue(all.contains("sales-run"));
+      assertTrue(all.contains("legacy-run"));
+      assertTrue(all.contains("finance-run"));
+    } finally {
+      unfiltered.close();
+    }
+  }
+
+  private static Execution execution(String id, String projectId) {
+    Execution execution = new Execution();
+    execution.setId(id);
+    execution.setName(id);
+    execution.setExecutionType(ExecutionType.Pipeline);
+    execution.setExecutionStartDate(new Date());
+    execution.setRegistrationDate(new Date());
+    execution.setProjectId(projectId);
+    return execution;
+  }
+
+  @Test
   void testInitializeCreateFolderFalse() throws Exception {
     Path targetDir = tempDir.resolve(UUID.randomUUID().toString());
     assertFalse(Files.exists(targetDir));

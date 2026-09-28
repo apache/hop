@@ -132,6 +132,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected int maxAge;
   protected int maxSize;
 
+  /**
+   * {@link Execution#VARIABLE_HOP_PROJECT_ID} captured at {@link #initialize}. Empty means do not
+   * filter (2.19.0 behavior).
+   */
+  protected String activeProjectId = "";
+
   protected BaseCachingExecutionInfoLocation() {
     cache = new LinkedHashMap<>(16, 0.75f, true);
     this.cacheTimer = null;
@@ -148,6 +154,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     this.delay = location.delay;
     this.maxAge = location.maxAge;
     this.maxSize = location.maxSize;
+    this.activeProjectId = location.activeProjectId;
   }
 
   public abstract BaseCachingExecutionInfoLocation clone();
@@ -167,6 +174,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       throws HopException {
     this.variables = variables;
     this.metadataProvider = metadataProvider;
+    this.activeProjectId =
+        variables == null
+            ? ""
+            : Const.NVL(variables.getVariable(Execution.VARIABLE_HOP_PROJECT_ID), "");
 
     // The default persistence delay is 1 minute
     //
@@ -428,6 +439,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
     entry.setExecution(execution);
     entry.setName(execution.getName());
+    if (StringUtils.isNotEmpty(execution.getProjectId())) {
+      entry.setProjectId(execution.getProjectId());
+    }
     entry.setDirty(true);
     entry.setLastWritten(null);
 
@@ -719,8 +733,36 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
+  /**
+   * Active project id empty: every execution matches. Stored id empty: legacy rows match. Otherwise
+   * the ids must be equal.
+   */
+  protected boolean matchesActiveProject(String storedProjectId) {
+    if (StringUtils.isEmpty(activeProjectId)) {
+      return true;
+    }
+    if (StringUtils.isEmpty(storedProjectId)) {
+      return true;
+    }
+    return activeProjectId.equals(storedProjectId);
+  }
+
+  protected boolean matchesActiveProject(CacheEntry cacheEntry) {
+    if (cacheEntry == null) {
+      return false;
+    }
+    String storedProjectId = cacheEntry.getProjectId();
+    if (StringUtils.isEmpty(storedProjectId) && cacheEntry.getExecution() != null) {
+      storedProjectId = cacheEntry.getExecution().getProjectId();
+    }
+    return matchesActiveProject(storedProjectId);
+  }
+
   protected synchronized void getExecutionIdsFromCache(Set<DatedId> ids, boolean includeChildren) {
     for (CacheEntry cacheEntry : cache.values()) {
+      if (!matchesActiveProject(cacheEntry)) {
+        continue;
+      }
       ids.add(new DatedId(cacheEntry.getId(), cacheEntry.getExecution().getRegistrationDate()));
       if (includeChildren) {
         addChildIds(cacheEntry, ids);
@@ -731,6 +773,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected synchronized void getExecutionIdsFromCache(
       Set<DatedId> ids, IExecutionSelector selector) {
     for (CacheEntry cacheEntry : cache.values()) {
+      if (!matchesActiveProject(cacheEntry)) {
+        continue;
+      }
       if (selector.isSelected(cacheEntry.getExecution())
           && selector.isSelected(cacheEntry.getExecutionState())) {
         ids.add(new DatedId(cacheEntry.getId(), cacheEntry.getExecution().getRegistrationDate()));

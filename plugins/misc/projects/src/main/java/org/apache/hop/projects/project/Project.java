@@ -75,6 +75,13 @@ public class Project extends ConfigFile implements IConfigFile {
 
   @JsonIgnore private String configFilename;
   private String description;
+
+  /**
+   * Optional id copied onto execution information. Empty means a shared execution store is not
+   * filtered (2.19.0 behavior). Not inherited from the parent project.
+   */
+  private String projectId;
+
   private String company;
   private String department;
   private String version;
@@ -169,6 +176,7 @@ public class Project extends ConfigFile implements IConfigFile {
       Project project = objectMapper.readValue(inputStream, Project.class);
 
       this.description = project.description;
+      this.projectId = project.projectId;
       this.company = project.company;
       this.department = project.department;
       this.version = project.version;
@@ -247,6 +255,10 @@ public class Project extends ConfigFile implements IConfigFile {
     //
     variables.setVariable(
         Defaults.VARIABLE_HOP_PROJECT_NAME, Const.NVL(projectConfig.getProjectName(), ""));
+    // Always set, including to empty, so a project without an id does not keep a parent's value.
+    variables.setVariable(
+        Defaults.VARIABLE_HOP_PROJECT_ID,
+        StringUtils.defaultString(StringUtils.trimToNull(projectId)));
     variables.setVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME, Const.NVL(environmentName, ""));
 
     // To allow circular logic where an environment file is relative to the project home

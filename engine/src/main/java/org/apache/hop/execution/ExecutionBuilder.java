@@ -23,6 +23,7 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -54,6 +55,7 @@ public final class ExecutionBuilder {
   public Date registrationDate;
   public Date executionStartDate;
   public String copyNr;
+  public String projectId;
 
   private ExecutionBuilder() {
     this.variableValues = new HashMap<>();
@@ -86,6 +88,7 @@ public final class ExecutionBuilder {
 
     builder.getParameterInformation(pipeline);
     builder.updateRuntimeInformation();
+    builder.withProjectIdFromVariables(pipeline);
 
     return builder;
   }
@@ -111,6 +114,7 @@ public final class ExecutionBuilder {
 
     builder.getParameterInformation(workflow);
     builder.updateRuntimeInformation();
+    builder.withProjectIdFromVariables(workflow);
 
     return builder;
   }
@@ -128,7 +132,8 @@ public final class ExecutionBuilder {
         .withMetadataJson(null)
         .withRunConfigurationName(null)
         .withLogLevel(transform.getLogLevel())
-        .withExecutionStartDate(pipeline.getExecutionStartDate());
+        .withExecutionStartDate(pipeline.getExecutionStartDate())
+        .withProjectIdFromVariables(pipeline);
   }
 
   public static ExecutionBuilder fromAction(
@@ -146,7 +151,8 @@ public final class ExecutionBuilder {
         .withMetadataJson(null)
         .withRunConfigurationName(null)
         .withLogLevel(action.getLogChannel().getLogLevel())
-        .withExecutionStartDate(startDate);
+        .withExecutionStartDate(startDate)
+        .withProjectIdFromVariables(workflow);
   }
 
   @Deprecated
@@ -266,6 +272,20 @@ public final class ExecutionBuilder {
     return this;
   }
 
+  /**
+   * Copy {@link Execution#VARIABLE_HOP_PROJECT_ID} when it is set. An empty value is left unset.
+   */
+  public ExecutionBuilder withProjectIdFromVariables(IVariables variables) {
+    if (variables == null) {
+      return this;
+    }
+    String value = variables.getVariable(Execution.VARIABLE_HOP_PROJECT_ID);
+    if (StringUtils.isNotEmpty(value)) {
+      this.projectId = value;
+    }
+    return this;
+  }
+
   public Execution build() {
     Execution executionRegistration = new Execution();
     executionRegistration.setName(name);
@@ -283,6 +303,7 @@ public final class ExecutionBuilder {
     executionRegistration.setEnvironmentDetails(environmentDetails);
     executionRegistration.setRegistrationDate(registrationDate);
     executionRegistration.setExecutionStartDate(executionStartDate);
+    executionRegistration.setProjectId(projectId);
     return executionRegistration;
   }
 }

@@ -128,6 +128,7 @@ class PathVariableReplacerTest {
   @Test
   void ignoresNonPathManagedNames() {
     assertFalse(PathVariableReplacer.isCandidateVariableName(Defaults.VARIABLE_HOP_PROJECT_NAME));
+    assertFalse(PathVariableReplacer.isCandidateVariableName(Defaults.VARIABLE_HOP_PROJECT_ID));
     assertFalse(
         PathVariableReplacer.isCandidateVariableName(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME));
     assertFalse(

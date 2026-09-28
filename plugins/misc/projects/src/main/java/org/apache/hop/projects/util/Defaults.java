@@ -19,6 +19,14 @@ package org.apache.hop.projects.util;
 
 public class Defaults {
   public static final String VARIABLE_HOP_PROJECT_NAME = "HOP_PROJECT_NAME";
+
+  /**
+   * Same variable execution information locations read ({@code
+   * org.apache.hop.execution.Execution#VARIABLE_HOP_PROJECT_ID}). Empty means those locations do
+   * not filter by project.
+   */
+  public static final String VARIABLE_HOP_PROJECT_ID = "HOP_PROJECT_ID";
+
   public static final String VARIABLE_HOP_ENVIRONMENT_NAME = "HOP_ENVIRONMENT_NAME";
 
   public static final String EXTENSION_POINT_PROJECT_ACTIVATED = "ProjectActivated";

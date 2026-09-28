@@ -42,6 +42,7 @@ public final class PathVariableReplacer {
   private static final Set<String> NON_PATH_VARIABLE_NAMES =
       Set.of(
           Defaults.VARIABLE_HOP_PROJECT_NAME,
+          Defaults.VARIABLE_HOP_PROJECT_ID,
           Defaults.VARIABLE_HOP_ENVIRONMENT_NAME,
           ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME);
 

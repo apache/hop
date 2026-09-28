@@ -83,6 +83,7 @@ public final class EnvironmentVariablesImportHelper {
     managed.add(ProjectsUtil.VARIABLE_HOP_DATASETS_FOLDER);
     managed.add(ProjectsUtil.VARIABLE_HOP_UNIT_TESTS_FOLDER);
     managed.add(Defaults.VARIABLE_HOP_PROJECT_NAME);
+    managed.add(Defaults.VARIABLE_HOP_PROJECT_ID);
     managed.add(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME);
     managed.add(Const.HOP_METADATA_FOLDER);
     managed.add(JAVA_IO_TMPDIR);
