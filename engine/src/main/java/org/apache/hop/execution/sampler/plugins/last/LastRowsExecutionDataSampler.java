@@ -82,7 +82,7 @@ public class LastRowsExecutionDataSampler
       // Add to the front, remove the last on overflow
       // This is why we use a linked list
       //
-      rows.add(0, rowMeta.cloneRow(row));
+      rows.add(0, getSampledValueLimits().copyRow(rowMeta, row));
       if (rows.size() > samplerStore.getMaxRows()) {
         rows.remove(rows.size() - 1);
       }

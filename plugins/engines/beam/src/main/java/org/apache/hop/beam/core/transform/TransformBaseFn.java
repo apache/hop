@@ -166,8 +166,9 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
           // If not there's nothing we have to do in this transform really
           //
           String profileName = runConf.getExecutionDataProfileName();
+          ExecutionDataProfile dataProfile = null;
           if (StringUtils.isNotEmpty(profileName)) {
-            ExecutionDataProfile dataProfile =
+            dataProfile =
                 metadataProvider.getSerializer(ExecutionDataProfile.class).load(profileName);
             if (dataProfile != null) {
               dataSamplers.addAll(dataProfile.getSamplers());
@@ -179,6 +180,9 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
               IExecutionDataSampler<?>[] extraSamplers =
                   HopJson.newMapper().readValue(dataSamplersJson, IExecutionDataSampler[].class);
               dataSamplers.addAll(Arrays.asList(extraSamplers));
+            }
+            if (dataProfile != null) {
+              dataProfile.applyLimits(dataSamplers, variables);
             }
 
             executionInfoLocation = location;

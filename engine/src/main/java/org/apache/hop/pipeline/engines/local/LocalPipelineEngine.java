@@ -398,6 +398,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     if (samplers.isEmpty()) {
       return;
     }
+    profile.applyLimits(samplers, this);
 
     samplerStoresMap = new HashMap<>();
 

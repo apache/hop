@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.sampler.plugins;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -25,6 +26,7 @@ import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
+import org.apache.hop.execution.sampler.SampledValueLimits;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSamplerStore>
@@ -38,6 +40,9 @@ public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSampl
       toolTip = "i18n::ExecutionDataSamplerBase.Tooltip.SampleSize")
   @HopMetadataProperty
   protected String sampleSize;
+
+  /** Resolved from the profile at runtime. Not part of the sampler metadata. */
+  @JsonIgnore protected SampledValueLimits sampledValueLimits;
 
   protected String pluginId;
 
@@ -57,6 +62,7 @@ public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSampl
     this.sampleSize = base.sampleSize;
     this.pluginId = base.pluginId;
     this.pluginName = base.pluginName;
+    this.sampledValueLimits = base.sampledValueLimits;
   }
 
   @Override
@@ -94,6 +100,18 @@ public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSampl
    */
   public void setSampleSize(String sampleSize) {
     this.sampleSize = sampleSize;
+  }
+
+  @Override
+  @JsonIgnore
+  public void setSampledValueLimits(SampledValueLimits sampledValueLimits) {
+    this.sampledValueLimits = sampledValueLimits;
+  }
+
+  @Override
+  @JsonIgnore
+  public SampledValueLimits getSampledValueLimits() {
+    return sampledValueLimits == null ? SampledValueLimits.unlimited() : sampledValueLimits;
   }
 
   /**
