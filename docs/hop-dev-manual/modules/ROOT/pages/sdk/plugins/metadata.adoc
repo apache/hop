@@ -1,0 +1,110 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Building custom metadata element plugins in Apache Hop: the @HopMetadata annotation, JSON serialization, and GUI editors.
+[[Sdk-Plugins-Metadata]]
+= Metadata Element Plugins
+
+Metadata element plugins add new types of reusable configurations to Apache Hop: database connections, pipeline run configurations, execution information locations, and custom API connections.
+These objects are edited in the Hop GUI Metadata perspective and stored as JSON files under the project's `metadata/` directory.
+
+== 1. The Metadata Class
+
+Create a POJO extending `HopMetadataBase` and implementing `IHopMetadata`, annotated with `@HopMetadata`:
+
+[source,java]
+----
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
+import lombok.Getter;
+import lombok.Setter;
+
+@HopMetadata(
+    key = "webhook-notification",             // Storage folder name (kebab-case)
+    legacyKeys = {"WebhookNotification"},     // Backward compatibility
+    name = "Webhook Notification",
+    description = "Defines a webhook endpoint for workflow notifications",
+    image = "webhook.svg",
+    category = "Alerts"
+)
+@GuiPlugin
+@Getter
+@Setter
+public class WebhookNotification extends HopMetadataBase implements IHopMetadata {
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "WebhookNotification-Parent";
+
+  @HopMetadataProperty
+  private String url;
+
+  @HopMetadataProperty(password = true)
+  private String secretToken;
+
+  @HopMetadataProperty
+  private int retries = 3;
+
+  public WebhookNotification() {
+    super();
+  }
+
+  public WebhookNotification(String name, String url, String secretToken) {
+    this.name = name;
+    this.url = url;
+    this.secretToken = secretToken;
+  }
+}
+----
+
+=== Naming Rules for `@HopMetadata`
+* **`key`**: Must be lower-case kebab-case (`webhook-notification`). This forms the folder path `metadata/webhook-notification/<name>.json`.
+* **`legacyKeys`**: If you ever rename a key, include the previous key in `legacyKeys` so older projects continue loading their configurations seamlessly.
+
+== 2. The GUI Metadata Editor (`*Editor`)
+
+A metadata editor extends `MetadataEditor`.
+The editor creates the name field, and the other fields come from `@GuiWidgetElement` on the metadata class.
+Pass that name control into `createCompositeWidgets`.
+The worked example is xref:annotation-derived-widgets.adoc[Annotation derived widgets], under "Metadata editors".
+
+== 3. Selecting Metadata in Transform and Action Dialogs
+
+To let users select a metadata element in another dialog:
+
+* Use `MetaSelectionLine<T>` directly in SWT:
++
+[source,java]
+----
+MetaSelectionLine<WebhookNotification> wWebhook = new MetaSelectionLine<>(
+    variables, metadataProvider, WebhookNotification.class,
+    shell, SWT.NONE, "Webhook", "Select the webhook configuration"
+);
+wWebhook.fillItems();
+----
+* Or annotate the field with `@GuiWidgetElement(type = GuiElementType.METADATA)`. The layout is xref:annotation-derived-widgets.adoc[Annotation derived widgets].
+
+== Concrete Codebase Examples
+
+* `engine/src/main/java/org/apache/hop/partition/PartitionSchema.java` and `ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java`: Standard in-tree metadata object with editor.
+* `plugins/tech/sftp/src/main/java/org/apache/hop/vfs/sftp/metadata/SftpConnection.java`: Connection metadata element.
+
+== See also
+
+* xref:metadata-plugins.adoc[Metadata plugins]
+* xref:metadata-serialization.adoc[Metadata serialization]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

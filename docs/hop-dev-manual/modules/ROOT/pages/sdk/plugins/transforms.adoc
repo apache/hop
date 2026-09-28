@@ -1,0 +1,199 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Building custom pipeline transforms in Apache Hop: the four-class pattern, row processing lifecycle, metadata properties, and GUI dialog integration.
+[[Sdk-Plugins-Transforms]]
+= Transform Plugins
+
+Transforms are the fundamental building blocks of Hop pipelines.
+A transform reads rows from incoming hops, performs operations (transforming, filtering, enriching, validating, or writing), and emits rows to outgoing hops.
+
+== Core Architecture: The Four Classes
+
+Every transform plugin is implemented as a set of four collaborating classes with a consistent naming convention:
+
+[cols="1,2,3", options="header"]
+|===
+|Class |Base Class / Interface |Responsibility
+
+|`FooMeta`
+|`BaseTransformMeta<Foo, FooData>`
+|**Design-time metadata:** Configuration settings, serialization (`@HopMetadataProperty`), output row schema (`getFields`), validation (`check`).
+
+|`Foo`
+|`BaseTransform<FooMeta, FooData>`
+|**Runtime execution:** Processing rows (`processRow`), initialization (`init`), and cleanup (`dispose`). One instance per running copy.
+
+|`FooData`
+|`BaseTransformData`
+|**Runtime state:** Mutable variables, cached field indexes, temporary buffers. Separate from the transform to cleanly isolate multiple concurrent copies.
+
+|`FooDialog`
+|`BaseTransformDialog`
+|**User interface:** Settings dialog in the Hop GUI.
+|===
+
+== 1. The Metadata Class (`FooMeta`)
+
+Annotate the metadata class with `@Transform` and decorate each configurable field with `@HopMetadataProperty`:
+
+[source,java]
+----
+import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import lombok.Getter;
+import lombok.Setter;
+
+@Transform(
+    id = "CustomFilter",
+    name = "i18n::CustomFilter.Name",
+    description = "i18n::CustomFilter.Description",
+    image = "custom-filter.svg",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    documentationUrl = "/pipeline/transforms/custom-filter.html"
+)
+@GuiPlugin
+@Getter
+@Setter
+public class CustomFilterMeta extends BaseTransformMeta<CustomFilter, CustomFilterData> {
+
+  @HopMetadataProperty(key = "target_field")
+  private String targetField;
+
+  @HopMetadataProperty(key = "threshold_value")
+  private int thresholdValue = 100;
+
+  @Override
+  public void setDefault() {
+    targetField = "";
+    thresholdValue = 100;
+  }
+}
+----
+
+=== Crucial Methods on the Meta Class
+
+* `getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider)`:
+Describes outgoing rows.
+If your transform adds, removes, or alters fields, modify `inputRowMeta` in this method.
+Downstream transforms rely on this method during design time.
+* `check(...)`:
+Validates configuration when a user clicks "Verify pipeline" in the GUI.
+
+== 2. The Runtime Class (`Foo`)
+
+The runtime class executes the data processing logic:
+
+[source,java]
+----
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.TransformMeta;
+
+public class CustomFilter extends BaseTransform<CustomFilterMeta, CustomFilterData> {
+
+  public CustomFilter(TransformMeta meta, CustomFilterMeta metaData,
+                      CustomFilterData data, int copyNr,
+                      PipelineMeta pipelineMeta, Pipeline pipeline) {
+    super(meta, metaData, data, copyNr, pipelineMeta, pipeline);
+  }
+
+  @Override
+  public boolean init() {
+    if (!super.init()) {
+      return false;
+    }
+    // Initialize external connections or resources here
+    return true;
+  }
+
+  @Override
+  public boolean processRow() throws HopException {
+    // 1. Fetch next incoming row
+    Object[] row = getRow();
+
+    // If row is null, input stream is exhausted
+    if (row == null) {
+      setOutputDone();
+      return false; // Tells the engine to stop calling processRow()
+    }
+
+    // 2. Handle first row setup (resolve field indexes once)
+    if (first) {
+      first = false;
+      data.outputRowMeta = getInputRowMeta().clone();
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+      data.fieldIndex = getInputRowMeta().indexOfValue(meta.getTargetField());
+      if (data.fieldIndex < 0) {
+        throw new HopException("Field " + meta.getTargetField() + " not found in input stream!");
+      }
+    }
+
+    // 3. Process the row
+    Long value = getInputRowMeta().getInteger(row, data.fieldIndex);
+    if (value != null && value >= meta.getThresholdValue()) {
+      // Emit row to outgoing hops
+      putRow(data.outputRowMeta, row);
+    }
+
+    return true; // Keep processing subsequent rows
+  }
+
+  @Override
+  public void dispose() {
+    // Clean up streams, sockets, or file handles
+    super.dispose();
+  }
+}
+----
+
+== 3. The Runtime Data Class (`FooData`)
+
+[source,java]
+----
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+
+public class CustomFilterData extends BaseTransformData {
+  public IRowMeta outputRowMeta;
+  public int fieldIndex = -1;
+
+  public CustomFilterData() {
+    super();
+  }
+}
+----
+
+== 4. The GUI Dialog (`FooDialog`)
+
+The dialog extends `BaseTransformDialog`.
+Annotate the metadata fields with `@GuiWidgetElement` and build them with `GuiCompositeWidgets`.
+The `open()` recipe is xref:annotation-derived-widgets.adoc[Annotation derived widgets], under "Transform and action dialogs".
+
+== Concrete Codebase Examples
+
+* `plugins/transforms/detectemptystream`: Minimal transform example.
+* `plugins/transforms/coalesce`: Modern transform demonstrating field mapping, annotations, and unit tests.
+
+== See also
+
+* xref:plugin-types/pipeline-workflow.adoc[Pipelines and workflows]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

@@ -1,0 +1,81 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Implementing Virtual File System (VFS) plugins in Apache Hop: adding custom storage providers and URL schemes to Apache Commons VFS.
+[[Sdk-Plugins-Vfs]]
+= VFS Plugins
+
+A VFS plugin teaches Apache Hop how to communicate with a new storage system (such as Amazon S3, Google Cloud Storage, Azure Blob, SFTP, or WebDAV) by registering custom URL schemes with the shared Apache Commons VFS manager.
+
+== Implementing a VFS Plugin
+
+Annotate the class with `@VfsPlugin` and implement `IVfs`:
+
+[source,java]
+----
+import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.plugin.IVfs;
+import org.apache.hop.core.vfs.plugin.VfsPlugin;
+import java.util.Map;
+
+@VfsPlugin(
+    type = "customcloud",
+    typeDescription = "Custom Cloud Storage VFS Provider",
+    classLoaderGroup = "vfs-customcloud"
+)
+public class CustomCloudVfsPlugin implements IVfs {
+
+  @Override
+  public String[] getUrlSchemes() {
+    // Return all URL prefixes claimed by this provider:
+    return new String[] {"customcloud", "ccfs"};
+  }
+
+  @Override
+  public FileProvider getProvider() {
+    // Return standard Commons VFS FileProvider implementation:
+    return new CustomCloudFileProvider();
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(IVariables variables) {
+    // Return named providers based on configured metadata objects:
+    // e.g. "my-connection://path/to/file"
+    return loadNamedConnectionProviders(variables);
+  }
+}
+----
+
+== Key Architectural Rules
+
+* **Named Connections as URL Schemes:** Through `getProviders(IVariables)`, each named metadata connection (such as an Azure or S3 connection object) registers as its own global scheme (`my-connection://path`).
+* **`classLoaderGroup` is Mandatory:**
+[IMPORTANT]
+====
+Always specify `classLoaderGroup` on `@VfsPlugin` matching your metadata connection classes and GUI editor plugins.
+Because named schemes register in a shared process-wide Commons VFS manager, mismatched classloaders will result in `ClassCastException` when casting configuration metadata.
+====
+
+== Concrete Codebase Examples
+
+* `plugins/tech/azure/src/main/java/org/apache/hop/vfs/azure/AzureVfsPlugin.java`: Azure Blob and Data Lake Gen2 VFS provider.
+* `plugins/tech/google/src/main/java/org/apache/hop/vfs/gs/GoogleStorageVfsPlugin.java`: Google Cloud Storage (GCS) provider.
+* `plugins/tech/sftp/src/main/java/org/apache/hop/vfs/sftp/SftpVfsPlugin.java`: SFTP file system provider.
+
+== See also
+
+* xref:plugin-types/data-connectivity.adoc[Data and connectivity]

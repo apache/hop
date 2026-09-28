@@ -1,0 +1,148 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: An overview of developing Apache Hop plugins: discovery via Jandex, registry, classloaders, project packaging, and supported plugin types.
+[[Sdk-Plugins-Index]]
+= Hop Plugin Development Guide
+
+Apache Hop is architected around an extensible plugin ecosystem.
+Nearly every functional capability in Hop is a plugin: the transforms that process rows, the actions in workflows, the databases Hop connects to, the metadata objects edited in the GUI, the GUI perspectives, the CLI sub-commands, and the storage systems accessed via VFS.
+
+This guide provides practical, step-by-step instructions for implementing Hop plugins across **15 primary plugin types**, with direct references to real-world implementations in the Apache Hop repository.
+
+== How Hop Discovers Plugins
+
+Hop uses annotation-driven discovery powered by https://smallrye.io/jandex/[Jandex] annotation indexes (`META-INF/jandex.idx`):
+
+1. **Native Classpath Plugins:** Discovered from jars on the application classpath containing a Jandex index. Core plugins in `hop-core`, `hop-engine`, and `hop-ui` are loaded this way.
+2. **Plugin Folder Plugins:** Discovered from jars inside the `plugins/` directory (or custom folders configured via `HOP_PLUGIN_BASE_FOLDERS`). Each plugin folder receives its own isolated `URLClassLoader` covering the plugin jar and its private `lib/` directory.
+
+[IMPORTANT]
+====
+**No Jandex index = No plugin.**
+Every plugin jar must contain `META-INF/jandex.idx`.
+The root Hop POM binds the `jandex-maven-plugin` automatically for all modules in the repository.
+If you develop a plugin outside the Hop repository, you must configure the Jandex plugin in your `pom.xml`.
+====
+
+== Classloading and `classLoaderGroup`
+
+To avoid classpath conflicts, external plugins run in isolated classloaders.
+However, related plugins often need to share classes (for example, a database dialect and its corresponding bulk-loader transform, or a VFS plugin and its metadata connection).
+
+Set `classLoaderGroup` on the plugin annotation to group plugins into a shared classloader:
+
+[source,java]
+----
+@VfsPlugin(
+    type = "azure",
+    typeDescription = "Azure VFS",
+    classLoaderGroup = "vfs-azure"
+)
+----
+
+== Project Structure & Packaging
+
+In the Hop codebase, plugins are organized under `plugins/` by category:
+
+* `plugins/transforms`: Pipeline transforms
+* `plugins/actions`: Workflow actions
+* `plugins/databases`: Database dialects
+* `plugins/tech`: Technology bundles (AWS, Azure, Google, Neo4j, and the VFS providers)
+* `plugins/valuetypes`: Custom row data types
+* `plugins/resolvers`: Variable resolvers
+* `plugins/misc`: Miscellaneous plugins
+
+Adding a plugin requires:
+1. Creating a Maven module inheriting from the category POM (e.g. `hop-plugins-transforms`).
+2. Adding `src/assembly/assembly.xml` referring to `assemblies/shared/hop-plugin-libs.xml`.
+3. Adding `src/main/resources/version.xml` with `${project.version}`.
+4. Adding a `<dependency>` with `<type>zip</type>` in `assemblies/plugins/pom.xml`.
+
+== Plugin Types Catalogue
+
+Explore the dedicated development guides below for each plugin type:
+
+[cols="1,2,3", options="header"]
+|===
+|Plugin Type |Annotation |Guide & Overview
+
+|**Transform**
+|`@Transform`
+|xref:sdk/plugins/transforms.adoc[Transform Plugins] — Units of work in pipelines streaming rows.
+
+|**Action**
+|`@Action`
+|xref:sdk/plugins/actions.adoc[Action Plugins] — Sequential and conditional tasks in workflows.
+
+|**Metadata Element**
+|`@HopMetadata`
+|xref:sdk/plugins/metadata.adoc[Metadata Element Plugins] — Shared configurations persisted as JSON.
+
+|**Database Dialect**
+|`@DatabaseMetaPlugin`
+|xref:sdk/plugins/databases.adoc[Database Plugins] — Relational database dialects and SQL syntax.
+
+|**GUI Contribution**
+|`@GuiPlugin`
+|xref:sdk/plugins/gui.adoc[GUI Plugins] — Toolbars, menus, settings tabs, and composite widgets.
+
+|**File Type**
+|`@HopFileTypePlugin`
+|xref:sdk/plugins/file-types.adoc[Hop File Types] — File formats recognised and opened by Hop GUI.
+
+|**Variable Resolver**
+|`@VariableResolverPlugin`
+|xref:sdk/plugins/variable-resolvers.adoc[Variable Resolvers] — Retrieving secrets from external vaults.
+
+|**Extension Point**
+|`@ExtensionPoint`
+|xref:sdk/plugins/extension-points.adoc[Extension Points] — Hooking into runtime and GUI lifecycles.
+
+|**Hop Command**
+|`@HopCommand`
+|xref:sdk/plugins/commands.adoc[Hop Commands] — New CLI sub-commands (`hop <subcommand>`).
+
+|**Configuration**
+|`@ConfigPlugin`
+|xref:sdk/plugins/configuration.adoc[Configuration Plugins] — CLI option mixins and GUI options tabs.
+
+|**Perspective**
+|`@HopPerspectivePlugin`
+|xref:sdk/plugins/perspectives.adoc[Perspectives] — Full-screen workbenches in Hop GUI.
+
+|**VFS Provider**
+|`@VfsPlugin`
+|xref:sdk/plugins/vfs.adoc[VFS Plugins] — Storage URL schemes for Apache Commons VFS.
+
+|**Value Metadata**
+|`@ValueMetaPlugin`
+|xref:sdk/plugins/value-types.adoc[Value Types] — Custom data types in the pipeline row stream.
+
+|**Hop Server Servlet**
+|`@HopServerServlet`
+|xref:sdk/plugins/servlets.adoc[Server Servlets] — Custom HTTP endpoints on Hop Server.
+
+|**Execution Info Location**
+|`@ExecutionInfoLocationPlugin`
+|xref:sdk/plugins/execution-info.adoc[Execution Information Locations] — Storing runtime metrics and logs.
+|===
+
+== See also
+
+* xref:plugin-development.adoc[How plugins work]
+* xref:plugin-types/index.adoc[Plugin types] — every plugin type, including the ones this guide does not walk through.
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

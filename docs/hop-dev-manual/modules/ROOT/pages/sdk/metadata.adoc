@@ -1,0 +1,271 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Working with Hop metadata elements, metadata providers (Json, Memory, Multi, Serializable), serializers, JSON persistence, and GUI integration with MetaSelectionLine.
+[[Sdk-Metadata]]
+= Metadata and Providers
+
+Metadata objects in Apache Hop define shared, reusable configurations: relational database connections, pipeline run configurations, execution information locations, dataset definitions, variable resolvers, and dozens of other components.
+Decoupling metadata from pipelines and workflows allows workflows to run across development, testing, and production environments simply by pointing to different metadata providers.
+
+== The Metadata Model
+
+A metadata element is a Plain Old Java Object (POJO) implementing `IHopMetadata` (typically by extending `HopMetadataBase`) and annotated with `@HopMetadata` and `@HopMetadataProperty`.
+
+=== Defining a Metadata Object
+
+[source,java]
+----
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
+import lombok.Getter;
+import lombok.Setter;
+
+@HopMetadata(
+    key = "custom-connection",                // Kebab-case directory identifier
+    legacyKeys = {"CustomConnection"},        // Backward compatibility keys
+    name = "Custom Connection",
+    description = "Defines a connection to an external API",
+    image = "custom-connection.svg",
+    category = "Connection"
+)
+@Getter
+@Setter
+public class CustomConnection extends HopMetadataBase implements IHopMetadata {
+
+  @HopMetadataProperty
+  private String hostname;
+
+  @HopMetadataProperty
+  private int port = 8080;
+
+  @HopMetadataProperty(password = true)
+  private String apiKey;
+
+  public CustomConnection() {
+    super();
+  }
+
+  public CustomConnection(String name, String hostname, int port, String apiKey) {
+    this.name = name;
+    this.hostname = hostname;
+    this.port = port;
+    this.apiKey = apiKey;
+  }
+}
+----
+
+=== Key Naming Conventions
+* **`key`**: Always use lower-case kebab-case (`mail-server-connection`, `pipeline-run-configuration`). This determines the folder name under `metadata/<key>/` in the project.
+* **`legacyKeys`**: When renaming a key, always retain the old keys in `legacyKeys` so existing installations do not silently lose their saved metadata.
+
+== Providers and Serializers
+
+Hop manages metadata persistence through the `IHopMetadataProvider` interface.
+A provider acts as a factory for `IHopMetadataSerializer<T>`, which provides type-safe CRUD operations.
+
+=== Performing CRUD Operations
+
+[source,java]
+----
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+
+IHopMetadataProvider provider = ...;
+
+// Obtain a serializer for your metadata class
+IHopMetadataSerializer<CustomConnection> serializer =
+    provider.getSerializer(CustomConnection.class);
+
+// 1. Create and Save
+CustomConnection conn = new CustomConnection("AnalyticsServer", "analytics.internal", 9000, "secret123");
+serializer.save(conn);
+
+// 2. Check Existence
+boolean exists = serializer.exists("AnalyticsServer");
+
+// 3. Load by Name
+CustomConnection loaded = serializer.load("AnalyticsServer");
+
+// 4. List All Names
+List<String> names = serializer.listObjectNames();
+
+// 5. Load All Objects
+List<CustomConnection> allConnections = serializer.loadAll();
+
+// 6. Delete
+serializer.delete("AnalyticsServer");
+----
+
+== The Four Metadata Providers
+
+Hop ships four core metadata provider implementations suited for different runtime environments:
+
+=== 1. JsonMetadataProvider (Filesystem / Project)
+The standard provider used by the Hop GUI and Hop CLI.
+It persists each metadata element as an individual JSON file under `metadata/<key>/<name>.json`:
+
+[source,java]
+----
+import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+
+// Point to the root metadata folder of a project
+String metadataRootFolder = "/home/dev/projects/sales-etl/metadata";
+JsonMetadataProvider jsonProvider = new JsonMetadataProvider(
+    twoWayPasswordEncoder,
+    metadataRootFolder,
+    variables
+);
+----
+
+=== 2. MemoryMetadataProvider (In-Memory / Unit Tests)
+Stores metadata entirely in memory in Java hash maps without touching disk.
+Ideal for:
+* Unit and integration testing where test isolation is critical.
+* Ephemeral serverless executions where disk writes are restricted.
+* Dynamically injecting temporary connections during runtime.
+
+[source,java]
+----
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+
+MemoryMetadataProvider memoryProvider = new MemoryMetadataProvider(
+    twoWayPasswordEncoder,
+    variables
+);
+
+// Populate with mock connections
+IHopMetadataSerializer<CustomConnection> serializer =
+    memoryProvider.getSerializer(CustomConnection.class);
+serializer.save(new CustomConnection("TestConn", "localhost", 8080, "test-key"));
+----
+
+=== 3. MultiMetadataProvider (Hierarchical / Layered)
+Delegates across multiple metadata providers.
+Hop uses `MultiMetadataProvider` to combine project-specific metadata with global shared metadata.
+Lookups walk the list from the end, so the **last** provider that has an object wins.
+A save that does not name a provider writes to that same last provider.
+Put parent or shared providers first and the project provider last.
+A provider added after the project overrides the project on read and becomes the save target.
+
+[source,java]
+----
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+
+List<IHopMetadataProvider> providers = List.of(
+    sharedGlobalProvider, // Earlier: used when no later provider has this name
+    projectJsonProvider   // Last: wins on read and receives default saves
+);
+
+MultiMetadataProvider multiProvider = new MultiMetadataProvider(
+    twoWayPasswordEncoder,
+    providers,
+    variables
+);
+
+// Load walks backwards. The project provider is checked before the shared one.
+CustomConnection conn = multiProvider.getSerializer(CustomConnection.class).load("CentralDb");
+
+// Save with no metadata provider name on the object writes to the last provider.
+multiProvider.getSerializer(CustomConnection.class).save(newConnection);
+----
+
+=== 4. SerializableMetadataProvider (Remote Serialization)
+Bundles all metadata from a provider into a single serializable JSON string.
+This is used by Hop clients to bundle and transmit project metadata across network boundaries to Hop Server or remote containerized runners:
+
+[source,java]
+----
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
+
+// Serialize all metadata in a provider into a JSON string:
+SerializableMetadataProvider serializableProvider =
+    new SerializableMetadataProvider(multiProvider);
+String metadataJson = serializableProvider.toJson();
+
+// On the remote engine, reconstitute the metadata provider:
+SerializableMetadataProvider remoteProvider =
+    new SerializableMetadataProvider(metadataJson);
+----
+
+== GUI Integration and Dialogs
+
+When writing transform, action, or metadata dialogs, metadata selection is a common requirement.
+
+=== 1. MetaSelectionLine in Hand-Coded SWT Dialogs
+`MetaSelectionLine<T>` is a composite widget that renders a combo box listing all available metadata objects of type `T` from the current `IHopMetadataProvider`. It includes buttons to create a **New** instance, **Edit** the selected instance, or **Refresh** the list:
+
+[source,java]
+----
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+
+MetaSelectionLine<CustomConnection> wConnection = new MetaSelectionLine<>(
+    variables,
+    metadataProvider,
+    CustomConnection.class,
+    shell,
+    SWT.NONE,
+    "Custom Connection",
+    "Select the external API connection to use"
+);
+
+// Populate the combo with available objects from the provider:
+wConnection.fillItems();
+
+// Select an active item:
+wConnection.setText("AnalyticsServer");
+
+// Retrieve selected item:
+String selectedName = wConnection.getText();
+----
+
+=== 2. Declarative Selection with GuiCompositeWidgets
+In modern Hop dialogs, avoid manual widget layouts.
+Annotate your Meta class with `@GuiWidgetElement(type = GuiElementType.METADATA)`:
+
+[source,java]
+----
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
+@GuiPlugin
+public class MyTransformMeta extends BaseTransformMeta<MyTransform, MyTransformData> {
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "MyTransformDialog-Parent";
+
+  @GuiWidgetElement(
+      id = "connection",
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadata = CustomConnection.class,
+      label = "i18n::MyTransform.Connection.Label",
+      toolTip = "i18n::MyTransform.Connection.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "Connection Settings"
+  )
+  @HopMetadataProperty(key = "connection")
+  private String connectionName;
+}
+----
+
+When `GuiCompositeWidgets.addScrolledComposite()` renders this group, it instantiates and wires a `MetaSelectionLine<CustomConnection>`.
+The dialog layout around that call is xref:annotation-derived-widgets.adoc[Annotation derived widgets].

@@ -1,0 +1,133 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Building full-screen workbench perspectives in the Hop GUI using @HopPerspectivePlugin.
+[[Sdk-Plugins-Perspectives]]
+= Perspectives
+
+A perspective represents an entire full-screen workbench view in the Hop GUI, selected via the primary navigation icons in the left sidebar.
+The Data Orchestration, Metadata, File Explorer, and Execution Information workbenches are all perspective plugins.
+
+== Implementing a Perspective
+
+Annotate your class with `@HopPerspectivePlugin` and implement `IHopPerspective`:
+
+[source,java]
+----
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import java.util.Collections;
+import java.util.List;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+@HopPerspectivePlugin(
+    id = "300-CustomPerspective",             // Numeric prefix dictates sidebar icon order
+    name = "Custom Workbench",
+    description = "Custom analytics workbench",
+    image = "custom-perspective.svg"
+)
+@GuiPlugin
+public class CustomPerspective implements IHopPerspective {
+
+  private static CustomPerspective instance;
+  private Composite composite;
+  private boolean initialized;
+
+  public CustomPerspective() {
+    instance = this;
+  }
+
+  public static CustomPerspective getInstance() {
+    return instance;
+  }
+
+  @Override
+  public String getId() {
+    return "300-CustomPerspective";
+  }
+
+  @Override
+  public void initialize(HopGui hopGui, Composite parent) {
+    this.composite = new Composite(parent, SWT.NONE);
+    this.composite.setLayout(new FillLayout());
+
+    // Build workbench UI controls inside this.composite...
+
+    this.initialized = true;
+  }
+
+  @Override
+  public void activate() {
+    // Called when the user clicks this perspective's icon in the sidebar
+  }
+
+  @Override
+  public void perspectiveActivated() {
+    // Post-activation logic
+  }
+
+  @Override
+  public boolean isActive() {
+    return HopGui.getInstance().isActivePerspective(this);
+  }
+
+  @Override
+  public Control getControl() {
+    return composite;
+  }
+
+  @Override
+  public List<IHopFileType> getSupportedHopFileTypes() {
+    return Collections.emptyList();
+  }
+
+  public boolean isInitialized() {
+    return initialized;
+  }
+}
+----
+
+This sample is abbreviated.
+`IHopPerspective` has more methods, and most of them have defaults.
+The methods without a default are `getId()`, `activate()`, `perspectiveActivated()`, `isActive()`, `initialize(HopGui, Composite)`, and `getControl()`.
+
+
+
+== Key Architectural Rules
+
+* **Numeric Ordering:** The `id` attribute should start with a 3-digit number (e.g. `010-DataOrchestration`, `100-HopExplorerPerspective`, `300-...`) which strictly determines its position in the left navigation sidebar.
+* **Initialization Guard:**
+[WARNING]
+====
+If a perspective is listed in a user's `disabledGuiElements` configuration, Hop GUI will instantiate the object but *never call `initialize()`*.
+Always guard public methods and singleton accessors with an `isInitialized()` check to prevent NullPointerExceptions.
+====
+
+== Concrete Codebase Examples
+
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/ExplorerPerspective.java`: File browser and viewer workbench.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/execution/ExecutionPerspective.java`: Pipeline and workflow execution monitoring perspective.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/configuration/ConfigurationPerspective.java`: Project and system configuration perspective.
+
+== See also
+
+* xref:plugin-types/gui.adoc[GUI]

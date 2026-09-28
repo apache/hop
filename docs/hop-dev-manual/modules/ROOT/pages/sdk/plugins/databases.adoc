@@ -1,0 +1,116 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Developing relational database dialect plugins in Apache Hop: JDBC URLs, SQL syntax generation, and column type mappings.
+[[Sdk-Plugins-Databases]]
+= Database Plugins and Dialects
+
+A database plugin teaches Apache Hop how to interact with a specific relational database dialect: assembling JDBC URLs, formatting DDL statements, mapping SQL data types to Hop's `IValueMeta` types, and identifying reserved keywords.
+
+== The Plugin Class
+
+Annotate the class with `@DatabaseMetaPlugin` and extend `BaseDatabaseMeta`:
+
+[source,java]
+----
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+
+@DatabaseMetaPlugin(
+    type = "CUSTOMDB",
+    typeDescription = "Custom Database Engine"
+)
+@GuiPlugin
+public class CustomDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  @Override
+  public String getDriverClass() {
+    return "com.customdb.jdbc.CustomDriver";
+  }
+
+  @Override
+  public String getURL(String hostname, String port, String databaseName) {
+    if (Utils.isEmpty(port)) {
+      return "jdbc:customdb://" + hostname + "/" + databaseName;
+    }
+    return "jdbc:customdb://" + hostname + ":" + port + "/" + databaseName;
+  }
+
+  @Override
+  public int getDefaultDatabasePort() {
+    return 5432;
+  }
+
+  @Override
+  public String[] getAccessTypeList() {
+    return new String[] {"Native (JDBC)"};
+  }
+
+  @Override
+  public String getFieldDefinition(IValueMeta v, String tk, String pk,
+                                   boolean useAutoIncrement, boolean addFieldName,
+                                   boolean addCr) {
+    // Translate Hop value types into SQL DDL column specifications
+    StringBuilder retval = new StringBuilder();
+    String fieldname = v.getName();
+    int length = v.getLength();
+    int precision = v.getPrecision();
+
+    if (addFieldName) {
+      retval.append(fieldname).append(" ");
+    }
+
+    switch (v.getType()) {
+      case IValueMeta.TYPE_INTEGER:
+        retval.append("BIGINT");
+        break;
+      case IValueMeta.TYPE_STRING:
+        if (length > 0 && length < 4000) {
+          retval.append("VARCHAR(").append(length).append(")");
+        } else {
+          retval.append("TEXT");
+        }
+        break;
+      default:
+        retval.append("TEXT");
+        break;
+    }
+    return retval.toString();
+  }
+
+  @Override
+  public String[] getReservedWords() {
+    return new String[] {"SELECT", "FROM", "WHERE", "ORDER", "GROUP", "BY", "USER"};
+  }
+}
+----
+
+== JDBC Drivers and Classloading
+
+* **Driver Placement:** For licensing reasons, JDBC drivers should *not* be bundled directly inside the plugin zip. Drivers are placed in `lib/jdbc` of the Hop installation (or custom directories defined by `HOP_SHARED_JDBC_FOLDERS`).
+* **Bulk Loaders:** If your dialect plugin ships with dedicated bulk-loader transforms (e.g., PostgreSQL COPY or MySQL Bulk Loader), declare the same `classLoaderGroup` on both plugins so the transform sees the dialect's loaded driver classes.
+
+== Concrete Codebase Examples
+
+* `plugins/databases/postgresql/src/main/java/org/apache/hop/databases/postgresql/PostgreSqlDatabaseMeta.java`: Comprehensive relational dialect implementation.
+* `plugins/databases/duckdb/src/main/java/org/apache/hop/databases/duckdb/DuckDBDatabaseMeta.java`: Embedded file-based database dialect.
+
+== See also
+
+* xref:database/index.adoc[Database plugins]
+* xref:database/creating-a-dialect.adoc[Creating a dialect]
