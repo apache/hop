@@ -1015,9 +1015,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else if (event.button == 1
               && alt
               && DrillDownGuiPlugin.altClickOpensExecution(
+                  this,
                   currentTransform.getTransform() != null
-                      && currentTransform.getTransform().supportsDrillDown(),
-                  pipeline != null)) {
+                      && currentTransform.getTransform().supportsDrillDown())) {
             // Opening the execution is asynchronous, so claim this release. Otherwise mouseUp
             // also opens the transform context dialog.
             avoidContextDialog = true;

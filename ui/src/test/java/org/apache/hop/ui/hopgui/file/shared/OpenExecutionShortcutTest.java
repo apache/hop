@@ -21,12 +21,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
+import java.util.Properties;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.Test;
 
 /** Issue #8605: hover an icon and press x, or Alt-click, to open the running execution. */
@@ -34,10 +45,61 @@ class OpenExecutionShortcutTest {
 
   @Test
   void altClickOpensExecutionOnlyWhileARunIsActive() {
-    assertTrue(DrillDownGuiPlugin.altClickOpensExecution(true, true));
-    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(true, false));
-    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(false, true));
-    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(false, false));
+    HopGuiPipelineGraph pipelineGraph = mock(HopGuiPipelineGraph.class, CALLS_REAL_METHODS);
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> pipeline = mock(IPipelineEngine.class);
+    // A finished run leaves the engine set. isRunning() is false, so Alt-click must fall through
+    // to error handling.
+    pipelineGraph.pipeline = pipeline;
+    when(pipeline.isRunning()).thenReturn(false);
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(pipelineGraph, true));
+
+    when(pipeline.isRunning()).thenReturn(true);
+    assertTrue(DrillDownGuiPlugin.altClickOpensExecution(pipelineGraph, true));
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(pipelineGraph, false));
+
+    when(pipeline.isStopped()).thenReturn(true);
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(pipelineGraph, true));
+
+    pipelineGraph.pipeline = null;
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(pipelineGraph, true));
+
+    HopGuiWorkflowGraph workflowGraph = mock(HopGuiWorkflowGraph.class, CALLS_REAL_METHODS);
+    @SuppressWarnings("unchecked")
+    IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    workflowGraph.setWorkflow(workflow);
+    when(workflow.isFinished()).thenReturn(true);
+    when(workflow.isActive()).thenReturn(true);
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(workflowGraph, true));
+
+    when(workflow.isFinished()).thenReturn(false);
+    when(workflow.isStopped()).thenReturn(false);
+    when(workflow.isActive()).thenReturn(true);
+    assertTrue(DrillDownGuiPlugin.altClickOpensExecution(workflowGraph, true));
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(workflowGraph, false));
+
+    workflowGraph.setWorkflow(null);
+    assertFalse(DrillDownGuiPlugin.altClickOpensExecution(workflowGraph, true));
+  }
+
+  @Test
+  void openExecutionTooltipKeepsTheQuotedX() throws Exception {
+    assertQuotedX("messages/messages_en_US.properties", "hit key 'x'", "hit key x");
+    assertQuotedX("messages/messages_pt_BR.properties", "teclar 'x'", "teclar x");
+  }
+
+  private static void assertQuotedX(String resource, String quoted, String eaten)
+      throws IOException {
+    Properties properties = new Properties();
+    try (InputStream in = DrillDownGuiPlugin.class.getResourceAsStream(resource)) {
+      assertNotNull(in, resource);
+      properties.load(in);
+    }
+    String formatted =
+        MessageFormat.format(
+            properties.getProperty("DrillDown.OpenExecution.Tooltip"), new Object[0]);
+    assertTrue(formatted.contains(quoted), formatted);
+    assertFalse(formatted.contains(eaten), formatted);
   }
 
   @Test

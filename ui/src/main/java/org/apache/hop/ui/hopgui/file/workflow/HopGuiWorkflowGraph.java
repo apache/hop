@@ -841,9 +841,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           } else if (event.button == 1
               && alt
               && DrillDownGuiPlugin.altClickOpensExecution(
+                  this,
                   currentAction.getAction() != null
-                      && currentAction.getAction().supportsDrillDown(),
-                  workflow != null)) {
+                      && currentAction.getAction().supportsDrillDown())) {
             // Opening the execution is asynchronous, so claim this release. Otherwise mouseUp
             // also opens the action context dialog.
             avoidContextDialog = true;
