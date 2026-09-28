@@ -373,7 +373,7 @@ public class BasicDataProfilingDataSampler
       RowBuffer rowBuffer =
           typeBufferMap.computeIfAbsent(profilingType, k -> new RowBuffer(rowMeta));
 
-      // Keep the memory consumption sane
+      // Keep the memory consumption sane. Copy the row: the transform may reuse the array.
       //
       if (rowBuffer.size() < store.getMaxRows()) {
         rowBuffer.addRow(getSampledValueLimits().copyRow(rowMeta, row, decisions));
