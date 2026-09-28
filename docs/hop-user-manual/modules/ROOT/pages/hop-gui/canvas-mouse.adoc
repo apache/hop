@@ -151,7 +151,7 @@ These do not depend on the two options.
 |Starts a new hop: click or drag onto the target to create it, onto empty canvas or `Esc` to cancel.
 |Adds to or removes from the selection.
 |Opens the referenced pipeline/workflow.
-|Pipeline: opens error handling (transforms that support it). Workflow: as a plain click.
+|Opens the running execution when the transform or action supports drill-down and a run is active. Otherwise, on a pipeline, opens error handling for transforms that support it. On a workflow, as a plain click.
 |Starts a new hop, as `Shift`-click.
 
 |Hop line
@@ -176,6 +176,7 @@ These do not depend on the two options.
 |Drag pans the canvas.
 |===
 
+* **`X`** with the pointer over a transform or action icon opens the running execution, the same as `Alt`-click when that icon supports drill-down and a run is active. **`Z`** opens the referenced pipeline or workflow, the same as `Shift`+`Ctrl`-click. `X` and `Z` are Hop Gui shortcuts: Hop Web leaves a bare letter to the browser. `Alt`-click works in Hop Gui and Hop Web.
 * **Left drag** on a transform, action or note moves it, together with everything selected. Dropping a transform on a hop offers to split the hop. Left drag on empty canvas draws a selection lasso.
 * **Note edges** drag to resize the note.
 * **`Esc`** cancels a hop in progress. A right click on empty canvas cancels it too.

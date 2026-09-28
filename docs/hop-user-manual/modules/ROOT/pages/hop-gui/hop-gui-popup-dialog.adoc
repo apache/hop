@@ -129,6 +129,7 @@ When clicking on an action icon, the popup contains a number of actions to work 
 ** **Detach action**: remove all hops to and from this action. If this action connects 2 other actions through hops, a hop between these actions will be created.
 ** **Edit action description**: opens the description dialog for this action
 ** **Delete this action**: delete this action from the workflow. No new hops will be created if this action was connected to other actions.
+** **Open execution**: while the workflow is running, open the pipeline or workflow this action started and attach its execution. Shown for actions that can drill down (Pipeline, Workflow, Repeat).
 * Advanced
 ** **Parallel execution**: enable or disable parallel execution for actions after the current action.
 * Logging
@@ -136,6 +137,8 @@ When clicking on an action icon, the popup contains a number of actions to work 
 ** **Clear Custom Logging**: reset the logging level for this action back to `Basic`
 
 TIP: Two shortcuts to open the workflow or pipeline specified in an action are to hover over the icon and hit the `z` key, or `CTRL-SHIFT-click` on the action icon.
+
+TIP: While the workflow is running, hover over an action that starts a pipeline or workflow and press `X`, or `Alt`-click (Option-click on macOS) the icon, to open that execution.
 
 TIP: Click on an action icon to open the popup dialog. Click on the action name to directly open the action's properties. This is a shortcut to clicking on the icon and selecting `Edit` from the popup dialog.
 
@@ -165,6 +168,7 @@ When clicking on a transform icon, the popup contains a number of actions to wor
 ** **Show output fields**: show all output fields resulting from this transform
 ** **Edit description**: opens the description dialog for this transform
 ** **Delete**: delete this transform from the pipeline. No new hops will be created if this transform was connected to other transforms.
+** **Open execution**: while the pipeline is running, open the child pipeline or workflow this transform started and attach its execution. Shown for transforms that can drill down (Pipeline Executor, Workflow Executor, Mapping, ETL Metadata Injection, and so on).
 * Data Routing
 ** xref:pipeline/specify-copies.adoc[**Specify copies**]: set the number of transform copies to use during execution
 ** **Copy/distribute rows**: make the transform copy/distribute rows during execution. The option is contextual: if the transform is copying rows, only the distribute option will be shown and vice versa.
@@ -186,6 +190,8 @@ When clicking on a transform icon, the popup contains a number of actions to wor
 image:hop-gui/popup-transform.png[Hop Gui Popup Dialog - Workflow Transform Options, width="65%"]
 
 TIP: The options shown for Unit Testing are just a subset of the available options. Check the xref:pipeline/pipeline-unit-testing.adoc[unit testing] docs for a detailed explanation of all the unit testing options.
+
+TIP: While the pipeline is running, hover over a transform that can drill down and press `X`, or `Alt`-click (Option-click on macOS) the icon, to open that execution.
 
 TIP: Click on a transform icon to open the popup dialog. Click on the transform name to directly open the transform properties. This is a shortcut to clicking on the icon and selecting `Edit` from the popup dialog.
 
