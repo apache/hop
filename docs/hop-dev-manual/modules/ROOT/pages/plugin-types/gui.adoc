@@ -62,6 +62,46 @@ Return the incoming verdict unchanged for ids you do not own, or you will hide e
 xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars] covers this and the mid-construction pitfall in detail.
 ====
 
+=== Data grids
+
+`@GuiWidgetElement(type = TABLE)` on a `List` field draws a data grid.
+The columns are `@GuiTableColumn` fields on the row class: `TEXT` (a `String`), `COMBO` (an enum, or a `String` whose items come from `comboValuesMethod` on the parent object), or `CHECKBOX` (a `boolean`, stored in the grid as `Y` / `N`).
+`@GuiTableColumn` is only a GUI annotation.
+`@HopMetadataProperty` still stores the list.
+Enum cells use `Enum.name()`, not `toString()`.
+`tableRows` (default 5) is the grid height in rows.
+The last grid in a tab or box keeps that height when the dialog opens and grows when the dialog is resized.
+
+A button that fills the list, such as Get Fields, is an ordinary `@GuiWidgetElement` of type `BUTTON`.
+After the method returns, the grid is refilled from the list.
+
+[source,java]
+----
+@GuiWidgetElement(
+    id = "vars",
+    order = "1000",
+    type = GuiElementType.TABLE,
+    label = "i18n::ActionDbt.Vars.Label",
+    parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+    group = "Variables",
+    groupOrder = "40",
+    groupType = GuiWidgetGroupType.TABS,
+    tableRows = 5)
+@HopMetadataProperty(groupKey = "vars", key = "var")
+private List<DbtNameValue> vars;
+----
+
+[source,java]
+----
+@GuiTableColumn(
+    order = "10",
+    type = GuiTableColumnType.TEXT,
+    label = "i18n::ActionDbt.Column.Name",
+    variables = false)
+@HopMetadataProperty
+private String name;
+----
+
 == Perspective
 
 A perspective is a full screen in the Hop GUI, selected from the icons in the left sidebar: the Data Orchestration, Metadata, Explorer and Execution Information perspectives are all plugins.

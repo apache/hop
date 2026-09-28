@@ -36,8 +36,6 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -52,7 +50,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TableItem;
 
 /** Metadata editor for {@link AiProvider}. */
 public class AiProviderEditor extends MetadataEditor<AiProvider> {
@@ -66,7 +63,6 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   private ScrolledComposite wScrolled;
   private Composite wContent;
   private final AtomicBoolean busyChangingType = new AtomicBoolean(false);
-  private TableView wModels;
 
   public AiProviderEditor(HopGui hopGui, MetadataManager<AiProvider> manager, AiProvider metadata) {
     super(hopGui, manager, metadata);
@@ -120,11 +116,6 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     wScrolled.setContent(wContent);
 
     widgets = new GuiCompositeWidgets(manager.getVariables());
-    widgets.registerExtraGroup(
-        BaseMessages.getString(PKG, "AiProviderEditor.Models.Label"),
-        "30",
-        null,
-        this::addModelsTable);
     widgets.createCompositeWidgets(
         getMetadata(), null, wContent, AiProvider.GUI_WIDGETS_PARENT_ID, null);
 
@@ -142,54 +133,6 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
             setChanged();
           }
         });
-  }
-
-  /**
-   * The per-role model table. A list of rows is not something {@code @GuiWidgetElement} can
-   * express, so it is registered as an extra group and built into the box {@link
-   * GuiCompositeWidgets} creates for it, next to the annotated groups.
-   */
-  private void addModelsTable(Composite box) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AiProviderEditor.Models.Column.Role"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              roleNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AiProviderEditor.Models.Column.ModelName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
-
-    wModels =
-        new TableView(
-            manager.getVariables(),
-            box,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            columns,
-            0,
-            e -> setChanged(),
-            PropsUi.getInstance());
-    wModels
-        .getTable()
-        .setToolTipText(BaseMessages.getString(PKG, "AiProviderEditor.Models.Tooltip"));
-    FormData fdModels = new FormData();
-    fdModels.left = new FormAttachment(0, 0);
-    fdModels.right = new FormAttachment(100, 0);
-    fdModels.top = new FormAttachment(0, 0);
-    fdModels.height = (int) (PropsUi.getInstance().getZoomFactor() * 140);
-    wModels.setLayoutData(fdModels);
-  }
-
-  private static String[] roleNames() {
-    AiModelRole[] roles = AiModelRole.values();
-    String[] names = new String[roles.length];
-    for (int i = 0; i < roles.length; i++) {
-      names[i] = roles[i].name();
-    }
-    return names;
   }
 
   private void changeProviderType() {
@@ -260,17 +203,6 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
       wProviderType.setText(meta.getPluginName());
     }
     widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
-    if (wModels != null) {
-      wModels.clearAll();
-      for (AiProviderModel model : meta.getModels()) {
-        TableItem item = new TableItem(wModels.table, SWT.NONE);
-        item.setText(1, model.getRole() == null ? AiModelRole.CHAT.name() : model.getRole().name());
-        item.setText(2, Const.NVL(model.getModelName(), ""));
-      }
-      wModels.removeEmptyRows();
-      wModels.setRowNums();
-      wModels.optWidth(true);
-    }
     updateVisibility();
   }
 
@@ -278,7 +210,10 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   public void getWidgetsContent(AiProvider meta) {
     meta.setName(wName.getText());
     widgets.getWidgetsContents(meta, AiProvider.GUI_WIDGETS_PARENT_ID);
-    meta.setModels(readModels());
+    // A role with no model name is not a configured model. The hand-built grid skipped those rows.
+    if (meta.getModels() != null) {
+      meta.getModels().removeIf(model -> model == null || Utils.isEmpty(model.getModelName()));
+    }
     String selected = wProviderType.getText();
     if (selected != null && !selected.isEmpty()) {
       try {
@@ -289,20 +224,6 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
         throw new HopRuntimeException(e);
       }
     }
-  }
-
-  private List<AiProviderModel> readModels() {
-    List<AiProviderModel> models = new ArrayList<>();
-    if (wModels == null || wModels.isDisposed()) {
-      return models;
-    }
-    for (TableItem item : wModels.getNonEmptyItems()) {
-      String modelName = item.getText(2);
-      if (!Utils.isEmpty(modelName)) {
-        models.add(new AiProviderModel(AiModelRole.fromString(item.getText(1)), modelName));
-      }
-    }
-    return models;
   }
 
   @Override

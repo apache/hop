@@ -52,6 +52,8 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -427,6 +429,18 @@ public class GuiRegistry {
       Method guiPluginClassMethod,
       String dataClassName,
       ClassLoader classLoader) {
+
+    // A grid is a List field. A method has nothing to read the rows from.
+    if (guiElement.type() == GuiElementType.TABLE) {
+      if (HopLogStore.isInitialized()) {
+        LogChannel.GENERAL.logError(
+            "GuiWidgetElement type TABLE is only supported on a List field, not on method "
+                + guiPluginClassMethod.getDeclaringClass().getName()
+                + "."
+                + guiPluginClassMethod.getName());
+      }
+      return;
+    }
 
     GuiElements guiElements = findGuiElements(dataClassName, guiElement.parentId());
     if (guiElements == null) {

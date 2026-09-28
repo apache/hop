@@ -89,6 +89,15 @@ public @interface GuiWidgetElement {
   int multiLineTextHeight() default 1;
 
   /**
+   * Preferred height of a {@link GuiElementType#TABLE}, in rows. Default is 5. Values less than 1
+   * are treated as 5. Ignored for other element types. The last grid in a parent also grows with
+   * the parent.
+   *
+   * @return height in rows
+   */
+  int tableRows() default 5;
+
+  /**
    * @return true if the widget supports variables
    */
   boolean variables() default true;

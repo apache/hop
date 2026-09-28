@@ -62,6 +62,7 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   public static final String WIDGET_TIMEOUT = "0300-timeout";
   public static final String WIDGET_MODEL_NAME = "0400-model-name";
   public static final String WIDGET_TEMPERATURE = "0500-temperature";
+  public static final String WIDGET_MODELS = "0600-models";
 
   @HopMetadataProperty(key = "provider")
   private IAiProvider provider;
@@ -142,6 +143,16 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
    * falls back to {@link #modelName} and nothing changes.
    */
   @HopMetadataProperty(key = "models", injectionGroupKey = "MODELS")
+  @GuiWidgetElement(
+      id = WIDGET_MODELS,
+      order = "0600",
+      type = GuiElementType.TABLE,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::AiProviderEditor.Models.Label",
+      groupOrder = "30",
+      toolTip = "i18n::AiProviderEditor.Models.Tooltip",
+      tableRows = 4)
   private List<AiProviderModel> models = new ArrayList<>();
 
   public AiProvider() {}
