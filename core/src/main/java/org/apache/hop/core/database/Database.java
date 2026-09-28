@@ -1214,9 +1214,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public void insertRow(String schemaName, String tableName, IRowMeta fields, Object[] data)
       throws HopDatabaseException {
     prepareInsert(fields, schemaName, tableName);
-    setValuesInsert(fields, data);
-    insertRow();
-    closeInsert();
+    try {
+      setValuesInsert(fields, data);
+      insertRow();
+    } finally {
+      closeInsert();
+    }
   }
 
   public String getInsertStatement(String tableName, IRowMeta fields) {

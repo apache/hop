@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -180,6 +182,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   /** Execution information location from the run configuration (optional). */
   private ExecutionInfoLocation executionInfoLocation;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   private Timer executionInfoTimer;
   private volatile boolean executionInfoClosed;
@@ -627,12 +633,24 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         interval);
   }
 
+  /**
+   * Lines written since the previous tick. A full snapshot ({@code -1}) would be appended on top of
+   * the lines already stored.
+   */
+  private ExecutionState capturePipelineExecutionState() {
+    ExecutionState executionState =
+        ExecutionStateBuilder.fromExecutor(this, executionInfoLastLogLineNr.get()).build();
+    if (executionState.getLastLogLineNr() != null) {
+      executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
+    }
+    return executionState;
+  }
+
   protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
     // Register sample rows collected on executors before updating parent/transform state
     registerSampleDataFromExecutors(iLocation);
 
-    ExecutionState executionState =
-        ExecutionStateBuilder.fromExecutor(SparkPipelineEngine.this, -1).build();
+    ExecutionState executionState = capturePipelineExecutionState();
     iLocation.updateExecutionState(executionState);
 
     // Transform Execution + state nodes under the parent pipeline (Beam does the same from workers;
@@ -789,8 +807,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       // Final sample flush from executors (after jobs complete, accumulator is fully merged)
       registerSampleDataFromExecutors(iLocation);
 
-      ExecutionState executionState =
-          ExecutionStateBuilder.fromExecutor(SparkPipelineEngine.this, -1).build();
+      ExecutionState executionState = capturePipelineExecutionState();
       iLocation.updateExecutionState(executionState);
 
       for (IEngineComponent component : getComponents()) {
