@@ -69,5 +69,9 @@ All core extension point IDs are defined as constants in the `org.apache.hop.cor
 == Concrete Codebase Examples
 
 * `engine/src/main/java/org/apache/hop/lineage/xp/LineageHubPipelineCompletedXp.java`: Emits lineage events upon pipeline completion.
-* `ui/src/main/java/org/apache/hop/ui/hopgui/HopGuiStartExtensionPoint.java`: Initializes components when the Hop GUI finishes starting.
-* `engine/src/main/java/org/apache/hop/pipeline/engine/PipelinePrepareExecutionExtensionPoint.java`: Hooks into pipeline preparation.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/notifications/NotificationSystemInitializer.java`: Initializes notifications on the `HopGuiStart` extension point.
+* `plugins/misc/projects/src/main/java/org/apache/hop/projects/xp/PipelineStartCheckProjectExtensionPoint.java`: Hooks `PipelinePrepareExecution` to check the active project.
+
+== See also
+
+* xref:plugin-types/execution-observability.adoc[Execution and observability]

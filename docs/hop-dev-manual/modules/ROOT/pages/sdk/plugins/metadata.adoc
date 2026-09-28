@@ -77,46 +77,10 @@ public class WebhookNotification extends HopMetadataBase implements IHopMetadata
 
 == 2. The GUI Metadata Editor (`*Editor`)
 
-Metadata editors extend `MetadataEditor<T>` and provide the UI inside the Metadata perspective:
-
-[source,java]
-----
-import org.apache.hop.ui.core.metadata.MetadataEditor;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.swt.widgets.Composite;
-
-public class WebhookNotificationEditor extends MetadataEditor<WebhookNotification> {
-
-  public WebhookNotificationEditor(HopGui hopGui, MetadataManager<WebhookNotification> manager,
-                                  WebhookNotification metadata) {
-    super(hopGui, manager, metadata);
-  }
-
-  @Override
-  public void createControl(Composite parent) {
-    // Build widgets using GuiCompositeWidgets or standard layout
-    GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(manager.getVariables());
-    compositeWidgets.createCompositeWidgets(
-        metadata, null, parent, WebhookNotification.GUI_PLUGIN_ELEMENT_PARENT_ID, null
-    );
-  }
-
-  @Override
-  public void setWidgetsContent() {
-    // Populate controls from getMetadata()
-  }
-
-  @Override
-  public void getWidgetsContent(WebhookNotification metadata) {
-    // Retrieve values from controls into metadata
-  }
-
-  @Override
-  public boolean hasChanged() {
-    return super.hasChanged();
-  }
-}
-----
+A metadata editor extends `MetadataEditor`.
+The editor creates the name field, and the other fields come from `@GuiWidgetElement` on the metadata class.
+Pass that name control into `createCompositeWidgets`.
+The worked example is xref:annotation-derived-widgets.adoc[Annotation derived widgets], under "Metadata editors".
 
 == 3. Selecting Metadata in Transform and Action Dialogs
 
@@ -132,22 +96,15 @@ MetaSelectionLine<WebhookNotification> wWebhook = new MetaSelectionLine<>(
 );
 wWebhook.fillItems();
 ----
-* Or declaratively in `GuiCompositeWidgets`:
-+
-[source,java]
-----
-@GuiWidgetElement(
-    id = "webhook",
-    type = GuiElementType.METADATA,
-    metadata = WebhookNotification.class,
-    label = "Webhook",
-    parentId = PARENT_ID
-)
-@HopMetadataProperty(key = "webhook")
-private String webhookName;
-----
+* Or annotate the field with `@GuiWidgetElement(type = GuiElementType.METADATA)`. The layout is xref:annotation-derived-widgets.adoc[Annotation derived widgets].
 
 == Concrete Codebase Examples
 
-* `engine/src/main/java/org/apache/hop/partition/PartitionSchema.java` & `ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java`: Standard in-tree metadata object with editor.
-* `plugins/metadata/sftp/src/main/java/org/apache/hop/vfs/sftp/metadata/SftpConnection.java`: Full-featured connection metadata element.
+* `engine/src/main/java/org/apache/hop/partition/PartitionSchema.java` and `ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java`: Standard in-tree metadata object with editor.
+* `plugins/tech/sftp/src/main/java/org/apache/hop/vfs/sftp/metadata/SftpConnection.java`: Connection metadata element.
+
+== See also
+
+* xref:metadata-plugins.adoc[Metadata plugins]
+* xref:metadata-serialization.adoc[Metadata serialization]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

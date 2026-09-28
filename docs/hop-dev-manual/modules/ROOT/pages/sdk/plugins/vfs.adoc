@@ -75,3 +75,7 @@ Because named schemes register in a shared process-wide Commons VFS manager, mis
 * `plugins/tech/azure/src/main/java/org/apache/hop/vfs/azure/AzureVfsPlugin.java`: Azure Blob and Data Lake Gen2 VFS provider.
 * `plugins/tech/google/src/main/java/org/apache/hop/vfs/gs/GoogleStorageVfsPlugin.java`: Google Cloud Storage (GCS) provider.
 * `plugins/tech/sftp/src/main/java/org/apache/hop/vfs/sftp/SftpVfsPlugin.java`: SFTP file system provider.
+
+== See also
+
+* xref:plugin-types/data-connectivity.adoc[Data and connectivity]

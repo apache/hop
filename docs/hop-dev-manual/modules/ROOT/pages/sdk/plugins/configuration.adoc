@@ -32,9 +32,10 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import picocli.CommandLine.Option;
 
 @ConfigPlugin(
@@ -71,8 +72,9 @@ public class CustomRunConfigPlugin implements IConfigOptions {
   }
 
   @Override
-  public boolean handleOption(ILogChannel log, IHopMetadataProvider metadataProvider,
-                              IVariables variables) {
+  public boolean handleOption(
+      ILogChannel log, IHasHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException {
     if (webhookUrl != null) {
       log.logBasic("Configured execution notification webhook: " + webhookUrl);
       // Return true if handled completely, or false to proceed with standard tool execution
@@ -95,5 +97,10 @@ public class CustomRunConfigPlugin implements IConfigOptions {
 
 == Concrete Codebase Examples
 
-* `plugins/misc/projects/src/main/java/org/apache/hop/projects/config/ProjectsConfigPlugin.java`: Adds project and environment switches (`-p`, `-e`) to `hop run` and `hop conf`.
+* `plugins/misc/projects/src/main/java/org/apache/hop/projects/project/ManageProjectsOptionPlugin.java`: Command-line project create and edit options, including `-p`.
 * `ui/src/main/java/org/apache/hop/ui/hopgui/search/config/SearchConfigPlugin.java`: Adds search configuration options to the CLI and the GUI settings dialog.
+
+== See also
+
+* xref:plugin-types/metadata-configuration.adoc[Metadata and configuration]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

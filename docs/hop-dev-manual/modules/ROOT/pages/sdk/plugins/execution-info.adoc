@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
@@ -107,6 +108,12 @@ public class CustomElasticExecutionInfoLocation implements IExecutionInfoLocatio
 }
 ----
 
+This sample is abbreviated.
+`IExecutionInfoLocation` declares further methods with no default, including `clone()`, the plugin id and name accessors, `clearCaches()`, `unBuffer(String)`, `deleteExecution(String)`, `getExecutionState(String, boolean)`, `getExecutionStateLoggingText(String, int)`, `getExecutionIds(boolean, int)`, and the `findExecutions` lookups.
+Read the interface before implementing a location.
+
+
+
 == Key Architectural Rules
 
 * **Implement Both Halves:** An execution location is both a writer (called continuously during runs) and a reader (queried by the GUI Execution perspective). Both halves, including child lookups (`findChildIds`), must be implemented for drill-down views to work.
@@ -116,5 +123,9 @@ public class CustomElasticExecutionInfoLocation implements IExecutionInfoLocatio
 == Concrete Codebase Examples
 
 * `engine/src/main/java/org/apache/hop/execution/local/FileExecutionInfoLocation.java`: Standard file-based execution telemetry storage.
-* `plugins/misc/execution-database/src/main/java/org/apache/hop/execution/rdbms/RdbmsExecutionInfoLocation.java`: Relational database execution storage.
-* `engine/src/main/java/org/apache/hop/execution/caching/CachingExecutionInfoLocation.java`: In-memory caching wrapper for execution telemetry.
+* `plugins/misc/execution-database/src/main/java/org/apache/hop/execution/database/CachingDatabaseExecutionInfoLocation.java`: Relational database execution storage.
+* `engine/src/main/java/org/apache/hop/execution/caching/CachingFileExecutionInfoLocation.java`: File-backed cache of execution telemetry.
+
+== See also
+
+* xref:plugin-types/execution-observability.adoc[Execution and observability]

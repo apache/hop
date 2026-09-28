@@ -27,11 +27,15 @@ Annotate your class with `@HopFileTypePlugin` and extend `HopFileTypeBase`:
 
 [source,java]
 ----
-import org.apache.hop.core.file.HopFileTypePlugin;
+import java.util.Properties;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
+import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 
 @HopFileTypePlugin(
     id = "CustomMarkdownFileType",
@@ -64,32 +68,40 @@ public class MarkdownFileType extends HopFileTypeBase implements IHopFileType {
   }
 
   @Override
-  public boolean hasCapability(HopFileTypeCapabilities capability) {
-    return switch (capability) {
-      case CAN_CREATE, CAN_SAVE, CAN_SAVE_AS, CAN_CLOSE -> true;
-      default -> false;
-    };
+  public Properties getCapabilities() {
+    Properties capabilities = new Properties();
+    capabilities.setProperty(IHopFileType.CAPABILITY_SAVE, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_SAVE_AS, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_CLOSE, "true");
+    return capabilities;
   }
 
   @Override
   public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
       throws HopException {
-    // Open file in appropriate perspective (e.g. Explorer perspective text viewer)
-    ExplorerPerspective explorer = ExplorerPerspective.getInstance();
-    return explorer.openFile(filename);
+    // Create the handler for this file and open it in the perspective that edits the type.
+    return new EmptyHopFileTypeHandler();
   }
 }
 ----
+
+`HopFileTypeBase.hasCapability(String)` reads that map.
+Capability names are the `CAPABILITY_*` constants on `IHopFileType`.
+Explorer file types build the same map with `FileTypeCapabilities.getCapabilities(String...)` in `org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities`.
 
 == Key Methods
 
 * `getFilterExtensions()`: String array of wildcard patterns (e.g., `{"*.parquet"}`).
 * `openFile(HopGui, String, IVariables)`: Instantiates or activates the appropriate editor or perspective tab.
-* `hasCapability(...)`: Informs the GUI whether the file supports operations like save, close, or creation.
+* `hasCapability(String)`: Informs the GUI whether the file supports an operation such as save, close, or creation.
 * `getContextHandlers()`: Provides custom actions in right-click context menus in the file explorer.
 
 == Concrete Codebase Examples
 
 * `ui/src/main/java/org/apache/hop/ui/hopgui/file/pipeline/HopPipelineFileType.java`: The core file type handling `.hpl` pipeline files.
-* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types/TextFileType.java`: Plain text file handler in the Explorer perspective.
-* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types/LogFileType.java`: Log viewer file type.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types/text/BaseTextExplorerFileType.java`: Plain text file handler in the Explorer perspective.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types/log/LogExplorerFileType.java`: Log viewer file type.
+
+== See also
+
+* xref:plugin-types/gui.adoc[GUI]

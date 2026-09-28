@@ -107,26 +107,16 @@ public class SearchLocationItem {
 
 == 3. Declarative Dialog Widgets (`@GuiWidgetElement`)
 
-Rather than hand-crafting SWT controls and attachment layouts, annotate fields on your Meta class:
-
-[source,java]
-----
-@GuiWidgetElement(
-    id = "field_name",
-    order = "0100",
-    type = GuiElementType.TEXT,
-    label = "i18n::MyTransform.Field.Label",
-    toolTip = "i18n::MyTransform.Field.Tooltip",
-    parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
-    groupType = GuiWidgetGroupType.BOXES,
-    group = "General Options"
-)
-@HopMetadataProperty
-private String targetField;
-----
+Annotate fields on the metadata class instead of laying out SWT controls by hand.
+Field types, groups, and the dialog `open()` recipe are xref:annotation-derived-widgets.adoc[Annotation derived widgets].
 
 == Concrete Codebase Examples
 
-* `ui/src/main/java/org/apache/hop/ui/hopgui/search/HopGuiSearchLocationToolbarItem.java`: Custom combo widget hosted on the main toolbar.
-* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/execution/ExecutionPerspectiveToolbarItem.java`: Execution perspective toolbar buttons.
-* `ui/src/main/java/org/apache/hop/ui/core/gui/GuiCompositeWidgets.java`: The engine that turns `@GuiWidgetElement` annotations into SWT interfaces.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/notifications/NotificationToolbarItem.java`: Toolbar button contributed with `@GuiToolbarElement`.
+* `ui/src/main/java/org/apache/hop/ui/core/gui/GuiCompositeWidgets.java`: Turns `@GuiWidgetElement` annotations into SWT controls.
+
+== See also
+
+* xref:plugin-types/gui.adoc[GUI]
+* xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

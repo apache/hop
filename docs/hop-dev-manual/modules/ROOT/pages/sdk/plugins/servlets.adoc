@@ -32,9 +32,9 @@ import org.apache.hop.www.BaseHttpServlet;
 import org.apache.hop.www.IHopServerPlugin;
 import org.apache.hop.www.PipelineMap;
 import org.apache.hop.www.WorkflowMap;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @HopServerServlet(
@@ -59,23 +59,23 @@ public class CustomHealthCheckServlet extends BaseHttpServlet implements IHopSer
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    if (isJettyMode() && !handleAuthentication(req, resp)) {
+    if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    resp.setContentType("application/json");
-    resp.setStatus(HttpServletResponse.SC_OK);
+    response.setContentType("application/json");
+    response.setStatus(HttpServletResponse.SC_OK);
 
-    int runningPipelines = getPipelineMap().getPipelines().size();
-    int runningWorkflows = getWorkflowMap().getWorkflows().size();
+    int runningPipelines = getPipelineMap().getPipelineObjects().size();
+    int runningWorkflows = getWorkflowMap().getWorkflowObjects().size();
 
     String json = String.format(
         "{\"status\":\"UP\",\"activePipelines\":%d,\"activeWorkflows\":%d}",
         runningPipelines, runningWorkflows
     );
-    resp.getWriter().write(json);
+    response.getWriter().write(json);
   }
 }
 ----
@@ -87,8 +87,9 @@ public class CustomHealthCheckServlet extends BaseHttpServlet implements IHopSer
 [WARNING]
 ====
 A servlet plugin adds to the attack surface of Hop Server.
-Always call `handleAuthentication(req, resp)` before processing requests, and validate all input parameters against path traversal and injection vulnerabilities.
-See `SECURITY.md` for Hop's server security model.
+Hop Server authenticates the caller.
+What the endpoint returns, and what it does with request parameters, is the plugin's responsibility.
+See xref:architecture/security.adoc[Security for developers].
 ====
 
 == Concrete Codebase Examples
@@ -96,3 +97,8 @@ See `SECURITY.md` for Hop's server security model.
 * `engine/src/main/java/org/apache/hop/www/GetPipelineStatusServlet.java`: Status report endpoint for running pipelines.
 * `engine/src/main/java/org/apache/hop/www/GetWorkflowStatusServlet.java`: Workflow status reporting servlet.
 * `engine/src/main/java/org/apache/hop/www/PrepareExecutionPipelineServlet.java`: Pipeline initialization and execution endpoint.
+
+== See also
+
+* xref:plugin-types/execution-observability.adoc[Execution and observability]
+* xref:architecture/security.adoc[Security for developers]

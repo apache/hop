@@ -107,51 +107,18 @@ public class ActionPingServer extends ActionBase implements IAction {
 
 == 2. The GUI Dialog (`ActionFooDialog`)
 
-The dialog is automatically discovered by convention (`ActionFoo` -> `ActionFooDialog`):
-
-[source,java]
-----
-public class ActionPingServerDialog extends ActionBaseDialog implements IActionDialog {
-  private final ActionPingServer action;
-
-  public ActionPingServerDialog(Shell parent, ActionPingServer action,
-                                WorkflowMeta workflowMeta, IVariables variables) {
-    super(parent, action, workflowMeta, variables);
-    this.action = action;
-  }
-
-  @Override
-  public IAction open() {
-    Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, action);
-
-    // Build buttons and metadata widgets
-    Button[] buttons = buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
-
-    GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(variables);
-    GuiCompositeWidgets.addScrolledComposite(
-        shell, variables, wActionName, buttons[0],
-        ActionPingServer.GUI_PLUGIN_ELEMENT_PARENT_ID, action
-    );
-
-    getData();
-    BaseDialog.defaultHandleControl(shell, wActionName, e -> ok(), e -> cancel());
-    return action;
-  }
-
-  private void ok() {
-    action.setName(wActionName.getText());
-    compositeWidgets.getWidgetsContents(action, ActionPingServer.GUI_PLUGIN_ELEMENT_PARENT_ID);
-    action.setChanged();
-    dispose();
-  }
-}
-----
+The dialog extends `ActionDialog`.
+The name field is `wName`.
+Annotate the action fields and build the dialog the same way as a transform.
+See xref:annotation-derived-widgets.adoc[Annotation derived widgets], under "Transform and action dialogs".
 
 == Concrete Codebase Examples
 
 * `plugins/actions/eval`: Evaluates expressions with conditional success/failure.
 * `plugins/actions/deletefile`: File deletion using `HopVfs`.
-* `plugins/actions/mail`: Comprehensive action with email notifications, attachments, and authentication.
+* `plugins/misc/mail/src/main/java/org/apache/hop/mail/workflow/actions/mail/ActionMail.java`: Email notifications, attachments, and authentication.
+
+== See also
+
+* xref:plugin-types/pipeline-workflow.adoc[Pipelines and workflows]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

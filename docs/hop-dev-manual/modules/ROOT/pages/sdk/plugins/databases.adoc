@@ -107,5 +107,10 @@ public class CustomDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
 == Concrete Codebase Examples
 
-* `plugins/databases/postgres/src/main/java/org/apache/hop/databases/postgres/PostgreSqlDatabaseMeta.java`: Comprehensive relational dialect implementation.
+* `plugins/databases/postgresql/src/main/java/org/apache/hop/databases/postgresql/PostgreSqlDatabaseMeta.java`: Comprehensive relational dialect implementation.
 * `plugins/databases/duckdb/src/main/java/org/apache/hop/databases/duckdb/DuckDBDatabaseMeta.java`: Embedded file-based database dialect.
+
+== See also
+
+* xref:database/index.adoc[Database plugins]
+* xref:database/creating-a-dialect.adoc[Creating a dialect]

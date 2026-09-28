@@ -43,7 +43,6 @@ String filename = "/path/to/my-pipeline.hpl";
 PipelineMeta pipelineMeta = new PipelineMeta(
     filename,
     metadataProvider, // IHopMetadataProvider (e.g. JsonMetadataProvider)
-    true,             // set internal variables (such as _PROJECT_NAME_, etc.)
     variables         // parent variable space
 );
 ----
@@ -58,7 +57,6 @@ try (InputStream inputStream = HopVfs.getInputStream("s3://bucket/my-pipeline.hp
   PipelineMeta pipelineMeta = new PipelineMeta(
       inputStream,
       metadataProvider,
-      true,
       variables
   );
 }
@@ -165,7 +163,7 @@ rowProducer.putRow(rowMeta, new Object[] {1L, "Alice"});
 rowProducer.putRow(rowMeta, new Object[] {2L, "Bob"});
 
 // Signal that all rows have been fed into the transform
-rowProducer.setFinished();
+rowProducer.finished();
 
 // Await pipeline termination
 localPipeline.waitUntilFinished();

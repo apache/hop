@@ -127,13 +127,13 @@ Like pipeline engines, workflow engines are created via the `WorkflowEngineFacto
 [source,java]
 ----
 import org.apache.hop.core.Result;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
-ILogChannel log = new LogChannel("WorkflowRunner");
+// The factory parent is an ILoggingObject. LogChannel implements ILogChannel only.
+ILoggingObject loggingObject = new LoggingObject("WorkflowRunner");
 
 // Create the workflow engine using the "local" run configuration
 IWorkflowEngine<WorkflowMeta> workflowEngine = WorkflowEngineFactory.createWorkflowEngine(
@@ -141,7 +141,7 @@ IWorkflowEngine<WorkflowMeta> workflowEngine = WorkflowEngineFactory.createWorkf
     "local",           // Name of the Workflow Run Configuration metadata
     metadataProvider,  // Metadata provider containing the configuration
     workflowMeta,
-    log                // Parent logging channel
+    loggingObject      // Parent logging object
 );
 
 // Execute the workflow synchronously

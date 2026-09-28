@@ -92,4 +92,9 @@ public class ValueMetaUuid extends ValueMetaBase implements IValueMeta {
 == Concrete Codebase Examples
 
 * `core/src/main/java/org/apache/hop/core/row/value/ValueMetaString.java`: Core string value metadata implementation.
-* `plugins/valuetypes/json/src/main/java/org/apache/hop/core/row/value/ValueMetaJson.java`: Pluggable JSON value type.
+* `core/src/main/java/org/apache/hop/core/row/value/ValueMetaJson.java`: JSON value metadata. JSON is a core value type, not a plugin under `plugins/valuetypes`.
+
+== See also
+
+* xref:value-types.adoc[Value types]
+* xref:plugin-types/data-connectivity.adoc[Data and connectivity]

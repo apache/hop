@@ -106,7 +106,7 @@ CustomConnection loaded = serializer.load("AnalyticsServer");
 List<String> names = serializer.listObjectNames();
 
 // 5. Load All Objects
-List<CustomConnection> allConnections = serializer.findAll();
+List<CustomConnection> allConnections = serializer.loadAll();
 
 // 6. Delete
 serializer.delete("AnalyticsServer");
@@ -157,16 +157,19 @@ serializer.save(new CustomConnection("TestConn", "localhost", 8080, "test-key"))
 
 === 3. MultiMetadataProvider (Hierarchical / Layered)
 Delegates across multiple metadata providers.
-Hop uses `MultiMetadataProvider` to combine project-specific metadata with global shared metadata (and optional memory overrides):
+Hop uses `MultiMetadataProvider` to combine project-specific metadata with global shared metadata.
+Lookups walk the list from the end, so the **last** provider that has an object wins.
+A save that does not name a provider writes to that same last provider.
+Put parent or shared providers first and the project provider last.
+A provider added after the project overrides the project on read and becomes the save target.
 
 [source,java]
 ----
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 List<IHopMetadataProvider> providers = List.of(
-    projectJsonProvider,   // Primary provider: saves default here
-    sharedGlobalProvider,  // Secondary provider: read-only fallback
-    memoryProvider         // Ephemeral overrides
+    sharedGlobalProvider, // Earlier: used when no later provider has this name
+    projectJsonProvider   // Last: wins on read and receives default saves
 );
 
 MultiMetadataProvider multiProvider = new MultiMetadataProvider(
@@ -175,10 +178,10 @@ MultiMetadataProvider multiProvider = new MultiMetadataProvider(
     variables
 );
 
-// Reading searches through providers in order:
+// Load walks backwards. The project provider is checked before the shared one.
 CustomConnection conn = multiProvider.getSerializer(CustomConnection.class).load("CentralDb");
 
-// Writing saves to the first provider in the list by default:
+// Save with no metadata provider name on the object writes to the last provider.
 multiProvider.getSerializer(CustomConnection.class).save(newConnection);
 ----
 
@@ -188,7 +191,7 @@ This is used by Hop clients to bundle and transmit project metadata across netwo
 
 [source,java]
 ----
-import org.apache.hop.metadata.serializer.json.SerializableMetadataProvider;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 
 // Serialize all metadata in a provider into a JSON string:
 SerializableMetadataProvider serializableProvider =
@@ -264,4 +267,5 @@ public class MyTransformMeta extends BaseTransformMeta<MyTransform, MyTransformD
 }
 ----
 
-When `GuiCompositeWidgets.addScrolledComposite()` renders this group, it automatically instantiates and wires a `MetaSelectionLine<CustomConnection>` without requiring hand-coded SWT attachments!
+When `GuiCompositeWidgets.addScrolledComposite()` renders this group, it instantiates and wires a `MetaSelectionLine<CustomConnection>`.
+The dialog layout around that call is xref:annotation-derived-widgets.adoc[Annotation derived widgets].

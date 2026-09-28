@@ -32,9 +32,12 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import java.util.Collections;
+import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 @HopPerspectivePlugin(
     id = "300-CustomPerspective",             // Numeric prefix dictates sidebar icon order
@@ -88,6 +91,11 @@ public class CustomPerspective implements IHopPerspective {
   }
 
   @Override
+  public Control getControl() {
+    return composite;
+  }
+
+  @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
     return Collections.emptyList();
   }
@@ -97,6 +105,12 @@ public class CustomPerspective implements IHopPerspective {
   }
 }
 ----
+
+This sample is abbreviated.
+`IHopPerspective` has more methods, and most of them have defaults.
+The methods without a default are `getId()`, `activate()`, `perspectiveActivated()`, `isActive()`, `initialize(HopGui, Composite)`, and `getControl()`.
+
+
 
 == Key Architectural Rules
 
@@ -112,4 +126,8 @@ Always guard public methods and singleton accessors with an `isInitialized()` ch
 
 * `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/ExplorerPerspective.java`: File browser and viewer workbench.
 * `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/execution/ExecutionPerspective.java`: Pipeline and workflow execution monitoring perspective.
-* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/configuration/ConfigPerspective.java`: Project and system configuration perspective.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/configuration/ConfigurationPerspective.java`: Project and system configuration perspective.
+
+== See also
+
+* xref:plugin-types/gui.adoc[GUI]

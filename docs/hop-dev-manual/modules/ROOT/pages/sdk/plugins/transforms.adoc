@@ -184,62 +184,16 @@ public class CustomFilterData extends BaseTransformData {
 
 == 4. The GUI Dialog (`FooDialog`)
 
-[TIP]
-====
-**Follow the Dialog Recipe:**
-Do not hand-layout raw `FormAttachment` rows on the shell.
-Use annotated metadata widgets (`@GuiWidgetElement`) combined with a grouped `GuiCompositeWidgets` container.
-====
-
-[source,java]
-----
-public class CustomFilterDialog extends BaseTransformDialog {
-  private final CustomFilterMeta input;
-
-  public CustomFilterDialog(Shell parent, IVariables variables,
-                            CustomFilterMeta transformMeta, PipelineMeta pipelineMeta) {
-    super(parent, variables, transformMeta, pipelineMeta);
-    this.input = transformMeta;
-  }
-
-  @Override
-  public String open() {
-    Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "CustomFilterDialog.Shell.Title"));
-
-    // Build standard button bar at bottom
-    Button[] buttons = buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
-
-    // Create scrolled composite for metadata widgets
-    GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(variables);
-    GuiCompositeWidgets.addScrolledComposite(
-        shell, variables, wTransformName, buttons[0],
-        CustomFilterMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, input
-    );
-
-    getData();
-    BaseDialog.defaultHandleControl(shell, wTransformName, e -> ok(), e -> cancel());
-    return transformName;
-  }
-
-  private void ok() {
-    transformName = wTransformName.getText();
-    compositeWidgets.getWidgetsContents(input, CustomFilterMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-    input.setChanged();
-    dispose();
-  }
-}
-----
+The dialog extends `BaseTransformDialog`.
+Annotate the metadata fields with `@GuiWidgetElement` and build them with `GuiCompositeWidgets`.
+The `open()` recipe is xref:annotation-derived-widgets.adoc[Annotation derived widgets], under "Transform and action dialogs".
 
 == Concrete Codebase Examples
 
 * `plugins/transforms/detectemptystream`: Minimal transform example.
 * `plugins/transforms/coalesce`: Modern transform demonstrating field mapping, annotations, and unit tests.
+
+== See also
+
+* xref:plugin-types/pipeline-workflow.adoc[Pipelines and workflows]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

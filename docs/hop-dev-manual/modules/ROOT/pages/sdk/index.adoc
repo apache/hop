@@ -54,13 +54,13 @@ To embed Hop in your Java application, include the core and engine artifacts in 
 </dependencies>
 ----
 
-If your application interacts with the Hop GUI or needs to instantiate UI dialogs and widgets, also include `hop-ui-swt`:
+If your application interacts with the Hop GUI or needs to instantiate UI dialogs and widgets, also include `hop-ui`:
 
 [source,xml]
 ----
 <dependency>
   <groupId>org.apache.hop</groupId>
-  <artifactId>hop-ui-swt</artifactId>
+  <artifactId>hop-ui</artifactId>
   <version>${hop.version}</version>
 </dependency>
 ----
@@ -102,7 +102,7 @@ When running the Hop GUI or Hop Web, `HopGuiEnvironment` initializes UI-specific
 
 [source,java]
 ----
-import org.apache.hop.ui.core.gui.HopGuiEnvironment;
+import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 
 HopGuiEnvironment.init();
 ----

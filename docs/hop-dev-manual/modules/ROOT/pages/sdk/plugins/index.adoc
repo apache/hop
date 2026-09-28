@@ -61,8 +61,7 @@ In the Hop codebase, plugins are organized under `plugins/` by category:
 * `plugins/transforms`: Pipeline transforms
 * `plugins/actions`: Workflow actions
 * `plugins/databases`: Database dialects
-* `plugins/tech`: Technology bundles (AWS, Azure, Google, Neo4j, etc.)
-* `plugins/vfs`: Virtual File System providers
+* `plugins/tech`: Technology bundles (AWS, Azure, Google, Neo4j, and the VFS providers)
 * `plugins/valuetypes`: Custom row data types
 * `plugins/resolvers`: Variable resolvers
 * `plugins/misc`: Miscellaneous plugins
@@ -141,3 +140,9 @@ Explore the dedicated development guides below for each plugin type:
 |`@ExecutionInfoLocationPlugin`
 |xref:sdk/plugins/execution-info.adoc[Execution Information Locations] — Storing runtime metrics and logs.
 |===
+
+== See also
+
+* xref:plugin-development.adoc[How plugins work]
+* xref:plugin-types/index.adoc[Plugin types] — every plugin type, including the ones this guide does not walk through.
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]
