@@ -67,7 +67,7 @@
         <icu4j.version>78.3</icu4j.version>
         <jackcess.version>4.0.11</jackcess.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
-        <jackson.version>2.21.5</jackson.version>
+        <jackson.version>2.21.6</jackson.version>
         <jakarta-activation-api.version>2.1.4</jakarta-activation-api.version>
         <jakarta-annotation-api.version>3.0.0</jakarta-annotation-api.version>
         <jakarta-jms-api.version>3.1.0</jakarta-jms-api.version>
