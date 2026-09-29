@@ -1,0 +1,115 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Named VFS connection to a git repository at a branch, tag or commit
+:page-marketplace: hop-tech-git-vfs
+
+= Git repository
+
+== Description
+
+This metadata type checks a git repository out at a branch, tag or commit and serves that working copy as a named VFS location.
+The connection name is the URL scheme, for example `ops:///workflows/daily.hwf`.
+
+The repository URL, the revision and the credentials stay in the connection.
+They are applied when the repository is fetched, and they are never written into the file URI.
+
+This plugin is installed from the marketplace (`hop-tech-git-vfs`).
+It is separate from the xref:metadata-types/git-connection.adoc[Git Connection], which talks to a hosting provider's REST API.
+
+== Options
+
+=== Repository
+
+|===
+|Option |Description
+
+|Name
+|VFS scheme: `name:///path`
+
+|Description
+|Optional
+
+|Repository URL
+|HTTPS, SSH, `git://`, or a path on this machine. For example `https://github.com/apache/hop.git` or `git@github.com:apache/hop.git`
+
+|Branch, tag or commit
+|For example `main`, `v2.20.0` or a full commit id. Empty uses the remote's default branch. A commit id is the revision a deployment should name, because a branch can move
+
+|Base path
+|A folder inside the repository to serve as the root. With a base path of `workflows`, `ops:///daily.hwf` is the repository file `workflows/daily.hwf`. Empty is the root of the repository
+
+|Test connection
+|Asks the remote which branches and tags it has, using the values currently in the dialog
+|===
+
+=== Authentication
+
+|===
+|Option |Description
+
+|Authentication
+|`NONE` for a public repository, `USERNAME_PASSWORD` for HTTPS (the password is often a personal access token), `DEPLOY_KEY` for an SSH private key that belongs to this repository
+
+|User name / Password
+|HTTPS basic authentication. Shown for `USERNAME_PASSWORD`
+
+|Deploy key
+|Private key file in OpenSSH or PKCS#8 form. Shown for `DEPLOY_KEY`
+
+|Key passphrase
+|Empty when the key has none
+
+|SSH user
+|Empty takes the user from the repository URL. A deploy key is normally the user `git`
+
+|Known hosts
+|A `known_hosts` file. Empty uses `'~/.ssh/known_hosts'`
+
+|Accept unknown host keys
+|Connect when the server's host key is not known. A fresh container has no `known_hosts`. Leave this off when the host key can be supplied
+|===
+
+=== Advanced
+
+|===
+|Option |Description
+
+|Checkout folder
+|Where the working copy is kept. Empty uses a folder under the system temporary directory, which suits a container and is a poor choice for a long-running server. The folder is keyed by the URL, the revision and the base path, so two connections do not share a checkout
+
+|Fetch on every use
+|Fetch again the first time the connection is used in a run. Leave this off for a deployment: a revision that does not change is already the checkout on disk. Turn it on while a branch is moving
+
+|Maximum checkout age (minutes)
+|Fetch again once a checkout is older than this. Applies when *Fetch on every use* is off. Empty never fetches on age alone
+
+|Read only
+|Refuse writes. A write only changes the working copy: nothing is committed and nothing is pushed. On by default
+
+|Timeout (seconds)
+|How long to wait for the remote. Empty uses the JGit default
+|===
+
+== Tips
+
+* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `name:///`.
+* From File - Open, type `ChosenName:///` and list the repository.
+* Give the connection a short functional name. Do not name it `git`, `file`, `http` or another existing VFS scheme.
+* The `.git` directory of the working copy is hidden from file dialogs.
+* A second read of the same revision reuses the checkout. Change the revision, turn on *Fetch on every use*, or set a maximum age to see a newer commit.

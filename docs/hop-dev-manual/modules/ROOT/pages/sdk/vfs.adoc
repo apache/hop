@@ -198,6 +198,10 @@ Hop supports standard VFS schemes out of the box, with additional schemes provid
 |FTP and Secure FTP (SSH)
 |`plugins/tech/ftp`, `plugins/tech/sftp`
 
+|`<connection>://`
+|Git repository checked out at a branch, tag or commit
+|xref:{page-component-version}@manual::vfs/git-vfs.adoc[Git VFS]
+
 |`zip:` / `gz:` / `tar:`
 |Compressed archives
 |Apache Commons VFS core
