@@ -29,9 +29,7 @@ The Split Fields To Rows transform splits a row containing a delimited field int
 
 The original row is not delivered to following transforms.
 
-The original field is left in each new row to assist in debugging or error handling.
-
-It can be removed via a xref:pipeline/transforms/selectvalues.adoc[Select Values] transform if needed.
+By default the original field is left in each new row to assist in debugging or error handling. Enable *Exclude field to split from output* to drop that field from the output rows. It can also be removed with a xref:pipeline/transforms/selectvalues.adoc[Select Values] transform.
 
 The original field must be a string field.
 
@@ -50,6 +48,7 @@ If the value type/format of the new row is not specified, the new field will use
 |Option|Description
 |Transform name|Name of the transform.
 |Field to split|The field you want to split.
+|Exclude field to split from output|When enabled, the field to split is removed from each output row. The split values are still written to the new field. Disabled by default, so existing pipelines keep the original field.
 |Delimiter|The delimiter or separator used.
 Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
 |Enclosure|Optional enclosure string. Delimiters inside a pair of enclosure characters are not treated as split points, and the enclosure characters are removed from the output values.

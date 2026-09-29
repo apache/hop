@@ -28,12 +28,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -50,6 +52,8 @@ class SplitFieldToRowsTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private TransformMockHelper<SplitFieldToRowsMeta, SplitFieldToRowsData> transformMockHelper;
+
+  private IRowMeta lastOutputRowMeta;
 
   @BeforeAll
   static void initHop() throws Exception {
@@ -199,6 +203,57 @@ class SplitFieldToRowsTest {
     assertEquals(3L, rows.get(2)[2]);
   }
 
+  @Test
+  void keepsSurroundingFieldsAndAppendsSplitValue() throws Exception {
+    SplitFieldToRowsMeta meta = createMeta(",", null, false);
+    List<Object[]> rows =
+        executeSplit(meta, row("id", "csv", "name"), new Object[] {"1", "a,b", "n"}, Map.of());
+
+    assertEquals(List.of("1", "a,b", "n", "a"), prefix(rows.get(0), 4));
+    assertEquals(List.of("1", "a,b", "n", "b"), prefix(rows.get(1), 4));
+    assertEquals(List.of("id", "csv", "name", "value"), fieldNames());
+  }
+
+  @Test
+  void excludesSplitFieldFromOutput() throws Exception {
+    SplitFieldToRowsMeta meta = createMeta(",", null, false);
+    meta.setExcludeSplitField(true);
+    List<Object[]> rows =
+        executeSplit(meta, row("id", "csv", "name"), new Object[] {"1", "a,b", "n"}, Map.of());
+
+    assertEquals(List.of("1", "n", "a"), prefix(rows.get(0), 3));
+    assertEquals(List.of("1", "n", "b"), prefix(rows.get(1), 3));
+    assertEquals(List.of("id", "name", "value"), fieldNames());
+  }
+
+  @Test
+  void excludesSplitFieldAndKeepsRowNumbers() throws Exception {
+    SplitFieldToRowsMeta meta = createMeta(",", null, false);
+    meta.setExcludeSplitField(true);
+    meta.setIncludeRowNumber(true);
+    meta.setRowNumberField("rowNr");
+    meta.setResetRowNumber(true);
+    List<Object[]> rows =
+        executeSplit(meta, row("id", "csv", "name"), new Object[] {"1", "a,b", "n"}, Map.of());
+
+    assertEquals(List.of("1", "n", "a", 1L), prefix(rows.get(0), 4));
+    assertEquals(List.of("1", "n", "b", 2L), prefix(rows.get(1), 4));
+    assertEquals(List.of("id", "name", "value", "rowNr"), fieldNames());
+  }
+
+  @Test
+  void excludesSplitFieldResolvedFromVariable() throws Exception {
+    SplitFieldToRowsMeta meta = createMeta(",", null, false);
+    meta.setSplitField("${COL}");
+    meta.setExcludeSplitField(true);
+    List<Object[]> rows =
+        executeSplit(meta, row("id", "csv"), new Object[] {"1", "a,b"}, Map.of("COL", "csv"));
+
+    assertEquals(List.of("1", "a"), prefix(rows.get(0), 2));
+    assertEquals(List.of("1", "b"), prefix(rows.get(1), 2));
+    assertEquals(List.of("id", "value"), fieldNames());
+  }
+
   private List<Object[]> executeSplit(
       String value, String delimiter, String enclosure, boolean delimiterIsRegex) throws Exception {
     return executeSplit(createMeta(delimiter, enclosure, delimiterIsRegex), value);
@@ -210,6 +265,12 @@ class SplitFieldToRowsTest {
 
   private List<Object[]> executeSplit(
       SplitFieldToRowsMeta meta, String value, Map<String, String> variables) throws Exception {
+    return executeSplit(meta, row("csv"), new Object[] {value}, variables);
+  }
+
+  private List<Object[]> executeSplit(
+      SplitFieldToRowsMeta meta, RowMeta input, Object[] inputRow, Map<String, String> variables)
+      throws Exception {
     SplitFieldToRowsData data = new SplitFieldToRowsData();
     when(transformMockHelper.transformMeta.getTransform()).thenReturn(meta);
 
@@ -224,25 +285,40 @@ class SplitFieldToRowsTest {
     variables.forEach(transform::setVariable);
     transform.init();
 
-    RowMeta input = new RowMeta();
-    input.addValueMeta(new ValueMetaString("csv"));
     transform.setInputRowMeta(input);
 
     BlockingRowSet output = new BlockingRowSet(20);
     transform.setOutputRowSets(Collections.singletonList(output));
 
     SplitFieldToRows spyTransform = spy(transform);
-    doReturn(new Object[] {value}).doReturn(null).when(spyTransform).getRow();
+    doReturn(inputRow).doReturn(null).when(spyTransform).getRow();
 
     assertTrue(spyTransform.processRow());
     assertFalse(spyTransform.processRow());
 
+    lastOutputRowMeta = data.outputRowMeta;
     List<Object[]> result = new ArrayList<>();
     Object[] row;
     while ((row = output.getRowImmediate()) != null) {
       result.add(row);
     }
     return result;
+  }
+
+  private static RowMeta row(String... names) {
+    RowMeta input = new RowMeta();
+    for (String name : names) {
+      input.addValueMeta(new ValueMetaString(name));
+    }
+    return input;
+  }
+
+  private static List<Object> prefix(Object[] row, int size) {
+    return Arrays.asList(row).subList(0, size);
+  }
+
+  private List<String> fieldNames() {
+    return List.of(lastOutputRowMeta.getFieldNames());
   }
 
   private static SplitFieldToRowsMeta createMeta(

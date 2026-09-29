@@ -101,13 +101,17 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       data.rownr = 1L;
     }
 
+    Object[] baseRow = rowData;
+    if (meta.isExcludeSplitField()) {
+      baseRow = RowDataUtil.removeItem(rowData, data.fieldnr);
+    }
+    int newFieldIndex = data.outputRowMeta.size() - (meta.isIncludeRowNumber() ? 2 : 1);
     String[] splitStrings = splitSource(originalString);
     for (String string : splitStrings) {
-      Object[] outputRow = RowDataUtil.createResizedCopy(rowData, data.outputRowMeta.size());
-      outputRow[rowMeta.size()] = string;
-      // Include row number in output?
+      Object[] outputRow = RowDataUtil.createResizedCopy(baseRow, data.outputRowMeta.size());
+      outputRow[newFieldIndex] = string;
       if (meta.isIncludeRowNumber()) {
-        outputRow[rowMeta.size() + 1] = data.rownr;
+        outputRow[newFieldIndex + 1] = data.rownr;
       }
       putRow(data.outputRowMeta, outputRow);
       data.rownr++;

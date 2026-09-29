@@ -17,12 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -50,7 +57,8 @@ class SplitFieldToRowsMetaTest {
             "includeRowNumber",
             "rowNumberField",
             "resetRowNumber",
-            "delimiterRegex");
+            "delimiterRegex",
+            "excludeSplitField");
 
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put("includeRowNumber", "isIncludeRowNumber");
@@ -72,5 +80,86 @@ class SplitFieldToRowsMetaTest {
             new HashMap<>());
 
     loadSaveTester.testSerialization();
+  }
+
+  @Test
+  void getFieldsKeepsSplitFieldByDefault() throws Exception {
+    SplitFieldToRowsMeta meta = meta("licenses_string", "licenses");
+
+    IRowMeta row = inputRow();
+    meta.getFields(row, "split", null, null, new Variables(), null);
+
+    assertEquals(List.of("id", "licenses_string", "name", "licenses"), names(row));
+  }
+
+  @Test
+  void getFieldsRemovesSplitFieldWhenExcluded() throws Exception {
+    SplitFieldToRowsMeta meta = meta("licenses_string", "licenses");
+    meta.setExcludeSplitField(true);
+
+    IRowMeta row = inputRow();
+    meta.getFields(row, "split", null, null, new Variables(), null);
+
+    assertEquals(List.of("id", "name", "licenses"), names(row));
+    assertTrue(row.searchValueMeta("licenses").isString());
+  }
+
+  @Test
+  void getFieldsRemovesSplitFieldResolvedFromVariable() throws Exception {
+    SplitFieldToRowsMeta meta = meta("${FIELD}", "licenses");
+    meta.setExcludeSplitField(true);
+    Variables variables = new Variables();
+    variables.setVariable("FIELD", "licenses_string");
+
+    IRowMeta row = inputRow();
+    meta.getFields(row, "split", null, null, variables, null);
+
+    assertEquals(List.of("id", "name", "licenses"), names(row));
+  }
+
+  @Test
+  void getFieldsLeavesOtherFieldsWhenSplitFieldIsMissing() throws Exception {
+    SplitFieldToRowsMeta meta = meta("missing", "licenses");
+    meta.setExcludeSplitField(true);
+
+    IRowMeta row = inputRow();
+    meta.getFields(row, "split", null, null, new Variables(), null);
+
+    assertEquals(List.of("id", "licenses_string", "name", "licenses"), names(row));
+  }
+
+  @Test
+  void getFieldsAppendsRowNumberAfterRemovingSplitField() throws Exception {
+    SplitFieldToRowsMeta meta = meta("licenses_string", "licenses");
+    meta.setExcludeSplitField(true);
+    meta.setIncludeRowNumber(true);
+    meta.setRowNumberField("${NR}");
+    Variables variables = new Variables();
+    variables.setVariable("NR", "nr");
+
+    IRowMeta row = inputRow();
+    meta.getFields(row, "split", null, null, variables, null);
+
+    assertEquals(List.of("id", "name", "licenses", "nr"), names(row));
+    assertTrue(row.searchValueMeta("nr").isInteger());
+  }
+
+  private static SplitFieldToRowsMeta meta(String splitField, String newFieldname) {
+    SplitFieldToRowsMeta meta = new SplitFieldToRowsMeta();
+    meta.setSplitField(splitField);
+    meta.setNewFieldname(newFieldname);
+    return meta;
+  }
+
+  private static IRowMeta inputRow() {
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("id"));
+    row.addValueMeta(new ValueMetaString("licenses_string"));
+    row.addValueMeta(new ValueMetaString("name"));
+    return row;
+  }
+
+  private static List<String> names(IRowMeta row) {
+    return List.of(row.getFieldNames());
   }
 }
