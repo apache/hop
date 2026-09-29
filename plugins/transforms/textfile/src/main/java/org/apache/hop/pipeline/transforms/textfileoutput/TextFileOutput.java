@@ -588,7 +588,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
               e);
         }
       }
-      if (length > string.length()) {
+      if (length > string.length() && !meta.getFileSettings().isDoNotPadFields()) {
         // we need to pad this
 
         // not all encoding use single characters, so we need to cope

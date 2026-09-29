@@ -160,6 +160,17 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         injectionKeyDescription = "TextFileOutput.Injection.RIGHT_PAD_FIELDS")
     private boolean padded;
 
+    /**
+     * Skip padding fields with spaces up to their length. Absent from saved transforms, so those
+     * keep padding. A new transform enables it.
+     */
+    @HopMetadataProperty(
+        key = "do_not_right_pad",
+        defaultBoolean = false,
+        injectionKey = "DO_NOT_RIGHT_PAD_FIELDS",
+        injectionKeyDescription = "TextFileOutput.Injection.DO_NOT_RIGHT_PAD_FIELDS")
+    private boolean doNotPadFields;
+
     /** Flag: Fast dump data without field formatting */
     @HopMetadataProperty(
         key = "fast_dump",
@@ -187,6 +198,8 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       dateInFilename = false;
       timeInFilename = false;
       padded = false;
+      // New transforms do not right-pad. Saved transforms omit the flag and keep padding.
+      doNotPadFields = true;
       fastDump = false;
       addToResultFiles = true;
       fileAppended = false;
@@ -203,6 +216,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       this.fileAppended = f.fileAppended;
       this.fileName = f.fileName;
       this.padded = f.padded;
+      this.doNotPadFields = f.doNotPadFields;
       this.partNrInFilename = f.partNrInFilename;
       this.specifyingFormat = f.specifyingFormat;
       this.splitEveryRows = f.splitEveryRows;
@@ -451,16 +465,14 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         v.setDecimalSymbol(field.getDecimalSymbol());
         v.setGroupingSymbol(field.getGroupingSymbol());
         v.setCurrencySymbol(field.getCurrencySymbol());
-        v.setOutputPaddingEnabled(getFileSettings().isPadded());
         v.setTrimType(field.getTrimType());
         v.setRoundingType(field.getRoundingType());
         if (!Utils.isEmpty(getEncoding())) {
           v.setStringEncoding(getEncoding());
         }
 
-        // enable output padding by default to be compatible with v2.5.x
-        //
-        v.setOutputPaddingEnabled(true);
+        // v2.5.x compatibility pads unless "Do not right-pad fields" is enabled.
+        v.setOutputPaddingEnabled(!getFileSettings().isDoNotPadFields());
       }
     }
   }

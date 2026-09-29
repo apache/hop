@@ -37,7 +37,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -177,6 +179,50 @@ class TextFileOutputMetaTest {
   }
 
   @Test
+  void newTransformDoesNotRightPadAndRoundTrips() throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    assertTrue(meta.getFileSettings().isDoNotPadFields());
+
+    String xml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(meta)
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    assertTrue(xml.contains("<do_not_right_pad>Y</do_not_right_pad>"));
+
+    TextFileOutputMeta copy = new TextFileOutputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        TextFileOutputMeta.class,
+        copy,
+        new MemoryMetadataProvider());
+    assertTrue(copy.getFileSettings().isDoNotPadFields());
+  }
+
+  @Test
+  void outputPaddingFollowsDoNotRightPadFields() throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    TextFileField field = new TextFileField();
+    field.setName("name");
+    field.setType(IValueMeta.TYPE_STRING);
+    field.setLength(10);
+    meta.getOutputFields().add(field);
+
+    meta.getFileSettings().setDoNotPadFields(false);
+    RowMeta legacy = new RowMeta();
+    legacy.addValueMeta(new ValueMetaString("name"));
+    meta.getFields(legacy, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertTrue(legacy.getValueMeta(0).isOutputPaddingEnabled());
+    assertEquals(10, legacy.getValueMeta(0).getLength());
+
+    meta.getFileSettings().setDoNotPadFields(true);
+    meta.getFileSettings().setPadded(true);
+    RowMeta noPad = new RowMeta();
+    noPad.addValueMeta(new ValueMetaString("name"));
+    meta.getFields(noPad, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertFalse(noPad.getValueMeta(0).isOutputPaddingEnabled());
+  }
+
+  @Test
   void testLoadSave() throws Exception {
     Path path =
         Paths.get(Objects.requireNonNull(getClass().getResource("/text-file-output.xml")).toURI());
@@ -235,6 +281,8 @@ class TextFileOutputMetaTest {
     assertTrue(StringUtils.isEmpty(meta.getFileSettings().getDateTimeFormat()));
     assertTrue(meta.getFileSettings().isAddToResultFiles());
     assertFalse(meta.getFileSettings().isPadded());
+    // The fixture predates the option, so loading it keeps the legacy padding.
+    assertFalse(meta.getFileSettings().isDoNotPadFields());
     assertTrue(meta.getFileSettings().isFastDump());
     assertEquals("0", meta.getFileSettings().getSplitEveryRows());
 

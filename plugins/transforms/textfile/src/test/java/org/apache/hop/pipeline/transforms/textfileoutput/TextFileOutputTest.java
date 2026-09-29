@@ -830,6 +830,53 @@ class TextFileOutputTest {
   }
 
   @Test
+  void doNotRightPadFieldsSkipsTrailingSpaces() throws Exception {
+    assertEquals("abc       ", writeStringField("abc", 10, false, false));
+    assertEquals("abc       ", writeStringField("abc", 10, false, true));
+    assertEquals("abc", writeStringField("abc", 10, true, false));
+    assertEquals("abc", writeStringField("abc", 10, true, true));
+    assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, false, false));
+    assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, true, false));
+  }
+
+  private String writeStringField(String value, int length, boolean doNotPad, boolean rightPad)
+      throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    meta.setEncoding(Const.UTF_8);
+    meta.setSeparator("");
+    meta.setEnclosure("");
+    meta.setEnclosureForced(false);
+    meta.setEnclosureFixDisabled(true);
+    meta.getFileSettings().setDoNotPadFields(doNotPad);
+    meta.getFileSettings().setPadded(rightPad);
+
+    TextFileOutputData data = new TextFileOutputData();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    data.writer = baos;
+    data.binarySeparator = new byte[0];
+    data.binaryEnclosure = new byte[0];
+    data.binaryNewline = "\n".getBytes(StandardCharsets.UTF_8);
+
+    ValueMetaString valueMeta = new ValueMetaString("name");
+    valueMeta.setLength(length);
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(valueMeta);
+
+    TextFileOutput transform =
+        new TextFileOutput(
+            transformMockHelper.transformMeta,
+            meta,
+            data,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    transform.writeRow(rowMeta, new Object[] {value});
+    String written = baos.toString(StandardCharsets.UTF_8);
+    assertTrue(written.endsWith("\n"), written);
+    return written.substring(0, written.length() - 1);
+  }
+
+  @Test
   void testFastDumpDisableStreamEncodeTest() throws Exception {
 
     String testString = "ÖÜä";

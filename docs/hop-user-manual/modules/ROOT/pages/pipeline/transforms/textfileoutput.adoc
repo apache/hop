@@ -27,7 +27,8 @@ The Text File Output transform is used to export data to text file format.
 
 This is commonly used to generate Comma Separated Values (CSV files) that can be read by spreadsheet applications.
 
-It is also possible to generate fixed width files by setting lengths on the fields in the fields tab.
+It is also possible to generate fixed width files by setting lengths on the fields in the fields tab and leaving *Do not right-pad fields* unchecked, so short values are padded out to those lengths.
+A new transform checks that option and writes the value as it is, while still cutting a value that is longer than its length.
 
 You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually. If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
@@ -98,6 +99,11 @@ To use Unicode specify UTF-8 or UTF-16.
 
 Note: Only one file is placed in a single compressed archive.
 |Right pad fields|Add spaces to the end of the fields (or remove characters at the end) until they have the length specific on the Fields tab.
+|Do not right-pad fields|Do not add spaces to the end of fields to reach the length on the Fields tab.
+Values that are longer than that length are still shortened.
+Saved transforms leave this unchecked, so they keep padding.
+A new transform checks it.
+Uncheck it when the file must be fixed width.
 |Fast data dump (no formatting)|Improves the performance when dumping large amounts of data to a text file by not including any formatting information.
 Field formats are ignored, so a Boolean is written as `true` or `false`.
 |Split every ... rows|Specify a number of rows to split the file into chunks of that many rows. 

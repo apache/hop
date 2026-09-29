@@ -129,6 +129,8 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
   private Button wPad;
 
+  private Button wDoNotPadFields;
+
   private Button wFastDump;
 
   private Label wlSplitEvery;
@@ -888,12 +890,40 @@ public class TextFileOutputDialog extends BaseTransformDialog {
           }
         });
 
+    Label wlDoNotPadFields = new Label(wContentComp, SWT.RIGHT);
+    wlDoNotPadFields.setText(
+        BaseMessages.getString(PKG, "TextFileOutputDialog.DoNotPadFields.Label"));
+    wlDoNotPadFields.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileOutputDialog.DoNotPadFields.Tooltip"));
+    PropsUi.setLook(wlDoNotPadFields);
+    FormData fdlDoNotPadFields = new FormData();
+    fdlDoNotPadFields.left = new FormAttachment(0, 0);
+    fdlDoNotPadFields.top = new FormAttachment(wPad, margin);
+    fdlDoNotPadFields.right = new FormAttachment(middle, -margin);
+    wlDoNotPadFields.setLayoutData(fdlDoNotPadFields);
+    wDoNotPadFields = new Button(wContentComp, SWT.CHECK);
+    wDoNotPadFields.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileOutputDialog.DoNotPadFields.Tooltip"));
+    PropsUi.setLook(wDoNotPadFields);
+    FormData fdDoNotPadFields = new FormData();
+    fdDoNotPadFields.left = new FormAttachment(middle, 0);
+    fdDoNotPadFields.top = new FormAttachment(wlDoNotPadFields, 0, SWT.CENTER);
+    fdDoNotPadFields.right = new FormAttachment(100, 0);
+    wDoNotPadFields.setLayoutData(fdDoNotPadFields);
+    wDoNotPadFields.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+
     Label wlFastDump = new Label(wContentComp, SWT.RIGHT);
     wlFastDump.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.FastDump.Label"));
     PropsUi.setLook(wlFastDump);
     FormData fdlFastDump = new FormData();
     fdlFastDump.left = new FormAttachment(0, 0);
-    fdlFastDump.top = new FormAttachment(wPad, margin);
+    fdlFastDump.top = new FormAttachment(wDoNotPadFields, margin);
     fdlFastDump.right = new FormAttachment(middle, -margin);
     wlFastDump.setLayoutData(fdlFastDump);
     wFastDump = new Button(wContentComp, SWT.CHECK);
@@ -1436,6 +1466,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wAddTransformNr.setSelection(input.getFileSettings().isTransformNrInFilename());
     wAddPartnr.setSelection(input.getFileSettings().isPartNrInFilename());
     wPad.setSelection(input.getFileSettings().isPadded());
+    wDoNotPadFields.setSelection(input.getFileSettings().isDoNotPadFields());
     wFastDump.setSelection(input.getFileSettings().isFastDump());
     wAddToResult.setSelection(input.getFileSettings().isAddToResultFiles());
 
@@ -1508,6 +1539,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     tfoi.getFileSettings().setDateTimeFormat(wDateTimeFormat.getText());
     tfoi.getFileSettings().setSpecifyingFormat(wSpecifyFormat.getSelection());
     tfoi.getFileSettings().setPadded(wPad.getSelection());
+    tfoi.getFileSettings().setDoNotPadFields(wDoNotPadFields.getSelection());
     tfoi.getFileSettings().setAddToResultFiles(wAddToResult.getSelection());
     tfoi.getFileSettings().setFastDump(wFastDump.getSelection());
 
