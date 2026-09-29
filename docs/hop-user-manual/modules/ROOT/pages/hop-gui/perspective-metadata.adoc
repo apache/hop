@@ -37,6 +37,7 @@ image::hop-gui/perspective-data-orchestration-left-hand-tree.png[The left-hand t
 === Managing elements
 
 You can right-click on any element to edit, rename, duplicate or delete an element.  You can also use this menu to create new elements.
+Duplicating an element that is stored in a parent project asks which metadata folder should receive the copy. The active project is selected by default, so the copy is not written next to the original and shared with every project that inherits it.
 To create a new element you can also double-click on the element type itself.
 You can also use the toolbar icons in the toolbar located right above the metadata tree.
 

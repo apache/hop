@@ -17,6 +17,7 @@
 
 package org.apache.hop.metadata.serializer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -72,20 +73,37 @@ public final class MetadataGuiFlows {
    * Duplicating an element in the metadata perspective: {@code
    * MetadataPerspective.duplicateMetadata()}.
    *
+   * <p>The copy is a new object of the active project (the last metadata provider). That is the
+   * place the duplicate dialog selects by default when the original belongs to a parent project.
+   * Pass a provider description to save the copy there instead.
+   *
+   * @param targetProviderName provider to save the copy in, or null for the active project
    * @return the name of the copy
    */
   public static <T extends IHopMetadata> String duplicate(
-      IHopMetadataSerializer<T> serializer, String name) throws HopException {
+      IHopMetadataSerializer<T> serializer, String name, String targetProviderName)
+      throws HopException {
     T metadata = serializer.load(name);
     int copyNr = 2;
     while (true) {
       String newName = name + " " + copyNr;
       if (!serializer.exists(newName)) {
         metadata.setName(newName);
+        metadata.setMetadataProviderName(
+            StringUtils.isEmpty(targetProviderName) ? null : targetProviderName);
         serializer.save(metadata);
         return newName;
       }
       copyNr++;
     }
+  }
+
+  /**
+   * @return the name of the copy, saved in the active project
+   * @see #duplicate(IHopMetadataSerializer, String, String)
+   */
+  public static <T extends IHopMetadata> String duplicate(
+      IHopMetadataSerializer<T> serializer, String name) throws HopException {
+    return duplicate(serializer, name, null);
   }
 }

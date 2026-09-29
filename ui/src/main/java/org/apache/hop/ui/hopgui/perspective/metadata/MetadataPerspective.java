@@ -70,6 +70,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.DetailsDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -2291,11 +2292,34 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
         IHopMetadata metadata = manager.loadElement(objectName);
 
+        String targetProviderName = metadata.getMetadataProviderName();
+        List<String> providerChoices =
+            HopMetadataUtil.duplicateProviderChoices(
+                hopGui.getMetadataProvider(), targetProviderName);
+        if (!providerChoices.isEmpty()) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  getShell(),
+                  providerChoices.toArray(new String[0]),
+                  BaseMessages.getString(
+                      PKG, "MetadataPerspective.DuplicateMetadata.SelectProvider.Title"),
+                  BaseMessages.getString(
+                      PKG,
+                      "MetadataPerspective.DuplicateMetadata.SelectProvider.Message",
+                      objectName));
+          String chosen = dialog.open(0);
+          if (chosen == null) {
+            return;
+          }
+          targetProviderName = chosen;
+        }
+
         int copyNr = 2;
         while (true) {
           String newName = objectName + " " + copyNr;
           if (!manager.getSerializer().exists(newName)) {
             metadata.setName(newName);
+            metadata.setMetadataProviderName(targetProviderName);
             manager.getSerializer().save(metadata);
             break;
           } else {
