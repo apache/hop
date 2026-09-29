@@ -180,6 +180,8 @@ public class KettleConst {
                 // Text File Input deprecated
                 {"TextFileInput", "TextFileInput2"},
                 {"HTTP", "Http"},
+                // Pentaho's Kafka Consumer step id. The older key is kept for files that used it.
+                {"KafkaConsumerInput", "KafkaConsumer"},
                 {"KettleKafkaConsumerInput", "KafkaConsumer"},
                 {"PentahoGoogleSheetsPluginOutputMeta", "GoogleSheetsOutput"},
                 {"PentahoGoogleSheetsPluginInputMeta", "GoogleSheetsInput"}
