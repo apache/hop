@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
+import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestUtil;
 
 public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsData> {
@@ -119,8 +120,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
           data.tests = new ArrayList<>();
           for (String testName : testSerializer.listObjectNames()) {
             PipelineUnitTest pipelineUnitTest = testSerializer.load(testName);
-            if (meta.getTypeToExecute() == null
-                || meta.getTypeToExecute() == pipelineUnitTest.getType()) {
+            if (DataSetConst.matchesTestType(meta.getTypeToExecute(), pipelineUnitTest.getType())) {
               data.tests.add(pipelineUnitTest);
             }
           }

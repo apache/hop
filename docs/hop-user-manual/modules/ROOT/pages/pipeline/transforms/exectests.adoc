@@ -33,7 +33,7 @@ The Execute unit tests transform fetches and executes the available xref:pipelin
 |Transform name|name for this transform
 |Test name input field|name of a field to get the unit test name from to determine which transforms to execute.
 This option is only available when the transform receives input.
-|Type of tests to run|Development or Unit Test
+|Type of tests to run|Development, Unit test, or a custom type from the project. Only unit tests of that type are executed. The list includes every type already used in the project.
 |Pipeline output field name|the pipeline that is tested
 |Unit test output field name|the unit test that is executed
 |Data set output field name|the (golden) data set used for this test

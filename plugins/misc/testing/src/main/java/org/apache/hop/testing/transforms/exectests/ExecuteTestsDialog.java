@@ -145,7 +145,9 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlTypeToExecute.top = new FormAttachment(lastControl, margin);
     wlTypeToExecute.setLayoutData(fdlTypeToExecute);
     wTypeToExecute = new Combo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTypeToExecute.setItems(DataSetConst.getTestTypeDescriptions());
+    wTypeToExecute.setItems(DataSetConst.getTestTypeDescriptions(metadataProvider));
+    wTypeToExecute.setToolTipText(
+        BaseMessages.getString(PKG, "ExecuteTestsDialog.TypeToExecute.Tooltip"));
     PropsUi.setLook(wTypeToExecute);
     FormData fdTypeToExecute = new FormData();
     fdTypeToExecute.left = new FormAttachment(middle, 0);
