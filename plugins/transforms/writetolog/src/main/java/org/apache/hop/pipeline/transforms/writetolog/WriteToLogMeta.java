@@ -26,6 +26,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -46,23 +50,66 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::WriteToLog.Keyword",
     documentationUrl = "/pipeline/transforms/writetolog.html")
+@GuiPlugin
 @Getter
 @Setter
 public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class;
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "WRITE_TO_LOG_DIALOG_OPTIONS";
+
+  public static final String GROUP_OPTIONS = "i18n::WriteToLog.Tab.Options";
+  public static final String GROUP_OPTIONS_ORDER = "0100";
+  public static final String GROUP_MESSAGE = "i18n::WriteToLog.Tab.Message";
+  public static final String GROUP_MESSAGE_ORDER = "0200";
+
+  public static final String WIDGET_LOG_LEVEL = "logLevel";
+  public static final String WIDGET_DISPLAY_HEADER = "displayHeader";
+  public static final String WIDGET_LIMIT_ROWS = "limitRows";
+  public static final String WIDGET_LIMIT_ROWS_NUMBER = "limitRowsNumber";
+
+  @GuiWidgetElement(
+      id = WIDGET_DISPLAY_HEADER,
+      order = "0200",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::WriteToLogMeta.DisplayHeader.Label",
+      toolTip = "i18n::WriteToLogMeta.DisplayHeader.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = GROUP_OPTIONS_ORDER)
   @HopMetadataProperty(
       key = "displayHeader",
       injectionKey = "DISPLAY_HEADER",
       injectionKeyDescription = "WriteToLogMeta.Injection.DisplayHeader")
   private boolean displayHeader;
 
+  @GuiWidgetElement(
+      id = WIDGET_LIMIT_ROWS,
+      order = "0300",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::WriteToLogMeta.LimitRows.Label",
+      toolTip = "i18n::WriteToLogMeta.LimitRows.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = GROUP_OPTIONS_ORDER)
   @HopMetadataProperty(
       key = "limitRows",
       injectionKey = "LIMIT_ROWS",
       injectionKeyDescription = "WriteToLogMeta.Injection.LimitRows")
   private boolean limitRows;
 
+  @GuiWidgetElement(
+      id = WIDGET_LIMIT_ROWS_NUMBER,
+      order = "0400",
+      type = GuiElementType.TEXT,
+      label = "i18n::WriteToLogMeta.LimitRowsNumber.Label",
+      toolTip = "i18n::WriteToLogMeta.LimitRowsNumber.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_OPTIONS,
+      groupOrder = GROUP_OPTIONS_ORDER)
   @HopMetadataProperty(
       key = "limitRowsNumber",
       injectionKey = "LIMIT_ROWS_NUMBER",

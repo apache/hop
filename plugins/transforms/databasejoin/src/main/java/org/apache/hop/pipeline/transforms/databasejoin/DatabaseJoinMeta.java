@@ -34,6 +34,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -66,20 +70,70 @@ import org.apache.hop.pipeline.transform.TransformMeta;
       ActionTransformType.LOOKUP,
       ActionTransformType.JOIN
     })
+@GuiPlugin
 public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class;
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DATABASE_JOIN_DIALOG_OPTIONS";
+
+  public static final String GROUP_CONNECTION = "i18n::DatabaseJoin.Tab.Connection";
+  public static final String GROUP_CONNECTION_ORDER = "0100";
+  public static final String GROUP_SQL = "i18n::DatabaseJoin.Tab.Sql";
+  public static final String GROUP_SQL_ORDER = "0200";
+  public static final String GROUP_PARAMETERS = "i18n::DatabaseJoin.Tab.Parameters";
+  public static final String GROUP_PARAMETERS_ORDER = "0300";
+
+  public static final String WIDGET_CONNECTION = "connection";
+  public static final String WIDGET_CACHED = "cached";
+  public static final String WIDGET_CACHE_SIZE = "cacheSize";
+  public static final String WIDGET_SQL_FROM_FILE = "sqlFromFile";
+  public static final String WIDGET_BROWSE_SQL_FILE = "browseSqlFromFile";
+  public static final String WIDGET_ROW_LIMIT = "rowLimit";
+  public static final String WIDGET_OUTER_JOIN = "outerJoin";
+  public static final String WIDGET_REPLACE_VARIABLES = "replaceVariables";
+
+  @GuiWidgetElement(
+      id = WIDGET_CONNECTION,
+      order = "0100",
+      type = GuiElementType.METADATA,
+      metadata = DatabaseMeta.class,
+      label = "i18n::DatabaseJoinMeta.Connection.Label",
+      toolTip = "i18n::DatabaseJoinMeta.Connection.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CONNECTION,
+      groupOrder = GROUP_CONNECTION_ORDER)
   @HopMetadataProperty(
       key = "connection",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
+  @GuiWidgetElement(
+      id = WIDGET_CACHED,
+      order = "0200",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::DatabaseJoinMeta.Cached.Label",
+      toolTip = "i18n::DatabaseJoinMeta.Cached.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CONNECTION,
+      groupOrder = GROUP_CONNECTION_ORDER)
   @HopMetadataProperty(key = "cache", injectionKeyDescription = "DatabaseJoinMeta.Injection.Cache")
   private boolean cached;
 
   /** Limit the cache size to this! */
+  @GuiWidgetElement(
+      id = WIDGET_CACHE_SIZE,
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::DatabaseJoinMeta.CacheSize.Label",
+      toolTip = "i18n::DatabaseJoinMeta.CacheSize.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CONNECTION,
+      groupOrder = GROUP_CONNECTION_ORDER)
   @HopMetadataProperty(
       key = "cache_size",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.CacheSize")
@@ -95,13 +149,52 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   /**
    * When set, SQL is loaded from this file (VFS path, supports variables). SQL editor is read-only.
    */
+  @GuiWidgetElement(
+      id = WIDGET_SQL_FROM_FILE,
+      order = "0100",
+      type = GuiElementType.TEXT,
+      label = "i18n::DatabaseJoinMeta.SqlFromFile.Label",
+      toolTip = "i18n::DatabaseJoinMeta.SqlFromFile.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_SQL,
+      groupOrder = GROUP_SQL_ORDER)
   @HopMetadataProperty(
       key = "sql_from_file",
       injectionKey = "SQL_FROM_FILE",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.SqlFromFile")
   private String sqlFromFile;
 
+  /**
+   * Annotated so the SQL tab shows a Browse button. The file dialog is opened from {@code
+   * DatabaseJoinDialog} so it can load the file into the SQL editor and mark the editor read-only,
+   * and so it can run on the transform dialog shell.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_BROWSE_SQL_FILE,
+      order = "0200",
+      type = GuiElementType.BUTTON,
+      label = "i18n::DatabaseJoinMeta.BrowseSqlFromFile.Label",
+      toolTip = "i18n::DatabaseJoinMeta.BrowseSqlFromFile.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_SQL,
+      groupOrder = GROUP_SQL_ORDER)
+  public void browseSqlFromFile(Object object) {
+    // no-op: DatabaseJoinDialog.browseSqlFromFile() handles the click
+  }
+
   /** Number of rows to return (0=ALL) */
+  @GuiWidgetElement(
+      id = WIDGET_ROW_LIMIT,
+      order = "0300",
+      type = GuiElementType.TEXT,
+      label = "i18n::DatabaseJoinMeta.RowLimit.Label",
+      toolTip = "i18n::DatabaseJoinMeta.RowLimit.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_SQL,
+      groupOrder = GROUP_SQL_ORDER)
   @HopMetadataProperty(
       key = "rowlimit",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.RowLimit")
@@ -111,6 +204,16 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
    * false: don't return rows where nothing is found true: at least return one source row, the rest
    * is NULL
    */
+  @GuiWidgetElement(
+      id = WIDGET_OUTER_JOIN,
+      order = "0400",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::DatabaseJoinMeta.OuterJoin.Label",
+      toolTip = "i18n::DatabaseJoinMeta.OuterJoin.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_SQL,
+      groupOrder = GROUP_SQL_ORDER)
   @HopMetadataProperty(
       key = "outer_join",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.OuterJoin")
@@ -125,6 +228,16 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   private List<ParameterField> parameters = new ArrayList<>();
 
   /** false: don't replace variable in script true: replace variable in script */
+  @GuiWidgetElement(
+      id = WIDGET_REPLACE_VARIABLES,
+      order = "0500",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::DatabaseJoinMeta.ReplaceVariables.Label",
+      toolTip = "i18n::DatabaseJoinMeta.ReplaceVariables.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_SQL,
+      groupOrder = GROUP_SQL_ORDER)
   @HopMetadataProperty(
       key = "replace_vars",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.ReplaceVariables")
