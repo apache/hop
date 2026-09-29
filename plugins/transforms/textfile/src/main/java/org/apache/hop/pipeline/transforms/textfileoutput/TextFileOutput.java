@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -289,15 +288,19 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     return filename;
   }
 
+  /**
+   * Milliseconds between flushes when {@link Const#HOP_FILE_OUTPUT_MAX_STREAM_LIFE} is unset or not
+   * a positive number. A few seconds, so slow input shows up without waiting for the buffer to
+   * fill.
+   */
+  static final int DEFAULT_FILE_FLUSH_INTERVAL_MS = 5000;
+
   public int getFlushInterval() {
-    String maxStreamLife = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_LIFE");
-    int flushInterval = 0;
-    if (maxStreamLife != null) {
-      try {
-        flushInterval = Integer.parseInt(maxStreamLife);
-      } catch (Exception ex) {
-        // Do nothing
-      }
+    String maxStreamLife = variables.getVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE);
+    int flushInterval = Const.toInt(maxStreamLife, DEFAULT_FILE_FLUSH_INTERVAL_MS);
+    // 0 is the historical default and means "not configured".
+    if (flushInterval <= 0) {
+      return DEFAULT_FILE_FLUSH_INTERVAL_MS;
     }
     return flushInterval;
   }
@@ -388,16 +391,16 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
 
       int flushInterval = getFlushInterval();
       if (flushInterval > 0) {
-        long currentTime = new Date().getTime();
+        long currentTime = currentFlushTimeMillis();
         if (data.lastFileFlushTime == 0) {
           data.lastFileFlushTime = currentTime;
-        } else if (data.lastFileFlushTime - currentTime > flushInterval) {
+        } else if (currentTime - data.lastFileFlushTime > flushInterval) {
           try {
             data.getFileStreamsCollection().flushOpenFiles(false);
           } catch (IOException e) {
             throw new HopException("Unable to flush open files", e);
           }
-          data.lastFileFlushTime = new Date().getTime();
+          data.lastFileFlushTime = currentTime;
         }
       }
       return true;
@@ -450,6 +453,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       setOutputDone();
       return false;
     }
+  }
+
+  /** Clock for the file-flush interval. Tests advance this instead of sleeping. */
+  protected long currentFlushTimeMillis() {
+    return System.currentTimeMillis();
   }
 
   public void flushOpenFiles(boolean closeAfterFlush) throws IOException {
@@ -525,6 +533,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       }
 
       incrementLinesOutput();
+      markCurrentFileDirty();
 
     } catch (Exception e) {
       throw new HopTransformException("Error writing line", e);
@@ -732,6 +741,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       if (sLine != null && !sLine.trim().isEmpty()) {
         data.writer.write(getBinaryString(sLine));
         incrementLinesOutput();
+        markCurrentFileDirty();
       }
     } catch (Exception e) {
       logError("Error writing ended tag line: " + e.toString());
@@ -810,7 +820,33 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       retval = true;
     }
     incrementLinesOutput();
+    markCurrentFileDirty();
     return retval;
+  }
+
+  /**
+   * An interval flush clears the dirty flag. Later rows still land in the buffer, so the flag has
+   * to be set again or the next flush is skipped.
+   */
+  private void markCurrentFileDirty() {
+    if (data.writer == null) {
+      return;
+    }
+    TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+    if (coll == null) {
+      return;
+    }
+    TextFileOutputData.FileStream last = coll.getLastStream();
+    if (last != null && last.getBufferedOutputStream() == data.writer) {
+      last.setDirty(true);
+      return;
+    }
+    coll.forEachOpenStream(
+        stream -> {
+          if (stream.getBufferedOutputStream() == data.writer) {
+            stream.setDirty(true);
+          }
+        });
   }
 
   public String buildFilename(String filename, boolean ziparchive) {

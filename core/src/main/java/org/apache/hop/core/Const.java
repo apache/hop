@@ -811,13 +811,13 @@ public class Const {
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_COUNT = "HOP_FILE_OUTPUT_MAX_STREAM_COUNT";
 
   /**
-   * This variable contains the number of milliseconds between flushes of all open files in the Text
-   * File Output transform.
+   * Milliseconds between flushes of all open files in the Text File Output transform. {@code 0}
+   * selects the transform default of 5000.
    */
   @Variable(
-      value = "0",
+      value = "5000",
       description =
-          "This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.")
+          "This project variable is used by the Text File Output transform. It defines how many milliseconds to wait between flushes of files opened by the transform. Output is buffered, so slow input stays invisible until the buffer fills or the file is closed. The default is 5000 (5 seconds). A value of 0 uses that default. Set a positive number of milliseconds to change the interval.")
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_LIFE = "HOP_FILE_OUTPUT_MAX_STREAM_LIFE";
 
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */

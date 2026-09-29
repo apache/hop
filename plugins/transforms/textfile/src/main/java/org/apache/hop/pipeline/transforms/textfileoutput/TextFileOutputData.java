@@ -126,13 +126,18 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     }
 
     public void flush() throws IOException {
-      if (isDirty) {
+      if (isDirty && getBufferedOutputStream() != null) {
         getBufferedOutputStream().flush();
         isDirty = false;
       }
     }
 
     public void close() throws IOException {
+      // Flush even when the dirty flag was cleared. Otherwise bytes written after the last
+      // interval flush are dropped when the buffer is discarded below.
+      if (getBufferedOutputStream() != null) {
+        getBufferedOutputStream().flush();
+      }
       setBufferedOutputStream(null);
       getCompressedOutputStream().close();
       setCompressedOutputStream(null);
