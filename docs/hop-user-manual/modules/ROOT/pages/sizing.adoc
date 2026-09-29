@@ -1,0 +1,259 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[SizingGuide]]
+:description: How to size Apache Hop for a small device, a data engineer workstation, and a big-data engine such as Spark.
+
+= Sizing Apache Hop
+
+Hop does not reserve a fixed amount of memory or disk for a pipeline.
+What you need depends on which tool you start, which plugins you keep, and whether a transform holds rows or passes them through.
+
+xref:installation-configuration.adoc[Installation and configuration] is the floor for a default client: Java 21, one CPU core and 4 GB of RAM.
+This page is the next step.
+It covers a stripped `hop-run` on a small device, a workstation for day-to-day design, and batch pipelines that run on Spark or Beam.
+
+== What uses memory and disk
+
+The launch scripts set a maximum heap of 2 GB when `HOP_OPTIONS` is empty (`-Xmx2048m` in `hop-gui`, `hop-run` and `hop-server`).
+That flag is a ceiling.
+The JVM does not allocate 2 GB at startup.
+Metaspace, thread stacks and mapped jars sit outside the heap, so the process is always larger than the heap you set.
+Set `HOP_OPTIONS` in the environment when you want a different ceiling.
+That value replaces the default in the scripts.
+xref:installation-configuration.adoc#JvmMemorySettings[JVM memory settings] shows the values the scripts accept.
+
+On the local engine, rows stream from one transform to the next.
+Each hop buffers up to the row set size, ten thousand rows by default (`Row set size` on the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[local pipeline engine], or the variable `HOP_PIPELINE_ROWSET_SIZE`).
+A streaming pipeline's heap follows the width of one row times that buffer, not the size of the source, unless a transform accumulates.
+
+These transforms do keep data:
+
+* xref:pipeline/transforms/memgroupby.adoc[Memory Group By] keeps every group in memory.
+* xref:pipeline/transforms/sort.adoc[Sort rows] keeps a batch in memory and then spills to the sort directory.
+  Leave free disk there for large sorts.
+* xref:pipeline/transforms/databaselookup.adoc[Database lookup] with a cache, and especially *Load all data from table*, keeps lookup rows in memory.
+  A cache size of 0 means the whole table.
+* xref:pipeline/transforms/streamlookup.adoc[Stream lookup] keeps the lookup stream in memory.
+* xref:pipeline/transforms/jsoninput.adoc[JSON input] parses each file into a document before it emits rows.
+  Size the heap for the largest file, not for one output row.
+* xref:pipeline/transforms/excelinput.adoc[Excel input] loads a workbook when you use the default spreadsheet type.
+  *Excel XLSX (Streaming)* is the low-memory choice for large `.xlsx` files.
+* xref:pipeline/transforms/rest.adoc[REST client] holds the current response body in a field.
+  One request is sent per input row.
+
+The default `local` run configuration also records execution information with the `first-last` data profile (the first and last 100 rows of each transform).
+xref:hop-server/index.adoc[Hop Server] keeps log lines in memory until you set `HOP_SERVER_MAX_LOG_LINES` and `HOP_SERVER_MAX_LOG_TIMEOUT`.
+The default for both is unlimited.
+See the xref:docker-container.adoc[Docker] page for those variables.
+
+Disk for the client itself is the unzipped tree: `lib/core`, `lib/jdbc`, `lib/swt` and `plugins/`.
+`lib/core` is on the classpath of every tool.
+Do not delete individual jars from it.
+`lib/jdbc` is the shared JDBC folder (about 30 MB in a current client) and is only needed for databases you actually use.
+`lib/swt` ships a copy for each operating system (about 15 MB together, a few MB for one).
+`hop-run` puts the current operating system's SWT jars on the classpath and does not open a window.
+Every other folder under `plugins/` is optional.
+Removing a plugin that a pipeline or workflow still references makes that run fail at startup.
+See xref:best-practices/index.adoc[Best practices] (*Remove unused plugins*).
+
+== Edge nodes
+
+Use `hop-run` for a device that only executes a pipeline.
+You do not need Hop Gui, a display, or the plugins you are not calling.
+
+=== Worked example
+
+The example pipeline has two transforms.
+xref:pipeline/transforms/jsoninput.adoc[JSON input] reads a file of objects.
+xref:pipeline/transforms/rest.adoc[REST client] POSTs one field from each row to an HTTP endpoint.
+It was run with the default `local` run configuration (`hop-run -j default -r local`) on Linux x86_64 and Java 21.
+
+These plugins had to stay:
+
+* `plugins/transforms/json`
+* `plugins/transforms/rest`
+* `plugins/misc/rest` (REST client settings, shared with the REST transform)
+* `plugins/misc/projects` (so `-j` / `--project` can load the `local` run configuration)
+
+Every other folder under `plugins/` was removed.
+`lib/core` and the Linux SWT jars stayed.
+`lib/jdbc` was left out because the pipeline uses no database.
+
+Repeat the check on the release you deploy.
+Plugin jars move between versions.
+`du -sm` on the install tree and `hop-run` with a small file will tell you if the floor moved.
+
+=== Measured footprint
+
+[options="header",cols="2,1,1"]
+|===
+|Layout |Disk |Notes
+
+|Client archive
+|about 365 MB
+|Compressed zip of the client.
+
+|Client, unpacked
+|about 440 MB
+|`lib/` about 240 MB, `plugins/` about 190 MB.
+
+|`lib/core`
+|about 200 MB
+|Shared classpath. Keep it.
+
+|`plugins/transforms/script`
+|about 120 MB
+|Largest single plugin folder in that client. Safe to remove when you do not script.
+
+|Stripped JSON-to-REST layout
+|about 215 MB
+|`lib/core`, Linux SWT, and the four plugin folders above.
+|===
+
+Resident set of that `hop-run` (RSS, not just the heap):
+
+[options="header",cols="2,1,1,1"]
+|===
+|Run |Smallest heap that finished |Heap that failed |Resident set
+
+|20 small JSON objects
+|`-Xmx32m`
+|`-Xmx24m`
+|about 200 MB
+
+|20,000 objects, 4.6 MB file
+|`-Xmx48m`
+|not measured below 48 MB
+|about 270 MB
+
+|Same 20-row pipeline, all client plugins still installed
+|`-Xmx64m`
+|`-Xmx32m`
+|about 290 MB at 64 MB heap, about 400 MB at 512 MB heap
+|===
+
+The 4.6 MB file still fitted in a 48 MB heap because the rows were small and were sent on immediately.
+A wide or deeply nested document is larger in memory than it is on disk.
+Raise the heap for the biggest file you will parse, then leave a margin.
+
+=== What to plan for
+
+[options="header",cols="1,2"]
+|===
+|Resource |Plan
+
+|Disk
+|512 MB free on the device.
+The stripped tree was about 215 MB.
+The rest is the JSON you read, the audit folder, and a later plugin you did not think of yet.
+
+|Memory
+|512 MB of RAM for the process and the operating system.
+Set `HOP_OPTIONS` to `-Xmx128m`.
+32 MB of heap was enough for the tiny file and is too tight for a real document.
+
+|CPU
+|One core.
+The local engine uses one thread per transform copy, and this pipeline has two transforms.
+
+|Display
+|None.
+`hop-run` does not open a window.
+
+|Network
+|Enough bandwidth for the REST calls.
+This pipeline sends one request per row, so latency dominates once the files are small.
+|===
+
+== A data engineer workstation
+
+Designing pipelines in Hop Gui is a different budget from the edge layout.
+The GUI, the full plugin set and a 2 GB heap are the normal case.
+The xref:installation-configuration.adoc[installation] floor (one core, 4 GB of RAM) still runs that client.
+A machine you work on all day should sit above the floor.
+
+[options="header",cols="1,2"]
+|===
+|Resource |Plan
+
+|Memory
+|8 GB of RAM.
+That fits the default 2 GB heap, metaspace, the operating system, and a browser or a database tool.
+Raise `HOP_OPTIONS` (for example `-Xmx4g`) when a sort, a lookup cache, a JSON file or an Excel sheet runs out of heap.
+Do not raise it to hide a transform that is holding the whole data set.
+Stream, or spill to disk, instead.
+
+|CPU
+|4 cores.
+Each transform copy is a thread, and the GUI needs time while a pipeline is running.
+One core is the floor and will feel stuck as soon as several transforms are busy.
+
+|Disk
+|A few gigabytes free.
+The unpacked client is under 1 GB.
+Keep room for a second Hop version side by side, JDBC drivers, project files, logs and sort spills.
+An SSD matters once sorts spill.
+
+|Network
+|Low latency to the databases you query row by row.
+xref:pipeline/transforms/databaselookup.adoc[Database lookup] and xref:pipeline/transforms/databasejoin.adoc[Database join] wait on a round trip per row (or per cached miss).
+Bulk writes are limited by bandwidth instead.
+Run Hop close to those databases when the pipeline is chatty.
+
+|Display
+|Full HD, 1920×1080.
+Hop Gui is a desktop canvas: the graph, the properties and the log are meant to be on screen together.
+The same layout is what you look at in xref:hop-gui/hop-web.adoc[Hop Web].
+|===
+
+== Big data
+
+A pipeline that is larger than the workstation should not be forced through the local engine by raising `HOP_OPTIONS`.
+Pick a run configuration that hands the data to another engine:
+
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] for batch pipelines on Spark 4.1.
+  The cluster JVM must be able to run Java 21, the same as Hop.
+* xref:pipeline/beam/getting-started-with-beam.adoc[Apache Beam] when you need Spark 3.5, Flink, Dataflow, streaming or windows.
+
+The native Spark and Beam engines are optional plugins.
+They are not in the client sizes in the table above.
+The native Spark engine plugin is about 340 MB on disk.
+The Beam engine plugin archive is about 390 MB compressed, before you unpack it.
+After you install one, Hop Gui is still the workstation in the previous section.
+It builds and submits the job.
+The dataset stays in the cluster.
+
+On native Spark, a transform is either a Spark operation or a small Hop pipeline run once per partition (`mapPartitions`).
+Size Spark executor memory for one partition plus shuffle, not by giving the Hop process a larger heap.
+A wrapped transform that would buffer the whole data set on the local engine only sees the partition it was given.
+Aggregations that have a native implementation (sort, merge join, memory group by, and the Spark file and lake transforms) run as Spark operations across the data set.
+The run-configuration templates for a standalone master and for YARN fill in 2 GB for the driver, 2 GB for each executor and 2 executor cores as a starting point, not as a requirement.
+Change those to match the cluster.
+Streaming and windowing stay on Beam.
+
+== Checking an installation
+
+Measure the tree you actually ship:
+
+[source,shell]
+----
+du -sm hop hop/lib hop/lib/core hop/lib/jdbc hop/lib/swt hop/plugins
+----
+
+Run the smallest pipeline you care about with a low `HOP_OPTIONS` and raise the heap only until it finishes.
+`Java heap space` in the log is the heap ceiling.
+A process that is killed by the operating system while the heap still had room is metaspace or native memory: the resident set, not `-Xmx`, is what the device must provide.

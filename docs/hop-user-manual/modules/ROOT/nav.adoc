@@ -30,6 +30,7 @@ under the License.
 ** xref:hop-vs-kettle/import-kettle-projects.adoc[Upgrade Kettle to Hop]
 * xref:concepts.adoc[Concepts]
 * xref:installation-configuration.adoc[Installation and Configuration]
+* xref:sizing.adoc[Sizing guide]
 * xref:docker-container.adoc[Hop in Docker]
 ** xref:hop-web-docker.adoc[Hop Web in Docker]
 * xref:cloud.adoc[Hop in the Cloud]
