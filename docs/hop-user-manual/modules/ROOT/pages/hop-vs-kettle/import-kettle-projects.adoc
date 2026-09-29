@@ -105,14 +105,15 @@ image:hop-import/import-report.png[Import Report]
 
 The migration summary shows:
 
-* number of jobs
-* number of transformations
-* number of other files
+* number of jobs imported, and how many were skipped because the target file already existed
+* number of transformations imported, and how many were skipped because the target file already existed
+* number of other files imported, and how many were skipped because the target file already existed
 * number of variables
 * number of database connections
 
-NOTE: Only migrated items will be shown.
+NOTE: A line is shown when that kind of file was imported or skipped.
 Items that were not available in the specified folders or files for this import will not be shown.
+Skipped files are left unchanged.
 
 When multiple database connections with the same name but different configurations were found (see 'Known limitations'), a `connnections.csv` file will be created in the project folder.
 This file contains a list of all jobs and transformations, with the connections they use.
