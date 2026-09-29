@@ -87,6 +87,14 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private static final String TRANS_EXECUTOR_TYPE = "TransExecutor";
   private static final String SFTP_CONNECTION_METADATA_KEY = "sftp-connection";
 
+  /**
+   * Kettle type ids for the Kafka consumer, plus {@code KafkaConsumer} once {@code
+   * KettleKafkaConsumerInput} has been renamed. The sub-pipeline lives in {@code
+   * transformationPath}, which this import renames to {@code pipelinePath}.
+   */
+  private static final List<String> KAFKA_CONSUMER_TYPES =
+      List.of("KafkaConsumerInput", "KettleKafkaConsumerInput", "KafkaConsumer");
+
   /** The run configuration every Hop project is created with. */
   private static final String DEFAULT_RUN_CONFIGURATION = "local";
 
@@ -1053,6 +1061,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
       }
 
+      if ("pipelinePath".equals(currentNode.getNodeName())
+          && isKafkaConsumerStep(currentNode.getParentNode())) {
+        ensureKafkaPipelineExtension(currentNode);
+      }
+
       if ((entryType == EntryType.SIMPLE_MAPPING || entryType == EntryType.METAINJECT)
           && currentNode.getNodeName().equals("transform")) {
 
@@ -1145,6 +1158,34 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
         }
       }
+    }
+  }
+
+  private boolean isKafkaConsumerStep(Node stepNode) {
+    return stepNode != null && KAFKA_CONSUMER_TYPES.contains(getChildText(stepNode, "type"));
+  }
+
+  /**
+   * Pentaho stores the Kafka consumer sub-transformation in {@code transformationPath}. A
+   * repository reference, and a filename PDI resolves by appending {@code .ktr} itself, has no
+   * extension. Hop only opens that sub-pipeline when {@code pipelinePath} ends with {@code .hpl}.
+   */
+  private void ensureKafkaPipelineExtension(Node pipelinePathNode) {
+    String path = StringUtils.trimToEmpty(pipelinePathNode.getTextContent());
+    if (path.isEmpty()
+        || StringUtils.endsWithIgnoreCase(path, ".hpl")
+        || StringUtils.endsWithIgnoreCase(path, ".hwf")
+        || StringUtils.endsWithIgnoreCase(path, ".kjb")) {
+      return;
+    }
+    if (StringUtils.endsWithIgnoreCase(path, ".ktr")) {
+      pipelinePathNode.setTextContent(path.substring(0, path.length() - 4) + ".hpl");
+      return;
+    }
+    int slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    String name = path.substring(slash + 1);
+    if (!name.isEmpty() && name.indexOf('.') < 0) {
+      pipelinePathNode.setTextContent(path + ".hpl");
     }
   }
 
