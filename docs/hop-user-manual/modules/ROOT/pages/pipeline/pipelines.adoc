@@ -79,8 +79,8 @@ Transforms that have to collect a whole set before they can emit a row -- xref:p
 
 When a single transform becomes a performance bottleneck (such as a complex calculation or slow API call), Hop provides built-in tools to scale:
 
-* **Multiple Copies**: You can tell Hop to run multiple parallel copies of any transform (e.g., 4 or 8 copies). Hop will automatically distribute rows across these copies to saturate available CPU cores (`xref:pipeline/specify-copies.adoc[Specify copies]`).
-* **Data Partitioning**: Partition data streams across distinct worker threads or cluster nodes according to partition rules (`xref:pipeline/partitioning.adoc[Partitioning]`).
+* **Multiple Copies**: You can tell the local Hop pipeline engine to run multiple parallel copies of any transform (e.g., 4 or 8 copies). Hop distributes rows across these copies to saturate available CPU cores (`xref:pipeline/specify-copies.adoc[Specify copies]`). The copy count is not a thread count on Beam (including Flink) or native Spark.
+* **Data Partitioning**: Partition data streams across worker threads of the local Hop pipeline engine according to partition rules (`xref:pipeline/partitioning.adoc[Partitioning]`). A partition schema is not applied on Beam or native Spark.
 * **Row-Level Error Handling**: Route rejected or malformed rows into an alternate error stream without stopping the pipeline (`xref:pipeline/errorhandling.adoc[Error Handling]`).
 
 == Pipeline Execution Engines

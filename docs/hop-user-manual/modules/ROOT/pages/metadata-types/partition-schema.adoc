@@ -29,6 +29,10 @@ Describes a partition schema.
 A partition schema defines how many ways the row stream will be split.
 The names used for the partitions can be anything you like.
 
+The schema is used only by the local Hop pipeline engine, including when a Hop Server runs that engine.
+Beam engines (Flink, Spark, Dataflow and Direct) and the native Spark engine ignore it.
+See xref:pipeline/partitioning.adoc#supported-engines[Partitioning].
+
 == Related Plugins
 
 None/All

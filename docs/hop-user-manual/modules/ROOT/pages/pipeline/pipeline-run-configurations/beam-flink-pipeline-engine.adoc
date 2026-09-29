@@ -26,6 +26,10 @@ This runner allows you to run Hop pipelines on https://flink.apache.org[Apache F
 
 The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner.
 
+Hop xref:pipeline/specify-copies.adoc[copies] and xref:pipeline/partitioning.adoc[partition schemas] are not applied on this runner.
+Flink decides how many tasks process each transform.
+Use the parallelism option below, not the copy count or partition schema in the pipeline.
+
 The Flink Runner and Flink are suitable for large scale, continuous jobs, and provide:
 
 * A streaming-first runtime that supports both batch processing and data streaming programs
