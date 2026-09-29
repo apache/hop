@@ -46,7 +46,9 @@ import picocli.CommandLine;
     id = "HopAiConfigOptionPlugin",
     description = "Configuration options for Hop AI advisory",
     category = ConfigPlugin.CATEGORY_CONFIG,
-    classLoaderGroup = "hop-ai")
+    classLoaderGroup = "hop-ai",
+    configKey = HopAiConfig.HOP_CONFIG_KEY,
+    configClass = HopAiConfig.class)
 @GuiPlugin(description = "i18n::HopAiConfig.Tab.Name", classLoaderGroup = "hop-ai")
 public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 

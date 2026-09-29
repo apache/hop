@@ -46,7 +46,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "ExplorerPerspectiveConfigPlugin",
     description = "Configuration options for the explorer perspective",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = ExplorerPerspectiveConfig.HOP_CONFIG_EXPLORER_PERSPECTIVE_CONFIG_KEY,
+    configClass = ExplorerPerspectiveConfig.class)
 @GuiPlugin(
     description = "Explorer Perspective" // Tab label in options dialog
     )
@@ -131,7 +133,8 @@ public class ExplorerPerspectiveConfigPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       label = "i18n::ExplorerPerspectiveConfig.MaxUndo.Label",
-      toolTip = "i18n::ExplorerPerspectiveConfig.MaxUndo.Tooltip")
+      toolTip = "i18n::ExplorerPerspectiveConfig.MaxUndo.Tooltip",
+      defaultValue = "100")
   @CommandLine.Option(
       names = {"-mu", "--max-undo"},
       description =

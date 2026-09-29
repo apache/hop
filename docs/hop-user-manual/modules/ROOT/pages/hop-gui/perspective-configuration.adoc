@@ -17,6 +17,9 @@ under the License.
 :imagesdir: ../assets/images
 
 = Configuration Perspective
+// One level deeper than the default, so the contents list each plugin under
+// Plugin options reference rather than stopping at the heading above them.
+:page-toclevels: 3
 
 Icon: image:icons/gear.svg[width="24px"]
 
@@ -28,125 +31,275 @@ The configuration perspective offers a central location for all Apache Hop confi
 
 == Usage
 
-The configuration perspective groups configuration options in the following tabs:
+The perspective lists its sections in a tree on the left. Selecting one shows its options on the right; the search box above the tree finds an option by name across all of them.
 
-* **General** options control the behavior of Apache Hop and Hop Gui.
-* **Look &amp; Feel** control how Hop Gui looks like on your desktop or in your browser.
-* **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins (including Explorer, xref:hop-gui/perspective-search.adoc[Search] limits, and xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] enablement).
-* **System variables** allows you to set and configure Apache Hop global variables.
+* **General**: how Apache Hop and Hop GUI behave - confirmations, tooltips and dialog positions.
+* **Look &amp; Feel**: how Hop GUI is drawn on your desktop or in your browser.
+* **Plugins**: one entry per plugin that contributes options, including xref:hop-gui/perspective-search.adoc[Search], the Explorer perspective and xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant]. Every option is listed in <<_plugin_options_reference,Plugin options reference>> below.
+* **System variables**: set and inspect the Apache Hop global variables.
+* **Security**: how a session is authenticated, split over General, Basic, External and OAuth sub-tabs. Until authentication is turned on the session is unrestricted and anyone can change these settings, which the tab says at the top.
+* **Keyboard shortcuts**: the shortcuts currently in effect, with the action each one triggers.
 
-== Detailed configuration tabs overview
+== Detailed options overview
 
 === General
 
-The General configuration tab allows you to configure the core Apache Hop options.
+The General tab holds the options that control how Hop GUI behaves rather than how it looks. The tables below follow the sections of the tab.
 
 [%header, width=90%, cols="2,5,1"]
 |===
 |Option|Description|Default
-|Hop configuration filename
-a|the location where Apache Hop will store the configuration file. This configuration file will contain your project and environment information and global variables.
 
-TIP: set the environment variable `HOP_CONFIG_FOLDER` to set this location dynamically to allow easy switching between different Apache Hop versions and installations. xref:protips/index.adoc[read more]
+|Hop configuration filename
+a|Where Apache Hop stores `hop-config.json`, the file holding your projects, environments and global variables. Read-only here.
+
+TIP: set the environment variable `HOP_CONFIG_FOLDER` to change this location, which makes switching between Hop versions and installations easy. xref:protips/index.adoc[read more]
 |`<INSTALLATION_PATH>/config/hop-config.json`
 
 |Preview data batch size
-a|number of rows that will be shown when previewing through the Pipeline run toolbar or from transform preview dialogs.
+a|How many rows are fetched when previewing from the pipeline run toolbar or a transform preview dialog.
 
-INFO: this setting complements the preview option that is used in the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[native local pipeline run configuration], which can be accessed through the image:transforms/icons/datagrid.svg[data grid, width="16px"]  `preview data` icon in the bottom right corner of transforms after a successful run.
+INFO: this complements the preview setting of the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[native local pipeline run configuration], reachable through the image:transforms/icons/datagrid.svg[data grid, width="16px"] `preview data` icon in the bottom right corner of a transform after a run.
 |1000
 
-|Use database cache|enable caching for relational databases|yes
+|Use database cache|Cache relational database metadata so repeated lookups of tables, fields and types do not go back to the server.|yes
 
-|Open last file at startup|reopen the last used files and select the last used file when Hop GUI starts|yes
+|Reopen tabs on startup|Reopen the files that were open when Hop GUI last closed, and select the one that was active.|yes
 
 |Enable embedded terminal
-a|Show the embedded terminal in the bottom panel. Clear this on desktops where that terminal misbehaves. Search, the database workbench, and the VFS file explorer stay available. Hop Web has no embedded terminal. Excluding `40010-menu-tools-terminal` in xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml] forces it off.
+a|Show the embedded terminal in the bottom panel. Clear this on desktops where that terminal misbehaves; search, the database workbench and the VFS file explorer stay available either way. Hop Web has no embedded terminal. Excluding `40010-menu-tools-terminal` in xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml] forces it off.
 |yes
 
-|Autosave changed files|Automatically save changed workflow and pipelines files|yes
+|Reload file if changed on filesystem|Reload a pipeline or workflow when it changes outside Hop GUI, for example after a `git pull` or an edit in another editor.|no
 
-|Automatically split hops
-a|Automatically split hops when a new transform or action is dropped on a hop.
+|Sort field names alphabetically in dropdowns|Sort field names in dropdown lists alphabetically. When off, fields keep the order they arrive in from the incoming stream.|yes
 
-TIP: Hops will be shown in bold when a transform or action can be dropped on it
-|yes
+|Use global bookmarks in the file dialog|Share the file dialog's bookmarks across every project instead of keeping a separate set per project.|yes
 
-|Show Copy or Distribute Dialog|Show a pop-up dialog to ask the user to confirm whether data should be copied or distributed (round-robin) to subsequent transforms in a pipeline|yes
+|Maximum execution logging text size|The largest amount of log text held for the execution information perspective, in characters. Caps memory use on long-running or very chatty executions.|2000000
+|===
 
-|Ask user when exiting|Show a pop-up dialog to let the user confirm before exiting Hop GUI|yes
+==== Confirmation dialogs
 
-|Clear customer parameters (transforms/plugins|Deletes all custom flags and parameters in the dialogs of the transforms and plugins|on click
+Each option here controls one confirmation pop-up. Turning one off does not change what the action does, only whether Hop asks first. Every one of these dialogs can also be switched off from the dialog itself, with its *Do not ask this again* option.
 
-|Auto collapse palette tree|Collapse or expand the categories in the context dialog|no (expanded)
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
 
-|Display tooltips|Show tooltips where available in Hop GUI|yes
+|Show confirmation when exiting Hop|Ask for confirmation before closing Hop GUI.|yes
 
-|Show help tooltips|Show help tooltips where available in Hop GUI|yes
+|Show copy or distribute dialog when drawing a hop|Ask whether rows should be copied to, or distributed round-robin over, the following transforms when a second hop is drawn out of a transform.|yes
 
-|Use double click on canvas?
-|double-click instead of single click on e.g. transform and action dialogs.
+|Show confirmation when splitting hops|Ask before splitting a hop when a transform or action is dropped onto it. With this off, the hop is split without asking. Hops that a dropped item would split are drawn in bold.|yes
 
-enabled: double-click on a transform or action icon to open its properties. A single click on the icon opens the context dialog.
-disabled (default): (single) click on a transform or action icon to open the context dialog. (single) click on a transform or action name to open its properties.
+|Show confirmation to save file when starting pipeline or workflow|Ask whether to save a changed file before running it. With this off, the file is saved automatically on every run.|yes
+
+|Reset all to enabled (Includes Action/Transform warnings)|Button. Switches every confirmation dialog back on, including the per-transform and per-action warnings that were dismissed with *Do not ask this again*.|on click
+|===
+
+==== Tooltips
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Show tooltip when hovering over a hop or Action/Transform|The master switch for the canvas tooltips. With this off, none of them appear, whatever is ticked under *Tooltips* in the xref:hop-gui/perspective-configuration.adoc#_look_feel[Look & Feel] tab.|yes
+
+|Show resolved variables in tooltips|Show what a variable currently resolves to in the tooltip, rather than the `+'${VARIABLE}'+` expression as written.|yes
+
+|Reset all to enabled|Button. Switches every tooltip option back on.|on click
+|===
+
+==== Dialog positioning
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Remember dialog positions|Reopen each dialog at the position and size it was last given. With this off, every dialog opens at its default position and size.|yes
+
+|Reset dialog positions after restart|Keep remembered positions for the current session only, clearing `shells-state.json` on restart. With this off, positions are also written to that file and restored the next time Hop GUI starts. Only has an effect while *Remember dialog positions* is on.|no
+
+|Clear dialog positions|Button. Forgets every remembered dialog position and resets the perspective tree-panel widths to their defaults. Useful after moving between monitors of different sizes, when a dialog reopens off-screen.|on click
+|===
+
+=== Look & Feel
+
+The Look & Feel tab holds everything about how Hop GUI is drawn: fonts, colours, the canvas, and which columns and toolbars are shown. The tables below follow the sections of the tab.
+
+Some of these settings only take effect after Hop GUI is restarted; the dialog says so where that is the case.
+
+==== General appearance
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Preferred language
+a|The language Hop GUI is shown in.
+
+TIP: Check the https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation Contribution Guide] to translate Apache Hop into your own language.
+|English (US)
+
+|Hide the menu bar|Hide the menu bar. With it hidden, the menu is reachable from the Apache Hop icon in the upper left corner of Hop GUI.|yes
+
+|Dark mode|Use the dark theme. On Hop Web and Windows this is a straight toggle; on macOS and other desktop platforms the theme follows the operating system. Changing it in Hop Web reloads the page.|follows the OS
+
+|Follow system dark mode (Hop Web)|Take the light or dark setting from the system or browser. While this is on, the *Dark mode* option above is disabled.|no
+
+|UI zoom level|The zoom level pipelines and workflows open at.|100%
+
+|Icon size in workspace|The size transform and action icons are drawn at on the canvas, in pixels.|32
+
+|Line width on workspace|The width hops are drawn with on the canvas, in pixels.|1
+
+|Dialog middle percentage|Where the divider between labels and input fields sits in dialogs, as a percentage of the dialog width. Raise it where a translation makes labels too wide for their column.|35
+|===
+
+==== macOS
+
+This section only appears on macOS.
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Allow dialogs to open on any screen|Off: transform, action and metadata dialogs follow the Hop window and stay above it. On: they open as windows of their own, which can be moved to another screen.|no
+|===
+
+==== Fonts
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Fixed width font|The fixed-width font for SQL, scripts, logs and similar editors.|platform default (Consolas / Monaco / Monospace)
+
+|Font on workspace|The font for transform and action names on the canvas. Notes that do not set a font of their own use it too.|system font
+|===
+
+==== Pipeline and Workflow canvas
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Show canvas grid|Draw the dotted alignment grid behind pipelines and workflows.|no
+
+|Canvas grid size|The spacing of that grid, in pixels. Transforms and actions snap to it.|16
+
+|Show viewport|Show the viewport, the small overview of the whole pipeline or workflow in the bottom right corner of the canvas.|yes
+
+|Use double click on canvas
+a|Enabled: double-click a transform or action icon to open its properties; a single click opens the context dialog.
+
+Disabled (the default): a single click on the icon opens the context dialog, and a click on the name opens the properties.
 
 See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in both modes.
 |no
 
 |Use right click for the context dialog
-|A right click (Ctrl-click or two-finger click on macOS) opens the context dialog of whatever is under the pointer, and a left click never does: it selects, clears the selection, or presses a badge. Names and badges keep opening their editors on a left click.
+a|A right click (Ctrl-click or a two-finger click on macOS) opens the context dialog of whatever is under the pointer, and a left click never does: it selects, clears the selection, or presses a badge. Names and badges still open their editors on a left click.
 
 See xref:hop-gui/canvas-mouse.adoc[Canvas mouse gestures] for every click in both modes.
 |no
 
 |Use menus instead of the context dialog
-|Transforms, actions, hops and notes show their actions in a pop-up menu with a submenu per category instead of the xref:hop-gui/hop-gui-popup-dialog.adoc[context dialog]. A click on the empty canvas keeps the context dialog while the xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[palette tree] is hidden, since that is where new transforms and actions are searched for; with the palette shown the empty canvas gets a menu of the pipeline/workflow actions too. The click that opens the menu is the same one that opens the context dialog (left click, or right click with the option above).
+a|Transforms, actions, hops and notes show their actions in a pop-up menu with a submenu per category rather than in the xref:hop-gui/hop-gui-popup-dialog.adoc[context dialog]. A click on the empty canvas keeps the context dialog while the xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[palette tree] is hidden, since that is where new transforms and actions are searched for; with the palette shown, the empty canvas gets a menu of the pipeline and workflow actions instead. The click that opens the menu is the same one that opens the context dialog.
 |no
 
-|Draw border around names on canvas?
-|If this option is enabled, a border will be drawn around the names of transforms and actions on the canvas.
-|no
+|Draw border around Action/Transform names on canvas|Draw a border around the names of transforms and actions, which helps where names overlap the icons behind them.|no
+
+|Enable infinite move|Pan the canvas in every direction without being stopped at the origin, so a diagram can be built out to the left of or above where it started.|no
+
+|Disable zoom scrolling|Stop the mouse scroll wheel zooming the canvas in and out. Useful on trackpads where scrolling and zooming are easy to confuse.|no
+
+|Metrics above selected running transforms?|While a pipeline runs, draw its metrics above the transforms that are selected.|yes
 
 |Tooltips
-a|A group of its own in the *Pipeline and Workflow canvas* section: one checkbox per kind of tooltip the canvas shows when the mouse rests on something. Untick a kind to stop only that one; *Show tooltip when hovering over a hop or Action/Transform* in the *Tooltips* section of the General tab still switches all of them off at once.
+a|One checkbox per kind of tooltip the canvas shows when the mouse rests on something. Untick one to stop only that kind. *Show tooltip when hovering over a hop or Action/Transform*, in the *Tooltips* section of the General tab, switches all of them off at once.
 
 * *Edit hint on transform and action names*: the "Click to edit" hint on a name.
 * *Transform and action descriptions*: the description on an icon and its info badge, along with the transform partitioning and whether a transform can start a pipeline.
 * *Deprecation warnings*: the warning on the icon of a deprecated transform or action, and its replacement.
-* *Hop details*: the source, target and status of a hop when the mouse rests on its line, and the badges on it: info, error, copies, row distribution, target streams and the conditions of workflow hops.
-* *Execution results*: after a run, the failure logs, the output rows a transform or hop holds, the result of an action and where a workflow restarted from a checkpoint.
+* *Hop details*: the source, target and status of a hop, and the badges on it: info, error, copies, row distribution, target streams and the conditions of workflow hops.
+* *Execution results*: after a run, the failure logs, the rows a transform or hop holds, the result of an action and where a workflow restarted from a checkpoint.
 * *Note links*: where a hyperlink in a note leads.
 * *Plugin tooltips*: tooltips that plugins add to the canvas, such as the custom debug levels.
 * *Selection cleared notice*: the short "Selection cleared" notice after a click on the empty canvas while something was selected.
 |all on
-
-|Use global bookmarks in the file dialog|Bookmarks in the file dialog are global (across projects) by default. Enable to make them project-specific|yes
-
 |===
 
-=== Look & Feel
+==== Auto-layout
 
-The `Look & Feel` configuration options allow you to configure various aspects of Hop GUI's behavior.
+These settings control the *Arrange* action, which lays a pipeline or workflow out automatically.
 
 [%header, width=90%, cols="2,5,1"]
 |===
 |Option|Description|Default
-|Fixed width font|the fixed-width font for SQL, scripts, logs, and similar editors|platform default (Consolas / Monaco / Monospace)
-|Font on workspace|the font for transform and action names on the canvas. Notes that do not set their own font also use this.|system font
-|Icon size in workspace|the default size for action and transform icons in workflows and pipelines|32
-|Line width on workspace|line width to use for hops in workflows and actions|1
-|Dialog middle percentage|percentage to use to determine a dialog's position|35
-|UI zoom level|default zoom level to use for workflows and pipelines in Hop GUI|100%
-|Canvas Grid Size|default grid size to use for workflows and pipelines in the Hop GUI editor |16
-|Show Canvas Grid|show the grid (dotted) for workflows and pipelines in Hop GUI |no
-|Hide the menu bar|Do not show the menu bar. If enabled (default), the menu options are available from the Apache Hop icon in Hop GUI's upper left corner. |yes
-|Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down, navigate to a column, manage xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views] etc in table grids (e.g. in preview dialogs, transform configuration options)|yes
-|Allow dialogs to open on any screen (macOS only)|Off: transform, action and metadata dialogs follow the Hop window and stay above it. On: they open as windows of their own that you can move to another screen. The macOS section only appears on macOS.|no
-|Dark mode|use dark mode. On Hop Web and Windows you can toggle this; on macOS and other desktop platforms it follows the operating system theme. Changing it in Hop Web reloads the page to apply the theme. |N/A
-|Preferred Language
-a|the default language to use in Hop GUI.
 
-TIP: Check the https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation Contribution Guide] to translate Apache Hop to your native language.|English (US)
+|Layout direction|The direction the graph flows from start to end: left to right, right to left, top to bottom or bottom to top.|Left to right
+
+|Layer spacing|The distance between consecutive layers, along the flow direction, in pixels.|150
+
+|Node spacing|The distance between nodes within one layer, across the flow direction, in pixels.|120
+
+|Crossing-reduction iterations|How many barycenter sweeps are used to pull crossing hops apart. Higher is tidier but slower on large diagrams.|4
+
+|Move notes with nearest node|Move each note along with the transform or action it sits closest to. Notes that are not near any of them stay where they are.|yes
+|===
+
+==== Tables and grids
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Show toolbar|Show a toolbar above table grids with cut/copy/paste, move row up/down, go to column and xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views]. Applies to preview dialogs, transform settings and similar grids.|yes
+
+|Show text editor toolbar|Show a toolbar above multi-line text editors (SQL, scripts and similar fields) with cut/copy/paste, undo/redo and find/replace.|yes
+
+|Maximum data grid cell length
+a|The most characters drawn in one cell of a data grid: the row preview, the data grid transform and the rows viewers. Longer values are only shortened on screen; click a cell to see the whole value in place, or use the expand icon to open it in the multi-line editor. Copying, exporting and saving always use the full value. Set it to 0 to stop shortening.
+
+Configuration grids are never shortened, and this has no effect in Hop Web.
+|50
+
+|Show line breaks as symbols in data grid cells
+a|Draw line breaks and tabs inside a data grid cell as symbols on a single line. With this off, a value containing a line break is cut at the first break and marked with an ellipsis. Either way this only changes how the cell is drawn: clicking it shows the whole value, and copying or exporting keeps every line break.
+|no
+|===
+
+==== Metrics panel
+
+Which columns the pipeline metrics grid shows while a pipeline runs. Hiding a column does not stop the metric being collected.
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|Show units in cells|Show the unit alongside each value in the metrics grid (`r`, `h:m:s`, `rows/s`). With this off, only the numbers are shown.|no
+
+|Dynamic column resizing|Widen metrics columns during a run as the values in them get wider. Turn this off to keep the widths you set by hand; *View > Fit columns to content* still packs them once, on demand.|yes
+
+|Show Input|Show the *Input* column: rows read from an external source, such as a file or a database.|yes
+
+|Show Read|Show the *Read* column: rows read from incoming hops.|yes
+
+|Show Output|Show the *Output* column: rows written to an external target.|yes
+
+|Show Updated|Show the *Updated* column: rows updated in an external target.|yes
+
+|Show Rejected|Show the *Rejected* column: rows sent down an error handling hop.|yes
+
+|Show Buffers Input|Show the *Buffers Input* column: how full each transform's input row buffer is, which is where a bottleneck shows up first.|yes
+
+|Show Data volume|Show the *Data volume* column, the row-based byte count. Only collected when the `HOP_METRIC_DATA_VOLUME` variable is on, and disabled here when it is set to `N`.|yes
+
+|Show Data volume in|Show the *Data volume in* column, bytes read from the input stream. Needs `HOP_METRIC_DATA_VOLUME` as above.|yes
+
+|Show Data volume out|Show the *Data volume out* column, bytes written to the output stream. Needs `HOP_METRIC_DATA_VOLUME` as above.|yes
 |===
 
 === Plugins
@@ -175,6 +328,14 @@ image::hop-gui/configuration-perspective-file-validation-validate-database-conne
 The warning lists the missing connections. *Yes* saves anyway, *No* cancels the save. Check *Don't run this check when saving* to turn the option off; you can turn it back on here.
 +
 image::hop-gui/validate-database-connections-on-save-warning-dialog.png[Database connections save warning,width="90%"]
+
+=== Plugin options reference
+
+Every option each plugin adds to the *Plugins* section, with what it does and what it falls back to when it has never been set. Generated from the plugins themselves, so it covers the plugins shipped with Apache Hop; a plugin you install yourself adds its own section to the perspective that is not listed here.
+
+Anything set here can also be set with `hop-conf`, and ends up in `hop-config.json`.
+
+include::partial$config/all-plugins.adoc[leveloffset=+2]
 
 === System Variables
 

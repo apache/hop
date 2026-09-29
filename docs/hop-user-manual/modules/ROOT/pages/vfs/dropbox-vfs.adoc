@@ -56,6 +56,12 @@ Dropbox displays the App Settings panel for the app that you created
 
 Once done you will see a `dropbox` entry in the central `hop-config.json` file:
 
+== Options
+
+The options below are the ones in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective]. Each is also settable with `hop-conf`.
+
+include::partial$config/DropboxConfigPlugin.adoc[]
+
 == Usage and testing
 
 To test if the configuration works you can simply put a small CSV file in Dropbox and then use File/Open in Hop GUI.

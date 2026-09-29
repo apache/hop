@@ -44,7 +44,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "GoogleCloudStorageConfigPlugin",
     description = "Configuration options for Google Cloud",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY,
+    configClass = GoogleCloudConfig.class)
 @GuiPlugin(
     description = "i18n::GoogleCloudPlugin.GuiPlugin.Description" // Tab label in options dialog
     )
@@ -98,7 +100,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       variables = false,
       label = "i18n::GoogleCloudPlugin.ScanFolderForLastModificationDate.Label",
       toolTip = "i18n::GoogleCloudPlugin.ScanFolderForLastModificationDate.Description")
-  private Boolean scanFoldersForModificationDate;
+  private Boolean scanFoldersForLastModifDate;
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_CLOUD_SERVICE_MAX_ATTEMPTS,
@@ -179,7 +181,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       variables = true,
       label = "i18n::GoogleCloudPlugin.ConnectTimeout.Label",
       toolTip = "i18n::GoogleCloudPlugin.ConnectTimeout.Description")
-  private String connectTimeout;
+  private String connectionTimeout;
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT,
@@ -218,7 +220,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
 
     GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
     instance.serviceAccountKeyFile = config.getServiceAccountKeyFile();
-    instance.scanFoldersForModificationDate = config.getScanFoldersForLastModifDate();
+    instance.scanFoldersForLastModifDate = config.getScanFoldersForLastModifDate();
     instance.maxAttempts = config.getMaxAttempts();
     instance.initialRetryDelay = config.getInitialRetryDelay();
     instance.retryDelayMultiplier = config.getRetryDelayMultiplier();
@@ -227,7 +229,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     instance.initialRpcTimeout = config.getInitialRpcTimeout();
     instance.rpcTimeoutMultiplier = config.getRpcTimeoutMultiplier();
     instance.maxRpcTimeout = config.getMaxRpcTimeout();
-    instance.connectTimeout = config.getConnectionTimeout();
+    instance.connectionTimeout = config.getConnectionTimeout();
     instance.readTimeout = config.getReadTimeout();
     instance.retryNonIdempotentOperations = config.getRetryNonIdempotentOperations();
     instance.cacheTtlSeconds = config.getCacheTtlSeconds();
@@ -253,9 +255,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         changed = true;
       }
 
-      if (scanFoldersForModificationDate != null
-          && scanFoldersForModificationDate.equals(Boolean.TRUE)) {
-        config.setScanFoldersForLastModifDate(scanFoldersForModificationDate);
+      if (scanFoldersForLastModifDate != null && scanFoldersForLastModifDate.equals(Boolean.TRUE)) {
+        config.setScanFoldersForLastModifDate(scanFoldersForLastModifDate);
         log.logBasic(
             "Google Cloud Storage service will scan folders for the last file modification time.");
         changed = true;
@@ -309,9 +310,9 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         changed = true;
       }
 
-      if (connectTimeout != null) {
-        config.setConnectionTimeout(connectTimeout);
-        log.logBasic("Google Cloud service connectTimeout set to " + connectTimeout);
+      if (connectionTimeout != null) {
+        config.setConnectionTimeout(connectionTimeout);
+        log.logBasic("Google Cloud service connectionTimeout set to " + connectionTimeout);
         changed = true;
       }
 
@@ -372,9 +373,9 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
           GoogleCloudConfigSingleton.getConfig().setServiceAccountKeyFile(serviceAccountKeyFile);
           break;
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_SCAN_FOLDERS_FOR_MODIF_DATE:
-          scanFoldersForModificationDate = ((Button) control).getSelection();
+          scanFoldersForLastModifDate = ((Button) control).getSelection();
           GoogleCloudConfigSingleton.getConfig()
-              .setScanFoldersForLastModifDate(scanFoldersForModificationDate);
+              .setScanFoldersForLastModifDate(scanFoldersForLastModifDate);
           break;
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_MAX_ATTEMPTS:
           maxAttempts = ((TextVar) control).getText();
@@ -409,8 +410,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
           GoogleCloudConfigSingleton.getConfig().setMaxRpcTimeout(maxRpcTimeout);
           break;
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_CONNECT_TIMEOUT:
-          connectTimeout = ((TextVar) control).getText();
-          GoogleCloudConfigSingleton.getConfig().setConnectionTimeout(connectTimeout);
+          connectionTimeout = ((TextVar) control).getText();
+          GoogleCloudConfigSingleton.getConfig().setConnectionTimeout(connectionTimeout);
           break;
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT:
           readTimeout = ((TextVar) control).getText();

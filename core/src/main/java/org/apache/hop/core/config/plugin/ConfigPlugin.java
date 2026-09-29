@@ -51,4 +51,28 @@ public @interface ConfigPlugin {
    * plugin folder that also uses {@code classLoaderGroup} on metadata or GUI types.
    */
   String classLoaderGroup() default "";
+
+  /**
+   * The key this plugin's options are stored under in {@code hop-config.json}, for example {@code
+   * googleCloud}. Empty when the plugin writes its options as individual top-level options rather
+   * than as one block. Documentation generators use this to name the JSON block they describe.
+   *
+   * @return The hop-config.json key, or an empty String
+   */
+  String configKey() default "";
+
+  /**
+   * The plain configuration object holding this plugin's settings and their default values, for
+   * example {@code GoogleCloudConfig.class}. Its no-argument constructor must set the defaults and
+   * must not need a running Hop: documentation generators instantiate it at build time and read the
+   * fields to report what each option defaults to.
+   *
+   * <p>A field is matched to this class by name, so a widget field and the setting it edits have to
+   * be called the same thing. Where there is no matching field - the plugin reads the option
+   * straight from {@link org.apache.hop.core.config.HopConfig}, say - the default belongs on {@code
+   * GuiWidgetElement#defaultValue()} instead.
+   *
+   * @return The configuration class, or {@link Void} when the plugin has none
+   */
+  Class<?> configClass() default Void.class;
 }

@@ -48,7 +48,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "DatabasePerspectiveConfigPlugin",
     description = "Configuration options for the Database perspective",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = DatabasePerspectiveConfig.HOP_CONFIG_KEY,
+    configClass = DatabasePerspectiveConfig.class)
 @GuiPlugin(description = "i18n::DatabasePerspectiveConfigPlugin.Name")
 public class DatabasePerspectiveConfigPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {

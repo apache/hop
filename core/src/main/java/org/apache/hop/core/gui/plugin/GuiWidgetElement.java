@@ -178,4 +178,17 @@ public @interface GuiWidgetElement {
    * GuiWidgetGroupType#NONE} value wins. Mixed types log a warning and fall back to tabs.
    */
   GuiWidgetGroupType groupType() default GuiWidgetGroupType.NONE;
+
+  /**
+   * What this option falls back to when it has never been set, as it would be written in the
+   * documentation ({@code "true"}, {@code "1000"}, ...). Only for widgets whose value has no field
+   * of the same name on the {@code configClass()} of their {@code @ConfigPlugin} - a plugin reading
+   * the option straight from {@link org.apache.hop.core.config.HopConfig} with an inline fallback,
+   * for instance. Where that field does exist, leave this empty: a documentation generator reads
+   * the real default off the configuration object, which cannot fall out of step with the code the
+   * way a copy here can.
+   *
+   * @return The default value as text, or an empty String
+   */
+  String defaultValue() default "";
 }

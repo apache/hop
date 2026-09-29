@@ -1,0 +1,50 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+// Generated from the @ConfigPlugin and @GuiWidgetElement annotations.
+// Edit those, not this file.
+
+These options are stored under `pass:c[explorer-perspective]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[The initial depth to load not lazily]
+|pass:c[The initial depth to load not lazily. Accepts variables.]
+|`pass:c[0]`
+
+|pass:c[The maximum file size to load]
+|pass:c[The maximum file size to load. Accepts variables.]
+|`pass:c[16]`
+
+|pass:c[Show file explorer panel by default]
+|pass:c[When enabled, the file explorer panel (project tree) is shown by default when opening the explorer perspective]
+|`pass:c[true]`
+
+|pass:c[Open help pages in]
+|pass:c[Choose where documentation opens: the system browser, a tab in the File Explorer perspective, or a dialog on top of the current window.]
+|`pass:c[BROWSER]`
+
+|pass:c[Select active file in tree automatically]
+|pass:c[Automatically select the active tab file in the file explorer tree on the left hand side when it is shown in a tab.]
+|`pass:c[true]`
+
+|pass:c[Maximum undo operations]
+|pass:c[The maximum number of undo/redo snapshots kept for pipelines, workflows and table editors. Default is 100. Accepts variables.]
+|`pass:c[100]`
+
+|===

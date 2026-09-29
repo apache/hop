@@ -39,7 +39,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "DropboxConfigPlugin",
     description = "Configuration options for Dropbox",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = DropboxConfigSingleton.HOP_CONFIG_DROPBOX_KEY,
+    configClass = DropboxConfig.class)
 @GuiPlugin(
     description = "Dropbox" // Tab label in options dialog
     )
@@ -52,7 +54,10 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "Access token")
+      label = "Access token",
+      toolTip =
+          "The Dropbox access token used to authenticate. Generate one for an app in the Dropbox"
+              + " App Console; it grants whatever access that app was given.")
   @CommandLine.Option(
       names = {"-dbxt", "--dropbox-access-token"},
       description = "The Dropbox access token to use for VFS")

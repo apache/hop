@@ -43,7 +43,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "SearchConfigPlugin",
     description = "Configuration options for Hop GUI search",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = SearchConfig.HOP_CONFIG_SEARCH_KEY,
+    configClass = SearchConfig.class)
 @GuiPlugin(
     description = "Search" // Tab label in options dialog
     )

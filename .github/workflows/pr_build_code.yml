@@ -95,6 +95,28 @@ jobs:
         run: mvn spotless:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Build with Maven
         run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true -Dgib.disable=$GIB_DISABLE --file pom.xml
+      # The build regenerates the configuration perspective's option tables from the
+      # @ConfigPlugin and @GuiWidgetElement annotations. If that leaves the working tree
+      # dirty, the committed page no longer matches the code it documents.
+      - name: Configuration documentation is up to date
+        run: |
+          CONFIG_DOCS=docs/hop-user-manual/modules/ROOT/partials/config
+          # --porcelain, not diff: a newly added configuration plugin writes a new .adoc, and an
+          # untracked file is invisible to git diff.
+          if [ -n "$(git status --porcelain -- $CONFIG_DOCS)" ]; then
+            echo "The configuration perspective's generated option tables are out of date."
+            echo "A configuration option was added, removed or changed without regenerating"
+            echo "the page that documents it."
+            echo
+            echo "To fix, from a full build of your branch:"
+            echo "    mvn clean install -DskipTests"
+            echo "and commit the result under $CONFIG_DOCS."
+            echo
+            git status --short -- $CONFIG_DOCS
+            git diff -- $CONFIG_DOCS
+            exit 1
+          fi
+          echo "Generated configuration documentation matches the code."
 
   # Add a UI and run the UI tests only
   ui-tests:

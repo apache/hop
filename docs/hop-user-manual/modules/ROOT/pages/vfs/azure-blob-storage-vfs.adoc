@@ -68,6 +68,12 @@ Once done you will see an `azure` entry in the central `hop-config.json` file:
 }
 ----
 
+== Options
+
+The options below are the ones in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective]. Each is also settable with `hop-conf`.
+
+include::partial$config/AzureConfigPlugin.adoc[]
+
 == Authentication types
 
 An Azure connection in the metadata perspective can authenticate in three ways, selected with the

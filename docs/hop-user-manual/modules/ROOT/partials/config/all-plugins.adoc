@@ -1,0 +1,498 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+// Generated from the @ConfigPlugin and @GuiWidgetElement annotations.
+// Edit those, not this file.
+
+== AI Assistant
+
+These options are stored under `pass:c[hopAiConfig]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Enable AI advisory]
+|pass:c[When disabled, AI Help is hidden and no prompts are sent. Default is off. Before applying AI changes, work on a Git feature branch so you can revert the project if needed.]
+|`pass:c[false]`
+
+|pass:c[Default AI provider]
+|pass:c[Named AI Provider metadata used by GUI advisors. Pipelines can still pick a different provider. Accepts variables.]
+|
+
+|pass:c[Allow sending full XML]
+|pass:c[Second gate for the session "Include full XML" checkbox. Off by default. Full XML is large and can contain SQL, filenames and notes. Leave this off unless you need it, and only after secrets live in environment variables or a keystore.]
+|`pass:c[false]`
+
+|pass:c[Extra context]
+a|pass:c[Standing notes sent with every AI Assistant question. The default reminds the model that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different types, and that Hop is not Kettle. Add project conventions here. Accepts variables.]
+
+.Default
+[listing]
+----
+Hop metadata names are case-sensitive.
+Pipeline run configurations and workflow run configurations are different metadata types.
+Do not guess names of existing metadata, transforms, or actions that are not in the prompt context. New objects the user asked to create should use the names they gave.
+Variables use ${NAME}. Prefer variables or a resolver for secrets.
+Hop uses pipelines (.hpl) and workflows (.hwf) with transforms and actions, not Kettle transformations, jobs, steps, or job entries.
+----
+|_(with the description)_
+
+|pass:c[Context files]
+|pass:c[One VFS path per line. Files that exist are appended to the system prompt; missing files are skipped. Default is ${PROJECT_HOME}/AGENTS.md. Variables are resolved. Accepts variables.]
+|`pass:c[${PROJECT_HOME}/AGENTS.md]`
+
+|===
+
+== Apache Calcite SQL formatter
+
+These options are stored under `pass:c[calciteSqlFormat]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Indentation (spaces)]
+|pass:c[Number of spaces to indent nested SQL. Calcite default is 4; Hop default is 2.]
+|`pass:c[2]`
+
+|pass:c[Line length]
+|pass:c[Preferred maximum line length. 0 means no maximum.]
+|`pass:c[0]`
+
+|pass:c[Clause starts a new line]
+|pass:c[Start FROM, WHERE, GROUP BY, HAVING, WINDOW and ORDER BY on a new line.]
+|`pass:c[true]`
+
+|pass:c[Clause is followed by a new line]
+|pass:c[Clause (FROM, WHERE, GROUP BY, HAVING, WINDOW, ORDER BY) is followed by a new line]
+|`pass:c[false]`
+
+|pass:c[Always use parentheses]
+|pass:c[Wrap every expression in parentheses even when operator precedence does not require it.]
+|`pass:c[false]`
+
+|pass:c[Leading comma]
+|pass:c[Commas in SELECT, GROUP BY and ORDER clauses should appear at the start of the line.]
+|`pass:c[false]`
+
+|pass:c[SELECT items on separate lines]
+|pass:c[Put each item in the SELECT list on its own line.]
+|`pass:c[true]`
+
+|pass:c[FROM items on separate lines]
+|pass:c[Put each item in the FROM list on its own line.]
+|`pass:c[true]`
+
+|pass:c[WHERE items on separate lines]
+|pass:c[Put each item in the WHERE list on its own line.]
+|`pass:c[true]`
+
+|pass:c[GROUP BY items on separate lines]
+|pass:c[Put each item in a GROUP BY list on its own line.]
+|`pass:c[true]`
+
+|pass:c[ORDER BY items on separate lines]
+|pass:c[Put each item in an ORDER BY list on its own line.]
+|`pass:c[true]`
+
+|pass:c[CASE clauses on new lines]
+|pass:c[Put WHEN, THEN and ELSE of a CASE expression at the start of a new line.]
+|`pass:c[true]`
+
+|pass:c[WINDOW declaration starts a new line]
+|pass:c[Start a WINDOW declaration on a new line.]
+|`pass:c[true]`
+
+|pass:c[WINDOW items on separate lines]
+|pass:c[Put each item in a WINDOW list on its own line.]
+|`pass:c[true]`
+
+|pass:c[Keywords in lower case]
+|pass:c[Print SQL keywords such as SELECT and FROM in lower case.]
+|`pass:c[false]`
+
+|pass:c[Quote all identifiers]
+|pass:c[Quote every identifier even when the dialect would accept it unquoted.]
+|`pass:c[false]`
+
+|===
+
+== Database Perspective
+
+These options are stored under `pass:c[database-perspective]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Automatically connect when executing SQL]
+|pass:c[Connect the SQL editors database without asking if it is not already connected. You can also enable this from the dialog that appears when the option is off.]
+|`pass:c[false]`
+
+|pass:c[Select the executed SQL in the editor]
+|pass:c[After Run or Run all, highlight only the statement(s) that were sent to the database. A leftover clause after a semicolon is left unselected.]
+|`pass:c[true]`
+
+|pass:c[Query row limit]
+|pass:c[Maximum number of rows shown for a SELECT in the SQL editor and for table preview. A SQL LIMIT above this value is still capped here so a SELECT * does not pull the whole table.]
+|`pass:c[1000]`
+
+|===
+
+== Dropbox
+
+These options are stored under `pass:c[dropbox]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Access token]
+|pass:c[The Dropbox access token used to authenticate. Generate one for an app in the Dropbox App Console; it grants whatever access that app was given. Accepts variables.]
+|
+
+|===
+
+== Explorer Perspective
+
+These options are stored under `pass:c[explorer-perspective]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[The initial depth to load not lazily]
+|pass:c[The initial depth to load not lazily. Accepts variables.]
+|`pass:c[0]`
+
+|pass:c[The maximum file size to load]
+|pass:c[The maximum file size to load. Accepts variables.]
+|`pass:c[16]`
+
+|pass:c[Show file explorer panel by default]
+|pass:c[When enabled, the file explorer panel (project tree) is shown by default when opening the explorer perspective]
+|`pass:c[true]`
+
+|pass:c[Open help pages in]
+|pass:c[Choose where documentation opens: the system browser, a tab in the File Explorer perspective, or a dialog on top of the current window.]
+|`pass:c[BROWSER]`
+
+|pass:c[Select active file in tree automatically]
+|pass:c[Automatically select the active tab file in the file explorer tree on the left hand side when it is shown in a tab.]
+|`pass:c[true]`
+
+|pass:c[Maximum undo operations]
+|pass:c[The maximum number of undo/redo snapshots kept for pipelines, workflows and table editors. Default is 100. Accepts variables.]
+|`pass:c[100]`
+
+|===
+
+== File validation
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Validate database connections when saving]
+|pass:c[When saving a pipeline or workflow, warn if a transform or action references a database connection that is not in the project metadata. Names that still contain a variable such as ${CONNECTION} after resolving the current environment are skipped. Saving is never blocked.]
+|`pass:c[true]`
+
+|===
+
+== Git
+
+These options are stored under `pass:c[gitConfig]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Enable the git GUI plugin]
+|pass:c[Switches the git plugin on or off. With it off the git perspective and the git decorations in the file explorer are hidden, and no repository is opened.]
+|`pass:c[true]`
+
+|pass:c[Search parent folders for git repository]
+|pass:c[Look in parent folders for the git repository rather than only in the project folder. Needed where the project sits in a subfolder of a larger repository.]
+|`pass:c[false]`
+
+|pass:c[Fetch remote changes automatically]
+|pass:c[Enables background fetching of remote updates every 20 minutes.]
+|`pass:c[false]`
+
+|pass:c[Ignore position in the visual diff]
+|pass:c[Do not mark a transform or action as changed when it was only moved.]
+|`pass:c[true]`
+
+|===
+
+== Google Cloud
+
+These options are stored under `pass:c[googleCloud]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Account key file]
+|pass:c[The path to a Google Cloud service account JSON key file. Accepts variables.]
+|
+
+|pass:c[Scan folders to find last modified data]
+|pass:c[Scans all files in a folder and uses the most recent modification data as the folder modification data. This may have a performance impact in buckets with lots of files.]
+|`pass:c[false]`
+
+|pass:c[Max number of attempts]
+|pass:c[Maximum number of attempts for a single request, including the first one. Accepts variables.]
+|`pass:c[6]`
+
+|pass:c[Initial retry delay (seconds)]
+|pass:c[Delay before the first retry, in seconds. Accepts variables.]
+|`pass:c[1]`
+
+|pass:c[Retry delay multiplier]
+|pass:c[Retry delay multiplier. Accepts variables.]
+|`pass:c[2.0]`
+
+|pass:c[Maximum retry delay (seconds)]
+|pass:c[Ceiling for the retry delay once the multiplier has been applied, in seconds. Accepts variables.]
+|`pass:c[32]`
+
+|pass:c[Total timeout (minutes)]
+|pass:c[Deadline for a request including all of its retries, in minutes. Accepts variables.]
+|`pass:c[50]`
+
+|pass:c[Initial RPC timeout (seconds)]
+|pass:c[Timeout for the first attempt, in seconds. Raised to the max RPC timeout if that is lower. Accepts variables.]
+|`pass:c[50]`
+
+|pass:c[RPC Timeout Multiplier]
+|pass:c[RPC Timeout Multiplier. Accepts variables.]
+|`pass:c[1.0]`
+
+|pass:c[Max RPC timeout (seconds)]
+|pass:c[Ceiling for a single attempt timeout, in seconds. Never lower than the initial RPC timeout. Accepts variables.]
+|`pass:c[50]`
+
+|pass:c[Connect timeout (seconds)]
+|pass:c[Socket connect timeout, in seconds. Accepts variables.]
+|`pass:c[20]`
+
+|pass:c[Read timeout (seconds)]
+|pass:c[Socket read timeout, in seconds. Accepts variables.]
+|`pass:c[20]`
+
+|pass:c[Retry non-idempotent operations]
+|pass:c[Also retry writes (create, delete, starting an upload). Google Cloud Storage only retries reads by default, so without this the retry settings above do not apply to writing files. Note that a retried delete can report "not found" when the first attempt already succeeded, and a retried create overwrites.]
+|`pass:c[false]`
+
+|pass:c[Cache TTL (seconds)]
+|pass:c[How long to cache folder listing results (in seconds, default 5). If not set, falls back to 10 seconds. Accepts variables.]
+|`pass:c[5]`
+
+|===
+
+== Google Drive VFS
+
+These options are stored under `pass:c[googleDrive]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Path to a Google Drive credentials JSON file]
+|pass:c[Please note that this is a global configuration option and while you can specify variables that these will be not include project specific settings. Accepts variables.]
+|
+
+|pass:c[Path to a tokens folder for credential caching]
+|pass:c[Pick a safe folder to store these tokens. Accepts variables.]
+|
+
+|===
+
+== Linter
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Configuration File]
+|pass:c[Path to hop-lint.yml configuration file (leave empty for project-specific). Accepts variables.]
+|
+
+|pass:c[Enable Linter]
+|pass:c[Enable or disable the Hop Linter globally]
+|`pass:c[true]`
+
+|pass:c[Include Lint Rules in Pipeline Verify]
+|pass:c[Add YAML/custom lint findings to the native pipeline verify Problems tab]
+|`pass:c[true]`
+
+|pass:c[Include Lint Rules in Workflow Verify]
+|pass:c[Add YAML/custom lint findings to the native workflow verify Problems tab]
+|`pass:c[true]`
+
+|pass:c[Include Hop Native Checks in Lint Runs]
+|pass:c[Also run Hops built-in pipeline/workflow verify checks during lint project/file scans]
+|`pass:c[true]`
+
+|pass:c[Lint Automatically While Editing]
+|pass:c[Re-run lint checks shortly after you change an open pipeline or workflow. When disabled, files are only linted on open, save, or on demand.]
+|`pass:c[true]`
+
+|pass:c[Block Commits on Warnings]
+|pass:c[When enabled, warnings also block commits. When disabled, only errors block commits]
+|`pass:c[false]`
+
+|pass:c[Block Git Commits on Lint Failures]
+|pass:c[When enabled, lint checks run before Explorer git commits and block the commit if issues are found]
+|`pass:c[false]`
+
+|pass:c[Include Metadata in Pre-Commit Checks]
+|pass:c[Also lint staged metadata files (e.g. metadata/**/*.json) during pre-commit checks]
+|`pass:c[true]`
+
+|pass:c[Mark Ignored Transforms and Actions]
+|pass:c[Draw a muted outline on a transform or action whose lint findings have been marked as expected, so the absence of a warning reads as a decision rather than as a check that never ran]
+|`pass:c[true]`
+
+|pass:c[Show Lint Indicators on Canvas]
+|pass:c[Show the lint totals overlay (top-left of the canvas) and the severity badges on transforms/actions in open pipeline and workflow editors]
+|`pass:c[true]`
+
+|===
+
+== Microsoft Azure
+
+These options are stored under `pass:c[azure]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Account]
+|pass:c[The account to use for the Azure VFS. Accepts variables.]
+|
+
+|pass:c[Account key]
+|pass:c[The key to use for the Azure VFS. Accepts variables.]
+|
+
+|pass:c[Alternative Local Storage]
+|pass:c[URL of Azure emulator/local storage. Accepts variables.]
+|
+
+|===
+
+== Projects
+
+These options are stored under `pass:c[projectsConfig]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Enable the projects plugin]
+|pass:c[Switches the projects plugin on or off. With it off, Hop GUI drops the project and environment selectors and files are addressed by path alone.]
+|`pass:c[true]`
+
+|pass:c[Use of a project is mandatory]
+|pass:c[Refuse to run a pipeline or workflow unless a project is selected. Catches runs against the wrong configuration on a shared installation.]
+|`pass:c[false]`
+
+|pass:c[Use of an environment is mandatory]
+|pass:c[Refuse to run a pipeline or workflow unless a lifecycle environment is selected, so every run has explicit environment variables behind it.]
+|`pass:c[false]`
+
+|pass:c[The default project to use when none is specified]
+|pass:c[The default project to use when none is specified. Accepts variables.]
+|
+
+|pass:c[The default environment to use when none is specified]
+|pass:c[The name of the default environment to use when none is specified. Accepts variables.]
+|
+
+|pass:c[The parent project to propose when creating projects]
+|pass:c[The project proposed as the parent when a new project is created. A child project inherits its parent's variables and configuration. Accepts variables.]
+|
+
+|pass:c[The standard projects folder for new projects]
+|pass:c[The standard projects folder for new projects. Accepts variables.]
+|
+
+|pass:c[The project configuration filename for new projects]
+|pass:c[The name given to the configuration file of a newly created project, relative to the project folder. Accepts variables.]
+|`pass:c[project-config.json]`
+
+|pass:c[Clear DB cache when switching project/environment]
+|pass:c[Empty the database cache when switching project or environment. Keep this on where environments point at different databases that share connection names, so metadata cached for the previous one is not reused.]
+|`pass:c[true]`
+
+|pass:c[Sort the last used projects alphabetically]
+|pass:c[List the last used projects alphabetically rather than most recently used first.]
+|`pass:c[false]`
+
+|===
+
+== Search
+
+These options are stored under `pass:c[search]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Minimum characters for content search]
+|pass:c[Object names are always searched. File and field content is only searched when the query has at least this many characters (default 3). Prevents floods of hits while typing. Accepts variables.]
+|`pass:c[3]`
+
+|pass:c[Maximum search results]
+|pass:c[Hard limit on the number of results built for Hop GUI search (default 500). Further matches are not collected so the UI stays responsive. Accepts variables.]
+|`pass:c[500]`
+
+|pass:c[Maximum matches per text file]
+|pass:c[Stop scanning a single text file after this many matching lines (default 20). Accepts variables.]
+|`pass:c[20]`
+
+|pass:c[Maximum text file size for search (MB)]
+|pass:c[Text files larger than this are skipped for content search (default 1 MB). Use dedicated tools for million-row CSV/JSON files. Accepts variables.]
+|`pass:c[1]`
+
+|pass:c[Include project text files in content search]
+|pass:c[When enabled, CSV, JSON, SQL and other project text files are content-searched (subject to size and match limits). Open text files are always eligible. Disable to search only pipelines, workflows, metadata and open files.]
+|`pass:c[true]`
+
+|pass:c[Search as you type]
+|pass:c[When enabled, search runs automatically after a short pause while typing. Press Enter to search immediately either way.]
+|`pass:c[true]`
+
+|pass:c[Search-as-you-type delay (ms)]
+|pass:c[Milliseconds to wait after the last keystroke before running a live search (default 300). Accepts variables.]
+|`pass:c[300]`
+
+|===
+
+== Welcome Dialog
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Show welcome dialog at the startup of the Hop GUI]
+|pass:c[Show the welcome dialog when Hop GUI starts. The dialog has a Don't show this at startup option of its own that sets the same thing, and the ${HOP_NO_WELCOME_DIALOG} variable suppresses it whatever is set here.]
+|`pass:c[true]`
+
+|===

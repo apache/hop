@@ -1,0 +1,82 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+// Generated from the @ConfigPlugin and @GuiWidgetElement annotations.
+// Edit those, not this file.
+
+These options are stored under `pass:c[googleCloud]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Account key file]
+|pass:c[The path to a Google Cloud service account JSON key file. Accepts variables.]
+|
+
+|pass:c[Scan folders to find last modified data]
+|pass:c[Scans all files in a folder and uses the most recent modification data as the folder modification data. This may have a performance impact in buckets with lots of files.]
+|`pass:c[false]`
+
+|pass:c[Max number of attempts]
+|pass:c[Maximum number of attempts for a single request, including the first one. Accepts variables.]
+|`pass:c[6]`
+
+|pass:c[Initial retry delay (seconds)]
+|pass:c[Delay before the first retry, in seconds. Accepts variables.]
+|`pass:c[1]`
+
+|pass:c[Retry delay multiplier]
+|pass:c[Retry delay multiplier. Accepts variables.]
+|`pass:c[2.0]`
+
+|pass:c[Maximum retry delay (seconds)]
+|pass:c[Ceiling for the retry delay once the multiplier has been applied, in seconds. Accepts variables.]
+|`pass:c[32]`
+
+|pass:c[Total timeout (minutes)]
+|pass:c[Deadline for a request including all of its retries, in minutes. Accepts variables.]
+|`pass:c[50]`
+
+|pass:c[Initial RPC timeout (seconds)]
+|pass:c[Timeout for the first attempt, in seconds. Raised to the max RPC timeout if that is lower. Accepts variables.]
+|`pass:c[50]`
+
+|pass:c[RPC Timeout Multiplier]
+|pass:c[RPC Timeout Multiplier. Accepts variables.]
+|`pass:c[1.0]`
+
+|pass:c[Max RPC timeout (seconds)]
+|pass:c[Ceiling for a single attempt timeout, in seconds. Never lower than the initial RPC timeout. Accepts variables.]
+|`pass:c[50]`
+
+|pass:c[Connect timeout (seconds)]
+|pass:c[Socket connect timeout, in seconds. Accepts variables.]
+|`pass:c[20]`
+
+|pass:c[Read timeout (seconds)]
+|pass:c[Socket read timeout, in seconds. Accepts variables.]
+|`pass:c[20]`
+
+|pass:c[Retry non-idempotent operations]
+|pass:c[Also retry writes (create, delete, starting an upload). Google Cloud Storage only retries reads by default, so without this the retry settings above do not apply to writing files. Note that a retried delete can report "not found" when the first attempt already succeeded, and a retried create overwrites.]
+|`pass:c[false]`
+
+|pass:c[Cache TTL (seconds)]
+|pass:c[How long to cache folder listing results (in seconds, default 5). If not set, falls back to 10 seconds. Accepts variables.]
+|`pass:c[5]`
+
+|===
