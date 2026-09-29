@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.gui;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -41,7 +42,9 @@ import org.apache.hop.core.gui.plugin.GuiTableColumn;
 import org.apache.hop.core.gui.plugin.GuiTableColumnType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
@@ -69,6 +72,8 @@ class GuiCompositeWidgetsTableTest extends SwtBotTestBase {
   static void registerSampleWidgets() throws Exception {
     register(TableSample.class);
     register(FlatTable.class);
+    register(ComboHost.class);
+    register(OverloadHost.class);
   }
 
   @Test
@@ -228,6 +233,59 @@ class GuiCompositeWidgetsTableTest extends SwtBotTestBase {
     }
   }
 
+  @Test
+  void stringComboItemsAreReadAgainWhenTheGridIsFilled() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FormLayout());
+    try {
+      ComboHost source = new ComboHost();
+      source.getItems().add(new ChoiceRow("one", SampleKind.LEFT));
+
+      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
+      widgets.createCompositeWidgets(source, null, shell, ComboHost.PARENT_ID, null);
+      widgets.setWidgetsContents(source, shell, ComboHost.PARENT_ID);
+
+      TableView table = (TableView) widgets.getWidgetsMap().get("items");
+      assertArrayEquals(new String[] {"one", "two"}, table.getColumns()[0].getComboValues());
+      assertArrayEquals(new String[] {"LEFT", "RIGHT"}, table.getColumns()[1].getComboValues());
+      assertEquals("one", table.getTable().getItem(0).getText(1));
+
+      source.getChoices().clear();
+      source.getChoices().add("three");
+      widgets.setWidgetsContents(source, shell, ComboHost.PARENT_ID);
+
+      assertArrayEquals(new String[] {"three"}, table.getColumns()[0].getComboValues());
+      assertArrayEquals(new String[] {"LEFT", "RIGHT"}, table.getColumns()[1].getComboValues());
+      assertEquals("one", table.getTable().getItem(0).getText(1));
+    } finally {
+      shell.dispose();
+    }
+  }
+
+  @Test
+  void overloadedSettersMatchTheFieldType() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FormLayout());
+    try {
+      OverloadHost source = new OverloadHost();
+      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
+      widgets.createCompositeWidgets(source, null, shell, OverloadHost.PARENT_ID, null);
+      widgets.setWidgetsContents(source, shell, OverloadHost.PARENT_ID);
+
+      TableView table = (TableView) widgets.getWidgetsMap().get("roles");
+      table.getTable().getItem(0).setText(1, "RIGHT");
+      widgets.getWidgetsContents(source, OverloadHost.PARENT_ID);
+
+      assertNotNull(source.getRoles());
+      assertEquals(1, source.getRoles().size());
+      assertEquals(SampleKind.RIGHT, source.getRoles().get(0).getRole());
+      assertFalse(source.getRoles().get(0).stringSetterUsed);
+      assertFalse(source.stringListSetterUsed);
+    } finally {
+      shell.dispose();
+    }
+  }
+
   private static CTabFolder findTabFolder(Composite parent) {
     for (Control child : parent.getChildren()) {
       if (child instanceof CTabFolder folder) {
@@ -364,5 +422,88 @@ class GuiCompositeWidgetsTableTest extends SwtBotTestBase {
   public static class NoteRow {
     @GuiTableColumn(order = "10", type = GuiTableColumnType.TEXT, label = "Note")
     private String note;
+  }
+
+  @GuiPlugin
+  @Getter
+  @Setter
+  public static class ComboHost {
+    static final String PARENT_ID = "GuiCompositeWidgetsTableTest-combo";
+
+    private List<String> choices = new ArrayList<>(List.of("one", "two"));
+
+    public List<String> choices(ILogChannel log, IHopMetadataProvider metadataProvider) {
+      return choices;
+    }
+
+    @GuiWidgetElement(
+        id = "items",
+        type = GuiElementType.TABLE,
+        label = "Items",
+        parentId = PARENT_ID,
+        tableRows = 3)
+    private List<ChoiceRow> items = new ArrayList<>();
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class ChoiceRow {
+    @GuiTableColumn(
+        order = "10",
+        type = GuiTableColumnType.COMBO,
+        label = "Choice",
+        comboValuesMethod = "choices")
+    private String choice;
+
+    @GuiTableColumn(order = "20", type = GuiTableColumnType.COMBO, label = "Kind")
+    private SampleKind kind;
+  }
+
+  /** {@code setRoles} and {@code setRole} each have a {@code String} overload. */
+  @GuiPlugin
+  @Getter
+  public static class OverloadHost {
+    static final String PARENT_ID = "GuiCompositeWidgetsTableTest-overload";
+
+    private boolean stringListSetterUsed;
+
+    @GuiWidgetElement(
+        id = "roles",
+        type = GuiElementType.TABLE,
+        label = "Roles",
+        parentId = PARENT_ID,
+        tableRows = 3)
+    private List<RoleRow> roles;
+
+    public void setRoles(String ignored) {
+      stringListSetterUsed = true;
+    }
+
+    public void setRoles(List<RoleRow> roles) {
+      this.roles = roles;
+    }
+  }
+
+  public static class RoleRow {
+    @GuiTableColumn(order = "10", type = GuiTableColumnType.COMBO, label = "Role")
+    private SampleKind role;
+
+    private boolean stringSetterUsed;
+
+    public RoleRow() {}
+
+    public SampleKind getRole() {
+      return role;
+    }
+
+    public void setRole(String text) {
+      stringSetterUsed = true;
+    }
+
+    public void setRole(SampleKind role) {
+      this.role = role;
+    }
   }
 }

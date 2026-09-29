@@ -41,6 +41,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiTableColumnElement;
+import org.apache.hop.core.gui.plugin.GuiTableColumnType;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroups;
 import org.apache.hop.core.gui.plugin.GuiWidgetMethodInvoker;
@@ -2034,6 +2035,10 @@ public class GuiCompositeWidgets {
     if (!(control instanceof TableView tableView) || !hasTableColumns(guiElements)) {
       return;
     }
+    List<GuiTableColumnElement> columns = guiElements.getTableColumns();
+    // String combo items are resolved again on every fill, including the refresh after a BUTTON.
+    refreshStringComboColumns(tableView, sourceData, columns);
+
     Object raw = readFieldValue(sourceData, guiElements);
     List<?> values;
     if (raw instanceof List<?> list) {
@@ -2050,7 +2055,6 @@ public class GuiCompositeWidgets {
     while (tableView.getItemCount() < values.size()) {
       new TableItem(tableView.getTable(), SWT.NONE);
     }
-    List<GuiTableColumnElement> columns = guiElements.getTableColumns();
     for (int rowIndex = 0; rowIndex < values.size(); rowIndex++) {
       Object row = values.get(rowIndex);
       if (row == null) {
@@ -2062,6 +2066,20 @@ public class GuiCompositeWidgets {
       }
     }
     tableView.optimizeTableView();
+  }
+
+  private void refreshStringComboColumns(
+      TableView tableView, Object sourceData, List<GuiTableColumnElement> columns) {
+    ColumnInfo[] infos = tableView.getColumns();
+    for (int i = 0; i < columns.size() && i < infos.length; i++) {
+      GuiTableColumnElement column = columns.get(i);
+      if (column.getType() == GuiTableColumnType.COMBO
+          && column.getFieldClass() != null
+          && !column.getFieldClass().isEnum()
+          && StringUtils.isNotEmpty(column.getComboValuesMethod())) {
+        infos[i].setComboValues(getComboItems(sourceData, column.getComboValuesMethod()));
+      }
+    }
   }
 
   private String cellText(Object row, GuiTableColumnElement column) {
@@ -2203,13 +2221,10 @@ public class GuiCompositeWidgets {
 
   private Method findRowSetter(Object row, GuiTableColumnElement column) {
     try {
-      if (StringUtils.isNotEmpty(column.getSetterMethod())) {
-        for (Method method : row.getClass().getMethods()) {
-          if (method.getName().equals(column.getSetterMethod())
-              && method.getParameterCount() == 1) {
-            return method;
-          }
-        }
+      Method setter =
+          methodWithParameter(row.getClass(), column.getSetterMethod(), column.getFieldClass());
+      if (setter != null) {
+        return setter;
       }
       return new PropertyDescriptor(column.getFieldName(), row.getClass()).getWriteMethod();
     } catch (Exception e) {
@@ -2220,16 +2235,9 @@ public class GuiCompositeWidgets {
 
   private boolean writeList(Object sourceData, GuiElements guiElements, List<Object> rows) {
     try {
-      Method setter = null;
-      if (StringUtils.isNotEmpty(guiElements.getSetterMethod())) {
-        for (Method method : sourceData.getClass().getMethods()) {
-          if (method.getName().equals(guiElements.getSetterMethod())
-              && method.getParameterCount() == 1) {
-            setter = method;
-            break;
-          }
-        }
-      }
+      Method setter =
+          methodWithParameter(
+              sourceData.getClass(), guiElements.getSetterMethod(), guiElements.getFieldClass());
       if (setter == null) {
         setter =
             new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
@@ -2245,6 +2253,18 @@ public class GuiCompositeWidgets {
     } catch (Exception e) {
       LogChannel.UI.logError("Unable to set TABLE field '" + guiElements.getFieldName() + "'", e);
       return false;
+    }
+  }
+
+  /** Public method with this name whose single parameter is {@code parameterType}. */
+  private Method methodWithParameter(Class<?> type, String name, Class<?> parameterType) {
+    if (StringUtils.isEmpty(name) || parameterType == null) {
+      return null;
+    }
+    try {
+      return type.getMethod(name, parameterType);
+    } catch (NoSuchMethodException e) {
+      return null;
     }
   }
 

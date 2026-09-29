@@ -74,6 +74,7 @@ The last grid in a tab or box keeps that height when the dialog opens and grows 
 
 A button that fills the list, such as Get Fields, is an ordinary `@GuiWidgetElement` of type `BUTTON`.
 After the method returns, the grid is refilled from the list.
+A `String` column with `comboValuesMethod` reads that method again each time the grid is filled, so the items can change after the dialog has opened.
 
 [source,java]
 ----
