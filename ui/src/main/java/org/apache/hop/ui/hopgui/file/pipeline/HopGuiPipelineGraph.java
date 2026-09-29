@@ -2591,6 +2591,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void splitHop(PipelineHopMeta hop) {
+    if (pipelineMeta.isMultipleCopiesTargetSplit(hop, currentTransform, getVariables())) {
+      if (hop != null) {
+        hop.setSplit(false);
+      }
+      if (lastHopSplit == hop) {
+        lastHopSplit = null;
+      }
+      showMultipleCopiesNotAllowedDialog();
+      splitHop = false;
+      return;
+    }
+
     int id = 0;
     if (!hopGui.getProps().getAutoSplit()) {
       MessageDialogWithToggle md =
@@ -3170,6 +3182,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         pipelineHopDelegate.newHop(pipelineMeta, candidate);
         break;
       case TARGET:
+        // Named targets receive rows on copy 0 only. Refuse before the target is recorded.
+        if (pipelineMeta.hasMultipleCopies(candidate.getToTransform(), getVariables())) {
+          showMultipleCopiesNotAllowedDialog();
+          break;
+        }
         // We connect a target of the source transform to an output transform...
         //
         stream.setTransformMeta(candidate.getToTransform());
@@ -4052,13 +4069,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       int copies = Const.toInt(hopGui.getVariables().resolve(cop), -1);
       if (copies > 1 && !multipleOK) {
         cop = "1";
-
-        modalMessageDialog(
-            BaseMessages.getString(
-                PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Title"),
-            BaseMessages.getString(
-                PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Message"),
-            SWT.YES | SWT.ICON_WARNING);
+        showMultipleCopiesNotAllowedDialog();
       }
       String cps = transformMeta.getCopiesString();
       if (cps == null || !cps.equals(cop)) {
@@ -4790,25 +4801,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private boolean checkNumberOfCopies(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
-    boolean enabled = true;
-    List<TransformMeta> prevTransforms = pipelineMeta.findPreviousTransforms(transformMeta);
-    for (TransformMeta prevTransform : prevTransforms) {
-      // See what the target transforms are.
-      // If one of the target transforms is our original transform, we can't start multiple copies
-      //
-      String[] targetTransforms =
-          prevTransform.getTransform().getTransformIOMeta().getTargetTransformNames();
-      if (targetTransforms != null) {
-        for (int t = 0; t < targetTransforms.length && enabled; t++) {
-          if (!Utils.isEmpty(targetTransforms[t])
-              && targetTransforms[t].equalsIgnoreCase(transformMeta.getName())) {
-            enabled = false;
-            break;
-          }
-        }
-      }
-    }
-    return enabled;
+    return pipelineMeta.allowsMultipleCopies(transformMeta);
   }
 
   /**
@@ -7250,6 +7243,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     messageBox.setMessage(message);
     messageBox.setText(title);
     messageBox.open();
+  }
+
+  public void showMultipleCopiesNotAllowedDialog() {
+    modalMessageDialog(
+        BaseMessages.getString(PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Title"),
+        BaseMessages.getString(PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Message"),
+        SWT.YES | SWT.ICON_WARNING);
   }
 
   /**
