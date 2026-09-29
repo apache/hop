@@ -87,6 +87,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private static final String TRANS_EXECUTOR_TYPE = "TransExecutor";
   private static final String SFTP_CONNECTION_METADATA_KEY = "sftp-connection";
 
+  /** The run configuration every Hop project is created with. */
+  private static final String DEFAULT_RUN_CONFIGURATION = "local";
+
   /** The elements of a Kettle SFTPPut step which describe the server, not the upload itself. */
   private static final List<String> SFTP_CONNECTION_TAGS =
       List.of(
@@ -787,6 +790,46 @@ public class KettleImport extends HopImportBase implements IHopImport {
     child.setTextContent(value);
   }
 
+  /**
+   * A Pipeline or Workflow action without a run configuration name refuses to run: both actions
+   * throw "You need to specify a run configuration" when the name is empty, and neither falls back
+   * to the parent's engine the way a Mapping transform does. Kettle only started writing the {@code
+   * run_configuration} element in PDI 8, writes it empty when one was never selected, and later
+   * versions still leave it out entirely, so fill it in at import time (#3814).
+   *
+   * <p>An element that is absent and one that is present but empty are the same thing here: neither
+   * carries a name to preserve, so both get the default. An element that names a run configuration
+   * is left to the main loop in {@link #processNode}, which keeps that name unless a default was
+   * configured.
+   *
+   * @param entryNode the Kettle {@code entry} node being imported
+   * @param entryType the type of the entry, only JOB and TRANS are handled
+   */
+  private void addMissingRunConfiguration(Document doc, Node entryNode, EntryType entryType) {
+    if (entryType != EntryType.JOB && entryType != EntryType.TRANS) {
+      return;
+    }
+    if (StringUtils.isNotBlank(getChildText(entryNode, "run_configuration"))) {
+      return;
+    }
+    // Reuses the element when the source wrote an empty one, so this never adds a second.
+    setChildElement(doc, entryNode, "run_configuration", defaultActionRunConfiguration(entryType));
+  }
+
+  /**
+   * The run configuration to give a Pipeline or Workflow action that has none. Falls back to the
+   * {@code local} run configuration every Hop project is created with, because an empty name leaves
+   * the action unable to execute. An action that already names one keeps that name when no default
+   * is configured, so this fallback only applies to a missing or empty element.
+   */
+  private String defaultActionRunConfiguration(EntryType entryType) {
+    String runConfiguration =
+        entryType == EntryType.JOB
+            ? defaultWorkflowRunConfiguration
+            : defaultPipelineRunConfiguration;
+    return StringUtils.isNotEmpty(runConfiguration) ? runConfiguration : DEFAULT_RUN_CONFIGURATION;
+  }
+
   private void processNode(Document doc, Node node, EntryType entryType, int depth) {
     Node nodeToProcess = node;
     NodeList nodeList = nodeToProcess.getChildNodes();
@@ -850,6 +893,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
               }
             }
           }
+          addMissingRunConfiguration(doc, currentNode, entryType);
         }
 
         if (currentNode.getNodeName().equals("step")) {
@@ -1175,9 +1219,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
         filenameNode = childNode;
       }
 
-      // hard coded local run configuration for now
       if (childNode.getNodeName().equals("run_configuration")) {
-        childNode.setTextContent("local");
+        childNode.setTextContent(DEFAULT_RUN_CONFIGURATION);
       }
       if (childNode.getNodeName().equals("jobname")
           || childNode.getNodeName().equals("transname")) {

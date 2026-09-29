@@ -313,7 +313,8 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
               + subject
               + " run configuration was specified. Imported "
               + subject
-              + "s keep the run configuration named in the source file, which can be empty.");
+              + "s keep the run configuration named in the source file. Pipeline and Workflow"
+              + " actions that name none fall back to 'local'.");
     }
   }
 
