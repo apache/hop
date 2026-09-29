@@ -174,13 +174,110 @@ image:tech/parquet/parquet-output-dialog-fields-tab.png[Parquet file output Fiel
 |Fields
 |You can specify which fields to write and in which order.
 You can use the "Get Fields" button to populate the dialog.
-Leave empty to output all input fields.
+Leave the list empty to output all input fields with the types in <<hop-to-parquet-types,Hop to Parquet types>>.
 
+|Source field
+|Incoming field to write.
+
+|Target field
+|Column name in the Parquet file.
+Leave empty to use the source field name.
+
+|Parquet type
+|https://parquet.apache.org/docs/file-format/types/logicaltypes/[Logical or physical type] of the column.
+Leave empty to keep the type chosen from the Hop type.
+Get Fields proposes a type for each field: a Date is proposed as `Date`, so a warehouse such as BigQuery loads it as a DATE, and a Timestamp is proposed as `TimestampMicros`.
+Change the proposed type when you need a different one.
+
+|Precision
+|Total number of digits.
+Used only when the Parquet type is `Decimal`.
+Leave empty to use the length of the source field.
+
+|Scale
+|Digits after the decimal point.
+Used only when the Parquet type is `Decimal`.
+Leave empty to use the precision of the source field.
 |===
 
+=== Choosing a Parquet type
+
+[options="header"]
+|===
+|Parquet type|Column|Value
+
+|UTF8
+|STRING
+|Text of the value
+
+|Boolean
+|BOOLEAN
+|Boolean value
+
+|Int32
+|INT32
+|Whole number. A value outside the 32-bit range stops the transform.
+
+|Int64
+|INT64
+|Whole number
+
+|Float
+|FLOAT
+|32-bit floating point number
+
+|Double
+|DOUBLE
+|64-bit floating point number
+
+|Binary
+|BINARY
+|Bytes of the value
+
+|Date
+|DATE
+|Calendar date in the JVM time zone. The time of day is dropped.
+BigQuery and other warehouses load this logical type as a DATE.
+Parquet Input reads it back as midnight of that date in the same time zone.
+
+|TimeMillis
+|TIME(MILLIS), not adjusted to UTC
+|Time of day in the JVM time zone, with millisecond precision
+
+|TimeMicros
+|TIME(MICROS), not adjusted to UTC
+|Time of day in the JVM time zone, with microsecond precision
+
+|TimestampMillis
+|TIMESTAMP(MILLIS), adjusted to UTC
+|Instant, with millisecond precision
+
+|TimestampMicros
+|TIMESTAMP(MICROS), adjusted to UTC
+|Instant, with microsecond precision. The nanoseconds beyond the microsecond are dropped.
+
+|Decimal
+|DECIMAL(precision, scale)
+|Exact decimal, rounded with the rounding type of the field.
+Precision is 1 to 38 and scale is 0 to the precision, taken from the Precision and Scale columns or, when those are empty, from the length and precision of the source field.
+A value with more digits before the decimal point than the column holds stops the transform.
+
+|JSON
+|JSON
+|JSON text
+
+|UUID
+|UUID
+|The 16 bytes of the UUID. The value is the text form, for example `00112233-4455-6677-8899-aabbccddeeff`.
+|===
+
+A field listed without a Parquet type, and every field written because the list is empty, uses the mapping below.
+An existing pipeline that does not set a Parquet type keeps that mapping: a Date stays a TIMESTAMP(MILLIS) until you select `Date`.
+
+[#hop-to-parquet-types]
 == Hop to Parquet types
 
-Every field is written as an optional column of the https://parquet.apache.org/docs/file-format/types/logicaltypes/[Parquet type] below.
+When the Parquet type is left empty, every field is written as an optional column of the https://parquet.apache.org/docs/file-format/types/logicaltypes/[Parquet type] below.
 
 [options="header"]
 |===

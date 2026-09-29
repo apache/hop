@@ -196,8 +196,29 @@ public class ParquetOutputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.ParquetType.Label"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              parquetTypeComboValues(),
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Precision.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Scale.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
         };
     columns[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
+    columns[2].setToolTip(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.ParquetType.Tooltip"));
+    columns[3].setToolTip(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Precision.Tooltip"));
+    columns[4].setToolTip(
+        BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Scale.Tooltip"));
     wFields =
         new TableView(
             variables,
@@ -250,6 +271,9 @@ public class ParquetOutputDialog extends BaseTransformDialog {
           TableItem item = new TableItem(wFields.table, SWT.NONE);
           item.setText(1, Const.NVL(field.getSourceFieldName(), ""));
           item.setText(2, Const.NVL(field.getTargetFieldName(), ""));
+          item.setText(3, Const.NVL(field.getParquetType(), ""));
+          item.setText(4, Const.NVL(field.getPrecision(), ""));
+          item.setText(5, Const.NVL(field.getScale(), ""));
         }
       }
       wFields.optimizeTableView();
@@ -271,7 +295,11 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     if (wFields != null && !wFields.isDisposed()) {
       List<ParquetField> fields = new ArrayList<>();
       for (TableItem item : wFields.getNonEmptyItems()) {
-        fields.add(new ParquetField(item.getText(1), item.getText(2)));
+        ParquetField field = new ParquetField(item.getText(1), item.getText(2));
+        field.setParquetType(emptyToNull(item.getText(3)));
+        field.setPrecision(emptyToNull(item.getText(4)));
+        field.setScale(emptyToNull(item.getText(5)));
+        fields.add(field);
       }
       input.setFields(fields);
     }
@@ -358,11 +386,49 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     return "";
   }
 
+  private static String[] parquetTypeComboValues() {
+    String[] codes = ParquetFieldType.codes();
+    String[] values = new String[codes.length + 1];
+    values[0] = "";
+    System.arraycopy(codes, 0, values, 1, codes.length);
+    return values;
+  }
+
+  private static String emptyToNull(String value) {
+    if (Utils.isEmpty(value)) {
+      return null;
+    }
+    String trimmed = value.trim();
+    return trimmed.isEmpty() ? null : trimmed;
+  }
+
   private void getFields() {
     try {
       IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
       BaseTransformDialog.getFieldsFromPrevious(
-          rowMeta, wFields, 2, new int[] {1, 2}, new int[0], -1, -1, true, null);
+          rowMeta,
+          wFields,
+          2,
+          new int[] {1, 2},
+          new int[0],
+          -1,
+          -1,
+          true,
+          (tableItem, valueMeta) -> {
+            ParquetFieldType proposed = ParquetFieldType.forValueMeta(valueMeta);
+            if (proposed != null) {
+              tableItem.setText(3, proposed.getCode());
+            }
+            if (proposed == ParquetFieldType.Decimal) {
+              if (valueMeta.getLength() > 0) {
+                tableItem.setText(4, Integer.toString(valueMeta.getLength()));
+              }
+              if (valueMeta.getPrecision() >= 0) {
+                tableItem.setText(5, Integer.toString(valueMeta.getPrecision()));
+              }
+            }
+            return true;
+          });
     } catch (Exception e) {
       new ErrorDialog(
           shell,

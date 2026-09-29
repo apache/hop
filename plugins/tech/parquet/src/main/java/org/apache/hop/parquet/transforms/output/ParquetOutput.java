@@ -246,8 +246,9 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   }
 
   /**
-   * Builds the Avro schema for the resolved output fields and converts it to a Parquet schema.
-   * Built once and reused for every split or partition file.
+   * Builds the Avro schema for the resolved output fields and converts it to a Parquet schema. A
+   * Parquet type selected on a field replaces the column built here. Built once and reused for
+   * every split or partition file.
    */
   private MessageType buildSchema() throws HopException {
     SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
@@ -268,9 +269,32 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
               .endUnion()
               .noDefault();
     }
-    // Convert from Avro to Parquet schema
+    // Convert from Avro to Parquet schema, then apply a Parquet type selected on a field.
     //
-    return withParquetOnlyTypes(new AvroSchemaConverter().convert(fieldAssembler.endRecord()));
+    return applySelectedTypes(
+        withParquetOnlyTypes(new AvroSchemaConverter().convert(fieldAssembler.endRecord())));
+  }
+
+  /**
+   * Replaces columns whose field has a Parquet type. A field without one keeps the column built
+   * from its Hop type.
+   */
+  private MessageType applySelectedTypes(MessageType messageType) throws HopException {
+    List<Type> types = new ArrayList<>();
+    boolean changed = false;
+    for (int i = 0; i < messageType.getFieldCount(); i++) {
+      Type type = messageType.getType(i);
+      ParquetField field = data.outputFields.get(i);
+      ParquetFieldType selected = field.parquetFieldType();
+      if (selected == null) {
+        types.add(type);
+      } else {
+        IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
+        types.add(selected.column(type.getName(), field, valueMeta));
+        changed = true;
+      }
+    }
+    return changed ? new MessageType(messageType.getName(), types) : messageType;
   }
 
   /** The largest DECIMAL precision readers such as Spark, Hive and Trino accept. */
@@ -392,7 +416,9 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         continue;
       }
       String targetFieldName = Const.NVL(field.getTargetFieldName(), field.getSourceFieldName());
-      data.outputFields.add(new ParquetField(field.getSourceFieldName(), targetFieldName));
+      ParquetField outputField = new ParquetField(field);
+      outputField.setTargetFieldName(targetFieldName);
+      data.outputFields.add(outputField);
       data.sourceFieldIndexes.add(index);
     }
     verifyFieldsRemain();

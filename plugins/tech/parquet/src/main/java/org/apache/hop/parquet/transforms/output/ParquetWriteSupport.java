@@ -51,6 +51,9 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
   /** The logical type of the column of every field, which decides how its values are stored. */
   private final LogicalTypeAnnotation[] logicalTypes;
 
+  /** A Parquet type selected on the field. Null keeps the column built from the Hop type. */
+  private final ParquetFieldType[] selectedTypes;
+
   public ParquetWriteSupport(
       MessageType messageType, List<Integer> sourceFieldIndexes, List<ParquetField> fields) {
     this.messageType = messageType;
@@ -59,6 +62,14 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
     this.logicalTypes = new LogicalTypeAnnotation[fields.size()];
     for (int i = 0; i < fields.size() && i < messageType.getFieldCount(); i++) {
       logicalTypes[i] = messageType.getType(i).getLogicalTypeAnnotation();
+    }
+    this.selectedTypes = new ParquetFieldType[fields.size()];
+    for (int i = 0; i < fields.size(); i++) {
+      try {
+        selectedTypes[i] = fields.get(i).parquetFieldType();
+      } catch (HopException e) {
+        throw new HopRuntimeException(e.getMessage(), e);
+      }
     }
   }
 
@@ -89,40 +100,48 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
         if (!isNull) {
           recordConsumer.startField(field.getTargetFieldName(), i);
 
-          // The column type, as built by ParquetOutput.avroType(), decides how the value is stored.
-          // Anything without a column type of its own goes out as a string.
+          // A Parquet type selected on the field decides how the value is stored. Otherwise the
+          // column type built from the Hop type does, and anything without a column type of its
+          // own goes out as a string.
           //
-          LogicalTypeAnnotation logicalType = logicalTypes[i];
-          switch (valueMeta.getType()) {
-            case IValueMeta.TYPE_INTEGER -> recordConsumer.addLong(valueMeta.getInteger(valueData));
-            case IValueMeta.TYPE_NUMBER -> recordConsumer.addDouble(valueMeta.getNumber(valueData));
-            case IValueMeta.TYPE_BOOLEAN ->
-                recordConsumer.addBoolean(valueMeta.getBoolean(valueData));
-            case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP ->
-                recordConsumer.addLong(epochValue(valueMeta, valueData, logicalType));
-            case IValueMeta.TYPE_BINARY ->
-                recordConsumer.addBinary(
-                    Binary.fromConstantByteArray(valueMeta.getBinary(valueData)));
-            case IValueMeta.TYPE_BIGNUMBER -> {
-              if (logicalType instanceof DecimalLogicalTypeAnnotation decimal) {
-                recordConsumer.addBinary(
-                    decimalBytes(
-                        field.getTargetFieldName(),
-                        valueMeta,
-                        valueMeta.getBigNumber(valueData),
-                        decimal));
-              } else {
-                recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
+          if (selectedTypes[i] != null) {
+            selectedTypes[i].write(recordConsumer, field, valueMeta, valueData);
+          } else {
+            LogicalTypeAnnotation logicalType = logicalTypes[i];
+            switch (valueMeta.getType()) {
+              case IValueMeta.TYPE_INTEGER ->
+                  recordConsumer.addLong(valueMeta.getInteger(valueData));
+              case IValueMeta.TYPE_NUMBER ->
+                  recordConsumer.addDouble(valueMeta.getNumber(valueData));
+              case IValueMeta.TYPE_BOOLEAN ->
+                  recordConsumer.addBoolean(valueMeta.getBoolean(valueData));
+              case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP ->
+                  recordConsumer.addLong(epochValue(valueMeta, valueData, logicalType));
+              case IValueMeta.TYPE_BINARY ->
+                  recordConsumer.addBinary(
+                      Binary.fromConstantByteArray(valueMeta.getBinary(valueData)));
+              case IValueMeta.TYPE_BIGNUMBER -> {
+                if (logicalType instanceof DecimalLogicalTypeAnnotation decimal) {
+                  recordConsumer.addBinary(
+                      decimalBytes(
+                          field.getTargetFieldName(),
+                          valueMeta,
+                          valueMeta.getBigNumber(valueData),
+                          decimal));
+                } else {
+                  recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
+                }
               }
-            }
-            case IValueMeta.TYPE_UUID -> {
-              if (logicalType instanceof UUIDLogicalTypeAnnotation) {
-                recordConsumer.addBinary(uuidBytes(valueMeta.getString(valueData)));
-              } else {
-                recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
+              case IValueMeta.TYPE_UUID -> {
+                if (logicalType instanceof UUIDLogicalTypeAnnotation) {
+                  recordConsumer.addBinary(uuidBytes(valueMeta.getString(valueData)));
+                } else {
+                  recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
+                }
               }
+              default ->
+                  recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
             }
-            default -> recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
           }
           recordConsumer.endField(field.getTargetFieldName(), i);
         }
