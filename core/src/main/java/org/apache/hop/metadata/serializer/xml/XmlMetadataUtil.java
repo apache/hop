@@ -567,6 +567,12 @@ public class XmlMetadataUtil {
   private static void serializeMapKeyToXml(StringBuilder xml, String keyTag, Map.Entry<?, ?> entry)
       throws HopException {
     Object keyObject = entry.getKey();
+    if (keyObject == null) {
+      // A null key has no type to read the key tag from. Write the bare wrapper so the entry is
+      // not lost on the round trip.
+      xml.append(XmlHandler.addTagValue(Const.NVL(keyTag, "key"), (String) null));
+      return;
+    }
     Class<?> keyClass = keyObject.getClass();
     HopMetadataProperty keyProperty = keyClass.getAnnotation(HopMetadataProperty.class);
     String keyTagKey = Const.NVL(keyTag, "key");
@@ -580,6 +586,13 @@ public class XmlMetadataUtil {
   private static void serializeMapValueToXml(
       StringBuilder xml, String valueTag, Map.Entry<?, ?> entry) throws HopException {
     Object valueObject = entry.getValue();
+    if (valueObject == null) {
+      // An empty value is legitimate: an attribute written as <value/> reads back as null, and
+      // setAttribute(group, key, null) stores one. serializeObjectToXml already renders a null
+      // object as an empty tag, so route through it instead of dereferencing valueObject.
+      xml.append(XmlHandler.addTagValue(Const.NVL(valueTag, "value"), (String) null));
+      return;
+    }
     Class<?> valueClass = valueObject.getClass();
     HopMetadataProperty keyProperty = valueClass.getAnnotation(HopMetadataProperty.class);
     String valueTagKey = Const.NVL(valueTag, "value");
