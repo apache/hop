@@ -928,15 +928,20 @@ public class ProjectDialog extends Dialog {
         ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
         Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
         String grandParentName = parentPrj.getParentProjectName();
-        if (grandParentName != null
+        // Empty means "no parent". A new project also has an empty original name, and the
+        // default project stores parentProjectName as "". Comparing those two empty strings
+        // would look like a cycle.
+        if (StringUtils.isNotEmpty(grandParentName)
             && (grandParentName.equalsIgnoreCase(projectName)
-                || grandParentName.equalsIgnoreCase(oriProjectName)))
+                || (StringUtils.isNotEmpty(oriProjectName)
+                    && grandParentName.equalsIgnoreCase(oriProjectName)))) {
           throw new HopException(
               CONST_PROJECT
                   + projectName
                   + "' cannot reference '"
                   + wParentProject.getText()
                   + "' as parent project because we are going to create a circular reference!");
+        }
       }
 
       if (this.editMode && !oriProjectName.equals(projectName)) {
