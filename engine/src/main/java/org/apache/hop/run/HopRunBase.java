@@ -96,8 +96,18 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
 
   @CommandLine.Option(
       names = {"-lf", "--logfile"},
-      description = "The complete filename where hop-run will write the Hop console log")
+      description =
+          "The complete filename where hop-run will write the Hop console log. "
+              + "An existing file is replaced unless --logfile-append is set")
   protected String logFile;
+
+  @CommandLine.Option(
+      names = {"-lfa", "--logfile-append"},
+      description =
+          "Append to the file given by --logfile instead of replacing it. "
+              + "Without this option an existing log file is overwritten. "
+              + "Ignored when --logfile is not set")
+  protected boolean appendLogFile = false;
 
   @CommandLine.Option(
       names = {"-p", "--parameters"},
@@ -209,7 +219,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       }
 
       if (!Utils.isEmpty(logFile)) {
-        fileLoggingEventListener = new FileLoggingEventListener(logFile, false);
+        fileLoggingEventListener = createFileLoggingEventListener();
         HopLogStore.getAppender().addLoggingEventListener(fileLoggingEventListener);
       }
 
@@ -677,6 +687,14 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       throw new ParameterException(
           new CommandLine(this), "A filename is needed to run a workflow or pipeline");
     }
+  }
+
+  /**
+   * Opens the hop-run console log. An existing file is replaced unless {@link #appendLogFile} was
+   * set with {@code --logfile-append}.
+   */
+  protected FileLoggingEventListener createFileLoggingEventListener() throws HopException {
+    return new FileLoggingEventListener(logFile, appendLogFile);
   }
 
   protected void printOptions(IExecutionConfiguration configuration) {

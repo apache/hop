@@ -63,7 +63,11 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                           The name of the project to use
   -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
   -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
-  -lf, --logfile=<logfile-name> The complete filename where hop-run will write the Hop console log
+  -lf, --logfile=<logfile-name> The complete filename where hop-run will write the Hop console log.
+                          An existing file is replaced unless --logfile-append is set
+  -lfa, --logfile-append  Append to the file given by --logfile instead of replacing it.
+                          Without this option an existing log file is overwritten.
+                          Ignored when --logfile is not set
   -m, --metadata-export=<metadataExportFile>
                           A file containing exported metadata in JSON format
   -o, --printoptions      Print the used options
@@ -119,7 +123,11 @@ Not needed when `-e` is set.
 
 |```-lf```
 |```--logfile```
-|The complete filename where hop-run will write the Hop console log
+|The complete filename where hop-run will write the Hop console log. An existing file is replaced unless `--logfile-append` is also set.
+
+|```-lfa```
+|```--logfile-append```
+|Append to the file given by `--logfile` instead of replacing it. Without this option an existing log file is overwritten. Ignored when `--logfile` is not set. Use this when several executions should share one file, for example one log per day.
 
 |```-m```
 |```--metadata-export```
