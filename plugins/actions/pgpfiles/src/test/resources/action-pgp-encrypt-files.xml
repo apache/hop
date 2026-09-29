@@ -53,6 +53,7 @@
             <action_type>sign</action_type>
             <source_filefolder>folder2</source_filefolder>
             <userid>user2</userid>
+            <local_user>signer2</local_user>
             <destination_filefolder>target2</destination_filefolder>
             <wildcard>wildcard2</wildcard>
         </field>
@@ -60,6 +61,7 @@
             <action_type>signandencrypt</action_type>
             <source_filefolder>folder3</source_filefolder>
             <userid>user3</userid>
+            <local_user>signer3</local_user>
             <destination_filefolder>target3</destination_filefolder>
             <wildcard>wildcard3</wildcard>
         </field>

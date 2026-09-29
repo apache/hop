@@ -330,6 +330,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             vPgpFile.getActionType(),
             vPgpFile.getSourceFileFolder(),
             vPgpFile.getUserId(),
+            vPgpFile.getLocalUser(),
             vPgpFile.getDestinationFileFolder(),
             vPgpFile.getWildcard(),
             parentWorkflow,
@@ -389,6 +390,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       previousPgpFile.setWildcard(resolve(resultRow.getString(2, null)));
       previousPgpFile.setUserId(resultRow.getString(3, null));
       previousPgpFile.setDestinationFileFolder(resultRow.getString(4, null));
+      // The signing key is appended after the columns this action has always read, so a pipeline
+      // that still feeds five fields keeps working.
+      if (resultRow.size() > 5) {
+        previousPgpFile.setLocalUser(resultRow.getString(5, null));
+      }
 
       if (!Utils.isEmpty(previousPgpFile.getSourceFileFolder())
           && !Utils.isEmpty(previousPgpFile.getDestinationFileFolder())) {
@@ -406,6 +412,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             previousPgpFile.getActionType(),
             previousPgpFile.getSourceFileFolder(),
             previousPgpFile.getUserId(),
+            previousPgpFile.getLocalUser(),
             previousPgpFile.getDestinationFileFolder(),
             previousPgpFile.getWildcard(),
             parentWorkflow,
@@ -488,6 +495,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       ActionType actionType,
       String sourceFileFolderName,
       String userId,
+      String localUser,
       String destinationFileFolderName,
       String wildcard,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
@@ -502,6 +510,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     // Get real source, destination file and wildcard
     String realSourceFileFolderName = resolve(sourceFileFolderName);
     String realUserId = resolve(userId);
+    String realLocalUser = resolve(localUser);
     String realDestinationFileFolderName = resolve(destinationFileFolderName);
     String realWildcard = resolve(wildcard);
 
@@ -564,6 +573,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                       shortFileName,
                       sourceFileFolder,
                       realUserId,
+                      realLocalUser,
                       destinationFile,
                       moveToFolderFolder,
                       parentWorkflow,
@@ -603,6 +613,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                       shortFileName,
                       sourceFileFolder,
                       realUserId,
+                      realLocalUser,
                       destinationfile,
                       moveToFolderFolder,
                       parentWorkflow,
@@ -660,6 +671,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                       currentFile,
                       sourceFileFolder,
                       realUserId,
+                      realLocalUser,
                       realDestinationFileFolderName,
                       realWildcard,
                       parentWorkflow,
@@ -734,6 +746,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       String shortFileName,
       FileObject sourceFileName,
       String userId,
+      String localUser,
       FileObject destinationFileName,
       FileObject moveToFolderFolder,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
@@ -744,7 +757,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     try {
       if (!destinationFileName.exists()) {
 
-        doJob(actionType, sourceFileName, userId, destinationFileName);
+        doJob(actionType, sourceFileName, userId, localUser, destinationFileName);
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
@@ -771,7 +784,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
         switch (ifFileExists) {
           case "overwrite_file" -> {
-            doJob(actionType, sourceFileName, userId, destinationFileName);
+            doJob(actionType, sourceFileName, userId, localUser, destinationFileName);
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
@@ -807,7 +820,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 destinationFileName.getParent().toString() + Const.FILE_SEPARATOR + shortFilename;
             destinationFile = HopVfs.getFileObject(moveToFileNameFull, getVariables());
 
-            doJob(actionType, sourceFileName, userId, destinationFileName);
+            doJob(actionType, sourceFileName, userId, localUser, destinationFileName);
             if (isDetailed()) {
               logDetailed(
                   toString(),
@@ -959,6 +972,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       FileObject currentFile,
       FileObject sourceFileFolder,
       String userId,
+      String localUser,
       String realDestinationFileFolderName,
       String realWildcard,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
@@ -1016,6 +1030,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                     shortFileName,
                     currentFile,
                     userId,
+                    localUser,
                     filename,
                     moveToFolderFolder,
                     parentWorkflow,
@@ -1033,6 +1048,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                     shortFileName,
                     currentFile,
                     userId,
+                    localUser,
                     filename,
                     moveToFolderFolder,
                     parentWorkflow,
@@ -1260,15 +1276,28 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   public void doJob(
-      ActionType actionType, FileObject sourceFile, String userID, FileObject destinationFile)
+      ActionType actionType,
+      FileObject sourceFile,
+      String userID,
+      String localUser,
+      FileObject destinationFile)
       throws HopException {
 
     switch (actionType) {
       case SIGN:
-        gpg.signFile(sourceFile, userID, destinationFile, isAsciiMode());
+        // Signing has no recipient, so the user ID is not used here. It never was: it went to gpg
+        // as -r, which GnuPG ignores for anything but encryption. Saying so out loud beats both
+        // the old silence and quietly promoting it to the signing key, which would change what an
+        // existing workflow signs with.
+        if (Utils.isEmpty(localUser) && !Utils.isEmpty(userID)) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionPGPEncryptFiles.Log.UserIdIgnoredWhenSigning", userID));
+        }
+        gpg.signFile(sourceFile, localUser, destinationFile, isAsciiMode());
         break;
       case SIGN_AND_ENCRYPT:
-        gpg.signAndEncryptFile(sourceFile, userID, destinationFile, isAsciiMode());
+        gpg.signAndEncryptFile(sourceFile, userID, localUser, destinationFile, isAsciiMode());
         break;
       default:
         gpg.encryptFile(sourceFile, userID, destinationFile, isAsciiMode());
@@ -1350,6 +1379,10 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     @HopMetadataProperty(key = "userid")
     public String userId;
 
+    /** The key to sign with ({@code -u}). Empty leaves the choice to GnuPG. */
+    @HopMetadataProperty(key = "local_user")
+    public String localUser;
+
     @HopMetadataProperty(key = "destination_filefolder")
     public String destinationFileFolder;
 
@@ -1363,6 +1396,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       this.actionType = f.actionType;
       this.sourceFileFolder = f.sourceFileFolder;
       this.userId = f.userId;
+      this.localUser = f.localUser;
       this.destinationFileFolder = f.destinationFileFolder;
       this.wildcard = f.wildcard;
     }

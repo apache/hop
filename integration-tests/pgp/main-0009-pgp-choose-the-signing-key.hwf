@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0009-pgp-choose-the-signing-key</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Signing key per row (gpg -u), and the backwards compatibility of rows that have none. See https://github.com/apache/hop/issues/8659</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/01 00:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/01 00:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>create a keyring with two keys</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+set -e
+
+# Two usable secret keys, so "which key signed this" has more than one answer and gpg's own
+# default can only be one of them. A throwaway keyring under output/, so a test run never
+# touches the keyring of the machine or container it happens to run on.
+GNUPG_HOME=${PROJECT_HOME}/output/gnupg-two-keys
+WRAPPER=${PROJECT_HOME}/output/gpg-two-keys.sh
+
+GPG_BIN=$(command -v gpg || true)
+if [ -z "$GPG_BIN" ]; then
+  echo "gpg is not installed; the PGP actions cannot run without it"
+  exit 1
+fi
+
+# gpg starts an agent bound to this home's socket and leaves it running. Deleting the home
+# under a live agent, then racing gpg's five-second auto-launch of a fresh one, makes key
+# generation fail now and then with "No agent running" or "Broken pipe". Stop the previous
+# test's agent first.
+if [ -d "$GNUPG_HOME" ]; then
+  gpgconf --homedir "$GNUPG_HOME" --kill all &gt;/dev/null 2&gt;&amp;1 || true
+fi
+rm -rf "$GNUPG_HOME"
+mkdir -p "$GNUPG_HOME"
+chmod 700 "$GNUPG_HOME"
+
+# gpg is started by the Hop JVM and inherits its environment, and a Java process cannot change
+# its own, so GNUPGHOME can never reach it from here. Pin the keyring in a wrapper instead and
+# point the PGP actions at that.
+printf '#!/bin/sh\nexec "%s" --homedir "%s" "$@"\n' "$GPG_BIN" "$GNUPG_HOME" &gt; "$WRAPPER"
+chmod 700 "$WRAPPER"
+
+# Start the agent for this home ourselves, and wait for it, before asking it for keys.
+gpg-connect-agent --homedir "$GNUPG_HOME" /bye &gt;/dev/null 2&gt;&amp;1 || true
+
+# The keys carry no passphrase: the PGP encrypt action has no passphrase field, so signing can
+# only ever use a key gpg is able to unlock on its own.
+for USER_ID in "Hop IT Default &lt;hop-it-default@example.org&gt;" "Hop IT Signer &lt;hop-it-signer@example.org&gt;"; do
+  "$GPG_BIN" --homedir "$GNUPG_HOME" --batch --yes --pinentry-mode loopback --passphrase '' \
+    --quiet --quick-generate-key "$USER_ID" default default never 2&gt;&amp;1
+done
+
+printf 'id,amount\n1,100\n2,200\n' &gt; ${PROJECT_HOME}/output/signing-key-source.csv
+rm -f ${PROJECT_HOME}/output/signed-by-chosen-key.asc \
+      ${PROJECT_HOME}/output/signed-with-user-id-only.asc \
+      ${PROJECT_HOME}/output/sealed-and-signed.asc
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>sign with the chosen key</name>
+      <description>Signing key filled in: gpg must sign with that key and not with its default.</description>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <gpglocation>${PROJECT_HOME}/output/gpg-two-keys.sh</gpglocation>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <asciiMode>Y</asciiMode>
+      <fields>
+        <field>
+          <action_type>sign</action_type>
+          <source_filefolder>${PROJECT_HOME}/output/signing-key-source.csv</source_filefolder>
+          <wildcard/>
+          <userid></userid>
+          <local_user>hop-it-signer@example.org</local_user>
+          <destination_filefolder>${PROJECT_HOME}/output/signed-by-chosen-key.asc</destination_filefolder>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>460</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>sign with a user id and no signing key</name>
+      <description>A row as written before the signing key existed. The User ID is not the key that signs, and never was: it went to gpg as -r, which it ignores outside encryption. Such a row has to keep signing with the default key.</description>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <gpglocation>${PROJECT_HOME}/output/gpg-two-keys.sh</gpglocation>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <asciiMode>Y</asciiMode>
+      <fields>
+        <field>
+          <action_type>sign</action_type>
+          <source_filefolder>${PROJECT_HOME}/output/signing-key-source.csv</source_filefolder>
+          <wildcard/>
+          <userid>hop-it-signer@example.org</userid>
+          <destination_filefolder>${PROJECT_HOME}/output/signed-with-user-id-only.asc</destination_filefolder>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>680</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>seal to one key and sign with another</name>
+      <description>Recipient and signer are different keys, which is what having both options is for.</description>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <gpglocation>${PROJECT_HOME}/output/gpg-two-keys.sh</gpglocation>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <asciiMode>Y</asciiMode>
+      <fields>
+        <field>
+          <action_type>signandencrypt</action_type>
+          <source_filefolder>${PROJECT_HOME}/output/signing-key-source.csv</source_filefolder>
+          <wildcard/>
+          <userid>hop-it-default@example.org</userid>
+          <local_user>hop-it-signer@example.org</local_user>
+          <destination_filefolder>${PROJECT_HOME}/output/sealed-and-signed.asc</destination_filefolder>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>900</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check which key signed each file</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+
+GPG="${PROJECT_HOME}/output/gpg-two-keys.sh"
+DEFAULT_KEY=hop-it-default@example.org
+SIGNER_KEY=hop-it-signer@example.org
+
+# Which key does gpg reach for when nothing names one? Asked rather than assumed, so the
+# backwards compatibility check below does not depend on the order the keys were generated in.
+printf 'probe\n' &gt; ${PROJECT_HOME}/output/probe.txt
+"$GPG" --batch --yes --armor --output ${PROJECT_HOME}/output/probe.asc --clearsign \
+  -- ${PROJECT_HOME}/output/probe.txt
+if "$GPG" --batch --verify ${PROJECT_HOME}/output/probe.asc 2&gt;&amp;1 | grep -q "$SIGNER_KEY"; then
+  GPG_DEFAULT="$SIGNER_KEY"
+else
+  GPG_DEFAULT="$DEFAULT_KEY"
+fi
+echo "gpg signs with $GPG_DEFAULT when no key is named"
+
+# Every check runs, so one run reports everything that is wrong rather than only the first
+# thing. FAILURES is what the action's exit code is built from at the end.
+FAILURES=0
+
+fail() {
+  echo "FAIL: $*"
+  FAILURES=$((FAILURES + 1))
+}
+
+signature_report() {
+  "$GPG" --batch --verify "$1" 2&gt;&amp;1 || true
+}
+
+assert_signed_by() {
+  local file="$1" expected="$2" what="$3" report
+  report=$(signature_report "$file")
+  if echo "$report" | grep -q "$expected"; then
+    echo "OK: $what is signed by $expected"
+  else
+    fail "$what: expected a signature from $expected"
+    echo "$report"
+  fi
+}
+
+# The feature: the row named a signing key, so that key has to be the one that signed.
+assert_signed_by ${PROJECT_HOME}/output/signed-by-chosen-key.asc "$SIGNER_KEY" \
+  "a Sign row with a signing key"
+
+# Backwards compatibility: a row with only a User ID has always signed with the default key,
+# and still has to. Only meaningful while the two keys differ.
+if [ "$GPG_DEFAULT" = "$SIGNER_KEY" ]; then
+  fail "gpg's default key is the signer, so the backwards compatibility check proves nothing"
+else
+  assert_signed_by ${PROJECT_HOME}/output/signed-with-user-id-only.asc "$GPG_DEFAULT" \
+    "a Sign row with only a User ID"
+  if signature_report ${PROJECT_HOME}/output/signed-with-user-id-only.asc | grep -q "$SIGNER_KEY"; then
+    fail "a User ID on its own must not become the signing key"
+  else
+    echo "OK: a User ID on its own did not become the signing key"
+  fi
+fi
+
+# Sealed to one key, signed with another: decrypting reports both halves in one go.
+REPORT=$("$GPG" --batch --decrypt ${PROJECT_HOME}/output/sealed-and-signed.asc 2&gt;&amp;1 || true)
+if echo "$REPORT" | grep -q "$SIGNER_KEY"; then
+  echo "OK: sealed to $DEFAULT_KEY and signed by $SIGNER_KEY"
+else
+  fail "the sealed file must carry a signature from $SIGNER_KEY"
+  echo "$REPORT"
+fi
+if echo "$REPORT" | grep -q '1,100'; then
+  echo "OK: the sealed file decrypts to the original content"
+else
+  fail "the sealed file must decrypt to the original content"
+  echo "$REPORT"
+fi
+
+gpgconf --homedir ${PROJECT_HOME}/output/gnupg-two-keys --kill all &gt;/dev/null 2&gt;&amp;1 || true
+
+if [ "$FAILURES" -ne 0 ]; then
+  echo "$FAILURES check(s) failed"
+  exit 1
+fi
+echo "all checks passed"
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>1120</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Choosing the PGP signing key did not behave as expected</message>
+      <loglevel>ERROR</loglevel>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>680</xloc>
+      <yloc>220</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>create a keyring with two keys</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>create a keyring with two keys</from>
+      <to>sign with the chosen key</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign with the chosen key</from>
+      <to>sign with a user id and no signing key</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign with a user id and no signing key</from>
+      <to>seal to one key and sign with another</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>seal to one key and sign with another</from>
+      <to>check which key signed each file</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>create a keyring with two keys</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign with the chosen key</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>sign with a user id and no signing key</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>seal to one key and sign with another</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check which key signed each file</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

@@ -52,12 +52,14 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
   private static final String SIGN_SOURCE = "/data/outbox/invoices.csv";
 
   private static final String SIGN_WILDCARD = ".*\\.csv$";
-  private static final String SIGN_USER_ID = "signing-key@example.org";
+  private static final String SIGN_USER_ID = "recipient-key@example.org";
+  private static final String SIGN_LOCAL_USER = "signing-key@example.org";
   private static final String SIGN_DESTINATION = "/data/signed/invoices.csv.asc";
 
   private static final String SEAL_SOURCE = "/data/outbox/payments.xml";
   private static final String SEAL_WILDCARD = ".*\\.xml$";
   private static final String SEAL_USER_ID = "partner-key@example.com";
+  private static final String SEAL_LOCAL_USER = "release-key@example.com";
   private static final String SEAL_DESTINATION = "/data/sealed/payments.xml.gpg";
 
   @Test
@@ -72,7 +74,8 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
     assertEquals(ActionPGPEncryptFiles.ActionType.SIGN, signRow.getActionType(), "action type");
     assertEquals(SIGN_SOURCE, signRow.getSourceFileFolder(), "source file/folder");
     assertEquals(SIGN_WILDCARD, signRow.getWildcard(), "wildcard");
-    assertEquals(SIGN_USER_ID, signRow.getUserId(), "user id (the key to sign with)");
+    assertEquals(SIGN_USER_ID, signRow.getUserId(), "user id (the key to encrypt to)");
+    assertEquals(SIGN_LOCAL_USER, signRow.getLocalUser(), "local user (the key to sign with)");
     assertEquals(SIGN_DESTINATION, signRow.getDestinationFileFolder(), "destination file/folder");
 
     ActionPGPEncryptFiles.PgpFile sealRow = action.getPgpFiles().get(1);
@@ -80,7 +83,8 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
         ActionPGPEncryptFiles.ActionType.SIGN_AND_ENCRYPT, sealRow.getActionType(), "action type");
     assertEquals(SEAL_SOURCE, sealRow.getSourceFileFolder(), "source file/folder");
     assertEquals(SEAL_WILDCARD, sealRow.getWildcard(), "wildcard");
-    assertEquals(SEAL_USER_ID, sealRow.getUserId(), "user id (the key to sign with)");
+    assertEquals(SEAL_USER_ID, sealRow.getUserId(), "user id (the key to encrypt to)");
+    assertEquals(SEAL_LOCAL_USER, sealRow.getLocalUser(), "local user (the key to sign with)");
     assertEquals(SEAL_DESTINATION, sealRow.getDestinationFileFolder(), "destination file/folder");
   }
 
@@ -99,6 +103,7 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
           typeInto(grid, 0, headers.indexOf(label("SourceFileFolder")), "typed-under-source");
           typeInto(grid, 0, headers.indexOf(label("Wildcard")), "typed-under-wildcard");
           typeInto(grid, 0, headers.indexOf(label("UserID")), "typed-under-user-id");
+          typeInto(grid, 0, headers.indexOf(label("LocalUser")), "typed-under-local-user");
           typeInto(grid, 0, headers.indexOf(label("DestinationFileFolder")), "typed-under-dest");
         });
 
@@ -106,6 +111,7 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
     assertEquals("typed-under-source", row.getSourceFileFolder(), label("SourceFileFolder"));
     assertEquals("typed-under-wildcard", row.getWildcard(), label("Wildcard"));
     assertEquals("typed-under-user-id", row.getUserId(), label("UserID"));
+    assertEquals("typed-under-local-user", row.getLocalUser(), label("LocalUser"));
     assertEquals(
         "typed-under-dest", row.getDestinationFileFolder(), label("DestinationFileFolder"));
   }
@@ -146,6 +152,7 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
                 SIGN_SOURCE,
                 SIGN_WILDCARD,
                 SIGN_USER_ID,
+                SIGN_LOCAL_USER,
                 SIGN_DESTINATION));
     action
         .getPgpFiles()
@@ -155,6 +162,7 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
                 SEAL_SOURCE,
                 SEAL_WILDCARD,
                 SEAL_USER_ID,
+                SEAL_LOCAL_USER,
                 SEAL_DESTINATION));
     return action;
   }
@@ -164,12 +172,14 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
       String source,
       String wildcard,
       String userId,
+      String localUser,
       String destination) {
     ActionPGPEncryptFiles.PgpFile file = new ActionPGPEncryptFiles.PgpFile();
     file.setActionType(actionType);
     file.setSourceFileFolder(source);
     file.setWildcard(wildcard);
     file.setUserId(userId);
+    file.setLocalUser(localUser);
     file.setDestinationFileFolder(destination);
     return file;
   }

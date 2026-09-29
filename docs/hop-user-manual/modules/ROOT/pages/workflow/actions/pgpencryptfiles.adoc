@@ -37,12 +37,13 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 |GPG location|The file path of the GnuPG executable (e.g. `/usr/bin/gpg`).
 |Use ASCII mode|Whether or not to use ASCII mode when encrypting.
 |Include subfolders|Whether or not to include subfolders.
-|Copy previous results to args|
+|Copy previous results to args|Take the rows below from the result of the previous action instead of from the grid. The fields are read by position: action, file/folder source, wildcard, user ID, file/folder destination, and optionally signing key as a sixth field.
 |Action|Encrypt, Sign, Sign and Encrypt
 |File/Folder source|The file to encrypt, can be added to the Files/Folders list using Add.
 |File/Folder destination|The destination of the encrypted files.
 |Wildcard|A regex wildcard.
-// |User ID|User ID of the key in the runtime user keystore
+|User ID|User ID of the key to encrypt to, passed to GnuPG as `-r`. Required for Encrypt and Sign and Encrypt, and not used by Sign.
+|Signing key|User ID of the key to sign with, passed to GnuPG as `-u`. Used by Sign and Sign and Encrypt; leave it empty to sign with the default key from the GnuPG configuration.
 |Files/Folders|The files to encrypt.
 |===
 

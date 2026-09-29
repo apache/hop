@@ -18,6 +18,8 @@
 package org.apache.hop.workflow.actions.pgpencryptfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
@@ -64,6 +66,10 @@ import org.junit.jupiter.api.condition.OS;
 class ActionPGPEncryptFilesSignTest {
 
   private static final String KEY_USER_ID = "hop-pgp-test@example.org";
+
+  /** A second key in the same keyring, so "which key signed this" has more than one answer. */
+  private static final String SIGNER_USER_ID = "hop-pgp-signer@example.org";
+
   private static final String PLAIN_TEXT = "Apache Hop signs this file.\n";
 
   private static Path gpgBinary;
@@ -101,8 +107,13 @@ class ActionPGPEncryptFilesSignTest {
         StandardCharsets.UTF_8);
     Files.setPosixFilePermissions(gpgWrapper, PosixFilePermissions.fromString("rwx------"));
 
-    // A passphrase-less key: the encrypt action has no passphrase field, so signing can only ever
+    // Passphrase-less keys: the encrypt action has no passphrase field, so signing can only ever
     // use a key gpg can unlock on its own.
+    generateKey("Hop PGP Test <" + KEY_USER_ID + ">");
+    generateKey("Hop PGP Signer <" + SIGNER_USER_ID + ">");
+  }
+
+  private void generateKey(String userId) throws Exception {
     run(
         gpgBinary.toString(),
         "--homedir",
@@ -114,7 +125,7 @@ class ActionPGPEncryptFilesSignTest {
         "--passphrase",
         "",
         "--quick-generate-key",
-        "Hop PGP Test <" + KEY_USER_ID + ">",
+        userId,
         "default",
         "default",
         "never");
@@ -142,8 +153,7 @@ class ActionPGPEncryptFilesSignTest {
                 ActionPGPEncryptFiles.ActionType.SIGN,
                 source,
                 signed,
-                // The key to sign with cannot be chosen: the User ID goes to gpg as -r, which
-                // --clearsign ignores. See https://github.com/apache/hop/issues/8206.
+                // No key named: gpg signs with its default key.
                 ""));
 
     Result result = sign.execute(new Result(), 0);
@@ -205,6 +215,130 @@ class ActionPGPEncryptFilesSignTest {
   }
 
   /**
+   * With two usable secret keys in the keyring, gpg's own default can only be one of them. Naming
+   * either one on the row has to produce a signature from that key, which is what
+   * https://github.com/apache/hop/issues/8659 asked for.
+   */
+  @Test
+  void theSigningKeyIsChosenPerRow() throws Exception {
+    assertSignedBy(SIGNER_USER_ID, sign(SIGNER_USER_ID, "signed-by-signer.csv"));
+    assertSignedBy(KEY_USER_ID, sign(KEY_USER_ID, "signed-by-test.csv"));
+  }
+
+  /**
+   * A Sign row written before the signing key existed could only name a User ID, and that went to
+   * gpg as {@code -r}, which it ignores outside encryption: such a row has always signed with the
+   * default key. It still has to, or upgrading Hop would silently change what those workflows sign
+   * with, and fail outright where the named key has no secret half in the keyring.
+   */
+  @Test
+  void aUserIdOnItsOwnStillSignsWithTheDefaultKey() throws Exception {
+    Path source = Files.writeString(work.resolve("legacy.csv"), PLAIN_TEXT);
+    Path signed = work.resolve("legacy.csv.asc");
+
+    ActionPGPEncryptFiles action = encryptAction();
+    action.setAsciiMode(true);
+    action
+        .getPgpFiles()
+        .add(
+            pgpFile(
+                ActionPGPEncryptFiles.ActionType.SIGN,
+                source,
+                signed,
+                // The only field such a row has, and never the key that signs.
+                SIGNER_USER_ID,
+                null));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertEquals(0, result.getNrErrors(), "signing must not report errors");
+    assertTrue(result.getResult(), "signing must succeed");
+
+    // Only meaningful while the two differ: were gpg's default the key this row names, the
+    // assertion below would hold whether or not the User ID had been promoted to the signing key.
+    String defaultKey = defaultSigningKey();
+    assertNotEquals(
+        SIGNER_USER_ID,
+        defaultKey,
+        "gpg's default key is the one this row names, so this test would prove nothing");
+    assertSignedBy(defaultKey, signed);
+  }
+
+  /** The key gpg signs with when nothing names one: whichever of the two it picks on its own. */
+  private String defaultSigningKey() throws Exception {
+    Path probe = Files.writeString(work.resolve("probe.csv"), PLAIN_TEXT);
+    Path signed = work.resolve("probe.csv.asc");
+
+    ActionPGPEncryptFiles action = encryptAction();
+    action.setAsciiMode(true);
+    action
+        .getPgpFiles()
+        .add(pgpFile(ActionPGPEncryptFiles.ActionType.SIGN, probe, signed, "", null));
+    assertEquals(0, action.execute(new Result(), 0).getNrErrors(), "the probe must sign");
+
+    String report = gpg("--verify", signed.toString());
+    return report.contains(SIGNER_USER_ID) ? SIGNER_USER_ID : KEY_USER_ID;
+  }
+
+  /** Sealing to one key while signing with another is what the two options are for. */
+  @Test
+  void signAndEncryptSealsToTheUserIdAndSignsWithTheLocalUser() throws Exception {
+    Path source = Files.writeString(work.resolve("statement.xml"), PLAIN_TEXT);
+    Path sealed = work.resolve("statement.xml.asc");
+
+    ActionPGPEncryptFiles seal = encryptAction();
+    seal.setAsciiMode(true);
+    seal.getPgpFiles()
+        .add(
+            pgpFile(
+                ActionPGPEncryptFiles.ActionType.SIGN_AND_ENCRYPT,
+                source,
+                sealed,
+                KEY_USER_ID,
+                SIGNER_USER_ID));
+
+    Result result = seal.execute(new Result(), 0);
+
+    assertEquals(0, result.getNrErrors(), "sign and encrypt must not report errors");
+    assertTrue(result.getResult(), "sign and encrypt must succeed");
+
+    // Decrypting reports the signature as well, so one run shows both halves of the choice.
+    String report = gpg("--decrypt", sealed.toString());
+    assertTrue(
+        report.contains(SIGNER_USER_ID),
+        "the signature must come from the key named as the signing key:\n" + report);
+    assertTrue(report.contains(PLAIN_TEXT), "decrypting must return the content:\n" + report);
+  }
+
+  /** Signs a file with the given key and returns the signature. */
+  private Path sign(String localUser, String name) throws Exception {
+    Path source = Files.writeString(work.resolve(name), PLAIN_TEXT);
+    Path signed = work.resolve(name + ".asc");
+
+    ActionPGPEncryptFiles action = encryptAction();
+    action.setAsciiMode(true);
+    action
+        .getPgpFiles()
+        .add(pgpFile(ActionPGPEncryptFiles.ActionType.SIGN, source, signed, "", localUser));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertEquals(0, result.getNrErrors(), "signing with " + localUser + " must not report errors");
+    assertTrue(result.getResult(), "signing with " + localUser + " must succeed");
+    return signed;
+  }
+
+  private void assertSignedBy(String expectedUserId, Path signed) throws Exception {
+    String other = expectedUserId.equals(SIGNER_USER_ID) ? KEY_USER_ID : SIGNER_USER_ID;
+    String report = gpg("--verify", signed.toString());
+    assertTrue(
+        report.contains(expectedUserId),
+        "the signature must come from " + expectedUserId + ":\n" + report);
+    assertFalse(
+        report.contains(other), "the signature must not come from " + other + ":\n" + report);
+  }
+
+  /**
    * Filenames are discovered by scanning a folder, so their content is chosen by whoever can write
    * to it. They must reach gpg as literal arguments and never be interpreted.
    *
@@ -252,11 +386,21 @@ class ActionPGPEncryptFilesSignTest {
 
   private static ActionPGPEncryptFiles.PgpFile pgpFile(
       ActionPGPEncryptFiles.ActionType actionType, Path source, Path destination, String userId) {
+    return pgpFile(actionType, source, destination, userId, null);
+  }
+
+  private static ActionPGPEncryptFiles.PgpFile pgpFile(
+      ActionPGPEncryptFiles.ActionType actionType,
+      Path source,
+      Path destination,
+      String userId,
+      String localUser) {
     ActionPGPEncryptFiles.PgpFile file = new ActionPGPEncryptFiles.PgpFile();
     file.setActionType(actionType);
     file.setSourceFileFolder(source.toString());
     file.setDestinationFileFolder(destination.toString());
     file.setUserId(userId);
+    file.setLocalUser(localUser);
     return file;
   }
 
@@ -293,6 +437,21 @@ class ActionPGPEncryptFilesSignTest {
       }
     }
     return null;
+  }
+
+  /** Runs gpg against the throwaway keyring and returns what it reported, stderr included. */
+  private String gpg(String... arguments) throws Exception {
+    List<String> command = new java.util.ArrayList<>();
+    command.add(gpgBinary.toString());
+    command.add("--homedir");
+    command.add(gnupgHome.toString());
+    command.addAll(List.of(arguments));
+
+    Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+    String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    assertTrue(process.waitFor(60, TimeUnit.SECONDS), "timed out: " + String.join(" ", command));
+    assertEquals(0, process.exitValue(), String.join(" ", command) + " failed:\n" + output);
+    return output;
   }
 
   private static void run(String... command) throws Exception {
