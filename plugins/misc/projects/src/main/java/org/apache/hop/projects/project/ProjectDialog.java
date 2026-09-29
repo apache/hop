@@ -90,6 +90,7 @@ public class ProjectDialog extends Dialog {
   private ComboVar wParentProject;
   private TextVar wConfigFile;
   private Button wbConfigFile;
+  private ComboVar wGroup;
   private Text wDescription;
   private Text wCompany;
   private Text wDepartment;
@@ -351,6 +352,25 @@ public class ProjectDialog extends Dialog {
     fdConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
     wConfigFile.setLayoutData(fdConfigFile);
     lastControl = wConfigFile;
+
+    Label wlGroup = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlGroup);
+    wlGroup.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Group"));
+    wlGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectDialog.Label.Group.Tooltip"));
+    FormData fdlGroup = new FormData();
+    fdlGroup.left = new FormAttachment(0, 0);
+    fdlGroup.right = new FormAttachment(middle, 0);
+    fdlGroup.top = new FormAttachment(lastControl, margin);
+    wlGroup.setLayoutData(fdlGroup);
+    wGroup = new ComboVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wGroup);
+    wGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectDialog.Label.Group.Tooltip"));
+    FormData fdGroup = new FormData();
+    fdGroup.left = new FormAttachment(middle, margin);
+    fdGroup.right = new FormAttachment(100, 0);
+    fdGroup.top = new FormAttachment(wlGroup, 0, SWT.CENTER);
+    wGroup.setLayoutData(fdGroup);
+    lastControl = wGroup;
 
     lastControl =
         addLabeledText(
@@ -1005,6 +1025,9 @@ public class ProjectDialog extends Dialog {
     wName.setText(Const.NVL(projectConfig.getProjectName(), ""));
     wHome.setText(Const.NVL(projectConfig.getProjectHome(), ""));
     wConfigFile.setText(Const.NVL(projectConfig.getConfigFilename(), ""));
+    wGroup.setText(Const.NVL(projectConfig.getGroup(), ""));
+    List<String> groups = ProjectsConfigSingleton.getConfig().listProjectGroups();
+    wGroup.setItems(groups.toArray(new String[0]));
     wReadOnly.setSelection(
         projectConfig.isReadOnly()
             || ProjectConfig.isArchiveUri(variables.resolve(projectConfig.getProjectHome())));
@@ -1079,6 +1102,7 @@ public class ProjectDialog extends Dialog {
     projectConfig.setProjectName(wName.getText());
     projectConfig.setProjectHome(sanitizePath(wHome.getText()));
     projectConfig.setConfigFilename(wConfigFile.getText());
+    projectConfig.setGroup(StringUtils.trimToEmpty(wGroup.getText()));
     projectConfig.setReadOnly(wReadOnly.getSelection());
 
     project.setParentProjectName(wParentProject.getText());

@@ -720,7 +720,8 @@ public class ProjectsGuiPlugin {
           new ProjectDialog(
               hopGui.getActiveShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
-        // Persist project registration (name, home, config path, read-only) in hop-config.json.
+        // Persist project registration (name, home, config path, group, read-only) in
+        // hop-config.json.
         // A rename also updates the projects using this one as their parent, all or nothing.
         //
         ProjectsUtil.saveProjectConfig(
@@ -873,7 +874,8 @@ public class ProjectsGuiPlugin {
 
     new MenuItem(menu, SWT.SEPARATOR);
 
-    // Display the last-used projects
+    // Recent projects that have no group. Grouped projects are listed under their topic below,
+    // not in this flat list, so the menu stays short when projects share a topic.
     List<String> names = new ArrayList<>(getLastUsedProjects());
 
     // If the user prefers to display in alphabetical order
@@ -882,16 +884,33 @@ public class ProjectsGuiPlugin {
     }
 
     String currentProjectName = HopNamespace.getNamespace();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> recent =
+        ProjectMenuGroups.recentUngrouped(
+            names, config::findProjectConfig, LAST_USED_PROJECTS_MAX_ENTRIES);
+    for (String name : recent) {
+      addProjectMenuItem(menu, name, currentProjectName);
+    }
 
-    int count = 0;
-    for (String name : names) {
-      MenuItem item = new MenuItem(menu, SWT.NONE);
-      item.setText(name);
-      item.addListener(SWT.Selection, e -> selectProject(name));
-      if (currentProjectName.equalsIgnoreCase(name)) {
-        item.setImage(GuiResource.getInstance().getImageCheck());
+    Map<String, List<String>> groups = groupedProjectNames(config);
+    if (!recent.isEmpty() && !groups.isEmpty()) {
+      new MenuItem(menu, SWT.SEPARATOR);
+    }
+    for (Map.Entry<String, List<String>> entry : groups.entrySet()) {
+      MenuItem groupItem = new MenuItem(menu, SWT.CASCADE);
+      groupItem.setText(entry.getKey());
+      Menu subMenu = new Menu(menu);
+      groupItem.setMenu(subMenu);
+      boolean currentInGroup = false;
+      for (String name : entry.getValue()) {
+        addProjectMenuItem(subMenu, name, currentProjectName);
+        if (isCurrentProject(currentProjectName, name)) {
+          currentInGroup = true;
+        }
       }
-      if (++count == LAST_USED_PROJECTS_MAX_ENTRIES) break;
+      if (currentInGroup) {
+        groupItem.setImage(GuiResource.getInstance().getImageCheck());
+      }
     }
 
     // Add a menu to open a dialog to select it
@@ -901,6 +920,37 @@ public class ProjectsGuiPlugin {
     item.addListener(SWT.Selection, e -> selectProject());
 
     return menu;
+  }
+
+  private void addProjectMenuItem(Menu menu, String name, String currentProjectName) {
+    MenuItem item = new MenuItem(menu, SWT.NONE);
+    item.setText(name);
+    item.addListener(SWT.Selection, e -> selectProject(name));
+    if (isCurrentProject(currentProjectName, name)) {
+      item.setImage(GuiResource.getInstance().getImageCheck());
+    }
+  }
+
+  private static boolean isCurrentProject(String currentProjectName, String name) {
+    return StringUtils.isNotEmpty(currentProjectName) && currentProjectName.equalsIgnoreCase(name);
+  }
+
+  /**
+   * Group topics to show in the project menu. Projects the current user may not open are omitted.
+   */
+  private static Map<String, List<String>> groupedProjectNames(ProjectsConfig config) {
+    if (config == null || config.getProjectConfigurations() == null) {
+      return Map.of();
+    }
+    List<ProjectConfig> visible = new ArrayList<>();
+    for (ProjectConfig projectConfig : config.getProjectConfigurations()) {
+      if (projectConfig == null
+          || !ProjectsAccessControl.isProjectAllowed(projectConfig.getProjectName())) {
+        continue;
+      }
+      visible.add(projectConfig);
+    }
+    return ProjectMenuGroups.byGroup(visible);
   }
 
   private Menu createEnvironmentContextMenu() {
