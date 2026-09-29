@@ -725,6 +725,14 @@ public class ProjectDialog extends Dialog {
   private void browseHomeFolder(Event event) {
     String homeFolder = BaseDialog.presentDirectoryDialog(shell, wHome, variables);
 
+    if (homeFolder != null) {
+      String resolvedHome = variables.resolve(homeFolder);
+      if (StringUtils.isNotEmpty(resolvedHome)) {
+        homeFolder = resolvedHome;
+        wHome.setText(resolvedHome);
+      }
+    }
+
     try {
       if (homeFolder != null && StringUtils.isEmpty(wName.getText())) {
         FileObject file = HopVfs.getFileObject(homeFolder);
