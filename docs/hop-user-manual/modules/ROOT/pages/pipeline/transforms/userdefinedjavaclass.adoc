@@ -16,239 +16,486 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
+:description: The User Defined Java Class transform runs a Java class body you type in the dialog, compiled at runtime with Janino, as the transform.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/userdefinedjavaclass.svg[User Defined Java Class transform Icon, role="image-doc-icon"] User Defined Java Class
 
 == Description
 
-The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
+The User Defined Java Class transform runs Java code you type in the dialog as the implementation of one transform.
 
-In essence, this transform allows you to program your own plugin in a transform.
+It is not a place to build a full plugin.
+A real plugin is the right tool when the logic is reused, needs its own dialog, or needs more than a class body.
+This transform is for a small piece of logic that has to run as fast as a normal transform.
 
-The goal of this transform is not to allow a user to do full-scale Java development inside a transform.
+The code is compiled when the pipeline starts by the https://janino-compiler.github.io/janino/[Janino^] libraries.
+You do not write a `.java` file, a `package` line, an `import` line, or a `class` declaration.
+Each tab is the *body* of one class: fields and methods only.
+The tab name is the class name, so it has to be a valid Java identifier.
+A new transform starts with one tab named `Processor`.
 
-Obviously we have a whole plugin system available to help with that part.
+Janino already imports these packages, so classes from them can be used by their simple name:
 
-The goal is to allow users to define methods and logic with as little as code as possible, executed as fast as possible.
+* `org.apache.hop.pipeline.transforms.userdefinedjavaclass`
+* `org.apache.hop.pipeline.transform`
+* `org.apache.hop.core.row`
+* `org.apache.hop.core`
+* `org.apache.hop.core.exception`
+* `org.apache.hop.pipeline`
+* `org.apache.hop.pipeline.engine`
+* `org.apache.hop.workflow`
+* `org.apache.hop.workflow.action`
+* `org.apache.hop.core.plugins`
+* `org.apache.hop.core.variables`
+* `java.util`
 
-For this we use the https://janino-compiler.github.io/janino/[Janino^] project libraries that compile Java code in the form of classes at runtime.
+Anything else needs a fully qualified name.
+Put extra jars in `plugins/transforms/janino/lib` so this transform can load them.
+See xref:installation-configuration.adoc[Installation and configuration].
+
+One tab is the *transform class*.
+Right-click that tab and choose *Set as transform class*.
+Hop compiles it as a subclass of its own transform base and adds the constructor, so do not write a constructor yourself.
+That class is the one Hop calls while the pipeline runs.
+Other tabs are helper classes.
+They are compiled first, in alphabetical order of the tab name, and the transform class can use them with `new`.
+A helper can use another helper only when that other helper's name sorts first.
+Choosing *OK* or *Test class* with no transform class asks whether the first tab should become one.
 
 == Options
 
 [options="header",cols="1a,3a"]
 |===
 |Option|Description
-|Transform name|Name of the transform.
-|Class code|The Java code.
-|Fields|List of output fields.
 
-- Fieldname: Output field name.
-- Type: Type of field.
-- Length: Length of the field.
-- Precision: Precision of the field.
-|Parameters|You can use the Parameters table to avoid using hard-coded string values, such as field names (customer for example).
+|Transform name
+|Name of the transform.
+This name has to be unique in the pipeline.
 
-- Tag: The parameter tag.
-- Value: The parameter value.
-- Description: Description of the parameter.
-|Info transforms|Additional transforms to read data from
+|Java target version
+|Java language level Janino uses to compile every class tab.
+Choose a value from 6 to 21.
+A pipeline that does not store the option, or stores a value outside that range, is compiled as Java 6.
+Pick a higher level when the class body uses newer Java syntax.
 
-- Tag
-- Transform: Which transform to read from.
-- Description
-|Target transforms|Destination Transform
+|Class code
+|The class body of the selected tab.
+See <<the-class>>.
 
-- Tag
-- Transform: Which transform to output to.
-- Description
-|Test class|Tests the class.
+|Classes and code fragments
+|Tree of class tabs, code snippets, and the input, info, and output fields.
+Double-click or drag an entry to insert it at the cursor.
+See <<classes-and-snippets>>.
+
+|Fields
+|Output fields this transform adds.
+Each row is one field:
+
+* *Fieldname*: name of the output field.
+* *Type*: Hop data type. See xref:concepts.adoc#data-types[Data types].
+* *Length* and *Precision*: see xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+
+*Clear the result fields?* drops every incoming field from the output layout.
+Leave it unchecked to keep the incoming fields and append the rows in this table.
+`createOutputRow()` follows the same choice: it copies the input row when the box is unchecked, and allocates an empty output row when the box is checked.
+
+|Parameters
+|Named values the class reads with `getParameter(tag)`, so field names and other constants are not hard-coded.
+See <<parameters>>.
+
+* *Tag*: the name passed to `getParameter`.
+* *Value*: the text returned for that tag. Variables in the value are resolved.
+* *Description*: comment. Not visible to the class.
+
+|Info transforms
+|Extra input hops, separate from the main input that `getRow()` reads.
+See <<info-and-target>>.
+
+* *Tag*: the name passed to `findInfoRowSet`.
+* *Transform*: an upstream transform already connected to this one.
+* *Description*: label shown for that info hop.
+
+|Target transforms
+|Specific output hops the class writes to with `putRowTo`, instead of the ordinary output of `putRow`.
+See <<info-and-target>>.
+
+* *Tag*: the name passed to `findTargetRowSet`.
+* *Transform*: a downstream transform already connected to this one.
+* *Description*: label shown for that target hop.
+
+|Test class
+|Compiles the classes and previews them on generated rows.
+See <<test-class>>.
 |===
 
-== Usage
+[[the-class]]
+== The class
 
-=== Process rows
+=== Which methods are called
 
-The Processor code defines the processRow() method, which is the heart of the transform.
-This method is called by the pipeline in a tight loop and will continue until false is returned.
+Hop drives the transform class the same way it drives any other transform.
+Three methods matter:
+
+`init()`::
+Called once while the pipeline is preparing to start.
+Return `true` when initialization worked, or `false` to make the pipeline abort.
+The default implementation initializes the transform.
+Override it to open files or connections, and call `parent.initImpl()` (or `super.init()`) so that still happens.
+
+`processRow()`::
+The method that does the work.
+You have to implement it; the class does not compile without it.
+Once execution has started, Hop calls it in a tight loop.
+
+* Return `true` to be called again.
+* When there is nothing left to do, call `setOutputDone()` and return `false`.
+* `getRow()` blocks until the next row from the main input arrives, and returns `null` when that input is finished.
+  That `null` is the usual place to call `setOutputDone()` and return `false`.
+
+An exception thrown out of `processRow()` stops the pipeline: the error is logged, the error count is set, and the transform marks its output done.
+Catch a bad row yourself and send it to the error hop when the pipeline should keep going.
+See <<error-handling>>.
+
+`dispose()`::
+Called once after the pipeline has finished.
+Close what `init()` opened.
+Call `parent.disposeImpl()` (or `super.dispose()`).
+
+`initBeforeStart()` exists as well and is called once after `init()`, just before the threads start.
+Most classes do not need it.
+
+The dialog inserts starter code for `processRow()`, `init()`, and `dispose()` from the *Code Snippets* tree (*Implement processRow*, *Implement init*, *Implement dispose*).
+
+=== Example
+
+This class reads two input fields and writes a third.
+On the *Parameters* tab, add tags `FIRSTNAME_FIELD`, `LASTNAME_FIELD`, and `NAME_FIELD` with values `firstname`, `lastname`, and `name`.
+On the *Fields* tab, add one output field named `name`, type String.
+The transform class tab can stay named `Processor`.
 
 [source,java]
 ----
-String firstnameField;
-String lastnameField;
+String firstNameField;
+String lastNameField;
 String nameField;
- 
-public boolean processRow() throws HopException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      firstnameField = getParameter("FIRSTNAME_FIELD");
-      lastnameField = getParameter("LASTNAME_FIELD");
-      nameField = getParameter("NAME_FIELD");
-      first=false;
-    }
- 
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
- 
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
- 
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this transform.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
- 
-    String firstname = get(Fields.In, firstnameField).getString(r);
-    String lastname = get(Fields.In, lastnameField).getString(r);
- 
-    // Set the value in the output field
-    //
-    String name = firstname+" "+lastname;
-    get(Fields.Out, nameField).setValue(outputRow, name);
- 
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
- 
-    return true;
-----
 
-=== Error handling
-
-If you want Hop to handle errors that may occur while running your class in a pipeline, you must implement for your own error handling code.
-Before adding any error handling code, right-click on the User Defined Java Class transform in the Hop client canvas and select Error Handling in the menu that appears.
-The resulting transform error handling settings dialog box contains options for specifying an error target transform and associated field names that you will use to implement error handling in your defined code.
-
-[source,java]
-----
-try {
-
-Object     numList = strsList.stream()
-                        .map( new ToInteger() )
-                     .sorted( new ReverseCase() )
-                     .collect( Collectors.toList() );
-
-    get( Fields.Out, "reverseOrder" ).setValue( row, numList.toString() );
-
-} catch (NumberFormatException ex) {
-    // Number List contains a value that cannot be converteds to an Integer.
-    rowInError = true;
-    errMsg = ex.getMessage();
-    errCnt = errCnt + 1;
-}
-
-if ( !rowInError ) {
-    putRow( data.outputRowMeta, row );
-} else {
-    // Output errors to the error hop. Right click on transform and choose "Error Handling..."
-    putError(data.outputRowMeta, row, errCnt, errMsg, "Not allowed", "DEC_0");
-}
-----
-
-The try in the code sample above tests to see if numList contains valid numbers.
-If the list contains a number that is not valid, putError is used to handle the error and direct it to the wlog: ErrorPath transform in the sample pipeline.
-The ErrorPath transform is also specified in the Target transforms tab of the User Define Java Class transform.
-
-=== Logging 
-
-You need to implement logging in your defined transform if you want Hop to log data actions from your class, such as read, write, output, or update data.
-The following code is an example of how to implement logging:
-
-[source,java]
-----
-putRow( data.outputMeta, r );
-
-if ( checkFeedback( getLinesOutput() ) ) {
-  if ( log.isBasic() ) {
-    logBasic( "Have I got rows for you! " + getLinesOutput() );
+public boolean processRow() throws HopException {
+  // Resolve the parameter tags once. The values are the field names.
+  //
+  if (first) {
+    firstNameField = getParameter("FIRSTNAME_FIELD");
+    lastNameField = getParameter("LASTNAME_FIELD");
+    nameField = getParameter("NAME_FIELD");
+    first = false;
   }
+
+  // Read one row from the main input hop. null means that input is finished.
+  //
+  Object[] r = getRow();
+  if (r == null) {
+    setOutputDone();
+    return false;
+  }
+
+  String firstName = get(Fields.In, firstNameField).getString(r);
+  String lastName = get(Fields.In, lastNameField).getString(r);
+
+  // Copy the input row and make room for the fields added on the Fields tab.
+  // When "Clear the result fields?" is checked this is a new empty row instead,
+  // so the input values above must be read from r, not from outputRow.
+  //
+  Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+  get(Fields.Out, nameField).setValue(outputRow, firstName + " " + lastName);
+
+  // Send the row to the ordinary output hops.
+  //
+  putRow(data.outputRowMeta, outputRow);
+  return true;
 }
 ----
 
-=== Class and code fragments
+[[classes-and-snippets]]
+=== Classes and code snippets
 
-You can navigate through your defined classes along with related code snippets and fields through the Classes and Code Fragments panel.
-You can right-click on any item in this tree to either Delete, Rename, or Show Sample.
+The left-hand tree has three kinds of entry.
 
-**Classes**
+*Classes*::
+One entry per class tab.
+Double-click a name to show that tab.
+Right-click a tab for *Add new*, *Add copy*, *Set as transform class*, and *Remove class type*.
+Right-click a class in the tree to rename or delete it.
 
-The Classes folder indicates what classes have corresponding code block tabs in the Class Code panel.
+*Code Snippets*::
+Fragments for the methods this class can call, grouped into *Common use*, *Row manipulation*, *transform logging*, *transform status*, *transform/Row listeners*, and *Uncommon use*.
+Double-click a snippet to insert it, or right-click it and choose *Show Sample* to open the sample in a read-only tab.
 
-**Code Snippets**
+*Input fields*, *Info fields*, and *Output fields*::
+The fields reaching this transform, the fields on its info hops, and the fields it produces.
+Double-click a field to insert a `get(Fields.In, ...)` or `get(Fields.Out, ...)` call, or open the field and insert the getter for its data type or a `setValue` call.
 
-The Code Snippets folder contains ready to use fragments for the most common User Defined Java Class operations, grouped by category.
-Click a snippet to insert it at the cursor position in the active class tab, or right-click it and pick Show Sample to open it in a read-only tab for reference.
+[[fields]]
+== Reading and writing fields
 
-**Input Fields**
+A row is an `Object[]`.
+The matching `IRowMeta` describes the field names, types, and order.
 
-The Input fields folder contains any input fields you define in your code.
-While working with your defined code, you will be handling input and output fields.
-Many ways exist for handling input fields.
-For example, to start, examine the following description of an input row.
+`getRow()` returns the next main-input row and, on the first call, refreshes `data.inputRowMeta`.
+`data.outputRowMeta` is that layout plus the fields from the *Fields* tab, or only those fields when *Clear the result fields?* is checked.
+`getInputRowMeta()` is the same input layout.
+
+The usual way to read and write a field is `get(Fields.In, name)`, `get(Fields.Out, name)`, or `get(Fields.Info, name)`.
+Each returns a helper that remembers the field index, so the name is not searched again on every row.
+Pass the input row to an `In` getter and the output row to an `Out` setter.
+
+[options="header"]
+|===
+|Method|Java type|Hop type
+
+|`getString`
+|`String`
+|String
+
+|`getLong`
+|`Long`
+|Integer
+
+|`getDouble`
+|`Double`
+|Number
+
+|`getBigDecimal`
+|`BigDecimal`
+|BigNumber
+
+|`getBoolean`
+|`Boolean`
+|Boolean
+
+|`getDate`
+|`java.util.Date`
+|Date
+
+|`getTimestamp`
+|`java.sql.Timestamp`
+|Timestamp
+
+|`getBinary`
+|`byte[]`
+|Binary
+
+|`getInetAddress`
+|`java.net.InetAddress`
+|Internet Address
+
+|`getObject`
+|`Object`
+|any, including Serializable
+|===
+
+`setValue(row, value)` writes into that row at the field's index.
+
+The same lookup by index, which is what the helper caches for you, looks like this:
 
 [source,java]
 ----
 IRowMeta inputRowMeta = getInputRowMeta();
+int yearIndex = inputRowMeta.indexOfValue(getParameter("YEAR"));
+if (yearIndex < 0) {
+  throw new HopException("Year field not found in the input row, check parameter 'YEAR'!");
+}
+Object[] r = getRow();
+Long year = inputRowMeta.getInteger(r, yearIndex);
 ----
 
-The inputRowMeta object contains the metadata of the input row.
-It includes all the fields, their data types, lengths, names, format masks, and more.
-You can use this object to look up input fields.
-For example, if you want to look for a field called customer, you would use the following code.
+`get(Fields.In, "year").getLong(r)` is the same read.
+`get(Fields.Info, name)` uses the field layout of the first info hop Hop finds on this transform, not every info hop.
+For any other info hop, take the layout from that row set, as in <<info-and-target>>.
+
+[[info-and-target]]
+== Info transforms and target transforms
+
+=== Why "info" and not "source" or "input"
+
+An info transform is not another name for the main input, and renaming the tab to *Source transforms* or *Input transforms* would hide that.
+
+Hop already calls this kind of hop an *info* stream.
+Stream Lookup uses the same idea: one hop is the stream of rows to process, and another hop only supplies data that helps process those rows.
+In this transform the split is:
+
+* Hops that are *not* listed on *Info transforms* are the main input. `getRow()` reads them.
+* Hops that *are* listed there are info hops. The canvas draws an info icon on the hop. Read them with `findInfoRowSet(tag)` and `getRowFrom(rowSet)`.
+
+"Input" is already the main hop.
+"Source" would not say which of the two upstream hops it is.
+
+A target transform is the same idea on the way out.
+`putRow(data.outputRowMeta, row)` writes to the ordinary output hops, copied or distributed according to the transform's hop settings.
+A hop listed on *Target transforms* is a specific destination. The canvas marks it with a target icon, and the class selects it with `findTargetRowSet(tag)` and `putRowTo`.
+
+=== Both lists can have several rows
+
+Each row is one transform, and both tables accept as many rows as you need.
+Give every row its own tag.
+The class then picks the hop by that tag:
 
 [source,java]
 ----
-IValueMeta customer = inputRowMeta.searchValueMeta("year");
-----
+public boolean processRow() throws HopException {
+  if (first) {
+    first = false;
 
-Because looking up field names can be slow if you need to do it for every row that passes through a pipeline, you could look up field names in advance in a first block of code, as shown in the following example:
+    // Drain every info hop before getRow(). Layouts differ, and getRow()
+    // would otherwise mix these rows into the main input.
+    //
+    IRowSet lookup = findInfoRowSet("lookup");
+    Object[] infoRow;
+    while ((infoRow = getRowFrom(lookup)) != null) {
+      String key = lookup.getRowMeta().getString(infoRow, "key", null);
+      // keep what the main rows need from this info hop
+    }
+  }
 
-[source,java]
-----
-if (first) {
- yearIndex = getInputRowMeta().indexOfValue(getParameter("YEAR"));
- if (yearIndex<0) {
-   throw new HopException("Year field not found in the input row, check parameter 'YEAR'\!");
- }
+  Object[] r = getRow();
+  if (r == null) {
+    setOutputDone();
+    return false;
+  }
+  boolean accepted = Boolean.TRUE.equals(get(Fields.In, "flag").getBoolean(r));
+  r = createOutputRow(r, data.outputRowMeta.size());
+
+  IRowSet target = findTargetRowSet(accepted ? "accepted" : "rejected");
+  putRowTo(data.outputRowMeta, r, target);
+  return true;
 }
 ----
 
-To get the Integer value contained in the year field, you can then use the following construct.
+`getRowFrom` removes an info row set from the main input once that hop is exhausted, which is why the loop above has to run first.
+`findInfoRowSet` and `findTargetRowSet` throw when the tag is missing or the hop is not connected.
+
+The transform named in an info or target row has to run as a single copy.
+`findInfoRowSet` also accepts an info transform that is partitioned in the same way as this transform.
+A main input and an info hop that share an upstream transform can stall a local pipeline; see xref:how-to-guides/avoiding-deadlocks.adoc[Avoiding deadlocks].
+
+=== What the tag is
+
+The tag is a name you choose.
+It is the only identifier the class should use.
+
+The *Transform* column is the transform's name on the canvas.
+The *Tag* column is a stable alias for that hop, so renaming the transform means editing the table instead of the code.
+`findInfoRowSet("lookup")` resolves the tag `lookup` to the transform name stored on that row, then finds the row set coming from that transform.
+`findTargetRowSet("accepted")` does the same for an output row set.
+The description is only a label, shown on the hop; the class never reads it.
+
+A tag on the *Parameters* tab is a different map.
+It does not name a transform.
+See <<parameters>>.
+
+=== Why list a transform that is already on the canvas
+
+The hop and the table do different jobs.
+Drawing the hop creates the pipe.
+The table tells Hop what kind of pipe it is, and the name the class uses for it.
+
+The *Transform* drop-down only offers transforms that are already connected: upstream transforms on the info tab, downstream transforms on the target tab.
+After you pick one, Hop treats that existing hop as an info hop or a target hop.
+Leave the table empty and every incoming hop stays main input (`getRow()`) and every outgoing hop stays an ordinary output (`putRow()`).
+The table does not replace the hops, and the hops do not record the tag.
+
+Target hops stay in the output list.
+A row passed to `putRow` is therefore copied or distributed to them as well as to any ordinary output.
+Call `putRowTo` when that row should go to one target and not to every output.
+
+[[parameters]]
+== Parameters
+
+`getParameter("TAG")` returns the *Value* of the parameter with that tag, with variables resolved, or `null` when the tag is not in the table.
+A value of `+${YEAR_FIELD}+` is resolved in the pipeline before the class sees it.
+
+`getVariable("NAME")` and `getVariable("NAME", "default")` read pipeline variables.
+`setVariable("NAME", "value")` sets one.
+Those are not the parameter table.
+
+[[test-class]]
+== Test class
+
+*Test class* does not run the pipeline on the canvas, and it does not open a dialog that asks you to type rows.
+
+. It checks that a tab is marked as the transform class.
+. It compiles every class tab the way a real run would.
+  A compile error is shown and the test stops.
+  The message names the forbidden text when a <<blocking-code,code exclusion>> matched.
+. It looks up this transform in the pipeline the dialog was opened from.
+  If the transform is not there, the test stops and reports that the fields from the previous transforms could not be read.
+. It builds a throwaway pipeline named after this transform with ` - PREVIEW` appended:
+  * A Generate Rows transform named `## TEST DATA ##` feeds the main input.
+    It produces 10 rows.
+    The fields are the main input fields of this transform, not the fields of the info transforms.
+    The sample value depends on the type: `test value test value` for a String, zero for an Integer, Number, or BigNumber, `Y` or `true` for a Boolean, the current date and time for a Date, and the bytes of `ABCDEFGHIJ` for Binary.
+  * Each info transform is replaced by a Generate Rows transform of the same name, using that transform's fields, hopped into the class.
+  * Each target transform is replaced by a Dummy transform of the same name, hopped out of the class.
+    Nothing is written to the real downstream transforms.
+. It runs that pipeline and previews up to 10 rows written by this class with `putRow`.
+  Rows sent only with `putRowTo` go to the dummy target and are not part of that preview.
+  When the run reports errors, the test shows the log instead.
+
+[[error-handling]]
+== Error handling
+
+The transform supports the standard error hop.
+Right-click it on the canvas and choose *Error Handling*, then pick the transform that receives rejected rows and the fields that will carry the error count, description, field name, and code.
+That hop is not an info transform and not a target transform.
+`putError` fails when this has not been set.
 
 [source,java]
 ----
-Object[] r = getRow();
-...
-Long year = inputRowMeta().getInteger(r, yearIndex);
+try {
+  Long amount = get(Fields.In, "amount").getLong(r);
+  get(Fields.Out, "doubled").setValue(outputRow, amount * 2);
+  putRow(data.outputRowMeta, outputRow);
+} catch (Exception ex) {
+  // nr errors, description, field name, error code
+  putError(data.outputRowMeta, outputRow, 1, ex.getMessage(), "amount", "UDJC001");
+}
 ----
 
-To make this process easier, you can use a shortcut in the following form.
+== Logging
+
+Logging is explicit.
+`logBasic`, `logMinimal`, `logDetailed`, `logDebug`, `logRowlevel`, and `logError` write to this transform's log channel.
+`checkFeedback(getLinesOutput())` is true every time the feedback line interval is reached, which keeps a long run from logging every row:
 
 [source,java]
 ----
-Long year = get(Fields.In, "year").getInteger(r);
+putRow(data.outputRowMeta, outputRow);
+
+if (checkFeedback(getLinesOutput())) {
+  logBasic("Wrote " + getLinesOutput() + " rows");
+}
 ----
 
-This method also takes into account the index-based optimization mentioned above.
+`getLinesInput`, `getLinesRead`, `getLinesWritten`, `getLinesUpdated`, `getLinesSkipped`, `getLinesRejected`, and `getErrors` return the counters.
+`setErrors(1)` and `stopAll()` fail the pipeline from inside the class.
+`addResultFile(resultFile)` adds a file to the pipeline result.
 
+[[blocking-code]]
 == Blocking specific code
 
-As a simple security measure you can block the execution of code containing specific strings.
-This can be done by adding exclusions to the `codeExclusions.xml` file located at <Hop Installation>/plugins/transforms/janino
+Code is checked, before it is compiled, against a list of forbidden substrings.
+A match is rejected with the text that matched.
 
-Example:
+Hop looks for `codeExclusions.xml` next to the Janino plugin (`plugins/transforms/janino`).
+When that file is missing, the copy shipped with the plugin is used, and that copy allows everything.
+Add a file beside the plugin to block text:
+
 [source,xml]
 ----
-    <exclusions>
-        <exclusion>System.</exclusion>
-        <exclusion>HopVfs.</exclusion>
-    </exclusions>
+<exclusions>
+    <exclusion>System.</exclusion>
+    <exclusion>HopVfs.</exclusion>
+</exclusions>
 ----
+
+The check is a substring search of the class source, not a Java parser.
+`System.` also matches that text inside a comment or a string.
