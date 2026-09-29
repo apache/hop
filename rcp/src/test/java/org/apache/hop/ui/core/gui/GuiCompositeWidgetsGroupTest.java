@@ -44,6 +44,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -94,6 +95,35 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
       widgets.getWidgetsContents(source, FLAT_PARENT);
       assertEquals("beta", source.getName());
       assertNull(source.getNote());
+    } finally {
+      shell.dispose();
+    }
+  }
+
+  @Test
+  void flatWidgetsInScrolledCompositeUpdateMinSize() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FillLayout());
+    try {
+      ScrolledComposite scrolled = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+      scrolled.setLayout(new FillLayout());
+      Composite content = new Composite(scrolled, SWT.NONE);
+      content.setLayout(new FormLayout());
+      scrolled.setContent(content);
+      scrolled.setExpandHorizontal(true);
+      scrolled.setExpandVertical(true);
+
+      assertEquals(0, scrolled.getMinHeight());
+
+      FlatSample source = new FlatSample();
+      source.setName("alpha");
+      source.setNote("beta");
+      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
+      widgets.createCompositeWidgets(source, null, content, FLAT_PARENT, null);
+      widgets.setWidgetsContents(source, content, FLAT_PARENT);
+
+      assertTrue(scrolled.getMinHeight() > 0, "ScrolledComposite minimum height should be updated");
+      assertTrue(scrolled.getMinWidth() > 0, "ScrolledComposite minimum width should be updated");
     } finally {
       shell.dispose();
     }

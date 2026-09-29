@@ -6854,7 +6854,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * Publish {@code engine} as the pipeline on screen, together with the session the timers check.
    */
   private void setDisplayedPipeline(IPipelineEngine<PipelineMeta> engine) {
-    executionGuiSession.adopt(engine, () -> this.pipeline = engine);
+    if (executionGuiSession != null) {
+      executionGuiSession.adopt(engine, () -> this.pipeline = engine);
+    } else {
+      this.pipeline = engine;
+    }
   }
 
   public ExecutionGuiSession getExecutionGuiSession() {

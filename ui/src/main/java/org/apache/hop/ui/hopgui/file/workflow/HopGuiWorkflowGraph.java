@@ -4221,7 +4221,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public synchronized void setWorkflow(IWorkflowEngine<WorkflowMeta> workflow) {
-    executionGuiSession.adopt(workflow, () -> this.workflow = workflow);
+    if (executionGuiSession != null) {
+      executionGuiSession.adopt(workflow, () -> this.workflow = workflow);
+    } else {
+      this.workflow = workflow;
+    }
   }
 
   public void paintControl(PaintEvent e) {

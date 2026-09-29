@@ -196,6 +196,7 @@ public class GuiCompositeWidgets {
     // Force re-layout
     //
     parent.layout(true, true);
+    updateScrolledMinSize(parent);
   }
 
   /**
@@ -384,7 +385,7 @@ public class GuiCompositeWidgets {
    * with expand on, the scrolled composite holds the content at the old minimum, so hiding a row
    * would not shrink the range.
    */
-  private void updateScrolledMinSize(Composite content) {
+  public static void updateScrolledMinSize(Composite content) {
     if (content == null
         || content.isDisposed()
         || !(content.getParent() instanceof ScrolledComposite scrolled)
@@ -1458,6 +1459,7 @@ public class GuiCompositeWidgets {
 
     if (parentComposite != null && !parentComposite.isDisposed()) {
       parentComposite.layout(true, true);
+      updateScrolledMinSize(parentComposite);
     }
   }
 
