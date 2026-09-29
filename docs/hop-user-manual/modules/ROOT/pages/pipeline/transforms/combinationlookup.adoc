@@ -73,6 +73,12 @@ Note that the new maximum is always cached, so that the maximum does not need to
 The only extra field added is then the technical key.
 |Use hashcode|This option allows you to generate a hash code, representing all values in the key fields in a numerical form (a signed 64 bit integer).
 This hash code has to be stored in the table.
+The key fields are still compared, so a hash collision does not return a different row.
+|Hashcode field in table|Name of the table column that stores the hash code.
+|Hash field in stream|Optional Integer field calculated earlier, for example by xref:addchecksum.adoc[Add a checksum].
+When set, that value is written to the hashcode field and used for the lookup instead of calculating the hash in this transform.
+Leave it empty to keep calculating the hash from the key fields.
+To reproduce that calculated value, use Add a checksum with type Hash code on the same key fields in the same order.
 |Date of last update field|When required, specify the date of last update field (timestamp) from the source system to be copied to the data warehouse.
 For example, when you have an address without a primary key.
 The field will not be part of the lookup fields (nor be part in the hash code calculation).

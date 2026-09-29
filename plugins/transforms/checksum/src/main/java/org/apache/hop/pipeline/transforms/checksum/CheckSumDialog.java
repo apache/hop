@@ -73,6 +73,10 @@ public class CheckSumDialog extends BaseTransformDialog {
   private Label wlResultType;
   private CCombo wResultType;
 
+  private Label wlPrefix;
+  private Label wlSeparator;
+  private Label wlSuffix;
+
   public CheckSumDialog(
       Shell parent, IVariables variables, CheckSumMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
@@ -103,6 +107,7 @@ public class CheckSumDialog extends BaseTransformDialog {
     fdType.top = new FormAttachment(wSpacer, margin);
     fdType.right = new FormAttachment(100, 0);
     wType.setLayoutData(fdType);
+    wType.setToolTipText(BaseMessages.getString(PKG, "CheckSumDialog.Type.ToolTip"));
     wType.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -157,7 +162,7 @@ public class CheckSumDialog extends BaseTransformDialog {
     wResult.setLayoutData(fdResult);
 
     // Prefix
-    Label wlPrefix = new Label(shell, SWT.RIGHT);
+    wlPrefix = new Label(shell, SWT.RIGHT);
     wlPrefix.setText(BaseMessages.getString(PKG, "CheckSumDialog.Prefix.Label"));
     PropsUi.setLook(wlPrefix);
     FormData fdlPrefix = new FormData();
@@ -174,7 +179,7 @@ public class CheckSumDialog extends BaseTransformDialog {
     wPrefix.setLayoutData(fdPrefix);
 
     // Separator
-    Label wlSeparator = new Label(shell, SWT.RIGHT);
+    wlSeparator = new Label(shell, SWT.RIGHT);
     wlSeparator.setText(BaseMessages.getString(PKG, "CheckSumDialog.Separator.Label"));
     PropsUi.setLook(wlSeparator);
     FormData fdlSeparator = new FormData();
@@ -191,7 +196,7 @@ public class CheckSumDialog extends BaseTransformDialog {
     wSeparator.setLayoutData(fdSeparator);
 
     // Suffix
-    Label wlSuffix = new Label(shell, SWT.RIGHT);
+    wlSuffix = new Label(shell, SWT.RIGHT);
     wlSuffix.setText(BaseMessages.getString(PKG, "CheckSumDialog.Suffix.Label"));
     PropsUi.setLook(wlSuffix);
     FormData fdlSuffix = new FormData();
@@ -274,16 +279,19 @@ public class CheckSumDialog extends BaseTransformDialog {
   }
 
   private void activeResultType() {
-    int currentType = wType.getSelectionIndex();
-    // Only available for type MD5 and SHA
-    boolean active =
-        currentType == 2
-            || currentType == 3
-            || currentType == 4
-            || currentType == 5
-            || currentType == 6;
-    wlResultType.setEnabled(active);
-    wResultType.setEnabled(active);
+    CheckSumMeta.CheckSumType type =
+        CheckSumMeta.CheckSumType.getTypeFromDescription(wType.getText());
+    boolean digest = type.isDigest();
+    wlResultType.setEnabled(digest);
+    wResultType.setEnabled(digest);
+
+    boolean useFieldDecorations = type != CheckSumMeta.CheckSumType.HASHCODE;
+    wlPrefix.setEnabled(useFieldDecorations);
+    wPrefix.setEnabled(useFieldDecorations);
+    wlSeparator.setEnabled(useFieldDecorations);
+    wSeparator.setEnabled(useFieldDecorations);
+    wlSuffix.setEnabled(useFieldDecorations);
+    wSuffix.setEnabled(useFieldDecorations);
   }
 
   protected void setComboBoxes() {

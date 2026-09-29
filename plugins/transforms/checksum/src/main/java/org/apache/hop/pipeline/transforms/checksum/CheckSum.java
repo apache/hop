@@ -24,8 +24,10 @@ import java.util.zip.CRC32;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -90,12 +92,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
       data.suffix = Const.NVL(resolve(meta.getSuffix()), "");
 
       try {
-        if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.MD5
-            || meta.getCheckSumType() == CheckSumMeta.CheckSumType.SHA1
-            || meta.getCheckSumType() == CheckSumMeta.CheckSumType.SHA256
-            || meta.getCheckSumType() == CheckSumMeta.CheckSumType.SHA384
-            || meta.getCheckSumType() == CheckSumMeta.CheckSumType.SHA512) {
-          // Case sensitive
+        if (meta.getCheckSumType() != null && meta.getCheckSumType().isDigest()) {
           data.digest = MessageDigest.getInstance(meta.getCheckSumType().getCode());
         }
       } catch (Exception e) {
@@ -106,8 +103,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     Object[] outputRowData = null;
 
     try {
-      if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.ADLER32
-          || meta.getCheckSumType() == CheckSumMeta.CheckSumType.CRC32) {
+      if (meta.getCheckSumType() != null && meta.getCheckSumType().isIntegerResult()) {
         // get checksum
         Long checksum = calculCheckSum(r);
         outputRowData = RowDataUtil.addValueData(r, data.nrInfields, checksum);
@@ -236,6 +232,10 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
   }
 
   private Long calculCheckSum(Object[] r) throws Exception {
+    if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.HASHCODE) {
+      return calculateHashCode(r);
+    }
+
     Long retval;
     byte[] byteArray = buildCheckSumInputBytes(r);
 
@@ -255,6 +255,17 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     }
 
     return retval;
+  }
+
+  /** Native field values, including nulls. Prefix, separator and suffix are not included. */
+  private Long calculateHashCode(Object[] r) throws HopValueException {
+    RowMeta hashRowMeta = new RowMeta();
+    Object[] hashRow = new Object[data.fieldnr];
+    for (int i = 0; i < data.fieldnr; i++) {
+      hashRowMeta.addValueMeta(getInputRowMeta().getValueMeta(data.fieldnrs[i]));
+      hashRow[i] = r[data.fieldnrs[i]];
+    }
+    return (long) hashRowMeta.hashCode(hashRow);
   }
 
   @Override

@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
@@ -105,6 +106,9 @@ public class CombinationLookupDialog extends BaseTransformDialog {
 
   private Label wlHashfield;
   private TextVar wHashfield;
+
+  private Label wlHashFieldInStream;
+  private ComboVar wHashFieldInStream;
 
   private Text wLastUpdateField;
 
@@ -392,6 +396,28 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdHashfield.right = new FormAttachment(100, 0);
     wHashfield.setLayoutData(fdHashfield);
 
+    wlHashFieldInStream = new Label(wGeneralComp, SWT.RIGHT);
+    wlHashFieldInStream.setText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.HashFieldInStream.Label"));
+    wlHashFieldInStream.setToolTipText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.HashFieldInStream.ToolTip"));
+    PropsUi.setLook(wlHashFieldInStream);
+    FormData fdlHashFieldInStream = new FormData();
+    fdlHashFieldInStream.left = new FormAttachment(0, 0);
+    fdlHashFieldInStream.right = new FormAttachment(middle, -margin);
+    fdlHashFieldInStream.top = new FormAttachment(wHashfield, margin);
+    wlHashFieldInStream.setLayoutData(fdlHashFieldInStream);
+    wHashFieldInStream = new ComboVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHashFieldInStream.setToolTipText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.HashFieldInStream.ToolTip"));
+    PropsUi.setLook(wHashFieldInStream);
+    wHashFieldInStream.addModifyListener(lsMod);
+    FormData fdHashFieldInStream = new FormData();
+    fdHashFieldInStream.left = new FormAttachment(middle, 0);
+    fdHashFieldInStream.top = new FormAttachment(wHashfield, margin);
+    fdHashFieldInStream.right = new FormAttachment(100, 0);
+    wHashFieldInStream.setLayoutData(fdHashFieldInStream);
+
     // Last update field:
     Label wlLastUpdateField = new Label(wGeneralComp, SWT.RIGHT);
     wlLastUpdateField.setText(
@@ -400,14 +426,14 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     FormData fdlLastUpdateField = new FormData();
     fdlLastUpdateField.left = new FormAttachment(0, 0);
     fdlLastUpdateField.right = new FormAttachment(middle, -margin);
-    fdlLastUpdateField.top = new FormAttachment(wHashfield, margin);
+    fdlLastUpdateField.top = new FormAttachment(wHashFieldInStream, margin);
     wlLastUpdateField.setLayoutData(fdlLastUpdateField);
     wLastUpdateField = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLastUpdateField);
     wLastUpdateField.addModifyListener(lsMod);
     FormData fdLastUpdateField = new FormData();
     fdLastUpdateField.left = new FormAttachment(middle, 0);
-    fdLastUpdateField.top = new FormAttachment(wHashfield, margin);
+    fdLastUpdateField.top = new FormAttachment(wHashFieldInStream, margin);
     fdLastUpdateField.right = new FormAttachment(100, 0);
     wLastUpdateField.setLayoutData(fdLastUpdateField);
 
@@ -633,11 +659,17 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[1].setComboValues(fieldNames);
+    if (wHashFieldInStream != null && !wHashFieldInStream.isDisposed()) {
+      wHashFieldInStream.setItems(fieldNames);
+    }
   }
 
   public void enableFields() {
-    wHashfield.setEnabled(wHashcode.getSelection());
-    wlHashfield.setEnabled(wHashcode.getSelection());
+    boolean useHash = wHashcode.getSelection();
+    wHashfield.setEnabled(useHash);
+    wlHashfield.setEnabled(useHash);
+    wHashFieldInStream.setEnabled(useHash);
+    wlHashFieldInStream.setEnabled(useHash);
   }
 
   private void setTableFieldCombo() {
@@ -734,8 +766,6 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wPreloadCache.setSelection(input.isPreloadCache());
     wReplace.setSelection(input.isReplaceFields());
     wHashcode.setSelection(input.isUseHash());
-    wHashfield.setEnabled(input.isUseHash());
-    wlHashfield.setEnabled(input.isUseHash());
 
     String techKeyCreation = returnFields.getTechKeyCreation();
     if (techKeyCreation == null) {
@@ -785,6 +815,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       wConnection.setText(input.getConnectionName());
     }
     wHashfield.setText(Const.NVL(input.getHashField(), ""));
+    wHashFieldInStream.setText(Const.NVL(input.getHashFieldInStream(), ""));
+    enableFields();
 
     wCommit.setText("" + input.getCommitSize());
     wCachesize.setText("" + input.getCacheSize());
@@ -834,6 +866,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     in.setReplaceFields(wReplace.getSelection());
     in.setUseHash(wHashcode.getSelection());
     in.setHashField(wHashfield.getText());
+    String hashFieldInStream = wHashFieldInStream.getText();
+    in.setHashFieldInStream(Utils.isEmpty(hashFieldInStream) ? null : hashFieldInStream);
     in.setSchemaName(wSchema.getText());
     in.setTableName(wTable.getText());
     returnFields.setTechnicalKeyField(wTk.getText());

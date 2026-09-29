@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class CombinationLookupData extends BaseTransformData implements ITransformData {
   public Database db;
   public int[] keynrs; // nrs in row of the keys
+  public int hashFieldNr = -1;
 
   public Map<RowMetaAndData, Long> cache;
 

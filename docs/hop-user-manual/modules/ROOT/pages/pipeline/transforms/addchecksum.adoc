@@ -40,14 +40,22 @@ These are the types that are available:
 * MD5 : Message Digest algorithm 5 : http://en.wikipedia.org/wiki/MD5
 * SHA-1 : Secure Hash Algorithm 1 : http://en.wikipedia.org/wiki/SHA-1
 * SHA-256 : Secure Hash Algorithm 2 : http://en.wikipedia.org/wiki/SHA-256
-|Result Type|Some checksum types allow to set different result types: String, Hexadecimal and Binary
+* Hash code : The same signed integer that xref:combinationlookup.adoc[Combination lookup/update] calculates from the native field values.
+The result is that 32-bit hash stored in a 64-bit integer, so negative values are possible.
+Nulls are included and field order matters.
+Prefix, separator and suffix are ignored, because they are not part of the combination-lookup calculation.
+|Result Type|Some checksum types allow to set different result types: String, Hexadecimal and Binary.
+CRC32, ADLER32 and Hash code always return an Integer. Result type does not apply to them.
 |Result field|The name of the result field containing the checksum
 |Prefix|An optional string to prepend before the field values when building the input for the checksum calculation.
 This is useful to distinguish hash keys from different topics, for example `CUST` for customer keys and `PROD` for product keys.
+Ignored for Hash code.
 |Separator|An optional string to insert between the field values when building the input for the checksum calculation.
 This helps generate more unique hash codes when multiple fields are concatenated.
+Ignored for Hash code.
 |Suffix|An optional string to append after the field values when building the input for the checksum calculation.
 Like the prefix, this can be used to distinguish hash keys from different topics.
+Ignored for Hash code.
 |Fields used in the checksum|The names of the fields to include in the checksum calculation.
 Note: You can use the "Get Fields" button to insert all input fields from previous transforms.
 |===
@@ -55,4 +63,5 @@ Note: You can use the "Get Fields" button to insert all input fields from previo
 == See also
 
 * xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots] — storing an MD5 or SHA hash of a row and comparing it on the next run
+* xref:combinationlookup.adoc[Combination lookup/update] — store this hash code on a junk dimension, or let that transform read a hash you calculated here
 
