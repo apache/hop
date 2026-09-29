@@ -84,6 +84,19 @@ Set this to BATCH_FORCED if pipelines get blocked, see https://issues.apache.org
 |Fat jar file location|Fat jar location.|
 |===
 
+== Job id
+
+Beam does not return the Flink job id on the pipeline result. Hop chooses the id before submitting the job. After `prepareExecution()` it is available from the engine:
+
+[source,java]
+----
+if (pipeline instanceof BeamFlinkPipelineEngine flinkEngine) {
+  String jobId = flinkEngine.getFlinkJobId();
+}
+----
+
+The same value is written to the pipeline log. When the run configuration has an execution information location, it is stored as `flink.job.id` and shown on the execution viewer info tab. A master of `[collection]` does not submit a cluster job, so no id is assigned.
+
 == Running with Flink Run
 
 You can also execute using the 'bin/flink run' command.

@@ -20,12 +20,14 @@ package org.apache.hop.beam.gui;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
+import org.apache.hop.beam.engines.flink.BeamFlinkPipelineEngine;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 
 @ExtensionPoint(
@@ -34,6 +36,9 @@ import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
     description = "Update the toolbar icons we add in the Beam GUI plugin")
 public final class PipelineExecutionViewerUpdateXP
     implements IExtensionPoint<PipelineExecutionViewer> {
+
+  private static final Class<?> PKG = HopBeamGuiPlugin.class;
+
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, PipelineExecutionViewer viewer) throws HopException {
@@ -50,5 +55,18 @@ public final class PipelineExecutionViewerUpdateXP
         .enableToolbarItem(
             HopBeamGuiPlugin.TOOLBAR_ID_PIPELINE_EXECUTION_VIEWER_VISIT_GCP_DATAFLOW,
             StringUtils.isNotEmpty(jobId));
+
+    if (executionState != null
+        && executionState.getDetails() != null
+        && viewer.getInfoView() != null) {
+      String flinkJobId =
+          executionState.getDetails().get(BeamFlinkPipelineEngine.DETAIL_FLINK_JOB_ID);
+      if (StringUtils.isNotEmpty(flinkJobId)) {
+        viewer
+            .getInfoView()
+            .add(BaseMessages.getString(PKG, "BeamGuiPlugin.FlinkJobId.Label"), flinkJobId);
+        viewer.getInfoView().optimizeTableView();
+      }
+    }
   }
 }
