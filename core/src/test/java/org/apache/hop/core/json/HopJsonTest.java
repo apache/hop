@@ -19,10 +19,16 @@ package org.apache.hop.core.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class HopJsonTest {
@@ -52,6 +58,44 @@ class HopJsonTest {
     String json = mapper.writeValueAsString(bean);
     assertFalse(json.contains("\n"));
     assertEquals("{\"a\":42}", json);
+  }
+
+  @Test
+  void newMapperReadsAStringLongerThanTheJacksonDefault() throws Exception {
+    int length = StreamReadConstraints.DEFAULT_MAX_STRING_LEN + 1;
+    String json = "{\"rowsBinaryGzipBase64Encoded\":\"" + "x".repeat(length) + "\"}";
+
+    JsonProcessingException rejected =
+        assertThrows(
+            JsonProcessingException.class, () -> new ObjectMapper().readValue(json, Map.class));
+    assertTrue(causedBy(rejected, StreamConstraintsException.class), rejected.toString());
+
+    ObjectMapper mapper = HopJson.newMapper();
+    StreamReadConstraints constraints = mapper.getFactory().streamReadConstraints();
+    assertEquals(HopJson.MAX_STRING_LENGTH, constraints.getMaxStringLength());
+    assertEquals(
+        StreamReadConstraints.defaults().getMaxNestingDepth(), constraints.getMaxNestingDepth());
+    assertEquals(
+        StreamReadConstraints.defaults().getMaxNameLength(), constraints.getMaxNameLength());
+
+    Map<?, ?> back = mapper.readValue(json, Map.class);
+    assertEquals(length, String.valueOf(back.get("rowsBinaryGzipBase64Encoded")).length());
+
+    ObjectMapper strict = new ObjectMapper(HopJson.newFactory());
+    assertEquals(
+        length,
+        String.valueOf(strict.readValue(json, Map.class).get("rowsBinaryGzipBase64Encoded"))
+            .length());
+  }
+
+  private static boolean causedBy(Throwable throwable, Class<? extends Throwable> type) {
+    while (throwable != null) {
+      if (type.isInstance(throwable)) {
+        return true;
+      }
+      throwable = throwable.getCause();
+    }
+    return false;
   }
 
   public static class Simple {
