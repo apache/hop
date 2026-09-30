@@ -19,6 +19,7 @@ package org.apache.hop.projects.search;
 
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -39,9 +40,24 @@ public class AddProjectsSearchablesLocationExtensionPoint
       ILogChannel log, IVariables variables, List<ISearchablesLocation> searchablesLocations)
       throws HopException {
 
-    // The location to add is the currently active project and the files in the home folder
+    addActiveProjectLocation(log, searchablesLocations);
+
+    // Searched only when the user picks it. It is not part of the default combined search.
     //
-    String projectName = HopNamespace.getNamespace();
+    searchablesLocations.add(new AllProjectsSearchablesLocation());
+  }
+
+  private void addActiveProjectLocation(
+      ILogChannel log, List<ISearchablesLocation> searchablesLocations) {
+    // The location to add is the currently active project and the files in the home folder.
+    // A missing namespace must not drop the all-projects location added by the caller.
+    //
+    String projectName;
+    try {
+      projectName = HopNamespace.getNamespace();
+    } catch (HopRuntimeException e) {
+      return;
+    }
     if (projectName == null) {
       return;
     }

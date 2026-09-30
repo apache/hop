@@ -41,6 +41,10 @@ Open search with `CTRL-F` or *Edit → Find*. Type in the search field to filter
 * `.*` — treat the query as a regular expression
 * image:icons/gear.svg[width="16px"] — open *Search settings* (limits and options; see below)
 
+The footer shows the status text and, at the bottom right, the search location. *All loaded locations* searches open files and the active project. Choose a single location to search only that one. *All projects* searches every configured project and the configuration files of its environments.
+
+*Project → Search projects...* (the project indicator at the bottom left, under *Edit project...*) opens this dialog with *All projects* already selected.
+
 Results are grouped by *Open files* and *Project files*, then by type (Pipeline, Workflow, metadata type, and so on). Use the arrow keys to move, *Enter* to open the selection, and *Escape* to close the popup.
 
 *Show all results* hands the same query to a search tab in the bottom dock for deeper browsing (details panel, open selected item).
@@ -109,7 +113,7 @@ Settings are stored in the Hop configuration (`hop-config.json`) under the `sear
 
 == Full results panel
 
-From *Show all results*, or when Hop Gui opens a search tab for references, the bottom dock shows a toolbar (query, case/regex, refresh, settings), a grouped results tree, and a details side panel. Select a hit and use *Open* to jump to the matching object.
+From *Show all results*, or when Hop Gui opens a search tab for references, the bottom dock shows a toolbar (query, case/regex, refresh, settings), a grouped results tree, and a details side panel. The footer has the status text, the same search-location selector as the popup, and *Open*. Select a hit and use *Open* to jump to the matching object. *Show all results* keeps the location that was selected in the popup.
 
 Refresh reloads searchable objects from disk and open tabs after you change project files outside Hop Gui.
 

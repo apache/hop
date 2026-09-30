@@ -75,6 +75,7 @@ import org.apache.hop.projects.environment.LifecycleEnvironmentDialog;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
+import org.apache.hop.projects.search.AllProjectsSearchablesLocation;
 import org.apache.hop.projects.security.ProjectsAccessControl;
 import org.apache.hop.projects.security.ProjectsSecurityTab;
 import org.apache.hop.projects.util.ProjectsUtil;
@@ -94,6 +95,7 @@ import org.apache.hop.ui.core.widget.FileTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
 import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerLocation;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -128,6 +130,7 @@ public class ProjectsGuiPlugin {
   public static final String ID_CONTEXT_MENU_PROJECT_ADD_FROM_TEMPLATE =
       "context-menu-project-40013-add-from-template";
   public static final String ID_CONTEXT_MENU_PROJECT_EDIT = "context-menu-project-40020-edit";
+  public static final String ID_CONTEXT_MENU_PROJECT_SEARCH = "context-menu-project-40025-search";
   public static final String ID_CONTEXT_MENU_PROJECT_DELETE = "context-menu-project-40030-delete";
 
   public static final String ID_TOOLBAR_ITEM_ENVIRONMENT = "toolbar-item-20000-environment";
@@ -766,6 +769,20 @@ public class ProjectsGuiPlugin {
               PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Message", projectName),
           e);
     }
+  }
+
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_PROJECT,
+      parentId = ID_CONTEXT_MENU_PROJECT,
+      id = ID_CONTEXT_MENU_PROJECT_SEARCH,
+      label = "i18n::HopGui.Toolbar.Project.Search.Label",
+      toolTip = "i18n::HopGui.Toolbar.Project.Search.Tooltip",
+      image = "ui/images/search.svg")
+  public void searchProjects() {
+    HopGui hopGui = HopGui.getInstance();
+    new SearchEverywhereDialog(
+            hopGui.getActiveShell(), hopGui, AllProjectsSearchablesLocation.LOCATION_ID)
+        .open();
   }
 
   private static boolean askAboutProjectRefresh(HopGui hopGui) {

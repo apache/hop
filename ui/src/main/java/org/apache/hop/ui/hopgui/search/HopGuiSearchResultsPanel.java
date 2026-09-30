@@ -70,7 +70,7 @@ import org.eclipse.swt.widgets.TreeItem;
  *
  * <p>This used to be the body of the dedicated search perspective; it is now embeddable anywhere
  * (e.g. as a tab in the bottom dock) so a single results UI is shared by every "show all" entry
- * point.
+ * point. The footer shows the status and the search location.
  */
 public class HopGuiSearchResultsPanel extends Composite {
 
@@ -85,13 +85,18 @@ public class HopGuiSearchResultsPanel extends Composite {
 
   private final HopGui hopGui;
   private final String eventListenerId;
-  private List<ISearchablesLocation> searchablesLocations;
+
+  /** Location id to select when the panel opens, or null for all loaded locations. */
+  private final String initialLocationId;
+
+  private List<ISearchablesLocation> searchablesLocations = List.of();
 
   private Combo wSearchString;
   private Button wCaseSensitive;
   private Button wRegEx;
   private Button wSettings;
   private Label wlStatus;
+  private Combo wLocation;
   private SashForm sash;
   private Tree wTree;
   private Button wbOpen;
@@ -106,8 +111,11 @@ public class HopGuiSearchResultsPanel extends Composite {
   private Label wdValue;
   private Label wdDescription;
 
-  /** Searchables enumerated once across all locations and reused for every keystroke. */
+  /** Searchables enumerated once for a location and reused for every keystroke. */
   private HopGuiSearchHelper.EnumeratedSearchables cachedEnumeration;
+
+  /** Combo index the cache was built for. */
+  private int cachedLocationIndex = Integer.MIN_VALUE;
 
   private Map<Class<ISearchableAnalyser>, ISearchableAnalyser> cachedAnalysers;
 
@@ -128,9 +136,17 @@ public class HopGuiSearchResultsPanel extends Composite {
   private boolean suppressAutoSearch;
 
   public HopGuiSearchResultsPanel(Composite parent, HopGui hopGui) {
+    this(parent, hopGui, null);
+  }
+
+  /**
+   * @param initialLocationId location to select ({@link ISearchablesLocation#getLocationId()}), or
+   *     null for all loaded locations
+   */
+  public HopGuiSearchResultsPanel(Composite parent, HopGui hopGui, String initialLocationId) {
     super(parent, SWT.NONE);
     this.hopGui = hopGui;
-    this.searchablesLocations = hopGui.getSearchablesLocations();
+    this.initialLocationId = initialLocationId;
     this.eventListenerId = getClass().getName() + "-" + System.identityHashCode(this);
 
     buildUi();
@@ -169,7 +185,7 @@ public class HopGuiSearchResultsPanel extends Composite {
     //
     Composite toolbar = new Composite(this, SWT.NONE);
     PropsUi.setLook(toolbar);
-    toolbar.setLayout(new GridLayout(7, false));
+    toolbar.setLayout(new GridLayout(6, false));
     FormData fdToolbar = new FormData();
     fdToolbar.left = new FormAttachment(0, 0);
     fdToolbar.right = new FormAttachment(100, 0);
@@ -234,19 +250,35 @@ public class HopGuiSearchResultsPanel extends Composite {
           }
         });
 
-    wlStatus = new Label(toolbar, SWT.LEFT);
+    // --- Footer: status, search location at the bottom right, Open ---
+    //
+    Composite footer = new Composite(this, SWT.NONE);
+    PropsUi.setLook(footer);
+    GridLayout footerLayout = new GridLayout(3, false);
+    footerLayout.marginWidth = 0;
+    footerLayout.marginHeight = 0;
+    footer.setLayout(footerLayout);
+    FormData fdFooter = new FormData();
+    fdFooter.left = new FormAttachment(0, 0);
+    fdFooter.right = new FormAttachment(100, 0);
+    fdFooter.bottom = new FormAttachment(100, 0);
+    footer.setLayoutData(fdFooter);
+
+    wlStatus = new Label(footer, SWT.LEFT);
     PropsUi.setLook(wlStatus);
     wlStatus.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-    // --- Bottom: Open button ---
-    //
-    wbOpen = new Button(this, SWT.PUSH);
+    wLocation = new Combo(footer, SWT.DROP_DOWN | SWT.READ_ONLY);
+    PropsUi.setLook(wLocation);
+    GridData gdLocation = new GridData(SWT.FILL, SWT.CENTER, false, false);
+    gdLocation.widthHint = (int) (280 * props.getZoomFactor());
+    wLocation.setLayoutData(gdLocation);
+    wLocation.addListener(SWT.Selection, e -> onLocationSelected());
+    refreshLocations();
+
+    wbOpen = new Button(footer, SWT.PUSH);
     PropsUi.setLook(wbOpen);
     wbOpen.setText(BaseMessages.getString(PKG, "HopGuiSearchResultsPanel.Open.Button.Label"));
-    FormData fdbOpen = new FormData();
-    fdbOpen.right = new FormAttachment(100, 0);
-    fdbOpen.bottom = new FormAttachment(100, 0);
-    wbOpen.setLayoutData(fdbOpen);
     wbOpen.addListener(SWT.Selection, this::open);
     wbOpen.setEnabled(false);
 
@@ -258,7 +290,7 @@ public class HopGuiSearchResultsPanel extends Composite {
     fdSash.left = new FormAttachment(0, 0);
     fdSash.right = new FormAttachment(100, 0);
     fdSash.top = new FormAttachment(toolbar, margin);
-    fdSash.bottom = new FormAttachment(wbOpen, -margin);
+    fdSash.bottom = new FormAttachment(footer, -margin);
     sash.setLayoutData(fdSash);
 
     wTree =
@@ -326,7 +358,7 @@ public class HopGuiSearchResultsPanel extends Composite {
 
   /** Refresh searchable locations + history and re-enumerate; call when this panel is (re)shown. */
   public void prepareForActivation() {
-    searchablesLocations = hopGui.getSearchablesLocations();
+    refreshLocations();
     refreshLastUsedSearchStrings();
     invalidateCache();
     focusSearchField();
@@ -432,6 +464,7 @@ public class HopGuiSearchResultsPanel extends Composite {
   }
 
   public void clearSearchFilters() {
+    refreshLocations();
     invalidateCache();
     if (wSearchString != null && !wSearchString.isDisposed()) {
       wSearchString.setText("");
@@ -447,31 +480,34 @@ public class HopGuiSearchResultsPanel extends Composite {
 
   private void invalidateCache() {
     cachedEnumeration = null;
+    cachedLocationIndex = Integer.MIN_VALUE;
   }
 
-  /** Make sure the searchables across all locations are enumerated once (and cached). */
-  private synchronized boolean ensureLoaded() {
-    if (cachedEnumeration != null) {
-      return true;
+  /**
+   * Searchables for the selected location, enumerated once and reused. Null when loading failed.
+   * The returned object stays valid if a later search replaces the cache.
+   */
+  private synchronized HopGuiSearchHelper.EnumeratedSearchables ensureLoaded(
+      List<ISearchablesLocation> locations, int locationIndex) {
+    if (cachedEnumeration != null && cachedLocationIndex == locationIndex) {
+      return cachedEnumeration;
     }
     try {
       if (cachedAnalysers == null) {
         cachedAnalysers = HopGuiSearchHelper.loadSearchableAnalysers();
       }
-      if (searchablesLocations == null) {
-        searchablesLocations = hopGui.getSearchablesLocations();
-      }
       cachedEnumeration =
           HopGuiSearchHelper.enumerateAll(
-              searchablesLocations,
+              HopGuiSearchHelper.selectLocations(locations, locationIndex),
               hopGui.getMetadataProvider(),
               hopGui.getVariables(),
               hopGui.getLog());
-      return true;
+      cachedLocationIndex = locationIndex;
+      return cachedEnumeration;
     } catch (Exception e) {
       hopGui.getLog().logError("Error loading searchables", e);
       invalidateCache();
-      return false;
+      return null;
     }
   }
 
@@ -495,12 +531,16 @@ public class HopGuiSearchResultsPanel extends Composite {
     final SearchLimits limits = SearchLimits.fromConfig();
     final int generation = searchGeneration.incrementAndGet();
     final Display display = getDisplay();
+    final int locationIndex = locationSelectionIndex();
+    final List<ISearchablesLocation> locations = searchablesLocations;
     setStatus(BaseMessages.getString(PKG, "HopGuiSearchResultsPanel.Status.Searching"));
 
     searchExecutor.execute(
         () -> {
           try {
-            if (!ensureLoaded()) {
+            HopGuiSearchHelper.EnumeratedSearchables enumerated =
+                ensureLoaded(locations, locationIndex);
+            if (enumerated == null) {
               display.asyncExec(
                   () -> {
                     if (generation == searchGeneration.get() && !isDisposed()) {
@@ -512,18 +552,18 @@ public class HopGuiSearchResultsPanel extends Composite {
             SearchQuery query = new SearchQuery(searchString, caseSensitive, regExp);
             SearchAnalysisResult analysis =
                 HopGuiSearchHelper.analyseRankedLimited(
-                    cachedEnumeration.getSearchables(),
+                    enumerated.getSearchables(),
                     query,
                     cachedAnalysers,
                     true,
                     limits,
-                    cachedEnumeration.getSourceByKey());
+                    enumerated.getSourceByKey());
             display.asyncExec(
                 () -> {
                   if (generation != searchGeneration.get() || isDisposed()) {
                     return;
                   }
-                  populateTree(analysis.getResults(), cachedEnumeration.getSourceByKey());
+                  populateTree(analysis.getResults(), enumerated.getSourceByKey());
                   setStatusFromAnalysis(analysis, limits);
                 });
           } catch (Exception e) {
@@ -536,6 +576,55 @@ public class HopGuiSearchResultsPanel extends Composite {
                 });
           }
         });
+  }
+
+  private void refreshLocations() {
+    String keep = selectedLocationId();
+    List<ISearchablesLocation> locations = hopGui.getSearchablesLocations();
+    searchablesLocations = locations == null ? List.of() : locations;
+    if (wLocation == null || wLocation.isDisposed()) {
+      return;
+    }
+    String allLoaded = BaseMessages.getString(PKG, "SearchLocation.AllLoaded");
+    wLocation.setItems(HopGuiSearchHelper.locationLabels(searchablesLocations, allLoaded));
+    wLocation.setToolTipText(BaseMessages.getString(PKG, "SearchLocation.Tooltip"));
+    int index = HopGuiSearchHelper.indexOfLocation(searchablesLocations, keep);
+    if (index >= wLocation.getItemCount()) {
+      index = HopGuiSearchHelper.ALL_LOADED_LOCATIONS_INDEX;
+    }
+    wLocation.select(index);
+  }
+
+  private void onLocationSelected() {
+    invalidateCache();
+    if (wSearchString != null
+        && !wSearchString.isDisposed()
+        && !Utils.isEmpty(wSearchString.getText())) {
+      search(new Event());
+    }
+  }
+
+  private int locationSelectionIndex() {
+    if (wLocation != null && !wLocation.isDisposed() && wLocation.getSelectionIndex() >= 0) {
+      return wLocation.getSelectionIndex();
+    }
+    return HopGuiSearchHelper.indexOfLocation(searchablesLocations, initialLocationId);
+  }
+
+  /**
+   * Id of the selected location, or null when the combined "all loaded locations" entry is
+   * selected. Before the combo exists, this is the id the panel was opened with.
+   */
+  private String selectedLocationId() {
+    if (wLocation != null && !wLocation.isDisposed() && wLocation.getSelectionIndex() >= 0) {
+      int index = wLocation.getSelectionIndex();
+      if (index <= 0 || index - 1 >= searchablesLocations.size()) {
+        return null;
+      }
+      ISearchablesLocation location = searchablesLocations.get(index - 1);
+      return location == null ? null : location.getLocationId();
+    }
+    return initialLocationId;
   }
 
   private void setStatus(String text) {

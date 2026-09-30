@@ -59,15 +59,11 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
     this.projectConfig = projectConfig;
     this.searchables = new ArrayList<>();
 
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
     try {
-      List<String> configurationFiles = new ArrayList<>();
-      List<LifecycleEnvironment> environments =
-          config.findEnvironmentsOfProject(projectConfig.getProjectName());
-      if (!environments.isEmpty()) {
-        configurationFiles.addAll(environments.get(0).getConfigurationFiles());
-      }
+      // Every environment of the project, not only the first one.
+      //
+      List<String> configurationFiles =
+          environmentConfigurationFiles(projectConfig.getProjectName());
 
       // Discover files via registered hop file types that opt into search.
       //
@@ -117,7 +113,11 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
               continue;
             }
             ISearchable searchable =
-                fileType.createSearchable(filePath, "Project file", variables, metadataProvider);
+                fileType.createSearchable(
+                    filePath,
+                    "Project " + projectConfig.getProjectName(),
+                    variables,
+                    metadataProvider);
             if (searchable != null) {
               searchables.add(searchable);
             }
@@ -169,6 +169,32 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
       throw new HopException(
           "Error loading list of project '" + projectConfig.getProjectName() + "' searchables", e);
     }
+  }
+
+  /**
+   * Configuration files of every environment linked to the project. Order follows the environment
+   * list. Duplicate paths are skipped.
+   */
+  static List<String> environmentConfigurationFiles(String projectName) {
+    List<String> configurationFiles = new ArrayList<>();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    if (config == null || projectName == null) {
+      return configurationFiles;
+    }
+    for (LifecycleEnvironment environment : config.findEnvironmentsOfProject(projectName)) {
+      if (environment == null || environment.getConfigurationFiles() == null) {
+        continue;
+      }
+      for (String configurationFile : environment.getConfigurationFiles()) {
+        if (configurationFile == null
+            || configurationFile.isEmpty()
+            || configurationFiles.contains(configurationFile)) {
+          continue;
+        }
+        configurationFiles.add(configurationFile);
+      }
+    }
+    return configurationFiles;
   }
 
   @Override

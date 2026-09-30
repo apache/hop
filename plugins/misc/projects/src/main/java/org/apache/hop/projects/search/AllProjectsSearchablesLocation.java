@@ -15,36 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.search;
+package org.apache.hop.projects.search;
 
 import java.util.Iterator;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
-/** A location where searchables can be found. */
-public interface ISearchablesLocation {
-  String getLocationDescription();
+/**
+ * Search location over every configured project and the configuration files of its environments.
+ */
+public class AllProjectsSearchablesLocation implements ISearchablesLocation {
 
-  /**
-   * Stable id used to select this location again. Defaults to the description.
-   *
-   * @return the location id
-   */
-  default String getLocationId() {
-    return getLocationDescription();
+  public static final String LOCATION_ID = "all-projects";
+
+  public static final String DESCRIPTION = "All projects";
+
+  @Override
+  public String getLocationDescription() {
+    return DESCRIPTION;
   }
 
-  /**
-   * Whether the combined search of loaded locations includes this location. A location that walks
-   * every configured project returns false and is searched only when the user selects it.
-   *
-   * @return true to include this location in the default combined search
-   */
-  default boolean isIncludedInDefaultSearch() {
-    return true;
+  @Override
+  public String getLocationId() {
+    return LOCATION_ID;
   }
 
-  Iterator<ISearchable> getSearchables(IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopException;
+  @Override
+  public boolean isIncludedInDefaultSearch() {
+    return false;
+  }
+
+  @Override
+  public Iterator<ISearchable> getSearchables(
+      IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    // metadataProvider belongs to the active project. Each configured project is loaded on its own.
+    return new AllProjectsSearchablesIterator(variables);
+  }
 }
