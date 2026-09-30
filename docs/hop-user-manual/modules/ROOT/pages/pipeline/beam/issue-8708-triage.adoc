@@ -98,18 +98,26 @@ Fix the packaging, and turn the NPE into a clear error message.
 |Medium
 |3
 |Implement
-|Planned
-|The converter never reads Hop's partitioning metadata, so a partitioned transform sees all the
-data on every worker, and the existing `SinglePartitionFn` sends every row to partition 0.
-Add a field-based partition function and honour the partitioning in the converter.
+|Done
+|Added a Beam partition transform wrapping Beam's `Partition`, with a single-partition and a
+keyed mode, so the previously unused `SinglePartitionFn` now has a caller and there is a
+field-based `KeyedPartitionFn` beside it.
+The row count is the assertion that matters: Beam returns one collection per partition and reading
+only the first drops the rest, which the end-to-end test verifies by failing with 12 of 100 rows
+against the naive version.
 
 |https://github.com/apache/hop/issues/2275[#2275] Beam window by key
 |Medium
 |3
 |Implement
-|Planned
-|`BeamWindowMeta` only supports global windowing.
-Key the collection on a chosen field before applying the window, then re-key it afterwards.
+|Done
+|Added an optional `keyField` to `BeamWindowMeta`, with a dialog field and docs.
+Rows are keyed with `HopKeyFn`, the KV collection is windowed and grouped, and the key is dropped
+again so downstream transforms see plain rows; the key is a field already on the row, so it does not
+become an extra column.
+Note that a GLOBAL window per key and a GLOBAL window overall emit the same row count, so the
+end-to-end test proves the keyed branch is reached through the unknown-key-field failure rather than
+by row count.
 
 |https://github.com/apache/hop/issues/2357[#2357] Parquet transform and ParquetIO
 |Medium
@@ -134,11 +142,14 @@ handler code only.
 |Medium
 |3
 |Implement
-|Planned
-|The transform falls through to the generic handler, so every worker generates its own sequence
-starting from the same number.
-Use `GenerateSequence` to produce disjoint ranges per copy.
-The database-backed and counter-backed modes cannot be expressed on Beam and must fail loudly.
+|Done
+|Added `BeamAddSequenceTransformHandler` and a stateful `AddSequenceFn`, so the transform no longer
+falls through to the generic handler that gave every worker its own sequence.
+The counter lives in Beam state and all rows are keyed onto one key, which is what makes it a single
+pipeline-wide sequence; a plain field would restart per worker.
+The trade-off is that the transform runs at parallelism one, which is inherent to a globally
+increasing sequence rather than a shortcut. The database- and counter-backed modes cannot be
+expressed on Beam and now fail with an explanation.
 
 |https://github.com/apache/hop/issues/2375[#2375] Beam MQTT IO
 |Medium

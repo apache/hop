@@ -118,6 +118,7 @@ under the License.
 *** xref:pipeline/transforms/binaryfileoutput.adoc[Binary File Output]
 *** xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis consume]
 *** xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis produce]
+*** xref:pipeline/transforms/beampartition.adoc[Beam partition]
 *** xref:pipeline/transforms/beamtimestamp.adoc[Beam timestamp]
 *** xref:pipeline/transforms/beamwindow.adoc[Beam window]
 *** xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]

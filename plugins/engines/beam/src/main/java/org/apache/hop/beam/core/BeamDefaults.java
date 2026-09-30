@@ -31,6 +31,12 @@ public class BeamDefaults {
         PUBSUB_MESSAGE_TYPE_STRING, PUBSUB_MESSAGE_TYPE_MESSAGE,
       };
 
+  /** #2040: put every row in one partition, i.e. do not partition at all. */
+  public static final String PARTITION_TYPE_SINGLE = "Single";
+
+  /** #2040: partition on the value of a field, so equal keys end up in the same partition. */
+  public static final String PARTITION_TYPE_KEY = "Key";
+
   public static final String WINDOW_TYPE_FIXED = "Fixed";
   public static final String WINDOW_TYPE_SLIDING = "Sliding";
   public static final String WINDOW_TYPE_SESSION = "Session";
