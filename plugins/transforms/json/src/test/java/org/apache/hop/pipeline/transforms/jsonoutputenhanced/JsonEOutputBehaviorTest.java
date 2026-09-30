@@ -335,4 +335,32 @@ class JsonEOutputBehaviorTest {
       assertFalse(extra.exists());
     }
   }
+
+  @Test
+  void ndjsonWrapsEachCompleteGroup() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.BOTH);
+    meta.setNewlineDelimited(true);
+    meta.setJsonBloc("data");
+    JsonEOutputKeyField key = new JsonEOutputKeyField("grp");
+    key.setElementName("group");
+    meta.getKeyFields().add(key);
+    try (Harness h =
+        new Harness(
+            meta,
+            rowMeta("grp", "payload"),
+            new Object[] {"a", "x"},
+            new Object[] {"a", "y"},
+            new Object[] {"b", "z"})) {
+      h.run();
+      assertEquals(2, h.written.size());
+    }
+    List<String> lines = read(base + "/out.json").lines().toList();
+    assertEquals(2, lines.size());
+    JsonNode first = parse(lines.get(0)).get("data");
+    JsonNode last = parse(lines.get(1)).get("data");
+    assertEquals("a", first.get("group").asText());
+    assertEquals(2, first.get("rows").size());
+    assertEquals("b", last.get("group").asText());
+    assertEquals("z", last.get("rows").get("payload").asText());
+  }
 }

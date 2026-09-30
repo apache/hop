@@ -483,7 +483,15 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         data.fileGenerator.setPrettyPrinter(null);
         data.fileGenerator.setRootValueSeparator(null);
       }
+      String block = resolve(meta.getJsonBloc());
+      if (!Utils.isEmpty(block)) {
+        data.fileGenerator.writeStartObject();
+        data.fileGenerator.writeFieldName(block);
+      }
       data.fileGenerator.writeTree(item);
+      if (!Utils.isEmpty(block)) {
+        data.fileGenerator.writeEndObject();
+      }
       data.fileGenerator.writeRaw('\n');
     } catch (IOException e) {
       throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
