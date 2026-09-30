@@ -596,6 +596,20 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       data.jsonKeyGroupItems = null;
     }
 
+    // A cancelled or failed row can leave the generator open. Close it before the writer.
+    // Do not finish the group: a partial file is not an atomic write.
+    if (data.fileGenerator != null) {
+      try {
+        data.fileGenerator.close();
+      } catch (IOException e) {
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", e.toString()));
+        setErrors(1);
+      } finally {
+        data.fileGenerator = null;
+        data.pendingFileItem = null;
+      }
+    }
+
     closeFile();
     super.dispose();
   }

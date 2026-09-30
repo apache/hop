@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -105,6 +107,7 @@ class JsonEOutputBehaviorTest {
   private static final class Harness implements AutoCloseable {
     final TransformMockHelper<JsonEOutputMeta, JsonEOutputData> helper;
     final List<RowMetaAndData> written = new ArrayList<>();
+    final JsonEOutputData data;
     final JsonEOutput transform;
 
     Harness(JsonEOutputMeta meta, IRowMeta inputMeta, Object[]... rows) {
@@ -115,14 +118,10 @@ class JsonEOutputBehaviorTest {
       when(helper.pipeline.isRunning()).thenReturn(true);
       when(helper.transformMeta.getTransform()).thenReturn(meta);
       var iterator = Arrays.asList(rows).iterator();
+      data = new JsonEOutputData();
       transform =
           new JsonEOutput(
-              helper.transformMeta,
-              meta,
-              new JsonEOutputData(),
-              0,
-              helper.pipelineMeta,
-              helper.pipeline) {
+              helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline) {
             @Override
             public Object[] getRow() {
               return iterator.hasNext() ? iterator.next() : null;
@@ -215,5 +214,23 @@ class JsonEOutputBehaviorTest {
         List.of(),
         JsonEOutputDialog.suggestKeyFieldNames(
             rowMeta("payload", "grp"), List.of("payload"), List.of("grp")));
+  }
+
+  @Test
+  void disposalClosesAnActiveFileGenerator() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    try (Harness h =
+        new Harness(
+            meta, rowMeta("payload"), new Object[] {"a"}, new Object[] {"b"}, new Object[] {"c"})) {
+      assertTrue(h.transform.init());
+      assertTrue(h.transform.processRow());
+      assertTrue(h.transform.processRow());
+      var generator = h.data.fileGenerator;
+      assertNotNull(generator);
+      h.transform.dispose();
+      assertTrue(generator.isClosed());
+      assertNull(h.data.fileGenerator);
+      assertNull(h.data.writer);
+    }
   }
 }
