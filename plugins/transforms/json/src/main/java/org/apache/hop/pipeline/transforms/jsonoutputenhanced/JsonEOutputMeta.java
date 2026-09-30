@@ -200,8 +200,14 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
 
       for (int i = 0; i < this.getKeyFields().size(); i++) {
         JsonEOutputKeyField keyField = this.getKeyFields().get(i);
-        IValueMeta vmi = rowMeta.getValueMeta(rowMeta.indexOfValue(keyField.getFieldName()));
-        row.addValueMeta(i, vmi);
+        int index = rowMeta.indexOfValue(keyField.getFieldName());
+        if (index < 0) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG, "JsonEOutput.Error.GroupFieldNotFound", keyField.getFieldName()));
+        }
+        IValueMeta vmi = rowMeta.getValueMeta(index).clone();
+        row.addValueMeta(vmi);
       }
 
       ValueMetaString vm = new ValueMetaString(this.getOutputValue());
