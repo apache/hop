@@ -420,6 +420,10 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
    * forced.
    */
   private void writeFileItem(JsonNode item) throws HopException {
+    if (meta.isNewlineDelimited()) {
+      writeNdJsonItem(item);
+      return;
+    }
     try {
       if (data.fileItemCount == 0) {
         data.pendingFileItem = item;
@@ -465,9 +469,38 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
   }
 
+  /** One compact JSON value followed by LF. There is no outer document array. */
+  private void writeNdJsonItem(JsonNode item) throws HopException {
+    try {
+      if (!openNewFile()) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonEOutput.Error.OpenNewFile", buildFilename()));
+      }
+      if (data.fileGenerator == null) {
+        data.fileGenerator = fileMapper.getFactory().createGenerator(data.writer);
+        // The file is closed separately, with its lineage.
+        data.fileGenerator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        data.fileGenerator.setPrettyPrinter(null);
+        data.fileGenerator.setRootValueSeparator(null);
+      }
+      data.fileGenerator.writeTree(item);
+      data.fileGenerator.writeRaw('\n');
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
+    }
+    data.fileItemCount++;
+    if (!data.isOutputValue) {
+      incrementLinesOutput();
+    }
+  }
+
   /** Close the JSON document and the file, if any item was written to it. */
   private void finishFile() throws HopTransformException {
     if (data.fileItemCount == 0) {
+      return;
+    }
+    if (meta.isNewlineDelimited()) {
+      closeNdJsonFile();
       return;
     }
     try {
@@ -489,6 +522,25 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     data.pendingFileItem = null;
     data.fileItemCount = 0;
     closeFile();
+  }
+
+  /** Close the NDJSON generator, then the writer. Do not finish an outer array or object. */
+  private void closeNdJsonFile() throws HopTransformException {
+    try {
+      if (data.fileGenerator != null) {
+        data.fileGenerator.close();
+      }
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
+    }
+    String filename = data.openedFilename;
+    data.fileGenerator = null;
+    data.pendingFileItem = null;
+    data.fileItemCount = 0;
+    if (!closeFile()) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", filename));
+    }
   }
 
   private void serializeJson(List<ObjectNode> jsonItemsList) throws HopException {

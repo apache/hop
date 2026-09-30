@@ -98,6 +98,10 @@ class JsonEOutputBehaviorTest {
         .readTree(json);
   }
 
+  private static String payload(String value) {
+    return HopJson.newMapper().createObjectNode().put("payload", value).toString();
+  }
+
   private static IRowMeta rowMeta(String... names) {
     IRowMeta row = new RowMeta();
     for (String name : names) {
@@ -292,5 +296,24 @@ class JsonEOutputBehaviorTest {
     assertEquals(4, result.get(2).get("lvl1Details").size());
     assertEquals("B", result.get(2).get("lvl1Details").get(3).get("campo2").asText());
     assertEquals(7, result.get(2).get("lvl1Details").get(3).get("campo3").asInt());
+  }
+
+  @Test
+  void ndjsonAppendEscapesEmbeddedNewlines() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setNewlineDelimited(true);
+    meta.getFileSettings().setFileAppended(true);
+    try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"a\nb"})) {
+      h.run();
+    }
+    try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"c\rd"})) {
+      h.run();
+    }
+    String content = read(base + "/out.json");
+    assertEquals(payload("a\nb") + "\n" + payload("c\rd") + "\n", content);
+    List<String> lines = content.lines().toList();
+    assertEquals(2, lines.size());
+    assertEquals("a\nb", parse(lines.get(0)).get("payload").asText());
+    assertEquals("c\rd", parse(lines.get(1)).get("payload").asText());
   }
 }

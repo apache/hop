@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -38,6 +39,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
@@ -48,6 +50,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
@@ -193,6 +196,97 @@ class JsonEOutputDialogTest extends SwtBotTestBase {
     assertFalse(
         tableBounds.get().intersects(buttonBounds.get()),
         tableBounds.get() + " overlaps " + buttonBounds.get());
+  }
+
+  @Test
+  void ndjsonOptionIsSavedFromTheGroupedTab() {
+    JsonEOutputMeta meta = new JsonEOutputMeta();
+    meta.setOperationType(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    PipelineMeta pipeline = pipeline(meta, "payload");
+    String title = BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.DialogTitle");
+    String formatTab =
+        BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.FileFormat.TabTitle");
+    String ndjson = BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.NdJson.Label");
+    withDialog(
+        parent -> {
+          silenceSortWarning();
+          new JsonEOutputDialog(parent, new Variables(), meta, pipeline).open();
+        },
+        bot -> {
+          SWTBot dialog = bot.shell(title).activate().bot();
+          activateTab(dialog, formatTab);
+          Button checkbox = checkBoxNextTo(dialog, ndjson);
+          display.syncExec(() -> checkbox.setSelection(true));
+          dialog.button(buttonLabel("System.Button.OK")).click();
+        });
+    assertTrue(meta.isNewlineDelimited());
+  }
+
+  @Test
+  void ndjsonOptionCancelKeepsMetadata() {
+    JsonEOutputMeta meta = new JsonEOutputMeta();
+    meta.setOperationType(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    PipelineMeta pipeline = pipeline(meta, "payload");
+    String title = BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.DialogTitle");
+    String formatTab =
+        BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.FileFormat.TabTitle");
+    String ndjson = BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.NdJson.Label");
+    withDialog(
+        parent -> new JsonEOutputDialog(parent, new Variables(), meta, pipeline).open(),
+        bot -> {
+          SWTBot dialog = bot.shell(title).activate().bot();
+          activateTab(dialog, formatTab);
+          Button checkbox = checkBoxNextTo(dialog, ndjson);
+          display.syncExec(() -> checkbox.setSelection(true));
+          dialog.button(buttonLabel("System.Button.Cancel")).click();
+        });
+    assertFalse(meta.isNewlineDelimited());
+  }
+
+  @Test
+  void ndjsonOptionIsDisabledForOutputValue() {
+    JsonEOutputMeta meta = new JsonEOutputMeta();
+    meta.setOperationType(JsonEOutputMeta.OperationType.OUTPUT_VALUE);
+    PipelineMeta pipeline = pipeline(meta, "payload");
+    String title = BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.DialogTitle");
+    String formatTab =
+        BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.FileFormat.TabTitle");
+    String ndjson = BaseMessages.getString(JsonEOutputMeta.class, "JsonEOutputDialog.NdJson.Label");
+    AtomicBoolean enabled = new AtomicBoolean(true);
+    withDialog(
+        parent -> new JsonEOutputDialog(parent, new Variables(), meta, pipeline).open(),
+        bot -> {
+          SWTBot dialog = bot.shell(title).activate().bot();
+          activateTab(dialog, formatTab);
+          Button checkbox = checkBoxNextTo(dialog, ndjson);
+          display.syncExec(() -> enabled.set(checkbox.getEnabled()));
+          dialog.button(buttonLabel("System.Button.Cancel")).click();
+        });
+    assertFalse(enabled.get());
+  }
+
+  private static void silenceSortWarning() {
+    PropsUi.getInstance().setCustomParameter(JsonEOutputDialog.STRING_SORT_WARNING_PARAMETER, "N");
+  }
+
+  /** Annotated checkboxes keep their title on a separate label. */
+  private Button checkBoxNextTo(SWTBot dialog, String labelText) {
+    Label label = dialog.label(labelText).widget;
+    AtomicReference<Button> found = new AtomicReference<>();
+    display.syncExec(
+        () -> {
+          for (Control child : label.getParent().getChildren()) {
+            if (child instanceof Button button && (button.getStyle() & SWT.CHECK) != 0) {
+              found.set(button);
+              return;
+            }
+          }
+          throw new AssertionError("no checkbox next to " + labelText);
+        });
+    if (found.get() == null) {
+      throw new AssertionError("no checkbox next to " + labelText);
+    }
+    return found.get();
   }
 
   /**
