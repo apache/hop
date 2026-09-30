@@ -186,6 +186,11 @@ When clicking on a transform icon, the popup contains a number of actions to wor
 * Unit Testing
 ** **Unit testing**: create an empty xref:metadata-types/data-set.adoc[data set] with the output fields and layout for this transform
 ** **Write rows to data set**: run the current pipeline and write the output of the current transform to a data set.
+* Bulk (only when two or more transforms are selected and a unit test is active)
+** **Remove selection from test**: do not include the selected transforms when this unit test runs.
+** **Include selection in test**: include the selected transforms in this unit test again.
+** **Bypass selection in test**: replace each selected transform with a dummy while this unit test runs.
+** **Remove bypass from selection**: do not bypass the selected transforms during testing.
 
 image:hop-gui/popup-transform.png[Hop Gui Popup Dialog - Workflow Transform Options, width="65%"]
 

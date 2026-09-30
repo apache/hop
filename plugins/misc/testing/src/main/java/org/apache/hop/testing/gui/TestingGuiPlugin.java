@@ -117,6 +117,14 @@ public class TestingGuiPlugin {
       "pipeline-graph-transform-20820-enable-tweak-bypass-transform";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM =
       "pipeline-graph-transform-20830-disable-tweak-bypass-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM =
+      "pipeline-graph-transform-20840-bulk-remove-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM =
+      "pipeline-graph-transform-20850-bulk-include-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM =
+      "pipeline-graph-transform-20860-bulk-bypass-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM =
+      "pipeline-graph-transform-20870-bulk-remove-bypass-transform";
   protected static final Class<?> PKG = TestingGuiPlugin.class;
 
   public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
@@ -685,30 +693,75 @@ public class TestingGuiPlugin {
           && currentTest.findGoldenLocation(context.getTransformMeta().getName()) != null;
     }
 
-    // Tweaks
+    // Tweaks. A multi-selection uses the Bulk actions (issue #5371), like enable and disable hops
+    // between selection. The single-transform actions stay for one selected transform.
     //
     PipelineUnitTestTweak tweak = null;
     if (currentTest != null) {
       tweak = currentTest.findTweak(context.getTransformMeta().getName());
     }
+    int selectedCount = selectedTransformCount(context.getPipelineMeta());
+    boolean unitTestActive = currentTest != null;
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null && tweak == null;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.REMOVE_TRANSFORM, true, selectedCount);
     }
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_REMOVE_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null
-          && tweak != null
-          && tweak.getTweak() == PipelineTweak.REMOVE_TRANSFORM;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.REMOVE_TRANSFORM, false, selectedCount);
     }
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_BYPASS_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null && tweak == null;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.BYPASS_TRANSFORM, true, selectedCount);
     }
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null
-          && tweak != null
-          && tweak.getTweak() == PipelineTweak.BYPASS_TRANSFORM;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.BYPASS_TRANSFORM, false, selectedCount);
+    }
+    if (isBulkUnitTestTweakAction(contextActionId)) {
+      return showBulkUnitTestTweak(unitTestActive, selectedCount);
     }
 
     return true;
+  }
+
+  static boolean isBulkUnitTestTweakAction(String contextActionId) {
+    return ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM.equals(contextActionId)
+        || ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM.equals(contextActionId)
+        || ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM.equals(contextActionId)
+        || ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM.equals(contextActionId);
+  }
+
+  /**
+   * Whether a single-transform tweak action is shown. Hidden while more than one transform is
+   * selected, so the bulk actions are the ones that change the selection.
+   */
+  static boolean showSingleUnitTestTweak(
+      boolean unitTestActive,
+      PipelineUnitTestTweak clickedTweak,
+      PipelineTweak tweak,
+      boolean enable,
+      int selectedCount) {
+    if (!unitTestActive || selectedCount > 1) {
+      return false;
+    }
+    if (enable) {
+      return clickedTweak == null;
+    }
+    return clickedTweak != null && clickedTweak.getTweak() == tweak;
+  }
+
+  /** Whether the bulk remove and bypass actions are shown for the current selection. */
+  static boolean showBulkUnitTestTweak(boolean unitTestActive, int selectedCount) {
+    return unitTestActive && selectedCount > 1;
+  }
+
+  static int selectedTransformCount(PipelineMeta pipelineMeta) {
+    if (pipelineMeta == null) {
+      return 0;
+    }
+    List<TransformMeta> selected = pipelineMeta.getSelectedTransforms();
+    return selected == null ? 0 : selected.size();
   }
 
   /**
@@ -1576,6 +1629,58 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void disableTweakBypassTransformInUnitTest(HopGuiPipelineTransformContext context) {
+    tweakBypassTransformInUnitTest(context, false);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveFromTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveFromTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkRemoveSelectionFromUnitTest(HopGuiPipelineTransformContext context) {
+    tweakRemoveTransformInUnitTest(context, true);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkIncludeInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkIncludeInTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkIncludeSelectionInUnitTest(HopGuiPipelineTransformContext context) {
+    tweakRemoveTransformInUnitTest(context, false);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkBypassInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkBypassInTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkBypassSelectionInUnitTest(HopGuiPipelineTransformContext context) {
+    tweakBypassTransformInUnitTest(context, true);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveBypassInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveBypassInTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkRemoveBypassFromSelectionInUnitTest(HopGuiPipelineTransformContext context) {
     tweakBypassTransformInUnitTest(context, false);
   }
 
