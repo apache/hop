@@ -3527,6 +3527,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     return meta;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public RowMetaAndData getOneRow(String sql, IRowMeta param, Object[] data)
       throws HopDatabaseException {
     ResultSet rs = openQuery(sql, param, data);

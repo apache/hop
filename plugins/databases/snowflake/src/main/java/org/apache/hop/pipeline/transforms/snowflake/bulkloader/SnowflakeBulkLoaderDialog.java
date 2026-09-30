@@ -1688,6 +1688,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
   // Generate code for create table...
   // Conversions done by Database
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private void create() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
 

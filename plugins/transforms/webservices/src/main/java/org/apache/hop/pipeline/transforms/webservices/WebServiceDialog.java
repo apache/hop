@@ -783,6 +783,8 @@ public class WebServiceDialog extends BaseTransformDialog {
     meta = transformMeta;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public String open() {
     createShell(BaseMessages.getString(PKG, "WebServiceDialog.DialogTitle"));

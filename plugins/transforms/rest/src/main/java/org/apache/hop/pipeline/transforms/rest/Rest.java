@@ -1616,6 +1616,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     long expDelay = delay * (1L << attempt);
     long capped = Math.min(expDelay, maxDelay);
 
+    // Safe: retry jitter only spreads out load, it does not need to be unpredictable
+    @SuppressWarnings("java:S2245")
     long jitter = ThreadLocalRandom.current().nextLong(delay);
     return capped / 2 + jitter;
   }

@@ -39,6 +39,8 @@ public class RunThread implements Runnable {
     this.log = transform.getLogChannel();
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public void run() {
     try {

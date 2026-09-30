@@ -184,6 +184,8 @@ public class Encr {
    *
    * @param args the password to encrypt
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public static void main(String[] args) throws HopException {
     HopClientEnvironment.init();
     if (args.length != 2) {

@@ -32,6 +32,8 @@ public class HopWebServletContextListener extends RWTServletContextListener {
   private static final Logger logger =
       Logger.getLogger(HopWebServletContextListener.class.getName());
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public void contextInitialized(ServletContextEvent event) {
     /*

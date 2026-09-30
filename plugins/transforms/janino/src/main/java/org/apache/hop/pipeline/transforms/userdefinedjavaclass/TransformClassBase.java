@@ -57,6 +57,8 @@ public abstract class TransformClassBase {
   protected UserDefinedJavaClassMeta meta;
   protected UserDefinedJavaClassData data;
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public TransformClassBase(
       UserDefinedJavaClass parent, UserDefinedJavaClassMeta meta, UserDefinedJavaClassData data)
       throws HopTransformException {

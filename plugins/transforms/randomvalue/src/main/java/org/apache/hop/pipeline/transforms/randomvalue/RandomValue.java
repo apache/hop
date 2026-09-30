@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.randomvalue;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -278,10 +279,14 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     }
     if (random) {
       if (StringUtils.isEmpty(meta.getSeed())) {
-        data.randomGenerator = new Random();
+        // Without a seed, values may end up used as tokens or identifiers: make them unpredictable
+        data.randomGenerator = new SecureRandom();
       } else {
+        // A seed asks for a reproducible sequence, so a predictable generator is intended here
         long seed = Const.toLong(resolve(meta.getSeed()), 0);
-        data.randomGenerator = new Random(seed);
+        @SuppressWarnings("java:S2245")
+        Random seeded = new Random(seed);
+        data.randomGenerator = seeded;
       }
     }
     if (genHmacMD5) {

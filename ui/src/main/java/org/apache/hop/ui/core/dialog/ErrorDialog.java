@@ -54,6 +54,8 @@ public class ErrorDialog extends Dialog {
     this(parent, title, message, throwable, Function.identity());
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public ErrorDialog(
       Shell parent,
       String title,
@@ -85,6 +87,8 @@ public class ErrorDialog extends Dialog {
     showErrorDialog(parent, title, message, exception, showCancelButton);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private void showErrorDialog(
       Shell parent, String title, String message, Exception exception, boolean showCancelButton) {
     if (parent.isDisposed()) {

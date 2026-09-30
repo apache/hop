@@ -320,6 +320,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
     pipelineOptions.setRunner(runnerClass);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public Pipeline createPipeline() throws Exception {
     try {
       ILogChannel log = LogChannel.GENERAL;

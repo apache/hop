@@ -205,6 +205,8 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
       }
     }
 
+    // Safe: the stack trace goes to the local stderr only, never to a remote client
+    @SuppressWarnings("java:S4507")
     @Override
     public void flushOpenFiles(boolean closeAfterFlush) throws IOException {
       for (FileStream outputStream : streamsList) {
@@ -397,6 +399,8 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
       }
     }
 
+    // Safe: the stack trace goes to the local stderr only, never to a remote client
+    @SuppressWarnings("java:S4507")
     @Override
     public void flushOpenFiles(boolean closeAfterFlush) {
       for (FileStreamsCollectionEntry collectionEntry : indexMap.values()) {

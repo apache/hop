@@ -469,6 +469,8 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     log.logBasic("Metadata was exported successfully.");
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public void listActionTypes(
       ILogChannel log,
       ProjectsConfig config,
@@ -498,6 +500,8 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public void listTransformTypes(
       ILogChannel log,
       ProjectsConfig config,

@@ -1624,6 +1624,8 @@ public class GuiCompositeWidgets {
         || (parameterType == char.class && valueClass == Character.class);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private void getWidgetsData(Object sourceData, GuiElements guiElements) {
     if (guiElements.isIgnored()) {
       return;
