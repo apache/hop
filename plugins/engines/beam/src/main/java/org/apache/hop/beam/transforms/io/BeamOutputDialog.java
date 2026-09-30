@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.transforms.io;
 
+import org.apache.beam.sdk.io.Compression;
 import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -25,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -52,6 +54,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
   private TextVar wFilePrefix;
   private TextVar wFileSuffix;
   private Button wWindowed;
+  private ComboVar wCompression;
 
   public BeamOutputDialog(
       Shell parent, IVariables variables, BeamOutputMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -151,6 +154,31 @@ public class BeamOutputDialog extends BaseTransformDialog {
     wWindowed.setLayoutData(fdWindowed);
     lastControl = wWindowed;
 
+    // #2337: compression, a plain combo of the Beam Compression constants.
+    //
+    Label wlCompression = new Label(wContent, SWT.RIGHT);
+    wlCompression.setText(BaseMessages.getString(PKG, "BeamOutputDialog.Compression"));
+    PropsUi.setLook(wlCompression);
+    FormData fdlCompression = new FormData();
+    fdlCompression.left = new FormAttachment(0, 0);
+    fdlCompression.top = new FormAttachment(lastControl, margin);
+    fdlCompression.right = new FormAttachment(middle, -margin);
+    wlCompression.setLayoutData(fdlCompression);
+
+    wCompression = new ComboVar(variables, wContent, SWT.READ_ONLY);
+    PropsUi.setLook(wCompression);
+    wCompression.setToolTipText(
+        BaseMessages.getString(PKG, "BeamOutputDialog.Compression.ToolTip"));
+    for (Compression compression : Compression.values()) {
+      wCompression.add(compression.name());
+    }
+    FormData fdCompression = new FormData();
+    fdCompression.left = new FormAttachment(middle, 0);
+    fdCompression.top = new FormAttachment(wlCompression, 0, SWT.CENTER);
+    fdCompression.right = new FormAttachment(100, 0);
+    wCompression.setLayoutData(fdCompression);
+    lastControl = wCompression;
+
     wFileDefinition =
         new MetaSelectionLine<>(
             variables,
@@ -195,6 +223,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     wFilePrefix.setText(Const.NVL(input.getFilePrefix(), ""));
     wFileSuffix.setText(Const.NVL(input.getFileSuffix(), ""));
     wWindowed.setSelection(input.isWindowed());
+    wCompression.setText(Const.NVL(input.getCompression(), ""));
   }
 
   private void cancel() {
@@ -221,6 +250,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     in.setFilePrefix(wFilePrefix.getText());
     in.setFileSuffix(wFileSuffix.getText());
     in.setWindowed(wWindowed.getSelection());
+    in.setCompression(wCompression.getText());
 
     input.setChanged();
   }

@@ -37,6 +37,11 @@ The Beam file output transform writes files using a file definition with the Bea
 |File suffix|Text which has to succeed the file name.
 |Windowed writes?|Writes a file per window.
 Use together with the Beam window transform.
+|Compression|How to compress the output files.
+Leave blank for no explicit compression.
+Choose `AUTO` to derive the codec from the file suffix, for example `.gz`.
+The other options are `UNCOMPRESSED`, `GZIP`, `BZIP2`, `ZIP`, `ZSTD`, `LZO`, `LZOP`, `DEFLATE` and `SNAPPY`.
+With `AUTO` and no recognisable file suffix, the output is written uncompressed.
 |File definition to use|The file definition to use stored in a metastore.
 |Edit|Edits an existing file definition.
 |New|Creates a new file definition.

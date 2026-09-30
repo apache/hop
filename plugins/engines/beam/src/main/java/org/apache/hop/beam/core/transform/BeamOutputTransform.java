@@ -18,6 +18,7 @@
 package org.apache.hop.beam.core.transform;
 
 import java.io.File;
+import org.apache.beam.sdk.io.Compression;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -47,6 +48,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
   private String enclosure;
   private String rowMetaJson;
   private boolean windowed;
+  private String compression;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamOutputTransform.class);
@@ -62,6 +64,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
       String separator,
       String enclosure,
       boolean windowed,
+      String compression,
       String rowMetaJson) {
     this.transformName = transformName;
     this.outputLocation = outputLocation;
@@ -70,6 +73,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     this.separator = separator;
     this.enclosure = enclosure;
     this.windowed = windowed;
+    this.compression = compression;
     this.rowMetaJson = rowMetaJson;
   }
 
@@ -112,6 +116,30 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
         write = write.withSuffix(fileSuffix);
       }
 
+      // #2337: TextIO can write compressed files.  Beam's AUTO is read-only ("AUTO is not supported
+      // for writing"), so for a write we resolve it to the codec the file suffix implies instead
+      // of passing it through.  With no suffix there is nothing to infer, so AUTO degrades to no
+      // compression rather than failing the job.
+      //
+      if (StringUtils.isNotEmpty(compression)) {
+        Compression codec;
+        try {
+          codec = resolveCompression(compression, fileSuffix);
+        } catch (IllegalArgumentException e) {
+          throw new HopRuntimeException(
+              "Unknown compression '"
+                  + compression
+                  + "' in Beam output transform '"
+                  + transformName
+                  + "'.  Use one of AUTO, UNCOMPRESSED, GZIP, BZIP2, ZIP, ZSTD, LZO, LZOP, "
+                  + "DEFLATE or SNAPPY.",
+              e);
+        }
+        if (codec != null) {
+          write = write.withCompression(codec);
+        }
+      }
+
       // For streaming data sources...
       //
       if (windowed) {
@@ -129,6 +157,35 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
       LOG.error("Error in beam output transform", e);
       throw new HopRuntimeException("Error in beam output transform", e);
     }
+  }
+
+  /**
+   * Resolve the configured compression name into a codec TextIO can actually write with.
+   *
+   * <p>Returns null to mean "write it uncompressed". Throws {@link IllegalArgumentException} for a
+   * name that is not a Beam {@link Compression} constant.
+   *
+   * @param compression the configured name, may be AUTO
+   * @param fileSuffix the configured file suffix, may be blank
+   */
+  private static Compression resolveCompression(String compression, String fileSuffix) {
+    if (!Compression.AUTO.name().equalsIgnoreCase(compression)) {
+      return Compression.valueOf(compression);
+    }
+
+    // AUTO: infer from the suffix.  Compression.matches() knows the conventional suffixes, so
+    // ".gz" resolves to GZIP, ".bz2" to BZIP2 and so on.
+    //
+    if (StringUtils.isNotEmpty(fileSuffix)) {
+      for (Compression candidate : Compression.values()) {
+        if (candidate != Compression.AUTO
+            && candidate != Compression.UNCOMPRESSED
+            && candidate.matches(fileSuffix)) {
+          return candidate;
+        }
+      }
+    }
+    return null;
   }
 
   /**
