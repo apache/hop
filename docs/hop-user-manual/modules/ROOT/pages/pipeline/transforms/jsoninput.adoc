@@ -40,7 +40,7 @@ Use JSON Input when each column should come from its *own JsonPath* (or you are 
 
 == Examples
 * For example, connect a REST client to a JSON input transform to read JSON into data rows.
-* To read a nested JSON value, use either a String field containing serialized JSON or a JSON-typed field containing a Jackson JSON value. In the next JSON Input transform, enable *Source is from a previous transform* and select that field. Leave *Use field as file names* and *Read source as URL* cleared for direct JSON content. A filename or URL source remains a String field; an arbitrary Java Object is not a supported JSON source. 
+* To read a nested JSON value, use either a String field containing serialized JSON or a JSON-typed field containing a Jackson JSON value. In the next JSON Input transform, enable *Source is from a previous transform* and select that field. Leave *Use field as file names* and *Read source as URL* cleared for direct JSON content. A filename or URL source remains a String field; an arbitrary Java Object is not a supported JSON source.
 
 
 Check the `json-input-nested-elements.hpl` sample in the Samples project for an example.
@@ -156,11 +156,9 @@ Click Select fields from snippet button and paste the entire JSON text and it wi
 For Hop types of Date and Timestamp, use the Format column to specify the incoming format. E.g. for Date: yyyy-MM-dd. You can either select a format from the dropdown or enter format text directly.
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 
-*Examples of Timestamp formats:*
+For Timestamp values, match the fraction width in the Format column. For example, `2025-02-13T02:10:14.746582` uses `yyyy-MM-dd'T'HH:mm:ss.SSSSSS`. Timestamp preserves the six fractional digits; Date has millisecond precision.
 
-* Format: yyyy-MM-dd'T'HH:mm:ss.SSSZ and Result: 2021-10-26T20:51:43.795+0000
-
-* Format: 2024-04-22T00:00:00.000Z and Result: 2024-04-22T00:00:00.000Z
+`XXX` requires an offset such as `Z` or `+02:00` in the input. Do not use `XXX` for a value that contains no offset. A mismatched format must report a conversion error, not silently assume an offset or discard precision.
 
 
 *Regex*
