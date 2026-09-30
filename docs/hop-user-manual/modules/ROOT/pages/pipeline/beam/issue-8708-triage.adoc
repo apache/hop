@@ -1,0 +1,242 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[Issue8708Triage]]
+:imagesdir: ../assets/images
+:description: The triage table for umbrella issue 8708, covering the open Apache Beam engine, runner and Beam IO issues in Hop.
+
+:toc:
+:page-marketplace: hop-engines-beam
+
+= Beam issue triage (umbrella #8708)
+
+[#8708]
+== https://github.com/apache/hop/issues/8708[Umbrella: Apache Beam engine, runners and Beam IO issues]
+
+This page tracks the triage of every sub-issue of the umbrella issue
+https://github.com/apache/hop/issues/8708[#8708], which groups the open issues related to the Beam
+pipeline engine, the four Beam runners (Direct, Flink, Spark and Dataflow) and the Beam IO
+transforms.
+
+Each sub-issue gets a decision and an effort rating.
+The ratings are *Low* (a few hours), *Medium* (roughly a day) and *High* (more than a day, usually
+because the work needs infrastructure that cannot be unit tested).
+
+The work is done in waves, ordered so that each wave leaves the build green on its own.
+The status column is ticked off as each wave lands.
+
+[options="header",cols="2,1,1,2,1,5"]
+|===
+|Sub-issue |Effort |Wave |Decision |Status |Rationale
+
+|https://github.com/apache/hop/issues/2337[#2337] Beam file output compression
+|Low
+|2
+|Implement
+|Planned
+|`TextIO.Write.withCompression(Compression)` already exists, and the `Compression` enum covers
+`AUTO, UNCOMPRESSED, GZIP, BZIP2, ZIP, ZSTD, LZO, LZOP, DEFLATE, SNAPPY`.
+Adding a dropdown to the output transform is a small change with no new dependencies.
+
+|https://github.com/apache/hop/issues/2355[#2355] gcpTempLocation for the Dataflow runner
+|Low
+|2
+|Implement
+|Planned
+|`GcpOptions.setGcpTempLocation()` exists and `GcpOptions` is already on the plugin classpath.
+BigQuery load jobs need a GCS path, which is a separate option from the generic temp location.
+
+|https://github.com/apache/hop/issues/2416[#2416] BigQuery query location and skipping validation
+|Low
+|2
+|Implement
+|Planned
+|`BigQueryIO.TypedRead` already has `withQueryLocation(String)` and `withoutValidation()`.
+Two new properties on the BigQuery input transform plus two dialog widgets.
+
+|https://github.com/apache/hop/issues/5064[#5064] BigQuery input RECORD (nested) fields
+|Low
+|2
+|Implement
+|Planned
+|The type derivation does `AvroType.valueOf("RECORD")`, which throws and fails the whole read.
+Map `RECORD` to a String and serialise nested values as JSON, which is what the issue asks for.
+Changing the output type of a field is release-note material.
+
+|https://github.com/apache/hop/issues/2675[#2675] Kafka Avro with a schema registry
+|Medium
+|2
+|Implement
+|Planned
+|Contains two separate defects.
+First, the Confluent serializers are on the compile classpath but `plugins/engines/beam/lib` is
+never populated, so the fat jar does not stage them and the Flink task manager fails with a
+`ClassNotFoundException`.
+Second, the producer throws a bare `NullPointerException` inside `AvroCoder` when the Avro field
+carries no schema.
+Fix the packaging, and turn the NPE into a clear error message.
+
+|https://github.com/apache/hop/issues/2040[#2040] Apache Beam partitioning support
+|Medium
+|3
+|Implement
+|Planned
+|The converter never reads Hop's partitioning metadata, so a partitioned transform sees all the
+data on every worker, and the existing `SinglePartitionFn` sends every row to partition 0.
+Add a field-based partition function and honour the partitioning in the converter.
+
+|https://github.com/apache/hop/issues/2275[#2275] Beam window by key
+|Medium
+|3
+|Implement
+|Planned
+|`BeamWindowMeta` only supports global windowing.
+Key the collection on a chosen field before applying the window, then re-key it afterwards.
+
+|https://github.com/apache/hop/issues/2357[#2357] Parquet transform and ParquetIO
+|Medium
+|3
+|Implement
+|Planned
+|`ParquetIO` is not on the plugin classpath: it ships in the separate
+`org.apache.beam:beam-sdks-java-io-parquet` artifact.
+Adding that one dependency plus a handler covers the Parquet file transforms.
+
+|https://github.com/apache/hop/issues/2358[#2358] Avro transform and AvroIO
+|Medium
+|3
+|Implement
+|Planned
+|`org.apache.beam.sdk.extensions.avro.io.AvroIO` is already on the plugin classpath, so this is
+handler code only.
+`AvroIO` moved out of `beam-sdks-java-core` in recent Beam releases; use the
+`extensions.avro.io` package.
+
+|https://github.com/apache/hop/issues/2379[#2379] Add Sequence transform handler
+|Medium
+|3
+|Implement
+|Planned
+|The transform falls through to the generic handler, so every worker generates its own sequence
+starting from the same number.
+Use `GenerateSequence` to produce disjoint ranges per copy.
+The database-backed and counter-backed modes cannot be expressed on Beam and must fail loudly.
+
+|https://github.com/apache/hop/issues/2375[#2375] Beam MQTT IO
+|Medium
+|4
+|Implement
+|Planned
+|`org.apache.beam:beam-sdks-java-io-mqtt` is published for the Beam version this build pins.
+New input and output transforms following the existing Pub/Sub pair.
+
+|https://github.com/apache/hop/issues/2377[#2377] Beam Splunk IO
+|Medium
+|4
+|Implement
+|Planned
+|`org.apache.beam:beam-sdks-java-io-splunk` is published for the pinned Beam version.
+SplunkIO is write-only, so this adds an output transform.
+
+|https://github.com/apache/hop/issues/2378[#2378] Beam Snowflake IO
+|Medium
+|4
+|Implement
+|Planned
+|`org.apache.beam:beam-sdks-java-io-snowflake` is published for the pinned Beam version.
+See the open question on vendored driver licensing before starting.
+
+|https://github.com/apache/hop/issues/2409[#2409] Beam Debezium IO
+|High
+|4
+|Implement
+|Planned
+|`org.apache.beam:beam-sdks-java-io-debezium` is published for the pinned Beam version.
+`DebeziumIO` is an unbounded source, so this can only be an input transform, and it only works on
+the Flink and Spark streaming runners.
+There is no unit-testable seam without a real CDC source.
+
+|https://github.com/apache/hop/issues/2613[#2613] Elastic / OpenSearch support
+|High
+|4
+|Scope first
+|Blocked
+|`org.apache.beam:beam-sdks-java-io-elasticsearch` is published for the pinned Beam version.
+The issue asks for Hop-side transforms *and* Beam handlers, and building the Hop-side transforms
+roughly doubles the effort, so the scope has to be settled before any code is written.
+See xref:pipeline/beam/issue-8708-triage.adoc#open-questions[Open questions].
+
+|https://github.com/apache/hop/issues/2326[#2326] Document Beam plugin development guidelines
+|Medium
+|5
+|Implement
+|Planned
+|Pure documentation.
+Walk the actual call path from `BeamPipelineEngine.prepareExecution()` through
+`HopPipelineMetaToBeamPipelineConverter` into `IBeamPipelineTransformHandler`, and document the
+three ways to write a handler.
+
+|https://github.com/apache/hop/issues/3131[#3131] Get the Flink JobID
+|Low
+|5
+|Close with an answer
+|Planned
+|Not implementable.
+Beam 2.74 discards the Flink `JobID`:
+`FlinkPipelineExecutionEnvironment.createAttachedPipelineResult()` builds `FlinkRunnerResult` from
+`JobExecutionResult` and keeps only the accumulators and the runtime, while the detached variant
+`FlinkDetachedRunnerResult` holds its `JobClient` in a private field with no accessor.
+There is no supported way to read the `JobID` from `PipelineResult`.
+Point people at the Beam job name, which Hop already derives from the pipeline name, and at the
+Dataflow equivalent which Hop does report through
+`BeamDataFlowPipelineEngine.DETAIL_DATAFLOW_JOB_ID`.
+
+|https://github.com/apache/hop/issues/3478[#3478] Partition and copies on Flink
+|Low
+|5
+|Close with an answer
+|Planned
+|A question rather than a defect.
+On a Beam runner, copies and distribute describe the local Hop engine; the cluster decides its own
+parallelism.
+Answer using the Flink run configuration parallelism setting, the `SingleThreaded` transform
+attribute, and the partitioning work in #2040.
+|===
+
+[[open-questions]]
+== Open questions
+
+These need an answer before the corresponding wave starts.
+They are listed here rather than buried in the table so they are easy to find.
+
+* *#2613 scope.* Does this umbrella include building the Hop-side Elastic transforms, or only the
+Beam handler? This roughly doubles the effort of that sub-issue.
+* *#2378, #2377 and #2375 licensing.* Snowflake and Splunk pull vendor JDBC drivers with their own
+licensing terms. Confirm they belong in the Apache distribution before spending the effort.
+* *#2409 unbounded only.* Accept that the Debezium transform can only be a streaming input, or
+decline the sub-issue?
+* *#2040 user interface.* Should the partitioning controls be disabled on Beam pipelines, where they
+are currently ignored, or should the dialogs explain that partitioning is now honoured?
+Pick one and apply it consistently.
+* *#3131 and #3478.* Is closing a question issue with a detailed answer acceptable, or should the
+content become a documentation page instead?
+
+== Related documentation
+
+* xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
+* xref:pipeline/beam/running-the-beam-samples.adoc[Running the Beam samples]
+* xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]
+* xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google Dataflow pipeline engine]

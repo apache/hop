@@ -65,6 +65,7 @@ under the License.
 **** xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
 **** xref:pipeline/beam/beam-samples-dataflow.adoc[Google Cloud Dataflow]
 *** xref:pipeline/beam/flink-k8s-operator-running-hop-pipeline.adoc[Running a Hop pipeline using the Flink Kubernetes Operator]
+*** xref:pipeline/beam/issue-8708-triage.adoc[Beam issue triage (umbrella #8708)]
 ** xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
 *** xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
 *** xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster mapping walk-through]
