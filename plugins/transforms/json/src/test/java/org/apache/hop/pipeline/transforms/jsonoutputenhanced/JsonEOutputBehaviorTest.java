@@ -363,4 +363,32 @@ class JsonEOutputBehaviorTest {
     assertEquals("b", last.get("group").asText());
     assertEquals("z", last.get("rows").get("payload").asText());
   }
+
+  @Test
+  void ndjsonRejectsPrettyPrintingBeforeOpeningFile() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setNewlineDelimited(true);
+    meta.setJsonPrettified(true);
+    meta.getFileSettings().setDoNotOpenNewFileInit(false);
+    try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"x"})) {
+      assertFalse(h.transform.init());
+    }
+    try (FileObject file = HopVfs.getFileObject(base + "/out.json")) {
+      assertFalse(file.exists());
+    }
+  }
+
+  @Test
+  void ndjsonRejectsNonUtf8BeforeOpeningFile() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setNewlineDelimited(true);
+    meta.setEncoding("UTF-16");
+    meta.getFileSettings().setDoNotOpenNewFileInit(false);
+    try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"x"})) {
+      assertFalse(h.transform.init());
+    }
+    try (FileObject file = HopVfs.getFileObject(base + "/out.json")) {
+      assertFalse(file.exists());
+    }
+  }
 }

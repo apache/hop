@@ -98,6 +98,16 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
           data.isWriteToFile && meta.getKeyFields().isEmpty() && !meta.isUseSingleItemPerGroup();
       data.collectGroupItems = data.isOutputValue || (data.isWriteToFile && !data.streamFileRows);
 
+      if (meta.isNewlineDelimited()
+          && meta.getOperationType() != JsonEOutputMeta.OperationType.OUTPUT_VALUE
+          && (meta.isJsonPrettified()
+              || !Const.UTF_8.equalsIgnoreCase(resolve(meta.getEncoding())))) {
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonSettings"));
+        setErrors(1);
+        stopAll();
+        return false;
+      }
+
       if (data.isWriteToFile) {
         if (!meta.getFileSettings().isDoNotOpenNewFileInit() && !openNewFile()) {
           logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
