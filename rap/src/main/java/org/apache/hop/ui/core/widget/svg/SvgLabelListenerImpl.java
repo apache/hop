@@ -35,6 +35,8 @@ public class SvgLabelListenerImpl extends ClientListener implements ISingletonPr
     super(getText());
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private static String getText() {
     String canvasScript = null;
     try {

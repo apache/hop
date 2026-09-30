@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
@@ -639,7 +640,9 @@ public class GPG {
     this.tmpFile = null;
 
     try {
-      this.tmpFile = File.createTempFile("GnuPG", null);
+      // Files.createTempFile creates an owner-only (0600) file on POSIX systems: it can hold
+      // the plain text to encrypt or sign and must not be readable by other OS users.
+      this.tmpFile = Files.createTempFile("GnuPG", null).toFile();
       if (log.isDebug()) {
         log.logDebug(BaseMessages.getString(PKG, "GPG.TempFileCreated", getTempFileName()));
       }

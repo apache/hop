@@ -212,6 +212,8 @@ public class DelimiterDetector {
     this.maxBadFooterLines = maxBadFooterLines;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public DetectionResult detectDelimiters() throws IOException {
 
     // potential configuration candidates with enclosure

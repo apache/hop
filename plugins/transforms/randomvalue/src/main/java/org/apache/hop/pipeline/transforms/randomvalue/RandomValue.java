@@ -277,12 +277,15 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       }
     }
     if (random) {
-      if (StringUtils.isEmpty(meta.getSeed())) {
-        data.randomGenerator = new Random();
-      } else {
-        long seed = Const.toLong(resolve(meta.getSeed()), 0);
-        data.randomGenerator = new Random(seed);
-      }
+      // Generates test data, not security tokens (use the UUID or HMAC types for those).
+      // SecureRandom is avoided on purpose: it is called per row and NativePRNG serializes all
+      // transform copies on one JVM-wide lock. Each copy gets its own uncontended Random.
+      @SuppressWarnings("java:S2245")
+      Random generator =
+          StringUtils.isEmpty(meta.getSeed())
+              ? new Random()
+              : new Random(Const.toLong(resolve(meta.getSeed()), 0));
+      data.randomGenerator = generator;
     }
     if (genHmacMD5) {
       try {

@@ -1026,6 +1026,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public void getData() {
     int i = 0;
     for (FieldInfo fi : input.getFields()) {

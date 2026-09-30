@@ -44,6 +44,8 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 public class MainBeam {
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public static void main(String[] args) {
     try {
       System.out.println(">>>>>> Initializing Hop");

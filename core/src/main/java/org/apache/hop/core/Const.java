@@ -2020,6 +2020,8 @@ public class Const {
       } else {
         BufferedReader br;
         try {
+          // Safe: resolving "hostname" through the PATH of the operator who started Hop is intended
+          @SuppressWarnings("java:S4036")
           Process pr = Runtime.getRuntime().exec("hostname");
           br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
           String line;
