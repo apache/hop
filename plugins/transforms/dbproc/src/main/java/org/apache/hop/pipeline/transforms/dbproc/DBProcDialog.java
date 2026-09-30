@@ -25,6 +25,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -37,6 +38,8 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -45,13 +48,14 @@ import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -59,23 +63,20 @@ import org.eclipse.swt.widgets.Text;
 public class DBProcDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DBProcMeta.class;
 
-  private MetaSelectionLine<DatabaseMeta> wConnection;
-
-  private TextVar wProcName;
-
-  private Button wAutoCommit;
-
-  private Text wResult;
-
-  private CCombo wResultType;
-
-  private TableView wFields;
-
   private final DBProcMeta input;
+  private GuiCompositeWidgets widgets;
 
-  private ColumnInfo[] fieldColumns;
+  private TableView wArguments;
+  private ColumnInfo[] argumentColumns;
+  private TableView wResultFields;
+  private Button wGetResultFields;
 
   private final List<String> inputFields = new ArrayList<>();
+
+  private CTabFolder tabFolder;
+  private CTabItem fieldsTab;
+  private CTabItem generalTab;
+  private boolean adjustingTab;
 
   public DBProcDialog(
       Shell parent, IVariables variables, DBProcMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -87,107 +88,76 @@ public class DBProcDialog extends BaseTransformDialog {
   public String open() {
     createShell(BaseMessages.getString(PKG, "DBProcDialog.Shell.Title"));
 
+    changed = input.hasChanged();
+
     buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
-    // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), null);
+    widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            shell,
+            variables,
+            wTransformName,
+            wOk,
+            DBProcMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+            input,
+            this::beforeCreate);
+    widgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            if (DBProcMeta.WIDGET_RESULT_TYPE.equals(widgetId)) {
+              updateFieldsTab();
+            }
+          }
+        });
 
-    // ProcName line...
-    // add button to get list of procedures on selected connection...
-    Button wbProcName = new Button(shell, SWT.PUSH);
-    wbProcName.setText(BaseMessages.getString(PKG, "DBProcDialog.Finding.Button"));
-    FormData fdbProcName = new FormData();
-    fdbProcName.right = new FormAttachment(100, 0);
-    fdbProcName.top = new FormAttachment(wConnection, margin);
-    wbProcName.setLayoutData(fdbProcName);
-    wbProcName.addListener(SWT.Selection, this::selectProcedure);
+    populateArguments();
+    populateResultFields();
+    findTabs();
+    updateFieldsTab();
+    loadInputFieldNames();
 
-    Label wlProcName = new Label(shell, SWT.RIGHT);
-    wlProcName.setText(BaseMessages.getString(PKG, "DBProcDialog.ProcedureName.Label"));
-    PropsUi.setLook(wlProcName);
-    FormData fdlProcName = new FormData();
-    fdlProcName.left = new FormAttachment(0, 0);
-    fdlProcName.right = new FormAttachment(middle, -margin);
-    fdlProcName.top = new FormAttachment(wConnection, margin);
-    wlProcName.setLayoutData(fdlProcName);
+    input.setChanged(changed);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    return transformName;
+  }
 
-    wProcName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wProcName);
-    FormData fdProcName = new FormData();
-    fdProcName.left = new FormAttachment(middle, 0);
-    fdProcName.top = new FormAttachment(wConnection, margin);
-    fdProcName.right = new FormAttachment(wbProcName, -margin);
-    wProcName.setLayoutData(fdProcName);
+  private void beforeCreate(GuiCompositeWidgets compositeWidgets) {
+    widgets = compositeWidgets;
+    compositeWidgets.registerExtraGroup(
+        BaseMessages.getString(PKG, "DBProcDialog.Group.General"), "10", null, this::addFindButton);
+    compositeWidgets.registerExtraGroup(
+        BaseMessages.getString(PKG, "DBProcDialog.Group.Parameters"),
+        "20",
+        null,
+        this::addArgumentsTable);
+    compositeWidgets.registerExtraGroup(
+        BaseMessages.getString(PKG, "DBProcDialog.Group.Fields"),
+        "30",
+        null,
+        this::addResultFieldsTable);
+  }
 
-    // AutoCommit line
-    Label wlAutoCommit = new Label(shell, SWT.RIGHT);
-    wlAutoCommit.setText(BaseMessages.getString(PKG, "DBProcDialog.AutoCommit.Label"));
-    wlAutoCommit.setToolTipText(BaseMessages.getString(PKG, "DBProcDialog.AutoCommit.Tooltip"));
-    PropsUi.setLook(wlAutoCommit);
-    FormData fdlAutoCommit = new FormData();
-    fdlAutoCommit.left = new FormAttachment(0, 0);
-    fdlAutoCommit.top = new FormAttachment(wProcName, margin);
-    fdlAutoCommit.right = new FormAttachment(middle, -margin);
-    wlAutoCommit.setLayoutData(fdlAutoCommit);
-    wAutoCommit = new Button(shell, SWT.CHECK);
-    wAutoCommit.setToolTipText(BaseMessages.getString(PKG, "DBProcDialog.AutoCommit.Tooltip"));
-    PropsUi.setLook(wAutoCommit);
-    FormData fdAutoCommit = new FormData();
-    fdAutoCommit.left = new FormAttachment(middle, 0);
-    fdAutoCommit.top = new FormAttachment(wlAutoCommit, 0, SWT.CENTER);
-    fdAutoCommit.right = new FormAttachment(100, 0);
-    wAutoCommit.setLayoutData(fdAutoCommit);
+  private void addFindButton(Composite parent) {
+    Control[] children = parent.getChildren();
+    Control last = children.length == 0 ? null : children[children.length - 1];
 
-    // Result line...
-    Label wlResult = new Label(shell, SWT.RIGHT);
-    wlResult.setText(BaseMessages.getString(PKG, "DBProcDialog.Result.Label"));
-    PropsUi.setLook(wlResult);
-    FormData fdlResult = new FormData();
-    fdlResult.left = new FormAttachment(0, 0);
-    fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(wAutoCommit, margin);
-    wlResult.setLayoutData(fdlResult);
-    wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wResult);
-    FormData fdResult = new FormData();
-    fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(wAutoCommit, margin);
-    fdResult.right = new FormAttachment(100, 0);
-    wResult.setLayoutData(fdResult);
+    Button find = new Button(parent, SWT.PUSH);
+    find.setText(BaseMessages.getString(PKG, "DBProcDialog.Finding.Button"));
+    find.setToolTipText(BaseMessages.getString(PKG, "DBProcDialog.Finding.Tooltip"));
+    PropsUi.setLook(find);
+    find.addListener(SWT.Selection, e -> selectProcedure());
+    FormData fdFind = new FormData();
+    fdFind.right = new FormAttachment(100, 0);
+    fdFind.top = last == null ? new FormAttachment(0, 0) : new FormAttachment(last, margin);
+    find.setLayoutData(fdFind);
+  }
 
-    // ResultType line
-    Label wlResultType = new Label(shell, SWT.RIGHT);
-    wlResultType.setText(BaseMessages.getString(PKG, "DBProcDialog.ResultType.Label"));
-    PropsUi.setLook(wlResultType);
-    FormData fdlResultType = new FormData();
-    fdlResultType.left = new FormAttachment(0, 0);
-    fdlResultType.right = new FormAttachment(middle, -margin);
-    fdlResultType.top = new FormAttachment(wResult, margin);
-    wlResultType.setLayoutData(fdlResultType);
-    wResultType = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    PropsUi.setLook(wResultType);
-    String[] types = ValueMetaFactory.getValueMetaNames();
-    for (String type : types) {
-      wResultType.add(type);
-    }
-    wResultType.select(0);
-    FormData fdResultType = new FormData();
-    fdResultType.left = new FormAttachment(middle, 0);
-    fdResultType.top = new FormAttachment(wResult, margin);
-    fdResultType.right = new FormAttachment(100, 0);
-    wResultType.setLayoutData(fdResultType);
-
-    Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "DBProcDialog.Parameters.Label"));
-    PropsUi.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wResultType, margin);
-    wlFields.setLayoutData(fdlFields);
-
-    final int nrRows = input.getArguments().size();
-
-    fieldColumns =
+  private void addArgumentsTable(Composite parent) {
+    int nrRows = input.getArguments() == null ? 0 : input.getArguments().size();
+    argumentColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Name"),
@@ -205,131 +175,433 @@ public class DBProcDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaFactory.getValueMetaNames()),
         };
-    wFields =
+    wArguments =
         new TableView(
             variables,
-            shell,
+            parent,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            fieldColumns,
+            argumentColumns,
             nrRows,
             null,
             props);
-
-    FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -margin);
-    wFields.setLayoutData(fdFields);
-
-    //
-    // Search the fields in the background
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.add(row.getValueMeta(i).getName());
-              }
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-            }
-          }
-        };
-    BackgroundThreadFacade.start(runnable);
-
-    lsResize =
-        event -> {
-          Point size = shell.getSize();
-          wFields.setSize(size.x - 10, size.y - 50);
-          wFields.table.setSize(size.x - 10, size.y - 50);
-          wFields.redraw();
-        };
-    shell.addListener(SWT.Resize, lsResize);
-
-    getData();
-    focusTransformName();
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return transformName;
+    FormData fdArguments = new FormData();
+    fdArguments.left = new FormAttachment(0, 0);
+    fdArguments.top = new FormAttachment(0, 0);
+    fdArguments.right = new FormAttachment(100, 0);
+    fdArguments.bottom = new FormAttachment(100, 0);
+    wArguments.setLayoutData(fdArguments);
   }
 
-  private void selectProcedure(Event event) {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-    if (databaseMeta != null) {
-      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
-        db.connect();
-        String[] procs = db.getProcedures();
-        if (procs != null && procs.length > 0) {
-          EnterSelectionDialog esd =
-              new EnterSelectionDialog(
-                  shell,
-                  procs,
-                  BaseMessages.getString(PKG, "DBProcDialog.EnterSelection.DialogTitle"),
-                  BaseMessages.getString(PKG, "DBProcDialog.EnterSelection.DialogMessage"));
-          String proc = esd.open();
-          if (proc != null) {
-            wProcName.setText(proc);
+  private void addResultFieldsTable(Composite parent) {
+    wGetResultFields = new Button(parent, SWT.PUSH);
+    wGetResultFields.setText(BaseMessages.getString(PKG, "DBProcDialog.GetResultFields.Button"));
+    wGetResultFields.setToolTipText(
+        BaseMessages.getString(PKG, "DBProcDialog.GetResultFields.Tooltip"));
+    PropsUi.setLook(wGetResultFields);
+    wGetResultFields.addListener(SWT.Selection, e -> getResultFields());
+    FormData fdGet = new FormData();
+    fdGet.top = new FormAttachment(0, 0);
+    fdGet.right = new FormAttachment(100, 0);
+    wGetResultFields.setLayoutData(fdGet);
+
+    int nrRows = input.getResultFields() == null ? 0 : input.getResultFields().size();
+    ColumnInfo[] columns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Name"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Type"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaFactory.getValueMetaNames(),
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Format"),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              2),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Length"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Precision"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false)
+        };
+    wResultFields =
+        new TableView(
+            variables,
+            parent,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+            columns,
+            nrRows,
+            null,
+            props);
+    FormData fdFields = new FormData();
+    fdFields.left = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wGetResultFields, margin);
+    fdFields.right = new FormAttachment(100, 0);
+    fdFields.bottom = new FormAttachment(100, 0);
+    wResultFields.setLayoutData(fdFields);
+  }
+
+  private void findTabs() {
+    tabFolder = findTabFolder(shell);
+    if (tabFolder == null) {
+      return;
+    }
+    String fieldsLabel = BaseMessages.getString(PKG, "DBProcDialog.Group.Fields");
+    String generalLabel = BaseMessages.getString(PKG, "DBProcDialog.Group.General");
+    for (CTabItem item : tabFolder.getItems()) {
+      if (fieldsLabel.equals(item.getText())) {
+        fieldsTab = item;
+        fieldsTab.setToolTipText(BaseMessages.getString(PKG, "DBProcDialog.FieldsTab.Tooltip"));
+      } else if (generalLabel.equals(item.getText())) {
+        generalTab = item;
+      }
+    }
+    tabFolder.addListener(
+        SWT.Selection,
+        e -> {
+          if (adjustingTab || isRowResultType() || fieldsTab == null) {
+            return;
           }
-        } else {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "DBProcDialog.NoProceduresFound.DialogMessage"));
-          mb.setText(BaseMessages.getString(PKG, "DBProcDialog.NoProceduresFound.DialogTitle"));
-          mb.open();
+          if (tabFolder.getSelection() == fieldsTab) {
+            adjustingTab = true;
+            try {
+              tabFolder.setSelection(generalTab != null ? generalTab : tabFolder.getItem(0));
+            } finally {
+              adjustingTab = false;
+            }
+          }
+        });
+  }
+
+  private CTabFolder findTabFolder(Control control) {
+    if (control instanceof CTabFolder folder) {
+      return folder;
+    }
+    if (control instanceof Composite composite) {
+      for (Control child : composite.getChildren()) {
+        CTabFolder found = findTabFolder(child);
+        if (found != null) {
+          return found;
         }
-      } catch (HopDatabaseException dbe) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "DBProcDialog.ErrorGettingProceduresList.DialogTitle"),
-            BaseMessages.getString(PKG, "DBProcDialog.ErrorGettingProceduresList.DialogMessage"),
-            dbe);
+      }
+    }
+    return null;
+  }
+
+  private void updateFieldsTab() {
+    boolean rows = isRowResultType();
+    setWidgetEnabled(DBProcMeta.WIDGET_RESULT_NAME, !rows);
+    if (wResultFields != null && !wResultFields.isDisposed()) {
+      wResultFields.setEnabled(rows);
+    }
+    if (wGetResultFields != null && !wGetResultFields.isDisposed()) {
+      wGetResultFields.setEnabled(rows);
+    }
+    if (fieldsTab != null && !fieldsTab.isDisposed()) {
+      fieldsTab.setForeground(rows ? null : shell.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+      if (fieldsTab.getControl() != null && !fieldsTab.getControl().isDisposed()) {
+        fieldsTab.getControl().setEnabled(rows);
+      }
+      if (!rows && tabFolder != null && tabFolder.getSelection() == fieldsTab) {
+        adjustingTab = true;
+        try {
+          tabFolder.setSelection(generalTab != null ? generalTab : tabFolder.getItem(0));
+        } finally {
+          adjustingTab = false;
+        }
       }
     }
   }
 
-  protected void setComboBoxes() {
-    // Something was changed in the row.
-    //
-    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    fieldColumns[0].setComboValues(fieldNames);
+  private boolean isRowResultType() {
+    return DBProcMeta.RESULT_TYPE_ROW.equalsIgnoreCase(widgetText(DBProcMeta.WIDGET_RESULT_TYPE));
   }
 
-  /** Copy information from the meta-data input to the dialog fields. */
-  public void getData() {
-    int i;
-    logDebug(BaseMessages.getString(PKG, "DBProcDialog.Log.GettingKeyInfo"));
+  private void loadInputFieldNames() {
+    BackgroundThreadFacade.start(
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta == null) {
+            return;
+          }
+          final List<String> names = new ArrayList<>();
+          try {
+            IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+            if (row != null) {
+              for (int i = 0; i < row.size(); i++) {
+                names.add(row.getValueMeta(i).getName());
+              }
+            }
+          } catch (HopException e) {
+            logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+            return;
+          }
+          if (shell.isDisposed()) {
+            return;
+          }
+          shell
+              .getDisplay()
+              .asyncExec(
+                  () -> {
+                    if (shell.isDisposed() || argumentColumns == null) {
+                      return;
+                    }
+                    inputFields.clear();
+                    inputFields.addAll(names);
+                    setComboBoxes();
+                  });
+        });
+  }
 
-    for (i = 0; i < input.getArguments().size(); i++) {
+  private void selectProcedure() {
+    String connectionName = widgetText(DBProcMeta.WIDGET_CONNECTION);
+    if (Utils.isEmpty(connectionName)) {
+      showMessage(
+          "DBProcDialog.InvalidConnection.DialogTitle",
+          "DBProcDialog.InvalidConnection.DialogMessage",
+          SWT.OK | SWT.ICON_ERROR);
+      return;
+    }
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta == null) {
+      showMessage(
+          "DBProcDialog.InvalidConnection.DialogTitle",
+          "DBProcDialog.InvalidConnection.DialogMessage",
+          SWT.OK | SWT.ICON_ERROR);
+      return;
+    }
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      db.connect();
+      String[] procs = db.getProcedures();
+      if (procs != null && procs.length > 0) {
+        EnterSelectionDialog esd =
+            new EnterSelectionDialog(
+                shell,
+                procs,
+                BaseMessages.getString(PKG, "DBProcDialog.EnterSelection.DialogTitle"),
+                BaseMessages.getString(PKG, "DBProcDialog.EnterSelection.DialogMessage"));
+        String procedure = esd.open();
+        if (procedure != null) {
+          setProcedureText(procedure);
+        }
+      } else {
+        showMessage(
+            "DBProcDialog.NoProceduresFound.DialogTitle",
+            "DBProcDialog.NoProceduresFound.DialogMessage",
+            SWT.OK | SWT.ICON_INFORMATION);
+      }
+    } catch (HopDatabaseException dbe) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "DBProcDialog.ErrorGettingProceduresList.DialogTitle"),
+          BaseMessages.getString(PKG, "DBProcDialog.ErrorGettingProceduresList.DialogMessage"),
+          dbe);
+    }
+  }
+
+  private void getResultFields() {
+    String connectionName = widgetText(DBProcMeta.WIDGET_CONNECTION);
+    if (Utils.isEmpty(connectionName)) {
+      showMessage(
+          "DBProcDialog.InvalidConnection.DialogTitle",
+          "DBProcDialog.InvalidConnection.DialogMessage",
+          SWT.OK | SWT.ICON_ERROR);
+      return;
+    }
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta == null) {
+      showMessage(
+          "DBProcDialog.InvalidConnection.DialogTitle",
+          "DBProcDialog.InvalidConnection.DialogMessage",
+          SWT.OK | SWT.ICON_ERROR);
+      return;
+    }
+
+    List<DBProcMeta.ProcArgument> arguments = new ArrayList<>();
+    for (DBProcMeta.ProcArgument argument : readArguments()) {
+      if (!Utils.isEmpty(argument.getName()) && !Utils.isEmpty(argument.getDirection())) {
+        arguments.add(argument);
+      }
+    }
+    String[] names = new String[arguments.size()];
+    String[] directions = new String[arguments.size()];
+    int[] types = new int[arguments.size()];
+    for (int i = 0; i < arguments.size(); i++) {
+      names[i] = arguments.get(i).getName();
+      directions[i] = arguments.get(i).getDirection();
+      types[i] = ValueMetaFactory.getIdForValueMeta(arguments.get(i).getType());
+    }
+    String procedure = variables.resolve(widgetText(DBProcMeta.WIDGET_PROCEDURE));
+
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      db.connect();
+      try {
+        db.setAutoCommit(false);
+      } catch (HopDatabaseException ignored) {
+        // The driver does not allow auto-commit to be turned off. A procedure that commits
+        // itself can still change data.
+      }
+      try {
+        IRowMeta fields = db.getProcedureResultFields(procedure, names, directions, types);
+        if (fields == null || fields.isEmpty()) {
+          showMessage(
+              "DBProcDialog.NoResultSet.DialogTitle",
+              "DBProcDialog.NoResultSet.DialogMessage",
+              SWT.OK | SWT.ICON_INFORMATION);
+          return;
+        }
+        wResultFields.clearAll(false);
+        for (IValueMeta valueMeta : fields.getValueMetaList()) {
+          TableItem item = new TableItem(wResultFields.table, SWT.NONE);
+          item.setText(1, Const.NVL(valueMeta.getName(), ""));
+          item.setText(2, valueMeta.getTypeDesc());
+          item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
+          item.setText(4, valueMeta.getLength() < 0 ? "" : Integer.toString(valueMeta.getLength()));
+          item.setText(
+              5, valueMeta.getPrecision() < 0 ? "" : Integer.toString(valueMeta.getPrecision()));
+        }
+        wResultFields.removeEmptyRows();
+        wResultFields.setRowNums();
+        wResultFields.optWidth(true);
+      } finally {
+        try {
+          db.rollback();
+        } catch (HopDatabaseException ignored) {
+          // A procedure that commits itself cannot be rolled back by this probe.
+        }
+      }
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "DBProcDialog.FailedToGetResultFields.DialogTitle"),
+          BaseMessages.getString(PKG, "DBProcDialog.FailedToGetResultFields.DialogMessage"),
+          e);
+    }
+  }
+
+  protected void setComboBoxes() {
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
+    argumentColumns[0].setComboValues(fieldNames);
+  }
+
+  private void populateArguments() {
+    if (wArguments == null || input.getArguments() == null) {
+      return;
+    }
+    for (int i = 0; i < input.getArguments().size(); i++) {
       DBProcMeta.ProcArgument argument = input.getArguments().get(i);
-      TableItem item = wFields.table.getItem(i);
-
+      TableItem item = wArguments.table.getItem(i);
       item.setText(1, Const.NVL(argument.getName(), ""));
       item.setText(2, Const.NVL(argument.getDirection(), ""));
       item.setText(3, Const.NVL(argument.getType(), ""));
     }
+    wArguments.optimizeTableView();
+  }
 
-    if (input.getConnection() != null) {
-      wConnection.setText(input.getConnection());
+  private void populateResultFields() {
+    if (wResultFields == null || input.getResultFields() == null) {
+      return;
     }
-    wProcName.setText(Const.NVL(input.getProcedure(), ""));
+    for (int i = 0; i < input.getResultFields().size(); i++) {
+      DBProcField field = input.getResultFields().get(i);
+      TableItem item = wResultFields.table.getItem(i);
+      item.setText(1, Const.NVL(field.getName(), ""));
+      item.setText(2, Const.NVL(field.getType(), ""));
+      item.setText(3, Const.NVL(field.getFormat(), ""));
+      item.setText(4, field.getLength() < 0 ? "" : Integer.toString(field.getLength()));
+      item.setText(5, field.getPrecision() < 0 ? "" : Integer.toString(field.getPrecision()));
+    }
+    wResultFields.optimizeTableView();
+  }
 
-    wResult.setText(Const.NVL(input.getResult().getName(), ""));
-    wResultType.setText(Const.NVL(input.getResult().getType(), ""));
+  private List<DBProcMeta.ProcArgument> readArguments() {
+    List<DBProcMeta.ProcArgument> arguments = new ArrayList<>();
+    if (wArguments == null || wArguments.isDisposed()) {
+      return arguments;
+    }
+    for (TableItem item : wArguments.getNonEmptyItems()) {
+      DBProcMeta.ProcArgument argument = new DBProcMeta.ProcArgument();
+      argument.setName(item.getText(1));
+      argument.setDirection(item.getText(2));
+      argument.setType(item.getText(3));
+      arguments.add(argument);
+    }
+    return arguments;
+  }
 
-    wAutoCommit.setSelection(input.isAutoCommit());
+  private List<DBProcField> readResultFields() {
+    List<DBProcField> fields = new ArrayList<>();
+    if (wResultFields == null || wResultFields.isDisposed()) {
+      return fields;
+    }
+    for (TableItem item : wResultFields.getNonEmptyItems()) {
+      if (Utils.isEmpty(item.getText(1))) {
+        continue;
+      }
+      DBProcField field = new DBProcField();
+      field.setName(item.getText(1));
+      field.setType(item.getText(2));
+      field.setFormat(item.getText(3));
+      field.setLength(Const.toInt(item.getText(4), -1));
+      field.setPrecision(Const.toInt(item.getText(5), -1));
+      fields.add(field);
+    }
+    return fields;
+  }
 
-    wFields.optimizeTableView();
+  private String widgetText(String widgetId) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control == null || control.isDisposed()) {
+      return "";
+    }
+    if (control instanceof MetaSelectionLine<?> line) {
+      return line.getText();
+    }
+    if (control instanceof TextVar textVar) {
+      return textVar.getText();
+    }
+    if (control instanceof Combo combo) {
+      return combo.getText();
+    }
+    if (control instanceof Text text) {
+      return text.getText();
+    }
+    return "";
+  }
+
+  private void setProcedureText(String procedure) {
+    Control control = widgets.getWidgetsMap().get(DBProcMeta.WIDGET_PROCEDURE);
+    if (control instanceof TextVar textVar && !textVar.isDisposed()) {
+      textVar.setText(Const.NVL(procedure, ""));
+    }
+  }
+
+  private void setWidgetEnabled(String widgetId, boolean enabled) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control != null && !control.isDisposed()) {
+      control.setEnabled(enabled);
+    }
+    Control label = widgets.getLabelsMap().get(widgetId);
+    if (label != null && !label.isDisposed()) {
+      label.setEnabled(enabled);
+    }
+  }
+
+  private void showMessage(String titleKey, String messageKey, int style) {
+    MessageBox box = new MessageBox(shell, style);
+    box.setText(BaseMessages.getString(PKG, titleKey));
+    box.setMessage(BaseMessages.getString(PKG, messageKey));
+    box.open();
   }
 
   private void cancel() {
     transformName = null;
+    input.setChanged(changed);
     dispose();
   }
 
@@ -337,31 +609,18 @@ public class DBProcDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-
-    input.getArguments().clear();
-    for (TableItem item : wFields.getNonEmptyItems()) {
-      DBProcMeta.ProcArgument argument = new DBProcMeta.ProcArgument();
-      argument.setName(item.getText(1));
-      argument.setDirection(item.getText(2));
-      argument.setType(item.getText(3));
-      input.getArguments().add(argument);
-    }
-    input.setConnection(wConnection.getText());
-    input.setProcedure(wProcName.getText());
-    input.getResult().setName(wResult.getText());
-    input.getResult().setType(wResultType.getText());
-    input.setAutoCommit(wAutoCommit.getSelection());
-
-    transformName = wTransformName.getText(); // return value
-
-    if (input.getConnection() == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(BaseMessages.getString(PKG, "DBProcDialog.InvalidConnection.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "DBProcDialog.InvalidConnection.DialogTitle"));
-      mb.open();
-    }
-
+    String connectionName = widgetText(DBProcMeta.WIDGET_CONNECTION);
+    widgets.getWidgetsContents(input, DBProcMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    input.setArguments(readArguments());
+    input.setResultFields(readResultFields());
+    transformName = wTransformName.getText();
     input.setChanged();
+    if (Utils.isEmpty(connectionName)) {
+      showMessage(
+          "DBProcDialog.InvalidConnection.DialogTitle",
+          "DBProcDialog.InvalidConnection.DialogMessage",
+          SWT.OK | SWT.ICON_ERROR);
+    }
     dispose();
   }
 
@@ -375,7 +634,7 @@ public class DBProcDialog extends BaseTransformDialog {
               return true;
             };
         BaseTransformDialog.getFieldsFromPrevious(
-            r, wFields, 1, new int[] {1}, new int[] {3}, -1, -1, listener);
+            r, wArguments, 1, new int[] {1}, new int[] {3}, -1, -1, listener);
       }
     } catch (HopException ke) {
       new ErrorDialog(

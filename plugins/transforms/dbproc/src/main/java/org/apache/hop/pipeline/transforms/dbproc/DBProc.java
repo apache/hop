@@ -17,8 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.dbproc;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
@@ -28,9 +33,11 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -51,83 +58,228 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private Object[] runProc(IRowMeta rowMeta, Object[] rowData) throws HopException {
-    if (first) {
-      first = false;
+  private boolean scalarResult() {
+    return !meta.isResultRows() && StringUtils.isNotEmpty(meta.getResultName());
+  }
 
-      // get the RowMeta for the output
-      //
-      data.outputMeta = data.inputRowMeta.clone();
-      meta.getFields(data.outputMeta, getTransformName(), null, null, this, metadataProvider);
+  private void prepareProcedure(IRowMeta rowMeta) throws HopException {
+    if (!first) {
+      return;
+    }
+    first = false;
 
-      data.argnrs = new int[meta.getArguments().size()];
-      for (int i = 0; i < meta.getArguments().size(); i++) {
-        DBProcMeta.ProcArgument argument = meta.getArguments().get(i);
-        if (!argument.getDirection().equalsIgnoreCase("OUT")) { // IN or INOUT
-          data.argnrs[i] = rowMeta.indexOfValue(argument.getName());
-          if (data.argnrs[i] < 0) {
-            logError(
-                BaseMessages.getString(PKG, "DBProc.Log.ErrorFindingField")
-                    + argument.getName()
-                    + "]");
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG, "DBProc.Exception.CouldnotFindField", argument.getName()));
-          }
-        } else {
-          data.argnrs[i] = -1;
+    data.outputMeta = data.inputRowMeta.clone();
+    meta.getFields(data.outputMeta, getTransformName(), null, null, this, metadataProvider);
+
+    List<DBProcMeta.ProcArgument> arguments =
+        meta.getArguments() == null ? List.of() : meta.getArguments();
+    data.argnrs = new int[arguments.size()];
+    for (int i = 0; i < arguments.size(); i++) {
+      DBProcMeta.ProcArgument argument = arguments.get(i);
+      if (!argument.getDirection().equalsIgnoreCase("OUT")) { // IN or INOUT
+        data.argnrs[i] = rowMeta.indexOfValue(argument.getName());
+        if (data.argnrs[i] < 0) {
+          logError(
+              BaseMessages.getString(PKG, "DBProc.Log.ErrorFindingField")
+                  + argument.getName()
+                  + "]");
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG, "DBProc.Exception.CouldnotFindField", argument.getName()));
         }
+      } else {
+        data.argnrs[i] = -1;
       }
-
-      data.db.setProcLookup(
-          resolve(meta.getProcedure()),
-          meta.argumentNames(),
-          meta.argumentDirections(),
-          meta.argumentTypes(),
-          meta.getResult().getName(),
-          meta.getResult().getHopType());
     }
 
-    Object[] outputRowData = RowDataUtil.resizeArray(rowData, data.outputMeta.size());
-    int outputIndex = rowMeta.size();
-
-    data.db.setProcValues(
-        rowMeta,
-        rowData,
-        data.argnrs,
+    // A Row result is a result set, not a JDBC function return value.
+    String resultName = scalarResult() ? meta.getResult().getName() : null;
+    int resultType = scalarResult() ? meta.getResult().getHopType() : IValueMeta.TYPE_NONE;
+    data.db.setProcLookup(
+        resolve(meta.getProcedure()),
+        meta.argumentNames(),
         meta.argumentDirections(),
-        StringUtils.isNotEmpty(meta.getResult().getName()));
+        meta.argumentTypes(),
+        resultName,
+        resultType);
+  }
 
+  private void runProc(IRowMeta rowMeta, Object[] rowData) throws HopException {
+    prepareProcedure(rowMeta);
+    boolean scalar = scalarResult();
+    data.db.setProcValues(rowMeta, rowData, data.argnrs, meta.argumentDirections(), scalar);
+
+    if (meta.isResultRows()) {
+      boolean executed = false;
+      ResultSet resultSet = null;
+      try {
+        RowMetaAndData add =
+            data.db.callProcedure(
+                meta.argumentNames(),
+                meta.argumentDirections(),
+                meta.argumentTypes(),
+                null,
+                IValueMeta.TYPE_NONE,
+                true);
+        executed = true;
+        resultSet = data.db.takeProcedureResultSet();
+        writeResultRows(rowMeta, rowData, add, resultSet);
+      } finally {
+        try {
+          if (resultSet != null) {
+            resultSet.close();
+          }
+        } catch (SQLException e) {
+          throw new HopDatabaseException(
+              BaseMessages.getString(PKG, "DBProc.Exception.UnableToReadResultSet"), e);
+        } finally {
+          if (executed) {
+            data.db.discardProcedureResults();
+          }
+        }
+      }
+      return;
+    }
+
+    String resultName = scalar ? meta.getResult().getName() : null;
+    int resultType = scalar ? meta.getResult().getHopType() : IValueMeta.TYPE_NONE;
     RowMetaAndData add =
         data.db.callProcedure(
             meta.argumentNames(),
             meta.argumentDirections(),
             meta.argumentTypes(),
-            meta.getResult().getName(),
-            meta.getResult().getHopType());
-    int addIndex = 0;
+            resultName,
+            resultType);
+    Object[] outputRowData =
+        buildOutputRow(
+            rowData,
+            rowMeta.size(),
+            data.outputMeta.size(),
+            add.getData(),
+            data.argnrs,
+            meta.getArguments(),
+            scalar,
+            0,
+            false);
+    putRow(data.outputMeta, outputRowData);
+  }
 
-    // Function return?
-    if (StringUtils.isNotEmpty(meta.getResult().getName())) {
-      outputRowData[outputIndex++] = add.getData()[addIndex++]; // first is the function return
+  private void writeResultRows(
+      IRowMeta rowMeta, Object[] rowData, RowMetaAndData procedureData, ResultSet resultSet)
+      throws HopException {
+    if (resultSet == null) {
+      return;
     }
-
-    // We are only expecting the OUT and INOUT arguments here.
-    // The INOUT values need to replace the value with the same name in the row.
-    //
-    for (int i = 0; i < data.argnrs.length; i++) {
-      DBProcMeta.ProcArgument argument = meta.getArguments().get(i);
-      if ("OUT".equalsIgnoreCase(argument.getDirection())) {
-        // add
-        outputRowData[outputIndex++] = add.getData()[addIndex++];
-      } else if ("INOUT".equalsIgnoreCase(argument.getDirection())) {
-        // replace
-        outputRowData[data.argnrs[i]] = add.getData()[addIndex];
-        addIndex++;
+    List<DBProcField> fields = meta.activeResultFields();
+    int inputSize = rowMeta == null ? 0 : rowMeta.size();
+    Object[] template =
+        buildOutputRow(
+            rowData,
+            inputSize,
+            data.outputMeta.size(),
+            procedureData == null ? null : procedureData.getData(),
+            data.argnrs,
+            meta.getArguments(),
+            false,
+            fields.size(),
+            true);
+    try {
+      int[] indexes = resultColumnIndexes(resultColumnNames(resultSet.getMetaData()), fields, this);
+      while (resultSet.next()) {
+        Object[] output = RowDataUtil.createResizedCopy(template, data.outputMeta.size());
+        for (int i = 0; i < indexes.length; i++) {
+          if (indexes[i] < 0) {
+            continue;
+          }
+          IValueMeta valueMeta = data.outputMeta.getValueMeta(inputSize + i);
+          output[inputSize + i] =
+              data.db.getDatabaseMeta().getValueFromResultSet(resultSet, valueMeta, indexes[i]);
+        }
+        putRow(data.outputMeta, output);
       }
-      // IN not taken
+    } catch (SQLException e) {
+      throw new HopDatabaseException(
+          BaseMessages.getString(PKG, "DBProc.Exception.UnableToReadResultSet"), e);
     }
-    return outputRowData;
+  }
+
+  /**
+   * @param copy when {@code true}, always allocate a new row. {@link RowDataUtil#resizeArray}
+   *     returns the same array when it is already large enough, which aliases every result row.
+   */
+  static Object[] buildOutputRow(
+      Object[] rowData,
+      int inputSize,
+      int outputSize,
+      Object[] procedureData,
+      int[] argnrs,
+      List<DBProcMeta.ProcArgument> arguments,
+      boolean scalarResult,
+      int resultFieldCount,
+      boolean copy) {
+    Object[] source = rowData == null ? new Object[0] : rowData;
+    Object[] output =
+        copy
+            ? RowDataUtil.createResizedCopy(source, outputSize)
+            : RowDataUtil.resizeArray(source, outputSize);
+    int outputIndex = inputSize + resultFieldCount;
+    int addIndex = 0;
+    if (scalarResult) {
+      output[outputIndex++] = procedureData[addIndex++];
+    }
+    if (arguments == null) {
+      return output;
+    }
+    for (int i = 0; i < arguments.size(); i++) {
+      DBProcMeta.ProcArgument argument = arguments.get(i);
+      if (argument.getDirection().equalsIgnoreCase("OUT")) {
+        output[outputIndex++] = procedureData[addIndex++];
+      } else if (argument.getDirection().equalsIgnoreCase("INOUT")) {
+        output[argnrs[i]] = procedureData[addIndex++];
+      }
+    }
+    return output;
+  }
+
+  static String[] resultColumnNames(ResultSetMetaData metadata) throws SQLException {
+    if (metadata == null) {
+      return new String[0];
+    }
+    int count = metadata.getColumnCount();
+    String[] names = new String[count];
+    for (int i = 0; i < count; i++) {
+      String label = metadata.getColumnLabel(i + 1);
+      if (Utils.isEmpty(label)) {
+        label = metadata.getColumnName(i + 1);
+      }
+      names[i] = label;
+    }
+    return names;
+  }
+
+  static int[] resultColumnIndexes(
+      String[] columnNames, List<DBProcField> fields, IVariables variables) {
+    if (fields == null || fields.isEmpty()) {
+      return new int[0];
+    }
+    Map<String, Integer> byName = new HashMap<>();
+    if (columnNames != null) {
+      for (int i = 0; i < columnNames.length; i++) {
+        if (columnNames[i] != null) {
+          byName.putIfAbsent(columnNames[i].toLowerCase(Locale.ROOT), i);
+        }
+      }
+    }
+    int[] indexes = new int[fields.size()];
+    for (int i = 0; i < fields.size(); i++) {
+      String name = fields.get(i).getName();
+      if (variables != null && name != null) {
+        name = variables.resolve(name);
+      }
+      Integer index = name == null ? null : byName.get(name.toLowerCase(Locale.ROOT));
+      indexes[i] = index == null ? -1 : index;
+    }
+    return indexes;
   }
 
   @Override
@@ -157,9 +309,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
     }
 
     try {
-      Object[] outputRowData =
-          runProc(data.inputRowMeta, r); // add new values to the row in rowset[0].
-      putRow(data.outputMeta, outputRowData); // copy row to output rowset(s)
+      runProc(data.inputRowMeta, r); // add new values to the row in rowset[0].
 
       if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "DBProc.LineNumber") + getLinesRead());

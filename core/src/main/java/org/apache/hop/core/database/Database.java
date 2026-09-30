@@ -148,6 +148,13 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private PreparedStatement pstmtSeq;
   private CallableStatement cstmt;
 
+  /**
+   * First result set of the current procedure call, when the caller asked to keep it. {@code
+   * getMoreResults()} closes the current result set, so this is left open until the caller reads
+   * it.
+   */
+  private ResultSet retainedProcedureResultSet;
+
   private DatabaseMetaData dbmd;
 
   private IRowMeta rowMeta;
@@ -4643,124 +4650,311 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public RowMetaAndData callProcedure(
       String[] arg, String[] argdir, int[] argtype, String resultname, int resulttype)
       throws HopDatabaseException {
-    RowMetaAndData ret;
+    return callProcedure(arg, argdir, argtype, resultname, resulttype, false);
+  }
+
+  /**
+   * Execute the callable statement prepared by {@link #setProcLookup}.
+   *
+   * @param retainResultSet when {@code true}, the first result set is left open and returned by
+   *     {@link #takeProcedureResultSet()}. The caller closes it and then calls {@link
+   *     #discardProcedureResults()} so later results are still drained. When {@code false}, every
+   *     result set is closed here, which is the historical behavior.
+   */
+  public RowMetaAndData callProcedure(
+      String[] arg,
+      String[] argdir,
+      int[] argtype,
+      String resultname,
+      int resulttype,
+      boolean retainResultSet)
+      throws HopDatabaseException {
     try {
+      closeRetainedProcedureResultSet();
       boolean moreResults = cstmt.execute();
-      ret = new RowMetaAndData();
-      int pos = 1;
-      if (!Utils.isEmpty(resultname)) {
-        IValueMeta vMeta = ValueMetaFactory.createValueMeta(resultname, resulttype);
-        Object v = null;
-        switch (resulttype) {
-          case IValueMeta.TYPE_BOOLEAN:
-            v = cstmt.getBoolean(pos);
-            break;
-          case IValueMeta.TYPE_NUMBER:
-            v = cstmt.getDouble(pos);
-            break;
-          case IValueMeta.TYPE_BIGNUMBER:
-            v = cstmt.getBigDecimal(pos);
-            break;
-          case IValueMeta.TYPE_INTEGER:
-            v = cstmt.getLong(pos);
-            break;
-          case IValueMeta.TYPE_STRING:
-            v = cstmt.getString(pos);
-            break;
-          case IValueMeta.TYPE_BINARY:
-            v = cstmt.getBytes(pos);
-            break;
-          case IValueMeta.TYPE_DATE:
-            if (databaseMeta.supportsTimeStampToDateConversion()) {
-              v = cstmt.getTimestamp(pos);
-            } else {
-              v = cstmt.getDate(pos);
-            }
-            break;
-          default:
-            break;
-        }
-        ret.addValue(vMeta, v);
-        pos++;
+      RowMetaAndData ret = readProcedureOutputs(arg, argdir, argtype, resultname, resulttype);
+      if (retainResultSet) {
+        retainFirstResultSet(moreResults);
+      } else {
+        discardResultSets(moreResults);
       }
-      for (int i = 0; i < arg.length; i++) {
-        if (argdir[i].equalsIgnoreCase("OUT") || argdir[i].equalsIgnoreCase(CONST_INOUT)) {
-          IValueMeta vMeta = ValueMetaFactory.createValueMeta(arg[i], argtype[i]);
-          Object v = null;
-          switch (argtype[i]) {
-            case IValueMeta.TYPE_BOOLEAN:
-              v = cstmt.getBoolean(pos + i);
-              break;
-            case IValueMeta.TYPE_NUMBER:
-              v = cstmt.getDouble(pos + i);
-              break;
-            case IValueMeta.TYPE_BIGNUMBER:
-              v = cstmt.getBigDecimal(pos + i);
-              break;
-            case IValueMeta.TYPE_INTEGER:
-              v = cstmt.getLong(pos + i);
-              break;
-            case IValueMeta.TYPE_STRING:
-              v = cstmt.getString(pos + i);
-              break;
-            case IValueMeta.TYPE_BINARY:
-              v = cstmt.getBytes(pos + i);
-              break;
-            case IValueMeta.TYPE_DATE:
-              if (databaseMeta.supportsTimeStampToDateConversion()) {
-                v = cstmt.getTimestamp(pos + i);
-              } else {
-                v = cstmt.getDate(pos + i);
-              }
-              break;
-            default:
-              break;
-          }
-          ret.addValue(vMeta, v);
-        }
-      }
-      ResultSet rs = null;
-      int updateCount = -1;
-
-      // CHE: Iterate through the result sets and update counts
-      // to receive all error messages from within the stored procedure.
-      // This is only the first transform to ensure that the stored procedure
-      // is properly executed. A future extension would be to return all
-      // result sets and update counts properly.
-
-      do {
-        rs = null;
-        try {
-          // Save the result set
-          if (moreResults) {
-            rs = cstmt.getResultSet();
-
-          } else {
-            // Save the update count if it is available (> -1)
-            updateCount = cstmt.getUpdateCount();
-          }
-
-          moreResults = cstmt.getMoreResults();
-
-        } finally {
-          if (rs != null) {
-            rs.close();
-            rs = null;
-          }
-        }
-
-      } while (moreResults || (updateCount > -1));
-
       return ret;
     } catch (Exception ex) {
       throw new HopDatabaseException("Unable to call procedure", ex);
     }
   }
 
-  public void closeProcedureStatement() throws HopDatabaseException {
-    // CHE: close the callable statement involved in the stored
-    // procedure call!
+  /**
+   * Result-set layout of {@code procedure} without a scalar function return. Uses statement
+   * metadata when the driver provides it, otherwise executes the call with null input arguments and
+   * reads the first result set. The caller decides whether that execution is rolled back.
+   */
+  public IRowMeta getProcedureResultFields(
+      String procedure, String[] arg, String[] argdir, int[] argtype) throws HopDatabaseException {
+    String[] names = arg == null ? new String[0] : arg;
+    String[] directions = argdir == null ? new String[0] : argdir;
+    int[] types = argtype == null ? new int[0] : argtype;
     try {
+      setProcLookup(procedure, names, directions, types, null, IValueMeta.TYPE_NONE);
+      IRowMeta beforeExecute = procedureMetadataBeforeExecute();
+      if (beforeExecute != null) {
+        return beforeExecute;
+      }
+      bindNullProcedureArguments(names, directions, types);
+      limitProcedureRows();
+      callProcedure(names, directions, types, null, IValueMeta.TYPE_NONE, true);
+      ResultSet resultSet = takeProcedureResultSet();
+      try {
+        if (resultSet == null) {
+          return new RowMeta();
+        }
+        try {
+          return getRowInfo(resultSet.getMetaData(), databaseMeta.isMySqlVariant(), false);
+        } catch (SQLException e) {
+          throw new HopDatabaseException("Unable to get procedure result fields", e);
+        }
+      } finally {
+        if (resultSet != null) {
+          try {
+            resultSet.close();
+          } catch (SQLException e) {
+            throw new HopDatabaseException("Unable to close procedure result set", e);
+          }
+        }
+        discardProcedureResults();
+      }
+    } finally {
+      closeProcedureStatement();
+    }
+  }
+
+  private IRowMeta procedureMetadataBeforeExecute() throws HopDatabaseException {
+    if (cstmt == null) {
+      return null;
+    }
+    ResultSetMetaData metadata = null;
+    try {
+      metadata = cstmt.getMetaData();
+    } catch (SQLException e) {
+      return null;
+    }
+    if (metadata == null) {
+      return null;
+    }
+    try {
+      if (metadata.getColumnCount() <= 0) {
+        return null;
+      }
+    } catch (SQLException e) {
+      return null;
+    }
+    return getRowInfo(metadata, databaseMeta.isMySqlVariant(), false);
+  }
+
+  private void limitProcedureRows() {
+    if (cstmt == null) {
+      return;
+    }
+    try {
+      cstmt.setMaxRows(1);
+    } catch (SQLException e) {
+      // Not every driver accepts a row limit on a callable statement.
+    }
+  }
+
+  private void bindNullProcedureArguments(String[] arg, String[] argdir, int[] argtype)
+      throws HopDatabaseException {
+    if (arg.length == 0) {
+      return;
+    }
+    boolean hasInput = false;
+    for (String direction : argdir) {
+      if (direction != null
+          && (direction.equalsIgnoreCase("IN") || direction.equalsIgnoreCase(CONST_INOUT))) {
+        hasInput = true;
+        break;
+      }
+    }
+    if (!hasInput) {
+      return;
+    }
+    IRowMeta paramMeta = new RowMeta();
+    Object[] data = new Object[arg.length];
+    int[] argnrs = new int[arg.length];
+    try {
+      for (int i = 0; i < arg.length; i++) {
+        argnrs[i] = i;
+        int type = argtype.length > i ? argtype[i] : IValueMeta.TYPE_NONE;
+        String name = arg[i] == null ? "arg" + i : arg[i];
+        paramMeta.addValueMeta(ValueMetaFactory.createValueMeta(name, type));
+      }
+    } catch (HopException e) {
+      throw new HopDatabaseException("Unable to prepare database procedure call", e);
+    }
+    setProcValues(paramMeta, data, argnrs, argdir, false);
+  }
+
+  private RowMetaAndData readProcedureOutputs(
+      String[] arg, String[] argdir, int[] argtype, String resultname, int resulttype)
+      throws HopException, SQLException {
+    RowMetaAndData ret = new RowMetaAndData();
+    int pos = 1;
+    if (!Utils.isEmpty(resultname)) {
+      IValueMeta vMeta = ValueMetaFactory.createValueMeta(resultname, resulttype);
+      Object v = null;
+      switch (resulttype) {
+        case IValueMeta.TYPE_BOOLEAN:
+          v = cstmt.getBoolean(pos);
+          break;
+        case IValueMeta.TYPE_NUMBER:
+          v = cstmt.getDouble(pos);
+          break;
+        case IValueMeta.TYPE_BIGNUMBER:
+          v = cstmt.getBigDecimal(pos);
+          break;
+        case IValueMeta.TYPE_INTEGER:
+          v = cstmt.getLong(pos);
+          break;
+        case IValueMeta.TYPE_STRING:
+          v = cstmt.getString(pos);
+          break;
+        case IValueMeta.TYPE_BINARY:
+          v = cstmt.getBytes(pos);
+          break;
+        case IValueMeta.TYPE_DATE:
+          if (databaseMeta.supportsTimeStampToDateConversion()) {
+            v = cstmt.getTimestamp(pos);
+          } else {
+            v = cstmt.getDate(pos);
+          }
+          break;
+        default:
+          break;
+      }
+      ret.addValue(vMeta, v);
+      pos++;
+    }
+    for (int i = 0; i < arg.length; i++) {
+      if (argdir[i].equalsIgnoreCase("OUT") || argdir[i].equalsIgnoreCase(CONST_INOUT)) {
+        IValueMeta vMeta = ValueMetaFactory.createValueMeta(arg[i], argtype[i]);
+        Object v = null;
+        switch (argtype[i]) {
+          case IValueMeta.TYPE_BOOLEAN:
+            v = cstmt.getBoolean(pos + i);
+            break;
+          case IValueMeta.TYPE_NUMBER:
+            v = cstmt.getDouble(pos + i);
+            break;
+          case IValueMeta.TYPE_BIGNUMBER:
+            v = cstmt.getBigDecimal(pos + i);
+            break;
+          case IValueMeta.TYPE_INTEGER:
+            v = cstmt.getLong(pos + i);
+            break;
+          case IValueMeta.TYPE_STRING:
+            v = cstmt.getString(pos + i);
+            break;
+          case IValueMeta.TYPE_BINARY:
+            v = cstmt.getBytes(pos + i);
+            break;
+          case IValueMeta.TYPE_DATE:
+            if (databaseMeta.supportsTimeStampToDateConversion()) {
+              v = cstmt.getTimestamp(pos + i);
+            } else {
+              v = cstmt.getDate(pos + i);
+            }
+            break;
+          default:
+            break;
+        }
+        ret.addValue(vMeta, v);
+      }
+    }
+    return ret;
+  }
+
+  /**
+   * Leave the first result set open. {@code getMoreResults()} would close it, so this returns
+   * before moving on when a result set was found. Update counts before that result set are
+   * consumed.
+   */
+  private void retainFirstResultSet(boolean moreResults) throws SQLException {
+    retainedProcedureResultSet = null;
+    int updateCount = -1;
+    do {
+      if (moreResults) {
+        ResultSet resultSet = cstmt.getResultSet();
+        if (resultSet != null) {
+          retainedProcedureResultSet = resultSet;
+          return;
+        }
+      } else {
+        updateCount = cstmt.getUpdateCount();
+      }
+      moreResults = cstmt.getMoreResults();
+    } while (moreResults || (updateCount > -1));
+  }
+
+  private void discardResultSets(boolean moreResults) throws SQLException {
+    int updateCount = -1;
+    // Iterate through the result sets and update counts to receive all error messages from within
+    // the stored procedure.
+    do {
+      ResultSet resultSet = null;
+      try {
+        if (moreResults) {
+          resultSet = cstmt.getResultSet();
+        } else {
+          updateCount = cstmt.getUpdateCount();
+        }
+        moreResults = cstmt.getMoreResults();
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } while (moreResults || (updateCount > -1));
+  }
+
+  /** The result set retained by {@link #callProcedure}, or {@code null}. The caller closes it. */
+  public ResultSet takeProcedureResultSet() {
+    ResultSet resultSet = retainedProcedureResultSet;
+    retainedProcedureResultSet = null;
+    return resultSet;
+  }
+
+  /**
+   * Close a retained result set that was not taken, then drain every later result of the current
+   * procedure call.
+   */
+  public void discardProcedureResults() throws HopDatabaseException {
+    if (cstmt == null) {
+      try {
+        closeRetainedProcedureResultSet();
+      } catch (SQLException ex) {
+        throw new HopDatabaseException("Unable to call procedure", ex);
+      }
+      return;
+    }
+    try {
+      closeRetainedProcedureResultSet();
+      boolean moreResults = cstmt.getMoreResults();
+      discardResultSets(moreResults);
+    } catch (SQLException ex) {
+      throw new HopDatabaseException("Unable to call procedure", ex);
+    }
+  }
+
+  private void closeRetainedProcedureResultSet() throws SQLException {
+    if (retainedProcedureResultSet != null) {
+      retainedProcedureResultSet.close();
+      retainedProcedureResultSet = null;
+    }
+  }
+
+  public void closeProcedureStatement() throws HopDatabaseException {
+    try {
+      closeRetainedProcedureResultSet();
       if (cstmt != null) {
         cstmt.close();
         cstmt = null;

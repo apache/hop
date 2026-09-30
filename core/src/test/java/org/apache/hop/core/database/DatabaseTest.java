@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.sql.BatchUpdateException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ParameterMetaData;
@@ -897,5 +899,164 @@ class DatabaseTest {
     result = databaseAffecting(-1).execStatement("CREATE TABLE t (id INT)");
     assertEquals(0, result.getNrLinesUpdated());
     assertEquals(0, result.getNrLinesOutput());
+  }
+
+  private Database procedureDatabase(CallableStatement statement) throws SQLException {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    when(meta.isMySqlVariant()).thenReturn(false);
+    when(conn.prepareCall(anyString())).thenReturn(statement);
+    when(statement.getUpdateCount()).thenReturn(-1);
+    when(statement.getMoreResults()).thenReturn(false);
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  private ResultSetMetaData columnMetadata(String name, int sqlType) throws SQLException {
+    ResultSetMetaData metadata = mock(ResultSetMetaData.class);
+    when(metadata.getColumnCount()).thenReturn(1);
+    when(metadata.getColumnName(1)).thenReturn(name);
+    when(metadata.getColumnLabel(1)).thenReturn(name);
+    when(metadata.getColumnType(1)).thenReturn(sqlType);
+    when(metadata.getColumnTypeName(1)).thenReturn("type");
+    return metadata;
+  }
+
+  @Test
+  void setProcLookupKeepsTheHistoricalCallSyntax() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    Database db = procedureDatabase(statement);
+
+    db.setProcLookup(
+        "list_customers", new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE);
+    verify(conn).prepareCall("{ call list_customers }");
+
+    db.setProcLookup(
+        "add_one",
+        new String[] {"n"},
+        new String[] {"IN"},
+        new int[] {IValueMeta.TYPE_INTEGER},
+        "result",
+        IValueMeta.TYPE_INTEGER);
+    verify(conn).prepareCall("{ ? = call add_one ( ?)}");
+    verify(statement).registerOutParameter(1, Types.BIGINT);
+  }
+
+  @Test
+  void callProcedureClosesResultSetsWhenNotRetained() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSet resultSet = mock(ResultSet.class);
+    when(statement.execute()).thenReturn(true);
+    when(statement.getResultSet()).thenReturn(resultSet);
+    Database db = procedureDatabase(statement);
+
+    db.setProcLookup(
+        "list_customers", new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE);
+    db.callProcedure(new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE);
+
+    verify(resultSet).close();
+    verify(statement).getMoreResults();
+  }
+
+  @Test
+  void callProcedureKeepsTheFirstResultSetUntilDiscarded() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSet resultSet = mock(ResultSet.class);
+    when(statement.execute()).thenReturn(true);
+    when(statement.getResultSet()).thenReturn(resultSet);
+    Database db = procedureDatabase(statement);
+
+    db.setProcLookup(
+        "list_customers", new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE);
+    db.callProcedure(new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE, true);
+
+    assertSame(resultSet, db.takeProcedureResultSet());
+    verify(resultSet, never()).close();
+    verify(statement, never()).getMoreResults();
+
+    db.discardProcedureResults();
+    verify(statement, times(2)).getMoreResults();
+    verify(resultSet, never()).close();
+  }
+
+  @Test
+  void callProcedureRetainsResultSetAfterAnUpdateCount() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSet resultSet = mock(ResultSet.class);
+    when(statement.execute()).thenReturn(false);
+    when(statement.getResultSet()).thenReturn(resultSet);
+    Database db = procedureDatabase(statement);
+    when(statement.getUpdateCount()).thenReturn(1, -1);
+    when(statement.getMoreResults()).thenReturn(true, false);
+
+    db.setProcLookup(
+        "list_customers", new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE);
+    db.callProcedure(new String[0], new String[0], new int[0], null, IValueMeta.TYPE_NONE, true);
+
+    assertSame(resultSet, db.takeProcedureResultSet());
+    verify(resultSet, never()).close();
+    verify(statement, times(1)).getMoreResults();
+    verify(statement, times(1)).getUpdateCount();
+  }
+
+  @Test
+  void getProcedureResultFieldsUsesStatementMetadataWithoutExecuting() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSetMetaData metadata = columnMetadata("customer", Types.VARCHAR);
+    when(statement.getMetaData()).thenReturn(metadata);
+    Database db = procedureDatabase(statement);
+
+    IRowMeta fields =
+        db.getProcedureResultFields(
+            "list_customers",
+            new String[] {"id"},
+            new String[] {"OUT"},
+            new int[] {IValueMeta.TYPE_INTEGER});
+
+    assertEquals(1, fields.size());
+    assertEquals("customer", fields.getValueMeta(0).getName());
+    assertTrue(fields.getValueMeta(0).isString());
+    verify(conn).prepareCall("{ call list_customers ( ?)}");
+    verify(statement, never()).execute();
+    verify(statement).close();
+  }
+
+  @Test
+  void getProcedureResultFieldsReadsTheFirstResultSetWhenMetadataIsMissing() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSet resultSet = mock(ResultSet.class);
+    when(statement.getMetaData()).thenReturn(null);
+    when(statement.execute()).thenReturn(true);
+    when(statement.getResultSet()).thenReturn(resultSet);
+    ResultSetMetaData metadata = columnMetadata("id", Types.INTEGER);
+    when(resultSet.getMetaData()).thenReturn(metadata);
+    Database db = procedureDatabase(statement);
+
+    IRowMeta fields =
+        db.getProcedureResultFields("list_customers", new String[0], new String[0], new int[0]);
+
+    assertEquals(1, fields.size());
+    assertEquals("id", fields.getValueMeta(0).getName());
+    assertTrue(fields.getValueMeta(0).isInteger());
+    verify(statement).execute();
+    verify(statement).setMaxRows(1);
+    verify(resultSet).close();
+    verify(statement).close();
+  }
+
+  @Test
+  void getProcedureResultFieldsReturnsNoColumnsWhenTheCallHasNoResultSet() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    when(statement.getMetaData()).thenReturn(null);
+    when(statement.execute()).thenReturn(false);
+    Database db = procedureDatabase(statement);
+
+    IRowMeta fields =
+        db.getProcedureResultFields("list_customers", new String[0], new String[0], new int[0]);
+
+    assertNotNull(fields);
+    assertEquals(0, fields.size());
+    verify(statement).execute();
+    verify(statement).close();
   }
 }

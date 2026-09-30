@@ -16,36 +16,66 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Call DB Procedure transform allows you to execute a database procedure (or function) and get the result(s) back.
+:description: The Call DB Procedure transform calls a database procedure or function and returns a scalar value, output parameters, or result rows.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/dbproc.svg[Call DB procedure transform Icon, role="image-doc-icon"] Call DB procedure
 
 == Description
 
-The Call DB Procedure transform allows you to execute a database procedure (or function) and get the result(s) back.
-With MySQL and JDBC, it is not possible to retrieve the result set of a stored procedure.
-Stored procedures and functions can only return values through their function arguments and those arguments must be defined in the Parameters section of the DB Procedure Call configuration.
+Call DB procedure runs a stored procedure or function once for every incoming row. With no incoming hop it runs once.
+
+The call can return a scalar function value, `OUT` and `INOUT` parameters, and the rows of the procedure's first result set. Later result sets are read and discarded so procedure errors still surface. An empty first result set produces no output row for that input row. `OUT` values are copied onto every result row. `INOUT` values replace the incoming field of the same name.
+
+A procedure that only returns a result set can also be called from xref:pipeline/transforms/tableinput.adoc[Table Input]. MySQL and MariaDB accept a `CALL` statement. Many other JDBC drivers accept the call escape:
+
+[source,sql]
+----
+{call list_customers()}
+----
+
+PostgreSQL functions are usually read with `SELECT * FROM procedure_name(...)`. Use Table Input when the call is ordinary SQL and you only need the result set. Use Call DB procedure when the procedure needs `IN`, `OUT`, or `INOUT` arguments from the stream, or when you want one call per incoming row together with output parameters.
 
 == Options
+
+The dialog is split into *General*, *Parameters*, and *Fields* tabs.
+
+=== General
 
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform; this name has to be unique in a single pipeline
-|Connection|Name of the database connection on which the procedure resides
-|Proc-name|Name of the procedure or function to call
-|Find it|Click to search on the specified database connection for available procedures and functions (Oracle and SQL Server only)
-|Enable auto|In some instances you want to perform updates
-|commit|in the database using the specified procedure.
-In that case you can either have the changes performed using auto-commit or not.
-If auto-commit is disabled, a single commit is being performed after the last row is received by this transform.
-|Result name|Name of the result of the function call; leave blank if this is a procedure
-|Result type|Type of the result of the function call; not used in case of a procedure.
-|Parameters a|List of parameters that the procedure or function needs
+|Transform name|Name of the transform. This name has to be unique in a single pipeline.
+|Connection|Database connection on which the procedure resides.
+|Procedure name|Name of the procedure or function to call. Variables are supported.
+|Find procedure|Lists the procedures JDBC reports for the selected connection. Some drivers return none; type the name when the list is empty.
+|Enable auto commit|When auto commit is off, Hop commits once after the last row is processed.
+|Result name|Name of the function return value. Leave this blank when the procedure has no scalar return. Ignored when the result type is Row; the stored name is kept if you switch back.
+|Result type|Hop type of the function return value, or *Row* to output the rows of the first result set.
+|===
 
-* Field name: Name of the field.
-* Direction: Can be either IN (input only), OUT (output only), INOUT (value is changed on the database).
-* Type: Used for output parameters so that Hop knows what returns
-|Get Fields|Fills in all the fields in the input streams to make your life easier; delete the lines you don't need and re-order the remaining lines
+=== Parameters
+
+[options="header"]
+|===
+|Option|Description
+|Name|Argument name. For `IN` and `INOUT` this is also the incoming stream field.
+|Direction|`IN` (input only), `OUT` (output only), or `INOUT` (the incoming value is sent and replaced with the returned value).
+|Type|Hop type of the argument. Output parameters need this so Hop knows what the driver returns.
+|Get Fields|Button on the dialog. Fills the grid from the incoming stream and sets each direction to `IN`. Remove the rows you do not need.
+|===
+
+=== Fields
+
+This tab is available when the result type is *Row*. The listed columns are appended to the incoming row, before any `OUT` parameters. Columns that are missing from the result set are null. Only the columns you list are added; an empty list still emits one output row per result row, with the incoming fields and output parameters.
+
+[options="header"]
+|===
+|Option|Description
+|Get fields|Reads the column names, types, format, length, and precision of the first result set, in the same way xref:pipeline/transforms/tableinput.adoc[Table Input] reads query fields. Hop asks the driver for callable-statement metadata first. When the driver has none, Hop executes the procedure with null values for `IN` and `INOUT` arguments, limits the read to one row when the driver allows it, and rolls the connection back when the driver allows that. A procedure that commits itself can still change data.
+|Name|Output field name. Matched to the result-set column by label, then by name, ignoring case. Variables are resolved.
+|Type|Hop type of the output field.
+|Format|Optional conversion mask.
+|Length|Field length. Empty means unspecified.
+|Precision|Field precision. Empty means unspecified.
 |===
