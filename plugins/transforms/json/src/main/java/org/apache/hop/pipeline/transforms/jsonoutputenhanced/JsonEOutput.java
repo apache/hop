@@ -481,10 +481,13 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     data.outputRowMeta = new RowMeta();
     List<JsonEOutputKeyField> keyFields = meta.getKeyFields();
     for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      IValueMeta vmi =
-          data.inputRowMeta.getValueMeta(
-              data.inputRowMeta.indexOfValue(keyFields.get(i).getFieldName()));
-      data.outputRowMeta.addValueMeta(i, vmi);
+      int index = data.inputRowMeta.indexOfValue(keyFields.get(i).getFieldName());
+      if (index < 0) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "JsonEOutput.Error.GroupFieldNotFound", keyFields.get(i).getFieldName()));
+      }
+      data.outputRowMeta.addValueMeta(data.inputRowMeta.getValueMeta(index).clone());
     }
 
     // This is JSON block's column
