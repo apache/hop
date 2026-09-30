@@ -71,8 +71,16 @@ If file with specified name exists already, it will be replaced by a new one.
 If checked - new JSON output will be appended to the end of existing file.
 Or if file does not exist, it will be created as in previous case.
 
-TIP: If you want to create a ND-JSON (Newline-Delimited JSON) file, you may get better results by outputting the JSON rows and then printing them with a xref:pipeline/transforms/textfileoutput.adoc[Text file output] transform
+NOTE: Without newline-delimited JSON, Append concatenates complete JSON documents without adding separators.
+It does not merge arrays or produce one valid JSON document.
 
+|Newline-delimited JSON (NDJSON)|Disabled by default for compatibility.
+When enabled for file output, each input-row item or completed group is written as one compact JSON value followed by LF.
+A JSON block name wraps each line separately.
+There is no outer document array; Force arrays applies to the value inside a grouped item.
+UTF-8 is required and Pretty Print JSON must be disabled.
+Multiline NDJSON records are not supported; newline characters inside string values are escaped.
+Appending requires an empty file or an existing UTF-8 NDJSON file ending in LF.
 |Split JSON after n rows|If this number N is larger than zero, split the resulting JSON file into multiple parts of N items: N rows, or N groups when group keys are used.
 |Create Parent folder|Check this option to create the folders structure, if some of them are missing in the provided path.
 If this option is not checked and the full path cannot be found, the transform will fail.
