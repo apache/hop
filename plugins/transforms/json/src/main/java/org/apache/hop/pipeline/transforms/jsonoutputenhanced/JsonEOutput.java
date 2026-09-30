@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
@@ -339,16 +340,16 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     Object[] keyRow = getKeyValues(rowData);
 
-    Object[] additionalRowFields = new Object[2];
-
-    additionalRowFields[0] = data.jsonSerialized;
-
-    // Fill accessory fields
-    if (!Utils.isEmpty(meta.getJsonSizeFieldName())) {
-      additionalRowFields[1] = data.jsonLength;
-    }
+    Object[] additionalRowFields =
+        Utils.isEmpty(meta.getJsonSizeFieldName())
+            ? new Object[] {data.jsonSerialized}
+            : new Object[] {data.jsonSerialized, data.jsonLength};
 
     Object[] outputRowData = RowDataUtil.addRowData(keyRow, keyRow.length, additionalRowFields);
+    // addRowData over-allocates. The published row matches the metadata width.
+    if (outputRowData.length != data.outputRowMeta.size()) {
+      outputRowData = Arrays.copyOf(outputRowData, data.outputRowMeta.size());
+    }
     incrementLinesOutput();
 
     putRow(data.outputRowMeta, outputRowData);

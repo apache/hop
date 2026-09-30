@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +35,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -75,6 +79,19 @@ class JsonEOutputBehaviorTest {
     meta.getFileSettings().setCreateParentFolder(true);
     meta.getFileSettings().setDoNotOpenNewFileInit(true);
     return meta;
+  }
+
+  private static String read(String path) throws Exception {
+    try (FileObject file = HopVfs.getFileObject(path);
+        var input = HopVfs.getInputStream(file)) {
+      return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+    }
+  }
+
+  private static JsonNode parse(String json) throws Exception {
+    return HopJson.newMapper()
+        .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+        .readTree(json);
   }
 
   private static IRowMeta rowMeta(String... names) {
@@ -158,5 +175,33 @@ class JsonEOutputBehaviorTest {
             () -> meta.getFields(input, "json", null, null, new Variables(), null));
     assertTrue(error.getMessage().contains("gone"), error.getMessage());
     assertEquals("payload", input.getValueMeta(0).getName());
+  }
+
+  @Test
+  void bothKeepsRowShapeAndWritesEveryGroup() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.BOTH);
+    JsonEOutputKeyField key = new JsonEOutputKeyField("grp");
+    key.setElementName("group");
+    meta.getKeyFields().add(key);
+    try (Harness h =
+        new Harness(
+            meta,
+            rowMeta("grp", "payload"),
+            new Object[] {"a", "x"},
+            new Object[] {"a", "y"},
+            new Object[] {"b", "z"})) {
+      h.run();
+      assertEquals(2, h.written.size());
+      for (RowMetaAndData row : h.written) {
+        assertEquals(row.getRowMeta().size(), row.getData().length);
+        assertTrue(row.getRowMeta().indexOfValue("grp") >= 0);
+        assertEquals(-1, row.getRowMeta().indexOfValue("group"));
+      }
+    }
+    JsonNode file = parse(read(base + "/out.json"));
+    assertEquals(2, file.size());
+    assertEquals("a", file.get(0).get("group").asText());
+    assertEquals(2, file.get(0).get("rows").size());
+    assertEquals("z", file.get(1).get("rows").get("payload").asText());
   }
 }
