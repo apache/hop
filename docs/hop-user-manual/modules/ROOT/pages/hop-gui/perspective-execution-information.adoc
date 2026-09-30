@@ -39,7 +39,7 @@ You can navigate to it by clicking the image:icons/execution.svg[width="24px"] i
 
 The Keyboard shortcut to do the same is: `CTRL-Shift-I`.
 
-If you want to view information regarding the _last_ execution of the currently loaded pipeline (from the data orchestration perspective), you can hit the location icon in the toolbar:
+If you want to view information regarding the _last_ execution of the currently loaded pipeline (from the File Explorer perspective), you can hit the location icon in the toolbar:
 
 image::execution-information-perspective-pipeline-toolbar-icon.png[]
 
@@ -176,7 +176,7 @@ image::execution-information-perspective-to-parent-toolbar-icon.png[go to the pa
 
 === Edit the pipeline or workflow
 
-If you want to quickly navigate from the execution information of a pipeline or workflow to its editor, you can click on the data orchestration icon in the toolbar:
+If you want to quickly navigate from the execution information of a pipeline or workflow to its editor, you can click on the edit (pencil) icon in the toolbar or press `F3`:
 
 image::execution-information-perspective-to-editor-toolbar-icon.png[navigate to the editor]
 

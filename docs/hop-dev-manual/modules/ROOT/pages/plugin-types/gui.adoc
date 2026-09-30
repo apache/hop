@@ -65,7 +65,7 @@ xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars] covers this and the mid
 
 == Perspective
 
-A perspective is a full screen in the Hop GUI, selected from the icons in the left sidebar: the Data Orchestration, Metadata, Explorer and Execution Information perspectives are all plugins.
+A perspective is a full screen in the Hop GUI, selected from the icons in the left sidebar: the File Explorer, Metadata, Execution Information, Configuration, Database and Plugins perspectives are all plugins.
 
 Annotation:: `@HopPerspectivePlugin`
 Implement:: `IHopPerspective`

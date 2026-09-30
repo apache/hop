@@ -32,7 +32,7 @@ The Metadata perspective is where you manage the different xref:metadata-types/i
 
 This perspective has a tree on the left-hand side where the metadata types are shown as top level with elements below it:
 
-image::hop-gui/perspective-data-orchestration-left-hand-tree.png[The left-hand tree of the data orchestration perspective]
+image::hop-gui/perspective-metadata-left-hand-tree.png[The metadata types tree on the left of the Metadata perspective]
 
 === Managing elements
 

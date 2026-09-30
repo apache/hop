@@ -19,7 +19,7 @@ under the License.
 = Perspectives
 
 A perspective represents an entire full-screen workbench view in the Hop GUI, selected via the primary navigation icons in the left sidebar.
-The Data Orchestration, Metadata, File Explorer, and Execution Information workbenches are all perspective plugins.
+The File Explorer, Metadata, Execution Information, Configuration, Database, and Plugins workbenches are all perspective plugins.
 
 == Implementing a Perspective
 
