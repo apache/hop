@@ -46,8 +46,9 @@ The status column is ticked off as each wave lands.
 |Low
 |2
 |Implement
-|Planned
-|`TextIO.Write.withCompression(Compression)` already exists, and the `Compression` enum covers
+|Done
+|Done in `61ddabc8b6`.
+`TextIO.Write.withCompression(Compression)` already exists, and the `Compression` enum covers
 `AUTO, UNCOMPRESSED, GZIP, BZIP2, ZIP, ZSTD, LZO, LZOP, DEFLATE, SNAPPY`.
 Adding a dropdown to the output transform is a small change with no new dependencies.
 
@@ -55,24 +56,27 @@ Adding a dropdown to the output transform is a small change with no new dependen
 |Low
 |2
 |Implement
-|Planned
-|`GcpOptions.setGcpTempLocation()` exists and `GcpOptions` is already on the plugin classpath.
+|Done
+|Done in `f392c3e57f`.
+`GcpOptions.setGcpTempLocation()` exists and `GcpOptions` is already on the plugin classpath.
 BigQuery load jobs need a GCS path, which is a separate option from the generic temp location.
 
 |https://github.com/apache/hop/issues/2416[#2416] BigQuery query location and skipping validation
 |Low
 |2
 |Implement
-|Planned
-|`BigQueryIO.TypedRead` already has `withQueryLocation(String)` and `withoutValidation()`.
+|Done
+|Done in `2f79d7e0b5`.
+`BigQueryIO.TypedRead` already has `withQueryLocation(String)` and `withoutValidation()`.
 Two new properties on the BigQuery input transform plus two dialog widgets.
 
 |https://github.com/apache/hop/issues/5064[#5064] BigQuery input RECORD (nested) fields
 |Low
 |2
 |Implement
-|Planned
-|The type derivation does `AvroType.valueOf("RECORD")`, which throws and fails the whole read.
+|Done
+|Done in `561fb0f217`.
+The type derivation did `AvroType.valueOf("RECORD")`, which threw and failed the whole read.
 Map `RECORD` to a String and serialise nested values as JSON, which is what the issue asks for.
 Changing the output type of a field is release-note material.
 
@@ -80,8 +84,9 @@ Changing the output type of a field is release-note material.
 |Medium
 |2
 |Implement
-|Planned
-|Contains two separate defects.
+|Done
+|Done in `60cd479791`.
+Contains two separate defects.
 First, the Confluent serializers are on the compile classpath but `plugins/engines/beam/lib` is
 never populated, so the fat jar does not stage them and the Flink task manager fails with a
 `ClassNotFoundException`.
