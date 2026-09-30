@@ -51,6 +51,11 @@ public class RowOutputConverter {
     }
     // convert from string
     String strValue = getStringValue(value);
+    // A JSON null or missing node is already a Hop null. Do not let the empty-string
+    // convention turn that null into "".
+    if (strValue == null) {
+      return null;
+    }
     return targetMeta.convertDataFromString(
         strValue, strConvertMeta, null, null, targetMeta.getTrimType());
   }
