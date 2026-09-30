@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,6 +42,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -232,5 +234,63 @@ class JsonEOutputBehaviorTest {
       assertNull(h.data.fileGenerator);
       assertNull(h.data.writer);
     }
+  }
+
+  /**
+   * The pipeline attached to issue #2569: pretty-printed file output, one group key with an element
+   * name, a JSON block around the file, and a mix of one-row and many-row groups. Parsed structure
+   * is what matters; pretty-print whitespace is not.
+   */
+  @Test
+  void issue2569SampleGroupsPrettyFileByKeyAlias() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setOutputValue("lvl1Details");
+    meta.setJsonBloc("result");
+    meta.setJsonPrettified(true);
+    meta.getOutputFields().clear();
+    JsonEOutputField field2 = new JsonEOutputField();
+    field2.setFieldName("Field2");
+    field2.setElementName("campo2");
+    JsonEOutputField field3 = new JsonEOutputField();
+    field3.setFieldName("Field3");
+    field3.setElementName("campo3");
+    meta.getOutputFields().add(field2);
+    meta.getOutputFields().add(field3);
+    JsonEOutputKeyField key = new JsonEOutputKeyField("Field1");
+    key.setElementName("recordKey");
+    meta.getKeyFields().add(key);
+
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("Field1"));
+    input.addValueMeta(new ValueMetaString("Field2"));
+    input.addValueMeta(new ValueMetaInteger("Field3"));
+    try (Harness h =
+        new Harness(
+            meta,
+            input,
+            new Object[] {"A", "B", 2L},
+            new Object[] {"B", "C", 1L},
+            new Object[] {"B", "C", 2L},
+            new Object[] {"B", "D", 4L},
+            new Object[] {"C", "F", 5L},
+            new Object[] {"C", "F", 6L},
+            new Object[] {"C", "V", 6L},
+            new Object[] {"C", "B", 7L})) {
+      h.run();
+    }
+    String content = read(base + "/out.json");
+    assertTrue(content.contains("\n"), content);
+    JsonNode file = parse(content);
+    JsonNode result = file.get("result");
+    assertEquals(3, result.size());
+    assertEquals("A", result.get(0).get("recordKey").asText());
+    assertEquals("B", result.get(0).get("lvl1Details").get("campo2").asText());
+    assertEquals(2, result.get(0).get("lvl1Details").get("campo3").asInt());
+    assertFalse(result.get(0).get("lvl1Details").isArray());
+    assertEquals(3, result.get(1).get("lvl1Details").size());
+    assertEquals(4, result.get(1).get("lvl1Details").get(2).get("campo3").asInt());
+    assertEquals(4, result.get(2).get("lvl1Details").size());
+    assertEquals("B", result.get(2).get("lvl1Details").get(3).get("campo2").asText());
+    assertEquals(7, result.get(2).get("lvl1Details").get(3).get("campo3").asInt());
   }
 }
