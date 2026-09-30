@@ -18,6 +18,7 @@ package org.apache.hop.core.row.value.timestamp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -246,5 +247,12 @@ class SimpleTimestampFormatTest {
     java.util.Date result = stf.parse(invalidValue, pos);
     // Should return null (and set error index) instead of throwing NPE
     assertNull(result);
+  }
+
+  @Test
+  void missingRequiredOffsetIsAParseFailureNotANullPointer() {
+    SimpleTimestampFormat format =
+        new SimpleTimestampFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
+    assertThrows(ParseException.class, () -> format.parse("2025-02-13T02:10:14.746582"));
   }
 }
