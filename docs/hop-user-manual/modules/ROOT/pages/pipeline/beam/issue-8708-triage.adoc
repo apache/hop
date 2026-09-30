@@ -131,11 +131,34 @@ Adding that one dependency plus a handler covers the Parquet file transforms.
 |https://github.com/apache/hop/issues/2358[#2358] Avro transform and AvroIO
 |Medium
 |3
-|Implement
-|Planned
-|`org.apache.beam.sdk.extensions.avro.io.AvroIO` is already on the plugin classpath, so this is
-handler code only.
-`AvroIO` moved out of `beam-sdks-java-core` in recent Beam releases; use the
+|Investigate
+|Answered
+|The issue asks whether a handler is worth the effort. It is, but only for two of the four Avro
+transforms, so the work is larger than the original triage assumed.
+
+`HopRowCoder` already handles `GenericRecord`: it writes the schema as JSON alongside the binary
+payload and reads it back, which is what the Avro input transform needs, since the schema is only
+known once the file has been read.
+`HopRowCoderAvroTest` covers that round trip, including a nested record.
+
+The four transforms split in two:
+
+* `AvroEncode` and `AvroDecode` are pure per-row conversions and already work through the generic
+handler.
+No handler needed.
+
+* `AvroFileInput` and `AvroOutput` cannot work there.
+The input is not a source: it reads the filename to open from a field in an incoming row, so on Beam
+it has no input collection, the generic handler injects one dummy row, and the transform throws
+"Please specify a field to use as the source of data filenames to read".
+The output opens one writer and holds it for every row, so every worker would write to the same
+file.
+
+Both need a handler built on `AvroIO`, which is already on the classpath.
+Note that `hop-tech-avro` is not a dependency of the Beam module, so the meta classes have to be
+reached without a compile-time reference, or that dependency has to be added.
+
+NOTE: `AvroIO` moved out of `beam-sdks-java-core` in recent Beam releases; use the
 `extensions.avro.io` package.
 
 |https://github.com/apache/hop/issues/2379[#2379] Add Sequence transform handler
