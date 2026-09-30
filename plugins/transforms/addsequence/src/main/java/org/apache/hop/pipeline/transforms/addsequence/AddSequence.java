@@ -17,13 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.addsequence;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.Counters;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -93,6 +96,19 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
   @Override
   public boolean processRow() throws HopException {
+    // Read the info row before the main input so its rowset is removed and cannot be mixed in.
+    if (first && meta.isConfigurationFromTransform()) {
+      try {
+        readConfigurationRow();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "AddSequence.Log.ErrorInTransform") + e.getMessage());
+        setErrors(1);
+        stopAll();
+        setOutputDone();
+        return false;
+      }
+    }
+
     // Get row from input rowset & set row busy!
     Object[] r = getRow();
     if (r == null) {
@@ -173,6 +189,17 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
                   + dbe.getMessage());
         }
       } else if (meta.isCounterUsed()) {
+        if (meta.isConfigurationFromTransform()) {
+          // The counter is created from the info row on the first processRow call.
+          if (Utils.isEmpty(Const.trim(resolve(meta.getStartField())))
+              || Utils.isEmpty(Const.trim(resolve(meta.getEndField())))
+              || Utils.isEmpty(Const.trim(resolve(meta.getIncrementField())))) {
+            logError(BaseMessages.getString(PKG, "AddSequence.Log.ConfigurationFieldsMissing"));
+            return false;
+          }
+          return true;
+        }
+
         // Do the environment translations of the counter values.
         boolean doAbort = false;
         try {
@@ -221,26 +248,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
           return false;
         }
 
-        String realCounterName = resolve(meta.getCounterName());
-        if (!Utils.isEmpty(realCounterName)) {
-          data.setLookup(lookupCounterName(realCounterName));
-        } else {
-          data.setLookup(lookupCounterName(meta.getValueName()));
-        }
-
-        // We need to synchronize over the whole pipeline to make sure that we always get the same
-        // counter
-        // regardless of the number of transform copies asking for it.
-        //
-        synchronized (getPipeline()) {
-          if (isDetailed()) {
-            logDetailed("init counter name: {0}", data.getLookup());
-          }
-          data.counter =
-              Counters.getInstance()
-                  .getOrUpdateCounter(
-                      data.getLookup(), new Counter(data.start, data.increment, data.maximum));
-        }
+        createCounter(data.start, data.increment, data.maximum);
         return true;
       } else {
         logError(
@@ -273,6 +281,105 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
   @Override
   public void cleanup() {
     super.cleanup();
+  }
+
+  /**
+   * Read the single configuration row and create the counter from its start, end, and increment
+   * fields. Zero rows or more than one row is an error.
+   */
+  private void readConfigurationRow() throws HopException {
+    String sourceName = meta.getConfigurationTransform();
+    IRowSet rowSet = findInputRowSet(sourceName);
+    if (rowSet == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "AddSequence.Exception.ConfigurationTransformNotFound", sourceName));
+    }
+
+    Object[] row = getRowFrom(rowSet);
+    if (row == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "AddSequence.Exception.ConfigurationRowMissing", sourceName));
+    }
+    Object[] extra = getRowFrom(rowSet);
+    if (extra != null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "AddSequence.Exception.ConfigurationRowNotSingle", sourceName));
+    }
+
+    IRowMeta rowMeta = rowSet.getRowMeta();
+    if (rowMeta == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "AddSequence.Exception.ConfigurationRowHasNoFields", sourceName));
+    }
+
+    long start = readConfigurationValue(rowMeta, row, resolve(meta.getStartField()));
+    long end = readConfigurationValue(rowMeta, row, resolve(meta.getEndField()));
+    long increment = readConfigurationValue(rowMeta, row, resolve(meta.getIncrementField()));
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "AddSequence.Log.ReadConfiguration", sourceName, start, end, increment));
+    }
+    createCounter(start, increment, end);
+  }
+
+  private long readConfigurationValue(IRowMeta rowMeta, Object[] row, String fieldName)
+      throws HopException {
+    String name = Const.trim(fieldName);
+    int index = Utils.isEmpty(name) ? -1 : rowMeta.indexOfValue(name);
+    if (index < 0) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "AddSequence.Exception.ConfigurationFieldNotFound", name));
+    }
+    try {
+      Long value = rowMeta.getValueMeta(index).getInteger(row[index]);
+      if (value == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "AddSequence.Exception.ConfigurationFieldIsNull", name));
+      }
+      return value;
+    } catch (HopTransformException e) {
+      throw e;
+    } catch (HopValueException e) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG,
+              "AddSequence.Exception.ConfigurationFieldNotNumeric",
+              name,
+              String.valueOf(row[index]),
+              e.getMessage()),
+          e);
+    }
+  }
+
+  /**
+   * One counter is shared by every copy of this transform. Synchronize on the pipeline so the first
+   * copy creates it and the others reuse it.
+   */
+  private void createCounter(long start, long increment, long maximum) {
+    data.start = start;
+    data.increment = increment;
+    data.maximum = maximum;
+
+    String realCounterName = resolve(meta.getCounterName());
+    if (!Utils.isEmpty(realCounterName)) {
+      data.setLookup(lookupCounterName(realCounterName));
+    } else {
+      data.setLookup(lookupCounterName(meta.getValueName()));
+    }
+
+    synchronized (getPipeline()) {
+      if (isDetailed()) {
+        logDetailed("init counter name: {0}", data.getLookup());
+      }
+      data.counter =
+          Counters.getInstance()
+              .getOrUpdateCounter(
+                  data.getLookup(), new Counter(data.start, data.increment, data.maximum));
+    }
   }
 
   /**

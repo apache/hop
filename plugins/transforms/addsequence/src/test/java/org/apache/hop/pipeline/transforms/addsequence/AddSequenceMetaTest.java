@@ -35,13 +35,17 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -70,7 +74,11 @@ class AddSequenceMetaTest {
             "counterName",
             "startAt",
             "incrementBy",
-            "maxValue");
+            "maxValue",
+            "configurationTransform",
+            "startField",
+            "endField",
+            "incrementField");
 
     LoadSaveTester<AddSequenceMeta> loadSaveTester =
         new LoadSaveTester<>(
@@ -143,6 +151,15 @@ class AddSequenceMetaTest {
 
     meta.setMaxValueByValue(10000L);
     assertEquals("10000", meta.getMaxValue());
+
+    meta.setConfigurationTransform("Max query");
+    assertEquals("Max query", meta.getConfigurationTransform());
+    meta.setStartField("start_value");
+    assertEquals("start_value", meta.getStartField());
+    meta.setEndField("end_value");
+    assertEquals("end_value", meta.getEndField());
+    meta.setIncrementField("increment_value");
+    assertEquals("increment_value", meta.getIncrementField());
   }
 
   @Test
@@ -160,6 +177,156 @@ class AddSequenceMetaTest {
     assertEquals(meta.isDatabaseUsed(), cloned.isDatabaseUsed());
     assertEquals(meta.getConnection(), cloned.getConnection());
     assertEquals(meta.getStartAt(), cloned.getStartAt());
+
+    meta.setConfigurationTransform("Max query");
+    meta.setStartField("start_value");
+    meta.setEndField("end_value");
+    meta.setIncrementField("increment_value");
+    cloned = (AddSequenceMeta) meta.clone();
+    assertEquals("Max query", cloned.getConfigurationTransform());
+    assertEquals("start_value", cloned.getStartField());
+    assertEquals("end_value", cloned.getEndField());
+    assertEquals("increment_value", cloned.getIncrementField());
+  }
+
+  @Test
+  void configurationTransformIsAnInfoStream() {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setDefault();
+    meta.setConfigurationTransform("Max query");
+    meta.setStartField("start_value");
+    meta.setEndField("end_value");
+    meta.setIncrementField("increment_value");
+
+    TransformMeta source = new TransformMeta();
+    source.setName("Max query");
+    meta.searchInfoAndTargetTransforms(List.of(source));
+
+    assertEquals(1, meta.getTransformIOMeta().getInfoStreams().size());
+    IStream stream = meta.getTransformIOMeta().getInfoStreams().get(0);
+    assertEquals(source, stream.getTransformMeta());
+    assertEquals("Max query", stream.getSubject());
+    assertTrue(meta.isConfigurationFromTransform());
+    assertTrue(meta.excludeFromRowLayoutVerification());
+
+    meta.handleStreamSelection(stream);
+    assertEquals("Max query", meta.getConfigurationTransform());
+
+    meta.resetTransformIoMeta();
+    assertEquals(1, meta.getTransformIOMeta().getInfoStreams().size());
+    assertEquals(source, meta.getTransformIOMeta().getInfoStreams().get(0).getTransformMeta());
+
+    meta.setDatabaseUsed(true);
+    meta.setCounterUsed(false);
+    meta.searchInfoAndTargetTransforms(List.of(source));
+    assertNull(meta.getTransformIOMeta().getInfoStreams().get(0).getTransformMeta());
+    assertFalse(meta.isConfigurationFromTransform());
+    assertFalse(meta.excludeFromRowLayoutVerification());
+  }
+
+  @Test
+  void checkReportsConfigurationTransformProblems() throws Exception {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setDefault();
+    meta.setConfigurationTransform("Max query");
+    TransformMeta transformMeta = new TransformMeta("Add sequence", meta);
+
+    List<ICheckResult> missingFields = new ArrayList<>();
+    meta.check(
+        missingFields,
+        null,
+        transformMeta,
+        null,
+        new String[] {"Generate rows"},
+        new String[0],
+        null,
+        new Variables(),
+        metadataProviderThatCannotLoad());
+    assertTrue(
+        missingFields.stream()
+            .anyMatch(
+                remark ->
+                    remark.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && remark
+                            .getText()
+                            .equals(
+                                BaseMessages.getString(
+                                    AddSequenceMeta.class,
+                                    "AddSequenceMeta.CheckResult.ConfigurationFieldsMissing"))));
+
+    meta.setStartField("start_value");
+    meta.setEndField("end_value");
+    meta.setIncrementField("increment_value");
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    when(pipelineMeta.findTransform("Max query")).thenReturn(null);
+    List<ICheckResult> missingTransform = new ArrayList<>();
+    meta.check(
+        missingTransform,
+        pipelineMeta,
+        transformMeta,
+        null,
+        new String[] {"Generate rows"},
+        new String[0],
+        null,
+        new Variables(),
+        metadataProviderThatCannotLoad());
+    assertTrue(
+        missingTransform.stream()
+            .anyMatch(
+                remark ->
+                    remark.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && remark.getText().contains("Max query")));
+
+    TransformMeta source = new TransformMeta();
+    source.setName("Max query");
+    when(pipelineMeta.findTransform("Max query")).thenReturn(source);
+    RowMeta info = new RowMeta();
+    info.addValueMeta(new ValueMetaInteger("start_value"));
+    info.addValueMeta(new ValueMetaInteger("other"));
+    List<ICheckResult> missingInfoFields = new ArrayList<>();
+    meta.check(
+        missingInfoFields,
+        pipelineMeta,
+        transformMeta,
+        null,
+        new String[] {"Generate rows"},
+        new String[0],
+        info,
+        new Variables(),
+        metadataProviderThatCannotLoad());
+    assertTrue(
+        missingInfoFields.stream()
+            .anyMatch(
+                remark ->
+                    remark.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && remark.getText().contains("end_value")
+                        && remark.getText().contains("increment_value")));
+
+    info.addValueMeta(new ValueMetaInteger("end_value"));
+    info.addValueMeta(new ValueMetaInteger("increment_value"));
+    List<ICheckResult> ok = new ArrayList<>();
+    meta.check(
+        ok,
+        pipelineMeta,
+        transformMeta,
+        null,
+        new String[] {"Generate rows"},
+        new String[0],
+        info,
+        new Variables(),
+        metadataProviderThatCannotLoad());
+    assertTrue(
+        ok.stream()
+            .anyMatch(
+                remark ->
+                    remark.getType() == ICheckResult.TYPE_RESULT_OK
+                        && remark
+                            .getText()
+                            .equals(
+                                BaseMessages.getString(
+                                    AddSequenceMeta.class,
+                                    "AddSequenceMeta.CheckResult.ConfigurationFieldsFound"))));
+    assertTrue(ok.stream().noneMatch(remark -> remark.getType() == ICheckResult.TYPE_RESULT_ERROR));
   }
 
   /**

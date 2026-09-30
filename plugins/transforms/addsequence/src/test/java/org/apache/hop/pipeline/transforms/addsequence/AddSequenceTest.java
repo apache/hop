@@ -28,15 +28,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.hop.core.Counters;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -429,5 +432,206 @@ class AddSequenceTest {
     assertEquals(102L, result.get(2)[1]);
 
     addSequence.dispose();
+  }
+
+  /** Start, end, and increment come from one info row. Typed counter values are ignored. */
+  @Test
+  void testProcessRowReadsSingleConfigurationRow() throws Exception {
+    AddSequenceMeta meta = configurationMeta();
+    RowMeta configMeta = new RowMeta();
+    configMeta.addValueMeta(new ValueMetaBigNumber("start_value"));
+    configMeta.addValueMeta(new ValueMetaBigNumber("end_value"));
+    configMeta.addValueMeta(new ValueMetaInteger("increment_value"));
+    IRowSet rowSet = mock(IRowSet.class);
+    when(rowSet.getRowMeta()).thenReturn(configMeta);
+
+    AddSequence addSequence = spyConfiguration(meta, rowSet);
+    doReturn(new Object[] {new BigDecimal("100"), new BigDecimal("102"), 2L})
+        .doReturn(null)
+        .when(addSequence)
+        .getRowFrom(rowSet);
+    doReturn(new Object[] {"A"})
+        .doReturn(new Object[] {"B"})
+        .doReturn(new Object[] {"C"})
+        .doReturn(null)
+        .when(addSequence)
+        .getRow();
+
+    List<Object[]> result = PipelineTestingUtil.execute(addSequence, 3, false);
+
+    assertEquals(100L, result.get(0)[1]);
+    assertEquals(102L, result.get(1)[1]);
+    // End is the maximum: the next value wraps back to the start.
+    assertEquals(100L, result.get(2)[1]);
+    assertNotNull(addSequence.getData().counter);
+    addSequence.dispose();
+  }
+
+  @Test
+  void testProcessRowReadsStringConfigurationValues() throws Exception {
+    AddSequenceMeta meta = configurationMeta();
+    RowMeta configMeta = new RowMeta();
+    configMeta.addValueMeta(new ValueMetaString("start_value"));
+    configMeta.addValueMeta(new ValueMetaString("end_value"));
+    configMeta.addValueMeta(new ValueMetaString("increment_value"));
+    IRowSet rowSet = mock(IRowSet.class);
+    when(rowSet.getRowMeta()).thenReturn(configMeta);
+
+    AddSequence addSequence = spyConfiguration(meta, rowSet);
+    doReturn(new Object[] {"50", "1000", "5"}).doReturn(null).when(addSequence).getRowFrom(rowSet);
+    doReturn(new Object[] {"A"})
+        .doReturn(new Object[] {"B"})
+        .doReturn(null)
+        .when(addSequence)
+        .getRow();
+
+    List<Object[]> result = PipelineTestingUtil.execute(addSequence, 2, false);
+
+    assertEquals(50L, result.get(0)[1]);
+    assertEquals(55L, result.get(1)[1]);
+    addSequence.dispose();
+  }
+
+  @Test
+  void testConfigurationTransformWithNoRowFails() throws Exception {
+    AddSequence addSequence = spyConfiguration(configurationMeta(), rowSetWith(configRowMeta()));
+    doReturn(null).when(addSequence).getRowFrom(any(IRowSet.class));
+
+    assertFalse(addSequence.processRow());
+    assertEquals(1L, addSequence.getErrors());
+    assertNull(addSequence.getData().counter);
+    addSequence.dispose();
+  }
+
+  @Test
+  void testConfigurationTransformWithTwoRowsFails() throws Exception {
+    AddSequence addSequence = spyConfiguration(configurationMeta(), rowSetWith(configRowMeta()));
+    doReturn(new Object[] {1L, 10L, 1L})
+        .doReturn(new Object[] {2L, 10L, 1L})
+        .when(addSequence)
+        .getRowFrom(any(IRowSet.class));
+
+    assertFalse(addSequence.processRow());
+    assertEquals(1L, addSequence.getErrors());
+    assertNull(addSequence.getData().counter);
+    addSequence.dispose();
+  }
+
+  @Test
+  void testConfigurationTransformNotConnectedFails() throws Exception {
+    AddSequenceMeta meta = configurationMeta();
+    AddSequence addSequence =
+        new AddSequence(
+            transformMockHelper.transformMeta,
+            meta,
+            new AddSequenceData(),
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    when(transformMockHelper.pipeline.getContainerId()).thenReturn("cfg-" + System.nanoTime());
+    assertTrue(addSequence.init());
+    addSequence = spy(addSequence);
+    doReturn(null).when(addSequence).findInputRowSet(meta.getConfigurationTransform());
+
+    assertFalse(addSequence.processRow());
+    assertEquals(1L, addSequence.getErrors());
+    addSequence.dispose();
+  }
+
+  @Test
+  void testConfigurationFieldMissingFails() throws Exception {
+    RowMeta configMeta = new RowMeta();
+    configMeta.addValueMeta(new ValueMetaInteger("other"));
+    AddSequence addSequence = spyConfiguration(configurationMeta(), rowSetWith(configMeta));
+    doReturn(new Object[] {1L}).doReturn(null).when(addSequence).getRowFrom(any(IRowSet.class));
+
+    assertFalse(addSequence.processRow());
+    assertEquals(1L, addSequence.getErrors());
+    assertNull(addSequence.getData().counter);
+    addSequence.dispose();
+  }
+
+  @Test
+  void testConfigurationFieldNullFails() throws Exception {
+    AddSequence addSequence = spyConfiguration(configurationMeta(), rowSetWith(configRowMeta()));
+    doReturn(new Object[] {null, 10L, 1L})
+        .doReturn(null)
+        .when(addSequence)
+        .getRowFrom(any(IRowSet.class));
+
+    assertFalse(addSequence.processRow());
+    assertEquals(1L, addSequence.getErrors());
+    addSequence.dispose();
+  }
+
+  @Test
+  void testInitSkipsTypedCounterValuesWhenConfigurationTransformIsSet() {
+    AddSequenceMeta meta = configurationMeta();
+    when(transformMockHelper.pipeline.getContainerId()).thenReturn("cfg-" + System.nanoTime());
+    AddSequence addSequence =
+        new AddSequence(
+            transformMockHelper.transformMeta,
+            meta,
+            new AddSequenceData(),
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+
+    assertTrue(addSequence.init());
+    assertNull(addSequence.getData().counter);
+
+    meta.setStartField("");
+    assertFalse(addSequence.init());
+    addSequence.dispose();
+  }
+
+  private static AddSequenceMeta configurationMeta() {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setDefault();
+    meta.setValueName("id");
+    meta.setCounterUsed(true);
+    meta.setDatabaseUsed(false);
+    meta.setConfigurationTransform("Max query");
+    meta.setStartField("start_value");
+    meta.setEndField("end_value");
+    meta.setIncrementField("increment_value");
+    // Proves the typed values are not parsed when the configuration transform is set.
+    meta.setStartAt("not-a-number");
+    meta.setIncrementBy("not-a-number");
+    meta.setMaxValue("not-a-number");
+    return meta;
+  }
+
+  private static RowMeta configRowMeta() {
+    RowMeta configMeta = new RowMeta();
+    configMeta.addValueMeta(new ValueMetaInteger("start_value"));
+    configMeta.addValueMeta(new ValueMetaInteger("end_value"));
+    configMeta.addValueMeta(new ValueMetaInteger("increment_value"));
+    return configMeta;
+  }
+
+  private static IRowSet rowSetWith(RowMeta configMeta) {
+    IRowSet rowSet = mock(IRowSet.class);
+    when(rowSet.getRowMeta()).thenReturn(configMeta);
+    return rowSet;
+  }
+
+  private AddSequence spyConfiguration(AddSequenceMeta meta, IRowSet rowSet) throws Exception {
+    when(transformMockHelper.pipeline.getContainerId()).thenReturn("cfg-" + System.nanoTime());
+    AddSequence addSequence =
+        new AddSequence(
+            transformMockHelper.transformMeta,
+            meta,
+            new AddSequenceData(),
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    assertTrue(addSequence.init());
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("name"));
+    addSequence.setInputRowMeta(inputRowMeta);
+    addSequence = spy(addSequence);
+    doReturn(rowSet).when(addSequence).findInputRowSet(meta.getConfigurationTransform());
+    return addSequence;
   }
 }
