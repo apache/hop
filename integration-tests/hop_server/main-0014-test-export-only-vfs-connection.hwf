@@ -23,14 +23,14 @@ limitations under the License.
   <description>Regression test for issue #8106: a named VFS connection carried by an export must be
     usable by the pipeline running on the remote Hop Server.
 
-    The "export-only-storage" Minio connection lives in the client project's metadata-client-only
-    folder. The server registers ${PROJECT_HOME}/metadata as its own metadata folder, so it never
+    The "export-only-storage" Minio-type connection (backed by SeaweedFS) lives in the client
+    project's metadata-client-only folder. The server registers ${PROJECT_HOME}/metadata as its own metadata folder, so it never
     sees that connection except inside the export ZIP. The inner workflow runs remotely and writes
     a file through it; the check below runs back on the client, where the connection is known to
     resolve, and proves the server really wrote to the object store.
 
     Before the fix the server has no provider for the "export-only-storage" scheme, so the path is
-    treated as a relative local file, nothing reaches Minio and this test fails.</description>
+    treated as a relative local file, nothing reaches the object store and this test fails.</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -60,7 +60,7 @@ limitations under the License.
     </action>
     <action>
       <name>Cleanup marker in object store</name>
-      <description>Runs on the client, which can reach the same Minio. Removing the file first means
+      <description>Runs on the client, which can reach the same object store. Removing the file first means
         the check can only succeed on something the server wrote during this run, and it keeps the
         export from bundling an existing file in place of the connection reference.</description>
       <type>DELETE_FILE</type>

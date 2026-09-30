@@ -39,15 +39,17 @@ import org.apache.hop.core.vfs.HopVfs;
  */
 public class SwingSvgImageUtil {
 
-  private static FileObject base;
+  private static FileObject base = resolveBase();
   private static final String NO_IMAGE = "ui/images/no_image.svg";
 
-  static {
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
+  private static FileObject resolveBase() {
     try {
-      base = HopVfs.getFileSystemManager().resolveFile(System.getProperty("user.dir"));
+      return HopVfs.getFileSystemManager().resolveFile(System.getProperty("user.dir"));
     } catch (FileSystemException e) {
       e.printStackTrace();
-      base = null;
+      return null;
     }
   }
 

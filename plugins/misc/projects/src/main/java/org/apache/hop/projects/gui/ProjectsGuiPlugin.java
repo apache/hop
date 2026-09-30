@@ -638,6 +638,30 @@ public class ProjectsGuiPlugin {
     }
   }
 
+  /**
+   * Remove a project from the toolbar recent list and persist that change. Called when a project
+   * registration is deleted so the project menu does not keep showing it.
+   */
+  public static void forgetLastUsedProject(String projectName) {
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+
+    getLastUsedProjects();
+    if (!lastUsedProjects.remove(projectName)) {
+      return;
+    }
+
+    try {
+      AuditList auditList = new AuditList(new ArrayList<>(lastUsedProjects));
+      AuditManager.getActive()
+          .storeList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, LAST_USED_PROJECTS_AUDIT_TYPE, auditList);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Error writing list of last used projects " + LAST_USED_PROJECTS_AUDIT_TYPE, e);
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////////
   // Environment toolbar items...
   //
@@ -876,11 +900,21 @@ public class ProjectsGuiPlugin {
 
     // Recent projects that have no group. Grouped projects are listed under their topic below,
     // not in this flat list, so the menu stays short when projects share a topic.
+    // The in-memory list can briefly lag a deletion; drop names that are already gone.
     List<String> names = new ArrayList<>(getLastUsedProjects());
+    List<String> registeredNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+    if (registeredNames == null) {
+      names.clear();
+    } else {
+      names.removeIf(name -> !registeredNames.contains(name));
+    }
 
     // If the user prefers to display in alphabetical order
     if (ProjectsConfigOptionPlugin.getInstance().getSortByNameLastUsedProjects()) {
       names.sort(String::compareToIgnoreCase);
+    }
+    if (names.size() > LAST_USED_PROJECTS_MAX_ENTRIES) {
+      names = new ArrayList<>(names.subList(0, LAST_USED_PROJECTS_MAX_ENTRIES));
     }
 
     String currentProjectName = HopNamespace.getNamespace();
@@ -1442,6 +1476,7 @@ public class ProjectsGuiPlugin {
       try {
         config.removeProjectConfig(projectName);
         ProjectsConfigSingleton.saveConfig();
+        forgetLastUsedProject(projectName);
 
         if (StringUtils.isEmpty(config.getDefaultProject())) {
           updateProjectToolItem(null);

@@ -863,6 +863,9 @@ public class MailConnection {
       // Do no overwrite existing file
       String targetFileName;
       if (filename == null) {
+        // Safe: the temporary file only supplies a unique name, the attachment itself is written
+        // to the target folder chosen by the user
+        @SuppressWarnings("java:S5443")
         File f = File.createTempFile("xx", ".out");
         f.deleteOnExit(); // Clean up file
         filename = f.getName();

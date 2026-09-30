@@ -75,6 +75,8 @@ public class OverlayPropertyHandler implements IPropertyHandler {
     return getInstance().getProperty(key);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public boolean loadProps(String filename) {
     try {

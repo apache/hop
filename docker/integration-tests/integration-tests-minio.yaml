@@ -21,26 +21,26 @@ services:
       file: integration-tests-base.yaml
       service: integration_test
     depends_on:
-      minio:
+      seaweedfs:
         condition: service_healthy
-    links: 
-      - minio
+    links:
+      - seaweedfs
 
-  minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
-    ports: 
-      - "9000:9000"
-      - "9001:9001"
+  # S3-compatible object store behind the "minio" VFS connection. SeaweedFS serves the S3 API on
+  # 8333; the admin identity comes from the AWS_* variables. The connection is still of the Minio
+  # type: that plugin speaks plain S3 and works against any compatible store.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    hostname: seaweedfs
+    ports:
+      - "8333:8333"
     environment:
-      MINIO_REGION: "local"
-      MINIO_REGION_NAME: "local"
-      MINIO_SCHEME: "http"
-      MINIO_ROOT_USER: "ApacheHopAccessKey"
-      MINIO_ROOT_PASSWORD: "ApacheHopSecretKey"
-    command: server /data --console-address ":9001"
-
+      AWS_ACCESS_KEY_ID: "ApacheHopAccessKey"
+      AWS_SECRET_ACCESS_KEY: "ApacheHopSecretKey"
+    command: server -s3 -dir=/data -volume.max=0 -master.volumeSizeLimitMB=64
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      test: ["CMD", "curl", "-f", "http://localhost:8333/healthz"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s

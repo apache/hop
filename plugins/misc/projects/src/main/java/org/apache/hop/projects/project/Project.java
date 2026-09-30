@@ -480,6 +480,8 @@ public class Project extends ConfigFile implements IConfigFile {
    * @throws IOException
    * @throws HopFileException
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<String> getTransformTypes(IVariables variables) throws IOException, HopFileException {
     // build a map of all pipelines and transforms in the project.
     buildPipelineMap(variables);

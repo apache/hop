@@ -558,6 +558,8 @@ public class CassandraOutputDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   protected void setupTablesCombo() {
     DriverConnection conn = null;
     Keyspace kSpace = null;
@@ -764,6 +766,8 @@ public class CassandraOutputDialog extends BaseTransformDialog {
     dispose();
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   protected void popupSchemaInfo() {
     DriverConnection conn = null;
     Keyspace kSpace = null;

@@ -1204,8 +1204,9 @@ public class ActionMailDialog extends ActionDialog {
                   IMAGES_FILE_TYPES,
                   true);
           if (filename != null) {
-            // Created once per image the user picks, reuse would gain us nothing
-            @SuppressWarnings("java:S2119")
+            // Created once per image the user picks, reuse would gain us nothing.
+            // Safe: a MIME Content-ID only has to be unique within the message, not unpredictable
+            @SuppressWarnings({"java:S2119", "java:S2245"})
             Random random = new Random();
             wContentID.setText(Long.toString(Math.abs(random.nextLong()), 32));
           }

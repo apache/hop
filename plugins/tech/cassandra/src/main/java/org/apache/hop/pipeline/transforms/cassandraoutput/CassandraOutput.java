@@ -566,6 +566,8 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public void dispose() {
     try {
