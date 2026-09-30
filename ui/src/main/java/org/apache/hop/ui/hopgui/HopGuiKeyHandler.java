@@ -60,6 +60,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
   /** Data key marking the terminal widget, which handles all keys itself. */
   public static final String HOP_TERMINAL_WIDGET = "HOP_TERMINAL_WIDGET";
 
+  /**
+   * Data key on a text control that handles Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z and Ctrl/Cmd+Y itself.
+   * Those chords also undo and redo the pipeline or workflow.
+   */
+  public static final String HOP_TEXT_EDITOR_HISTORY = "HOP_TEXT_EDITOR_HISTORY";
+
   /** Widget classes that pass their key listeners on to a widget inside them. */
   private static final Map<Class<?>, Boolean> DELEGATING_KEY_LISTENERS = new ConcurrentHashMap<>();
 
@@ -544,6 +550,10 @@ public class HopGuiKeyHandler extends KeyAdapter {
       // cancel the key.
       return TextEditing.STOP;
     }
+    if (textLike && isTextEditorHistoryKey(widget, keyCode, stateMask)) {
+      // The editor's own key listener performs undo/redo. Do not also undo the graph.
+      return TextEditing.STOP;
+    }
     if (!textLike || !isNativeTextEditingKey(keyCode, stateMask, character)) {
       return TextEditing.PASS;
     }
@@ -606,6 +616,40 @@ public class HopGuiKeyHandler extends KeyAdapter {
     return alt || control || command;
   }
 
+  /**
+   * Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z and Ctrl/Cmd+Y on a text control marked with {@link
+   * #HOP_TEXT_EDITOR_HISTORY}.
+   */
+  private static boolean isTextEditorHistoryKey(Widget widget, int keyCode, int stateMask) {
+    if (!(widget instanceof Control control) || !editorOwnsHistoryKeys(control)) {
+      return false;
+    }
+    if ((stateMask & SWT.MOD1) == 0) {
+      return false;
+    }
+    char key = Character.toLowerCase((char) (keyCode & SWT.KEY_MASK));
+    boolean shift = (stateMask & SWT.SHIFT) != 0;
+    if (key == 'y') {
+      return !shift;
+    }
+    return key == 'z';
+  }
+
+  private static boolean editorOwnsHistoryKeys(Control control) {
+    Control current = control;
+    while (current != null) {
+      try {
+        if (current.getData(HOP_TEXT_EDITOR_HISTORY) == Boolean.TRUE) {
+          return true;
+        }
+        current = current.getParent();
+      } catch (SWTException e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
   /** Ctrl/Cmd+A with no Alt and no Shift. */
   private static boolean isSelectAllKey(int keyCode, int stateMask) {
     if ((stateMask & (SWT.ALT | SWT.SHIFT)) != 0) {
@@ -640,7 +684,8 @@ public class HopGuiKeyHandler extends KeyAdapter {
    *
    * <p>Graph shortcuts such as Space (output fields), {@code z} (open referenced object) and {@code
    * x} (open execution) must not steal those keys from filter and search fields. App shortcuts with
-   * CTRL/CMD/ALT (e.g. Ctrl+S) still run, except the horizontal word-movement keys handled above.
+   * CTRL/CMD/ALT (e.g. Ctrl+S) still run, except the horizontal word-movement keys handled above
+   * and the undo/redo chords of an editor that keeps its own history.
    */
   private static boolean isNativeTextEditingKey(int keyCode, int stateMask, char character) {
     if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {

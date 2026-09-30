@@ -339,6 +339,63 @@ class HopGuiKeyHandlerTest {
     }
   }
 
+  /** Stands in for the Edit / Undo shortcut on the graph and the main menu. */
+  public static class HistoryGraph {
+    public int undos;
+    public int redos;
+
+    @GuiKeyboardShortcut(control = true, key = 'z')
+    @GuiOsxKeyboardShortcut(command = true, key = 'z')
+    public void undo() {
+      undos++;
+    }
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
+    public void redo() {
+      redos++;
+    }
+  }
+
+  @Test
+  void undoRedoStayInEditorsThatKeepTheirOwnHistory() {
+    HistoryGraph graph = new HistoryGraph();
+    registerShortcutsLikeHopGuiEnvironment(HistoryGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      StyledText editor = mock(StyledText.class);
+      when(editor.getData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY)).thenReturn(Boolean.TRUE);
+
+      KeyEvent undo = keyEvent(editor, 'z', SWT.CONTROL);
+      keyHandler.keyPressed(undo);
+      assertEquals(0, graph.undos, "Ctrl+Z in a script editor must not undo the graph");
+      assertTrue(undo.doit, "The editor performs undo; this handler must not consume the key");
+
+      KeyEvent upper = keyEvent(editor, 'Z', SWT.CONTROL);
+      keyHandler.keyPressed(upper);
+      assertEquals(0, graph.undos, "Ctrl+Z must match regardless of key-code case");
+
+      KeyEvent redo = keyEvent(editor, 'y', SWT.CONTROL);
+      keyHandler.keyPressed(redo);
+      assertEquals(0, graph.redos);
+      assertTrue(redo.doit, "Ctrl+Y stays with the editor");
+
+      KeyEvent shiftRedo = keyEvent(editor, 'z', SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shiftRedo);
+      assertEquals(0, graph.redos, "Ctrl+Shift+Z in a script editor must not redo the graph");
+      assertTrue(shiftRedo.doit);
+
+      KeyEvent outside = keyEvent(mock(StyledText.class), 'z', SWT.CONTROL);
+      keyHandler.keyPressed(outside);
+      assertEquals(1, graph.undos, "Ctrl+Z outside that editor still undoes the graph");
+      assertFalse(outside.doit);
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
   @Test
   void arrowKeysAreLeftToTablesAndTrees() {
     NavigationGraph graph = new NavigationGraph();

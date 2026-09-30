@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
@@ -57,6 +58,9 @@ public class StyledTextVar extends TextComposite {
   private List<UndoRedoStack> redoStack;
 
   private boolean fullSelection = false;
+
+  /** True while undo or redo writes the text back, so that write is not stored as a new edit. */
+  private boolean applyingHistory;
 
   public StyledTextVar(IVariables variables, Composite parent, int style) {
     this(variables, parent, style, true, false, true, STYLE_TYPE_GENERIC);
@@ -128,6 +132,8 @@ public class StyledTextVar extends TextComposite {
     redoStack = new LinkedList<>();
 
     wText = new StyledText(this, style);
+    // This control handles Ctrl/Cmd+Z and Ctrl/Cmd+Y. The graph must not take those chords.
+    wText.setData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY, Boolean.TRUE);
     wPopupMenu = new Menu(parent.getShell(), SWT.POP_UP);
 
     buildingStyledTextMenu(wPopupMenu);
@@ -397,6 +403,10 @@ public class StyledTextVar extends TextComposite {
 
     wText.addExtendedModifyListener(
         event -> {
+          if (applyingHistory) {
+            fullSelection = false;
+            return;
+          }
           int eventLength = event.length;
           int eventStartPostition = event.start;
 
@@ -430,6 +440,8 @@ public class StyledTextVar extends TextComposite {
               if (undoStack.size() == MAX_STACK_SIZE) {
                 undoStack.remove(undoStack.size() - 1);
               }
+              // A new edit invalidates anything that could be redone.
+              redoStack.clear();
               undoStack.add(0, urs);
             }
           }
@@ -439,7 +451,11 @@ public class StyledTextVar extends TextComposite {
 
   @Override
   protected void undo() {
-    if (!undoStack.isEmpty()) {
+    if (undoStack.isEmpty()) {
+      return;
+    }
+    applyingHistory = true;
+    try {
       UndoRedoStack undo = undoStack.remove(0);
       if (redoStack.size() == MAX_STACK_SIZE) {
         redoStack.remove(redoStack.size() - 1);
@@ -463,12 +479,18 @@ public class StyledTextVar extends TextComposite {
         }
       }
       redoStack.add(0, redo);
+    } finally {
+      applyingHistory = false;
     }
   }
 
   @Override
   protected void redo() {
-    if (!redoStack.isEmpty()) {
+    if (redoStack.isEmpty()) {
+      return;
+    }
+    applyingHistory = true;
+    try {
       UndoRedoStack redo = redoStack.remove(0);
       if (undoStack.size() == MAX_STACK_SIZE) {
         undoStack.remove(undoStack.size() - 1);
@@ -492,6 +514,8 @@ public class StyledTextVar extends TextComposite {
         }
       }
       undoStack.add(0, undo);
+    } finally {
+      applyingHistory = false;
     }
   }
 }

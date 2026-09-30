@@ -718,24 +718,33 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     addListener(
         SWT.KeyDown,
         event -> {
-          if (isSupportUnoRedo()
-              && event.keyCode == 'z'
-              && (event.stateMask & SWT.MOD1) != 0
-              && (event.stateMask & SWT.MOD2) != 0) {
+          if ((event.stateMask & SWT.MOD1) == 0) {
+            return;
+          }
+          // Letters stay lowercase with Shift held on some platforms and not on others.
+          char key = Character.toLowerCase((char) (event.keyCode & SWT.KEY_MASK));
+          boolean shift = (event.stateMask & SWT.MOD2) != 0;
+          // Consume undo/redo. Otherwise the same chord also undoes the pipeline or workflow
+          // and moves focus back to the graph.
+          if (isSupportUnoRedo() && key == 'y' && !shift) {
             redo();
             updateToolbar();
-          } else if (isSupportUnoRedo()
-              && event.keyCode == 'z'
-              && (event.stateMask & SWT.MOD1) != 0) {
+            event.doit = false;
+          } else if (isSupportUnoRedo() && key == 'z' && shift) {
+            redo();
+            updateToolbar();
+            event.doit = false;
+          } else if (isSupportUnoRedo() && key == 'z') {
             undo();
             updateToolbar();
-          } else if (event.keyCode == 'a' && (event.stateMask & SWT.MOD1) != 0) {
+            event.doit = false;
+          } else if (key == 'a') {
             selectAll();
             updateToolbar();
-          } else if (event.keyCode == 'f' && (event.stateMask & SWT.MOD1) != 0) {
+          } else if (key == 'f') {
             find();
             event.doit = false;
-          } else if (event.keyCode == 'h' && (event.stateMask & SWT.MOD1) != 0) {
+          } else if (key == 'h') {
             findAndReplace();
             event.doit = false;
           }
