@@ -48,6 +48,17 @@ xref:pipeline/transforms/datasetinput.adoc[Data set input], xref:pipeline/transf
 Describes the file layout for this data set.
 |===
 
+== New data set
+
+Creating a data set suggests values you can still change. An existing data set is not rewritten.
+
+* *Name* is `ds-<pipeline file>-<transform>`. `<pipeline file>` is the file name of the pipeline open in the explorer, without its directory or extension. `<transform>` is included when exactly one transform is selected. Creating a data set from a transform uses that transform.
+* *Base file name* uses the same text with a `.csv` extension.
+* *Set folder* is `+'${HOP_DATASETS_FOLDER}'+` when that variable is set, otherwise the pipeline's folder.
+* *Browse...* opens in that folder so you can pick it or a subfolder.
+
+If a data set with the suggested name already exists, the suggestion ends with ` 2`, ` 3`, and so on. The base file name follows that name.
+
 == Samples
 
 None

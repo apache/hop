@@ -55,6 +55,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetCsvUtil;
+import org.apache.hop.testing.DataSetDefaults;
 import org.apache.hop.testing.DataSetField;
 import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -747,6 +748,12 @@ public class TestingGuiPlugin {
 
     try {
       DataSet dataSet = new DataSet();
+      DataSetDefaults.apply(
+          dataSet,
+          pipelineMeta.getFilename(),
+          transformMeta.getName(),
+          variables,
+          metadataProvider);
 
       IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, transformMeta);
       for (int i = 0; i < rowMeta.size(); i++) {
