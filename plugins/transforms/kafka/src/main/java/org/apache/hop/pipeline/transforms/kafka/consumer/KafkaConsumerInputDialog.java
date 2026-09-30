@@ -56,6 +56,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -199,11 +200,20 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
               true);
         });
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbFilename, -margin);
+    fdOpen.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wFilename);
+    wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(wlFilename, margin);
-    fdFilename.right = new FormAttachment(wbFilename, -PropsUi.getMargin());
+    fdFilename.right = new FormAttachment(wbOpen, -PropsUi.getMargin());
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
 
@@ -263,6 +273,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     createAdditionalTabs();
 
     getData();
+    meta.setChanged(changed);
     wTabFolder.setSelection(0);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -973,6 +984,19 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     return Arrays.stream(fieldsTable.getTable().getItems())
         .mapToInt(row -> ValueMetaFactory.getIdForValueMeta(row.getText(3)))
         .toArray();
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wFilename.getText(),
+        ReferencedFileOpener.isDialogModified(
+            meta.hasChanged(), wFilename.getText(), meta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? meta.getFilename() : null;
+        });
   }
 
   protected void createNewKafkaPipeline() {

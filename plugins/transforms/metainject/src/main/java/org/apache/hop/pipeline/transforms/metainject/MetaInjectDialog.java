@@ -59,6 +59,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -201,12 +202,21 @@ public class MetaInjectDialog extends BaseTransformDialog {
     fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
     wbBrowse.setLayoutData(fdBrowse);
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
+    fdOpen.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(0, 0);
     fdTransformation.top = new FormAttachment(wlPath, 5);
-    fdTransformation.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
+    fdTransformation.right = new FormAttachment(wbOpen, -PropsUi.getMargin());
     wPath.setLayoutData(fdTransformation);
     wPath.addFocusListener(
         new FocusAdapter() {
@@ -857,6 +867,19 @@ public class MetaInjectDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(shell, "Oops", "Unexpected Error", e);
     }
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            metaInjectMeta.hasChanged(), wPath.getText(), metaInjectMeta.getTemplateFileName()),
+        () -> {
+          ok();
+          return isDisposed() ? metaInjectMeta.getTemplateFileName() : null;
+        });
   }
 
   private void selectFileTrans() {

@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -412,12 +413,19 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdbBatchPipeline.right = new FormAttachment(100, -margin);
     fdbBatchPipeline.top = new FormAttachment(wlBatchPipeline, 0, SWT.CENTER);
     wbBatchPipeline.setLayoutData(fdbBatchPipeline);
+    Button wbOpen = new Button(wContent, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBatchPipeline, -margin);
+    fdOpen.top = new FormAttachment(wlBatchPipeline, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
     wBatchPipeline = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchPipeline);
     wBatchPipeline.addModifyListener(lsMod);
     FormData fdBatchPipeline = new FormData();
     fdBatchPipeline.left = new FormAttachment(middle, 0);
-    fdBatchPipeline.right = new FormAttachment(wbBatchPipeline, -margin);
+    fdBatchPipeline.right = new FormAttachment(wbOpen, -margin);
     fdBatchPipeline.top = new FormAttachment(wlBatchPipeline, 0, SWT.CENTER);
     wBatchPipeline.setLayoutData(fdBatchPipeline);
     lastControl = wBatchPipeline;
@@ -501,10 +509,24 @@ public class AzureListenerDialog extends BaseTransformDialog {
     sc.setMinHeight(bounds.height);
 
     getData();
+    input.setChanged(changed);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wBatchPipeline.getText(),
+        ReferencedFileOpener.isDialogModified(
+            input.hasChanged(), wBatchPipeline.getText(), input.getBatchPipeline()),
+        () -> {
+          ok();
+          return isDisposed() ? input.getBatchPipeline() : null;
+        });
   }
 
   private void browseForPipeline() {

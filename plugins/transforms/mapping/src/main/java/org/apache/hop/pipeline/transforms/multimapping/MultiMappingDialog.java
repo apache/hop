@@ -52,7 +52,7 @@ import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -281,18 +281,16 @@ public class MultiMappingDialog extends BaseTransformDialog {
   }
 
   private void editPipeline() {
-    try {
-      if (Utils.isEmpty(wPath.getText())) {
-        return;
-      }
-      HopGui.getInstance().fileDelegate.fileOpen(variables.resolve(wPath.getText()));
-    } catch (Exception ex) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "MultiMappingDialog.ErrorLoadingPipeline.DialogTitle"),
-          BaseMessages.getString(PKG, "MultiMappingDialog.ErrorLoadingPipeline.DialogMessage"),
-          ex);
-    }
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            mappingMeta.hasChanged(), wPath.getText(), mappingMeta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? mappingMeta.getFilename() : null;
+        });
   }
 
   private void loadPipelineFile(String fname) throws HopException {

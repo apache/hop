@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -88,6 +89,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   private Label wlPath;
   private TextVar wPath;
+  private Button wbOpen;
 
   protected MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
 
@@ -180,12 +182,21 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wbBrowse.setLayoutData(fdBrowse);
     wbBrowse.addListener(SWT.Selection, e -> selectPipelineFile());
 
+    wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -margin);
+    fdOpen.top = new FormAttachment(wlPath, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(middle, 0);
     fdTransformation.top = new FormAttachment(wlPath, 0, SWT.CENTER);
-    fdTransformation.right = new FormAttachment(wbBrowse, -margin);
+    fdTransformation.right = new FormAttachment(wbOpen, -margin);
     wPath.setLayoutData(fdTransformation);
 
     wbPipelineNameInField = new Button(shell, SWT.CHECK);
@@ -721,11 +732,25 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     }
   }
 
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            pipelineExecutorMeta.hasChanged(), wPath.getText(), pipelineExecutorMeta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? pipelineExecutorMeta.getFilename() : null;
+        });
+  }
+
   private void activePipelineNameField() {
     wlPipelineNameField.setEnabled(wbPipelineNameInField.getSelection());
     wPipelineNameField.setEnabled(wbPipelineNameInField.getSelection());
     wPath.setEnabled(!wbPipelineNameInField.getSelection());
     wlPath.setEnabled(!wbPipelineNameInField.getSelection());
+    wbOpen.setEnabled(!wbPipelineNameInField.getSelection());
     if (wbPipelineNameInField.getSelection()) {
       wPath.setText("");
     } else {

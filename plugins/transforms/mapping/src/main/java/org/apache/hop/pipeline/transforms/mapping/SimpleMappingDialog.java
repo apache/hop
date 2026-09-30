@@ -45,6 +45,7 @@ import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
@@ -191,12 +192,21 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     wbBrowse.setLayoutData(fdBrowse);
     wbBrowse.addListener(SWT.Selection, e -> selectFilePipeline());
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -margin);
+    fdOpen.top = new FormAttachment(wlPath, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(wlPath, margin);
     fdTransformation.top = new FormAttachment(wlPath, 0, SWT.CENTER);
-    fdTransformation.right = new FormAttachment(wbBrowse, -margin);
+    fdTransformation.right = new FormAttachment(wbOpen, -margin);
     wPath.setLayoutData(fdTransformation);
 
     // The run configuration
@@ -239,6 +249,19 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            mappingMeta.hasChanged(), wPath.getText(), mappingMeta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? mappingMeta.getFilename() : null;
+        });
   }
 
   private void selectFilePipeline() {
