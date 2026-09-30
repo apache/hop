@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -39,7 +41,6 @@ public class JsonEOutputData extends BaseTransformData implements ITransformData
   public int[] fieldIndexes;
   public int[] keysGroupIndexes;
   public int nrRow;
-  public List<ObjectNode> jsonItems;
   public List<ObjectNode> jsonKeyGroupItems;
 
   public String realBlocName;
@@ -51,6 +52,25 @@ public class JsonEOutputData extends BaseTransformData implements ITransformData
   public String openedFilename;
 
   public boolean isWriteToFile;
+
+  /** The generated JSON goes to the output field (Output value, or both). */
+  public boolean isOutputValue;
+
+  /** Every row is its own item in the file and goes there straight away. */
+  public boolean streamFileRows;
+
+  /** Keep the items of the current group until the group is complete. */
+  public boolean collectGroupItems;
+
+  /** Writes the items of the file that is currently open. */
+  public JsonGenerator fileGenerator;
+
+  /** The first item of a file, held back until we know if the file needs an array. */
+  public JsonNode pendingFileItem;
+
+  /** The number of items written to the file that is currently open. */
+  public int fileItemCount;
+
   public String jsonSerialized;
   public long jsonLength;
   public Set<Integer> keyFields;
