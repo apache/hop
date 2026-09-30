@@ -40,7 +40,7 @@ Use JSON Input when each column should come from its *own JsonPath* (or you are 
 
 == Examples
 * For example, connect a REST client to a JSON input transform to read JSON into data rows.
-* To read nested JSON elements, use a sequence of JSON Input transforms, where the first JSON Input transform reads the nested element as a String field. In the second JSON Input transform, use the `Source is from a previous transform` option to select the String field you used in the first JSON Input transform to read the information from the nested element. 
+* To read a nested JSON value, use either a String field containing serialized JSON or a JSON-typed field containing a Jackson JSON value. In the next JSON Input transform, enable *Source is from a previous transform* and select that field. Leave *Use field as file names* and *Read source as URL* cleared for direct JSON content. A filename or URL source remains a String field; an arbitrary Java Object is not a supported JSON source. 
 
 
 Check the `json-input-nested-elements.hpl` sample in the Samples project for an example.

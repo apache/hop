@@ -750,6 +750,33 @@ class JsonInputTest {
   }
 
   @Test
+  void jsonTypedSourceFieldExtractsAValue() throws Exception {
+    JsonInputField field = new JsonInputField("value");
+    field.setPath("$.value");
+    field.setType(IValueMeta.TYPE_STRING);
+    JsonInputMeta meta = createSimpleMeta("json", field);
+    meta.setRemoveSourceField(true);
+    JsonNode input = HopJson.newMapper().readTree("{\"value\":\"ok\"}");
+    JsonInput transform = createJsonInputWithJsonNode("json", meta, new Object[] {input});
+    List<Object[]> rows = new ArrayList<>();
+    transform.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+            rows.add(row.clone());
+          }
+        });
+    try {
+      processRows(transform, 3);
+      assertEquals(0, transform.getErrors());
+      assertEquals(1, rows.size());
+      assertEquals("ok", rows.getFirst()[0]);
+    } finally {
+      transform.dispose();
+    }
+  }
+
+  @Test
   void testArrayOut() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     helper.redirectLog(out, LogLevel.ERROR);
