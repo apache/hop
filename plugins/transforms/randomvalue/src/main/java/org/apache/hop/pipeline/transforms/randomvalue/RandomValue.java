@@ -17,7 +17,6 @@
 package org.apache.hop.pipeline.transforms.randomvalue;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -278,16 +277,15 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       }
     }
     if (random) {
-      if (StringUtils.isEmpty(meta.getSeed())) {
-        // Without a seed, values may end up used as tokens or identifiers: make them unpredictable
-        data.randomGenerator = new SecureRandom();
-      } else {
-        // A seed asks for a reproducible sequence, so a predictable generator is intended here
-        long seed = Const.toLong(resolve(meta.getSeed()), 0);
-        @SuppressWarnings("java:S2245")
-        Random seeded = new Random(seed);
-        data.randomGenerator = seeded;
-      }
+      // Generates test data, not security tokens (use the UUID or HMAC types for those).
+      // SecureRandom is avoided on purpose: it is called per row and NativePRNG serializes all
+      // transform copies on one JVM-wide lock. Each copy gets its own uncontended Random.
+      @SuppressWarnings("java:S2245")
+      Random generator =
+          StringUtils.isEmpty(meta.getSeed())
+              ? new Random()
+              : new Random(Const.toLong(resolve(meta.getSeed()), 0));
+      data.randomGenerator = generator;
     }
     if (genHmacMD5) {
       try {
