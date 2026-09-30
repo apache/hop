@@ -27,9 +27,12 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -52,15 +55,50 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::JsonEOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/enhancedjsonoutput.html")
+@GuiPlugin
 @Getter
 @Setter
 public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputData> {
   private static final Class<?> PKG = JsonEOutputMeta.class;
+
+  public static final String KEY_GUI_PARENT = "JsonEOutput.GroupKeys";
+  public static final String FORMAT_GUI_PARENT = "JsonEOutput.FileFormat";
+  public static final String WIDGET_GET_KEYS = "getKeyFields";
   public static final String CONST_SPACES_LONG = "        ";
   public static final String CONST_SPACES = "      ";
   public static final String CONST_OUTPUT_VALUE = "outputValue";
   public static final String CONST_KEY_FIELD = "key_field";
   public static final String CONST_FIELD = "field";
+
+  @GuiWidgetElement(
+      id = WIDGET_GET_KEYS,
+      order = "0100",
+      type = GuiElementType.BUTTON,
+      label = "i18n::JsonEOutputDialog.Get.Button",
+      toolTip = "i18n::JsonEOutputDialog.GetKeys.Tooltip",
+      parentId = KEY_GUI_PARENT,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::JsonEOutputDialog.KeyConfigTab.TabTitle",
+      groupOrder = "0100")
+  public void getKeyFieldsFromPrevious(Object source) {
+    // The dialog listener fills the live Group Key table. The button invoker passes the meta.
+  }
+
+  @HopMetadataProperty(
+      key = "newline_delimited",
+      injectionKey = "NEWLINE_DELIMITED",
+      injectionKeyDescription = "JsonEOutput.Injection.NEWLINE_DELIMITED")
+  @GuiWidgetElement(
+      id = "newlineDelimited",
+      order = "0100",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::JsonEOutputDialog.NdJson.Label",
+      toolTip = "i18n::JsonEOutputDialog.NdJson.Tooltip",
+      parentId = FORMAT_GUI_PARENT,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::JsonEOutputDialog.FileFormat.TabTitle",
+      groupOrder = "0100")
+  private boolean newlineDelimited;
 
   @Getter
   public enum OperationType implements IEnumHasCodeAndDescription {
@@ -184,6 +222,23 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
     jsonBloc = "";
   }
 
+  /**
+   * Locate every group key in {@code row}. The row is not modified. A missing key is reported
+   * before any caller clears or rewrites its metadata.
+   */
+  public int[] resolveKeyFieldIndexes(IRowMeta row) throws HopTransformException {
+    int[] indexes = new int[keyFields.size()];
+    for (int i = 0; i < keyFields.size(); i++) {
+      String name = keyFields.get(i).getFieldName();
+      indexes[i] = row.indexOfValue(name);
+      if (indexes[i] < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonEOutput.Error.GroupFieldNotFound", name));
+      }
+    }
+    return indexes;
+  }
+
   @Override
   public void getFields(
       IRowMeta row,
@@ -196,12 +251,10 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
 
     if (getOperationType() != OperationType.WRITE_TO_FILE) {
       IRowMeta rowMeta = row.clone();
+      int[] keyIndexes = resolveKeyFieldIndexes(rowMeta);
       row.clear();
-
-      for (int i = 0; i < this.getKeyFields().size(); i++) {
-        JsonEOutputKeyField keyField = this.getKeyFields().get(i);
-        IValueMeta vmi = rowMeta.getValueMeta(rowMeta.indexOfValue(keyField.getFieldName()));
-        row.addValueMeta(i, vmi);
+      for (int keyIndex : keyIndexes) {
+        row.addValueMeta(rowMeta.getValueMeta(keyIndex).clone());
       }
 
       ValueMetaString vm = new ValueMetaString(this.getOutputValue());
@@ -247,6 +300,11 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
     }
     // Check output fields
     if (prev != null && !prev.isEmpty()) {
+      try {
+        resolveKeyFieldIndexes(prev);
+      } catch (HopTransformException e) {
+        remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta));
+      }
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

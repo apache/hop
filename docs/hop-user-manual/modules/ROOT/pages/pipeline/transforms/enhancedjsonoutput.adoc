@@ -43,8 +43,12 @@ General tab allows to specify the type of transform operation (output JSON for t
 Currently three types of operation are available:
 
 1. Output value - only pass output JSON as a transform output field, do not dump to output file
-2. Write to file - only write to file, do not pass to output field
+2. Write to file - only write to file, do not pass to output field. The input rows are passed on to the next transform as they are.
 3. Output value and write to file - dump to file and pass generated JSON as a transform output field
+
+The file is written while the rows come in, so it does not have to fit in memory.
+The output field does: without group keys, it holds the JSON of all rows.
+Use 'Write to file' for large files.
 
 |JSON block name|If specified, the output of the transform will always be a JSON object with a single first-level node, whose name will be this value.
 
@@ -67,9 +71,17 @@ If file with specified name exists already, it will be replaced by a new one.
 If checked - new JSON output will be appended to the end of existing file.
 Or if file does not exist, it will be created as in previous case.
 
-TIP: If you want to create a ND-JSON (Newline-Delimited JSON) file, you may get better results by outputting the JSON rows and then printing them with a xref:pipeline/transforms/textfileoutput.adoc[Text file output] transform
+NOTE: Without newline-delimited JSON, Append concatenates complete JSON documents without adding separators.
+It does not merge arrays or produce one valid JSON document.
 
-|Split JSON after n rows|If this number N is larger than zero, split the resulting JSON file into multiple parts of N rows.
+|Newline-delimited JSON (NDJSON)|Disabled by default for compatibility.
+When enabled for file output, each input-row item or completed group is written as one compact JSON value followed by LF.
+A JSON block name wraps each line separately.
+There is no outer document array; Force arrays applies to the value inside a grouped item.
+UTF-8 is required and Pretty Print JSON must be disabled.
+Multiline NDJSON records are not supported; newline characters inside string values are escaped.
+Appending requires an empty file or an existing UTF-8 NDJSON file ending in LF.
+|Split JSON after n rows|If this number N is larger than zero, split the resulting JSON file into multiple parts of N items: N rows, or N groups when group keys are used.
 |Create Parent folder|Check this option to create the folders structure, if some of them are missing in the provided path.
 If this option is not checked and the full path cannot be found, the transform will fail.
 |Do not open create at start|If not checked - file (and in some cases parent folder) will be created/opened to write during pipeline initialization.
@@ -87,18 +99,32 @@ Same as for 'Include date in filename' option
 
 === Group Key Tab
 
-This tab is used to define the key fields used for grouping the rows in JSON fragments.
+This tab defines the input fields used to group consecutive rows into JSON fragments.
+The input stream must be sorted by all group key fields.
+The key fields are forwarded under their original field names when generated JSON is output to the next transform.
+In Write to file mode, the original input rows are forwarded unchanged.
 
-Rows with the same values in the key fields allow you to generate JSON fragments from the row data, and group them in a single JSON array. The key fields defined here will also be forwarded to the next transform as they are.
+The Get Fields button adds available input fields that are not already listed in Fields or Group Key.
+Existing key rows and their element names are retained.
+Fields can still be added manually to both tabs when a group key must also appear in the generated fragment.
 
-If no group field is defined, all the rows will be grouped in a JSON array and the transform output will be a single row and a single column.
+In the output file, every group is one item: the key fields plus the JSON of the group, under the name of the output value.
+For example, with key field `group` and output value `rows`:
+
+[source,json]
+----
+[{"group":"a","rows":[{"id":1},{"id":2}]},{"group":"b","rows":{"id":3}}]
+----
+
+A JSON block name wraps the whole file, not every group: `{"data":[{"group":"a","rows":[...]}, ...]}`.
 
 [options="header"]
 |===
 |Option|Description
 |Fieldname|Input transform field name that will contribute to define the input transform fields key.
-|Element name|JSON element name.
-For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
+|Element name|The property name for this group key in each grouped file-output item.
+It does not rename the downstream Hop field and does not insert the key into the generated output-value fragment.
+To include a key in that fragment, also select it on the Fields tab.
 |===
 
 === Fields Tab

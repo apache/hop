@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0019-enhanced-json-output-grouped-file</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Enhanced JSON Output writes every group to the file</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/30 16:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/30 16:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Remove old output</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>rm -rf "${PROJECT_HOME}/output/0019-enhanced-json-output-grouped-file"</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0019-enhanced-json-output-grouped-file</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0019-enhanced-json-output-grouped-file.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check the files and rows</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>OUT="${PROJECT_HOME}/output/0019-enhanced-json-output-grouped-file"
+
+failures=0
+# check &lt;what&gt; &lt;file&gt; &lt;expected content&gt;
+check() {
+  if [ ! -f "$2" ]; then
+    echo "FAIL: $1: $2 was not written"
+    failures=$((failures + 1))
+    return
+  fi
+  actual="$(cat "$2")"
+  if [ "$actual" != "$3" ]; then
+    echo "FAIL: $1"
+    echo "  expected: $3"
+    echo "  actual:   $actual"
+    failures=$((failures + 1))
+  fi
+}
+
+check "every group is an item in the file" "$OUT/grouped.json" \
+  '[{"group":"a","rows":[{"id":1,"name":"x1"},{"id":2,"name":"x2"}]},{"group":"b","rows":[{"id":3,"name":"x3"},{"id":4}]},{"group":"c","rows":{"id":5,"name":"x5"}}]'
+
+check "a JSON block name only wraps the file" "$OUT/grouped-block.json" \
+  '{"data":[{"group":"a","rows":[{"id":1,"name":"x1"},{"id":2,"name":"x2"}]},{"group":"b","rows":[{"id":3,"name":"x3"},{"id":4}]},{"group":"c","rows":{"id":5,"name":"x5"}}]}'
+
+check "write to file passes the input rows on" "$OUT/passed-rows.txt" 'a|1|x1
+a|2|x2
+b|3|x3
+b|4|
+c|5|x5'
+
+check "the first split file holds 2 groups" "$OUT/split_0.json" \
+  '[{"group":"a","rows":[{"id":1,"name":"x1"},{"id":2,"name":"x2"}]},{"group":"b","rows":[{"id":3,"name":"x3"},{"id":4}]}]'
+
+check "the second split file holds the last group" "$OUT/split_1.json" \
+  '{"group":"c","rows":{"id":5,"name":"x5"}}'
+
+if [ -f "$OUT/split_2.json" ]; then
+  echo "FAIL: a third split file was written"
+  failures=$((failures + 1))
+fi
+
+check "splitting the file still outputs a row for every group" "$OUT/split-rows.txt" 'a|[{"id":1,"name":"x1"},{"id":2,"name":"x2"}]
+b|[{"id":3,"name":"x3"},{"id":4}]
+c|{"id":5,"name":"x5"}'
+
+[ "$failures" -eq 0 ]</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>896</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Failure: the pipeline failed</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Failure: the pipeline failed</message>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Failure: wrong files or rows</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Failure: wrong files or rows</message>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Remove old output</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Remove old output</from>
+      <to>0019-enhanced-json-output-grouped-file</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0019-enhanced-json-output-grouped-file</from>
+      <to>Check the files and rows</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0019-enhanced-json-output-grouped-file</from>
+      <to>Failure: the pipeline failed</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check the files and rows</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check the files and rows</from>
+      <to>Failure: wrong files or rows</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>80</height>
+      <xloc>112</xloc>
+      <yloc>288</yloc>
+      <note>Issue #2929: with group keys, Enhanced JSON Output only wrote the last group to the file,
+and split files mixed rows with groups and dropped the output row of the last group.
+'Write to file' sent the JSON downstream in a row that did not match its fields.</note>
+      <width>620</width>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

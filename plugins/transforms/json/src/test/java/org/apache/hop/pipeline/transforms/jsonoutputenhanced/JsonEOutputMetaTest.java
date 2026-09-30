@@ -22,13 +22,21 @@ import static org.apache.hop.core.util.Utils.isEmpty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
@@ -149,5 +157,46 @@ class JsonEOutputMetaTest {
     JsonEOutputField f3 = meta.getOutputFields().get(2);
     assertEquals("f3", f3.getFieldName());
     assertEquals("element3", f3.getElementName());
+  }
+
+  @Test
+  void missingGroupKeyNamesTheMissingField() {
+    JsonEOutputMeta meta = new JsonEOutputMeta();
+    meta.setOperationType(JsonEOutputMeta.OperationType.OUTPUT_VALUE);
+    meta.setKeyFields(List.of(new JsonEOutputKeyField("Field1")));
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("Field2"));
+    HopTransformException error =
+        assertThrows(
+            HopTransformException.class,
+            () ->
+                meta.getFields(
+                    row, "json", null, null, new Variables(), new MemoryMetadataProvider()));
+    assertTrue(error.getMessage().contains("Field1"));
+  }
+
+  @Test
+  void validationReportsAMissingGroupKey() {
+    JsonEOutputMeta meta = new JsonEOutputMeta();
+    meta.setKeyFields(List.of(new JsonEOutputKeyField("gone")));
+    RowMeta previous = new RowMeta();
+    previous.addValueMeta(new ValueMetaString("payload"));
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta("EnhancedJsonOutput", "json", meta),
+        previous,
+        new String[] {"upstream"},
+        new String[0],
+        null,
+        new Variables(),
+        new MemoryMetadataProvider());
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                result ->
+                    result.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && result.getText().contains("gone")));
   }
 }

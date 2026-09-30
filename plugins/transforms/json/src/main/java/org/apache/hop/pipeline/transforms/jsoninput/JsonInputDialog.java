@@ -54,6 +54,8 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -158,6 +160,8 @@ public class JsonInputDialog extends BaseTransformDialog {
 
   private final JsonInputMeta input;
 
+  private GuiCompositeWidgets pathWidgets;
+
   private ModifyListener lsMod;
 
   public JsonInputDialog(
@@ -181,6 +185,8 @@ public class JsonInputDialog extends BaseTransformDialog {
     addFileTab();
 
     addContentTab();
+
+    addPathOptionsTab();
 
     addFieldsTab();
 
@@ -455,6 +461,26 @@ public class JsonInputDialog extends BaseTransformDialog {
       refreshFields(new ByteArrayInputStream(text.getBytes()));
       wFields.optimizeTableView();
     }
+  }
+
+  private void addPathOptionsTab() {
+    CTabItem tab = new CTabItem(wTabFolder, SWT.NONE);
+    tab.setText(BaseMessages.getString(PKG, "JsonInputDialog.PathOptions.TabTitle"));
+    Composite parent = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(parent);
+    parent.setLayout(new FormLayout());
+    pathWidgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            parent, variables, null, null, JsonInputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, input);
+    pathWidgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets widgets, Control control, String widgetId) {
+            input.setChanged();
+          }
+        });
+    tab.setControl(parent);
   }
 
   private void addContentTab() {
@@ -1295,6 +1321,7 @@ public class JsonInputDialog extends BaseTransformDialog {
 
   /** dialog -&gt; meta */
   private void getInfo(JsonInputMeta in) {
+    pathWidgets.getWidgetsContents(in, JsonInputMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
     transformName = wTransformName.getText(); // return value
 
     in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));

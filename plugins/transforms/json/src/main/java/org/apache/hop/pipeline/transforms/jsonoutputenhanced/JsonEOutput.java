@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -28,6 +31,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
@@ -60,6 +64,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
   public Object[] prevRow;
   private JsonNodeFactory nc;
   private ObjectMapper mapper;
+  private ObjectMapper fileMapper;
   private ObjectNode currentNode;
 
   public JsonEOutput(
@@ -83,14 +88,28 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         setErrors(1);
         return false;
       }
-      if (meta.getOperationType() == JsonEOutputMeta.OperationType.WRITE_TO_FILE
-          || meta.getOperationType() == JsonEOutputMeta.OperationType.BOTH) {
-        // Init global json items array only if output to file is needed
-        data.jsonItems = new ArrayList<>();
-        data.isWriteToFile = true;
-        if (!meta.getFileSettings().isDoNotOpenNewFileInit()
-            && data.isWriteToFile
-            && !openNewFile()) {
+      data.isOutputValue = meta.getOperationType() != JsonEOutputMeta.OperationType.WRITE_TO_FILE;
+      data.isWriteToFile =
+          meta.getOperationType() == JsonEOutputMeta.OperationType.WRITE_TO_FILE
+              || meta.getOperationType() == JsonEOutputMeta.OperationType.BOTH;
+      // Without group keys every row is an item in the file, unless all rows are merged into a
+      // single item. Group keys make every group an item.
+      data.streamFileRows =
+          data.isWriteToFile && meta.getKeyFields().isEmpty() && !meta.isUseSingleItemPerGroup();
+      data.collectGroupItems = data.isOutputValue || (data.isWriteToFile && !data.streamFileRows);
+
+      if (meta.isNewlineDelimited()
+          && meta.getOperationType() != JsonEOutputMeta.OperationType.OUTPUT_VALUE
+          && (meta.isJsonPrettified()
+              || !Const.UTF_8.equalsIgnoreCase(resolve(meta.getEncoding())))) {
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonSettings"));
+        setErrors(1);
+        stopAll();
+        return false;
+      }
+
+      if (data.isWriteToFile) {
+        if (!meta.getFileSettings().isDoNotOpenNewFileInit() && !openNewFile()) {
           logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
           stopAll();
           setErrors(1);
@@ -110,26 +129,13 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     // This also waits for a row to be finished.
     Object[] r = getRow();
     if (r == null) {
-      // only attempt writing to file when the first row is not empty
-      if (data.isWriteToFile && !first && meta.getFileSettings().getSplitOutputAfter() == 0) {
-        // no more input to be expected...
-        // Let's output the remaining unsafe data
-        outputRow(prevRow);
-        writeJsonFile();
-        setOutputDone();
-        return false;
+      // no more input to be expected: finish the last group and the file
+      if (!first) {
+        finishGroup(prevRow);
       }
-
-      // Process the leftover data only when a split file size is defined
-      // and there are still items pending.
-      if (meta.getFileSettings().getSplitOutputAfter() > 0 && !data.jsonItems.isEmpty()) {
-        serializeJson(data.jsonItems);
-        writeJsonFile();
-        setOutputDone();
-        return false;
+      if (data.isWriteToFile) {
+        finishFile();
       }
-
-      outputRow(prevRow);
       setOutputDone();
       return false;
     }
@@ -140,6 +146,11 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     data.rowsAreSafe = false;
     manageRowItems(r);
+
+    if (!data.isOutputValue) {
+      // The JSON only goes to the file: pass the rows on as they are
+      putRow(data.inputRowMeta, r);
+    }
     return true;
   }
 
@@ -164,13 +175,8 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       itemNode = new ObjectNode(nc);
     }
 
-    if (!sameGroup && !data.jsonKeyGroupItems.isEmpty()) {
-      // Output the new row
-      if (isDebug()) {
-        logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
-      }
-      outputRow(prevRow);
-      data.jsonKeyGroupItems = new ArrayList<>();
+    if (!sameGroup) {
+      finishGroup(prevRow);
     }
 
     for (int i = 0; i < data.nrFields; i++) {
@@ -283,32 +289,22 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
           break;
       }
     }
-    if (meta.getFileSettings().getSplitOutputAfter() > 0) {
-      data.jsonItems.add(itemNode);
-    }
-
     /*
      * Only add a new item node if each row should produce a single JSON object or in case of a
      * single JSON object for a group of rows, if no item node was added yet. This happens for the
      * first new row of a group only.
      */
-    if (!meta.isUseSingleItemPerGroup() || data.jsonKeyGroupItems.isEmpty()) {
+    if (data.collectGroupItems
+        && (!meta.isUseSingleItemPerGroup() || data.jsonKeyGroupItems.isEmpty())) {
       data.jsonKeyGroupItems.add(itemNode);
+    }
+
+    if (data.streamFileRows) {
+      writeFileItem(itemNode);
     }
 
     prevRow = data.inputRowMeta.cloneRow(row); // copy the row to previous
     data.nrRow++;
-
-    if (meta.getFileSettings().getSplitOutputAfter() > 0
-        && (data.nrRow) % meta.getFileSettings().getSplitOutputAfter() == 0) {
-      // Output the new row
-      if (isDebug()) {
-        logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
-      }
-      serializeJson(data.jsonItems);
-      writeJsonFile();
-      data.jsonItems = new ArrayList<>();
-    }
   }
 
   private String getJsonAttributeName(JsonEOutputField field) {
@@ -321,114 +317,252 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     return Const.NVL(elementName, field.getFieldName());
   }
 
-  private void outputRow(Object[] rowData) throws HopException {
-    // We can now output an object
-    ObjectNode globalItemNode = null;
-
-    if (Utils.isEmpty(data.jsonKeyGroupItems)) return;
-
-    if (!data.jsonKeyGroupItems.isEmpty()) {
-      serializeJson(data.jsonKeyGroupItems);
+  /**
+   * A group is complete: send its row to the output field and, when group keys are used, write its
+   * item to the file.
+   */
+  private void finishGroup(Object[] groupRow) throws HopException {
+    if (Utils.isEmpty(data.jsonKeyGroupItems)) {
+      return;
     }
+    if (isDebug()) {
+      logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
+    }
+    if (data.isOutputValue) {
+      outputRow(groupRow);
+    }
+    if (data.isWriteToFile && !data.streamFileRows) {
+      if (meta.getKeyFields().isEmpty()) {
+        // All rows are merged into a single item
+        for (ObjectNode item : data.jsonKeyGroupItems) {
+          writeFileItem(item);
+        }
+      } else {
+        writeFileItem(buildGroupFileItem(groupRow));
+      }
+    }
+    data.jsonKeyGroupItems = new ArrayList<>();
+  }
 
+  private void outputRow(Object[] rowData) throws HopException {
+    serializeJson(data.jsonKeyGroupItems);
     data.jsonLength = data.jsonSerialized.length();
 
-    if (data.outputRowMeta != null) {
+    Object[] keyRow = getKeyValues(rowData);
 
-      Object[] keyRow = new Object[meta.getKeyFields().size()];
+    Object[] additionalRowFields =
+        Utils.isEmpty(meta.getJsonSizeFieldName())
+            ? new Object[] {data.jsonSerialized}
+            : new Object[] {data.jsonSerialized, data.jsonLength};
 
-      // Create a new object with specified fields
-      if (data.isWriteToFile) {
-        globalItemNode = new ObjectNode(nc);
-      }
-
-      for (int i = 0; i < meta.getKeyFields().size(); i++) {
-        JsonEOutputKeyField keyField = meta.getKeyFields().get(i);
-        try {
-          IValueMeta vmi = data.inputRowMeta.getValueMeta(data.keysGroupIndexes[i]);
-          switch (vmi.getType()) {
-            case IValueMeta.TYPE_BOOLEAN:
-              keyRow[i] = data.inputRowMeta.getBoolean(rowData, data.keysGroupIndexes[i]);
-              if (data.isWriteToFile) {
-                globalItemNode.put(getKeyJsonAttributeName(keyField), (Boolean) keyRow[i]);
-              }
-              break;
-            case IValueMeta.TYPE_INTEGER:
-              keyRow[i] = data.inputRowMeta.getInteger(rowData, data.keysGroupIndexes[i]);
-              if (data.isWriteToFile) {
-                globalItemNode.put(getKeyJsonAttributeName(keyField), (Long) keyRow[i]);
-              }
-              break;
-            case IValueMeta.TYPE_NUMBER:
-              keyRow[i] = data.inputRowMeta.getNumber(rowData, data.keysGroupIndexes[i]);
-              if (data.isWriteToFile) {
-                globalItemNode.put(getKeyJsonAttributeName(keyField), (Double) keyRow[i]);
-              }
-              break;
-            case IValueMeta.TYPE_BIGNUMBER:
-              keyRow[i] = data.inputRowMeta.getBigNumber(rowData, data.keysGroupIndexes[i]);
-              if (data.isWriteToFile) {
-                globalItemNode.put(getKeyJsonAttributeName(keyField), (BigDecimal) keyRow[i]);
-              }
-              break;
-            default:
-              keyRow[i] = data.inputRowMeta.getString(rowData, data.keysGroupIndexes[i]);
-              if (data.isWriteToFile) {
-                globalItemNode.put(getKeyJsonAttributeName(keyField), (String) keyRow[i]);
-              }
-              break;
-          }
-        } catch (HopValueException e) {
-          throw new HopException(
-              "Error getting json values for key field: " + keyField.getFieldName(), e);
-        }
-      }
-
-      if (data.isWriteToFile) {
-        try {
-          // JSON serialization here...
-          JsonNode jsonNode = mapper.readTree(data.jsonSerialized);
-          if (meta.getOutputValue() != null) {
-            globalItemNode.set(meta.getOutputValue(), jsonNode);
-          }
-        } catch (IOException e) {
-          throw new HopException("Error serializing JSON values", e);
-        }
-        data.jsonItems.add(globalItemNode);
-      }
-
-      Object[] additionalRowFields = new Object[2];
-
-      additionalRowFields[0] = data.jsonSerialized;
-
-      // Fill accessory fields
-      if (!Utils.isEmpty(meta.getJsonSizeFieldName())) {
-        additionalRowFields[1] = data.jsonLength;
-      }
-
-      Object[] outputRowData = RowDataUtil.addRowData(keyRow, keyRow.length, additionalRowFields);
-      incrementLinesOutput();
-
-      putRow(data.outputRowMeta, outputRowData);
+    Object[] outputRowData = RowDataUtil.addRowData(keyRow, keyRow.length, additionalRowFields);
+    // addRowData over-allocates. The published row matches the metadata width.
+    if (outputRowData.length != data.outputRowMeta.size()) {
+      outputRowData = Arrays.copyOf(outputRowData, data.outputRowMeta.size());
     }
+    incrementLinesOutput();
+
+    putRow(data.outputRowMeta, outputRowData);
 
     // Data are safe
     data.rowsAreSafe = true;
   }
 
-  private void writeJsonFile() throws HopTransformException {
-    // Open a file
-    if (data.isWriteToFile && !openNewFile())
-      throw new HopTransformException(
-          BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
-    // Write data to file
+  private Object[] getKeyValues(Object[] rowData) throws HopException {
+    Object[] keyRow = new Object[meta.getKeyFields().size()];
+    for (int i = 0; i < meta.getKeyFields().size(); i++) {
+      JsonEOutputKeyField keyField = meta.getKeyFields().get(i);
+      try {
+        IValueMeta vmi = data.inputRowMeta.getValueMeta(data.keysGroupIndexes[i]);
+        keyRow[i] =
+            switch (vmi.getType()) {
+              case IValueMeta.TYPE_BOOLEAN ->
+                  data.inputRowMeta.getBoolean(rowData, data.keysGroupIndexes[i]);
+              case IValueMeta.TYPE_INTEGER ->
+                  data.inputRowMeta.getInteger(rowData, data.keysGroupIndexes[i]);
+              case IValueMeta.TYPE_NUMBER ->
+                  data.inputRowMeta.getNumber(rowData, data.keysGroupIndexes[i]);
+              case IValueMeta.TYPE_BIGNUMBER ->
+                  data.inputRowMeta.getBigNumber(rowData, data.keysGroupIndexes[i]);
+              default -> data.inputRowMeta.getString(rowData, data.keysGroupIndexes[i]);
+            };
+      } catch (HopValueException e) {
+        throw new HopException(
+            "Error getting json values for key field: " + keyField.getFieldName(), e);
+      }
+    }
+    return keyRow;
+  }
+
+  /**
+   * The file item of a group: the key fields plus the group's items under the output value name.
+   * The JSON block name only wraps the file, not every group.
+   */
+  private ObjectNode buildGroupFileItem(Object[] groupRow) throws HopException {
+    ObjectNode groupItem = new ObjectNode(nc);
+    Object[] keyRow = getKeyValues(groupRow);
+    for (int i = 0; i < keyRow.length; i++) {
+      String name = getKeyJsonAttributeName(meta.getKeyFields().get(i));
+      switch (keyRow[i]) {
+        case null -> groupItem.putNull(name);
+        case Boolean b -> groupItem.put(name, b);
+        case Long l -> groupItem.put(name, l);
+        case Double d -> groupItem.put(name, d);
+        case BigDecimal bd -> groupItem.put(name, bd);
+        default -> groupItem.put(name, keyRow[i].toString());
+      }
+    }
+    groupItem.set(meta.getOutputValue(), buildGroupValue(data.jsonKeyGroupItems));
+    return groupItem;
+  }
+
+  /** The items of a group: an array, or the single item unless arrays are forced. */
+  private JsonNode buildGroupValue(List<ObjectNode> items) {
+    if (items.size() > 1 || meta.isUseArrayWithSingleInstance()) {
+      return new ArrayNode(nc).addAll(items);
+    }
+    return items.get(0);
+  }
+
+  /**
+   * Write an item to the file straight away, so the file never has to fit in memory. The first item
+   * is held back: a file with a single item holds that item, not an array, unless arrays are
+   * forced.
+   */
+  private void writeFileItem(JsonNode item) throws HopException {
+    if (meta.isNewlineDelimited()) {
+      writeNdJsonItem(item);
+      return;
+    }
     try {
-      data.writer.write(data.jsonSerialized);
-    } catch (Exception e) {
+      if (data.fileItemCount == 0) {
+        data.pendingFileItem = item;
+      } else {
+        if (data.fileItemCount == 1) {
+          startFileDocument(true);
+          data.fileGenerator.writeTree(data.pendingFileItem);
+          data.pendingFileItem = null;
+        }
+        data.fileGenerator.writeTree(item);
+      }
+    } catch (IOException e) {
       throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
     }
-    // Close file
+    data.fileItemCount++;
+    if (!data.isOutputValue) {
+      incrementLinesOutput();
+    }
+
+    int splitOutputAfter = meta.getFileSettings().getSplitOutputAfter();
+    if (splitOutputAfter > 0 && data.fileItemCount >= splitOutputAfter) {
+      finishFile();
+    }
+  }
+
+  private void startFileDocument(boolean array) throws IOException, HopTransformException {
+    if (!openNewFile()) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+    }
+    data.fileGenerator = fileMapper.getFactory().createGenerator(data.writer);
+    // The file is closed separately, with its lineage
+    data.fileGenerator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+    if (meta.isJsonPrettified()) {
+      data.fileGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
+    }
+    if (!Utils.isEmpty(meta.getJsonBloc())) {
+      data.fileGenerator.writeStartObject();
+      data.fileGenerator.writeFieldName(meta.getJsonBloc());
+    }
+    if (array) {
+      data.fileGenerator.writeStartArray();
+    }
+  }
+
+  /** One compact JSON value followed by LF. There is no outer document array. */
+  private void writeNdJsonItem(JsonNode item) throws HopException {
+    try {
+      if (!openNewFile()) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonEOutput.Error.OpenNewFile", buildFilename()));
+      }
+      if (data.fileGenerator == null) {
+        data.fileGenerator = fileMapper.getFactory().createGenerator(data.writer);
+        // The file is closed separately, with its lineage.
+        data.fileGenerator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        data.fileGenerator.setPrettyPrinter(null);
+        data.fileGenerator.setRootValueSeparator(null);
+      }
+      String block = resolve(meta.getJsonBloc());
+      if (!Utils.isEmpty(block)) {
+        data.fileGenerator.writeStartObject();
+        data.fileGenerator.writeFieldName(block);
+      }
+      data.fileGenerator.writeTree(item);
+      if (!Utils.isEmpty(block)) {
+        data.fileGenerator.writeEndObject();
+      }
+      data.fileGenerator.writeRaw('\n');
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
+    }
+    data.fileItemCount++;
+    if (!data.isOutputValue) {
+      incrementLinesOutput();
+    }
+    int split = meta.getFileSettings().getSplitOutputAfter();
+    if (split > 0 && data.fileItemCount >= split) {
+      finishFile();
+    }
+  }
+
+  /** Close the JSON document and the file, if any item was written to it. */
+  private void finishFile() throws HopTransformException {
+    if (data.fileItemCount == 0) {
+      return;
+    }
+    if (meta.isNewlineDelimited()) {
+      closeNdJsonFile();
+      return;
+    }
+    try {
+      if (data.fileItemCount == 1) {
+        startFileDocument(meta.isUseArrayWithSingleInstance());
+        data.fileGenerator.writeTree(data.pendingFileItem);
+      }
+      if (data.fileItemCount > 1 || meta.isUseArrayWithSingleInstance()) {
+        data.fileGenerator.writeEndArray();
+      }
+      if (!Utils.isEmpty(meta.getJsonBloc())) {
+        data.fileGenerator.writeEndObject();
+      }
+      data.fileGenerator.close();
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
+    }
+    data.fileGenerator = null;
+    data.pendingFileItem = null;
+    data.fileItemCount = 0;
     closeFile();
+  }
+
+  /** Close the NDJSON generator, then the writer. Do not finish an outer array or object. */
+  private void closeNdJsonFile() throws HopTransformException {
+    try {
+      if (data.fileGenerator != null) {
+        data.fileGenerator.close();
+      }
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
+    }
+    String filename = data.openedFilename;
+    data.fileGenerator = null;
+    data.pendingFileItem = null;
+    data.fileItemCount = 0;
+    if (!closeFile()) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", filename));
+    }
   }
 
   private void serializeJson(List<ObjectNode> jsonItemsList) throws HopException {
@@ -469,22 +603,22 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     nc = HopJson.newMapper().getNodeFactory();
     mapper = HopJson.newMapper();
+    // Items are written one by one: leave flushing to the buffers
+    fileMapper = HopJson.newMapper().disable(SerializationFeature.FLUSH_AFTER_WRITE_VALUE);
 
     first = false;
     data.inputRowMeta = getInputRowMeta();
     data.inputRowMetaSize = data.inputRowMeta.size();
+    data.keysGroupIndexes = meta.resolveKeyFieldIndexes(data.inputRowMeta);
 
     // Init previous row copy to this first row
     prevRow = data.inputRowMeta.cloneRow(r); // copy the row to previous
 
     // Create new structure for output fields
     data.outputRowMeta = new RowMeta();
-    List<JsonEOutputKeyField> keyFields = meta.getKeyFields();
     for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      IValueMeta vmi =
-          data.inputRowMeta.getValueMeta(
-              data.inputRowMeta.indexOfValue(keyFields.get(i).getFieldName()));
-      data.outputRowMeta.addValueMeta(i, vmi);
+      data.outputRowMeta.addValueMeta(
+          data.inputRowMeta.getValueMeta(data.keysGroupIndexes[i]).clone());
     }
 
     // This is JSON block's column
@@ -499,7 +633,6 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     initDataFieldsPositionsArray();
 
-    if (initKeyFieldsPositionArray(r)) return true;
     return false;
   }
 
@@ -530,26 +663,25 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
   }
 
-  private boolean initKeyFieldsPositionArray(Object[] r) {
-    data.keysGroupIndexes = new int[meta.getKeyFields().size()];
-
-    for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      data.keysGroupIndexes[i] =
-          data.inputRowMeta.indexOfValue(meta.getKeyFields().get(i).getFieldName());
-      if ((r != null) && (data.keysGroupIndexes[i] < 0)) {
-        setErrors(1);
-        stopAll();
-        return true;
-      }
-    }
-    return false;
-  }
-
   @Override
   public void dispose() {
 
     if (data.jsonKeyGroupItems != null) {
       data.jsonKeyGroupItems = null;
+    }
+
+    // A cancelled or failed row can leave the generator open. Close it before the writer.
+    // Do not finish the group: a partial file is not an atomic write.
+    if (data.fileGenerator != null) {
+      try {
+        data.fileGenerator.close();
+      } catch (IOException e) {
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", e.toString()));
+        setErrors(1);
+      } finally {
+        data.fileGenerator = null;
+        data.pendingFileItem = null;
+      }
     }
 
     closeFile();
@@ -613,6 +745,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
       String filename = buildFilename();
       createParentFolder(filename);
+      validateNdJsonAppend(filename);
       if (meta.isAddingToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
@@ -652,6 +785,29 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
 
     return retval;
+  }
+
+  /** An appended NDJSON file must already end in LF. The check does not read the earlier lines. */
+  private void validateNdJsonAppend(String filename) throws Exception {
+    if (!meta.isNewlineDelimited() || !meta.getFileSettings().isFileAppended()) {
+      return;
+    }
+    try (FileObject file = HopVfs.getFileObject(filename, variables)) {
+      if (!file.exists()) {
+        return;
+      }
+      long size = file.getContent().getSize();
+      if (size == 0) {
+        return;
+      }
+      try (var stream = HopVfs.getInputStream(file)) {
+        stream.skipNBytes(size - 1);
+        if (stream.read() != '\n') {
+          throw new IOException(
+              BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonAppendBoundary", filename));
+        }
+      }
+    }
   }
 
   public String buildFilename() {

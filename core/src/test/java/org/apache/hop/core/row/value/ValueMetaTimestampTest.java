@@ -135,4 +135,13 @@ class ValueMetaTimestampTest {
     assertEquals(convertedTimestamp.getTime(), timestamp.getTime());
     assertEquals(convertedTimestamp.getNanos(), timestamp.getNanos());
   }
+
+  @Test
+  void parsesTheIssue4907TimestampWithAMatchingMask() throws Exception {
+    ValueMetaTimestamp meta = new ValueMetaTimestamp("created");
+    meta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+    assertEquals(
+        Timestamp.valueOf("2025-02-13 02:10:14.746582"),
+        meta.convertStringToTimestamp("2025-02-13T02:10:14.746582"));
+  }
 }
