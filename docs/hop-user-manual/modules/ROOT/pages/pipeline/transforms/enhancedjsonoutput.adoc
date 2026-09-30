@@ -91,11 +91,14 @@ Same as for 'Include date in filename' option
 
 === Group Key Tab
 
-This tab is used to define the key fields used for grouping the rows in JSON fragments.
+This tab defines the input fields used to group consecutive rows into JSON fragments.
+The input stream must be sorted by all group key fields.
+The key fields are forwarded under their original field names when generated JSON is output to the next transform.
+In Write to file mode, the original input rows are forwarded unchanged.
 
-Rows with the same values in the key fields allow you to generate JSON fragments from the row data, and group them in a single JSON array. The key fields defined here will also be forwarded to the next transform as they are.
-
-If no group field is defined, all the rows will be grouped in a JSON array and the transform output will be a single row and a single column.
+The Get Fields button adds available input fields that are not already listed in Fields or Group Key.
+Existing key rows and their element names are retained.
+Fields can still be added manually to both tabs when a group key must also appear in the generated fragment.
 
 In the output file, every group is one item: the key fields plus the JSON of the group, under the name of the output value.
 For example, with key field `group` and output value `rows`:
@@ -111,8 +114,9 @@ A JSON block name wraps the whole file, not every group: `{"data":[{"group":"a",
 |===
 |Option|Description
 |Fieldname|Input transform field name that will contribute to define the input transform fields key.
-|Element name|JSON element name.
-For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
+|Element name|The property name for this group key in each grouped file-output item.
+It does not rename the downstream Hop field and does not insert the key into the generated output-value fragment.
+To include a key in that fragment, also select it on the Fields tab.
 |===
 
 === Fields Tab
