@@ -777,6 +777,37 @@ class JsonInputTest {
   }
 
   @Test
+  void literalRootArrayPathExtractsTheFirstValue() throws Exception {
+    String path = "$[0].similarity";
+    String input = "[{\"Id\":3902113,\"similarity\":0.95}]";
+    JsonInputField field = new JsonInputField("similarity");
+    field.setPath(path);
+    field.setType(IValueMeta.TYPE_NUMBER);
+    JsonInputMeta meta = createSimpleMeta("json", field);
+    meta.setResolveJsonPaths(false);
+    meta.setRemoveSourceField(true);
+    JsonInput transform = createJsonInput("json", meta, new Object[] {input});
+    List<Object[]> rows = new ArrayList<>();
+    transform.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+            rows.add(row.clone());
+          }
+        });
+    try {
+      assertEquals(0, transform.getErrors(), "literal JSONPath must compile");
+      processRows(transform, 3);
+      assertEquals(0, transform.getErrors());
+      assertEquals(1, rows.size());
+      assertEquals(0.95d, rows.getFirst()[0]);
+      assertEquals(path, meta.getInputFields().getFirst().getPath());
+    } finally {
+      transform.dispose();
+    }
+  }
+
+  @Test
   void testArrayOut() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     helper.redirectLog(out, LogLevel.ERROR);
