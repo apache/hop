@@ -116,6 +116,10 @@ Results are not limited when set to zero.
 |Add filenames to result|Select to add processed files to the result file list.
 |===
 
+=== JSONPath tab
+
+*Resolve variables in JSONPath* is enabled by default, including for existing pipelines. Clear it to use every extraction Path literally. This is required for root-array paths such as `$[0].similarity`, whose `$[0]` otherwise has a meaning in Hop variable resolution. Clearing it also disables `${VARIABLE}` substitution inside extraction paths. File and URL settings continue to resolve variables normally.
+
 === Fields Tab
 
 The Fields tab displays field definitions to extract values from the JSON structure.

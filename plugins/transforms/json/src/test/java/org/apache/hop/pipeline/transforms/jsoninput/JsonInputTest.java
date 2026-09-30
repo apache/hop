@@ -808,6 +808,41 @@ class JsonInputTest {
   }
 
   @Test
+  void serializedLiteralPathModeStillExtractsRootArray() throws Exception {
+    JsonInputMeta original = new JsonInputMeta();
+    original.setResolveJsonPaths(false);
+    String xml =
+        "<transform>"
+            + org.apache.hop.metadata.serializer.xml.XmlMetadataUtil.serializeObjectToXml(original)
+            + "</transform>";
+    JsonInputMeta loaded = new JsonInputMeta();
+    org.apache.hop.metadata.serializer.xml.XmlMetadataUtil.deSerializeFromXml(
+        org.apache.hop.core.xml.XmlHandler.loadXmlString(
+            xml, org.apache.hop.pipeline.transform.TransformMeta.XML_TAG),
+        JsonInputMeta.class,
+        loaded,
+        new org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider());
+    assertFalse(loaded.isResolveJsonPaths());
+    JsonInputField field = new JsonInputField("value");
+    field.setPath("$[0].value");
+    field.setType(IValueMeta.TYPE_STRING);
+    loaded.setInputFields(new ArrayList<>(List.of(field)));
+    loaded.setInFields(true);
+    loaded.setFieldValue("json");
+    loaded.setRemoveSourceField(true);
+    JsonInput transform = createJsonInput("json", loaded, new Object[] {"[{\"value\":\"ok\"}]"});
+    RowComparatorListener rows = new RowComparatorListener(new Object[] {"ok"});
+    transform.addRowListener(rows);
+    try {
+      processRows(transform, 3);
+      assertEquals(0, transform.getErrors());
+      assertEquals(1, rows.rowNbr);
+    } finally {
+      transform.dispose();
+    }
+  }
+
+  @Test
   void testArrayOut() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     helper.redirectLog(out, LogLevel.ERROR);
