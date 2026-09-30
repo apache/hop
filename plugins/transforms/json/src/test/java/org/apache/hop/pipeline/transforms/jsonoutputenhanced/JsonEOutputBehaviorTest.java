@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,10 +31,12 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -142,5 +145,18 @@ class JsonEOutputBehaviorTest {
       HopException error = assertThrows(HopException.class, h.transform::processRow);
       assertTrue(error.getMessage().contains("gone"), error.getMessage());
     }
+  }
+
+  @Test
+  void missingKeyIsNamedDuringSchemaDiscovery() {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.OUTPUT_VALUE);
+    meta.getKeyFields().add(new JsonEOutputKeyField("gone"));
+    IRowMeta input = rowMeta("payload");
+    HopTransformException error =
+        assertThrows(
+            HopTransformException.class,
+            () -> meta.getFields(input, "json", null, null, new Variables(), null));
+    assertTrue(error.getMessage().contains("gone"), error.getMessage());
+    assertEquals("payload", input.getValueMeta(0).getName());
   }
 }

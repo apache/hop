@@ -28,9 +28,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -171,5 +173,30 @@ class JsonEOutputMetaTest {
                 meta.getFields(
                     row, "json", null, null, new Variables(), new MemoryMetadataProvider()));
     assertTrue(error.getMessage().contains("Field1"));
+  }
+
+  @Test
+  void validationReportsAMissingGroupKey() {
+    JsonEOutputMeta meta = new JsonEOutputMeta();
+    meta.setKeyFields(List.of(new JsonEOutputKeyField("gone")));
+    RowMeta previous = new RowMeta();
+    previous.addValueMeta(new ValueMetaString("payload"));
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta("EnhancedJsonOutput", "json", meta),
+        previous,
+        new String[] {"upstream"},
+        new String[0],
+        null,
+        new Variables(),
+        new MemoryMetadataProvider());
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                result ->
+                    result.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && result.getText().contains("gone")));
   }
 }

@@ -473,21 +473,16 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     first = false;
     data.inputRowMeta = getInputRowMeta();
     data.inputRowMetaSize = data.inputRowMeta.size();
+    data.keysGroupIndexes = meta.resolveKeyFieldIndexes(data.inputRowMeta);
 
     // Init previous row copy to this first row
     prevRow = data.inputRowMeta.cloneRow(r); // copy the row to previous
 
     // Create new structure for output fields
     data.outputRowMeta = new RowMeta();
-    List<JsonEOutputKeyField> keyFields = meta.getKeyFields();
     for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      int index = data.inputRowMeta.indexOfValue(keyFields.get(i).getFieldName());
-      if (index < 0) {
-        throw new HopException(
-            BaseMessages.getString(
-                PKG, "JsonEOutput.Error.GroupFieldNotFound", keyFields.get(i).getFieldName()));
-      }
-      data.outputRowMeta.addValueMeta(data.inputRowMeta.getValueMeta(index).clone());
+      data.outputRowMeta.addValueMeta(
+          data.inputRowMeta.getValueMeta(data.keysGroupIndexes[i]).clone());
     }
 
     // This is JSON block's column
@@ -502,7 +497,6 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     initDataFieldsPositionsArray();
 
-    if (initKeyFieldsPositionArray(r)) return true;
     return false;
   }
 
@@ -531,21 +525,6 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         }
       }
     }
-  }
-
-  private boolean initKeyFieldsPositionArray(Object[] r) {
-    data.keysGroupIndexes = new int[meta.getKeyFields().size()];
-
-    for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      data.keysGroupIndexes[i] =
-          data.inputRowMeta.indexOfValue(meta.getKeyFields().get(i).getFieldName());
-      if ((r != null) && (data.keysGroupIndexes[i] < 0)) {
-        setErrors(1);
-        stopAll();
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override

@@ -29,7 +29,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -184,6 +183,23 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
     jsonBloc = "";
   }
 
+  /**
+   * Locate every group key in {@code row}. The row is not modified. A missing key is reported
+   * before any caller clears or rewrites its metadata.
+   */
+  public int[] resolveKeyFieldIndexes(IRowMeta row) throws HopTransformException {
+    int[] indexes = new int[keyFields.size()];
+    for (int i = 0; i < keyFields.size(); i++) {
+      String name = keyFields.get(i).getFieldName();
+      indexes[i] = row.indexOfValue(name);
+      if (indexes[i] < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonEOutput.Error.GroupFieldNotFound", name));
+      }
+    }
+    return indexes;
+  }
+
   @Override
   public void getFields(
       IRowMeta row,
@@ -196,18 +212,10 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
 
     if (getOperationType() != OperationType.WRITE_TO_FILE) {
       IRowMeta rowMeta = row.clone();
+      int[] keyIndexes = resolveKeyFieldIndexes(rowMeta);
       row.clear();
-
-      for (int i = 0; i < this.getKeyFields().size(); i++) {
-        JsonEOutputKeyField keyField = this.getKeyFields().get(i);
-        int index = rowMeta.indexOfValue(keyField.getFieldName());
-        if (index < 0) {
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "JsonEOutput.Error.GroupFieldNotFound", keyField.getFieldName()));
-        }
-        IValueMeta vmi = rowMeta.getValueMeta(index).clone();
-        row.addValueMeta(vmi);
+      for (int keyIndex : keyIndexes) {
+        row.addValueMeta(rowMeta.getValueMeta(keyIndex).clone());
       }
 
       ValueMetaString vm = new ValueMetaString(this.getOutputValue());
@@ -253,6 +261,11 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
     }
     // Check output fields
     if (prev != null && !prev.isEmpty()) {
+      try {
+        resolveKeyFieldIndexes(prev);
+      } catch (HopTransformException e) {
+        remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta));
+      }
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
