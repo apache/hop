@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineWorkerPoolOptions;
+import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +80,15 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       label = "i18n::BeamEnginesDataflow.OptionsStagingLocation.Label")
   @HopMetadataProperty
   private String gcpStagingLocation;
+
+  @GuiWidgetElement(
+      order = "20025-dataflow-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "i18n::BeamEnginesDataflow.OptionsGcpTempLocation.ToolTip",
+      label = "i18n::BeamEnginesDataflow.OptionsGcpTempLocation.Label")
+  @HopMetadataProperty
+  private String gcpTempLocation;
 
   @GuiWidgetElement(
       order = "20030-dataflow-options",
@@ -201,6 +211,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     this.gcpServiceAccount = config.gcpServiceAccount;
     this.gcpAppName = config.gcpAppName;
     this.gcpStagingLocation = config.gcpStagingLocation;
+    this.gcpTempLocation = config.gcpTempLocation;
     this.gcpInitialNumberOfWorkers = config.gcpInitialNumberOfWorkers;
     this.gcpMaximumNumberOfWorkers = config.gcpMaximumNumberOfWorkers;
     this.gcpAutoScalingAlgorithm = config.gcpAutoScalingAlgorithm;
@@ -232,6 +243,12 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     options.setProject(resolve(getGcpProjectId()));
     options.setAppName(resolve(getGcpAppName()));
     options.setStagingLocation(resolve(getGcpStagingLocation()));
+
+    if (StringUtils.isNotEmpty(getGcpTempLocation())) {
+      // #2355: BigQuery load jobs and the other GCP IOs need a GCS path in gcpTempLocation, which
+      // is a separate option from the general tempLocation.
+      options.as(GcpOptions.class).setGcpTempLocation(resolve(getGcpTempLocation()));
+    }
 
     if (StringUtils.isNotEmpty(getGcpServiceAccount())) {
       options.setServiceAccount(resolve(getGcpServiceAccount()));
@@ -391,6 +408,22 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
    */
   public void setGcpStagingLocation(String gcpStagingLocation) {
     this.gcpStagingLocation = gcpStagingLocation;
+  }
+
+  /**
+   * Gets the GCP temp location
+   *
+   * @return value of gcpTempLocation
+   */
+  public String getGcpTempLocation() {
+    return gcpTempLocation;
+  }
+
+  /**
+   * @param gcpTempLocation The gcpTempLocation to set
+   */
+  public void setGcpTempLocation(String gcpTempLocation) {
+    this.gcpTempLocation = gcpTempLocation;
   }
 
   /**
