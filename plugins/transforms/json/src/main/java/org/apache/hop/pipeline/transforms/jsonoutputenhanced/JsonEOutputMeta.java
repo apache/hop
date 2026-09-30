@@ -27,6 +27,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -51,15 +55,50 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::JsonEOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/enhancedjsonoutput.html")
+@GuiPlugin
 @Getter
 @Setter
 public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputData> {
   private static final Class<?> PKG = JsonEOutputMeta.class;
+
+  public static final String KEY_GUI_PARENT = "JsonEOutput.GroupKeys";
+  public static final String FORMAT_GUI_PARENT = "JsonEOutput.FileFormat";
+  public static final String WIDGET_GET_KEYS = "getKeyFields";
   public static final String CONST_SPACES_LONG = "        ";
   public static final String CONST_SPACES = "      ";
   public static final String CONST_OUTPUT_VALUE = "outputValue";
   public static final String CONST_KEY_FIELD = "key_field";
   public static final String CONST_FIELD = "field";
+
+  @GuiWidgetElement(
+      id = WIDGET_GET_KEYS,
+      order = "0100",
+      type = GuiElementType.BUTTON,
+      label = "i18n::JsonEOutputDialog.Get.Button",
+      toolTip = "i18n::JsonEOutputDialog.GetKeys.Tooltip",
+      parentId = KEY_GUI_PARENT,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::JsonEOutputDialog.KeyConfigTab.TabTitle",
+      groupOrder = "0100")
+  public void getKeyFieldsFromPrevious(Object source) {
+    // The dialog listener fills the live Group Key table. The button invoker passes the meta.
+  }
+
+  @HopMetadataProperty(
+      key = "newline_delimited",
+      injectionKey = "NEWLINE_DELIMITED",
+      injectionKeyDescription = "JsonEOutput.Injection.NEWLINE_DELIMITED")
+  @GuiWidgetElement(
+      id = "newlineDelimited",
+      order = "0100",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::JsonEOutputDialog.NdJson.Label",
+      toolTip = "i18n::JsonEOutputDialog.NdJson.Tooltip",
+      parentId = FORMAT_GUI_PARENT,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::JsonEOutputDialog.FileFormat.TabTitle",
+      groupOrder = "0100")
+  private boolean newlineDelimited;
 
   @Getter
   public enum OperationType implements IEnumHasCodeAndDescription {

@@ -204,4 +204,16 @@ class JsonEOutputBehaviorTest {
     assertEquals(2, file.get(0).get("rows").size());
     assertEquals("z", file.get(1).get("rows").get("payload").asText());
   }
+
+  @Test
+  void keySuggestionsExcludeLiveOutputAndExistingKeys() {
+    assertEquals(
+        List.of("grp"),
+        JsonEOutputDialog.suggestKeyFieldNames(
+            rowMeta("payload", "grp", "already"), List.of("payload"), List.of("already")));
+    assertEquals(
+        List.of(),
+        JsonEOutputDialog.suggestKeyFieldNames(
+            rowMeta("payload", "grp"), List.of("payload"), List.of("grp")));
+  }
 }

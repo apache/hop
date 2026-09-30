@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -35,6 +37,8 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -65,6 +69,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class JsonEOutputDialog extends BaseTransformDialog {
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = JsonEOutputMeta.FORMAT_GUI_PARENT;
+
+  private GuiCompositeWidgets keyWidgets;
+  private GuiCompositeWidgets formatWidgets;
   private static final Class<?> PKG = JsonEOutputMeta.class; // needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "JSONSortWarning";
@@ -232,8 +240,6 @@ public class JsonEOutputDialog extends BaseTransformDialog {
     Composite wKeyConfigComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wKeyConfigComp);
 
-    final int keyFieldsRows = input.getKeyFields().size();
-
     keyColInf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -247,24 +253,24 @@ public class JsonEOutputDialog extends BaseTransformDialog {
               false)
         };
     keyColInf[1].setUsingVariables(true);
-    wKeyFields =
-        new TableView(
-            variables,
-            wKeyConfigComp,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            keyColInf,
-            keyFieldsRows,
-            lsMod,
-            props);
-
-    FormData fdKeyFields = new FormData();
-    fdKeyFields.left = new FormAttachment(0, 0);
-    fdKeyFields.top = new FormAttachment(0, 0);
-    fdKeyFields.right = new FormAttachment(100, 0);
-    fdKeyFields.bottom = new FormAttachment(100, 0);
-    wKeyFields.setLayoutData(fdKeyFields);
-
     wKeyConfigComp.setLayout(keyConfigLayout);
+    keyWidgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            wKeyConfigComp,
+            variables,
+            null,
+            null,
+            JsonEOutputMeta.KEY_GUI_PARENT,
+            input,
+            widgets -> {
+              keyWidgets = widgets;
+              widgets.registerExtraGroup(
+                  BaseMessages.getString(PKG, "JsonEOutputDialog.KeyConfigTab.TabTitle"),
+                  "0100",
+                  null,
+                  this::createKeyFieldsTable);
+            });
+    keyWidgets.setCompositeButtonsListener(source -> getKeyFieldsFromPrevious());
     wKeyConfigComp.layout();
     wKeyConfigTab.setControl(wKeyConfigComp);
 
@@ -423,6 +429,24 @@ public class JsonEOutputDialog extends BaseTransformDialog {
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
+
+    CTabItem formatTab = new CTabItem(wTabFolder, SWT.NONE);
+    formatTab.setText(BaseMessages.getString(PKG, "JsonEOutputDialog.FileFormat.TabTitle"));
+    Composite formatComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(formatComp);
+    formatComp.setLayout(new FormLayout());
+    formatWidgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            formatComp, variables, null, null, GUI_PLUGIN_ELEMENT_PARENT_ID, input);
+    formatWidgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets widgets, Control control, String widgetId) {
+            input.setChanged();
+          }
+        });
+    formatTab.setControl(formatComp);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -1033,6 +1057,7 @@ public class JsonEOutputDialog extends BaseTransformDialog {
   }
 
   private void getInfo(JsonEOutputMeta jsometa) {
+    formatWidgets.getWidgetsContents(jsometa, GUI_PLUGIN_ELEMENT_PARENT_ID);
 
     jsometa.setJsonBloc(wBlocName.getText());
     jsometa.setEncoding(wEncoding.getText());
@@ -1186,5 +1211,81 @@ public class JsonEOutputDialog extends BaseTransformDialog {
     wlAddToResult.setEnabled(activeFile);
     wAddToResult.setEnabled(activeFile);
     wbShowFiles.setEnabled(activeFile);
+    if (formatWidgets != null) {
+      for (Control control : formatWidgets.getWidgetsMap().values()) {
+        control.setEnabled(activeFile);
+      }
+      for (Control control : formatWidgets.getLabelsMap().values()) {
+        control.setEnabled(activeFile);
+      }
+    }
+  }
+
+  private void createKeyFieldsTable(Composite parent) {
+    wKeyFields =
+        new TableView(
+            variables,
+            parent,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            keyColInf,
+            input.getKeyFields().size(),
+            event -> input.setChanged(),
+            props);
+    Control button = keyWidgets.getWidgetsMap().get(JsonEOutputMeta.WIDGET_GET_KEYS);
+    FormData fd = new FormData();
+    fd.left = new FormAttachment(0, 0);
+    fd.right = new FormAttachment(100, 0);
+    fd.top = new FormAttachment(button, margin);
+    fd.bottom = new FormAttachment(100, 0);
+    wKeyFields.setLayoutData(fd);
+  }
+
+  static List<String> suggestKeyFieldNames(
+      IRowMeta previous, List<String> outputNames, List<String> existingKeys) {
+    Set<String> excluded = new HashSet<>(outputNames);
+    excluded.addAll(existingKeys);
+    List<String> names = new ArrayList<>();
+    for (int i = 0; i < previous.size(); i++) {
+      String name = previous.getValueMeta(i).getName();
+      if (excluded.add(name)) {
+        names.add(name);
+      }
+    }
+    return names;
+  }
+
+  private void getKeyFieldsFromPrevious() {
+    try {
+      IRowMeta previous = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (previous == null) {
+        return;
+      }
+      List<String> outputNames = new ArrayList<>();
+      for (TableItem item : wFields.getNonEmptyItems()) {
+        outputNames.add(item.getText(1));
+      }
+      List<String> existingKeys = new ArrayList<>();
+      for (TableItem item : wKeyFields.getNonEmptyItems()) {
+        existingKeys.add(item.getText(1));
+      }
+      List<String> additions = suggestKeyFieldNames(previous, outputNames, existingKeys);
+      for (String name : additions) {
+        TableItem item = new TableItem(wKeyFields.table, SWT.NONE);
+        item.setText(1, name);
+        item.setText(2, name);
+      }
+      if (!additions.isEmpty()) {
+        wKeyFields.removeEmptyRows();
+        wKeyFields.setRowNums();
+        wKeyFields.optWidth(true);
+        input.setChanged();
+      }
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
+          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          e);
+    }
   }
 }
