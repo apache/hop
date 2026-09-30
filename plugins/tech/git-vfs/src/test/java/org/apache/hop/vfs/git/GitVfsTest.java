@@ -186,9 +186,11 @@ class GitVfsTest {
 
       FileSystemException e =
           assertThrows(FileSystemException.class, () -> resolve("ops:///workflows/daily.hwf"));
+      // A failure while fetching still names the revision it was asked for. The missing-revision
+      // sentence is what shows the name was looked up and was not there.
       assertTrue(
-          e.getMessage().contains("no-such-branch"),
-          "the error should name the branch which was not found: " + e.getMessage());
+          e.getMessage().contains("has no branch, tag or commit called 'no-such-branch'"),
+          "the error should say that revision is not in the repository: " + e.getMessage());
     }
   }
 

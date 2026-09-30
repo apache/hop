@@ -41,6 +41,42 @@ public class GitDaemonContainer implements AutoCloseable {
   /** The port git daemon listens on inside the container. */
   private static final int DAEMON_PORT = 9418;
 
+  /**
+   * Becomes the owner of {@code /repos}, then starts git daemon.
+   *
+   * <p>The repository is bind-mounted from a directory which is private to the account that created
+   * it. That account is uid 1000 on some machines and another uid on others, including the GitHub
+   * Actions runner. A daemon running as a fixed uid can read the mount only where the numbers
+   * happen to match, and otherwise reports the repository as not exported. {@code safe.directory}
+   * skips git's ownership check and does not grant permission to traverse the directory. Git also
+   * refuses to start for a uid that has no passwd entry, so the owner is added to the image's
+   * passwd when it is not already there. The uid is read inside the container, where the mount
+   * shows it, rather than from the host.
+   */
+  private static final String DAEMON_ENTRYPOINT =
+      """
+      #!/bin/sh
+      set -eu
+      uid=$(stat -c '%u' /repos)
+      gid=$(stat -c '%g' /repos)
+      if ! awk -F: -v id="$gid" '$3 == id { found=1 } END { exit !found }' /etc/group; then
+        addgroup -g "$gid" hopgit
+      fi
+      group=$(awk -F: -v id="$gid" '$3 == id { print $1; exit }' /etc/group)
+      if ! awk -F: -v id="$uid" '$3 == id { found=1 } END { exit !found }' /etc/passwd; then
+        adduser -D -H -u "$uid" -G "$group" hopgit
+      fi
+      user=$(awk -F: -v id="$uid" '$3 == id { print $1; exit }' /etc/passwd)
+      export HOME=/tmp
+      exec su-exec "$user:$group" git daemon \\
+        --verbose \\
+        --export-all \\
+        --base-path=/repos \\
+        --reuseaddr \\
+        --listen=0.0.0.0 \\
+        --port=9418
+      """;
+
   private final Path repositoriesFolder;
   private final String repositoryName;
   private final GenericContainer<?> container;
@@ -84,32 +120,24 @@ public class GitDaemonContainer implements AutoCloseable {
    * server. {@code git-daemon} is a separate package on alpine, so an image installed from the
    * plain {@code git} package starts and exits with a usage message.
    *
-   * <p>{@code --export-all} serves every repository under the base path. {@code safe.directory}
-   * lets the daemon read a repository owned by the user who bind-mounted it. {@code --inform} and
+   * <p>{@code --export-all} serves every repository under the base path. {@code --inform} and
    * {@code --listen} are not both accepted by this version of git, and an argument it does not know
-   * makes the daemon print its usage and exit.
+   * makes the daemon print its usage and exit. The entry point drops to the owner of the mounted
+   * repository; see {@link #DAEMON_ENTRYPOINT}.
    */
   private static ImageFromDockerfile image() {
     return new ImageFromDockerfile("hop-git-vfs-test-daemon:local", false)
+        .withFileFromString("hop-git-daemon", DAEMON_ENTRYPOINT)
         .withDockerfileFromBuilder(
             builder ->
                 builder
                     .from("alpine:3.22")
-                    .run("apk add --no-cache git git-daemon")
+                    .run("apk add --no-cache git git-daemon su-exec")
                     .run("git config --system --add safe.directory '*'")
-                    .run(
-                        "addgroup -g 1000 gituser && adduser -D -u 1000 -G gituser gituser"
-                            + " && mkdir -p /repos && chown -R gituser:gituser /repos")
-                    .user("gituser")
-                    .entryPoint(
-                        "git",
-                        "daemon",
-                        "--verbose",
-                        "--export-all",
-                        "--base-path=/repos",
-                        "--reuseaddr",
-                        "--listen=0.0.0.0",
-                        "--port=9418"));
+                    .run("mkdir -p /repos")
+                    .copy("hop-git-daemon", "/usr/local/bin/hop-git-daemon")
+                    .run("chmod 755 /usr/local/bin/hop-git-daemon")
+                    .entryPoint("/usr/local/bin/hop-git-daemon"));
   }
 
   /**

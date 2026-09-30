@@ -161,9 +161,14 @@ class GitVfsContainerIT {
 
     FileSystemException e =
         assertThrows(FileSystemException.class, () -> resolve("ops:///workflows/daily.hwf"));
+    // The checkout names the revision it was asked for even when the server refused the
+    // repository, so the branch name on its own does not show that this revision was looked up.
     assertTrue(
-        e.getMessage().contains("no-such-branch"),
-        "the error should name the branch which was not found: " + e.getMessage());
+        e.getMessage().contains("has no branch, tag or commit called 'no-such-branch'"),
+        "the error should say that revision is not in the repository: "
+            + e.getMessage()
+            + "\n"
+            + daemon.logs());
   }
 
   @Test
