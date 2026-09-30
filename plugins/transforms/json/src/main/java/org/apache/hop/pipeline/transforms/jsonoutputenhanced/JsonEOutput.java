@@ -745,6 +745,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
       String filename = buildFilename();
       createParentFolder(filename);
+      validateNdJsonAppend(filename);
       if (meta.isAddingToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
@@ -784,6 +785,29 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
 
     return retval;
+  }
+
+  /** An appended NDJSON file must already end in LF. The check does not read the earlier lines. */
+  private void validateNdJsonAppend(String filename) throws Exception {
+    if (!meta.isNewlineDelimited() || !meta.getFileSettings().isFileAppended()) {
+      return;
+    }
+    try (FileObject file = HopVfs.getFileObject(filename, variables)) {
+      if (!file.exists()) {
+        return;
+      }
+      long size = file.getContent().getSize();
+      if (size == 0) {
+        return;
+      }
+      try (var stream = HopVfs.getInputStream(file)) {
+        stream.skipNBytes(size - 1);
+        if (stream.read() != '\n') {
+          throw new IOException(
+              BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonAppendBoundary", filename));
+        }
+      }
+    }
   }
 
   public String buildFilename() {

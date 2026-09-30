@@ -391,4 +391,23 @@ class JsonEOutputBehaviorTest {
       assertFalse(file.exists());
     }
   }
+
+  @Test
+  void ndjsonRejectsAppendWithoutFinalLf() throws Exception {
+    String existing = payload("old");
+    try (FileObject folder = HopVfs.getFileObject(base)) {
+      folder.createFolder();
+    }
+    try (var out = HopVfs.getOutputStream(base + "/out.json", false)) {
+      out.write(existing.getBytes(StandardCharsets.UTF_8));
+    }
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setNewlineDelimited(true);
+    meta.getFileSettings().setFileAppended(true);
+    try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"new"})) {
+      assertTrue(h.transform.init());
+      assertThrows(HopException.class, h.transform::processRow);
+    }
+    assertEquals(existing, read(base + "/out.json"));
+  }
 }
