@@ -492,6 +492,10 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     if (!data.isOutputValue) {
       incrementLinesOutput();
     }
+    int split = meta.getFileSettings().getSplitOutputAfter();
+    if (split > 0 && data.fileItemCount >= split) {
+      finishFile();
+    }
   }
 
   /** Close the JSON document and the file, if any item was written to it. */

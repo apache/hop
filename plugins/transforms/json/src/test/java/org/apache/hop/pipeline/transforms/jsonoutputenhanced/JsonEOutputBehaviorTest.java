@@ -316,4 +316,23 @@ class JsonEOutputBehaviorTest {
     assertEquals("a\nb", parse(lines.get(0)).get("payload").asText());
     assertEquals("c\rd", parse(lines.get(1)).get("payload").asText());
   }
+
+  @Test
+  void ndjsonSplitsRecordsWithoutOuterArrays() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setNewlineDelimited(true);
+    meta.setUseArrayWithSingleInstance(true);
+    meta.getFileSettings().setSplitOutputAfter(2);
+    try (Harness h =
+        new Harness(
+            meta, rowMeta("payload"), new Object[] {"x"}, new Object[] {"y"}, new Object[] {"z"})) {
+      h.run();
+      assertEquals(3, h.written.size());
+    }
+    assertEquals(payload("x") + "\n" + payload("y") + "\n", read(base + "/out_0.json"));
+    assertEquals(payload("z") + "\n", read(base + "/out_1.json"));
+    try (FileObject extra = HopVfs.getFileObject(base + "/out_2.json")) {
+      assertFalse(extra.exists());
+    }
+  }
 }
