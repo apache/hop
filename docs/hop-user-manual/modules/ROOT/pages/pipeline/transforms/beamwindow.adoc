@@ -43,7 +43,10 @@ The Beam window transform adds event-time-based window functions using the Beam 
 |Window start field|The field containing the window start time.
 |Window end field|The field containing the window end time.
 |Window max field|The field containing the max duration between events.
+|Key field|Optional: the field to window on. Rows are grouped per value of this field, and each group gets its own window. Leave blank to window across the whole stream. The key field is used for grouping only and is not added to the output.
 |===
+
+NOTE: When a key field is given and it does not exist in the input, the pipeline fails with a message naming the missing field rather than silently windowing everything together.
 
 == Window Types
 
