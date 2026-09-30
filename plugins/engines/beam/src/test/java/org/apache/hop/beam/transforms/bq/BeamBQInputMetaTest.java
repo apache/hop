@@ -19,6 +19,7 @@ package org.apache.hop.beam.transforms.bq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
@@ -56,6 +57,10 @@ class BeamBQInputMetaTest {
     assertEquals("test_table", meta.getTableId());
     assertEquals("SELECT id, name FROM `test-project.test_dataset.test_table`", meta.getQuery());
 
+    // #2416: the query options round-trip too.
+    assertEquals("EU", meta.getQueryLocation());
+    assertTrue(meta.isSkippingQueryValidation());
+
     assertEquals(2, meta.getFields().size());
     BQField first = meta.getFields().get(0);
     assertEquals("id", first.getName());
@@ -65,6 +70,16 @@ class BeamBQInputMetaTest {
     assertEquals("name", second.getName());
     assertEquals("String", second.getHopType());
     assertEquals("renamed_name", second.getNewName());
+  }
+
+  @Test
+  void queryOptionsDefaultToOff() {
+    // A transform saved before #2416 has no query_location element, so the defaults have to keep
+    // the previous behaviour: no explicit location, validation on.
+    BeamBQInputMeta meta = new BeamBQInputMeta();
+
+    assertNull(meta.getQueryLocation());
+    assertFalse(meta.isSkippingQueryValidation());
   }
 
   @Test

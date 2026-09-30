@@ -43,6 +43,8 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
   private String datasetId;
   private String tableId;
   private String query;
+  private String queryLocation;
+  private boolean skippingQueryValidation;
   private String rowMetaJson;
 
   // Log and count errors.
@@ -60,6 +62,8 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
       String datasetId,
       String tableId,
       String query,
+      String queryLocation,
+      boolean skippingQueryValidation,
       String rowMetaJson) {
     super(name);
     this.transformName = transformName;
@@ -67,6 +71,8 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     this.datasetId = datasetId;
     this.tableId = tableId;
     this.query = query;
+    this.queryLocation = queryLocation;
+    this.skippingQueryValidation = skippingQueryValidation;
     this.rowMetaJson = rowMetaJson;
   }
 
@@ -94,6 +100,15 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
         bqTypedRead = BigQueryIO.read(toHopFn).from(tableReference).usingStandardSql();
       } else {
         bqTypedRead = BigQueryIO.read(toHopFn).fromQuery(query).usingStandardSql();
+
+        // #2416: let the caller point at a specific BigQuery dataset location and skip validation
+        // for a query that is not registered when the job is submitted.
+        if (StringUtils.isNotEmpty(queryLocation)) {
+          bqTypedRead = bqTypedRead.withQueryLocation(queryLocation);
+        }
+        if (skippingQueryValidation) {
+          bqTypedRead = bqTypedRead.withoutValidation();
+        }
       }
 
       // Apply the function
