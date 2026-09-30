@@ -122,11 +122,34 @@ by row count.
 |https://github.com/apache/hop/issues/2357[#2357] Parquet transform and ParquetIO
 |Medium
 |3
-|Implement
-|Planned
-|`ParquetIO` is not on the plugin classpath: it ships in the separate
-`org.apache.beam:beam-sdks-java-io-parquet` artifact.
-Adding that one dependency plus a handler covers the Parquet file transforms.
+|Investigate
+|Answered
+|The issue asks whether a handler is worth the effort. Yes, and the blocker the triage expected
+turns out not to be the real one.
+
+`org.apache.beam:beam-sdks-java-io-parquet` was indeed missing and is now a dependency;
+`ParquetIOViabilityTest` fails without it and passes with it.
+
+The triage assumed the only work was handler code. The real finding is that `ParquetIO` is
+Avro-typed: `ParquetIO.read(schema)` and `ParquetIO.sink(schema)` both take an
+`org.apache.avro.Schema`, not a Parquet `MessageType`, and produce `GenericRecord`.
+That is good news rather than a problem, because the Hop Parquet output already builds an Avro
+schema and derives the Parquet type from it (`ParquetOutput.buildSchema()` creates
+`SchemaBuilder.record("ApacheHopParquetSchema")`). The two sides agree on the schema
+representation, so a handler does not have to invent a translation layer.
+
+Two things to know before writing it:
+
+* The same blocker as #2358 applies: `hop-tech-parquet` is not a dependency of the Beam module, so
+`ParquetOutputMeta` and `ParquetInputMeta` cannot be referenced at compile time.
+* The transforms still cannot work through the generic handler. `ParquetFileInput` reads the
+filename to open from a field in an incoming row, so it has no input collection on Beam and the
+generic handler's dummy row has no filename field. `ParquetFileOutput` opens one writer and holds it
+for every row, so every worker would write to the same file.
+
+`AvroCoder` lives in `org.apache.beam.sdk.extensions.avro.coders`, not `org.apache.beam.sdk.coders`.
+Packaging needs no change: the Beam SDKs are unpacked into `lib/core`, which is already on the
+classpath, and `lib-beam` is legacy and no longer produced.
 
 |https://github.com/apache/hop/issues/2358[#2358] Avro transform and AvroIO
 |Medium

@@ -1140,6 +1140,21 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- #2357: ParquetIO for the Beam Parquet transforms. It ships separately from
+             beam-sdks-java-core, which is why the Parquet transforms were unavailable on Beam. -->
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-parquet</artifactId>
+            <exclusions>
+                <!-- Transitive and unused here, and it conflicts with the jackson version this
+                     plugin already manages. -->
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-synthetic</artifactId>
