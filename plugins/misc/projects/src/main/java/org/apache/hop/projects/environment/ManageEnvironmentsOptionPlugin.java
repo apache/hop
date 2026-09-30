@@ -17,8 +17,9 @@
 
 package org.apache.hop.projects.environment;
 
-import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -71,6 +72,39 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
       description = "A list of configuration files for this lifecycle environment, comma separated",
       split = ",")
   private String[] environmentConfigFiles;
+
+  @Getter
+  @Setter
+  @CommandLine.Option(
+      names = {"--environment-config-file-directory"},
+      description =
+          "Folder of configuration files for this lifecycle environment. "
+              + "Matching files replace the configuration file list, together with --environment-config-files when that option is also set.")
+  private String environmentConfigFileDirectory;
+
+  @Getter
+  @Setter
+  @CommandLine.Option(
+      names = {"--environment-config-file-wildcard"},
+      description =
+          "Regular expression matched against file names in --environment-config-file-directory. Example: .*\\.json")
+  private String environmentConfigFileWildcard;
+
+  @Getter
+  @Setter
+  @CommandLine.Option(
+      names = {"--environment-config-file-exclude-wildcard"},
+      description =
+          "Regular expression for file names to ignore in --environment-config-file-directory. Example: .*secret.*")
+  private String environmentConfigFileExcludeWildcard;
+
+  @Getter
+  @Setter
+  @CommandLine.Option(
+      names = {"--environment-config-include-subfolders"},
+      description =
+          "Also include matching files from subfolders of --environment-config-file-directory")
+  private boolean environmentConfigIncludeSubfolders;
 
   @CommandLine.Option(
       names = {"-em", "--environment-modify"},
@@ -164,7 +198,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
           CONST_ENVIRONMENT + environmentName + "' doesn't exist, it can't be modified");
     }
 
-    if (updateEnvironmentDetails(environment)) {
+    if (updateEnvironmentDetails(environment, variables)) {
       config.addEnvironment(environment);
       log.logBasic(
           CONST_LIFECYCLE_ENVIRONMENT
@@ -197,7 +231,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     environment = new LifecycleEnvironment();
     environment.setName(environmentName);
 
-    updateEnvironmentDetails(environment);
+    updateEnvironmentDetails(environment, variables);
 
     config.addEnvironment(environment);
     ProjectsConfigSingleton.saveConfig();
@@ -243,7 +277,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
 
   private void validateConfigFiles(
       ILogChannel log, IVariables variables, LifecycleEnvironment environment) throws Exception {
-    if (environment == null || environmentConfigFiles == null) {
+    if (environment == null || !configurationFilesSpecified()) {
       return;
     }
     for (String environmentConfigFilename : environment.getConfigurationFiles()) {
@@ -260,7 +294,8 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
   }
 
-  private boolean updateEnvironmentDetails(LifecycleEnvironment environment) {
+  private boolean updateEnvironmentDetails(LifecycleEnvironment environment, IVariables variables)
+      throws HopException {
     boolean changed = false;
     if (StringUtils.isNotEmpty(environmentPurpose)) {
       environment.setPurpose(environmentPurpose);
@@ -270,12 +305,29 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
       environment.setProjectName(environmentProject);
       changed = true;
     }
-    if (environmentConfigFiles != null && environmentConfigFiles.length > 0) {
+    if (configurationFilesSpecified()) {
+      List<String> configurationFiles =
+          EnvironmentConfigFileSelector.combine(
+              variables,
+              environmentConfigFiles,
+              environmentConfigFileDirectory,
+              environmentConfigFileWildcard,
+              environmentConfigFileExcludeWildcard,
+              environmentConfigIncludeSubfolders);
       environment.getConfigurationFiles().clear();
-      environment.getConfigurationFiles().addAll(Arrays.asList(environmentConfigFiles));
+      environment.getConfigurationFiles().addAll(configurationFiles);
       changed = true;
     }
     return changed;
+  }
+
+  /** True when create/modify was asked to replace the configuration file list. */
+  private boolean configurationFilesSpecified() {
+    return (environmentConfigFiles != null && environmentConfigFiles.length > 0)
+        || StringUtils.isNotEmpty(environmentConfigFileDirectory)
+        || StringUtils.isNotEmpty(environmentConfigFileWildcard)
+        || StringUtils.isNotEmpty(environmentConfigFileExcludeWildcard)
+        || environmentConfigIncludeSubfolders;
   }
 
   private void validateEnvironmentNameSpecified() throws Exception {

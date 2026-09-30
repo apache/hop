@@ -93,6 +93,22 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
         <environmentConfigFiles>...]
                             A list of configuration files for this lifecycle
                               environment, comma separated
+          --environment-config-file-directory=<environmentConfigFileDirectory>
+                            Folder of configuration files for this lifecycle
+                              environment. Matching files replace the configuration
+                              file list, together with --environment-config-files
+                              when that option is also set.
+          --environment-config-file-exclude-wildcard=<environmentConfigFileExcludeWildcard>
+                            Regular expression for file names to ignore in
+                              --environment-config-file-directory. Example:
+                              .*secret.*
+          --environment-config-file-wildcard=<environmentConfigFileWildcard>
+                            Regular expression matched against file names in
+                              --environment-config-file-directory. Example:
+                              .*\.json
+          --environment-config-include-subfolders
+                            Also include matching files from subfolders of
+                              --environment-config-file-directory
       -el, --environments-list
                             List the defined lifecycle environments
       -em, --environment-modify
@@ -223,6 +239,10 @@ TIP: `-sv` can be used to unset a variable by specifying a variable without a va
 |-cfd|--config-file-describe-variables=<configDescribeVariables>[,<configDescribeVariables>...]|A list of variable=description combinations separated by a comma
 |-cfv|--config-file-set-variables=<configSetVariables> ,<configSetVariables>...]|A list of variable=value combinations separated by a comma
 |-eg|--environment-config-files=<environmentConfigFiles>[, <environmentConfigFiles>...]|A list of configuration files for this lifecycle environment, comma separated
+||--environment-config-file-directory=<environmentConfigFileDirectory>|Folder of configuration files. Matching files replace the configuration file list, together with --environment-config-files when that option is also set. The wildcard is a regular expression, for example `.*\.json`, not a shell glob
+||--environment-config-file-wildcard=<environmentConfigFileWildcard>|Regular expression matched against file names in --environment-config-file-directory
+||--environment-config-file-exclude-wildcard=<environmentConfigFileExcludeWildcard>|Regular expression for file names to ignore in that folder
+||--environment-config-include-subfolders|Also include matching files from subfolders of --environment-config-file-directory
 |-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
 |===
 

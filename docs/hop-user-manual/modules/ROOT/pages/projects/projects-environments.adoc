@@ -146,13 +146,22 @@ image:hop-gui/environment/environment-dialog-configuration-files-tab.png[Environ
 |Property|Description|Variables Supported|Mandatory|Default
 |Configuration files|One or more files that define environment-specific variables. Each row is a filename and a description|Yes|No|
 |Description|Short note about that file. It is stored in the JSON file, not on the environment|No|No|
+|File or directory|A single configuration file, or a folder to scan. *Add* puts the matching files into the list below|Yes|No|
+|Inclusion wildcard (RegExp)|Regular expression matched against the file name, for example `.*\.json`. Leave empty to include every file. Not a shell glob|Yes|No|
+|Exclusion wildcard (RegExp)|Regular expression for file names to skip, for example `.*secret.*`|Yes|No|
+|Include subfolders|Also add matching files from subfolders|No|No|
+|Add|Resolve the file or folder and append each match to the list. The environment still stores one path per file|No|No|
 |Import variables|Scan the project for `+${VARIABLE}+` expressions and add missing names to a configuration file|No|No|
-|Select...|Add an existing configuration file|No|No|
+|Select...|Add one or more existing configuration files. Several files can be selected at once|No|No|
 |New...|Create a new configuration file and add it to the environment|No|No|
 |Edit...|Open the selected configuration file to set its description and the variable names, values and descriptions|No|No|
 |===
 
 Each environment contains one or more configuration files where you manage environment-specific variables.
+
+*Add* expands a file or a folder into that list immediately, using the same regular-expression rules as the JSON Input and Get File Names transforms.
+A folder is not stored as a wildcard.
+After the files are added, each row is still one file, so *Edit...* opens that file.
 
 Store secrets (database passwords, API keys, tokens) in these files as variables, not in project metadata or pipelines.
 Keep the files *outside* the project folder so they are not checked into the project repository.

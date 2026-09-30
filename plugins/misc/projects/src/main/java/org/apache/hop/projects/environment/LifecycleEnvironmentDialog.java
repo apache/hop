@@ -38,6 +38,7 @@ import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.Defaults;
+import org.apache.hop.projects.util.PathVariableReplacer;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.AttributesDialogExtension;
@@ -68,6 +69,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -95,6 +97,11 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Combo wProject;
   private Text wCanvasText;
   private TableView wConfigFiles;
+
+  private TextVar wAddFilename;
+  private TextVar wAddWildcard;
+  private TextVar wAddExcludeWildcard;
+  private Button wAddIncludeSubfolders;
 
   private IVariables variables;
   private Button wbEdit;
@@ -331,6 +338,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     comp.setLayout(layout);
     tab.setControl(comp);
 
+    Group wAddGroup = createAddFilesGroup(comp, margin);
+
     Label wlConfigFiles = new Label(comp, SWT.LEFT);
     PropsUi.setLook(wlConfigFiles);
     wlConfigFiles.setText(
@@ -338,7 +347,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     FormData fdlConfigFiles = new FormData();
     fdlConfigFiles.left = new FormAttachment(0, 0);
     fdlConfigFiles.right = new FormAttachment(100, 0);
-    fdlConfigFiles.top = new FormAttachment(0, 0);
+    fdlConfigFiles.top = new FormAttachment(wAddGroup, margin);
     wlConfigFiles.setLayoutData(fdlConfigFiles);
 
     wbImportVariables = new Button(comp, SWT.PUSH);
@@ -354,6 +363,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     Button wbSelect = new Button(comp, SWT.PUSH);
     PropsUi.setLook(wbSelect);
     wbSelect.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Select"));
+    wbSelect.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Select.Tooltip"));
     FormData fdAdd = new FormData();
     fdAdd.left = new FormAttachment(wbImportVariables, 0, SWT.LEFT);
     fdAdd.right = new FormAttachment(100, 0);
@@ -467,25 +478,257 @@ public class LifecycleEnvironmentDialog extends Dialog {
     }
   }
 
+  private Group createAddFilesGroup(Composite parent, int margin) {
+    int middle = props.getMiddlePct();
+
+    Group group = new Group(parent, SWT.SHADOW_NONE);
+    PropsUi.setLook(group);
+    group.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Group"));
+    FormLayout groupLayout = new FormLayout();
+    groupLayout.marginWidth = PropsUi.getFormMargin();
+    groupLayout.marginHeight = PropsUi.getFormMargin();
+    group.setLayout(groupLayout);
+    FormData fdGroup = new FormData();
+    fdGroup.left = new FormAttachment(0, 0);
+    fdGroup.right = new FormAttachment(100, 0);
+    fdGroup.top = new FormAttachment(0, 0);
+    group.setLayoutData(fdGroup);
+
+    Button wBrowse = new Button(group, SWT.PUSH);
+    PropsUi.setLook(wBrowse);
+    wBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wBrowse.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Browse.Tooltip"));
+    FormData fdBrowse = new FormData();
+    fdBrowse.right = new FormAttachment(100, 0);
+    fdBrowse.top = new FormAttachment(0, margin);
+    wBrowse.setLayoutData(fdBrowse);
+    wBrowse.addListener(SWT.Selection, this::browseConfigFileOrDirectory);
+
+    Button wAdd = new Button(group, SWT.PUSH);
+    PropsUi.setLook(wAdd);
+    wAdd.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Button.Add"));
+    wAdd.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Button.Add.Tooltip"));
+    FormData fdAdd = new FormData();
+    fdAdd.right = new FormAttachment(wBrowse, -margin);
+    fdAdd.top = new FormAttachment(wBrowse, 0, SWT.CENTER);
+    wAdd.setLayoutData(fdAdd);
+    wAdd.addListener(SWT.Selection, this::addMatchingConfigFiles);
+
+    Label wlFilename = new Label(group, SWT.RIGHT);
+    PropsUi.setLook(wlFilename);
+    wlFilename.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Filename.Label"));
+    FormData fdlFilename = new FormData();
+    fdlFilename.left = new FormAttachment(0, 0);
+    fdlFilename.right = new FormAttachment(middle, -margin);
+    fdlFilename.top = new FormAttachment(wBrowse, 0, SWT.CENTER);
+    wlFilename.setLayoutData(fdlFilename);
+
+    wAddFilename =
+        new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
+    PropsUi.setLook(wAddFilename);
+    wAddFilename.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Filename.Tooltip"));
+    FormData fdFilename = new FormData();
+    fdFilename.left = new FormAttachment(middle, 0);
+    fdFilename.right = new FormAttachment(wAdd, -margin);
+    fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
+    wAddFilename.setLayoutData(fdFilename);
+
+    Label wlWildcard = new Label(group, SWT.RIGHT);
+    PropsUi.setLook(wlWildcard);
+    wlWildcard.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Wildcard.Label"));
+    FormData fdlWildcard = new FormData();
+    fdlWildcard.left = new FormAttachment(0, 0);
+    fdlWildcard.right = new FormAttachment(middle, -margin);
+    fdlWildcard.top = new FormAttachment(wAddFilename, margin);
+    wlWildcard.setLayoutData(fdlWildcard);
+
+    wAddWildcard = new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wAddWildcard);
+    wAddWildcard.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Wildcard.Tooltip"));
+    FormData fdWildcard = new FormData();
+    fdWildcard.left = new FormAttachment(middle, 0);
+    fdWildcard.right = new FormAttachment(wAddFilename, 0, SWT.RIGHT);
+    fdWildcard.top = new FormAttachment(wlWildcard, 0, SWT.CENTER);
+    wAddWildcard.setLayoutData(fdWildcard);
+
+    Label wlExcludeWildcard = new Label(group, SWT.RIGHT);
+    PropsUi.setLook(wlExcludeWildcard);
+    wlExcludeWildcard.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.ExcludeWildcard.Label"));
+    FormData fdlExcludeWildcard = new FormData();
+    fdlExcludeWildcard.left = new FormAttachment(0, 0);
+    fdlExcludeWildcard.right = new FormAttachment(middle, -margin);
+    fdlExcludeWildcard.top = new FormAttachment(wAddWildcard, margin);
+    wlExcludeWildcard.setLayoutData(fdlExcludeWildcard);
+
+    wAddExcludeWildcard = new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wAddExcludeWildcard);
+    wAddExcludeWildcard.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.ExcludeWildcard.Tooltip"));
+    FormData fdExcludeWildcard = new FormData();
+    fdExcludeWildcard.left = new FormAttachment(middle, 0);
+    fdExcludeWildcard.right = new FormAttachment(wAddFilename, 0, SWT.RIGHT);
+    fdExcludeWildcard.top = new FormAttachment(wlExcludeWildcard, 0, SWT.CENTER);
+    wAddExcludeWildcard.setLayoutData(fdExcludeWildcard);
+
+    wAddIncludeSubfolders = new Button(group, SWT.CHECK);
+    PropsUi.setLook(wAddIncludeSubfolders);
+    wAddIncludeSubfolders.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.IncludeSubfolders.Label"));
+    wAddIncludeSubfolders.setToolTipText(
+        BaseMessages.getString(
+            PKG, "LifecycleEnvironmentDialog.AddFiles.IncludeSubfolders.Tooltip"));
+    FormData fdIncludeSubfolders = new FormData();
+    fdIncludeSubfolders.left = new FormAttachment(middle, 0);
+    fdIncludeSubfolders.top = new FormAttachment(wAddExcludeWildcard, margin);
+    wAddIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
+
+    return group;
+  }
+
+  private void browseConfigFileOrDirectory(Event event) {
+    boolean directory =
+        StringUtils.isNotEmpty(wAddWildcard.getText())
+            || StringUtils.isNotEmpty(wAddExcludeWildcard.getText())
+            || wAddIncludeSubfolders.getSelection();
+    if (directory) {
+      BaseDialog.presentDirectoryDialog(shell, wAddFilename, variables);
+      return;
+    }
+    BaseDialog.presentFileDialog(
+        shell,
+        wAddFilename,
+        variables,
+        new String[] {"*.json", "*"},
+        new String[] {
+          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.Json"),
+          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.All")
+        },
+        true);
+  }
+
+  private void addMatchingConfigFiles(Event event) {
+    try {
+      String location = wAddFilename.getText();
+      if (StringUtils.isEmpty(location)) {
+        showInformation(
+            "LifecycleEnvironmentDialog.AddFiles.MissingLocation.Title",
+            "LifecycleEnvironmentDialog.AddFiles.MissingLocation.Message");
+        return;
+      }
+      List<String> matches =
+          EnvironmentConfigFileSelector.resolve(
+              variables,
+              location,
+              wAddWildcard.getText(),
+              wAddExcludeWildcard.getText(),
+              wAddIncludeSubfolders.getSelection());
+      List<String> stored = new ArrayList<>();
+      for (String match : matches) {
+        stored.add(PathVariableReplacer.replacePathWithVariable(variables, match));
+      }
+      if (appendConfigFiles(stored) == 0) {
+        showInformation(
+            "LifecycleEnvironmentDialog.AddFiles.AlreadyListed.Title",
+            "LifecycleEnvironmentDialog.AddFiles.AlreadyListed.Message");
+        return;
+      }
+      wAddFilename.setText("");
+      wAddWildcard.setText("");
+      wAddExcludeWildcard.setText("");
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Error.Title"),
+          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.AddFiles.Error.Message"),
+          e);
+    }
+  }
+
   private void addConfigFile(Event event) {
-    String configFile =
-        BaseDialog.presentFileDialog(
+    String[] configFiles =
+        BaseDialog.presentMultiFileDialog(
             shell,
-            null,
             variables,
             new String[] {"*.json", "*"},
-            new String[] {"Config JSON files", "All files"},
+            new String[] {
+              BaseMessages.getString(
+                  PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.Json"),
+              BaseMessages.getString(
+                  PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.All")
+            },
             true);
-    if (configFile != null) {
+    if (configFiles == null || configFiles.length == 0) {
+      return;
+    }
+    if (appendConfigFiles(List.of(configFiles)) == 0) {
+      showInformation(
+          "LifecycleEnvironmentDialog.AddFiles.AlreadyListed.Title",
+          "LifecycleEnvironmentDialog.AddFiles.AlreadyListed.Message");
+    }
+  }
+
+  /** Adds paths that are not already listed and returns how many were added. */
+  private int appendConfigFiles(List<String> filenames) {
+    int added = 0;
+    TableItem last = null;
+    for (String filename : filenames) {
+      if (StringUtils.isEmpty(filename) || isConfigFileListed(filename)) {
+        continue;
+      }
       TableItem item = new TableItem(wConfigFiles.table, SWT.NONE);
-      item.setText(COL_FILENAME, configFile);
+      item.setText(COL_FILENAME, filename);
       loadConfigFileIntoRow(item);
+      last = item;
+      added++;
+    }
+    if (added > 0) {
       wConfigFiles.removeEmptyRows();
       wConfigFiles.setRowNums();
       wConfigFiles.optWidth(true);
-      wConfigFiles.table.setSelection(item);
+      if (last != null) {
+        wConfigFiles.table.setSelection(last);
+      }
+      setButtonStates(null);
       needingEnvironmentRefresh = true;
     }
+    return added;
+  }
+
+  private boolean isConfigFileListed(String filename) {
+    String resolved = resolvedConfigFilename(filename);
+    for (TableItem item : wConfigFiles.getNonEmptyItems()) {
+      String existing = item.getText(COL_FILENAME);
+      if (filename.equals(existing) || resolved.equals(resolvedConfigFilename(existing))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private String resolvedConfigFilename(String filename) {
+    if (StringUtils.isEmpty(filename) || variables == null) {
+      return Const.NVL(filename, "");
+    }
+    try {
+      return HopVfs.getFilename(HopVfs.getFileObject(variables.resolve(filename), variables));
+    } catch (Exception e) {
+      return variables.resolve(filename);
+    }
+  }
+
+  private void showInformation(String titleKey, String messageKey) {
+    MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+    box.setText(BaseMessages.getString(PKG, titleKey));
+    box.setMessage(BaseMessages.getString(PKG, messageKey));
+    box.open();
   }
 
   private void newConfigFile(Event event) {
