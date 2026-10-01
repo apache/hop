@@ -236,18 +236,20 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       remarks.add(cr);
     }
 
-    checkConfigurationTransform(remarks, pipelineMeta, transformMeta, info);
+    checkConfigurationTransform(remarks, pipelineMeta, transformMeta, info, variables);
   }
 
   /**
    * The configuration transform is optional. When it is set, the start, end, and increment field
-   * names have to be set as well, and the transform has to exist.
+   * names have to be set as well, and the transform has to exist. Running in several copies needs
+   * the configuration row copied to every copy: distributed, it only reaches the first one.
    */
   private void checkConfigurationTransform(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
-      IRowMeta info) {
+      IRowMeta info,
+      IVariables variables) {
     if (!isConfigurationFromTransform()) {
       return;
     }
@@ -263,7 +265,21 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
     }
 
     if (pipelineMeta != null) {
-      if (pipelineMeta.findTransform(configurationTransform) == null) {
+      TransformMeta source = pipelineMeta.findTransform(configurationTransform);
+      if (source != null
+          && source.isDistributes()
+          && transformMeta != null
+          && transformMeta.getCopies(variables) > 1) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "AddSequenceMeta.CheckResult.ConfigurationRowDistributed",
+                    configurationTransform),
+                transformMeta));
+      }
+      if (source == null) {
         remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,

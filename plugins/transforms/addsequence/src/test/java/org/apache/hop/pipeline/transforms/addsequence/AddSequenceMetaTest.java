@@ -330,6 +330,67 @@ class AddSequenceMetaTest {
   }
 
   /**
+   * A distributing configuration transform only sends its single row to the first copy of Add
+   * Sequence. Verify has to say so before the other copies fail at runtime.
+   */
+  @Test
+  void checkReportsADistributedConfigurationRowWithMultipleCopies() throws Exception {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setDefault();
+    meta.setConfigurationTransform("Max query");
+    meta.setStartField("start_value");
+    meta.setEndField("end_value");
+    meta.setIncrementField("increment_value");
+    TransformMeta transformMeta = new TransformMeta("Add sequence", meta);
+    TransformMeta source = new TransformMeta();
+    source.setName("Max query");
+    source.setDistributes(true);
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    when(pipelineMeta.findTransform("Max query")).thenReturn(source);
+    // Copies are only resolved against variables for a transform in a pipeline.
+    transformMeta.setParentPipelineMeta(pipelineMeta);
+    String distributed =
+        BaseMessages.getString(
+            AddSequenceMeta.class,
+            "AddSequenceMeta.CheckResult.ConfigurationRowDistributed",
+            "Max query");
+
+    // One copy: distributing is fine.
+    assertFalse(hasError(meta, pipelineMeta, transformMeta, distributed));
+
+    // Several copies, also from a variable, and the source distributes: an error.
+    transformMeta.setCopiesString("${COPIES}");
+    assertTrue(hasError(meta, pipelineMeta, transformMeta, distributed));
+
+    // Several copies, and the source copies its rows to every copy: fine.
+    source.setDistributes(false);
+    assertFalse(hasError(meta, pipelineMeta, transformMeta, distributed));
+  }
+
+  private boolean hasError(
+      AddSequenceMeta meta, PipelineMeta pipelineMeta, TransformMeta transformMeta, String text)
+      throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable("COPIES", "3");
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        pipelineMeta,
+        transformMeta,
+        null,
+        new String[] {"Generate rows"},
+        new String[0],
+        null,
+        variables,
+        metadataProviderThatCannotLoad());
+    return remarks.stream()
+        .anyMatch(
+            remark ->
+                remark.getType() == ICheckResult.TYPE_RESULT_ERROR
+                    && remark.getText().equals(text));
+  }
+
+  /**
    * Issue #8561. The default Add Sequence uses a counter and has no connection. That must not be
    * reported as a missing database connection, and verify must not try to load one.
    */

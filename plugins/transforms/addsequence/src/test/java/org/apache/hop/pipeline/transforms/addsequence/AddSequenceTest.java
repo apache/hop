@@ -23,9 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -42,6 +44,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -500,6 +503,30 @@ class AddSequenceTest {
     assertFalse(addSequence.processRow());
     assertEquals(1L, addSequence.getErrors());
     assertNull(addSequence.getData().counter);
+    addSequence.dispose();
+  }
+
+  /**
+   * With several copies of Add Sequence, a distributed configuration row only reaches one of them.
+   * The others have to say how to fix that, not just that the row is missing.
+   */
+  @Test
+  void testConfigurationRowMissingInACopyExplainsHowToFixIt() throws Exception {
+    when(transformMockHelper.transformMeta.getCopies(any())).thenReturn(2);
+    AddSequenceMeta meta = configurationMeta();
+    AddSequence addSequence = spyConfiguration(meta, rowSetWith(configRowMeta()));
+    doReturn(null).when(addSequence).getRowFrom(any(IRowSet.class));
+
+    assertFalse(addSequence.processRow());
+    assertEquals(1L, addSequence.getErrors());
+    String expected =
+        BaseMessages.getString(
+            AddSequence.class,
+            "AddSequence.Exception.ConfigurationRowMissingInCopy",
+            meta.getConfigurationTransform(),
+            "0");
+    verify(transformMockHelper.iLogChannel)
+        .logError(argThat((String message) -> message != null && message.contains(expected)));
     addSequence.dispose();
   }
 

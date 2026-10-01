@@ -298,8 +298,13 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
     Object[] row = getRowFrom(rowSet);
     if (row == null) {
+      // Distributed over several copies of this transform, the single row only reaches one of them.
+      String key =
+          getTransformMeta().getCopies(this) > 1
+              ? "AddSequence.Exception.ConfigurationRowMissingInCopy"
+              : "AddSequence.Exception.ConfigurationRowMissing";
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "AddSequence.Exception.ConfigurationRowMissing", sourceName));
+          BaseMessages.getString(PKG, key, sourceName, Integer.toString(getCopy())));
     }
     Object[] extra = getRowFrom(rowSet);
     if (extra != null) {
