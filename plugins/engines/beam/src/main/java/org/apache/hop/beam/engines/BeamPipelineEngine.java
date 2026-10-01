@@ -68,6 +68,7 @@ import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.EngineCompatibility;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -1776,6 +1777,17 @@ public abstract class BeamPipelineEngine extends Variables
       return EngineCompatibility.unknown();
     }
     Class<?> mainType = transformPlugin.getMainType();
+    // Registered plugins expose ITransformMeta as the main role, not their implementation.
+    // Resolve the implementation without constructing metadata or initializing its runtime.
+    if (mainType != null
+        && transformPlugin.getClassMap() != null
+        && transformPlugin.getClassMap().containsKey(mainType)) {
+      try {
+        mainType = PluginRegistry.getInstance().getClass(transformPlugin, mainType);
+      } catch (HopException e) {
+        return EngineCompatibility.unknown();
+      }
+    }
     if (mainType != null) {
       String banReason =
           HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(mainType);

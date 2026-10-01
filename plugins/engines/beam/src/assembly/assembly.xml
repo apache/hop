@@ -41,6 +41,10 @@
             <directory>${project.basedir}/src/main/samples</directory>
             <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/lib</directory>
+            <outputDirectory>plugins/engines/beam/lib</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

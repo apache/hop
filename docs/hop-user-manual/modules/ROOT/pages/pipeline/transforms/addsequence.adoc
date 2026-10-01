@@ -31,6 +31,18 @@ You can either use a database sequence (if supported, e.g. Oracle, PostgreSQL) t
 Hop-generated sequence values are unique when used in the same pipeline, and return to the same starting value each time you run the pipeline. Hop sequences are unique only when used in the same pipeline.
 Also, they are not stored, so the values start back at the same value every time the pipeline is launched.
 
+=== On the Beam engines
+
+The Beam engines produce a single sequence across the whole pipeline, with no duplicates, the same
+as the local engine.
+To achieve this every row is keyed onto one key, so the transform runs at a parallelism of one:
+that is the trade-off for a globally increasing value.
+
+The database sequence option is not supported on Beam, because a database sequence lives outside
+the pipeline.
+The transform fails with a clear message when that option is enabled, rather than silently emitting
+duplicate values.
+
 == Options
 
 [options="header"]

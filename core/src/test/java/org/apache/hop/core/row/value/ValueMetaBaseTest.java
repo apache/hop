@@ -42,6 +42,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -71,6 +72,7 @@ import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -437,6 +439,47 @@ class ValueMetaBaseTest {
     longer.setStorageMetadata(readStorage);
     longer.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     assertArrayEquals("true".getBytes(), longer.getBinaryString("Y".getBytes()));
+  }
+
+  /**
+   * Lazy text is stored as bytes in the file encoding. Metadata XML has to keep that encoding, and
+   * indexed values have to come back as the original objects, or a later read decodes the bytes
+   * with the platform charset and drops the index.
+   */
+  @Test
+  void metaXmlKeepsBinaryStringEncodingAndIndexedValues() throws Exception {
+    ValueMetaString lazy = new ValueMetaString("lazy");
+    lazy.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    ValueMetaString storage = new ValueMetaString("lazy");
+    storage.setStringEncoding(StandardCharsets.ISO_8859_1.name());
+    lazy.setStorageMetadata(storage);
+
+    ValueMetaString indexed = new ValueMetaString("indexed");
+    indexed.setStorageType(IValueMeta.STORAGE_TYPE_INDEXED);
+    indexed.setIndex(new Object[] {"alpha", "bravo"});
+
+    ValueMetaBinary binary = new ValueMetaBinary("bytes");
+    binary.setStorageType(IValueMeta.STORAGE_TYPE_INDEXED);
+    binary.setIndex(new Object[] {new byte[] {1}, new byte[] {9, -1}});
+
+    RowMeta meta = new RowMeta();
+    meta.addValueMeta(lazy);
+    meta.addValueMeta(indexed);
+    meta.addValueMeta(binary);
+
+    byte[] latin1 = "caf\u00e9".getBytes(StandardCharsets.ISO_8859_1);
+    assertEquals("caf\u00e9", lazy.getString(latin1));
+
+    RowMeta restored =
+        new RowMeta(
+            XmlHandler.getSubNode(
+                XmlHandler.loadXmlString(meta.getMetaXml()), RowMeta.XML_META_TAG));
+    assertEquals(
+        StandardCharsets.ISO_8859_1.name(),
+        restored.getValueMeta(0).getStorageMetadata().getStringEncoding());
+    assertEquals("caf\u00e9", restored.getValueMeta(0).getString(latin1));
+    assertEquals("bravo", restored.getValueMeta(1).getString(1));
+    assertArrayEquals(new byte[] {9, -1}, restored.getValueMeta(2).getBinary(1));
   }
 
   @Test

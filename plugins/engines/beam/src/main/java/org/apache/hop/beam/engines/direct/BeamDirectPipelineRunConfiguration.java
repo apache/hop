@@ -14,27 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.hop.beam.engines.direct;
 
 import org.apache.beam.runners.direct.DirectOptions;
+import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +48,15 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
   @HopMetadataProperty(key = "number_of_workers")
   private String numberOfWorkers;
 
+  @GuiWidgetElement(
+      order = "20010-direct-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::BeamEnginesDirect.OptionsGcpTempLocation.Label",
+      toolTip = "i18n::BeamEnginesDirect.OptionsGcpTempLocation.ToolTip")
+  @HopMetadataProperty(key = "gcp_temp_location")
+  private String gcpTempLocation;
+
   public BeamDirectPipelineRunConfiguration(String numberOfWorkers) {
     super("BeamDirectPipelineEngine", "direct runner");
     this.numberOfWorkers = numberOfWorkers;
@@ -79,6 +71,7 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
   public BeamDirectPipelineRunConfiguration(BeamDirectPipelineRunConfiguration config) {
     super(config);
     this.numberOfWorkers = config.numberOfWorkers;
+    this.gcpTempLocation = config.gcpTempLocation;
   }
 
   @Override
@@ -98,6 +91,10 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
     if (StringUtils.isNotEmpty(numberOfWorkers)) {
       int targetParallelism = Const.toInt(resolve(numberOfWorkers), 1);
       options.setTargetParallelism(targetParallelism);
+    }
+    if (StringUtils.isNotEmpty(gcpTempLocation)) {
+      // #2355: GCP IOs need a gs:// path. This is separate from the general temp location.
+      options.as(GcpOptions.class).setGcpTempLocation(resolve(gcpTempLocation));
     }
 
     return options;
@@ -122,5 +119,21 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
    */
   public void setNumberOfWorkers(String numberOfWorkers) {
     this.numberOfWorkers = numberOfWorkers;
+  }
+
+  /**
+   * Gets gcpTempLocation
+   *
+   * @return value of gcpTempLocation
+   */
+  public String getGcpTempLocation() {
+    return gcpTempLocation;
+  }
+
+  /**
+   * @param gcpTempLocation The gcpTempLocation to set
+   */
+  public void setGcpTempLocation(String gcpTempLocation) {
+    this.gcpTempLocation = gcpTempLocation;
   }
 }

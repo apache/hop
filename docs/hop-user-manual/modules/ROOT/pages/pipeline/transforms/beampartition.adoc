@@ -1,0 +1,87 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Beam partition transform splits the stream into partitions so that following steps can be grouped per key.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
+
+= image:transforms/icons/beam-partition.svg[Beam partition Icon, role="image-doc-icon"] Beam partition
+
+== Description
+
+The Beam partition transform decides, before the following transforms run, which partition each row
+belongs to.
+
+This is the counterpart of the partitioning option in the local Hop pipeline engine, and it wraps the
+https://beam.apache.org/documentation/transforms/java/elementwise/partition/[Beam Partition transform].
+
+Partitioning does not change the rows themselves: the same rows with the same columns come out, in
+a possibly different order.
+
+=== What partitioning is for
+
+On a distributed runner, steps that group data, such as a Beam window transform that windows on a
+key, normally have to shuffle the rows so that everything sharing a key ends up in the same place.
+That shuffle is the expensive part.
+
+Deciding up front which partition a row belongs to lets the runner place rows without shuffling, as
+long as the grouping that follows is grouped by the same field.
+
+So partition on the same field you group by. Partitioning on one field and grouping on another buys
+nothing and still pays for the shuffle.
+
+=== Choosing a partitioning type
+
+Single partition sends every row to one partition.
+That serialises all the processing that follows, so it is only useful when something downstream has
+to see all rows in a fixed, sequential order.
+It is the default, which means a pipeline saved without a partitioning type does not partition.
+
+Keyed partitions on the value of a field: rows with the same value always land in the same
+partition.
+
+NOTE: The partition is chosen by hashing the key, so rows are spread over the partitions in no
+particular order and not evenly. Two keys can share a partition, and some partitions can be
+heavier than others.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Partitioning type a|
+* Single partition
+* Keyed
+|Key field|Required for the keyed type: the field to partition on. Ignored for the single-partition type.
+|Number of partitions|How many partitions to create. Defaults to 1. Only used for the keyed type.
+|===
+
+NOTE: A key field that is not in the input fails the pipeline with a message naming it, and keyed
+partitioning without a key field is refused too. Neither is silently ignored.
+
+== Notes on the Beam engines
+
+The number of partitions is decided when the pipeline is built.
+Changing it therefore changes the size of the resulting Beam graph, which matters on runners with a
+large number of workers.
+
+After partitioning, Beam hands back one collection per partition.
+Hop recombines them into a single stream before the next transform, because the partition of a given
+row is only decided while the pipeline runs and the next transform cannot branch on it.
+That means partitioning on its own does not filter or split the stream; it only decides placement.

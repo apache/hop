@@ -1,0 +1,56 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Beam MQTT input using Apache Beam MqttIO.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
+
+= image:transforms/icons/beam-mqtt-input.svg[Beam MQTT input icon, role="image-doc-icon"] Beam MQTT input
+
+== Description
+
+Read MQTT message payloads as Hop rows using Apache Beam MqttIO. This is a source transform: do not connect an incoming hop. The output contains exactly one payload field. Input topics can contain MQTT subscription wildcards (`+` and `#`).
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Unique name in the pipeline.
+|Server URI|Required broker URI, `tcp://host:1883` or `ssl://host:8883`. Do not embed credentials in the URI.
+|Topic|Required subscription filter.
+|Client ID prefix|Optional prefix. Beam appends a UUID and truncates the resulting client ID to 23 characters. Leave empty for a random ID; use a short prefix to preserve random suffix characters.
+|Username|Optional broker username.
+|Password|Optional broker password, requires a username. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `${MQTT_PASSWORD}`.
+|Payload field|Name of the output payload field (default `message`).
+|Payload type|`String` or `Binary`. String decodes UTF-8; Binary preserves arbitrary bytes.
+|Maximum records|Non-negative record limit; zero or empty means unlimited.
+|Maximum read time (seconds)|Non-negative read duration; zero or empty means unlimited. A record limit below `Long.MAX_VALUE` or a nonzero time limit makes the source bounded. If both are configured, the source stops when either limit is reached.
+|===
+
+All text options support Hop variables and are resolved before the Beam graph is submitted. Required options and invalid numeric limits fail before connecting.
+
+== Execution and security
+
+This transform requires a Beam pipeline run configuration; the native Hop engine reports an error. The broker must be reachable from the runner's worker machines, not just Hop GUI.
+
+Beam MqttIO uses MQTT QoS 1 (at least once); retries can produce duplicates. The source is unbounded unless a record or time limit is set. It reads payloads only, not the received topic or other message metadata.
+
+Use `ssl://` for credentials or sensitive data. TLS uses the worker JVM's default trust configuration; install the broker's certificate chain in its trust store. Custom trust stores, client certificates, reconnect controls and QoS selection are not exposed by Beam's connection API and are not dialog options. `tcp://` is not encrypted.
+
+Hop password encryption protects saved metadata from plain-text disclosure; it is not a substitute for a secret manager. Beam's connection specification must carry usable credentials to workers: protect graph serialization, worker storage and transport. Do not enable Beam MqttIO debug logging for sensitive payloads (the upstream writer logs message text at DEBUG).

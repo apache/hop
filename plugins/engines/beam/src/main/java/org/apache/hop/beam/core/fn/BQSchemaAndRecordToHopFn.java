@@ -21,7 +21,9 @@ import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableSchema;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.List;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
@@ -105,7 +107,14 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
         for (int i = 0; i < rowMeta.size(); i++) {
           if (valueTypes[i] == 0) {
             IValueMeta valueMeta = rowMeta.getValueMeta(i);
-            throw new HopRuntimeException("Unable to find field '" + valueMeta.getName() + "'");
+            // #5064: don't throw. A field the table schema doesn't mention (common for a
+            // fromQuery result) or a type we can't derive has to fall back to the Hop type
+            // declared in the transform, not fail the entire read.
+            LOG.warn(
+                "Unable to determine the BigQuery type of field '"
+                    + valueMeta.getName()
+                    + "', falling back to the Hop type declared in the transform");
+            valueTypes[i] = valueMeta.getType();
           }
         }
 
@@ -127,7 +136,17 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
         if (srcData != null) {
           switch (valueMeta.getType()) {
             case IValueMeta.TYPE_STRING:
-              row[index] = srcData.toString();
+              // #5064: a nested RECORD or a REPEATED field arrives as a GenericRecord or a
+              // List, and neither has a useful toString(): a GenericRecord prints an Avro
+              // container wrapper. GenericData.toString() renders the actual field values as
+              // JSON, which is what we hand back.  Note this is deliberately NOT Jackson,
+              // which would serialise GenericRecord as its internal bean structure
+              // ({"schema":...,"elementType":...}) instead of its contents.
+              if (srcData instanceof GenericRecord || srcData instanceof Collection) {
+                row[index] = GenericData.get().toString(srcData);
+              } else {
+                row[index] = srcData.toString();
+              }
               break;
             case IValueMeta.TYPE_INTEGER:
               row[index] = (Long) srcData;
@@ -189,6 +208,10 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
     DATE(IValueMeta.TYPE_DATE),
     TIME(IValueMeta.TYPE_DATE),
     DATETIME(IValueMeta.TYPE_DATE),
+    // #5064: BigQuery nested and repeated fields have no native Hop type. Hand them back as
+    // JSON strings rather than failing the whole read, which is what valueOf() used to do.
+    RECORD(IValueMeta.TYPE_STRING),
+    STRUCT(IValueMeta.TYPE_STRING),
     ;
 
     private int hopType;

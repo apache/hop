@@ -42,6 +42,7 @@ import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineRunConfiguration;
 import org.apache.hop.beam.metadata.RunnerType;
+import org.apache.hop.beam.pipeline.handler.BeamAddSequenceTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamGenericTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMemoryGroupByTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
@@ -88,7 +89,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
       Set.of(
           BeamConst.STRING_MERGE_JOIN_PLUGIN_ID,
           BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID,
-          BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID);
+          BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID,
+          BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID);
 
   /**
    * Transform meta classes that Beam refuses to run at all, mapped to the user-facing reason. The
@@ -248,6 +250,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
         BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID, new BeamRowGeneratorTransformHandler());
     transformHandlers.put(
         BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamMemoryGroupByTransformHandler());
+    transformHandlers.put(
+        BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID, new BeamAddSequenceTransformHandler());
     genericTransformHandler = new BeamGenericTransformHandler();
   }
 

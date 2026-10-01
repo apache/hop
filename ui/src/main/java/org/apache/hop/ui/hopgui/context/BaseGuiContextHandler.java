@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.context;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,21 +121,68 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
                 + actionFilter.getId());
       }
 
-      // Get (or create) the instance of that class...
-      //
-      Object guiPlugin;
+      // 1. If this context handler is itself an instance of the filter class
+      if (filterClass.isInstance(this)) {
+        return this;
+      }
+
+      // 2. Check if this context handler has a method returning an instance of filterClass
+      for (Method method : getClass().getMethods()) {
+        if (method.getParameterCount() == 0
+            && filterClass.isAssignableFrom(method.getReturnType())) {
+          try {
+            Object candidate = method.invoke(this);
+            if (candidate != null) {
+              return candidate;
+            }
+          } catch (Exception ignored) {
+            // Continue searching
+          }
+        }
+      }
+
+      // 3. Check declared fields on this context handler hierarchy
+      Class<?> clazz = getClass();
+      while (clazz != null && clazz != Object.class) {
+        for (Field field : clazz.getDeclaredFields()) {
+          if (filterClass.isAssignableFrom(field.getType())) {
+            try {
+              field.setAccessible(true);
+              Object candidate = field.get(this);
+              if (candidate != null) {
+                return candidate;
+              }
+            } catch (Exception ignored) {
+              // Continue searching
+            }
+          }
+        }
+        clazz = clazz.getSuperclass();
+      }
+
+      // 4. Try static getInstance() method
+      Object guiPlugin = null;
       try {
         Method getInstanceMethod = filterClass.getDeclaredMethod("getInstance");
         guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
-      } catch (Exception nsme) {
-        // On the rebound we'll try to simply construct a new instance...
-        // This makes the plugins even simpler.
-        //
+      } catch (Exception ignored) {
+        // Continue searching
+      }
+
+      // 5. Try default constructor
+      if (guiPlugin == null) {
         try {
-          guiPlugin = filterClass.newInstance();
-        } catch (Exception e) {
-          throw nsme;
+          Constructor<?> constructor = filterClass.getDeclaredConstructor();
+          constructor.setAccessible(true);
+          guiPlugin = constructor.newInstance();
+        } catch (Exception ignored) {
+          // Continue searching
         }
+      }
+
+      if (guiPlugin == null) {
+        throw new HopException(
+            "Couldn't find, load or create object for action filter " + actionFilter.getId());
       }
 
       return guiPlugin;
@@ -146,19 +195,20 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
   public Method getFilterMethod(Class<?> filterClass, GuiActionFilter actionFilter)
       throws HopException {
     try {
-
-      Method method =
-          filterClass.getMethod(actionFilter.getGuiPluginMethodName(), String.class, getClass());
-      if (method == null) {
-        throw new HopException(
-            "Couldn't find method "
-                + actionFilter.getGuiPluginMethodName()
-                + " class "
-                + actionFilter.getGuiPluginClassName()
-                + " for action filter "
-                + actionFilter.getId());
+      try {
+        return filterClass.getMethod(
+            actionFilter.getGuiPluginMethodName(), String.class, getClass());
+      } catch (NoSuchMethodException nsme) {
+        for (Method method : filterClass.getMethods()) {
+          if (method.getName().equals(actionFilter.getGuiPluginMethodName())
+              && method.getParameterCount() == 2
+              && method.getParameterTypes()[0].isAssignableFrom(String.class)
+              && method.getParameterTypes()[1].isAssignableFrom(getClass())) {
+            return method;
+          }
+        }
+        throw nsme;
       }
-      return method;
     } catch (Exception e) {
       throw new HopException("Error finding action filter method " + actionFilter.getId(), e);
     }
@@ -169,6 +219,10 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
 
     try {
       Object guiPlugin = getFilterObject(actionFilter);
+      if (guiPlugin == null) {
+        throw new HopException(
+            "Couldn't find, load or create object for action filter " + actionFilter.getId());
+      }
       Method method = getFilterMethod(guiPlugin.getClass(), actionFilter);
 
       // Invoke the action filter method...

@@ -19,7 +19,12 @@ package org.apache.hop.beam.transforms.window;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.beam.sdk.transforms.Flatten;
+import org.apache.beam.sdk.transforms.GroupByKey;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.transforms.Values;
+import org.apache.beam.sdk.transforms.WithKeys;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
@@ -27,10 +32,13 @@ import org.apache.beam.sdk.transforms.windowing.Repeatedly;
 import org.apache.beam.sdk.transforms.windowing.Sessions;
 import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
+import org.apache.beam.sdk.transforms.windowing.WindowFn;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamDefaults;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.core.fn.HopKeyFn;
 import org.apache.hop.beam.core.fn.WindowInfoFn;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
@@ -89,6 +97,13 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
   @HopMetadataProperty(key = "trigger_type")
   private WindowTriggerType triggeringType;
 
+  /**
+   * #2275: optional field to window on. When set, windows are computed per value of this field
+   * instead of across the whole stream. Blank means the original global windowing.
+   */
+  @HopMetadataProperty(key = "key_field")
+  private String keyField;
+
   public BeamWindowMeta() {
     triggeringType = WindowTriggerType.None;
   }
@@ -104,6 +119,7 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
     allowedLateness = "0";
     discardingFiredPanes = false;
     triggeringType = WindowTriggerType.None;
+    keyField = "";
   }
 
   @Override
@@ -264,7 +280,49 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
 
     // Finally apply the window to the input
     //
-    transformPCollection = input.apply(window);
+    // #2275: window per key. Beam needs KV<K, V>, so key the rows on the chosen field, window the
+    // keyed collection, then key it back onto a single key so the downstream transforms see plain
+    // Hop rows again. The key is a field on the row, not an extra output column.
+    //
+    if (StringUtils.isNotEmpty(keyField)) {
+      String realKeyField = variables.resolve(keyField);
+      int keyIndex = rowMeta == null ? -1 : rowMeta.indexOfValue(realKeyField);
+      if (keyIndex < 0) {
+        throw new HopException(
+            "Unable to find the key field '"
+                + realKeyField
+                + "' in the input of Beam Window transform '"
+                + transformMeta.getName()
+                + "'");
+      }
+
+      // #2275: window per key.  Beam needs KV<K, V>, so key the rows on the chosen field, window
+      // the keyed collection, then drop the key again so downstream transforms see plain Hop rows.
+      // The key is a field on the row, not an extra output column.
+      //
+      // WithKeys.of has an overload taking a constant key as well as one taking a function, so
+      // the function type is named explicitly to pick the right one.
+      WithKeys<String, HopRow> withKeys =
+          WithKeys.of(
+              (SerializableFunction<HopRow, String>)
+                  new HopKeyFn(transformMeta.getName(), JsonRowMeta.toJson(rowMeta), keyIndex));
+      PCollection<KV<String, HopRow>> keyed = input.apply(withKeys);
+
+      // The windowing is the same either way; only the element type it is applied to changes, so
+      // reuse the existing WindowFn rather than rebuilding the windowing from the settings.
+      Window<KV<String, HopRow>> keyedWindow =
+          Window.into(
+              (WindowFn<? super KV<String, HopRow>, ?>) (WindowFn<?, ?>) window.getWindowFn());
+
+      transformPCollection =
+          keyed
+              .apply(keyedWindow)
+              .apply(GroupByKey.create())
+              .apply(Values.create())
+              .apply(Flatten.iterables());
+    } else {
+      transformPCollection = input.apply(window);
+    }
 
     // Now get window information about the window if we asked about it...
     //
@@ -424,6 +482,22 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
    */
   public void setDiscardingFiredPanes(boolean discardingFiredPanes) {
     this.discardingFiredPanes = discardingFiredPanes;
+  }
+
+  /**
+   * Gets keyField
+   *
+   * @return value of keyField
+   */
+  public String getKeyField() {
+    return keyField;
+  }
+
+  /**
+   * @param keyField The keyField to set
+   */
+  public void setKeyField(String keyField) {
+    this.keyField = keyField;
   }
 
   /**
