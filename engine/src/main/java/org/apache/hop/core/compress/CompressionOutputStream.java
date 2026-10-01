@@ -49,6 +49,13 @@ public abstract class CompressionOutputStream extends OutputStream {
   }
 
   @Override
+  public void flush() throws IOException {
+    if (delegate != null) {
+      delegate.flush();
+    }
+  }
+
+  @Override
   public void write(int b) throws IOException {
     delegate.write(b);
   }
