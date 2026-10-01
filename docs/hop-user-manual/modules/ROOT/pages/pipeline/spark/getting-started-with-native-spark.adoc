@@ -615,7 +615,7 @@ Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*B
 |Reject-to-error style options may not apply; prefer Dataset-oriented dedup semantics.
 
 |Transform copies / partitioning GUI
-|Parallelism comes from *Spark partitions*, not Hop “copies” in the local sense.
+|Ignored. Parallelism comes from *Spark partitions*, not the local-engine copy count or partition schema. See xref:pipeline/specify-copies.adoc#supported-engines[Specify copies] and xref:pipeline/partitioning.adoc#supported-engines[Partitioning].
 
 |Plugins in mapPartitions
 |Must be present on the Spark classpath (staged list + fat jar). Missing plugins fail at runtime on the executor.
