@@ -144,9 +144,9 @@ TIP: Check the https://hop.apache.org/community/contribution-guides/translation-
 
 |Hide the menu bar|Hide the menu bar. With it hidden, the menu is reachable from the Apache Hop icon in the upper left corner of Hop GUI.|yes
 
-|Dark mode|Use the dark theme. On Hop Web and Windows this is a straight toggle; on macOS and other desktop platforms the theme follows the operating system. Changing it in Hop Web reloads the page.|follows the OS
+|Dark mode|Use the dark theme. On Hop Web and Windows this is a straight toggle; on macOS and other desktop platforms the theme follows the operating system. Changing it in Hop Web reloads the page.|off on Windows; follows the OS on macOS and other desktops
 
-|Follow system dark mode (Hop Web)|Take the light or dark setting from the system or browser. While this is on, the *Dark mode* option above is disabled.|no
+|Follow system dark mode (Hop Web)|Take the light or dark setting from the system or browser. While this is on, the *Dark mode* option above is disabled.|yes
 
 |UI zoom level|The zoom level pipelines and workflows open at.|100%
 

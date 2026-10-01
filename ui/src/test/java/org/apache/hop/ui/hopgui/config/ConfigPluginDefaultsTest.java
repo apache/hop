@@ -31,6 +31,7 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.ui.hopgui.file.config.FileValidationConfigPlugin;
 import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigPlugin;
+import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialogOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DynamicTest;
@@ -54,6 +55,7 @@ class ConfigPluginDefaultsTest {
   @AfterEach
   void restoreConfiguration() {
     if (savedConfig != null) {
+      HopConfig.getInstance().getConfigMap().clear();
       HopConfig.getInstance().getConfigMap().putAll(savedConfig);
       savedConfig = null;
     }
@@ -100,6 +102,34 @@ class ConfigPluginDefaultsTest {
         tests.isEmpty(),
         "No option declares a defaultValue, so the cases below would pass without testing anything");
     return tests;
+  }
+
+  /**
+   * The checkbox says "show", the stored option says "do not show". The constructor's inversion is
+   * covered above; this covers the write.
+   */
+  @Test
+  void theWelcomeDialogOptionIsStoredInverted() throws Exception {
+    savedConfig = new HashMap<>(HopConfig.getInstance().getConfigMap());
+    HopConfig hopConfig = HopConfig.getInstance();
+    boolean savedInMemory = HopConfig.isInMemoryMode();
+    try {
+      // Keep the writes off the developer's hop-config.json.
+      HopConfig.setInMemoryMode(true);
+      WelcomeDialogOptions options = new WelcomeDialogOptions();
+
+      options.setWelcomeDialogShowAtStartup(true);
+      options.persistContents(null);
+      assertEquals(
+          Boolean.FALSE, hopConfig.getConfigMap().get(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION));
+
+      options.setWelcomeDialogShowAtStartup(false);
+      options.persistContents(null);
+      assertEquals(
+          Boolean.TRUE, hopConfig.getConfigMap().get(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION));
+    } finally {
+      HopConfig.setInMemoryMode(savedInMemory);
+    }
   }
 
   /**

@@ -302,7 +302,7 @@ public class ConfigDocGenerator {
       // The configuration object is the truth where it has this setting; the annotation is the
       // fallback for plugins that keep no such object.
       Object fromConfig = defaults.get(f.name());
-      String dflt = fromConfig != null ? String.valueOf(fromConfig) : str(w, "defaultValue", "");
+      String dflt = fromConfig != null ? display(fromConfig, source) : str(w, "defaultValue", "");
       options.add(
           new Option(
               str(w, "order", "") + str(w, "id", ""),
@@ -352,9 +352,31 @@ public class ConfigDocGenerator {
       }
       return values;
     } catch (Throwable t) {
-      System.err.println("  ! could not read defaults from " + name + " : " + t);
-      return Map.of();
+      // Blank defaults would be committed and then stay green in the drift check, so stop here.
+      throw new IllegalStateException(
+          "Could not read the defaults from configClass "
+              + name
+              + " of @ConfigPlugin "
+              + str(ai, "id", ""),
+          t);
     }
+  }
+
+  /**
+   * The value as the configuration perspective shows it. An enum's combo lists its getLabel(),
+   * which by convention is "{@code <Enum>.<NAME>}" in the enum's own bundle. That is read here
+   * rather than by calling getLabel(): BaseMessages would pull in HopConfig and the locale of
+   * whoever builds.
+   */
+  static String display(Object value, Source source) {
+    if (value instanceof Enum<?> e) {
+      Class<?> type = e.getDeclaringClass();
+      String label =
+          messages(source, type.getPackageName())
+              .getProperty(type.getSimpleName() + "." + e.name());
+      return label != null ? label : e.name();
+    }
+    return String.valueOf(value);
   }
 
   /** BaseMessages.getString(Class, key) resolves to <package>.messages.messages. */

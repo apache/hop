@@ -189,7 +189,7 @@ These options are stored under `pass:c[explorer-perspective]` in `hop-config.jso
 
 |pass:c[Open help pages in]
 |pass:c[Choose where documentation opens: the system browser, a tab in the File Explorer perspective, or a dialog on top of the current window.]
-|`pass:c[BROWSER]`
+|`pass:c[External browser]`
 
 |pass:c[Select active file in tree automatically]
 |pass:c[Automatically select the active tab file in the file explorer tree on the left hand side when it is shown in a tab.]
