@@ -1,0 +1,136 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Read database change events using Apache Beam DebeziumIO.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=no, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
+
+= image:transforms/icons/beam-debezium-input.svg[Beam Debezium input Icon, role="image-doc-icon"] Beam Debezium input
+
+== Description
+
+Beam Debezium input is a source transform that reads database change data capture (CDC) events using Apache Beam's `DebeziumIO.readAsJson()`.
+It has no incoming hops and emits one Hop String field per event.
+The database connector runs inside the Beam worker, not inside a Kafka Connect server.
+PostgreSQL is included; other connectors and their drivers must be supplied by the user.
+
+== Options
+
+[cols="1,3",options="header"]
+|===
+|Option |Description
+|Transform name |Unique name within the pipeline.
+|Connector |`PostgreSQL` (bundled) or `Custom` (user-supplied Kafka Connect source connector).
+|Custom connector class |Fully qualified `SourceConnector` implementation, used only for Custom. A missing/incompatible class fails pipeline preparation with a classpath diagnostic.
+|Hostname |Database host, for example `'${CDC_HOST}'`.
+|Port |Positive TCP port (1–65535). Default: 5432.
+|Username |Database account with CDC/replication privileges.
+|Password |Use a secret variable such as `'${CDC_PASSWORD}'`. Hop encrypts literal passwords in transform XML using its standard password handling; this is not a secure credential vault.
+|Connector properties (JSON) |JSON object whose values are strings. Configure database, tables, snapshot mode, slot, publication, SSL and other connector-specific options here. Variables are resolved before parsing. Connection-tab settings cannot be duplicated here. This JSON is stored as text, not encrypted: reference variables for any additional secrets.
+|JSON field |Name of the single output String field. Default: `event`.
+|Maximum records |Optional positive integer, at most 2147483647. Stops after this many events. Blank means no record limit; an idle database can wait indefinitely if no time limit is set.
+|Maximum run time (ms) |Optional positive milliseconds, intended for testing. Beam checks this between polling cycles; connection startup or a blocking poll can exceed it. Blank means no time limit.
+|Polling timeout (ms) |Positive polling interval/timeout. Default: 1000. Blank uses Beam's default.
+|===
+
+All text settings support Hop variables, including the connector selection/class and limits.
+
+== PostgreSQL example
+
+. Enable logical replication on PostgreSQL (`wal_level=logical`), and configure replication slots, publications and permissions according to the Debezium PostgreSQL documentation.
+. In the Connection tab choose PostgreSQL, set the hostname, port and replication account, and use a variable for the password.
+. In Connector properties enter, adapting the names to your database:
++
+[source,json]
+----
+{
+  "database.dbname": "${CDC_DATABASE}",
+  "topic.prefix": "hop-cdc",
+  "plugin.name": "pgoutput",
+  "slot.name": "hop_cdc_slot",
+  "publication.name": "hop_cdc_publication",
+  "table.include.list": "public.orders",
+  "snapshot.mode": "initial"
+}
+----
+. For a finite smoke test, set both Maximum records and Maximum run time. For continuous CDC leave both blank.
+. Connect the output to transforms that can handle an unbounded stream. Add windows/triggers when aggregating or writing to a sink that requires windowed input.
+
+Slot and publication names must be unique/managed appropriately for concurrently running pipelines.
+Network access and the database credentials must be available from every worker.
+No Kafka broker is required for the included PostgreSQL connector with `pgoutput`.
+Other connectors may require an external schema-history service, Kafka broker, or additional configuration.
+
+== Event JSON
+
+The output is the JSON supplied by Beam's built-in `SourceRecordJsonMapper`, not the raw Debezium envelope.
+For an insert it has this shape:
+
+[source,json]
+----
+{
+  "metadata": {
+    "connector": "postgresql",
+    "version": "3.1.3.Final",
+    "name": "hop-cdc",
+    "database": "inventory",
+    "schema": "public",
+    "table": "orders"
+  },
+  "before": null,
+  "after": {"fields": {"id": 1}}
+}
+----
+
+Updates contain before/after values when available; deletes have `after: null`.
+A tombstone is represented by null metadata/before/after.
+The mapper does not retain the raw key, `op`, source offset or `ts_ms` in the JSON.
+Beam uses the record timestamp for event time, independently of the JSON field.
+Nested/special database types follow Beam's serializer; validate these against your own schema before production use.
+
+== Runners and termination
+
+DebeziumIO 2.74.0 uses an *unbounded Splittable DoFn*, even when a record or runtime limit is set.
+The transform enables Beam streaming mode on the pipeline automatically.
+Do not use the limits to assume that a batch-only sink or runner is supported.
+
+* Direct: exercised with the real DebeziumIO, a deterministic Kafka Connect fixture source, JSON row conversion, termination limits and Hop input/written metrics. Suitable for local development.
+* Flink and Dataflow: the streaming runners provide the required unbounded Splittable DoFn execution. Deploy with streaming-compatible downstream transforms and worker dependencies. Live database CDC on these runners was not tested for this change.
+* Beam Spark: rejected before submission. Beam 2.74.0's Spark streaming translator explicitly rejects Splittable DoFn; setting a limit does not make this source bounded.
+* Hop local, Single Threaded and Native Spark: unsupported. The native runtime reports that a Beam engine is required instead of silently returning no rows.
+
+== Dependencies and operational limitations
+
+The Beam plugin distributes `beam-sdks-java-io-debezium` 2.74.0, Debezium PostgreSQL connector/core/API 3.1.3.Final, Kafka Connect API/transforms 3.9.0 and the Hop-managed PostgreSQL JDBC driver.
+Beam DebeziumIO itself does *not* include database connectors.
+The bundled dependencies are Apache-2.0, and PostgreSQL JDBC is BSD-2-Clause.
+They are staged by the Beam plugin assembly into `lib/core`, which is included in Hop's worker fat jar.
+
+For Custom, supply a compatible Debezium 3.1.3.Final connector and its complete driver/runtime dependency set to the Hop classpath and all Beam workers; when using Hop's fat-jar builder, additional jars can be placed in `plugins/engines/beam/lib` before building the fat jar.
+MySQL, SQL Server, Oracle, DB2 and their drivers are not bundled or integration-tested by this transform.
+Review the connector/driver license before redistributing it; some databases require vendor-distributed drivers.
+
+This transform does not expose Beam's external offset-retainer/start-offset API.
+Runner checkpoints and database replication slots are not a general cross-run offset backup or exactly-once guarantee; plan restart/snapshot/replay behavior and idempotent sinks explicitly.
+No live CDC database test was performed for this change.
+Beam logs connector properties (including resolved passwords) at DEBUG level: avoid enabling DEBUG logging for `org.apache.beam.io.debezium` in production.
+
+== See also
+
+* link:https://beam.apache.org/releases/javadoc/current/org/apache/beam/io/debezium/DebeziumIO.html[Apache Beam DebeziumIO]
+* link:https://debezium.io/documentation/reference/3.1/connectors/postgresql.html[Debezium PostgreSQL connector]

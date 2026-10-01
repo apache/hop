@@ -1,0 +1,70 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Beam Snowflake input using a bounded GCS COPY.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
+
+= image:transforms/icons/beam-snowflake-input.svg[Beam Snowflake input icon, role="image-doc-icon"] Beam Snowflake input
+
+== Description
+
+Read rows from Snowflake with Apache Beam SnowflakeIO 2.74.0. Snowflake copies the table or query result to a GCS external stage, and Hop turns each CSV row into a Hop row. This transform is a source: it does not accept incoming hops.
+
+The read is bounded. SnowflakeIO rejects a streaming read, and this transform does not offer one. Declared Beam compatibility is not a remote-runner certification. No test in this release runs a pipeline against Snowflake or GCS.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Unique name in the pipeline.
+|Server|Required account host. It must look like `account.snowflakecomputing.com`. The value is not repeated in an error.
+|Username|Required Snowflake user.
+|Password|Used when no private key is set. Masked in the dialog and encrypted with Hop password conventions. Prefer a variable such as `${SNOWFLAKE_PASSWORD}`.
+|Private key|PEM private key. When this is set, Hop uses key-pair authentication and does not send the password. A passphrase is optional. Key files and OAuth are not offered.
+|Database|Optional database identifier.
+|Warehouse|Optional warehouse identifier.
+|Schema|Optional schema identifier.
+|Role|Optional role identifier.
+|Port|Optional port from 1 to 65535. Empty uses the driver default.
+|Staging bucket|Required `gs://` path ending with `/`. S3, Azure, and internal stages are not accepted.
+|Storage integration|Required Snowflake storage integration that can read the bucket.
+|Quotation mark|Optional single CSV quotation character. Empty uses the Beam default apostrophe. A backslash or whitespace is rejected.
+|Table|Table name, `schema.name`, or `database.schema.name`. Set a table or a query, not both.
+|Query|SQL sent to Snowflake as written. Set a query or a table, not both.
+|Fields|Output fields. Name must be a Snowflake identifier. Type is String, Integer, Number, BigNumber, Boolean, Date, Timestamp, or Binary.
+|===
+
+== Field values
+
+An empty CSV field becomes null, including for strings, so an empty string is not preserved. Integer accepts a whole number such as `1.0` and rejects a fraction. Number is an IEEE double. BigNumber keeps the decimal text. Boolean accepts `true`, `false`, `TRUE`, `FALSE`, `1`, and `0`. Date and Timestamp use UTC `yyyy-MM-dd HH:mm:ss.SSS`, and a date-only `yyyy-MM-dd` is midnight UTC. Binary is lowercase hex. A conversion error names the field and does not include the cell text.
+
+== Execution and security
+
+Hop's lines-read and lines-output counts are conversion: a CSV row was read, or it became a Hop row. Lines written stays empty. A converted row is not a confirmed COPY. The transform does not add a TLS switch. The Snowflake JDBC driver negotiates the connection.
+
+Passwords, private keys, passphrases, bucket names, and queries are not copied into Hop error text.
+
+== Limitations
+
+* GCS external stage only. No S3, Azure, or internal stage.
+* No streaming read.
+* The query is user SQL and is sent as written.
+* There is no controlled Snowflake or GCS round trip in the tests. Remote runners have not been certified.
+* A second connector review has not covered this transform.

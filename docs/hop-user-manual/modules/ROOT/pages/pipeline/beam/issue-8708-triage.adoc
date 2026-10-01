@@ -52,14 +52,16 @@ The status column is ticked off as each wave lands.
 `AUTO, UNCOMPRESSED, GZIP, BZIP2, ZIP, ZSTD, LZO, LZOP, DEFLATE, SNAPPY`.
 Adding a dropdown to the output transform is a small change with no new dependencies.
 
-|https://github.com/apache/hop/issues/2355[#2355] gcpTempLocation for the Dataflow runner
+|https://github.com/apache/hop/issues/2355[#2355] gcpTempLocation for Direct and Dataflow
 |Low
 |2
 |Implement
 |Done
-|Done in `f392c3e57f`.
-`GcpOptions.setGcpTempLocation()` exists and `GcpOptions` is already on the plugin classpath.
-BigQuery load jobs need a GCS path, which is a separate option from the generic temp location.
+|Dataflow was added in `f392c3e57f`.
+DirectRunner now has the same GCP temp location field.
+When it is set, `getPipelineOptions()` resolves it onto `GcpOptions.setGcpTempLocation()`.
+An empty value leaves that option unset, and the general temp location is unchanged.
+BigQuery load jobs need a `gs://` path, which is separate from the generic temp location.
 
 |https://github.com/apache/hop/issues/2416[#2416] BigQuery query location and skipping validation
 |Low
@@ -105,6 +107,8 @@ field-based `KeyedPartitionFn` beside it.
 The row count is the assertion that matters: Beam returns one collection per partition and reading
 only the first drops the rest, which the end-to-end test verifies by failing with 12 of 100 rows
 against the naive version.
+This transform does not read the local Hop copies or partition settings.
+Those settings still apply only to the Hop engine.
 
 |https://github.com/apache/hop/issues/2275[#2275] Beam window by key
 |Medium
@@ -150,6 +154,7 @@ for every row, so every worker would write to the same file.
 `AvroCoder` lives in `org.apache.beam.sdk.extensions.avro.coders`, not `org.apache.beam.sdk.coders`.
 Packaging needs no change: the Beam SDKs are unpacked into `lib/core`, which is already on the
 classpath, and `lib-beam` is legacy and no longer produced.
+No Parquet file handler is implemented on this branch.
 
 |https://github.com/apache/hop/issues/2358[#2358] Avro transform and AvroIO
 |Medium
@@ -183,6 +188,7 @@ reached without a compile-time reference, or that dependency has to be added.
 
 NOTE: `AvroIO` moved out of `beam-sdks-java-core` in recent Beam releases; use the
 `extensions.avro.io` package.
+No Avro file handler is implemented on this branch.
 
 |https://github.com/apache/hop/issues/2379[#2379] Add Sequence transform handler
 |Medium
@@ -201,45 +207,62 @@ expressed on Beam and now fail with an explanation.
 |Medium
 |4
 |Implement
-|Planned
-|`org.apache.beam:beam-sdks-java-io-mqtt` is published for the Beam version this build pins.
-New input and output transforms following the existing Pub/Sub pair.
+|Reviewed
+|xref:pipeline/transforms/beammqttinput.adoc[Beam MQTT input] and
+xref:pipeline/transforms/beammqttoutput.adoc[Beam MQTT output] use Beam 2.74.0 MqttIO.
+UTF-8 String and Binary payloads, authenticated connections, read limits and retained publishing
+are covered by loopback MQTT protocol tests and annotated-dialog tests. MQTT dependencies are Apache-2.0.
+A second read-only review of the connector implementation found no defects.
 
 |https://github.com/apache/hop/issues/2377[#2377] Beam Splunk IO
 |Medium
 |4
 |Implement
-|Planned
-|`org.apache.beam:beam-sdks-java-io-splunk` is published for the pinned Beam version.
-SplunkIO is write-only, so this adds an output transform.
+|Implemented
+|xref:pipeline/transforms/beamsplunkoutput.adoc[Beam Splunk output] writes HEC events with Beam 2.74.0 SplunkIO.
+There is no Splunk input: the IO is write-only.
+Loopback HTTP tests cover a gzip success and one HTTP 400 rejection, including the Authorization header and conversion metrics.
+Hop's failure text has the HTTP status only.
+A production Splunk server and remote runners have not been certified, and the second connector review did not include this transform.
 
 |https://github.com/apache/hop/issues/2378[#2378] Beam Snowflake IO
 |Medium
 |4
 |Implement
-|Planned
-|`org.apache.beam:beam-sdks-java-io-snowflake` is published for the pinned Beam version.
-See the open question on vendored driver licensing before starting.
+|Implemented, with a verification gap
+|xref:pipeline/transforms/beamsnowflakeinput.adoc[Beam Snowflake input] and
+xref:pipeline/transforms/beamsnowflakeoutput.adoc[Beam Snowflake output] use Beam 2.74.0 SnowflakeIO
+for a bounded GCS COPY. There is no streaming read and no Snowpipe write.
+The Snowflake JDBC driver is Apache-2.0 and comes from Hop's existing 4.3.0 pin, not Beam's 4.0.2.
+The Snowpipe ingest SDK is not packaged. Unit tests apply the read and write graphs and do not run them.
+No controlled Snowflake or GCS round trip has been executed, and remote runners have not been certified.
+The second connector review did not include this transform.
 
 |https://github.com/apache/hop/issues/2409[#2409] Beam Debezium IO
 |High
 |4
 |Implement
-|Planned
-|`org.apache.beam:beam-sdks-java-io-debezium` is published for the pinned Beam version.
-`DebeziumIO` is an unbounded source, so this can only be an input transform, and it only works on
-the Flink and Spark streaming runners.
-There is no unit-testable seam without a real CDC source.
+|Reviewed
+|xref:pipeline/transforms/beamdebeziuminput.adoc[Beam Debezium input] uses Beam 2.74.0 DebeziumIO
+and emits JSON events. PostgreSQL and Kafka Connect schema utilities are bundled; other connectors
+require compatible user-supplied jars. Streaming is enabled automatically, including when read
+limits are set. Spark is rejected because its streaming translator does not support this SDF.
+DirectRunner tests exercise the real IO with deterministic Kafka Connect fixture sources; no live
+CDC database or remote runner has been certified.
+A second read-only review of the connector implementation found no defects.
 
 |https://github.com/apache/hop/issues/2613[#2613] Elastic / OpenSearch support
 |High
 |4
-|Scope first
-|Blocked
-|`org.apache.beam:beam-sdks-java-io-elasticsearch` is published for the pinned Beam version.
-The issue asks for Hop-side transforms *and* Beam handlers, and building the Hop-side transforms
-roughly doubles the effort, so the scope has to be settled before any code is written.
-See xref:pipeline/beam/issue-8708-triage.adoc#open-questions[Open questions].
+|Beam IO only
+|Reviewed in agreed scope
+|xref:pipeline/transforms/beamelasticsearchinput.adoc[Beam Elasticsearch input] and
+xref:pipeline/transforms/beamelasticsearchoutput.adoc[Beam Elasticsearch output] exchange JSON
+using Beam 2.74.0 ElasticsearchIO. Real search/scroll and bulk-write paths are tested against an
+HTTP protocol fixture. No local Hop-engine transforms were added. Native OpenSearch versions 1–3
+are rejected by Beam version detection; compatibility limits are documented rather than claiming
+universal OpenSearch support.
+A second read-only review of the connector implementation found no defects.
 
 |https://github.com/apache/hop/issues/2326[#2326] Document Beam plugin development guidelines
 |Medium
@@ -255,7 +278,7 @@ three ways to write a handler.
 |Low
 |5
 |Close with an answer
-|Planned
+|Answered, not closed
 |Not implementable.
 Beam 2.74 discards the Flink `JobID`:
 `FlinkPipelineExecutionEnvironment.createAttachedPipelineResult()` builds `FlinkRunnerResult` from
@@ -265,17 +288,20 @@ There is no supported way to read the `JobID` from `PipelineResult`.
 Point people at the Beam job name, which Hop already derives from the pipeline name, and at the
 Dataflow equivalent which Hop does report through
 `BeamDataFlowPipelineEngine.DETAIL_DATAFLOW_JOB_ID`.
+The same answer is on the
+xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]
+page. The GitHub issue stays open until that answer is accepted for posting.
 
 |https://github.com/apache/hop/issues/3478[#3478] Partition and copies on Flink
 |Low
 |5
 |Close with an answer
-|Planned
-|A question rather than a defect.
-On a Beam runner, copies and distribute describe the local Hop engine; the cluster decides its own
-parallelism.
-Answer using the Flink run configuration parallelism setting, the `SingleThreaded` transform
-attribute, and the partitioning work in #2040.
+|Closed
+|Closed on GitHub.
+Copies and partitioning settings belong to the local Hop engine.
+A Beam runner uses its own parallelism.
+The Beam partition transform from #2040 is a separate transform.
+It does not turn the local copies or partition settings into remote worker configuration.
 |===
 
 [[open-questions]]
@@ -284,20 +310,39 @@ attribute, and the partitioning work in #2040.
 These need an answer before the corresponding wave starts.
 They are listed here rather than buried in the table so they are easy to find.
 
-* *#2613 scope.* Does this umbrella include building the Hop-side Elastic transforms, or only the
-Beam handler? This roughly doubles the effort of that sub-issue.
-* *#2378, #2377 and #2375 licensing.* Snowflake and Splunk pull vendor JDBC drivers with their own
-licensing terms. Confirm they belong in the Apache distribution before spending the effort.
-* *#2409 unbounded only.* Accept that the Debezium transform can only be a streaming input, or
-decline the sub-issue?
-* *#2040 user interface.* Should the partitioning controls be disabled on Beam pipelines, where they
-are currently ignored, or should the dialogs explain that partitioning is now honoured?
-Pick one and apply it consistently.
-* *#3131 and #3478.* Is closing a question issue with a detailed answer acceptable, or should the
-content become a documentation page instead?
+* *#2613 scope resolved.* Beam-specific input/output only; document OpenSearch compatibility
+limits. New local Hop-engine transforms remain outside this wave.
+* *#2378 and #2377 licensing.* The Beam plugin zip `lib/core` contains one
+`snowflake-jdbc-4.3.0.jar` (Apache-2.0) and no Snowpipe ingest SDK.
+It also contains `opencsv-5.12.0.jar` (Apache-2.0), `bcprov-jdk15on-1.70.jar`
+(Bouncy Castle Licence, from SnowflakeIO) and `bcprov-jdk18on-1.85.2.jar` (MIT, from Hadoop).
+Both Bouncy Castle jars use the `org.bouncycastle` packages.
+SplunkIO is Apache-2.0. `gson-2.14.0.jar` appears once.
+`httpclient-4.5.14.jar` appears once and is brought in by ElasticsearchIO.
+MQTT and its bundled clients have been checked as Apache-2.0.
+* *#2409 unbounded only resolved.* Debezium is a streaming input, with runner constraints and
+restart/replay limitations documented. Record/time limits do not make the source bounded.
+* *#2040 and #3478.* Local copies and partition settings apply to the Hop engine.
+They are not remote-runner worker configuration.
+#3478 is closed with that answer.
+The Beam partition transform is a separate transform and does not read those local settings.
+* *#3131.* The Flink job ID cannot be read from Beam's `PipelineResult`.
+The answer is documented on the Flink engine page.
+The GitHub issue is still open because posting and closing it has not been authorized.
+
+== Release notes for this wave
+
+* BigQuery input maps a `RECORD` field to a String and writes the nested value as JSON.
+* Beam MQTT input and output, Debezium input, and Elasticsearch input and output are Beam-only.
+  Declared Beam engines are not a remote-runner certification.
+* Beam Splunk output writes HEC events. There is no Splunk input. Failure text contains the HTTP status only.
+* Beam Snowflake input and output copy through a GCS external stage.
+  There is no streaming read, no Snowpipe, and no tested round trip against Snowflake or GCS.
+* The Direct runner run configuration has a GCP temp location, separate from the general temp location.
 
 == Related documentation
 
+* xref:pipeline/beam/developing-beam-transforms.adoc[Developing a Beam transform]
 * xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
 * xref:pipeline/beam/running-the-beam-samples.adoc[Running the Beam samples]
 * xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]

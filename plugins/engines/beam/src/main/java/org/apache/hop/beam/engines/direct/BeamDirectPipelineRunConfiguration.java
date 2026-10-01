@@ -35,6 +35,7 @@
 package org.apache.hop.beam.engines.direct;
 
 import org.apache.beam.runners.direct.DirectOptions;
+import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +66,15 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
   @HopMetadataProperty(key = "number_of_workers")
   private String numberOfWorkers;
 
+  @GuiWidgetElement(
+      order = "20010-direct-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::BeamEnginesDirect.OptionsGcpTempLocation.Label",
+      toolTip = "i18n::BeamEnginesDirect.OptionsGcpTempLocation.ToolTip")
+  @HopMetadataProperty(key = "gcp_temp_location")
+  private String gcpTempLocation;
+
   public BeamDirectPipelineRunConfiguration(String numberOfWorkers) {
     super("BeamDirectPipelineEngine", "direct runner");
     this.numberOfWorkers = numberOfWorkers;
@@ -79,6 +89,7 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
   public BeamDirectPipelineRunConfiguration(BeamDirectPipelineRunConfiguration config) {
     super(config);
     this.numberOfWorkers = config.numberOfWorkers;
+    this.gcpTempLocation = config.gcpTempLocation;
   }
 
   @Override
@@ -98,6 +109,10 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
     if (StringUtils.isNotEmpty(numberOfWorkers)) {
       int targetParallelism = Const.toInt(resolve(numberOfWorkers), 1);
       options.setTargetParallelism(targetParallelism);
+    }
+    if (StringUtils.isNotEmpty(gcpTempLocation)) {
+      // #2355: GCP IOs need a gs:// path. This is separate from the general temp location.
+      options.as(GcpOptions.class).setGcpTempLocation(resolve(gcpTempLocation));
     }
 
     return options;
@@ -122,5 +137,21 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
    */
   public void setNumberOfWorkers(String numberOfWorkers) {
     this.numberOfWorkers = numberOfWorkers;
+  }
+
+  /**
+   * Gets gcpTempLocation
+   *
+   * @return value of gcpTempLocation
+   */
+  public String getGcpTempLocation() {
+    return gcpTempLocation;
+  }
+
+  /**
+   * @param gcpTempLocation The gcpTempLocation to set
+   */
+  public void setGcpTempLocation(String gcpTempLocation) {
+    this.gcpTempLocation = gcpTempLocation;
   }
 }
