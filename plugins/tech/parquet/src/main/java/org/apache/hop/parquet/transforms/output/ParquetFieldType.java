@@ -94,9 +94,10 @@ public enum ParquetFieldType implements IEnumHasCode {
   }
 
   /**
-   * The type Get Fields proposes. A Hop date is proposed as {@link #Date} (a calendar date, which
-   * warehouses such as BigQuery load as a DATE). Every other Hop type keeps the column the writer
-   * builds when the Parquet type is left empty.
+   * The type Get Fields proposes. A Hop date is proposed as {@link #TimestampMillis}, the
+   * TIMESTAMP(MILLIS) the writer uses when the Parquet type is left empty, so the time of day is
+   * kept. Select {@link #Date} for a calendar date. Every other Hop type keeps the column the
+   * writer builds when the Parquet type is left empty.
    *
    * @param valueMeta the incoming field, or null
    * @return the proposed type, or null when this Hop type has no Parquet type
@@ -112,7 +113,7 @@ public enum ParquetFieldType implements IEnumHasCode {
       case IValueMeta.TYPE_NUMBER -> Double;
       case IValueMeta.TYPE_BIGNUMBER -> decimalFits(valueMeta) ? Decimal : Utf8;
       case IValueMeta.TYPE_BINARY -> Binary;
-      case IValueMeta.TYPE_DATE -> Date;
+      case IValueMeta.TYPE_DATE -> TimestampMillis;
       case IValueMeta.TYPE_TIMESTAMP -> TimestampMicros;
       case IValueMeta.TYPE_JSON -> Json;
       case IValueMeta.TYPE_UUID -> Uuid;

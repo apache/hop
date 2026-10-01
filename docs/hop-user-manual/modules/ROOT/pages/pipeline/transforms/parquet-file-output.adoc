@@ -186,7 +186,7 @@ Leave empty to use the source field name.
 |Parquet type
 |https://parquet.apache.org/docs/file-format/types/logicaltypes/[Logical or physical type] of the column.
 Leave empty to keep the type chosen from the Hop type.
-Get Fields proposes a type for each field: a Date is proposed as `Date`, so a warehouse such as BigQuery loads it as a DATE, and a Timestamp is proposed as `TimestampMicros`.
+Get Fields proposes a type for each field: a Date is proposed as `TimestampMillis`, the same TIMESTAMP(MILLIS) written when the Parquet type is left empty, and a Timestamp is proposed as `TimestampMicros`. Select `Date` for a calendar date, for example so BigQuery loads the column as a DATE.
 Change the proposed type when you need a different one.
 
 |Precision

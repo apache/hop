@@ -218,8 +218,9 @@ class ParquetLogicalTypeTest {
   }
 
   @Test
-  void getFieldsProposesDateForADateAndTheDefaultForTheOthers() {
-    assertEquals(ParquetFieldType.Date, ParquetFieldType.forValueMeta(new ValueMetaDate("d")));
+  void getFieldsProposesTimestampMillisForADateAndTheDefaultForTheOthers() {
+    assertEquals(
+        ParquetFieldType.TimestampMillis, ParquetFieldType.forValueMeta(new ValueMetaDate("d")));
     assertEquals(
         ParquetFieldType.TimestampMicros,
         ParquetFieldType.forValueMeta(new ValueMetaTimestamp("ts")));
