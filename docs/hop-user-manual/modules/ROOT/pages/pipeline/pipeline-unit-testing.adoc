@@ -139,7 +139,7 @@ The options in this dialog are:
 |===
 |Name|name to use for this unit test
 |Description|a description for this unit test
-|Type of test|'Unit test' or 'Development'
+|Type of test|Development, Unit test, or a custom type. The list includes every type already used in the project. Type a new value to add one. Development and Unit test are stored as DEVELOPMENT and UNIT_TEST.
 |The pipeline to test|the pipeline this test applies to.
 By default, you should see the active pipeline filename here.
 |Test pipeline filename (Optional)|the filename to use for this unit test.

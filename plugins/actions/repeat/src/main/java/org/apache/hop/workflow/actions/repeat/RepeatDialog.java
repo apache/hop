@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -125,11 +126,19 @@ public class RepeatDialog extends ActionDialog {
     wbbFilename.setLayoutData(fdbFilename);
     wbbFilename.addListener(SWT.Selection, e -> browseForFile());
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbbFilename, -margin);
+    fdOpen.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.right = new FormAttachment(wbbFilename, -margin);
+    fdFilename.right = new FormAttachment(wbOpen, -margin);
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
     lastControl = wFilename;
@@ -564,6 +573,19 @@ public class RepeatDialog extends ActionDialog {
   @Override
   protected void onActionNameModified() {
     action.setChanged();
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wFilename.getText(),
+        ReferencedFileOpener.isDialogModified(
+            action.hasChanged(), wFilename.getText(), action.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? action.getFilename() : null;
+        });
   }
 
   private void ok() {

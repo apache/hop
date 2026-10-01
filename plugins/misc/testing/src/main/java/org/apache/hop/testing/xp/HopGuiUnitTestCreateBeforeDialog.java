@@ -27,8 +27,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
-import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
+import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.hopgui.HopGui;
 
 @ExtensionPoint(
@@ -54,7 +54,7 @@ public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged
 
     HopGui hopGui = HopGui.getInstance();
     test.setName(uniqueUnitTestName(pipelineMeta.getName(), hopGui.getMetadataProvider()));
-    test.setType(TestType.UNIT_TEST);
+    test.setType(DataSetConst.TEST_TYPE_UNIT_TEST);
     test.setRelativeFilename(hopGui.getVariables(), pipelineMeta.getFilename());
   }
 

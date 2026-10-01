@@ -46,6 +46,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -87,6 +88,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
   private Label wlPath;
   private TextVar wPath;
   private Button wbBrowse;
+  private Button wbOpen;
 
   private Button wbWorkflowNameInField;
 
@@ -182,12 +184,21 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     wbBrowse.setLayoutData(fdBrowse);
     wbBrowse.addListener(SWT.Selection, e -> selectWorkflowFile());
 
+    wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -margin);
+    fdOpen.bottom = new FormAttachment(wlPath, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdPath = new FormData();
     fdPath.left = new FormAttachment(wlPath, margin);
     fdPath.top = new FormAttachment(wlPath, 0, SWT.CENTER);
-    fdPath.right = new FormAttachment(wbBrowse, -margin);
+    fdPath.right = new FormAttachment(wbOpen, -margin);
     wPath.setLayoutData(fdPath);
 
     wbWorkflowNameInField = new Button(shell, SWT.CHECK);
@@ -332,12 +343,26 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     }
   }
 
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            workflowExecutorMeta.hasChanged(), wPath.getText(), workflowExecutorMeta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? workflowExecutorMeta.getFilename() : null;
+        });
+  }
+
   private void activeWorkflowNameField() {
     wlWorkflowNameField.setEnabled(wbWorkflowNameInField.getSelection());
     wWorkflowNameField.setEnabled(wbWorkflowNameInField.getSelection());
     wPath.setEnabled(!wbWorkflowNameInField.getSelection());
     wlPath.setEnabled(!wbWorkflowNameInField.getSelection());
     wbBrowse.setEnabled(!wbWorkflowNameInField.getSelection());
+    wbOpen.setEnabled(!wbWorkflowNameInField.getSelection());
     if (wbWorkflowNameInField.getSelection()) {
       wPath.setText("");
     } else {

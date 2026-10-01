@@ -49,6 +49,7 @@ image:hop-gui/environment/create-project-dialog.png[Project Properties Basic tab
 |Home folder|The folder where the project is located. Paths starting with `~` (e.g. `~/my-project` or `~\my-project` on Windows) automatically resolve to the user's home directory (`+${user.home}+`).|Yes|No|
 |This project is read only|When checked, Hop does not write `project-config.json` (archives, HTTP, and similar)|No|No|unchecked
 |Configuration file (relative path)|The project's configuration json, relative to the home folder.|Yes|Yes|`project-config.json`
+|Group|Optional topic stored on the project registration in `hop-config.json` (not in `project-config.json`). Projects that share a group are listed together in a submenu of the project menu. Leave empty to keep the project in the recent list.|Yes|No|
 |Description|A description for this project|No|No|
 |Company|The company this project belongs to|No|No|
 |Department|The department this project is created for|No|No|
@@ -146,13 +147,22 @@ image:hop-gui/environment/environment-dialog-configuration-files-tab.png[Environ
 |Property|Description|Variables Supported|Mandatory|Default
 |Configuration files|One or more files that define environment-specific variables. Each row is a filename and a description|Yes|No|
 |Description|Short note about that file. It is stored in the JSON file, not on the environment|No|No|
+|File or directory|A single configuration file, or a folder to scan. *Add* puts the matching files into the list below|Yes|No|
+|Inclusion wildcard (RegExp)|Regular expression matched against the file name, for example `.*\.json`. Leave empty to include every file. Not a shell glob|Yes|No|
+|Exclusion wildcard (RegExp)|Regular expression for file names to skip, for example `.*secret.*`|Yes|No|
+|Include subfolders|Also add matching files from subfolders|No|No|
+|Add|Resolve the file or folder and append each match to the list. The environment still stores one path per file|No|No|
 |Import variables|Scan the project for `+${VARIABLE}+` expressions and add missing names to a configuration file|No|No|
-|Select...|Add an existing configuration file|No|No|
+|Select...|Add one or more existing configuration files. Several files can be selected at once|No|No|
 |New...|Create a new configuration file and add it to the environment|No|No|
 |Edit...|Open the selected configuration file to set its description and the variable names, values and descriptions|No|No|
 |===
 
 Each environment contains one or more configuration files where you manage environment-specific variables.
+
+*Add* expands a file or a folder into that list immediately, using the same regular-expression rules as the JSON Input and Get File Names transforms.
+A folder is not stored as a wildcard.
+After the files are added, each row is still one file, so *Edit...* opens that file.
 
 Store secrets (database passwords, API keys, tokens) in these files as variables, not in project metadata or pipelines.
 Keep the files *outside* the project folder so they are not checked into the project repository.
@@ -238,6 +248,8 @@ These checks run on the JVM that enables the environment. They do not validate r
 == Switch between projects and environments
 
 Click the project indicator at the bottom left and choose a recent project from the menu, or *More projects...* to pick from a list.
+
+Projects with a group are not repeated in that recent list. Each group is its own submenu and lists every project in the group, so a long flat list becomes one entry per topic. Set the group on the project properties *Basic* tab, or when editing the project registration from *More projects...*. Projects without a group stay in the recent list (up to 15).
 
 image:hop-gui/environment/switch-project-list.png[Switch project]
 

@@ -182,6 +182,7 @@ public class ProjectConfigDialog extends Dialog {
     Label wlGroup = new Label(shell, SWT.RIGHT);
     PropsUi.setLook(wlGroup);
     wlGroup.setText(BaseMessages.getString(PKG, "ProjectConfigDialog.Label.Group"));
+    wlGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectConfigDialog.Label.Group.Tooltip"));
     FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment(0, 0);
     fdlGroup.right = new FormAttachment(middle, 0);
@@ -189,6 +190,7 @@ public class ProjectConfigDialog extends Dialog {
     wlGroup.setLayoutData(fdlGroup);
     wGroup = new ComboVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wGroup);
+    wGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectConfigDialog.Label.Group.Tooltip"));
     FormData fdGroup = new FormData();
     fdGroup.left = new FormAttachment(middle, margin);
     fdGroup.right = new FormAttachment(100, 0);

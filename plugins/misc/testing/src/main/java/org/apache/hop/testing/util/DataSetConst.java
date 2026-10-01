@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,12 +33,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.DataSet;
@@ -45,7 +48,6 @@ import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
-import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.xp.RowCollection;
 
@@ -110,6 +112,14 @@ public class DataSetConst {
         BaseMessages.getString(PKG, "DataSetConst.Tweak.BYPASS_TRANSFORM.Desc"),
         BaseMessages.getString(PKG, "DataSetConst.Tweak.REMOVE_TRANSFORM.Desc"),
       };
+
+  /**
+   * Legacy stored codes. Dialogs show the translated label and write this code back. Any other type
+   * is stored exactly as entered.
+   */
+  public static final String TEST_TYPE_DEVELOPMENT = "DEVELOPMENT";
+
+  public static final String TEST_TYPE_UNIT_TEST = "UNIT_TEST";
 
   private static final String[] testTypeDesc =
       new String[] {
@@ -602,40 +612,100 @@ public class DataSetConst {
     return outputRowMeta;
   }
 
-  public static String getTestTypeDescription(TestType testType) {
-    int index = 0; // DEVELOPMENT
-    if (testType != null) {
-      TestType[] testTypes = TestType.values();
-      for (int i = 0; i < testTypes.length; i++) {
-        if (testTypes[i] == testType) {
-          index = i;
-          break;
-        }
-      }
+  /**
+   * Dialog label for a stored test type. {@code DEVELOPMENT}, {@code UNIT_TEST}, and a missing type
+   * use the translated labels. Every other value is shown unchanged.
+   *
+   * @param testType stored type, or null
+   * @return label to put in the combo
+   */
+  public static String getTestTypeDescription(String testType) {
+    if (TEST_TYPE_UNIT_TEST.equals(testType)) {
+      return testTypeDesc[1];
     }
-
-    return testTypeDesc[index];
+    if (StringUtils.isEmpty(testType) || TEST_TYPE_DEVELOPMENT.equals(testType)) {
+      return testTypeDesc[0];
+    }
+    return testType;
   }
 
   /**
-   * Get the TestType for a tweak description (from the dialog)
+   * Stored type for a dialog label. The Development and Unit test labels map back to {@code
+   * DEVELOPMENT} and {@code UNIT_TEST}. An empty label maps to {@code DEVELOPMENT}. Anything else
+   * is stored as entered.
    *
-   * @param testTypeDescription The description to look for
-   * @return the test type or NONE if nothing matched
+   * @param testTypeDescription label from the combo
+   * @return value written to metadata
    */
-  public static TestType getTestTypeForDescription(String testTypeDescription) {
-    if (StringUtils.isEmpty(testTypeDescription)) {
-      return TestType.DEVELOPMENT;
+  public static String getTestTypeForDescription(String testTypeDescription) {
+    if (StringUtils.isEmpty(testTypeDescription)
+        || testTypeDescription.equalsIgnoreCase(testTypeDesc[0])) {
+      return TEST_TYPE_DEVELOPMENT;
     }
-    int index = Const.indexOfString(testTypeDescription, testTypeDesc);
-    if (index < 0) {
-      return TestType.DEVELOPMENT;
+    if (testTypeDescription.equalsIgnoreCase(testTypeDesc[1])) {
+      return TEST_TYPE_UNIT_TEST;
     }
-    return TestType.values()[index];
+    return testTypeDescription;
   }
 
+  /**
+   * @return translated Development and Unit test labels
+   */
   public static String[] getTestTypeDescriptions() {
-    return testTypeDesc;
+    return getTestTypeDescriptions(null);
+  }
+
+  /**
+   * Development, Unit test, then every other type already stored on a pipeline unit test in the
+   * project. A metadata error leaves the two built-in labels in place.
+   *
+   * @param metadataProvider project metadata, or null for the built-in labels only
+   * @return combo items
+   */
+  public static String[] getTestTypeDescriptions(IHopMetadataProvider metadataProvider) {
+    LinkedHashSet<String> descriptions = new LinkedHashSet<>();
+    descriptions.add(testTypeDesc[0]);
+    descriptions.add(testTypeDesc[1]);
+    if (metadataProvider == null) {
+      return descriptions.toArray(new String[0]);
+    }
+    try {
+      IHopMetadataSerializer<PipelineUnitTest> serializer =
+          metadataProvider.getSerializer(PipelineUnitTest.class);
+      LinkedHashSet<String> custom = new LinkedHashSet<>();
+      for (String name : serializer.listObjectNames()) {
+        try {
+          PipelineUnitTest unitTest = serializer.load(name);
+          if (unitTest == null) {
+            continue;
+          }
+          String description = getTestTypeDescription(unitTest.getType());
+          if (StringUtils.isNotEmpty(description) && !descriptions.contains(description)) {
+            custom.add(description);
+          }
+        } catch (Exception e) {
+          LogChannel.GENERAL.logError(
+              "Unable to load pipeline unit test '" + name + "' while listing test types", e);
+        }
+      }
+      List<String> sorted = new ArrayList<>(custom);
+      sorted.sort(String.CASE_INSENSITIVE_ORDER);
+      descriptions.addAll(sorted);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError("Unable to list pipeline unit test types", e);
+    }
+    return descriptions.toArray(new String[0]);
+  }
+
+  /**
+   * An unset type runs every unit test. A set type matches the stored type exactly.
+   *
+   * @param typeToExecute type selected on Execute unit tests, or null when it was never set
+   * @param unitTestType type stored on the pipeline unit test
+   * @return true when this unit test should run
+   */
+  public static boolean matchesTestType(String typeToExecute, String unitTestType) {
+    return typeToExecute == null || typeToExecute.equals(unitTestType);
   }
 
   /**

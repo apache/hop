@@ -227,19 +227,87 @@ class MultiMetadataLegacyKeysTest {
     assertEquals("child", serializer.load("mine").getDescription());
   }
 
-  /** The copy goes where the original lives, in the current folder. */
+  /**
+   * The copy is a new object of the active (child) project, in the current folder. It is not
+   * written next to the original in the parent project, which would share it with every project
+   * that inherits that parent.
+   */
   @Test
-  void testDuplicateInParentProject() throws Exception {
+  void testDuplicateInParentProjectGoesToTheChild() throws Exception {
     write(parentFolder, LEGACY, "conn", "parent");
     write(childFolder, LEGACY, "conn 2", "child");
 
     String copy = MetadataGuiFlows.duplicate(serializer, "conn");
 
     assertEquals("conn 3", copy);
-    assertTrue(has(parentFolder, CURRENT, "conn 3"));
+    assertTrue(has(childFolder, CURRENT, "conn 3"));
+    assertFalse(has(parentFolder, CURRENT, "conn 3"));
+    assertFalse(has(parentFolder, LEGACY, "conn 3"));
     assertTrue(has(parentFolder, LEGACY, "conn"), "the original isn't moved");
     assertTrue(has(childFolder, LEGACY, "conn 2"));
+    assertEquals(
+        multi.getProviders().get(1).getDescription(),
+        serializer.load(copy).getMetadataProviderName());
     assertEquals(List.of("conn", "conn 2", "conn 3"), sortedNames());
+  }
+
+  /** Accepting the dialog default passes the active project's provider description. */
+  @Test
+  void testDuplicateInParentProjectTargetsTheChildExplicitly() throws Exception {
+    write(parentFolder, LEGACY, "conn", "parent");
+
+    String childProvider = multi.getProviders().get(1).getDescription();
+    String copy = MetadataGuiFlows.duplicate(serializer, "conn", childProvider);
+
+    assertEquals("conn 2", copy);
+    assertTrue(has(childFolder, CURRENT, "conn 2"));
+    assertFalse(has(parentFolder, CURRENT, "conn 2"));
+    assertTrue(has(parentFolder, LEGACY, "conn"), "the original isn't moved");
+    assertEquals(childProvider, serializer.load(copy).getMetadataProviderName());
+  }
+
+  /** The duplicate dialog can still save the copy in the project that owns the original. */
+  @Test
+  void testDuplicateCanStayWithTheOriginal() throws Exception {
+    write(parentFolder, LEGACY, "conn", "parent");
+    write(childFolder, CURRENT, "other", "child");
+
+    String parentProvider = multi.getProviders().get(0).getDescription();
+    String copy = MetadataGuiFlows.duplicate(serializer, "conn", parentProvider);
+
+    assertEquals("conn 2", copy);
+    assertTrue(has(parentFolder, CURRENT, "conn 2"));
+    assertFalse(has(childFolder, CURRENT, "conn 2"));
+    assertTrue(has(parentFolder, LEGACY, "conn"), "the original isn't moved");
+    assertEquals(parentProvider, serializer.load(copy).getMetadataProviderName());
+  }
+
+  @Test
+  void testDuplicateOfLocalObjectStaysInTheChild() throws Exception {
+    write(childFolder, CURRENT, "local", "child");
+
+    String copy = MetadataGuiFlows.duplicate(serializer, "local");
+
+    assertEquals("local 2", copy);
+    assertTrue(has(childFolder, CURRENT, "local 2"));
+    assertFalse(has(parentFolder, CURRENT, "local 2"));
+    assertFalse(Files.exists(parentFolder.resolve(CURRENT)));
+  }
+
+  @Test
+  void testDuplicateProviderChoices() {
+    List<IHopMetadataProvider> providers = multi.getProviders();
+    String parent = providers.get(0).getDescription();
+    String child = providers.get(1).getDescription();
+
+    assertEquals(List.of(), HopMetadataUtil.duplicateProviderChoices(multi, null));
+    assertEquals(List.of(), HopMetadataUtil.duplicateProviderChoices(multi, ""));
+    assertEquals(List.of(), HopMetadataUtil.duplicateProviderChoices(multi, child));
+    assertEquals(List.of(), HopMetadataUtil.duplicateProviderChoices(providers.get(1), parent));
+    assertEquals(List.of(child, parent), HopMetadataUtil.duplicateProviderChoices(multi, parent));
+    assertEquals(
+        List.of(child, parent),
+        HopMetadataUtil.duplicateProviderChoices(multi, "JSON metadata in folder /missing"));
   }
 
   /**

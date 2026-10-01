@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -331,7 +332,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       // Convert this source object to CacheEntry
       //
       String json = jSource.toJSONString();
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
       return objectMapper.readValue(json, CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(

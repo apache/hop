@@ -87,6 +87,14 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private static final String TRANS_EXECUTOR_TYPE = "TransExecutor";
   private static final String SFTP_CONNECTION_METADATA_KEY = "sftp-connection";
 
+  /**
+   * Kettle type ids for the Kafka consumer, plus {@code KafkaConsumer} once {@code
+   * KettleKafkaConsumerInput} has been renamed. The sub-pipeline lives in {@code
+   * transformationPath}, which this import renames to {@code pipelinePath}.
+   */
+  private static final List<String> KAFKA_CONSUMER_TYPES =
+      List.of("KafkaConsumerInput", "KettleKafkaConsumerInput", "KafkaConsumer");
+
   /** The run configuration every Hop project is created with. */
   private static final String DEFAULT_RUN_CONFIGURATION = "local";
 
@@ -117,6 +125,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private int kjbCounter;
   private int ktrCounter;
   private int otherCounter;
+
+  /** Files left unchanged because the target already existed, per source type. */
+  private int kjbSkippedCounter;
+
+  private int ktrSkippedCounter;
+  private int otherSkippedCounter;
   private String variablesTargetConfigFile;
   private String connectionsReportFileName;
 
@@ -144,6 +158,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
       this.kjbCounter = 0;
       this.ktrCounter = 0;
       this.otherCounter = 0;
+      this.kjbSkippedCounter = 0;
+      this.ktrSkippedCounter = 0;
+      this.otherSkippedCounter = 0;
 
       // Find all files...
       //
@@ -278,6 +295,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         FileObject targetFile = HopVfs.getFileObject(targetFilename);
         if (isSkippingExistingTargetFiles() && targetFile.exists()) {
+          recordSkippedExistingTarget(sourceFile, domSource);
           continue;
         }
 
@@ -1053,6 +1071,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
       }
 
+      if ("pipelinePath".equals(currentNode.getNodeName())
+          && isKafkaConsumerStep(currentNode.getParentNode())) {
+        ensureKafkaPipelineExtension(currentNode);
+      }
+
       if ((entryType == EntryType.SIMPLE_MAPPING || entryType == EntryType.METAINJECT)
           && currentNode.getNodeName().equals("transform")) {
 
@@ -1145,6 +1168,34 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
         }
       }
+    }
+  }
+
+  private boolean isKafkaConsumerStep(Node stepNode) {
+    return stepNode != null && KAFKA_CONSUMER_TYPES.contains(getChildText(stepNode, "type"));
+  }
+
+  /**
+   * Pentaho stores the Kafka consumer sub-transformation in {@code transformationPath}. A
+   * repository reference, and a filename PDI resolves by appending {@code .ktr} itself, has no
+   * extension. Hop only opens that sub-pipeline when {@code pipelinePath} ends with {@code .hpl}.
+   */
+  private void ensureKafkaPipelineExtension(Node pipelinePathNode) {
+    String path = StringUtils.trimToEmpty(pipelinePathNode.getTextContent());
+    if (path.isEmpty()
+        || StringUtils.endsWithIgnoreCase(path, ".hpl")
+        || StringUtils.endsWithIgnoreCase(path, ".hwf")
+        || StringUtils.endsWithIgnoreCase(path, ".kjb")) {
+      return;
+    }
+    if (StringUtils.endsWithIgnoreCase(path, ".ktr")) {
+      pipelinePathNode.setTextContent(path.substring(0, path.length() - 4) + ".hpl");
+      return;
+    }
+    int slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    String name = path.substring(slash + 1);
+    if (!name.isEmpty() && name.indexOf('.') < 0) {
+      pipelinePathNode.setTextContent(path + ".hpl");
     }
   }
 
@@ -1264,32 +1315,50 @@ public class KettleImport extends HopImportBase implements IHopImport {
     }
   }
 
+  /**
+   * The find phase counts every source file as imported. A later skip leaves that file unchanged,
+   * so move it from the imported count to the skipped count before the summary is shown.
+   */
+  private void recordSkippedExistingTarget(FileObject sourceFile, DOMSource domSource) {
+    String extension = sourceFile.getName().getExtension();
+    if (domSource != null && "kjb".equalsIgnoreCase(extension)) {
+      kjbCounter = Math.max(0, kjbCounter - 1);
+      kjbSkippedCounter++;
+    } else if (domSource != null && "ktr".equalsIgnoreCase(extension)) {
+      ktrCounter = Math.max(0, ktrCounter - 1);
+      ktrSkippedCounter++;
+    } else {
+      otherCounter = Math.max(0, otherCounter - 1);
+      otherSkippedCounter++;
+    }
+  }
+
   @Override
   public String getImportReport() {
     String eol = System.getProperty("line.separator");
     String messageString =
         BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.Imported.Label") + eol;
-    if (getKjbCounter() > 0) {
-      messageString +=
-          getKjbCounter()
-              + " "
-              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedJobs.Label")
-              + eol;
-    }
-    if (getKtrCounter() > 0) {
-      messageString +=
-          getKtrCounter()
-              + " "
-              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedTransf.Label")
-              + eol;
-    }
-    if (getOtherCounter() > 0) {
-      messageString +=
-          getOtherCounter()
-              + " "
-              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedOther.Label")
-              + eol;
-    }
+    messageString +=
+        importedCountLine(
+            getKjbCounter(),
+            kjbSkippedCounter,
+            "KettleImportDialog.ImportSummary.ImportedJobs.Label",
+            "KettleImportDialog.ImportSummary.ImportedJobsSkipped.Label",
+            eol);
+    messageString +=
+        importedCountLine(
+            getKtrCounter(),
+            ktrSkippedCounter,
+            "KettleImportDialog.ImportSummary.ImportedTransf.Label",
+            "KettleImportDialog.ImportSummary.ImportedTransfSkipped.Label",
+            eol);
+    messageString +=
+        importedCountLine(
+            getOtherCounter(),
+            otherSkippedCounter,
+            "KettleImportDialog.ImportSummary.ImportedOther.Label",
+            "KettleImportDialog.ImportSummary.ImportedOtherSkipped.Label",
+            eol);
     if (getVariableCounter() > 0) {
       messageString +=
           getVariableCounter()
@@ -1342,6 +1411,23 @@ public class KettleImport extends HopImportBase implements IHopImport {
   }
 
   /**
+   * One summary line. With nothing skipped this stays "{count} {label}". Otherwise it names both
+   * the files written and the files left in place, including a zero written count.
+   */
+  private static String importedCountLine(
+      int imported, int skipped, String labelKey, String skippedKey, String eol) {
+    if (imported <= 0 && skipped <= 0) {
+      return "";
+    }
+    if (skipped > 0) {
+      return BaseMessages.getString(
+              PKG, skippedKey, Integer.toString(imported), Integer.toString(skipped))
+          + eol;
+    }
+    return imported + " " + BaseMessages.getString(PKG, labelKey) + eol;
+  }
+
+  /**
    * Gets kjbCounter
    *
    * @return value of kjbCounter
@@ -1387,6 +1473,18 @@ public class KettleImport extends HopImportBase implements IHopImport {
    */
   public void setOtherCounter(int otherCounter) {
     this.otherCounter = otherCounter;
+  }
+
+  public int getKjbSkippedCounter() {
+    return kjbSkippedCounter;
+  }
+
+  public int getKtrSkippedCounter() {
+    return ktrSkippedCounter;
+  }
+
+  public int getOtherSkippedCounter() {
+    return otherSkippedCounter;
   }
 
   /**

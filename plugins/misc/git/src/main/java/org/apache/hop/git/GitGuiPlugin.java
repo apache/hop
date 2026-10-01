@@ -37,6 +37,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.callback.GuiCallback;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -59,6 +60,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.BaseGuiWidgets;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -183,7 +185,44 @@ public class GitGuiPlugin
               });
     }
 
+    // Toolbar and menu items are dispatched to a separate instance: hand the registry this one,
+    // which holds the repository.
+    //
+    registerAsGuiPluginObjects();
+
     enableButtons();
+  }
+
+  /**
+   * Register this instance for the toolbars and menus which dispatch git actions. A
+   * {@code @GuiToolbarElement} or {@code @GuiMenuElement} method goes to whatever {@link
+   * BaseGuiWidgets} finds in the {@link GuiRegistry}, or to a fresh instance with no repository
+   * when it finds none. Rebuilt widgets get a new instance id, so this is repeated whenever the
+   * repository changes.
+   */
+  private void registerAsGuiPluginObjects() {
+    ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+    if (explorerPerspective != null) {
+      registerAsGuiPluginObject(explorerPerspective.getToolBarWidgets());
+      registerAsGuiPluginObject(explorerPerspective.getMenuWidgets());
+    }
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui != null) {
+      registerAsGuiPluginObject(hopGui.getStatusToolbarWidgets());
+    }
+  }
+
+  private void registerAsGuiPluginObject(BaseGuiWidgets widgets) {
+    HopGui hopGui = HopGui.peekInstance();
+    if (hopGui == null || widgets == null || widgets.getInstanceId() == null) {
+      return;
+    }
+    registerAsGuiPluginObject(hopGui.getId(), widgets.getInstanceId());
+  }
+
+  /* package */ void registerAsGuiPluginObject(String hopGuiId, String instanceId) {
+    GuiRegistry.getInstance()
+        .registerGuiPluginObject(hopGuiId, GitGuiPlugin.class.getName(), instanceId, this);
   }
 
   private void refreshGitPerspective(boolean refreshAll) {
@@ -939,6 +978,7 @@ public class GitGuiPlugin
       }
     }
     refreshChangedFiles();
+    registerAsGuiPluginObjects();
     enableButtons();
 
     // Refresh Git perspectives when a project is activated

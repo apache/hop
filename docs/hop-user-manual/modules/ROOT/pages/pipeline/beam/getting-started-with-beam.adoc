@@ -156,6 +156,11 @@ The transforms are in general split into a different types described below.
 
 Important to remember is that Beam pipelines try to solve every action in an 'embarrassingly parallel' way. This means that every transform can and usually will run in more than 1 copy.  On large clusters you should expect a lot of copies of the same code to run at any given time.
 
+The number from xref:pipeline/specify-copies.adoc[Specify copies] and a xref:pipeline/partitioning.adoc[partition schema] do not set that parallelism.
+Both are applied only by the local Hop pipeline engine.
+On Beam, including Flink, a numeric copy count is not a thread count.
+The copies field carries the `SINGLE_BEAM` and `BATCH` flags described below.
+
 === Beam specific transforms
 
 There are a number of Beam specific transforms available which only work on the provided Beam pipeline execution engines.

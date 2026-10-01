@@ -258,7 +258,9 @@ public class PgVectorSearchMeta extends BaseTransformMeta<PgVectorSearch, PgVect
     copy.filters = new ArrayList<>();
     if (filters != null) {
       for (PgVectorSearchFilter filter : filters) {
-        copy.filters.add(new PgVectorSearchFilter(filter.getColumnName(), filter.getStreamField()));
+        copy.filters.add(
+            new PgVectorSearchFilter(
+                filter.getColumnName(), filter.getStreamField(), filter.isSkipIfEmpty()));
       }
     }
     return copy;

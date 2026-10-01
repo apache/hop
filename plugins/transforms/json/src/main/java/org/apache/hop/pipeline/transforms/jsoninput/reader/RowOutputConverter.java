@@ -51,6 +51,13 @@ public class RowOutputConverter {
     }
     // convert from string
     String strValue = getStringValue(value);
+    if (strValue == null) {
+      // JSON null and a missing path are null. convertDataFromString turns a null string into ""
+      // when HOP_EMPTY_STRING_DIFFERS_FROM_NULL is Y, which hides the difference between "" and
+      // null. An empty JSON string ("") is not null and still goes through conversion below.
+      // See Apache Hop #4373.
+      return null;
+    }
     return targetMeta.convertDataFromString(
         strValue, strConvertMeta, null, null, targetMeta.getTrimType());
   }

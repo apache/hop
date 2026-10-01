@@ -246,7 +246,7 @@ Below are the variables you can use for a **long-lived** container, running Hop 
 |The maximum number of log lines kept in memory by the server.
 
 |```HOP_SERVER_MAX_LOG_TIMEOUT```
-|`0` (never clean up log lines)
+|`1440` (clean up log lines after one day)
 |The time (in minutes) it takes for a log line to be cleaned up in memory.
 
 |```HOP_SERVER_MAX_OBJECT_TIMEOUT```

@@ -16,7 +16,7 @@ under the License.
 ////
 [[SpecifyCopies]]
 :imagesdir: ../assets/images
-:description: The Specify Copies allows transforms in a pipeline to run with multiple copies (threads). This can be used to improve performance when applied correctly.
+:description: Specify copies runs a transform in multiple threads on the local Hop pipeline engine. Beam (including Flink) and native Spark ignore the copy count as a thread count.
 
 = Specify Copies
 
@@ -25,6 +25,25 @@ The `Specify copies` option in the xref:hop-gui/hop-gui-popup-dialog.adoc[Hop Gu
 Having multiple copies of a transform results in multiple threads for this transform, and can improve a pipeline's performance if used correctly.
 
 WARNING: increasing the number of copies for your transforms is not a silver bullet or a `performance=fast` option. Excessive use of the `specify copies` option can easily make your pipelines performance worse instead of better.
+
+[[supported-engines]]
+== Supported engines
+
+The copy count starts one thread per copy only on the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[local Hop pipeline engine].
+The xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote] and xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[load-balancing] engines apply it only when the pipeline runs with that local engine on a Hop Server.
+
+The xref:pipeline/pipeline-run-configurations/single-threaded-pipeline-engine.adoc[single-threaded] engine creates the same copies, but it drives every transform from one thread, so the copies do not run in parallel.
+
+Beam engines do not use the number as a thread count.
+That includes xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Flink], xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Spark], xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Dataflow] and the xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Direct] runner.
+Those runners choose their own parallelism.
+On Beam the copies field is a flag string, not a thread count: `SINGLE_BEAM` asks the engine to try to run the transform once (Flink still runs that work in parallel), and `BATCH` batches rows before they reach the transform.
+See xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam].
+xref:pipeline/transforms/rowgenerator.adoc[Generate rows] is the one transform that reads a numeric copy count on Beam, and only as the number of initial bundles of its synthetic source.
+
+The xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[native Spark] engine ignores the copy count.
+Its parallelism comes from Spark partitions.
+See xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine].
 
 == Changing the number of copies for a transform
 

@@ -117,6 +117,15 @@ public class CombinationLookupMeta
       injectionKeyDescription = "CombinationLookup.Injection.HASH_FIELD")
   private String hashField;
 
+  /**
+   * Optional input field that already contains the hash. Empty means this transform calculates it.
+   */
+  @HopMetadataProperty(
+      key = "hashfield_stream",
+      injectionKey = "HASH_FIELD_IN_STREAM",
+      injectionKeyDescription = "CombinationLookup.Injection.HASH_FIELD_IN_STREAM")
+  private String hashFieldInStream;
+
   /** Commit size for insert / update */
   @HopMetadataProperty(
       key = "commit",
@@ -325,6 +334,7 @@ public class CombinationLookupMeta
                     transformMeta);
           }
           remarks.add(cr);
+          checkHashField(remarks, variables, transformMeta, prev);
         } else {
           errorMessage =
               BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.CouldNotReadFields")
@@ -411,6 +421,42 @@ public class CombinationLookupMeta
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  void checkHashField(
+      List<ICheckResult> remarks,
+      IVariables variables,
+      TransformMeta transformMeta,
+      IRowMeta prev) {
+    if (!useHash || Utils.isEmpty(variables.resolve(hashFieldInStream))) {
+      return;
+    }
+    String hashName = variables.resolve(hashFieldInStream);
+    IValueMeta hashValue = prev.searchValueMeta(hashName);
+    CheckResult cr;
+    if (hashValue == null) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.HashFieldNotFound", hashName),
+              transformMeta);
+    } else if (hashValue.getType() != IValueMeta.TYPE_INTEGER) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.HashFieldNotInteger", hashName),
+              transformMeta);
+    } else {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.HashFieldFound", hashName),
+              transformMeta);
+    }
+    remarks.add(cr);
   }
 
   @Override
