@@ -16,7 +16,8 @@
  */
 package org.apache.hop.beam.transforms.elasticsearch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.InvocationTargetException;
 import org.apache.beam.sdk.io.elasticsearch.ElasticsearchIO;

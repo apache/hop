@@ -16,7 +16,9 @@
  */
 package org.apache.hop.beam.transforms.elasticsearch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.core.encryption.Encr;

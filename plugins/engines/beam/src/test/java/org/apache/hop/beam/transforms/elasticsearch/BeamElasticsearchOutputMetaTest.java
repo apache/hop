@@ -16,7 +16,7 @@
  */
 package org.apache.hop.beam.transforms.elasticsearch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.List;
