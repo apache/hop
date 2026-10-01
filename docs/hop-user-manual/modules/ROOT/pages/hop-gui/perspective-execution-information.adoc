@@ -176,7 +176,5 @@ image::execution-information-perspective-to-parent-toolbar-icon.png[go to the pa
 
 === Edit the pipeline or workflow
 
-If you want to quickly navigate from the execution information of a pipeline or workflow to its editor, you can click on the edit (pencil) icon in the toolbar or press `F3`:
-
-image::execution-information-perspective-to-editor-toolbar-icon.png[navigate to the editor]
+If you want to quickly navigate from the execution information of a pipeline or workflow to its editor, you can click on the edit (pencil) icon in the toolbar or press `F3`.
 

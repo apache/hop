@@ -19,7 +19,7 @@ under the License.
 = Perspectives
 
 A perspective represents an entire full-screen workbench view in the Hop GUI, selected via the primary navigation icons in the left sidebar.
-The File Explorer, Metadata, Execution Information, Configuration, Database, and Plugins workbenches are all perspective plugins.
+The built-in perspectives, such as File Explorer, Execution Information, Configuration, Database, Metadata and Plugin explorer, are all perspective plugins.
 
 == Implementing a Perspective
 
@@ -114,7 +114,7 @@ The methods without a default are `getId()`, `activate()`, `perspectiveActivated
 
 == Key Architectural Rules
 
-* **Numeric Ordering:** The `id` attribute should start with a 3-digit number (e.g. `010-DataOrchestration`, `100-HopExplorerPerspective`, `300-...`) which strictly determines its position in the left navigation sidebar.
+* **Numeric Ordering:** The `id` attribute should start with a 3-digit number (e.g. `100-HopExplorerPerspective`, `200-HopMetadataPerspective`, `300-...`) which strictly determines its position in the left navigation sidebar.
 * **Initialization Guard:**
 [WARNING]
 ====
