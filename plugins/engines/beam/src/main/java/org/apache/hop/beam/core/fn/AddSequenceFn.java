@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 
 /**
@@ -69,6 +70,7 @@ public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
 
   private transient IRowMeta rowMeta;
   private transient IValueMeta valueMeta;
+  private transient int fieldIndex;
 
   /**
    * The spec for the counter. {@code @StateId} is field-only and the annotated field has to be a
@@ -102,11 +104,12 @@ public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
     // AddSequenceMeta.getFields(). Adding another one here would grow the row to 12 slots while
     // the output transform only reads 11, which silently drops the value.
     rowMeta = JsonRowMeta.fromJson(rowMetaJson);
-    valueMeta = rowMeta.searchValueMeta(valueName);
-    if (valueMeta == null) {
+    fieldIndex = rowMeta.indexOfValue(valueName);
+    if (fieldIndex < 0) {
       throw new HopException(
           "The row layout handed to the Add Sequence function has no field '" + valueName + "'");
     }
+    valueMeta = rowMeta.getValueMeta(fieldIndex);
     Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
   }
 
@@ -126,9 +129,8 @@ public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
       }
 
       HopRow row = context.element().getValue();
-      Object[] output = new Object[rowMeta.size()];
-      System.arraycopy(row.getRow(), 0, output, 0, row.getRow().length);
-      output[rowMeta.size() - 1] = value;
+      Object[] output = RowDataUtil.resizeArray(row.getRow(), rowMeta.size());
+      output[fieldIndex] = value;
 
       context.output(new HopRow(output));
       writtenCounter.inc();

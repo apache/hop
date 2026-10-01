@@ -20,12 +20,15 @@ package org.apache.hop.beam.core.partition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import org.apache.beam.sdk.transforms.Partition;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,10 +54,12 @@ class BeamPartitionFnsTest {
     return org.apache.hop.core.row.JsonRowMeta.toJson(rowMeta);
   }
 
-  private static HopRow rowOf(Integer id, Integer customerId) {
+  private static HopRow rowOf(Number id, Number customerId) {
     // HopRow's no-arg constructor asserts against a null row, so build it with the values.
-    //
-    return new HopRow(new Object[] {id, customerId});
+    // In Hop, ValueMetaInteger values are represented by Long in row arrays.
+    Long idVal = id == null ? null : id.longValue();
+    Long custVal = customerId == null ? null : customerId.longValue();
+    return new HopRow(new Object[] {idVal, custVal});
   }
 
   @Test
@@ -164,5 +169,39 @@ class BeamPartitionFnsTest {
         fn.partitionFor(first, 4),
         fn.partitionFor(second, 4),
         "the same name must land in the same partition");
+  }
+
+  @Test
+  void binaryKeyFieldHashesIdenticalByteArraysToTheSamePartition() {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("id"));
+    rowMeta.addValueMeta(new ValueMetaBinary("payload"));
+    KeyedPartitionFn fn =
+        new KeyedPartitionFn("partition", org.apache.hop.core.row.JsonRowMeta.toJson(rowMeta), 1);
+
+    HopRow first = new HopRow(new Object[] {1, new byte[] {1, 2, 3, 4}});
+    HopRow second = new HopRow(new Object[] {2, new byte[] {1, 2, 3, 4}});
+
+    assertEquals(
+        fn.partitionFor(first, 8),
+        fn.partitionFor(second, 8),
+        "distinct byte[] instances with identical contents must land in the same partition");
+  }
+
+  @Test
+  void bigDecimalKeyFieldIgnoresScaleDifferencesInPartitioning() {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("id"));
+    rowMeta.addValueMeta(new ValueMetaBigNumber("amount"));
+    KeyedPartitionFn fn =
+        new KeyedPartitionFn("partition", org.apache.hop.core.row.JsonRowMeta.toJson(rowMeta), 1);
+
+    HopRow first = new HopRow(new Object[] {1, new BigDecimal("10.0")});
+    HopRow second = new HopRow(new Object[] {2, new BigDecimal("10.00")});
+
+    assertEquals(
+        fn.partitionFor(first, 8),
+        fn.partitionFor(second, 8),
+        "BigDecimals representing equal numbers with different scales must land in the same partition");
   }
 }

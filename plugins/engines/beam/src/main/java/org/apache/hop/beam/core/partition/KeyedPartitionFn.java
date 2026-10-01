@@ -18,6 +18,8 @@
 package org.apache.hop.beam.core.partition;
 
 import java.io.Serial;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Objects;
 import org.apache.beam.sdk.transforms.Partition;
 import org.apache.hop.beam.core.HopRow;
@@ -73,10 +75,23 @@ public class KeyedPartitionFn implements Partition.PartitionFn<HopRow> {
       // Math.abs is not used: it returns a negative number for Integer.MIN_VALUE, which would
       // produce an invalid partition index.
       //
-      int hash = Objects.hashCode(key);
+      int hash;
+      if (key instanceof byte[] bytes) {
+        hash = Arrays.hashCode(bytes);
+      } else if (key instanceof BigDecimal bd) {
+        hash =
+            (bd.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : bd.stripTrailingZeros())
+                .hashCode();
+      } else {
+        try {
+          hash = keyValueMeta != null ? keyValueMeta.hashCode(key) : Objects.hashCode(key);
+        } catch (Exception e) {
+          hash = Objects.hashCode(key);
+        }
+      }
       return Math.floorMod(hash, numPartitions);
 
-    } catch (RuntimeException e) {
+    } catch (Exception e) {
       throw new RuntimeException(
           "Unable to determine the partition for transform '" + transformName + "'", e);
     }

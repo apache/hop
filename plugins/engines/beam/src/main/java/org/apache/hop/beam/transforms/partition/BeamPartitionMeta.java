@@ -35,6 +35,10 @@ import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -64,25 +68,64 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::BeamPartitionMeta.keyword",
     documentationUrl = "/pipeline/transforms/beampartition.html",
     supportedEngines = {"Beam*"})
+@GuiPlugin
+@Getter
+@Setter
 public class BeamPartitionMeta extends BaseTransformMeta<BeamPartition, BeamPartitionData>
     implements IBeamPipelineTransformHandler {
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "BEAM_PARTITION_OPTIONS";
+  public static final String WIDGET_PARTITION_TYPE = "partitionType";
+  public static final String WIDGET_KEY_FIELD = "keyField";
+  public static final String WIDGET_NUM_PARTITIONS = "numPartitions";
+
+  @GuiWidgetElement(
+      id = WIDGET_PARTITION_TYPE,
+      order = "0100",
+      type = GuiElementType.COMBO,
+      comboValuesMethod = "getPartitionTypes",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      label = "i18n::BeamPartitionDialog.PartitionType",
+      toolTip = "i18n::BeamPartitionDialog.PartitionType.ToolTip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::BeamPartitionDialog.Group")
   @HopMetadataProperty(key = "partition_type")
-  @Getter
-  @Setter
   private String partitionType;
 
   /** The field to partition on. Required for the Key mode, ignored for Single. */
+  @GuiWidgetElement(
+      id = WIDGET_KEY_FIELD,
+      order = "0200",
+      type = GuiElementType.TEXT,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      label = "i18n::BeamPartitionDialog.KeyField",
+      toolTip = "i18n::BeamPartitionDialog.KeyField.ToolTip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::BeamPartitionDialog.Group")
   @HopMetadataProperty(key = "key_field")
-  @Getter
-  @Setter
   private String keyField;
 
   /** How many partitions to create. */
+  @GuiWidgetElement(
+      id = WIDGET_NUM_PARTITIONS,
+      order = "0300",
+      type = GuiElementType.TEXT,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      label = "i18n::BeamPartitionDialog.NumPartitions",
+      toolTip = "i18n::BeamPartitionDialog.NumPartitions.ToolTip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::BeamPartitionDialog.Group")
   @HopMetadataProperty(key = "num_partitions")
-  @Getter
-  @Setter
   private String numPartitions;
+
+  public List<String> getPartitionTypes(ILogChannel log, IHopMetadataProvider provider) {
+    return List.of(BeamDefaults.PARTITION_TYPE_SINGLE, BeamDefaults.PARTITION_TYPE_KEY);
+  }
+
+  @Override
+  public String getDialogClassName() {
+    return BeamPartitionDialog.class.getName();
+  }
 
   public BeamPartitionMeta() {
     super();
