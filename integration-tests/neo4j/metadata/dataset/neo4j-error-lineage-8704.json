@@ -1,0 +1,16 @@
+{
+  "base_filename": "neo4j-error-lineage-8704.csv",
+  "name": "neo4j-error-lineage-8704",
+  "description": "The error lineage of a failed run, as written by the Neo4j execution information location",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": 0,
+      "field_format": "",
+      "field_name": "errorLineage"
+    }
+  ],
+  "folder_name": ""
+}

@@ -71,9 +71,22 @@ public abstract class NeoExecutionViewerTabBase {
   }
 
   /**
+   * Neo4j logging (NEO4J_LOGGING_CONNECTION) writes Execution nodes with the same IDs as the
+   * execution information location, so the same execution can show up twice in a path. Neo4j
+   * logging always sets a type property and the execution information location never does, so this
+   * keeps a path to the nodes of the execution information location.
+   */
+  public static final String EXECUTION_INFORMATION_NODES_ONLY =
+      "all(n IN nodes(p) WHERE n.type IS NULL) ";
+
+  /**
    * Cypher that walks from a child execution to the root parent using directed EXECUTES
    * relationships. The cartesian {@code MATCH (top:Execution)} form is avoided because it does not
    * scale on a busy logging graph and is a common timeout on Neo4j 5.
+   *
+   * <p>The root is the execution nothing executes, not the one without a parentId: Neo4j logging
+   * writes Execution nodes with the same ID but without a parentId, so the child itself could be
+   * picked as root, and Neo4j 5 rejects a shortestPath that starts and ends on the same node.
    */
   public static String buildPathToRootCypher(boolean hasParent) {
     if (!hasParent) {
@@ -81,9 +94,12 @@ public abstract class NeoExecutionViewerTabBase {
     }
     return "MATCH (child:Execution {id: $executionId }) "
         + Const.CR
-        + "MATCH p = shortestPath((top:Execution)-[:EXECUTES*]->(child)) "
+        + "MATCH p = (top:Execution)-[:EXECUTES*]->(child) "
         + Const.CR
-        + "WHERE top.parentId IS NULL "
+        + "WHERE NOT ()-[:EXECUTES]->(top) "
+        + Const.CR
+        + "AND   "
+        + EXECUTION_INFORMATION_NODES_ONLY
         + Const.CR
         + "RETURN p "
         + Const.CR
@@ -111,6 +127,9 @@ public abstract class NeoExecutionViewerTabBase {
         + "AND   child.id <> $executionId "
         + Const.CR
         + "AND   NOT (child)-[:EXECUTES]->() "
+        + Const.CR
+        + "AND   "
+        + EXECUTION_INFORMATION_NODES_ONLY
         + Const.CR
         + "RETURN p "
         + Const.CR
