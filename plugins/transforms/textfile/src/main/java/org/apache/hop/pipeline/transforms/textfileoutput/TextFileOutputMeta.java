@@ -162,7 +162,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
     /**
      * Skip padding fields with spaces up to their length. Absent from saved transforms, so those
-     * keep padding. A new transform enables it.
+     * keep padding. A new transform enables it. Right pad fields still pads when this is enabled.
      */
     @HopMetadataProperty(
         key = "do_not_right_pad",
@@ -222,6 +222,15 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       this.splitEveryRows = f.splitEveryRows;
       this.timeInFilename = f.timeInFilename;
       this.transformNrInFilename = f.transformNrInFilename;
+    }
+
+    /**
+     * Short values are padded out to the field length when Right pad fields is selected, and also
+     * when Do not right-pad fields is not selected. A saved transform omits that flag and keeps
+     * padding. A new transform selects it and does not pad unless Right pad fields is selected.
+     */
+    public boolean isPaddingFields() {
+      return padded || !doNotPadFields;
     }
   }
 
@@ -471,8 +480,8 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
           v.setStringEncoding(getEncoding());
         }
 
-        // v2.5.x compatibility pads unless "Do not right-pad fields" is enabled.
-        v.setOutputPaddingEnabled(!getFileSettings().isDoNotPadFields());
+        // Right pad fields always pads. Otherwise pad unless Do not right-pad fields is set.
+        v.setOutputPaddingEnabled(getFileSettings().isPaddingFields());
       }
     }
   }

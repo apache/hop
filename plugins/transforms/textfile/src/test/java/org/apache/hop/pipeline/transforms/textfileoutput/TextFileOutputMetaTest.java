@@ -215,11 +215,30 @@ class TextFileOutputMetaTest {
     assertEquals(10, legacy.getValueMeta(0).getLength());
 
     meta.getFileSettings().setDoNotPadFields(true);
-    meta.getFileSettings().setPadded(true);
+    meta.getFileSettings().setPadded(false);
     RowMeta noPad = new RowMeta();
     noPad.addValueMeta(new ValueMetaString("name"));
     meta.getFields(noPad, "out", null, null, new Variables(), new MemoryMetadataProvider());
     assertFalse(noPad.getValueMeta(0).isOutputPaddingEnabled());
+  }
+
+  @Test
+  void rightPadFieldsPadsWhenDoNotRightPadIsAlsoSelected() throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    TextFileField field = new TextFileField();
+    field.setName("name");
+    field.setType(IValueMeta.TYPE_STRING);
+    field.setLength(10);
+    meta.getOutputFields().add(field);
+    meta.getFileSettings().setDoNotPadFields(true);
+    meta.getFileSettings().setPadded(true);
+
+    assertTrue(meta.getFileSettings().isPaddingFields());
+
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("name"));
+    meta.getFields(row, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertTrue(row.getValueMeta(0).isOutputPaddingEnabled());
   }
 
   @Test

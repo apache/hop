@@ -834,9 +834,10 @@ class TextFileOutputTest {
     assertEquals("abc       ", writeStringField("abc", 10, false, false));
     assertEquals("abc       ", writeStringField("abc", 10, false, true));
     assertEquals("abc", writeStringField("abc", 10, true, false));
-    assertEquals("abc", writeStringField("abc", 10, true, true));
+    // Right pad fields wins when both options are selected.
+    assertEquals("abc       ", writeStringField("abc", 10, true, true));
     assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, false, false));
-    assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, true, false));
+    assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, true, true));
   }
 
   private String writeStringField(String value, int length, boolean doNotPad, boolean rightPad)

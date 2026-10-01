@@ -27,8 +27,10 @@ The Text File Output transform is used to export data to text file format.
 
 This is commonly used to generate Comma Separated Values (CSV files) that can be read by spreadsheet applications.
 
-It is also possible to generate fixed width files by setting lengths on the fields in the fields tab and leaving *Do not right-pad fields* unchecked, so short values are padded out to those lengths.
-A new transform checks that option and writes the value as it is, while still cutting a value that is longer than its length.
+It is also possible to generate fixed width files by setting lengths on the fields in the fields tab.
+Short values are padded out to those lengths when *Right pad fields* is selected, or when *Do not right-pad fields* is left unchecked.
+A new transform checks *Do not right-pad fields* and writes the value as it is, while still cutting a value that is longer than its length.
+Select *Right pad fields* when that new transform must still be fixed width. That option always pads and disables *Do not right-pad fields*.
 
 You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually. If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
@@ -98,12 +100,15 @@ To use Unicode specify UTF-8 or UTF-16.
 |Compression|Allows you to compress the file and specify the type of compression, either .zip or .gzip, to use when compressing the output.
 
 Note: Only one file is placed in a single compressed archive.
-|Right pad fields|Add spaces to the end of the fields (or remove characters at the end) until they have the length specific on the Fields tab.
+|Right pad fields|Add spaces to the end of the fields until they have the length specified on the Fields tab.
+This always pads.
+While it is selected, Do not right-pad fields is disabled.
 |Do not right-pad fields|Do not add spaces to the end of fields to reach the length on the Fields tab.
 Values that are longer than that length are still shortened.
+This option is disabled while Right pad fields is selected.
+Right pad fields still pads in that case.
 Saved transforms leave this unchecked, so they keep padding.
 A new transform checks it.
-Uncheck it when the file must be fixed width.
 |Fast data dump (no formatting)|Improves the performance when dumping large amounts of data to a text file by not including any formatting information.
 Field formats are ignored, so a Boolean is written as `true` or `false`.
 |Split every ... rows|Specify a number of rows to split the file into chunks of that many rows. 

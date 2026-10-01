@@ -129,6 +129,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
   private Button wPad;
 
+  private Label wlDoNotPadFields;
   private Button wDoNotPadFields;
 
   private Button wFastDump;
@@ -869,6 +870,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     Label wlPad = new Label(wContentComp, SWT.RIGHT);
     wlPad.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.Pad.Label"));
+    wlPad.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.Pad.Tooltip"));
     PropsUi.setLook(wlPad);
     FormData fdlPad = new FormData();
     fdlPad.left = new FormAttachment(0, 0);
@@ -876,6 +878,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     fdlPad.right = new FormAttachment(middle, -margin);
     wlPad.setLayoutData(fdlPad);
     wPad = new Button(wContentComp, SWT.CHECK);
+    wPad.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.Pad.Tooltip"));
     PropsUi.setLook(wPad);
     FormData fdPad = new FormData();
     fdPad.left = new FormAttachment(middle, 0);
@@ -887,10 +890,11 @@ public class TextFileOutputDialog extends BaseTransformDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
+            enableDoNotPadFields();
           }
         });
 
-    Label wlDoNotPadFields = new Label(wContentComp, SWT.RIGHT);
+    wlDoNotPadFields = new Label(wContentComp, SWT.RIGHT);
     wlDoNotPadFields.setText(
         BaseMessages.getString(PKG, "TextFileOutputDialog.DoNotPadFields.Label"));
     wlDoNotPadFields.setToolTipText(
@@ -1227,6 +1231,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     getData();
 
     activeFileNameField();
+    enableDoNotPadFields();
     enableParentFolder();
     input.setChanged(changed);
     focusTransformName();
@@ -1668,5 +1673,14 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
   protected void enableParentFolder() {
     // it is enabled always in this implementation
+  }
+
+  /**
+   * Right pad fields always pads, so the skip-padding option does not apply while it is selected.
+   */
+  private void enableDoNotPadFields() {
+    boolean rightPad = wPad.getSelection();
+    wlDoNotPadFields.setEnabled(!rightPad);
+    wDoNotPadFields.setEnabled(!rightPad);
   }
 }
