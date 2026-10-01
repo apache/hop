@@ -1,0 +1,70 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Named SMB2/SMB3 connection
+
+= SMB Connection
+
+== Description
+
+This metadata type registers a Windows or Samba file share as a named VFS connection.
+The connection name is the URL scheme, for example `finance:///reports/daily.csv`.
+
+The plugin talks SMB 2 and SMB 3 directly.
+Nothing is mounted on the operating system, and SMB1 is not used.
+
+See xref:vfs/smb-vfs.adoc[SMB] for how paths are written.
+
+== Server
+
+[options="header"]
+|===
+|Option|Description
+|Hostname|Server name. For Azure Files this is `account.file.core.windows.net`.
+|Port|TCP port. Default `445`.
+|Share|Share name, without a leading slash.
+|Folder in the share|Optional folder. Every path on this connection stays under that folder.
+|===
+
+== Authentication
+
+[options="header"]
+|===
+|Option|Description
+|NTLM|Username, password, and an optional NetBIOS domain. This is NTLMv2. A username of `DOMAIN\user` is split when Domain is empty. `user@dns.domain` is not parsed: put the domain in Domain and the sAMAccountName in Username.
+|GUEST|Ignores username and password. Current Windows has guest SMB2 access off by default.
+|===
+
+Kerberos is not available in this version.
+The connection type is the place it will be added.
+
+The password is stored with Hop's password encoder.
+A variable such as `${SMB_PASSWORD}` is resolved at runtime.
+
+== Security
+
+[options="header"]
+|===
+|Option|Description
+|Minimum SMB version|Lowest dialect to offer. The client never goes above SMB 3.1.1 and never offers SMB1.
+|Require SMB signing|Refuse a server that does not sign. When this is off, the client still signs if the server requires it.
+|Encrypt session|Require SMB3 encryption.
+|Follow DFS referrals|Follow Distributed File System referrals. Leave off unless the share is a DFS root.
+|Call timeout|Read, write, and transact timeout in seconds. Default 60.
+|Socket timeout|How long a socket read may block, in seconds. Default 60.
+|===
